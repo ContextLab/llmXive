@@ -2814,3 +2814,939 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-22T09:45:25Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties CSV contains 20 specific elements with Pyykko 1988
+    data
+  claim_id: c_f061aae5
+  context: Task T006 requires creating a CSV file with fixed periodic table data for
+    elements likely found in Heusler alloys, including columns for electronegativity,
+    atomic radii, and valence electrons.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:50:32Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation strategy switches at 15% missing rate threshold
+  claim_id: c_12123a74
+  context: Task T015 describes a test logic that asserts mean imputation is used for
+    missing rates up to 0.14 and listwise deletion for rates of 0.16, validating Spec
+    FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing rate > 0.15: assert listwise_deletion else: assert mean_imputation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:50:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Scarcity warning triggered when data count is less than 50
+  claim_id: c_bcf66303
+  context: Task T028b-2 defines a logic to write a scarcity warning flag if the number
+    of rows N in the processed dataset is less than 50.
+  evidence:
+    entailment_evidence: Scarcity warning triggered when data count is less than 50
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scarcity_warning_triggered_when_data_count_is_less_than_50
+  kind: magnitude
+  raw_text: 'If N < 50, write data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  resolved_value: Scarcity warning triggered when data count is less than 50
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T22:50:35Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Model evaluation logs specific message if R-squared is less than 0.6
+  claim_id: c_b6c36798
+  context: Task T049 describes the final evaluator logic which treats an R-squared
+    value below 0.6 as a specific log message rather than a failure state.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_evaluation_logs_specific_message_if_R-squared_is_less
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.6, log 'Consistent with Physical Reality' and proceed (NO\
+    \ FAIL state)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:50:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping validation requires at least 1000 resamples
+  claim_id: c_bff53293
+  context: Task T059 implements a runtime check to ensure the number of resamples
+    for bootstrapping is at least 1000 to ensure robust confidence interval estimation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_validation_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: If n_resamples < 1000, raise a ValueError with the message 'Bootstrapping
+    requires at least 1000 resamples for robust CI estimation.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:51:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Descriptor robustness check perturbs features by 5 percent
+  claim_id: c_afcb03bd
+  context: Task T064 outlines a sensitivity analysis where each of the 5 descriptors
+    is perturbed by 5% to test model stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perturb each descriptor by \xB15% and re-run the model training to observe\
+    \ stability in R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:51:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template includes Co2MnGa with 150 Oe coercivity and 80
+    emu/g saturation
+  claim_id: c_bdc095db
+  context: Task T057 provides exact example data for the manual curation template,
+    including specific hysteresis values for Co2MnGa.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co2MnGa,150,80,Manual,Arc Melting
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:51:54Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template includes NiMnSn with 150 Oe coercivity and 80
+    emu/g saturation
+  claim_id: c_e3ee7976
+  context: Task T057 provides exact example data for the manual curation template,
+    including specific hysteresis values for NiMnSn.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NiMnSn,150,80,Manual,Sputtering
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:52:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template includes Co2FeAl with 200 Oe coercivity and 90
+    emu/g saturation
+  claim_id: c_75b8cd06
+  context: Task T057 provides exact example data for the manual curation template,
+    including specific hysteresis values for Co2FeAl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co2FeAl,200,90,Manual,Evaporation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:52:30Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template includes FeMnAl with 200 Oe coercivity and 90
+    emu/g saturation
+  claim_id: c_48dfd44a
+  context: Task T057 provides exact example data for the manual curation template,
+    including specific hysteresis values for FeMnAl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FeMnAl,200,90,Manual,Arc Melting
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:53:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template includes Co2MnSi with 180 Oe coercivity and 85
+    emu/g saturation
+  claim_id: c_cf739de1
+  context: Task T057 provides exact example data for the manual curation template,
+    including specific hysteresis values for Co2MnSi.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co2MnSi,180,85,Manual,Sputtering
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:53:50Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI workflow enforces 7GB RAM and 360 minute timeout constraints
+  claim_id: c_45986a59
+  context: Task T004a specifies the resource constraints for the CPU-only CI workflow.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must enforce \u22647GB RAM and \u2264360 minutes (6h) timeout."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:53:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: Data scarcity warning triggered if sample size N is less than 50
+  claim_id: c_c7b08d66
+  context: 'T028b-2 Scarcity Check - Write Flag ... If N < 50, write data/.scarcity_warning
+    with content {"n": N, "threshold": 50}.'
+  evidence:
+    entailment_evidence: Scarcity warning triggered when data count is less than 50
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scarcity_warning_triggered_when_data_count_is_less_than_50
+  kind: magnitude
+  raw_text: 'If N < 50, write data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  resolved_value: Scarcity warning triggered when data count is less than 50
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T22:54:52Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties for 20 elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn,
+    In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta) sourced from Pyykko 1988
+  claim_id: c_9a7ab6a5
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys ... Source: Pyykko and standard
+    references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data). ... Mn,1.55,127,7,Pyykko 1988 ... Ta,1.50,146,5,Pyykko
+    1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:55:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping confidence interval requires minimum 1000 resamples
+  claim_id: c_101c812d
+  context: T059 Bootstrapping Resample Count Verification ... If n_resamples < 1000,
+    raise a ValueError with the message "Bootstrapping requires at least 1000 resamples
+    for robust CI estimation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_confidence_interval_requires_minimum_1000_resa
+  kind: magnitude
+  raw_text: Bootstrapping requires at least 1000 resamples for robust CI estimation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:55:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Exploratory benchmark R-squared threshold of 0.6 is not a hard gate for
+    pipeline failure
+  claim_id: c_ed08d0f4
+  context: "T049 Final Evaluator ... If R\xB2 < 0.6, log 'Consistent with Physical\
+    \ Reality' and proceed (NO FAIL state)."
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "If R\xB2 < 0.6, log 'Consistent with Physical Reality' and proceed (NO\
+    \ FAIL state)."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T22:55:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual data curation template includes 5 example rows with specific Heusler
+    alloy compositions and hysteresis values
+  claim_id: c_6d0b9809
+  context: 'T057 Manual Data Curation Template ... Exact Data: composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method
+    ... Co2MnGa,150,80,Manual,Arc Melting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows ... Co2MnGa,150,80,Manual,Arc
+    Melting ... Co2MnSi,180,85,Manual,Sputtering
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:55:37Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv contains 20 elements including Mn, Co, Fe, Ga,
+    Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta
+  claim_id: c_79a0924f
+  context: Create data/raw/elemental_properties.csv with fixed periodic table data
+    for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn,
+    In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb,
+    Ta) including columns...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file data/raw/elemental_properties.csv must contain rows for Mn, Co,
+    Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, and Ta.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:56:24Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv lists Mn electronegativity 1.55, Co 1.88, Fe
+    1.83
+  claim_id: c_3a218069
+  context: 'Content: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data). Mn,1.55,127,7,Pyykko 1988...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The elemental_properties.csv file lists the electronegativity of Mn as
+    1.55, Co as 1.88, and Fe as 1.83.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:56:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv lists Mn atomic radii 127, Co 125, Fe 126
+  claim_id: c_682b115b
+  context: 'Content: The file MUST contain the following exact rows... Mn,1.55,127,7,Pyykko
+    1988...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The elemental_properties.csv file lists the atomic radii of Mn as 127,
+    Co as 125, and Fe as 126.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:57:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv lists Mn valence electrons 7, Co 9, Fe 8
+  claim_id: c_04670553
+  context: 'Content: The file MUST contain the following exact rows... Mn,1.55,127,7,Pyykko
+    1988...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The elemental_properties.csv file lists the valence electrons of Mn as
+    7, Co as 9, and Fe as 8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:57:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: imputation switches to listwise deletion if missing rate exceeds 15 percent,
+    otherwise uses mean imputation
+  claim_id: c_f878fc72
+  context: "T024... if >15%, perform listwise deletion of rows; if \u226415%, perform\
+    \ mean imputation (column-wise mean of non-null values)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Imputation_switches_to_listwise_deletion_if_missing_rate_exc
+  kind: magnitude
+  raw_text: The imputation logic uses mean imputation if the missing rate is less
+    than or equal to 15 percent and listwise deletion if greater than 15 percent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:57:11Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: manual_curated_template.csv contains 5 example rows
+  claim_id: c_5b537a85
+  context: 'Content: Include several example rows with valid Heusler alloy compositions
+    (e.g., Co2MnGa, Ni2MnSn) and realistic hysteresis values to demonstrate the expected
+    format. Exact Data: Co2MnGa,150,80,Manual,Arc Melting...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual_curated_template.csv contains 5 example rows for Heusler alloys.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:57:13Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: bootstrapping requires at least 1000 resamples
+  claim_id: c_4845c8d4
+  context: 'Logic: If n_resamples < 1000, raise a ValueError with the message ''Bootstrapping
+    requires at least 1000 resamples for robust CI estimation.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: The bootstrapping validation requires at least 1000 resamples for robust
+    CI estimation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:57:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mn electronegativity 1.55 atomic radii 127 valence electrons 7
+  claim_id: c_33c0255b
+  context: The CSV data block provided in T006 lists specific values for Manganese.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mn has an electronegativity of 1.55, atomic radii of 127, and 7 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:59:40Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co electronegativity 1.88 atomic radii 125 valence electrons 9
+  claim_id: c_f7dcefb4
+  context: The CSV data block provided in T006 lists specific values for Cobalt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co has an electronegativity of 1.88, atomic radii of 125, and 9 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:59:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Fe electronegativity 1.83 atomic radii 126 valence electrons 8
+  claim_id: c_80557445
+  context: The CSV data block provided in T006 lists specific values for Iron.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fe has an electronegativity of 1.83, atomic radii of 126, and 8 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:00:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ga electronegativity 1.81 atomic radii 135 valence electrons 3
+  claim_id: c_2ff92083
+  context: The CSV data block provided in T006 lists specific values for Gallium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ga has an electronegativity of 1.81, atomic radii of 135, and 3 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:00:49Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Al electronegativity 1.61 atomic radii 143 valence electrons 3
+  claim_id: c_539e7a72
+  context: The CSV data block provided in T006 lists specific values for Aluminum.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Al has an electronegativity of 1.61, atomic radii of 143, and 3 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:00:54Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ni electronegativity 1.91 atomic radii 124 valence electrons 10
+  claim_id: c_4ea0a7cb
+  context: The CSV data block provided in T006 lists specific values for Nickel.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ni has an electronegativity of 1.91, atomic radii of 124, and 10 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:00:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cu electronegativity 1.90 atomic radii 128 valence electrons 11
+  claim_id: c_bdfbf901
+  context: The CSV data block provided in T006 lists specific values for Copper.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cu has an electronegativity of 1.90, atomic radii of 128, and 11 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:06Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sn electronegativity 1.96 atomic radii 145 valence electrons 4
+  claim_id: c_822a34ca
+  context: The CSV data block provided in T006 lists specific values for Tin.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sn has an electronegativity of 1.96, atomic radii of 145, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: In electronegativity 1.78 atomic radii 167 valence electrons 3
+  claim_id: c_1e17b0ee
+  context: The CSV data block provided in T006 lists specific values for Indium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In has an electronegativity of 1.78, atomic radii of 167, and 3 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ti electronegativity 1.54 atomic radii 147 valence electrons 4
+  claim_id: c_eff1900c
+  context: The CSV data block provided in T006 lists specific values for Titanium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ti has an electronegativity of 1.54, atomic radii of 147, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: V electronegativity 1.63 atomic radii 134 valence electrons 5
+  claim_id: c_812c1c73
+  context: The CSV data block provided in T006 lists specific values for Vanadium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: V has an electronegativity of 1.63, atomic radii of 134, and 5 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:40Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Zn electronegativity 1.65 atomic radii 134 valence electrons 12
+  claim_id: c_a05a4304
+  context: The CSV data block provided in T006 lists specific values for Zinc.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zn has an electronegativity of 1.65, atomic radii of 134, and 12 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:01:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Si electronegativity 1.90 atomic radii 111 valence electrons 4
+  claim_id: c_f7cc9faa
+  context: The CSV data block provided in T006 lists specific values for Silicon.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Tetrahedral coordination is a major structural motif in silicon chemistry\
+        \ just as it is for carbon chemistry. However, the 3p subshell is rather more\
+        \ diffuse than the 2p subshell and does not hybridise so well with the 3s\
+        \ subshell. As a result, the chemistry of silicon and its heavier congeners\
+        \ shows significant differences from that of carbon, and thus octahedral coordination\
+        \ is also significant. For example, the electronegativity of silicon (1.90)\
+        \ is much less than that of carbon (2.55), because the valence electrons of\
+        \ silicon are further from the nucleus than those of carbon and hence experience\
+        \ smaller electrostatic forces of attraction from the nucleus. The poor overlap\
+        \ of 3p orbitals also results in a much lower tendency toward catenation (formation\
+        \ of Si\u2013Si bonds) for silicon than for carbon, due to the concomitant\
+        \ weakening of the Si\u2013Si bond compared to the C\u2013C bond: the average\
+        \ Si\u2013Si bond energy is approximately 226 kJ/mol, compared to a value\
+        \ of 356 kJ/mol for the C\u2013C bond. This results in multiply bonded silicon\
+        \ compounds generally being much less stable than their carbon counterparts,\
+        \ an example of the double bond rule. On the other hand, the presence of radial\
+        \ nodes in the 3p orbitals of silicon suggests the possibility of hypervalence,\
+        \ as seen in five and six-coordinate derivatives of silicon such as SiX\u2212\
+        5 and SiF2\u22126. Lastly, because of the increasing energy gap between the\
+        \ valence s and p orbitals as the group is descended, the divalent state grows\
+        \ in importance from carbon to lead, so that a few unstable divalent compounds\
+        \ are known for silicon; this lowering of the main oxidation state, in tandem\
+        \ with increasing atomic radii, results in an increase of metallic character\
+        \ down the group. Silicon already shows some incipient metallic behavior,\
+        \ particularly in the behavior of its oxide compounds and its reaction with\
+        \ acids as well as bases (though this takes some effort), and is hence often\
+        \ referred to as a metalloid rather than a nonmetal. Germanium shows more,\
+        \ and tin is generally considered a metal."
+      source_id: Silicon
+      url: https://en.wikipedia.org/wiki/Silicon
+      value: '1.90'
+    filled: true
+  kind: numeric
+  raw_text: Si has an electronegativity of 1.90, atomic radii of 111, and 4 valence
+    electrons.
+  resolved_value: '1.90'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T23:01:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ge electronegativity 2.01 atomic radii 122 valence electrons 4
+  claim_id: c_7634cc9f
+  context: The CSV data block provided in T006 lists specific values for Germanium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ge has an electronegativity of 2.01, atomic radii of 122, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:02:25Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sb electronegativity 2.05 atomic radii 140 valence electrons 5
+  claim_id: c_f44238e0
+  context: The CSV data block provided in T006 lists specific values for Antimony.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sb has an electronegativity of 2.05, atomic radii of 140, and 5 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:02:32Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pb electronegativity 2.33 atomic radii 175 valence electrons 4
+  claim_id: c_412c23f2
+  context: The CSV data block provided in T006 lists specific values for Lead.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pb has an electronegativity of 2.33, atomic radii of 175, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:02:39Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mg electronegativity 1.31 atomic radii 160 valence electrons 2
+  claim_id: c_5d65f56e
+  context: The CSV data block provided in T006 lists specific values for Magnesium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mg has an electronegativity of 1.31, atomic radii of 160, and 2 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:02:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cr electronegativity 1.66 atomic radii 128 valence electrons 6
+  claim_id: c_ad0f4b61
+  context: The CSV data block provided in T006 lists specific values for Chromium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cr has an electronegativity of 1.66, atomic radii of 128, and 6 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:02:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Nb electronegativity 1.60 atomic radii 146 valence electrons 5
+  claim_id: c_504bdcbe
+  context: The CSV data block provided in T006 lists specific values for Niobium.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nb has an electronegativity of 1.60, atomic radii of 146, and 5 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:03:06Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ta electronegativity 1.50 atomic radii 146 valence electrons 5
+  claim_id: c_296f8ec6
+  context: The CSV data block provided in T006 lists specific values for Tantalum.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ta has an electronegativity of 1.50, atomic radii of 146, and 5 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:03:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: citation validation requires Jaccard similarity threshold of 0.7
+  claim_id: c_0db6287a
+  context: Task T005b defines the algorithm for verifying fetched citations against
+    primary sources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T005b requires a title-overlap check threshold of \u2265 0.7 using Jaccard\
+    \ similarity on tokenized titles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:03:21Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: scarcity warning threshold is 50 rows
+  claim_id: c_6b6a8eb2
+  context: Task T028b-2 defines the logic for writing a scarcity warning flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T028b-2 triggers a scarcity warning if N < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:04:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: small N context defined as less than 50
+  claim_id: c_7a2de5de
+  context: Task T024b provides the rationale for the imputation strategy.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_N_context_defined_as_less_than_50
+  kind: magnitude
+  raw_text: T024b states the small N context is N < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:06:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2MnGa example data coercivity 150 saturation 80
+  claim_id: c_5bf8e613
+  context: The CSV block in T057 provides specific values for the Co2MnGa example.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example Co2MnGa row has coercivity 150 and saturation magnetization
+    80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:06:49Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: NiMnSn example data coercivity 150 saturation 80
+  claim_id: c_f7c481b2
+  context: The CSV block in T057 provides specific values for the NiMnSn example.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example NiMnSn row has coercivity 150 and saturation magnetization
+    80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:07:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2FeAl example data coercivity 200 saturation 90
+  claim_id: c_28a9da1b
+  context: The CSV block in T057 provides specific values for the Co2FeAl example.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example Co2FeAl row has coercivity 200 and saturation magnetization
+    90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:07:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: FeMnAl example data coercivity 200 saturation 90
+  claim_id: c_93e550ed
+  context: The CSV block in T057 provides specific values for the FeMnAl example.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example FeMnAl row has coercivity 200 and saturation magnetization
+    90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:08:17Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co2MnSi example data coercivity 180 saturation 85
+  claim_id: c_e6b88ce0
+  context: The CSV block in T057 provides specific values for the Co2MnSi example.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example Co2MnSi row has coercivity 180 and saturation magnetization
+    85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:08:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI memory limit is 7 GB
+  claim_id: c_c40822d1
+  context: Task T004b implements the resource limit check logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T004b enforces a memory limit of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T23:09:14Z'

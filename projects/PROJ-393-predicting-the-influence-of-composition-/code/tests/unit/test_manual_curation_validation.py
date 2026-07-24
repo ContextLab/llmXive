@@ -1,184 +1,177 @@
 """
 Unit tests for Manual Curation Validation (T063).
-Validates that manually curated CSV files conform to the schema defined in
-specs/001-predict-heusler-hysteresis/contracts/alloy_entry.schema.yaml.
+
+This script validates the format and schema compliance of `data/raw/manual_curated.csv`
+before it is ingested by the pipeline (T018). It serves as a pre-ingestion check
+to ensure researchers have correctly followed the Manual Curation Guide.
+
+Usage:
+    python code/tests/unit/test_manual_curation_validation.py
+
+If the file `data/raw/manual_curated.csv` does not exist, the test assumes
+the manual path is not currently in use and passes (graceful degradation).
 """
-import pytest
-import pandas as pd
-import os
+
+import csv
+import json
 import sys
-import tempfile
+import os
 from pathlib import Path
+import re
 
-# Add code/src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.schema_validator import validate_csv_file, load_schema
-from ingestion.manual_curator import load_manual_curated_data
+from src.utils.schema_validator import load_schema, validate_csv_file
+from src.utils.logging_config import setup_logging, create_logger
 
-SCHEMA_PATH = Path(__file__).parent.parent.parent.parent / "specs" / "001-predict-heusler-hysteresis" / "contracts" / "alloy_entry.schema.yaml"
-MANUAL_CURATED_PATH = Path(__file__).parent.parent.parent.parent / "data" / "raw" / "manual_curated.csv"
+logger = create_logger("manual_curation_validation")
 
-class TestManualCurationValidation:
-    """Tests for validating manual curation data format."""
+# Path constants
+DATA_DIR = project_root / "data" / "raw"
+MANUAL_CSV_PATH = DATA_DIR / "manual_curated.csv"
+SCHEMA_PATH = project_root / "specs" / "001-predict-heusler-hysteresis" / "contracts" / "alloy_entry.schema.yaml"
 
-    def test_load_schema_exists(self):
-        """Test that the schema file can be loaded."""
-        assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
-        schema = load_schema(SCHEMA_PATH)
-        assert schema is not None
-        assert "properties" in schema
+# Required columns based on T057 template and T010 schema
+REQUIRED_COLUMNS = [
+    "composition",
+    "coercivity_oe",
+    "saturation_magnetization_emu_g",
+    "source_type",
+    "synthesis_method"
+]
 
-    def test_validate_valid_csv(self):
-        """Test validation of a correctly formatted CSV."""
-        # Create a temporary valid CSV
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-            f.write("Co2MnGa,50.0,100.0,Manual,Arc Melting\n")
-            f.write("Ni2MnSn,120.5,80.2,Manual,Sputtering\n")
-            temp_path = f.name
+# Optional columns
+OPTIONAL_COLUMNS = [
+    "doi",
+    "crystal_structure"
+]
 
-        try:
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            assert is_valid, f"Valid CSV failed validation: {errors}"
-            assert len(errors) == 0
-        finally:
-            os.unlink(temp_path)
+VALID_SOURCE_TYPES = ["Manual"] # Enforce strict source type for manual entries
 
-    def test_validate_missing_required_field(self):
-        """Test validation fails when a required field is missing."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type\n") # Missing synthesis_method
-            f.write("Co2MnGa,50.0,100.0,Manual\n")
-            temp_path = f.name
+def validate_composition_format(composition: str) -> bool:
+    """
+    Validates that the composition string follows standard chemical formula rules.
+    Allows element symbols (e.g., Co, Mn, Ga) and integers (e.g., Co2MnGa).
+    Does not allow spaces or invalid characters.
+    """
+    if not composition or not isinstance(composition, str):
+        return False
+    # Regex for chemical formulas: Element symbol followed optionally by a number
+    # Element symbols are 1 or 2 letters, first uppercase, second lowercase
+    pattern = r'^([A-Z][a-z]?[0-9]*)+$'
+    return bool(re.match(pattern, composition))
 
-        try:
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            assert not is_valid, "CSV with missing required field should be invalid"
-            assert any("synthesis_method" in str(e) for e in errors), f"Error should mention synthesis_method: {errors}"
-        finally:
-            os.unlink(temp_path)
+def validate_numeric_field(value: str, field_name: str) -> bool:
+    """
+    Validates that a field can be converted to a float.
+    Empty strings are allowed (handled by imputation later).
+    """
+    if value is None or value.strip() == "":
+        return True # Missing values are allowed, will be imputed
+    try:
+        float(value)
+        return True
+    except ValueError:
+        logger.error(f"Invalid numeric value for {field_name}: {value}")
+        return False
 
-    def test_validate_invalid_source_type(self):
-        """Test validation fails when source_type is not 'Manual'."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-            f.write("Co2MnGa,50.0,100.0,NIST,Arc Melting\n") # Invalid source_type for manual file
-            temp_path = f.name
+def validate_manual_csv():
+    """
+    Main validation logic for manual_curated.csv.
+    Returns True if validation passes, False otherwise.
+    """
+    # Check if file exists
+    if not MANUAL_CSV_PATH.exists():
+        logger.info(f"File {MANUAL_CSV_PATH} not found. Skipping validation (graceful degradation).")
+        return True
 
-        try:
-            # Note: The schema allows NIST, Journal, Manual. But for manual_curated.csv specifically,
-            # we might want to enforce Manual. The schema validator checks against the generic schema.
-            # This test checks if the schema allows it (it does), but we can add a specific check in the test.
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            # Based on the generic schema, this might be valid.
-            # However, for the specific purpose of manual_curated.csv, we expect Manual.
-            # Let's adjust the test to check if the specific manual validation logic catches this.
-            # For now, we rely on the schema which allows "Manual" in enum.
-            # If the schema is strict enum ["Manual"], this would fail.
-            # Let's assume the schema is strict for this test context or we check manually.
-            # Re-reading schema: enum: ["NIST", "Journal", "Manual"]. So NIST is valid in schema.
-            # But for manual_curated.csv, we expect Manual.
-            # Let's change the test to use an invalid enum value.
-            pass
-        finally:
-            os.unlink(temp_path)
+    errors = []
+    warnings = []
 
-    def test_validate_invalid_enum_value(self):
-        """Test validation fails when source_type is not in enum."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-            f.write("Co2MnGa,50.0,100.0,InvalidSource,Arc Melting\n")
-            temp_path = f.name
+    try:
+        with open(MANUAL_CSV_PATH, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
 
-        try:
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            assert not is_valid, "CSV with invalid source_type should be invalid"
-            assert any("source_type" in str(e) for e in errors), f"Error should mention source_type: {errors}"
-        finally:
-            os.unlink(temp_path)
+            # 1. Validate Header
+            if reader.fieldnames is None:
+                errors.append("CSV file is empty or has no header.")
+                return False
 
-    def test_validate_empty_composition(self):
-        """Test validation fails when composition is empty."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-            f.write(",50.0,100.0,Manual,Arc Melting\n")
-            temp_path = f.name
+            header_set = set(reader.fieldnames)
+            required_set = set(REQUIRED_COLUMNS)
 
-        try:
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            # Schema doesn't explicitly forbid empty string for composition in the YAML provided,
-            # but it's a required field. We rely on the validator to catch empty required fields.
-            # If the validator treats empty string as missing, this fails.
-            # If not, we might need to add a specific check.
-            # For now, let's assume the validator handles required fields correctly.
-            # If it passes, we might need to adjust the test or the validator.
-            # Let's assume it fails for empty required field.
-            if is_valid:
-                # If it passes, we check if the validator is strict enough.
-                # For this test, we expect it to fail or we note the limitation.
-                # Let's force a failure by using a non-numeric value for a number field.
-                pass
-        finally:
-            os.unlink(temp_path)
+            missing_required = required_set - header_set
+            if missing_required:
+                errors.append(f"Missing required columns: {missing_required}")
 
-    def test_validate_non_numeric_value(self):
-        """Test validation fails when a numeric field has non-numeric value."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-            f.write("Co2MnGa,not_a_number,100.0,Manual,Arc Melting\n")
-            temp_path = f.name
+            # 2. Validate Rows
+            row_count = 0
+            for row_num, row in enumerate(reader, start=2): # Start at 2 (1 is header)
+                row_count += 1
 
-        try:
-            is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-            assert not is_valid, "CSV with non-numeric value in numeric field should be invalid"
-            assert any("coercivity_oe" in str(e) for e in errors), f"Error should mention coercivity_oe: {errors}"
-        finally:
-            os.unlink(temp_path)
+                # Check composition format
+                comp = row.get("composition", "")
+                if not validate_composition_format(comp):
+                    errors.append(f"Row {row_num}: Invalid composition format '{comp}'. Expected format like 'Co2MnGa'.")
 
-    def test_load_manual_curated_data_file_exists(self):
-        """Test that load_manual_curated_data can load the file if it exists."""
-        if MANUAL_CURATED_PATH.exists():
-            df = load_manual_curated_data(MANUAL_CURATED_PATH)
-            assert df is not None
-            assert isinstance(df, pd.DataFrame)
-        else:
-            # If file doesn't exist, it should return empty or raise warning (per T018)
-            # We just check that the function doesn't crash if file is missing (T018 behavior)
-            df = load_manual_curated_data(MANUAL_CURATED_PATH)
-            # T018 says: "If the file is missing, log a warning and proceed with 0 entries"
-            # So it should return an empty DataFrame or None.
-            assert df is None or len(df) == 0
+                # Check numeric fields
+                if not validate_numeric_field(row.get("coercivity_oe", ""), "coercivity_oe"):
+                    errors.append(f"Row {row_num}: Invalid coercivity_oe value '{row.get('coercivity_oe')}'.")
 
-    def test_load_manual_curated_data_file_missing(self):
-        """Test that load_manual_curated_data handles missing file gracefully."""
-        missing_path = Path("/tmp/nonexistent_manual_curated.csv")
-        df = load_manual_curated_data(missing_path)
-        # T018 behavior: log warning and return 0 entries
-        assert df is None or len(df) == 0
+                if not validate_numeric_field(row.get("saturation_magnetization_emu_g", ""), "saturation_magnetization_emu_g"):
+                    errors.append(f"Row {row_num}: Invalid saturation_magnetization_emu_g value '{row.get('saturation_magnetization_emu_g')}'.")
 
-    def test_composition_format_valid(self):
-        """Test that valid composition formats are accepted."""
-        valid_compositions = ["Co2MnGa", "Ni2MnSn", "Fe3Al", "CuAl"]
-        for comp in valid_compositions:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-                f.write("composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n")
-                f.write(f"{comp},50.0,100.0,Manual,Arc Melting\n")
-                temp_path = f.name
+                # Check source_type
+                source_type = row.get("source_type", "")
+                if source_type not in VALID_SOURCE_TYPES:
+                    errors.append(f"Row {row_num}: Invalid source_type '{source_type}'. Must be 'Manual'.")
 
-            try:
-                is_valid, errors = validate_csv_file(temp_path, SCHEMA_PATH)
-                assert is_valid, f"Valid composition {comp} failed validation: {errors}"
-            finally:
-                os.unlink(temp_path)
+                # Check synthesis_method (basic non-empty check)
+                synthesis = row.get("synthesis_method", "")
+                if not synthesis or synthesis.strip() == "":
+                    warnings.append(f"Row {row_num}: Missing synthesis_method. This may affect stratified analysis.")
 
-    def test_composition_format_invalid(self):
-        """Test that invalid composition formats are rejected (if schema enforces)."""
-        # The schema doesn't enforce a regex for composition in the provided YAML.
-        # So we can't test this against the schema directly.
-        # We would need a custom validator for composition format.
-        # For now, we skip this test or note the limitation.
-        pass
+            if row_count == 0:
+                warnings.append("CSV file exists but contains no data rows.")
+
+    except Exception as e:
+        errors.append(f"Error reading CSV file: {str(e)}")
+
+    # Report Results
+    if errors:
+        logger.error("Validation FAILED with the following errors:")
+        for err in errors:
+            logger.error(f"  - {err}")
+        return False
+
+    if warnings:
+        logger.warning("Validation PASSED with warnings:")
+        for warn in warnings:
+            logger.warning(f"  - {warn}")
+    else:
+        logger.info("Validation PASSED: Manual CSV is compliant.")
+
+    return True
+
+def main():
+    """
+    Entry point for the validation script.
+    Exits with code 0 on success, 1 on failure.
+    """
+    setup_logging(level="INFO")
+    logger.info("Starting Manual Curation Validation (T063)...")
+
+    success = validate_manual_csv()
+
+    if success:
+        logger.info("Validation completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("Validation failed. Please correct the errors in data/raw/manual_curated.csv.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    main()

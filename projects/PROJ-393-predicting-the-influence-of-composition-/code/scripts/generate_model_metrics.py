@@ -1,193 +1,167 @@
 """
-Script to generate model_metrics.json by evaluating trained models.
-
-This script loads the trained models from code/models/, evaluates them on the
-test set, computes R², MAE, RMSE, and CV scores, and writes the results
-to data/processed/model_metrics.json.
-
-Dependency: T035 (Training Pipeline) must have completed successfully.
+Script to generate model_metrics.json by loading trained models and evaluating them.
+This script implements task T037.
 """
-
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
+
 import pandas as pd
 import numpy as np
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import joblib
 
-# Add the code directory to the path for imports
-code_root = Path(__file__).resolve().parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add project root to path if necessary
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.utils.logging_config import setup_logging, create_logger
 from src.models.linear_regressor import load_features_data, prepare_data
-from src.models.random_forest_regressor import load_features_data as rf_load_features_data
-from src.utils.logging_config import setup_logging, create_logger
+from src.models.random_forest_regressor import load_features_data as load_rf_data
 
-# Constants
-MODELS_DIR = code_root / "models"
-DATA_DIR = code_root / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-OUTPUT_FILE = PROCESSED_DIR / "model_metrics.json"
-FEATURES_FILE = PROCESSED_DIR / "alloys_features.csv"
+# Setup logging
+logger = setup_logging(level=logging.INFO)
 
-logger = create_logger(__name__)
-
-
-def load_model_metrics(model_path: Path, model_type: str) -> Optional[Dict[str, Any]]:
-    """
-    Load a trained model and compute metrics.
-
-    Args:
-        model_path: Path to the saved model file (.joblib)
-        model_type: Type of model ('linear' or 'rf')
-
-    Returns:
-        Dictionary containing model metrics or None if loading fails
-    """
+def load_model_metrics(model_path: Path) -> Optional[Any]:
+    """Load a trained model from disk."""
     if not model_path.exists():
-        logger.error(f"Model file not found: {model_path}")
+        logger.warning(f"Model file not found: {model_path}")
         return None
-
     try:
         model = joblib.load(model_path)
-        logger.info(f"Successfully loaded model: {model_path.name}")
+        return model
     except Exception as e:
-        logger.error(f"Failed to load model {model_path}: {e}")
+        logger.error(f"Failed to load model from {model_path}: {e}")
         return None
 
-    # Load features data
-    if not FEATURES_FILE.exists():
-        logger.error(f"Features file not found: {FEATURES_FILE}")
-        return None
-
-    try:
-        if model_type == 'linear':
-            X, y = load_features_data(FEATURES_FILE)
-        else:
-            X, y = rf_load_features_data(FEATURES_FILE)
-    except Exception as e:
-        logger.error(f"Failed to load features data: {e}")
-        return None
-
-    if len(X) == 0:
-        logger.error("Features data is empty. Cannot compute metrics.")
-        return None
-
-    # Compute metrics
-    # For simplicity, we'll compute metrics on the full dataset
-    # In a real scenario, we would use a held-out test set
-    y_pred = model.predict(X)
-
-    r2 = model.score(X, y)
-    mae = np.mean(np.abs(y - y_pred))
-    rmse = np.sqrt(np.mean((y - y_pred) ** 2))
-
-    # CV score (placeholder - in T035, cross-validation was performed)
-    # We'll set this to None as the CV score is stored in the model's history
-    cv_score = None
-
-    # Try to extract CV score from model history if available
-    if hasattr(model, 'history') and 'cv_score' in model.history:
-        cv_score = model.history['cv_score']
-    elif hasattr(model, 'best_score_'):
-        cv_score = model.best_score_
-
-    return {
-        'model_type': model_type,
-        'r2': float(r2),
-        'mae': float(mae),
-        'rmse': float(rmse),
-        'cv_score': float(cv_score) if cv_score is not None else None
-    }
-
-
-def aggregate_metrics(linear_metrics: Optional[Dict], rf_metrics: Optional[Dict]) -> Dict[str, Any]:
+def aggregate_metrics(
+    linear_model: Any,
+    rf_model: Any,
+    features_path: Path,
+    target_col: str = "coercivity_oe"
+) -> Dict[str, Any]:
     """
-    Aggregate metrics from both models into a single report.
-
-    Args:
-        linear_metrics: Metrics from the linear model
-        rf_metrics: Metrics from the random forest model
-
-    Returns:
-        Aggregated metrics dictionary
+    Evaluate models and compute metrics.
+    Returns a dictionary with R2, MAE, RMSE, and CV scores.
     """
-    result = {
-        'generated_at': pd.Timestamp.now().isoformat(),
-        'data_file': str(FEATURES_FILE),
-        'models': {}
-    }
-
-    if linear_metrics:
-        result['models']['LinearRegression'] = linear_metrics
+    if features_path.exists():
+        df = pd.read_csv(features_path)
     else:
-        result['models']['LinearRegression'] = {'status': 'failed', 'reason': 'Model not loaded or metrics computation failed'}
+        # Fallback: try to load from raw features if processed file missing
+        # This should ideally not happen if pipeline runs correctly
+        logger.error(f"Features file not found: {features_path}")
+        raise FileNotFoundError(f"Features file not found: {features_path}")
 
-    if rf_metrics:
-        result['models']['RandomForest'] = rf_metrics
+    # Prepare data using the shared utility
+    # We need to identify feature columns (exclude composition, target, metadata)
+    exclude_cols = ["composition", "coercivity_oe", "saturation_magnetization_emu_g", "source_type", "synthesis_method"]
+    feature_cols = [c for c in df.columns if c not in exclude_cols]
+
+    if not feature_cols:
+        raise ValueError("No feature columns found in the dataset.")
+
+    X = df[feature_cols].fillna(0) # Handle any remaining NaNs
+    y = df[target_col].fillna(0)
+
+    results = {}
+
+    # Evaluate Linear Regression
+    if linear_model:
+        try:
+            y_pred_lin = linear_model.predict(X)
+            r2_lin = r2_score(y, y_pred_lin)
+            mae_lin = mean_absolute_error(y, y_pred_lin)
+            rmse_lin = np.sqrt(mean_squared_error(y, y_pred_lin))
+            # CV score is usually stored in the model's best_score_ if GridSearchCV was used
+            cv_lin = getattr(linear_model, 'best_score_', None)
+            if cv_lin is None and hasattr(linear_model, 'cv_results_'):
+                cv_lin = max([r['mean_test_score'] for r in linear_model.cv_results_['params']])
+            
+            results["LinearRegression"] = {
+                "r2": float(r2_lin),
+                "mae": float(mae_lin),
+                "rmse": float(rmse_lin),
+                "cv_score": float(cv_lin) if cv_lin is not None else None
+            }
+        except Exception as e:
+            logger.error(f"Error evaluating Linear Regression: {e}")
+            results["LinearRegression"] = {"error": str(e)}
     else:
-        result['models']['RandomForest'] = {'status': 'failed', 'reason': 'Model not loaded or metrics computation failed'}
+        results["LinearRegression"] = {"error": "Model not loaded"}
 
-    # Overall summary
-    result['summary'] = {
-        'total_models_evaluated': len([m for m in result['models'].values() if isinstance(m, dict) and 'status' not in m]),
-        'successful_evaluations': len([m for m in result['models'].values() if isinstance(m, dict) and 'status' not in m]),
-        'failed_evaluations': len([m for m in result['models'].values() if isinstance(m, dict) and 'status' in m])
-    }
+    # Evaluate Random Forest
+    if rf_model:
+        try:
+            y_pred_rf = rf_model.predict(X)
+            r2_rf = r2_score(y, y_pred_rf)
+            mae_rf = mean_absolute_error(y, y_pred_rf)
+            rmse_rf = np.sqrt(mean_squared_error(y, y_pred_rf))
+            cv_rf = getattr(rf_model, 'best_score_', None)
+            if cv_rf is None and hasattr(rf_model, 'cv_results_'):
+                cv_rf = max([r['mean_test_score'] for r in rf_model.cv_results_['params']])
 
-    return result
+            results["RandomForest"] = {
+                "r2": float(r2_rf),
+                "mae": float(mae_rf),
+                "rmse": float(rmse_rf),
+                "cv_score": float(cv_rf) if cv_rf is not None else None
+            }
+        except Exception as e:
+            logger.error(f"Error evaluating Random Forest: {e}")
+            results["RandomForest"] = {"error": str(e)}
+    else:
+        results["RandomForest"] = {"error": "Model not loaded"}
 
+    return results
 
 def main():
-    """
-    Main entry point for the model metrics generation script.
-    """
-    setup_logging(level=logging.INFO)
-
-    logger.info("Starting model metrics generation...")
+    """Main entry point for generating model metrics."""
+    # Define paths relative to project root
+    models_dir = project_root / "code" / "models"
+    features_path = project_root / "data" / "processed" / "alloys_features.csv"
+    output_path = project_root / "data" / "processed" / "model_metrics.json"
 
     # Ensure output directory exists
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Check if features file exists
-    if not FEATURES_FILE.exists():
-        logger.error(f"Features file not found: {FEATURES_FILE}")
-        logger.error("Please run the feature engineering pipeline (T032) first.")
-        sys.exit(1)
+    logger.info("Starting model metrics generation (T037)...")
 
-    # Check if models directory exists and contains models
-    if not MODELS_DIR.exists():
-        logger.error(f"Models directory not found: {MODELS_DIR}")
-        logger.error("Please run the training pipeline (T035) first.")
-        sys.exit(1)
+    # Load models
+    linear_model_path = models_dir / "linear_regression_model.joblib"
+    rf_model_path = models_dir / "random_forest_model.joblib"
 
-    # Find model files
-    linear_model_path = MODELS_DIR / "linear_regression_model.joblib"
-    rf_model_path = MODELS_DIR / "random_forest_model.joblib"
+    linear_model = load_model_metrics(linear_model_path)
+    rf_model = load_model_metrics(rf_model_path)
 
-    # Load and compute metrics for both models
-    linear_metrics = load_model_metrics(linear_model_path, 'linear')
-    rf_metrics = load_model_metrics(rf_model_path, 'rf')
+    if not linear_model and not rf_model:
+        logger.error("No models found to evaluate. Exiting.")
+        # Write a failure report
+        with open(output_path, 'w') as f:
+            json.dump({"error": "No models found", "models_checked": [str(linear_model_path), str(rf_model_path)]}, f, indent=2)
+        return
 
-    # Aggregate results
-    aggregated = aggregate_metrics(linear_metrics, rf_metrics)
-
-    # Write to JSON file
+    # Load features and compute metrics
     try:
-        with open(OUTPUT_FILE, 'w') as f:
-            json.dump(aggregated, f, indent=2)
-        logger.info(f"Model metrics successfully written to: {OUTPUT_FILE}")
+        metrics = aggregate_metrics(linear_model, rf_model, features_path)
+        
+        # Write results
+        with open(output_path, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        
+        logger.info(f"Model metrics saved to {output_path}")
+        logger.info(f"Linear Regression R2: {metrics.get('LinearRegression', {}).get('r2', 'N/A')}")
+        logger.info(f"Random Forest R2: {metrics.get('RandomForest', {}).get('r2', 'N/A')}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        with open(output_path, 'w') as f:
+            json.dump({"error": "Data file missing", "details": str(e)}, f, indent=2)
     except Exception as e:
-        logger.error(f"Failed to write metrics to {OUTPUT_FILE}: {e}")
-        sys.exit(1)
-
-    logger.info("Model metrics generation completed.")
-    return 0
-
+        logger.error(f"Unexpected error during metrics generation: {e}")
+        with open(output_path, 'w') as f:
+            json.dump({"error": "Unexpected error", "details": str(e)}, f, indent=2)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

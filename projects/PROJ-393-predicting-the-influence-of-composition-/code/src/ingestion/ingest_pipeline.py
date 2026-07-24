@@ -1,106 +1,116 @@
+"""
+Ingestion Pipeline Module.
+Orchestrates fetching, parsing, and merging data from NIST, Journal, and Manual sources.
+Saves the merged result to data/raw/merged_alloys.csv.
+"""
 import logging
 import pandas as pd
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from src.ingestion.nist_fetcher import fetch_nist_data
+from src.ingestion.journal_supplement_parser import fetch_journal_data
 from src.ingestion.manual_curator import load_manual_curated_data
-# Import journal fetcher if it exists in the project, otherwise mock for safety
-try:
-    from src.ingestion.journal_supplement_parser import fetch_journal_data
-except ImportError:
-    def fetch_journal_data():
-        logger = logging.getLogger(__name__)
-        logger.warning("Journal supplement parser not found. Returning empty DataFrame.")
-        return pd.DataFrame()
-
 from src.utils.logging_config import setup_logging, create_logger
-from src.utils.checksums import calculate_file_sha256
 import sys
 
-project_root = Path(__file__).resolve().parent.parent.parent
+# Ensure project root is in path
+project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 logger = create_logger(__name__)
-OUTPUT_DIR = project_root / "data" / "raw"
-MERGED_OUTPUT = OUTPUT_DIR / "merged_sources.csv"
+RAW_DATA_PATH = project_root / "data" / "raw"
+MERGED_OUTPUT_PATH = RAW_DATA_PATH / "merged_alloys.csv"
 
-def load_sources() -> Dict[str, pd.DataFrame]:
-    """Load data from all configured sources."""
-    sources = {}
+def load_sources() -> List[pd.DataFrame]:
+    """
+    Load data from all configured sources.
+    Returns a list of DataFrames.
+    """
+    sources = []
     
     # 1. NIST
     logger.info("Fetching NIST data...")
     nist_df = fetch_nist_data()
     if nist_df is not None and not nist_df.empty:
-        nist_df['source_type'] = 'NIST'
-        sources['NIST'] = nist_df
-        logger.info(f"NIST data loaded: {len(nist_df)} rows")
+        sources.append(nist_df)
+        logger.info(f"NIST source contributed {len(nist_df)} rows.")
     else:
-        logger.warning("NIST data empty or failed.")
+        logger.warning("NIST source returned no data.")
     
     # 2. Journal
     logger.info("Fetching Journal data...")
     journal_df = fetch_journal_data()
     if journal_df is not None and not journal_df.empty:
-        journal_df['source_type'] = 'Journal'
-        sources['Journal'] = journal_df
-        logger.info(f"Journal data loaded: {len(journal_df)} rows")
+        sources.append(journal_df)
+        logger.info(f"Journal source contributed {len(journal_df)} rows.")
     else:
-        logger.warning("Journal data empty or failed.")
+        logger.warning("Journal source returned no data.")
     
     # 3. Manual
     logger.info("Loading Manual data...")
     manual_df = load_manual_curated_data()
     if manual_df is not None and not manual_df.empty:
-        manual_df['source_type'] = 'Manual'
-        sources['Manual'] = manual_df
-        logger.info(f"Manual data loaded: {len(manual_df)} rows")
+        sources.append(manual_df)
+        logger.info(f"Manual source contributed {len(manual_df)} rows.")
     else:
-        logger.warning("Manual data empty or failed.")
+        logger.warning("Manual source returned no data.")
     
     return sources
 
-def merge_and_save(sources: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Merge all source DataFrames and save to merged_sources.csv."""
+def merge_and_save(sources: List[pd.DataFrame]) -> pd.DataFrame:
+    """
+    Merge source DataFrames and save to disk.
+    """
     if not sources:
-        logger.warning("No sources provided. Creating empty merged file.")
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        empty_df = pd.DataFrame()
-        empty_df.to_csv(MERGED_OUTPUT, index=False)
+        logger.warning("No sources to merge. Creating empty merged file.")
+        empty_df = pd.DataFrame(columns=[
+            'composition', 'coercivity_oe', 'saturation_magnetization_emu_g',
+            'remanence_emu_g', 'source_type', 'synthesis_method', 'crystal_structure'
+        ])
+        empty_df.to_csv(MERGED_OUTPUT_PATH, index=False)
         return empty_df
     
-    logger.info(f"Merging {len(sources)} sources...")
-    df_list = list(sources.values())
-    merged_df = pd.concat(df_list, ignore_index=True)
+    # Concatenate
+    merged_df = pd.concat(sources, ignore_index=True)
+    
+    # Ensure standard columns exist
+    required_cols = [
+        'composition', 'coercivity_oe', 'saturation_magnetization_emu_g',
+        'remanence_emu_g', 'source_type', 'synthesis_method', 'crystal_structure'
+    ]
+    for col in required_cols:
+        if col not in merged_df.columns:
+            merged_df[col] = None
+    
+    # Reorder columns
+    merged_df = merged_df[required_cols]
     
     # Save
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    merged_df.to_csv(MERGED_OUTPUT, index=False)
-    checksum = calculate_file_sha256(MERGED_OUTPUT)
-    logger.info(f"Merged data saved to {MERGED_OUTPUT} ({len(merged_df)} rows). SHA256: {checksum}")
+    RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(MERGED_OUTPUT_PATH, index=False)
+    logger.info(f"Merged data saved to {MERGED_OUTPUT_PATH} with {len(merged_df)} rows.")
     
     return merged_df
 
 def run_ingestion_pipeline() -> pd.DataFrame:
-    """Orchestrate the full ingestion pipeline."""
-    logger.info("Starting Ingestion Pipeline (T026)...")
+    """
+    Execute the full ingestion pipeline.
+    """
+    logger.info("Starting Ingestion Pipeline...")
     sources = load_sources()
-    merged_df = merge_and_save(sources)
-    logger.info("Ingestion Pipeline completed.")
-    return merged_df
+    return merge_and_save(sources)
 
 def main():
+    """Entry point for the ingestion pipeline."""
     setup_logging()
-    logger.info("Ingestion Pipeline Main Entry")
     try:
-        df = run_ingestion_pipeline()
-        logger.info(f"Ingestion finished. Total rows: {len(df)}")
-        return 0
+        run_ingestion_pipeline()
+        logger.info("Ingestion pipeline completed successfully.")
     except Exception as e:
-        logger.critical(f"Ingestion pipeline failed: {e}")
-        return 1
+        logger.error(f"Ingestion pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
