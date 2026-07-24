@@ -1,7 +1,4 @@
 samples:
-- at: '2026-07-23T00:57:58.639045+00:00'
-  backlog: 183
-  wip: 561
 - at: '2026-07-23T01:48:02.623225+00:00'
   backlog: 182
   wip: 562
@@ -68,13 +65,16 @@ samples:
 - at: '2026-07-24T00:54:53.903439+00:00'
   backlog: 182
   wip: 559
+- at: '2026-07-24T01:47:44.693799+00:00'
+  backlog: 182
+  wip: 559
 last_decision:
   requested: 5
   allowed: 0
   backlog: 182
-  growth: -1
+  growth: 0
   window_hours: 24.0
   kind: auto
-  reason: damped to 0% by downstream-WIP-ceiling (idea growth=-1, wip=559, wip growth=-2,
+  reason: damped to 0% by downstream-WIP-ceiling (idea growth=0, wip=559, wip growth=-3,
     ceiling=250)
-  decided_at: '2026-07-24T00:54:53.903439+00:00'
+  decided_at: '2026-07-24T01:47:44.693799+00:00'
