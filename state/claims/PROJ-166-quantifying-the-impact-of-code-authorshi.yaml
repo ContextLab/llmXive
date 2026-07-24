@@ -1768,3 +1768,883 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T15:32:46Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: fetch target list of 600 repos via GitHub API
+  claim_id: c_92126431
+  context: 'Implement code/data/generate_target_list.py to fetch a target list of
+    600 repos via GitHub API. Query Logic: Construct query string dynamically using
+    the static variable TARGET_MIN_STARS from code/config.py (default 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/generate_target_list.py to fetch a target list of
+    600 repos via GitHub API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:06:01Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: define TARGET_MIN_STARS constant as 1000
+  claim_id: c_18ac3add
+  context: 'Implement code/config.py with paths, constants, random seeds, and NVD/GitHub
+    API configuration. CONSTANTS: Define TARGET_MIN_STARS = 1000 (static, no dynamic
+    fallback).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CONSTANTS: Define TARGET_MIN_STARS = 1000 (static, no dynamic fallback).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:06:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort if result count less than 500
+  claim_id: c_8ed636d3
+  context: 'Query Logic: Construct query string dynamically using the static variable
+    TARGET_MIN_STARS from code/config.py (default 1000). Constraint: Do NOT implement
+    dynamic fallback logic (e.g., decrementing min_stars). If the result count < 500,
+    log a CRITICAL error and abort.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_result_count_less_than_500
+  kind: magnitude
+  raw_text: If the result count < 500, log a CRITICAL error and abort.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:07:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: maximum 3 retries per query
+  claim_id: c_9e1bf909
+  context: 'Constraint: Do NOT implement dynamic fallback logic (e.g., decrementing
+    min_stars). If the result count < 500, log a CRITICAL error and abort. Max Retries:
+    3 attempts per query before failing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max Retries: 3 attempts per query before failing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:07:30Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: verify output file contains at least 500 rows
+  claim_id: c_01fd05d1
+  context: 'Output: data/raw/target_list.csv with columns url, primary_language, stars,
+    age. Verification: Assert file exists and contains >=500 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_file_contains_at_least_500_rows
+  kind: magnitude
+  raw_text: Verify the output file contains >=500 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:07:55Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: enforce shallow clone since 2015-01-01 for all repositories
+  claim_id: c_897f31b1
+  context: 'Clone Strategy: Enforce --shallow-since=2015-01-01 for ALL repositories
+    in the target list to satisfy Constitution VI and capture the required history
+    window. Do NOT perform full clones.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce --shallow-since=2015-01-01 for ALL repositories in the target
+    list to satisfy Constitution VI and capture the required history window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:08:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: pipeline processes at least 500 repos within 6 hours
+  claim_id: c_754efc86
+  context: "Implement parallel processing in code/data/extract_github.py using multiprocessing\
+    \ with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if\
+    \ RAM > 6GB). Ensure pipeline processes \u2265500 repos within 6 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_at_least_500_repos_within_6_hours
+  kind: magnitude
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:08:31Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort if RAM exceeds 6GB
+  claim_id: c_1f557ddf
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if
+    RAM > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: abort if RAM > 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:09:01Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: verify output JSON includes author_count_coefficient with 95% confidence
+    interval
+  claim_id: c_9a9a37ec
+  context: 'Independent Test: Run the analysis script on a static, pre-generated CSV
+    of a representative sample size. and verify the output JSON includes an author_count_coefficient
+    with a non-null standard error and a 95% confidence interval.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the output JSON includes an author_count_coefficient with a non-null
+    standard error and a 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:09:02Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: perform Likelihood Ratio Test comparing Poisson GLM to Negative Binomial
+    GLM
+  claim_id: c_df310f5f
+  context: 'Model Selection: Before fitting the final model, perform a Likelihood
+    Ratio Test (LRT) comparing a Poisson GLM to a Negative Binomial GLM. LRT Implementation:
+    Use statsmodels.stats.diagnostic.likelihood_ratio_test or manual calculation of
+    2 * (logLik_NB - logLik_Poisson) with scipy.stats.chi2 (df=1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Likelihood_Ratio_Test_comparing_Poisson_GLM_to_Negat
+  kind: entity_fact
+  raw_text: Perform a Likelihood Ratio Test (LRT) comparing a Poisson GLM to a Negative
+    Binomial GLM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:09:31Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: verify dispersion parameter significantly greater than 1
+  claim_id: c_9bdcd9e0
+  context: 'LRT Implementation: Use statsmodels.stats.diagnostic.likelihood_ratio_test
+    or manual calculation of 2 * (logLik_NB - logLik_Poisson) with scipy.stats.chi2
+    (df=1). Verify the dispersion parameter is significantly > 1. If not, log a warning
+    but proceed with Negative Binomial as per spec.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_dispersion_parameter_significantly_greater_than_1
+  kind: magnitude
+  raw_text: Verify the dispersion parameter is significantly > 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:09:54Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: assert at least 2 languages have more than 10 rows
+  claim_id: c_8107dfe7
+  context: 'Implement code/analysis/robustness.py (Part 1: Subsampling) to perform
+    subsampling by language: filter primary_language == ''Python'' and primary_language
+    == ''JavaScript''. Verification: Assert at least 2 languages have >10 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_at_least_2_languages_have_more_than_10_rows
+  kind: magnitude
+  raw_text: Assert at least 2 languages have >10 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:10:15Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: exclude language subsample with less than 30 rows
+  claim_id: c_076807bc
+  context: 'Implement code/analysis/robustness.py subsampling guard: Add a check in
+    T021 to verify that each language subsample has sufficient statistical power (n
+    >= 30). If a language group has < 30 rows, log a WARNING and exclude that specific
+    subsample from the final robustness_results.json with a reason insufficient_sample_size.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_language_subsample_with_less_than_30_rows
+  kind: magnitude
+  raw_text: If a language group has < 30 rows, log a WARNING and exclude that specific
+    subsample from the final robustness_results.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:11:06Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: total execution time must be less than or equal to 6 hours
+  claim_id: c_52158db7
+  context: 'Criteria: 1) Total execution time must be <= 6 hours. 2) Success rate
+    >= 95% (i.e., <= 5% of repos skipped due to errors) on the full 500+ repo dataset
+    to verify SC-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_execution_time_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Total execution time must be <= 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:11:28Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: success rate must be at least 95% on full dataset
+  claim_id: c_efa11a7a
+  context: 'Criteria: 1) Total execution time must be <= 6 hours. 2) Success rate
+    >= 95% (i.e., <= 5% of repos skipped due to errors) on the full 500+ repo dataset
+    to verify SC-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_rate_must_be_at_least_95%25_on_full_dataset
+  kind: magnitude
+  raw_text: Success rate >= 95% (i.e., <= 5% of repos skipped due to errors) on the
+    full 500+ repo dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:11:45Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: enforce hard timeout of 5.5 hours for pipeline execution
+  claim_id: c_7b7d2c58
+  context: 'Update code/config.py to enforce a hard timeout of 5.5 hours for the entire
+    pipeline execution (leaving 30 mins buffer for CI overhead). Logic: Use signal.alarm
+    (Linux) or a threading.Timer watchdog (non-Linux) to abort the process if time.time()
+    - start_time > 19800 seconds.'
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Enforce a hard timeout of 5.5 hours for the entire pipeline execution
+    (leaving 30 mins buffer for CI overhead).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T20:11:46Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort process if execution time exceeds 19800 seconds
+  claim_id: c_760586aa
+  context: 'Logic: Use signal.alarm (Linux) or a threading.Timer watchdog (non-Linux)
+    to abort the process if time.time() - start_time > 19800 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort the process if time.time() - start_time > 19800 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:11:46Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: log warning if VIF exceeds 5.0
+  claim_id: c_98917ed2
+  context: 'Implement code/analysis/fit_models.py collinearity check: Add a VIF (Variance
+    Inflation Factor) calculation step before model fitting. Logic: Calculate VIF
+    for author_count and kloc. If VIF > 5.0 for any predictor, log a WARNING and proceed
+    with the model but flag the result in model_results_raw.json with high_collinearity_warning:
+    true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5.0 for any predictor, log a WARNING and proceed with the model
+    but flag the result.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:11:46Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: handle log zero by adding epsilon 1e-9
+  claim_id: c_148aa996
+  context: 'Implement code/analysis/robustness.py (Part 2: Shannon Entropy) to calculate
+    Shannon entropy: H = -sum(p_i * ln(p_i)) where p_i = author_commits / total_commits
+    (handle log(0) by adding epsilon=1e-9).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle log(0) by adding epsilon=1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:12:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: use multiprocessing with max_workers 2
+  claim_id: c_624d3e85
+  context: Implement parallel processing in code/data/extract_github.py using multiprocessing
+    with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if
+    RAM > 6GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use multiprocessing with max_workers=2 (to match CI CPU limit).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:12:21Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: calculate lagged variables for 2015 to 2019
+  claim_id: c_2ce4ff1a
+  context: 'Implement code/analysis/robustness.py (Part 4: Lagged Variable Analysis).
+    Purpose: Address Plan.md requirement for mitigating reverse causality. Logic:
+    Calculate author_count_lag_1year (authors from 2015-2019) and cve_count_lag_1year
+    (CVEs from 2015-2019).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate author_count_lag_1year (authors from 2015-2019) and cve_count_lag_1year
+    (CVEs from 2015-2019).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:13:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: fetch target list of 600 repos via GitHub API
+  claim_id: c_bbf87cb9
+  context: 'T006 [P] Implement code/data/generate_target_list.py to fetch a target
+    list of 600 repos via GitHub API. Endpoint: . Query Logic: Construct query string
+    dynamically using the static variable TARGET_MIN_STARS from code/config.py (default
+    1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/generate_target_list.py to fetch a target list of
+    600 repos via GitHub API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:17Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort if result count < 500
+  claim_id: c_a229dc8a
+  context: 'Query Logic: Construct query string dynamically using the static variable
+    TARGET_MIN_STARS from code/config.py (default 1000). Constraint: Do NOT implement
+    dynamic fallback logic (e.g. decrementing min_stars). If the result count < 500,
+    log a CRITICAL error and abort.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the result count < 500, log a CRITICAL error and abort.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:17Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: max retries 3 attempts per query
+  claim_id: c_949e21d1
+  context: 'If the result count < 500, log a CRITICAL error and abort. Max Retries:
+    3 attempts per query before failing. Output: data/raw/target_list.csv with columns
+    url, primary_language, stars, age.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max Retries: 3 attempts per query before failing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:18Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: assert file contains >= 500 rows
+  claim_id: c_073fb3dc
+  context: 'Output: data/raw/target_list.csv with columns url, primary_language, stars,
+    age. Verification: Assert file exists and contains >=500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists and contains >=500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:51Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: enforce shallow-since 2015-01-01 for all repositories
+  claim_id: c_63c86843
+  context: 'T008 [US1] Implement code/data/extract_github.py to clone, parse, and
+    merge metrics for each repo in target_list.csv. Clone Strategy: Enforce --shallow-since=2015-01-01
+    for ALL repositories in the target list to satisfy Constitution VI and capture
+    the required history window.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce --shallow-since=2015-01-01 for ALL repositories in the target
+    list to satisfy Constitution VI and capture the required history window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:51Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: ensure pipeline processes >= 500 repos within 6 hours
+  claim_id: c_32b1a36b
+  context: "T030 [P] Implement parallel processing in code/data/extract_github.py\
+    \ using multiprocessing with max_workers=2 (to match CI CPU limit) and a memory\
+    \ limit check (abort if RAM > 6GB). Ensure pipeline processes \u2265500 repos\
+    \ within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:51Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: max_workers 2 and abort if RAM > 6GB
+  claim_id: c_356f966e
+  context: "Implement parallel processing in code/data/extract_github.py using multiprocessing\
+    \ with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if\
+    \ RAM > 6GB). Ensure pipeline processes \u2265500 repos within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_workers=2 (to match CI CPU limit) and a memory limit check (abort
+    if RAM > 6GB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:53Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: use likelihood ratio test with chi2 df 1
+  claim_id: c_4484a86b
+  context: 'Model Selection: Before fitting the final model, perform a Likelihood
+    Ratio Test (LRT) comparing a Poisson GLM to a Negative Binomial GLM. LRT Implementation:
+    Use statsmodels.stats.diagnostic.likelihood_ratio_test or manual calculation of
+    2 * (logLik_NB - logLik_Poisson) with scipy.stats.chi2 (df=1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.diagnostic.likelihood_ratio_test or manual calculation
+    of 2 * (logLik_NB - logLik_Poisson) with scipy.stats.chi2 (df=1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:58Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: verify dispersion parameter > 1
+  claim_id: c_841967ee
+  context: Use statsmodels.stats.diagnostic.likelihood_ratio_test or manual calculation
+    of 2 * (logLik_NB - logLik_Poisson) with scipy.stats.chi2 (df=1). Verify the dispersion
+    parameter is significantly > 1. If not, log a warning but proceed with Negative
+    Binomial as per spec.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dispersion parameter is significantly > 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:15:58Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: filter primary_language Python and JavaScript
+  claim_id: c_71fe089d
+  context: 'T021 [US3] Implement code/analysis/robustness.py (Part 1: Subsampling)
+    to perform subsampling by language: filter primary_language == ''Python'' and
+    primary_language == ''JavaScript''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_primary_language_Python_and_JavaScript
+  kind: entity_fact
+  raw_text: Filter primary_language == 'Python' and primary_language == 'JavaScript'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:16:07Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: assert at least 2 languages have > 10 rows
+  claim_id: c_f24e8904
+  context: 'Filter primary_language == ''Python'' and primary_language == ''JavaScript''.
+    Verification: Assert at least 2 languages have >10 rows. Re-fit GLM using the
+    same predictors as T017 (including log(kloc) as a free predictor).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/assert_at_least_2_languages_have_%3E_10_rows
+  kind: magnitude
+  raw_text: Assert at least 2 languages have >10 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:16:07Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: exclude language group if < 30 rows
+  claim_id: c_1a3c6468
+  context: 'T036 [P] [Revision] Implement code/analysis/robustness.py subsampling
+    guard: Add a check in T021 to verify that each language subsample has sufficient
+    statistical power (n >= 30). If a language group has < 30 rows, log a WARNING
+    and exclude that specific subsample from the final robustness_results.json with
+    a reason insufficient_sample_size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a language group has < 30 rows, log a WARNING and exclude that specific
+    subsample from the final robustness_results.json with a reason insufficient_sample_size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:16:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort process if time > 19800 seconds
+  claim_id: c_f815dd22
+  context: 'T037 [P] [Revision] Update code/config.py to enforce a hard timeout of
+    5.5 hours for the entire pipeline execution (leaving 30 mins buffer for CI overhead).
+    Logic: Use signal.alarm (Linux) or a threading.Timer watchdog (non-Linux) to abort
+    the process if time.time() - start_time > 19800 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use signal.alarm (Linux) or a threading.Timer watchdog (non-Linux) to
+    abort the process if time.time() - start_time > 19800 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:16:08Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: flag result if VIF > 5.0
+  claim_id: c_a7e826e3
+  context: 'T035 [P] [Revision] Implement code/analysis/fit_models.py collinearity
+    check: Add a VIF (Variance Inflation Factor) calculation step before model fitting.
+    Logic: Calculate VIF for author_count and kloc. If VIF > 5.0 for any predictor,
+    log a WARNING and proceed with the model but flag the result in model_results_raw.json
+    with high_collinearity_warning: true.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/flag_result_if_VIF_%3E_5.0
+  kind: causal
+  raw_text: 'Calculate VIF for author_count and kloc. If VIF > 5.0 for any predictor,
+    log a WARNING and proceed with the model but flag the result in model_results_raw.json
+    with high_collinearity_warning: true.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:16:09Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 0
+  canonical: enforce hard timeout of 5.5 hours for pipeline execution
+  claim_id: c_9ae1b761
+  context: Update code/config.py to enforce a **hard timeout** of 5.5 hours for the
+    entire pipeline execution (leaving 30 mins buffer for CI overhead).
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Enforce a hard timeout of 5.5 hours for the entire pipeline execution.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T20:18:25Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: fetch target list of 600 repos via GitHub API
+  claim_id: c_0181bfca
+  context: 'Implement code/data/generate_target_list.py to fetch a **target list of
+    600 repos** via GitHub API. **Endpoint**: . **Query Logic**: Construct query string
+    dynamically using the static variable TARGET_MIN_STARS from code/config.py (default
+    1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/generate_target_list.py to fetch a target list of
+    600 repos via GitHub API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:18:26Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: target list file contains at least 500 rows
+  claim_id: c_481673f1
+  context: 'Output: data/raw/target_list.csv with columns url, primary_language, stars,
+    age. **Verification**: Assert file exists and contains >=500 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_list_file_contains_at_least_500_rows
+  kind: magnitude
+  raw_text: Assert file exists and contains >=500 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:18:28Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: maximum 3 retries per query before failure
+  claim_id: c_e67bf2eb
+  context: 'Constraint: Do NOT implement dynamic fallback logic (e.g., decrementing
+    min_stars). If the result count < 500, log a CRITICAL error and abort. **Max Retries**:
+    3 attempts per query before failing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max Retries: 3 attempts per query before failing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:18:29Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: shallow clone since 2015-01-01 for all repositories
+  claim_id: c_6b8e7502
+  context: 'Clone Strategy: Enforce --shallow-since=2015-01-01 for ALL repositories
+    in the target list to satisfy Constitution VI and capture the required history
+    window. Do NOT perform full clones.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce --shallow-since=2015-01-01 for ALL repositories in the target
+    list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:18:50Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: process at least 500 repos within 6 hours
+  claim_id: c_5b7e9308
+  context: "Implement parallel processing in code/data/extract_github.py using multiprocessing\
+    \ with max_workers=2 (to match CI CPU limit) and a memory limit check (abort if\
+    \ RAM > 6GB). Ensure pipeline processes \u2265500 repos within 6 hours."
+  evidence:
+    candidates:
+    - - Create account Log in Process at least
+      - 500.0
+    - - Process at least 500 repos within
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Process_at_least_500_repos_within_6_hours
+  kind: magnitude
+  raw_text: "Ensure pipeline processes \u2265500 repos within 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-24T20:18:53Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: total execution time less than or equal to 6 hours
+  claim_id: c_b178d2e2
+  context: 'Criteria: 1) Total execution time must be <= 6 hours. 2) Success rate
+    >= 95% (i.e., <= 5% of repos skipped due to errors) on the full 500+ repo dataset
+    to verify SC-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Total execution time must be <= 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:18:55Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: success rate at least 95 percent on full 500 plus repo dataset
+  claim_id: c_c1511d97
+  context: 'Criteria: 1) Total execution time must be <= 6 hours. 2) Success rate
+    >= 95% (i.e., <= 5% of repos skipped due to errors) on the full 500+ repo dataset
+    to verify SC-001.'
+  evidence:
+    candidates:
+    - - Success rate at least 95 percent on full
+      - 500.0
+    - - Log in Success rate at least
+      - 95.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Success_rate_at_least_95_percent_on_full_500_plus_repo_datas
+  kind: magnitude
+  raw_text: Success rate >= 95% on the full 500+ repo dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-24T20:19:13Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: at least 2 languages have more than 10 rows
+  claim_id: c_aac33303
+  context: 'Verification: Assert at least 2 languages have >10 rows. **Re-fit GLM**
+    using the same predictors as T017 (including log(kloc) as a free predictor).'
+  evidence:
+    candidates:
+    - - At least 2 languages have more than
+      - 10.0
+    - - Donate Create account Log in At least
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/At_least_2_languages_have_more_than_10_rows
+  kind: magnitude
+  raw_text: Assert at least 2 languages have >10 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-24T20:19:15Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: exclude language subsample if fewer than 30 rows
+  claim_id: c_85d569c9
+  context: Add a check in T021 to verify that each language subsample has sufficient
+    statistical power (n >= 30). If a language group has < 30 rows, **log a WARNING**
+    and exclude that specific subsample from the final robustness_results.json with
+    a reason insufficient_sample_size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_language_subsample_if_fewer_than_30_rows
+  kind: magnitude
+  raw_text: If a language group has < 30 rows, log a WARNING and exclude that specific
+    subsample.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:20:02Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  attempts: 1
+  canonical: abort process if elapsed time exceeds 19800 seconds
+  claim_id: c_8f19223e
+  context: 'Logic: Use signal.alarm (Linux) or a threading.Timer watchdog (non-Linux)
+    to abort the process if time.time() - start_time > 19800 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort the process if time.time() - start_time > 19800 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:20:02Z'

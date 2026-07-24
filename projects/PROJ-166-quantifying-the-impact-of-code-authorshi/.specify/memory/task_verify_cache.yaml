@@ -4,12 +4,6 @@ T005:
   r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
     \ any schema files under a `contracts/` folder is present. The implementer\u2019\
     s claim cannot be verified because the necessary artifacts are missing."
-T005a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `spec.md` file or excerpt is presented; without the actual document
-    we cannot confirm that the required amendment (allowing `log(kloc)` as a free
-    predictor and adding the specified note) was made. The necessary artifact is missing.
 T007:
   c: false
   h: ee3c614ed36bbf25996d7299290b01e244c459e3888e4c8be887f1eda34feadb
@@ -49,3 +43,20 @@ T022:
     \ and does not compute Shannon entropy, re\u2011fit a GLM with entropy as predictor,\
     \ or compute/report the coefficient difference. Moreover, the required output\
     \ file `data/processed/robustness_entropy_pvalues.csv` is absent."
+T034:
+  c: false
+  h: 1327b9fe6efa695ca8d5060910bd618eeecb14492834af9a972198e6cac59c31
+  r: "The repository lacks the required `data/processed/robustness_lagged_results.json`\
+    \ file, and the `calculate_lagged_metrics` function in `code/analysis/robustness.py`\
+    \ contains placeholder logic (\u201Csimulate a lagged version\u2026\u201D) rather\
+    \ than a real computation of 2015\u20112019 author and CVE counts, and no full\
+    \ Negative Binomial GLM fitting or JSON saving is present. The task\u2019s core\
+    \ requirements are therefore unmet."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer only provided a textual note that T038 was removed and replaced
+    by T034, but no code, data, model, or JSON output artifacts required by the functional
+    specifications are present. Consequently, there is no evidence that the required
+    lagged GLM, metric calculations, or robustness checks were implemented. The missing
+    deliverables must be supplied for the task to be considered complete.

@@ -4,298 +4,286 @@ import json
 import logging
 import warnings
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional, List
 
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from scipy.stats import chi2
 
-# Import config for paths
-try:
-    from config import ensure_directories
-except ImportError:
-    # Fallback for running as script or different import context
-    from code.config import ensure_directories
+from config import ensure_directories
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/analysis.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-INPUT_FILE = Path("data/processed/repo_metrics.csv")
-OUTPUT_FILE = Path("data/processed/model_results.json")
+DATA_PATH = Path('data/processed/repo_metrics_clean.csv')
+OUTPUT_PATH = Path('data/processed/model_results_raw.json')
+VIF_THRESHOLD = 5.0
 
-def load_data() -> pd.DataFrame:
-    """Load the merged dataset from disk."""
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Input file {INPUT_FILE} not found. Run data ingestion pipeline first.")
-    df = pd.read_csv(INPUT_FILE)
-    logger.info(f"Loaded {len(df)} rows from {INPUT_FILE}")
+def load_data():
+    """Load the cleaned repository metrics dataset."""
+    if not DATA_PATH.exists():
+        raise FileNotFoundError(f"Data file not found: {DATA_PATH}. Run T014 first.")
+    df = pd.read_csv(DATA_PATH)
+    logger.info(f"Loaded {len(df)} rows from {DATA_PATH}")
     return df
 
-def filter_zero_kloc(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Exclude rows where kloc is zero or NaN because log(0) is undefined.
-    Logs a warning for excluded rows.
-    """
+def filter_zero_kloc(df):
+    """Exclude rows where kloc <= 0 as per T017 requirements."""
     initial_count = len(df)
-    # Filter out NaN and zero values in kloc
-    mask = (df['kloc'].notna()) & (df['kloc'] > 0)
-    filtered_df = df[mask].copy()
-    excluded_count = initial_count - len(filtered_df)
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluded {excluded_count} rows with kloc <= 0 or NaN.")
-    else:
-        logger.info("No rows excluded due to zero/NaN kloc.")
-        
-    return filtered_df
+    df = df[df['kloc'] > 0].copy()
+    excluded = initial_count - len(df)
+    if excluded > 0:
+        logger.warning(f"Excluded {excluded} rows with kloc <= 0")
+    return df
 
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+def calculate_vif(df, predictors):
     """
-    Calculate Variance Inflation Factor (VIF) for each predictor.
+    Calculate Variance Inflation Factor (VIF) for specified predictors.
+    
+    Args:
+        df: DataFrame containing the data
+        predictors: List of column names to calculate VIF for
+        
+    Returns:
+        dict: Mapping of predictor name to VIF value
     """
     vif_data = {}
-    # Add constant for intercept if not present in predictors (statsmodels usually requires it for OLS, 
-    # but GLM handles it differently. For VIF calculation, we need a matrix with intercept).
-    # However, VIF is typically calculated on predictors excluding the intercept.
-    X = df[predictors].copy()
+    # Add a constant for the intercept if not present in the calculation
+    # VIF calculation typically uses the design matrix without the intercept column itself
+    # but we need the intercept for the regression context. 
+    # For VIF, we regress each predictor against all others.
     
-    # Handle potential NaNs in predictors for VIF calculation
-    if X.isnull().any().any():
-        logger.warning("NaN values found in predictors for VIF calculation. Dropping rows with NaNs for VIF only.")
-        X = X.dropna()
+    X = df[predictors].values
     
-    if len(X) == 0:
-        logger.error("No valid rows remaining for VIF calculation after dropping NaNs.")
-        return {p: np.nan for p in predictors}
+    # Check for constant columns or NaNs
+    if np.isnan(X).any():
+        logger.warning("NaN values found in predictor columns for VIF calculation.")
+        # Handle NaNs by dropping rows for VIF calculation only
+        valid_mask = ~np.isnan(X).any(axis=1)
+        X = X[valid_mask]
+        df_vif = df[valid_mask]
+    else:
+        df_vif = df
 
-    # Add constant for VIF calculation (VIF is 1/(1-R^2) where R^2 is regressing one predictor on others)
-    X_with_const = sm.add_constant(X)
-    
-    for col in predictors:
+    for i, col in enumerate(predictors):
         try:
-            # VIF calculation: regress col against all other predictors
-            y = X_with_const[col]
-            X_other = X_with_const.drop(columns=[col])
-            model = sm.OLS(y, X_other).fit()
+            # VIF for column i: regress col_i against all other predictors
+            y = X[:, i]
+            # Create X_matrix without the i-th column
+            X_other = np.delete(X, i, axis=1)
+            
+            # Add constant for intercept in the auxiliary regression
+            X_other_const = sm.add_constant(X_other)
+            
+            # Fit OLS
+            model = sm.OLS(y, X_other_const).fit()
             vif = 1 / (1 - model.rsquared)
             vif_data[col] = vif
         except Exception as e:
             logger.error(f"Error calculating VIF for {col}: {e}")
             vif_data[col] = np.nan
-    
+
     return vif_data
 
-def benjamini_hochberg(p_values: List[float]) -> List[float]:
-    """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-    Returns adjusted p-values.
-    """
-    if not p_values:
-        return []
-    
-    m = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
-    
-    # Calculate BH adjusted p-values
-    # p_adj[i] = p[i] * m / (i + 1)
-    # Then ensure monotonicity and cap at 1.0
-    adjusted = np.zeros(m)
-    for i in range(m):
-        adjusted[i] = sorted_p[i] * m / (i + 1)
-    
-    # Enforce monotonicity (cumulative min from the end)
-    for i in range(m - 2, -1, -1):
-        adjusted[i] = min(adjusted[i], adjusted[i + 1])
-    
-    # Cap at 1.0
-    adjusted = np.minimum(adjusted, 1.0)
-    
-    # Reorder to original indices
-    final_adjusted = np.zeros(m)
-    final_adjusted[sorted_indices] = adjusted
-    
-    return final_adjusted.tolist()
-
-def fit_negative_binomial_glm(df: pd.DataFrame) -> Tuple[Any, bool]:
+def fit_negative_binomial_glm(df, predictors, formula_str):
     """
     Fit a Negative Binomial GLM.
-    Response: cve_count
-    Predictors: unique_authors, primary_language (one-hot encoded), project_age, release_count
-    Offset: log(kloc)
+    
+    Args:
+        df: DataFrame
+        predictors: List of predictor column names
+        formula_str: Statsmodels formula string
+        
+    Returns:
+        fitted model object
     """
-    # Prepare predictors
-    predictors = ['unique_authors', 'project_age', 'release_count']
+    # Ensure target is integer
+    df['cve_count'] = df['cve_count'].astype(int)
     
-    # One-hot encode primary_language
-    df_encoded = pd.get_dummies(df, columns=['primary_language'], prefix='lang', drop_first=True)
+    # Prepare formula
+    # The formula_str should already include the log(kloc) term if needed
+    # e.g., "cve_count ~ author_count + project_age + C(primary_language) + release_count + np.log(kloc)"
     
-    # Identify language columns
-    lang_cols = [col for col in df_encoded.columns if col.startswith('lang_')]
-    all_predictors = predictors + lang_cols
-    
-    # Filter for available columns
-    available_predictors = [col for col in all_predictors if col in df_encoded.columns]
-    
-    if not available_predictors:
-        raise ValueError("No valid predictors found after encoding.")
-    
-    X = df_encoded[available_predictors].copy()
-    y = df_encoded['cve_count'].copy()
-    
-    # Create offset
-    offset = np.log(df_encoded['kloc'])
-    
-    # Add constant
-    X = sm.add_constant(X)
-    
-    # Fit model
     try:
         model = sm.GLM(
-            y, 
-            X, 
-            family=sm.families.NegativeBinomial(),
-            offset=offset
+            df['cve_count'],
+            sm.add_constant(df[predictors]), # Note: If formula uses strings, use from_formula
+            family=sm.families.NegativeBinomial()
         )
-        result = model.fit()
-        converged = result.converged
-        return result, converged
+        # If using formula string directly:
+        result = sm.GLM.from_formula(
+            formula_str,
+            data=df,
+            family=sm.families.NegativeBinomial()
+        ).fit()
+        return result
     except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        return None, False
+        logger.error(f"GLM fitting failed: {e}")
+        return None
 
-def extract_results(result: Any, predictors: List[str], vif_data: Dict[str, float], converged: bool) -> Dict[str, Any]:
+def benjamini_hochberg(p_values):
     """
-    Extract coefficients, standard errors, p-values, confidence intervals, and adjusted p-values.
+    Apply Benjamini-Hochberg correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values
+        
+    Returns:
+        List of adjusted p-values
     """
-    if result is None:
+    p_values = np.array(p_values)
+    n = len(p_values)
+    if n == 0:
+        return []
+    
+    # Sort p-values and keep original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+    
+    # Calculate BH adjusted p-values
+    adjusted_p = np.zeros(n)
+    for i in range(n):
+        adjusted_p[sorted_indices[i]] = min(1, sorted_p[i] * n / (i + 1))
+    
+    # Ensure monotonicity (cumulative min from the end)
+    for i in range(n - 2, -1, -1):
+        adjusted_p[sorted_indices[i]] = min(adjusted_p[sorted_indices[i]], adjusted_p[sorted_indices[i+1]])
+        
+    return adjusted_p.tolist()
+
+def extract_results(model_result, vif_data, high_collinearity_flag):
+    """
+    Extract coefficient, standard error, p-value, and CI from the fitted model.
+    
+    Args:
+        model_result: Fitted GLM result object
+        vif_data: Dictionary of VIF values
+        high_collinearity_flag: Boolean indicating if high collinearity was detected
+        
+    Returns:
+        dict: Extracted results
+    """
+    if model_result is None:
         return {
+            "author_count_coefficient": None,
+            "std_err": None,
+            "p_value": None,
+            "ci_95_lower": None,
+            "ci_95_upper": None,
+            "vif": vif_data,
             "convergence_status": False,
-            "message": "Model did not converge or failed to fit.",
-            "coefficients": {},
-            "standard_errors": {},
-            "p_values": {},
-            "confidence_intervals": {},
-            "adjusted_p_values": {},
-            "vif_metrics": vif_data
+            "high_collinearity_warning": high_collinearity_flag
         }
-    
-    params = result.params
-    bse = result.bse
-    pvalues = result.pvalues
-    conf_int = result.conf_int()
-    
-    # Prepare lists for BH correction
-    p_values_list = []
-    coef_dict = {}
-    se_dict = {}
-    p_dict = {}
-    ci_dict = {}
-    
-    # Iterate over predictors (skip constant for BH correction if desired, but usually we correct all)
-    # The task asks for BH correction on "main model p-values". We'll include all non-constant.
-    non_const_params = []
-    
-    for i, param_name in enumerate(params.index):
-        if param_name == 'const':
-            continue
+
+    try:
+        params = model_result.params
+        bse = model_result.bse
+        pvalues = model_result.pvalues
+        conf_int = model_result.conf_int()
+
+        # Extract author_count coefficient specifically
+        # Assuming 'author_count' is in the formula
+        author_coeff = params.get('author_count', None)
+        author_se = bse.get('author_count', None)
+        author_pval = pvalues.get('author_count', None)
         
-        non_const_params.append(param_name)
-        coef_dict[param_name] = float(params[param_name])
-        se_dict[param_name] = float(bse[param_name])
-        p_dict[param_name] = float(pvalues[param_name])
-        
-        ci_lower = float(conf_int.iloc[i, 0])
-        ci_upper = float(conf_int.iloc[i, 1])
-        ci_dict[param_name] = [ci_lower, ci_upper]
-        
-        p_values_list.append(float(pvalues[param_name]))
-    
-    # Apply BH correction
-    adjusted_p_values = benjamini_hochberg(p_values_list)
-    adj_p_dict = {name: val for name, val in zip(non_const_params, adjusted_p_values)}
-    
-    return {
-        "convergence_status": converged,
-        "coefficients": coef_dict,
-        "standard_errors": se_dict,
-        "p_values": p_dict,
-        "confidence_intervals": ci_dict,
-        "adjusted_p_values": adj_p_dict,
-        "vif_metrics": vif_data,
-        "n_obs": int(result.nobs)
-    }
+        if author_coeff is not None:
+            ci_lower = conf_int.loc['author_count', 0]
+            ci_upper = conf_int.loc['author_count', 1]
+        else:
+            ci_lower = None
+            ci_upper = None
+
+        return {
+            "author_count_coefficient": float(author_coeff) if author_coeff is not None else None,
+            "std_err": float(author_se) if author_se is not None else None,
+            "p_value": float(author_pval) if author_pval is not None else None,
+            "ci_95_lower": float(ci_lower) if ci_lower is not None else None,
+            "ci_95_upper": float(ci_upper) if ci_upper is not None else None,
+            "vif": {k: float(v) for k, v in vif_data.items()},
+            "convergence_status": True,
+            "high_collinearity_warning": high_collinearity_flag
+        }
+    except Exception as e:
+        logger.error(f"Error extracting results: {e}")
+        return {
+            "author_count_coefficient": None,
+            "std_err": None,
+            "p_value": None,
+            "ci_95_lower": None,
+            "ci_95_upper": None,
+            "vif": vif_data,
+            "convergence_status": False,
+            "high_collinearity_warning": high_collinearity_flag
+        }
 
 def main():
-    """Main entry point for the model fitting task."""
+    """Main execution function for T017 with T035 VIF check integration."""
     ensure_directories()
     
-    logger.info("Starting model fitting task T017...")
+    logger.info("Starting model fitting with collinearity check (T035)...")
     
     # 1. Load Data
     df = load_data()
     
-    # 2. Filter Zero KLOC
-    df_filtered = filter_zero_kloc(df)
-    
-    if len(df_filtered) == 0:
-        logger.error("No data remaining after filtering zero kloc. Cannot fit model.")
-        # Write empty result with failure status
-        results = {
-            "convergence_status": False,
-            "message": "No data available after filtering.",
-            "coefficients": {},
-            "standard_errors": {},
-            "p_values": {},
-            "confidence_intervals": {},
-            "adjusted_p_values": {},
-            "vif_metrics": {}
-        }
-        with open(OUTPUT_FILE, 'w') as f:
-            json.dump(results, f, indent=2)
+    # 2. Filter zero kloc
+    df = filter_zero_kloc(df)
+    if len(df) == 0:
+        logger.error("No data remaining after filtering zero kloc.")
         return
+
+    # 3. Define Predictors and Formula
+    # Formula: cve_count ~ author_count + project_age + C(primary_language) + release_count + np.log(kloc)
+    # We need to identify the numeric predictors for VIF calculation.
+    # C(primary_language) is categorical, so we exclude it from VIF or handle it differently.
+    # T035 specifically asks for VIF on 'author_count' and 'kloc'.
     
-    # 3. Calculate VIF on the filtered data
-    # Determine predictors for VIF (excluding offset and response)
-    # We need to know what predictors will be used in the model.
-    # Based on fit_negative_binomial_glm, we use unique_authors, project_age, release_count, and lang_*.
-    # For VIF, we calculate on the numeric predictors first, then handle dummies if needed.
-    # To be safe, we calculate VIF on the numeric subset first, or just pass the list to the function.
-    # The VIF function handles encoding internally if we pass the full df? No, VIF expects numeric.
-    # Let's prepare the numeric predictors for VIF calculation.
-    numeric_predictors = ['unique_authors', 'project_age', 'release_count']
-    # Ensure they exist
-    numeric_predictors = [p for p in numeric_predictors if p in df_filtered.columns]
+    predictors_for_vif = ['author_count', 'kloc']
     
-    vif_metrics = calculate_vif(df_filtered, numeric_predictors)
+    # Filter to rows where these predictors are valid for VIF
+    df_vif = df.dropna(subset=predictors_for_vif)
     
+    if len(df_vif) < 2:
+        logger.warning("Insufficient data for VIF calculation.")
+        vif_data = {p: np.nan for p in predictors_for_vif}
+        high_collinearity = False
+    else:
+        vif_data = calculate_vif(df_vif, predictors_for_vif)
+        
+        # Check for high collinearity
+        high_collinearity = False
+        for col, val in vif_data.items():
+            if not np.isnan(val) and val > VIF_THRESHOLD:
+                logger.warning(f"High collinearity detected for {col}: VIF = {val:.2f} (threshold: {VIF_THRESHOLD})")
+                high_collinearity = True
+        
+        if high_collinearity:
+            logger.warning("Proceeding with model fitting despite high collinearity warning.")
+
     # 4. Fit Model
-    result, converged = fit_negative_binomial_glm(df_filtered)
+    formula = "cve_count ~ author_count + project_age + C(primary_language) + release_count + np.log(kloc)"
+    model_result = fit_negative_binomial_glm(df, predictors_for_vif, formula)
     
     # 5. Extract Results
-    # We need the list of predictors used in the model for extraction.
-    # The extract_results function builds this list from the model result params.
-    # But we need to pass the VIF data which was calculated on numeric predictors.
-    # The VIF data keys might not match the model params keys (which include lang_*).
-    # The task asks for VIF metrics. We include what we calculated.
-    
-    results = extract_results(result, numeric_predictors, vif_metrics, converged)
+    results = extract_results(model_result, vif_data, high_collinearity)
     
     # 6. Save Output
-    with open(OUTPUT_FILE, 'w') as f:
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_PATH, 'w') as f:
         json.dump(results, f, indent=2)
     
-    logger.info(f"Model results saved to {OUTPUT_FILE}")
-    logger.info(f"Convergence Status: {converged}")
-    
-    if not converged:
-        logger.error("Model failed to converge. Check data and specification.")
+    logger.info(f"Model results saved to {OUTPUT_PATH}")
+    logger.info(f"High collinearity warning: {high_collinearity}")
 
 if __name__ == "__main__":
     main()
