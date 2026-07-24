@@ -1,0 +1,123 @@
+name: Pipeline Execution Gate (T036)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Resource constraints: GitHub Actions free tier (2 CPU, 7GB RAM, 14GB disk)
+# This workflow explicitly tests the pipeline under these constraints.
+
+jobs:
+  run-full-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r code/requirements.txt
+        # Ensure NLTK data is available for VADER
+        python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('punkt')"
+
+    - name: Verify environment resources
+      run: |
+        echo "Checking available resources..."
+        nproc
+        free -h
+        df -h
+
+    - name: Run Full Pipeline
+      id: pipeline_run
+      run: |
+        echo "Starting full pipeline execution..."
+        start_time=$(date +%s)
+        
+        # Execute the pipeline with a timeout check (6 hours = 21600 seconds)
+        # The script itself handles the logic, but we wrap it to capture exit codes clearly
+        if python code/analysis/run_pipeline.py --threads; then
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "Pipeline completed successfully in $duration seconds."
+          
+          # Verify critical output artifacts exist
+          required_files=(
+            "data/raw/reddit_threads.jsonl"
+            "data/processed/valid_threads.csv"
+            "data/processed/all_threads_classified.csv"
+            "data/processed/threads_with_seeds.csv"
+            "data/processed/thread_metrics.csv"
+            "data/processed/sensitivity_analysis.csv"
+            "data/processed/external_validation_correlation.csv"
+            "docs/paper.md"
+            "docs/analysis_summary.md"
+            "state/performance_log.json"
+            "state/final_validation.json"
+          )
+
+          missing=false
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Missing required artifact: $file"
+              missing=true
+            else
+              echo "Found: $file ($(wc -l < $file) lines)"
+            fi
+          done
+
+          if [ "$missing" = true ]; then
+            echo "Pipeline finished but required artifacts are missing."
+            exit 1
+          fi
+
+          # Log performance metrics from the generated state file
+          if [ -f "state/performance_log.json" ]; then
+            echo "Performance Log Contents:"
+            cat state/performance_log.json
+            
+            # Check if status is success
+            status=$(python -c "import json; print(json.load(open('state/performance_log.json'))['status'])")
+            if [ "$status" != "success" ]; then
+              echo "ERROR: Pipeline reported status: $status"
+              exit 1
+            fi
+          fi
+
+          echo "duration=$duration" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "Pipeline execution failed."
+          exit 1
+        fi
+
+    - name: Upload Pipeline Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pipeline-output
+        path: |
+          data/
+          state/
+          docs/paper.md
+          docs/analysis_summary.md
+        retention-days: 5
+
+    - name: Summary
+      run: |
+        echo "## Execution Gate (T036) Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ${{ steps.pipeline_run.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Duration**: ${{ steps.pipeline_run.outputs.duration }} seconds" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The full pipeline has been executed on the GitHub Actions free-tier runner." >> $GITHUB_STEP_SUMMARY
+        echo "All required artifacts have been generated and verified." >> $GITHUB_STEP_SUMMARY

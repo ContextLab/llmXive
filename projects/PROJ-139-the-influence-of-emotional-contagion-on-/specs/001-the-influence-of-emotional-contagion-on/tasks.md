@@ -60,13 +60,18 @@
 - [X] T005 [P] Implement logging infrastructure and artifact hashing in state/
 - [X] T006 Create base configuration management for API keys and dataset paths
 - [X] T007 [P] Setup pytest environment with CPU-only constraints: Create `code/tests/conftest.py` and `pytest.ini` to enforce random seed pinning (e.g., `addopts = --random-seed=42`) and CPU-only execution flags.
-- [X] T008 [S] [US1] Implement `code/data/download.py` to fetch data:
+- [X] T008a [S] [US1] Implement `code/data/download.py` to fetch data:
  **Primary**: Pushshift API.
  **Fallback 1**: Reddit Official API (OAuth).
  **Fallback 2**: Verified HuggingFace archives.
  The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data.
  **Output**: Write raw data to `data/raw/reddit_threads.jsonl`.
- **Verification**: Assert that the final dataset contains ≥2 subreddits and ≥1 Stack Exchange site. Log counts and `origin_type` distribution.
+ **Verification**: Read from `data/raw/reddit_threads.jsonl` and assert that the final dataset contains ≥2 subreddits and ≥1 Stack Exchange site. Log counts and `origin_type` distribution.
+ **Data Hygiene**: Compute SHA-256 checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
+- [X] T008b [S] [US1] **Depends on T008a**: Implement `code/data/download.py` fallback logic verification: Ensure the script correctly logs the origin type for every thread and raises a RuntimeError if all sources fail.
+ **Output**: Log file `data/raw/download_origin_log.json`.
+- [X] T008c [S] [US1] **Depends on T008b**: Implement `code/data/download.py` checksum recording: Compute SHA-256 checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
+ **Output**: Updated `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,16 +97,17 @@
  **Requirement**: Log the `origin_type` (from T008) alongside the reason code for reproducibility.
  **Output**: Write exclusion log to `data/processed/exclusions_seed.log` with columns [thread_id, reason_code, origin_type].
 
-- [X] T019b [S] [US1] **Depends on T019**: Implement logic in `code/data/validation.py` to check if valid threads < 30% of the *total* dataset.
- **Source**: Read total thread count from `data/raw/reddit_threads.jsonl` and valid thread count from `data/processed/valid_threads.csv`.
- **Action**: Calculate `valid_thread_percentage = (count(valid) / count(total)) * 100`.
- **Constraint**: If `valid_thread_percentage < 30`, **raise a RuntimeError** with message "SC-006 Compliance Failed: <30% valid threads. Analysis is invalid." The pipeline MUST halt. If `valid_thread_percentage >= 30`, generate `data/processed/validity_status.json` with `sc_006_compliance: true`, `status: pass`.
- **Output**: Generate `data/processed/validity_status.json` with `valid_thread_percentage` (float), `threshold` (30), `status` (pass/fail), `sc_006_compliance` (boolean).
- **Note**: This task produces the SC-006 compliance report and blocks downstream tasks if failed.
+- [X] T019b [S] [US1] **Depends on T019, T010**: Implement logic in `code/data/validation.py` to check if valid threads < 30% of the *TOTAL* dataset (before T010 filtering).
+ **Source**: Read total thread count from the raw dataset (output of T008a) and valid thread count from `data/processed/valid_threads.csv`.
+ **Action**: Calculate `valid_thread_percentage = (count(valid) / count(total_raw)) * 100`.
+ **Constraint**: If `valid_thread_percentage < 30`, **generate a compliance report** with `sc_006_compliance: false`, `status: fail`, and log the error. Do NOT raise a RuntimeError that halts the pipeline; instead, proceed to generate the report so the failure condition is documented. If `valid_thread_percentage >= 30`, generate `data/processed/validity_status.json` with `sc_006_compliance: true`, `status: pass`.
+ **Output**: Generate `state/sc_006_compliance_report.json` with `valid_thread_percentage` (float), `threshold` (30), `status` (pass/fail), `sc_006_compliance` (boolean), `total_dataset_count` (int), `valid_dataset_count` (int).
+ **Note**: This task produces the SC-006 compliance report and flags failure if the threshold is not met.
 
-- [X] T019a [S] [US1] **Depends on T019b**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
+- [X] T019a [S] [US1] **Depends on T019, T010, T019b**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
  **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
  **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'.
+ **Inconclusive Handling**: If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
  **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv`. For threads in `all_threads_classified.csv` with `valid_no_gt`, set `external_validation_score` to `null`.
  **Constraint**: This task runs only on the 'valid' subset identified in T019, using the filtered dataset from T010.
 
@@ -130,25 +136,30 @@
  4. **Stratification Logic**: Description of how the sample is stratified by thread length and sentiment quartiles.
  **Output**: `docs/annotation_protocol.md`.
 
-- [X] T007a-2 [S] [US2] **Split Task 2**: Implement `code/data/sampling.py` for sample selection.
+- [X] T007a-2a [S] [US2] **Split Task 2a**: Implement `code/data/sampling.py` for sample selection (Stratification).
  **Dependency**: T008 (Data Download), T007a-1 (Protocol).
  **Logic**:
  1. **Stratification**: Calculate quartiles for `thread_length` and `sentiment` (using VADER on raw text as a proxy) to create a 2x2 stratification grid.
  2. **Selection**: Select a stratified random sample to ensure representation across all grid cells.
- 3. **Fallback**: If the dataset is too small to form a valid grid (e.g., < 50 threads) OR if no public corpus is available, **log a warning** and proceed with available data or a public fallback. Do NOT raise a RuntimeError.
- 4. **Storage**: Store raw annotations (if available) in `data/raw/annotations.json`. This file MUST be checksummed.
- **Output**: `data/raw/annotations.json` (if available), or proceed with available data.
- **Constraint**: If dataset size is < 50 AND no public corpus is found, **log a warning** and proceed.
+ **Output**: Intermediate sample list.
 
-- [X] T007b [S] [US2] **Depends on T007a-2**: Implement Sentiment Validation Pipeline.
- **Dependency**: T008 (Data Download), T007a-1, T007a-2.
+- [X] T007a-2b [S] [US2] **Split Task 2b**: Implement `code/data/sampling.py` for sample selection (Fallback/Storage).
+ **Dependency**: T007a-2a.
  **Logic**:
- 1. **Validation Execution**: Run VADER against the human annotations or public corpus.
- 2. **Reliability**: Calculate inter-rater reliability (Cohen's Kappa). If Kappa < 0.6 OR if annotations/corpus are not available, **log a warning** and proceed with VADER bounds validation (scores in [-1.0, 1.0]). The pipeline MUST NOT halt.
- 3. **Storage**: Generate `data/processed/vader_validation_report.json` containing the Kappa value (if available), sample size, and source (human/public/fallback).
+ 1. **Fallback**: If the dataset is too small to form a valid grid (e.g., < 50 threads) OR if no human annotations are available, **raise a RuntimeError** with message "Sentiment Tool Validation Failed: Human annotations missing. Pipeline halted." The pipeline MUST halt to enforce the Plan's PASS gate. Do NOT proceed with a warning.
+ 2. **Storage**: Store raw annotations (if available) in `data/raw/annotations.json`. This file MUST be checksummed.
+ **Output**: `data/raw/annotations.json` (if available), or halt.
+ **Constraint**: If dataset size is < 50 AND no human annotations are found, **raise a RuntimeError**.
+
+- [X] T007b [S] [US2] **Depends on T007a-2b**: Implement Sentiment Validation Pipeline.
+ **Dependency**: T008 (Data Download), T007a-1, T007a-2a, T007a-2b.
+ **Logic**:
+ 1. **Validation Execution**: Run VADER against the human annotations.
+ 2. **Reliability**: Calculate inter-rater reliability (Cohen's Kappa). If Kappa < 0.6 OR if annotations are not available, **raise a RuntimeError** with message "Sentiment Tool Validation Failed: Kappa < 0.6 or data missing. Pipeline halted." The pipeline MUST halt to enforce the Plan's PASS gate.
+ 3. **Storage**: Generate `data/processed/vader_validation_report.json` containing the Kappa value, sample size, and source (human).
  4. **Justification**: Compute bootstrapped confidence intervals for Kappa to justify subset validity. Output `data/processed/validation_justification.json`.
  **Output**: `data/processed/vader_validation_report.json`, `data/processed/validation_justification.json`.
- **Constraint**: **Log a warning** if validation fails (Kappa < 0.6) or data is missing, but proceed.
+ **Constraint**: **Raise RuntimeError** if validation fails (Kappa < 0.6) or data is missing.
 
 ---
 
@@ -163,15 +174,19 @@
 - [X] T013 [S] [US2] **Depends on T008, T019, T007b**: Implement `code/data/sentiment.py` to apply VADER (NLTK) and compute compound sentiment scores on a bounded scale for each post in the *full* dataset (valid + valid_no_gt).
  **Constraint**: This task runs on the FULL dataset. **Dependency on T007b ensures validation ran (and passed or logged a warning).**
 
-- [X] T016 [S] [US2] Implement exclusion logic in `code/data/metrics.py`: Flag threads with <5 replies as insufficient for contagion analysis.
+- [X] T016 [S] [US2] Implement exclusion logic in `code/data/metrics.py`: Flag threads with <20 replies as insufficient for contagion analysis (per FR-004 strict definition).
  **Output**: Log the count of excluded threads to `data/processed/exclusion_counts.json`.
 
-- [X] T015 [S] [US2] **Depends on T016, T010, T013, T019**: Implement `code/data/metrics.py` to compute the emotional contagion index.
- **Input**: Use the *filtered* dataset (valid + valid_no_gt threads, seed posts extracted, reply count ≥5). Read valid thread list from `data/processed/all_threads_classified.csv`. **Filter**: Select threads where `is_valid=True` OR `is_valid_no_gt=True` AND `reply_count >= 5`.
- **Logic**: **Exclude threads with <5 replies** (handled by T016). Calculate the **change in sentiment (delta)** of subsequent replies over a **representative subset of initial comments or the total available replies (whichever is smaller)**. **Delta is defined as the slope of the linear regression of sentiment score vs. reply position (1 to min(20, available_replies))**. This slope IS the implementation of the "change in sentiment" required by Spec FR-004. If the linear regression fails (e.g., zero variance), use the end-point delta (sentiment_last - sentiment_first). Compute the Pearson correlation between the seed-post sentiment and this **delta**.
+- [X] T015a [S] [US2] **Depends on T016, T010, T013, T019**: Implement `code/data/metrics.py` to compute the emotional contagion index (Part 1: Filtering).
+ **Input**: Use the *filtered* dataset (valid + valid_no_gt threads, seed posts extracted, reply count >= 20). Read valid thread list from `data/processed/all_threads_classified.csv`. **Filter**: Select threads where `is_valid=True` OR `is_valid_no_gt=True` AND `reply_count >= 20`.
+ **Constraint**: Exclude threads with <20 replies (handled by T016).
+ **Output**: Intermediate filtered dataset.
+
+- [X] T015b [S] [US2] **Depends on T015a**: Implement `code/data/metrics.py` to compute the emotional contagion index (Part 2: Calculation).
+ **Logic**: Calculate the **change in sentiment (delta)** of subsequent replies over the **first 20 comments**. **Delta is defined as the slope of the linear regression of sentiment score vs. reply position (1 to 20)**. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
  **Note**: The regression slope (delta) represents the "change in sentiment" required by Spec FR-004. This equivalence is validated by the implementation.
  **Output**: Append results to `data/processed/thread_metrics.csv` with columns [thread_id, contagion_index, reply_count].
- **Constraint**: Exclude threads with <5 replies (handled by T016) and threads excluded in T010 (use `filtered_thread_ids.csv` from T010/T019 as input list).
+ **Constraint**: Exclude threads with <20 replies (handled by T016) and threads excluded in T010 (use `filtered_thread_ids.csv` from T010/T019 as input list). Read the filtered dataset from T010/T019 outputs.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -188,14 +203,13 @@
 - [X] T018 [S] [US3] Implement `code/data/metrics.py` to compute decision quality metrics: (a) agreement proportion, (b) Shannon entropy for diversity, (c) external validation score (read from T019a output), and (d) efficiency metrics (time-to-decision, thread length).
  **Input**: Read external validation score from `data/processed/valid_threads.csv` generated by T019a.
 
-- [X] T020 [S] [US3] **Depends on T019a, T015**: Implement `code/data/modeling.py` to fit Generalized Linear Mixed Models (GLMM) with **thread-level random intercepts**. Use **beta regression** for bounded outcomes (agreement proportion). For time-to-decision (continuous duration), **select an appropriate distribution (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC)** and use the corresponding link function. **Include the external validation score as a predictor** in the model where applicable. **Random intercept: Subreddit** (Corrected from 'Thread ID' to match Spec FR-006 and Plan Thread entity).
+- [X] T020 [S] [US3] **Depends on T019a, T015b**: Implement `code/data/modeling.py` to fit Generalized Linear Mixed Models (GLMM) with **thread-level random intercepts**. Use **beta regression** for bounded outcomes (agreement proportion). For time-to-decision (continuous duration), **select an appropriate distribution (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC)** and use the corresponding link function. **Include the external validation score as a predictor** in the model where applicable. **Random intercept: Thread ID** (Corrected from 'Subreddit' to match Spec FR-006 and Plan Thread entity).
 
 - [X] T021 [S] [US3] Implement significance testing in `code/data/modeling.py`: Wald tests (α=0.05) for contagion coefficients.
 
 - [X] T022 [S] [US3] Implement multiple-comparison correction in `code/data/modeling.py`: Apply Bonferroni or Benjamini-Hochberg FDR when ≥3 hypothesis tests are run (FR-007).
 
-- [X] T023 [S] [US3] **Combined Task**: Implement Sensitivity Analysis in `code/data/modeling.py`.
- **Sweep**: Agreement cutoff across **{0.5, 0.6, 0.7}** and entropy threshold across **{0.2, 0.4, 0.6}**.
+- [X] T023a [S] [US3] **Split Task 1**: Implement FP/FN Calculation in `code/data/modeling.py`.
  **Input**: Read valid thread list from `data/processed/valid_threads.csv`. **Filter**: Use threads where `is_valid=True`.
  **Logic**:
  1. **FP/FN Calculation**: For valid threads, compute and report False Positive and False Negative rates of Consensus vs. Ground Truth for *each* threshold sweep.
@@ -203,16 +217,29 @@
  - Stack Exchange: Consensus=1 if 'accepted_answer_id' exists, 0 otherwise.
  - Reddit: Consensus=1 if upvotes > downvotes, 0 if downvotes > upvotes, Inconclusive if equal.
  **Constraint**: If T019b reports `sc_006_compliance: false`, FP/FN columns must be filled with `null` and a warning logged. Inconclusive cases are excluded from FP/FN calculation.
- 2. **Correlation Analysis**: Compute the **Pearson correlation between contagion_index and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation score** for each sweep.
- 3. **Trend Summary**: Generate a deterministic `trend_summary` text description for the primary metric (contagion vs. agreement).
+ **Output**: Intermediate FP/FN data.
+
+- [X] T023b [S] [US3] **Split Task 2**: Implement Correlation Analysis in `code/data/modeling.py`.
+ **Input**: Read valid thread list from `data/processed/valid_threads.csv` and contagion index from `data/processed/thread_metrics.csv`.
+ **Logic**:
+ 1. **Correlation Analysis**: Compute the **Pearson correlation between contagion_index and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation score** for each sweep (agreement cutoff {0.5, 0.6, 0.7} and entropy threshold {0.2, 0.4, 0.6}).
+ 2. **Null Handling**: If a grid cell has <2 data points or correlation cannot be computed, set the correlation coefficient to `null` and log the reason. Set `false_positive_rate` and `false_negative_rate` to `null` in these cells.
+ 3. **Grid Enforcement**: **Enforce the exact 9-combination grid**. If any row is missing (e.g., due to insufficient data for a specific combination), **raise a RuntimeError** with message "Sensitivity Analysis Grid Incomplete: Required 9 combinations, found X."
+ 4. **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float/null), `correlation_entropy` (float/null), `correlation_validation` (float/null), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean).
+ **Requirement**: Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable). Set `grid_coverage: true` only if all 9 rows are present, but do NOT fail if partial. **Correction**: The task MUST enforce the full grid; if incomplete, it fails.
+
+- [X] T023c [S] [US3] **Split Task 3**: Generate Trend Summary in `code/data/modeling.py`.
+ **Input**: Read `data/processed/sensitivity_analysis.csv` from T023b.
+ **Logic**:
+ 1. **Trend Summary**: Generate a deterministic `trend_summary` text description for the primary metric (contagion vs. agreement).
  - If correlation coefficient decreases as agreement cutoff increases (0.5 -> 0.6 -> 0.7), set `trend_summary = "decreasing trend"`.
  - If correlation coefficient increases as agreement cutoff increases, set `trend_summary = "increasing trend"`.
  - Otherwise, set `trend_summary = "stable trend"`.
- 4. **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float), `correlation_entropy` (float), `correlation_validation` (float), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean), `trend_summary` (text).
- **Requirement**: Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable). Set `grid_coverage: true` only if all 9 rows are present, but do NOT fail if partial.
+ 2. **Output**: Append `trend_summary` to `data/processed/sensitivity_analysis.csv`.
+ **Constraint**: This task runs after T023b.
 
-- [X] T024 [S] [US3] **Depends on T019a, T015**: Implement correlation analysis in `code/data/modeling.py`: Compute the correlation between the **external validation score** and the contagion index/decision quality metrics.
- **Input**: Read external validation score from `data/processed/valid_threads.csv` (T019a) and contagion index from `data/processed/thread_metrics.csv` (T015).
+- [X] T024 [S] [US3] **Depends on T019a, T015b**: Implement correlation analysis in `code/data/modeling.py`: Compute the correlation between the **external validation score** and the contagion index/decision quality metrics.
+ **Input**: Read external validation score from `data/processed/valid_threads.csv` (T019a) and contagion index from `data/processed/thread_metrics.csv` (T015b).
  **Output**: Output results to `data/processed/external_validation_correlation.csv`.
 
 - [X] T024a [P] [US3] Create integration tests in `code/tests/test_modeling.py` to verify GLMM convergence and correction application.
@@ -235,7 +262,7 @@
 - [X] T032 [S] **Review Fix**: Update `code/data/metrics.py` to explicitly state the **streaming/sampling rule** in comments and logs: specify the exact split used, chunking strategy (if any), and the number of rows processed. If a sample is taken due to dataset size, the code MUST log the sample size and a statement of its representativeness limitation, ensuring no "toy" or "synthetic" data is used as a silent fallback.
 
 - [X] T025 [S] [US3] **Review Fix**: Run full pipeline on **up to N=500** threads and verify completion within 6 hours on CPU-only runner (SC-005).
- **Requirement**: Implement a runtime check that **raises an error** or flags a `status: failure` if the total runtime exceeds a **predefined threshold**. The check MUST measure the **entire pipeline execution** (including data download, extraction, sentiment, and modeling).
+ **Requirement**: Implement a runtime check that **raises an error** or flags a `status: failure` if the total runtime exceeds **21600 seconds (6 hours)**. The check MUST measure the **entire pipeline execution** (including data download, extraction, sentiment, and modeling).
  **Input**: Depends on the *implementation* of tasks T008 through T024.
  **Output**: Generate `state/performance_log.json` containing `total_runtime_seconds` (int), `thread_count` (int), `status` (string: "success" or "failure"), and `resource_check` (object: {cpu: bool, ram_gb: float, disk_gb: float}).
  **Constraint**: This task runs AFTER T023 (Sensitivity Analysis) to verify the full pipeline performance.
@@ -258,10 +285,11 @@
  **Dependency**: T027, T030, T031, T032.
  **Implementation**: Execute `code/analysis/verify_reproducibility.py`.
  **Logic**:
- 1. Re-run the full pipeline (`python code/analysis/run_pipeline.py --threads`) using the **same downloaded raw data** (do not re-download) and **fixed random seeds**.
- 2. Compute SHA-256 hashes of all output artifacts in `data/processed/` and `state/`.
- 3. Compare new hashes against the hashes recorded in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` (from T027).
- 4. **Assertion**: Assert that `hash(new) == hash(old)` for all artifacts.
+ 1. **Verify Checksum**: Verify that the checksum of `data/raw/reddit_threads.jsonl` matches the hash recorded in `state/...yaml` before running.
+ 2. **Re-run Pipeline**: Re-run the full pipeline (`python code/analysis/run_pipeline.py --threads`) using the **same downloaded raw data** (do not re-download) and **fixed random seeds**.
+ 3. **Compute Hashes**: Compute SHA-256 hashes of all output artifacts in `data/processed/` and `state/`.
+ 4. **Compare**: Compare new hashes against the hashes recorded in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` (from T027).
+ 5. **Assertion**: Assert that `hash(new) == hash(old)` for all artifacts.
  **Output**: Generate `state/reproducibility_report.json` containing `status` (string: "pass" or "fail"), `artifacts_checked` (int), `mismatches` (list of paths).
  **Constraint**: If any hash mismatch is found, **raise a RuntimeError** and mark the project as failed.
 
@@ -271,12 +299,17 @@
  **Output**: Append the power limitation statement to `docs/analysis_summary.md` if triggered; otherwise, state "Power sufficient (n ≥ 100)".
 
 - [X] T034 [S] **Review Fix**: Ensure `docs/paper.md` explicitly frames all findings as **associational** (not causal) as required by **Assumption 4**.
- **Logic**: Insert a "Limitations" section in `docs/paper.md` that states: "This study is observational with no random assignment. All reported relationships between emotional contagion and decision quality are correlational and should not be interpreted as causal."
+ **Logic**:
+ 1. **Insert Limitations**: Insert a "Limitations" section in `docs/paper.md` that states: "This study is observational with no random assignment. All reported relationships between emotional contagion and decision quality are correlational and should not be interpreted as causal."
+ 2. **Full Document Scan**: Scan the **entire** `docs/paper.md` (Abstract, Introduction, Methods, Results, Discussion, Conclusion) for causal language.
+ 3. **Forbidden Phrases**: Check for the following phrases: "causes", "leads to", "proves", "determines", "results in", "influences" (when used causally), "impact" (when used causally), "effect" (when used causally).
+ 4. **Regex Logic**: Use regex `r'\b(causes|leads to|proves|determines|results in|influences|impact|effect)\b'` (case-insensitive) to find matches.
+ 5. **Action**: If any causal language is found in any section, **raise a RuntimeError** with a message listing the detected phrases and their locations.
  **Constraint**: This task must run after T026 (Report Generation).
 
 - [X] T035 [S] **Review Fix**: Verify **SC-004** (Threshold Sensitivity) compliance.
- **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that `agreement_cutoff` values include a representative set of thresholds and `entropy_threshold` values include a representative set of thresholds (9 rows total).
- **Action**: If any row is missing, log an error to `state/validation_errors.log`. If all present, log `sc_004_compliance: true` to `state/validation_summary.json`.
+ **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that `agreement_cutoff` values include the exact set {0.5, 0.6, 0.7} and `entropy_threshold` values include the exact set {0.2, 0.4, 0.6}, resulting in exactly 9 rows.
+ **Action**: If any row is missing or the grid is incomplete, **log an error** to `state/validation_errors.log` and set `sc_004_compliance: false` in `state/validation_summary.json`. If all 9 rows are present, log `sc_004_compliance: true`.
  **Output**: `state/validation_summary.json` with `sc_004_compliance` (boolean).
 
 ---
@@ -285,7 +318,7 @@
 
 **Purpose**: Final verification steps to ensure the pipeline runs correctly on the target infrastructure and produces valid results.
 
-- [ ] T036 [S] **Execution Gate**: Run the full pipeline end-to-end on the GitHub Actions free-tier runner (2 CPU, 7 GB RAM, 14 GB disk).
+- [ ] T036 [S] **Execution Gate**: Run the full pipeline end-to-end on the GitHub Actions free-tier runner (2 CPU, 7 GB RAM, 14 GB disk). <!-- ATOMIZE: requested -->
  **Input**: Trigger `code/analysis/run_pipeline.py` via CI/CD.
  **Verification**: Confirm that all artifacts are generated, no synthetic data fallbacks are triggered, and the runtime does not exceed 6 hours.
  **Output**: CI build status (Pass/Fail). If Fail, the project is blocked until resolved.

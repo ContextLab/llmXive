@@ -6,14 +6,6 @@ T019:
     Moreover, the required output file `data/processed/valid_threads.csv` is missing
     from the repository. The implementer must complete the script (including the missing
     logic and CSV export) and ensure the CSV file is generated.
-T023:
-  c: false
-  h: a00e16d824cd29e06d3c522d1569c022d527b625a232d0339abab00963306046
-  r: "The repository lacks the required `data/processed/sensitivity_analysis.csv`\
-    \ file, and the provided `code/data/modeling.py` excerpt shows no implementation\
-    \ of a sensitivity\u2011analysis routine that sweeps agreement cutoffs and entropy\
-    \ thresholds or writes the specified CSV. Both the output artifact and the corresponding\
-    \ code are missing."
 T024:
   c: false
   h: 23114e9c970b84b1167e8c46fd633d070934fe3343d8b8345b60f97611d1aa92
@@ -45,11 +37,11 @@ T030:
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI logs, workflow files, or output artifacts showing that the full pipeline\
-    \ was actually executed on a GitHub Actions free\u2011tier runner. The claim lacks\
-    \ any evidence (e.g., a run ID, console output, generated data files, or screenshots)\
-    \ that the end\u2011to\u2011end process completed under the specified resource\
-    \ limits."
+  r: "No CI/CD artifacts (e.g., GitHub Actions workflow file, run logs, or output\
+    \ data) were provided to demonstrate that the full pipeline was actually executed\
+    \ on a free\u2011tier GitHub Actions runner. Without such evidence the requirement\
+    \ to \u201Crun the full pipeline end\u2011to\u2011end on the GitHub Actions free\u2011\
+    tier runner\u201D is not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
