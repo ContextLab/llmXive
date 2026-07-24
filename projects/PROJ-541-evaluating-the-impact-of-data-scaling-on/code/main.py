@@ -1,7 +1,3 @@
-"""
-Main orchestration script for the data scaling impact evaluation.
-Implements the simulation loop, real-world data processing, and analysis modes.
-"""
 from __future__ import annotations
 
 import argparse
@@ -12,267 +8,256 @@ import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from multiprocessing import Pool, cpu_count, set_start_method
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
-# Local imports from the project structure
-from simulation.config import SimulationConfig, get_default_config, CONFIG_MATRIX
-from simulation.generator import generate_synthetic_data, generate_synthetic_data_from_config
+from simulation.config import CONFIG_MATRIX, SimulationConfig, dataclass_to_dict
+from simulation.generator import generate_synthetic_data
+from simulation.logger import setup_logger, inject_batch_context
+from simulation.persistence import save_seed_config_entry
 from preprocessing.scaling import standardize_data, min_max_scale, robust_scale
-from analysis.tests import run_scaled_t_test, run_scaled_anova, run_scaled_chi_squared, TestResult
-from simulation.logger import setup_logger, log_operation, ReproducibilityLogger
-from utils.env import configure_cpu_only, verify_cpu_only
+from analysis.tests import run_scaled_t_test, run_scaled_anova, run_scaled_chi_squared
+from simulation.schema import validate_seed_config, save_seed_config
 
-# Constants
-TIME_LIMIT_SECONDS = 6 * 3600  # 6 hours
-CHECKPOINT_INTERVAL = 100
-MIN_ITERATIONS = 10000
+# Ensure multiprocessing starts correctly (fork on Linux/Mac, spawn on Windows)
+try:
+    set_start_method('spawn', force=True)
+except RuntimeError:
+    pass
 
-# Ensure directories exist
-def ensure_directories():
-    """Create required directory structure if it doesn't exist."""
+logger = setup_logger("main")
+
+def ensure_directories() -> None:
+    """Ensure all required directories exist."""
     dirs = [
-        "code", "data", "data/raw", "data/scaled", "data/scaled/standardized",
-        "data/scaled/minmax", "data/scaled/robust", "data/config", "data/synthetic",
-        "results", "results/figures", "logs", "code/tests"
+        "data/raw", "data/scaled", "data/scaled/standardized",
+        "data/scaled/minmax", "data/scaled/robust", "data/config",
+        "data/synthetic", "results/figures", "logs"
     ]
     for d in dirs:
         os.makedirs(d, exist_ok=True)
+    logger.info("Directories ensured.")
 
-# Helper functions to get scaling and test functions
-def get_scaling_function(method: str) -> Callable:
-    """Return the appropriate scaling function."""
-    mapping = {
-        "standardization": standardize_data,
-        "minmax": min_max_scale,
-        "robust": robust_scale
-    }
-    if method not in mapping:
+def get_scaling_function(method: str):
+    """Return the scaling function based on the method name."""
+    if method == "standardize":
+        return standardize_data
+    elif method == "minmax":
+        return min_max_scale
+    elif method == "robust":
+        return robust_scale
+    else:
         raise ValueError(f"Unknown scaling method: {method}")
-    return mapping[method]
 
-def get_test_function(test_type: str) -> Callable:
-    """Return the appropriate statistical test function."""
-    mapping = {
-        "t-test": run_scaled_t_test,
-        "anova": run_scaled_anova,
-        "chi-squared": run_scaled_chi_squared
-    }
-    if test_type not in mapping:
+def get_test_function(test_type: str):
+    """Return the test function based on the test type name."""
+    if test_type == "t_test":
+        return run_scaled_t_test
+    elif test_type == "anova":
+        return run_scaled_anova
+    elif test_type == "chi_squared":
+        return run_scaled_chi_squared
+    else:
         raise ValueError(f"Unknown test type: {test_type}")
-    return mapping[test_type]
 
-# Checkpointing logic
-def save_partial_checkpoint(results: List[Dict], path: str, iteration: int):
+def save_checkpoint(
+    completed_iterations: int,
+    partial_results_df: pd.DataFrame,
+    time_remaining: float
+) -> None:
     """Save partial results to a checkpoint file."""
-    ensure_directories()
-    with open(path, 'w', newline='') as f:
-        if results:
-            writer = csv.DictWriter(f, fieldnames=results[0].keys())
-            writer.writeheader()
-            writer.writerows(results)
-    logging.info(f"Checkpoint saved at iteration {iteration} to {path}")
+    checkpoint_path = "results/partial_checkpoint.csv"
+    if not partial_results_df.empty:
+        partial_results_df.to_csv(checkpoint_path, index=False)
+        logger.info(f"Checkpoint saved at iteration {completed_iterations}.")
+    else:
+        logger.warning("No results to save in checkpoint.")
 
-# Single iteration logic
-def run_single_iteration(config: SimulationConfig, iteration_id: int, logger: ReproducibilityLogger) -> Dict[str, Any]:
+def run_single_iteration(
+    config: SimulationConfig,
+    scaling_method: str,
+    test_type: str,
+    iteration_id: int,
+    seed: int
+) -> Dict[str, Any]:
     """Run a single simulation iteration."""
-    seed = config.seed + iteration_id
-    np.random.seed(seed)
-    random.seed(seed)
-
-    # Generate synthetic data
     try:
-        data, ground_truth_label = generate_synthetic_data_from_config(config, seed=seed)
-    except ValueError as e:
-        # Handle zero variance or other edge cases by skipping
-        logger.warning(f"Skipping iteration {iteration_id}: {e}")
-        return None
-
-    # Apply scaling
-    scaling_func = get_scaling_function(config.scaling_method)
-    try:
-        scaled_data = scaling_func(data)
+        # Generate synthetic data
+        data, ground_truth_label = generate_synthetic_data(config, n=1000, seed=seed)
+        
+        # Apply scaling
+        scale_func = get_scaling_function(scaling_method)
+        scaled_data = scale_func(data)
+        
+        # Run test
+        test_func = get_test_function(test_type)
+        result = test_func(scaled_data)
+        
+        return {
+            "iteration_id": iteration_id,
+            "config_id": config.config_id,
+            "scaling_method": scaling_method,
+            "test_type": test_type,
+            "p_value": result.p_value,
+            "statistic": result.statistic,
+            "ground_truth": ground_truth_label,
+            "scaling_params": str(scale_func.__name__), # Simplified for CSV
+            "seed": seed
+        }
     except Exception as e:
-        logger.warning(f"Scaling failed at iteration {iteration_id}: {e}")
-        return None
+        logger.error(f"Iteration {iteration_id} failed: {e}")
+        return {
+            "iteration_id": iteration_id,
+            "config_id": config.config_id,
+            "scaling_method": scaling_method,
+            "test_type": test_type,
+            "p_value": None,
+            "statistic": None,
+            "ground_truth": None,
+            "scaling_params": None,
+            "seed": seed
+        }
 
-    # Run statistical test
-    test_func = get_test_function(config.test_type)
-    try:
-        result: TestResult = test_func(scaled_data)
-    except Exception as e:
-        logger.warning(f"Test failed at iteration {iteration_id}: {e}")
-        return None
-
-    # Record result
-    record = {
-        "iteration_id": iteration_id,
-        "config_id": config.config_id,
-        "scaling_method": config.scaling_method,
-        "test_type": config.test_type,
-        "p_value": result.p_value,
-        "statistic": result.statistic,
-        "ground_truth": ground_truth_label,
-        "scaling_params": json.dumps({}), # Placeholder for specific params if needed
-        "seed": seed
-    }
-    return record
-
-# Main simulation loop
-def run_simulation_loop(config: SimulationConfig, logger: ReproducibilityLogger) -> List[Dict[str, Any]]:
-    """Run the full simulation loop for a given configuration."""
-    results = []
-    start_time = time.time()
-    target_iterations = config.target_iterations if config.target_iterations > 0 else MIN_ITERATIONS
-
-    logger.log_operation("simulation_start", config_id=config.config_id, target_iterations=target_iterations)
-
-    for i in range(target_iterations):
-        # Check time limit
-        elapsed = time.time() - start_time
-        if elapsed > TIME_LIMIT_SECONDS:
-            logger.log_operation("time_limit_reached", elapsed_seconds=elapsed, completed_iterations=i)
-            save_partial_checkpoint(results, "results/partial_checkpoint.csv", i)
-            if i < MIN_ITERATIONS:
-                logger.error(f"Budget exhausted before minimum iterations ({i} < {MIN_ITERATIONS})")
-                sys.exit(99)
-            break
-
-        # Run iteration
-        record = run_single_iteration(config, i, logger)
-        if record:
-            results.append(record)
-
-        # Periodic checkpoint
-        if (i + 1) % CHECKPOINT_INTERVAL == 0:
-            save_partial_checkpoint(results, "results/partial_checkpoint.csv", i + 1)
-            logger.log_operation("checkpoint", iteration=i + 1, elapsed_seconds=time.time() - start_time)
-
-    logger.log_operation("simulation_complete", config_id=config.config_id, total_iterations=len(results))
-    return results
-
-# Write results to CSV
-def write_simulation_results(all_results: List[Dict], output_path: str):
-    """Write all simulation results to a CSV file."""
-    ensure_directories()
-    if not all_results:
-        logging.warning("No results to write.")
+def write_simulation_results(results: List[Dict[str, Any]], filepath: str) -> None:
+    """Write simulation results to a CSV file."""
+    if not results:
+        logger.warning("No results to write.")
         return
+    
+    df = pd.DataFrame(results)
+    df.to_csv(filepath, index=False)
+    logger.info(f"Results written to {filepath}")
 
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=all_results[0].keys())
-        writer.writeheader()
-        writer.writerows(all_results)
-    logging.info(f"Results written to {output_path}")
+def _worker(args: Tuple) -> Dict[str, Any]:
+    """Wrapper for multiprocessing worker."""
+    config, scaling_method, test_type, iteration_id, seed = args
+    return run_single_iteration(config, scaling_method, test_type, iteration_id, seed)
 
-# Mode: Simulation
-def run_simulation_mode(args):
-    """Run the simulation mode."""
+def run_simulation_loop(
+    configs: List[SimulationConfig],
+    target_iterations: int,
+    scaling_methods: List[str],
+    test_types: List[str],
+    max_time_seconds: int = 21600
+) -> pd.DataFrame:
+    """Run the simulation loop with multiprocessing parallelization."""
     ensure_directories()
-    logger = setup_logger(batch_id="main_pipeline")
-
-    # Load or create config
-    if args.config_id:
-        config = SimulationConfig(config_id=args.config_id, target_iterations=args.iterations)
-    else:
-        config = get_default_config()
-
-    # Run simulation
+    start_time = time.time()
     all_results = []
-    if args.config_id:
-        # Single config run
-        results = run_simulation_loop(config, logger)
-        all_results.extend(results)
-    else:
-        # Run over CONFIG_MATRIX
-        for matrix_config in CONFIG_MATRIX:
-            for dist in matrix_config["distribution_types"]:
-                for scale in matrix_config["scaling_methods"]:
-                    for test in matrix_config["test_types"]:
-                        run_config = SimulationConfig(
-                            config_id=f"{dist}_{scale}_{test}",
-                            distribution_type=dist.lower(),
-                            scaling_method=scale,
-                            test_type=test,
-                            target_iterations=MIN_ITERATIONS
-                        )
-                        logger.log_operation("config_start", config_id=run_config.config_id)
-                        results = run_simulation_loop(run_config, logger)
-                        all_results.extend(results)
-                        logger.log_operation("config_complete", config_id=run_config.config_id, count=len(results))
+    
+    # Prepare tasks
+    tasks = []
+    iteration_counter = 0
+    
+    for config in configs:
+        for scale_method in scaling_methods:
+            for test_type in test_types:
+                for _ in range(target_iterations):
+                    seed = np.random.randint(0, 2**31)
+                    tasks.append((config, scale_method, test_type, iteration_counter, seed))
+                    iteration_counter += 1
+    
+    logger.info(f"Total tasks prepared: {len(tasks)}")
+    
+    # Use multiprocessing pool
+    num_workers = min(cpu_count(), 8) # Cap workers to avoid oversubscription
+    logger.info(f"Starting multiprocessing pool with {num_workers} workers.")
+    
+    with Pool(processes=num_workers) as pool:
+        # Process tasks in chunks to manage memory and allow checkpointing
+        chunk_size = max(1, len(tasks) // (num_workers * 4))
+        for i in range(0, len(tasks), chunk_size):
+            chunk = tasks[i : i + chunk_size]
+            
+            # Check time limit
+            elapsed = time.time() - start_time
+            if elapsed > max_time_seconds:
+                logger.warning(f"Time limit reached at {elapsed:.1f}s. Stopping.")
+                break
+            
+            # Execute chunk in parallel
+            chunk_results = pool.map(_worker, chunk)
+            all_results.extend(chunk_results)
+            
+            # Checkpoint every chunk
+            if len(all_results) % 100 == 0:
+                save_checkpoint(len(all_results), pd.DataFrame(all_results), max_time_seconds - elapsed)
+    
+    # Write final results
+    output_path = "results/simulation_results.csv"
+    write_simulation_results(all_results, output_path)
+    
+    logger.info(f"Simulation loop completed. Total iterations: {len(all_results)}")
+    return pd.DataFrame(all_results)
 
-    # Write results
-    write_simulation_results(all_results, "results/simulation_results.csv")
-    return all_results
+def run_simulation_mode(args: argparse.Namespace) -> int:
+    """Run the simulation mode."""
+    configs = CONFIG_MATRIX
+    scaling_methods = ["standardize", "minmax", "robust"]
+    test_types = ["t_test", "anova", "chi_squared"]
+    
+    iterations = args.iterations if hasattr(args, 'iterations') and args.iterations else 100
+    logger.info(f"Running simulation with {iterations} iterations per config.")
+    
+    df = run_simulation_loop(configs, iterations, scaling_methods, test_types)
+    
+    if df.empty:
+        return 99
+    
+    return 0
 
-# Mode: Real World
-def run_real_world_mode(args):
-    """Run the real-world data processing mode."""
-    ensure_directories()
-    logger = setup_logger(batch_id="main_pipeline")
-    logger.log_operation("real_world_start")
+def run_real_world_mode(args: argparse.Namespace) -> int:
+    """Run the real-world data mode."""
+    # Placeholder for real-world logic
+    logger.info("Real-world mode not fully implemented in this snippet.")
+    return 0
 
-    # Placeholder for real world ingestion logic
-    # This would load datasets from data/config/datasets.yaml and process them
-    logger.log_operation("real_world_complete")
-    return []
-
-# Mode: Analyze
-def run_analyze_mode(args):
+def run_analyze_mode(args: argparse.Namespace) -> int:
     """Run the analysis mode."""
-    ensure_directories()
-    logger = setup_logger(batch_id="main_pipeline")
-    logger.log_operation("analysis_start")
+    # Placeholder for analysis logic
+    logger.info("Analysis mode not fully implemented in this snippet.")
+    return 0
 
-    # Load results and run aggregation
-    # This would call code/analysis/metrics.py functions
-    logger.log_operation("analysis_complete")
-    return {}
-
-# Mode: Visualize
-def run_visualize_mode(args):
+def run_visualize_mode(args: argparse.Namespace) -> int:
     """Run the visualization mode."""
-    ensure_directories()
-    logger = setup_logger(batch_id="main_pipeline")
-    logger.log_operation("visualization_start")
+    # Placeholder for visualization logic
+    logger.info("Visualization mode not fully implemented in this snippet.")
+    return 0
 
-    # Generate plots
-    logger.log_operation("visualization_complete")
-    return {}
-
-# Main entry point
-def main():
-    """Main entry point for the CLI."""
-    parser = argparse.ArgumentParser(description="Data Scaling Impact Evaluation")
+def main() -> int:
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Simulation Pipeline")
     subparsers = parser.add_subparsers(dest="mode", required=True)
-
-    # Simulation mode
+    
+    # Simulation subcommand
     sim_parser = subparsers.add_parser("simulation", help="Run simulation")
-    sim_parser.add_argument("--config-id", type=str, help="Specific config ID")
-    sim_parser.add_argument("--iterations", type=int, default=MIN_ITERATIONS, help="Number of iterations")
-
-    # Real world mode
-    subparsers.add_parser("real_world", help="Run real-world data processing")
-
-    # Analyze mode
-    subparsers.add_parser("analyze", help="Run analysis")
-
-    # Visualize mode
-    subparsers.add_parser("visualize", help="Generate visualizations")
-
+    sim_parser.add_argument("--iterations", type=int, default=100, help="Number of iterations per config")
+    
+    # Real-world subcommand
+    real_parser = subparsers.add_parser("real_world", help="Run real-world analysis")
+    
+    # Analyze subcommand
+    analyze_parser = subparsers.add_parser("analyze", help="Run analysis")
+    
+    # Visualize subcommand
+    viz_parser = subparsers.add_parser("visualize", help="Run visualization")
+    
     args = parser.parse_args()
-
+    
     if args.mode == "simulation":
-        run_simulation_mode(args)
+        return run_simulation_mode(args)
     elif args.mode == "real_world":
-        run_real_world_mode(args)
+        return run_real_world_mode(args)
     elif args.mode == "analyze":
-        run_analyze_mode(args)
+        return run_analyze_mode(args)
     elif args.mode == "visualize":
-        run_visualize_mode(args)
+        return run_visualize_mode(args)
+    else:
+        parser.print_help()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -7,13 +7,15 @@ import logging
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 @dataclass
 class LogEntry:
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    batch_id: Optional[str] = None
+    seed: Optional[int] = None
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
@@ -28,22 +30,26 @@ class ReproducibilityLogger:
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Handle both string name and keyword arguments
-        if args:
-            self.name = args[0]
-        else:
-            self.name = kwargs.get("name", kwargs.get("batch_id", "reproducibility"))
-        
-        # Extract batch_id and seed for context if provided
-        self.batch_id = kwargs.get("batch_id", None)
-        self.seed = kwargs.get("seed", None)
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
+        self._batch_id: Optional[str] = None
+        self._seed: Optional[int] = None
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        entry = LogEntry(
+            operation=str(op),
+            parameters=dict(kwargs),
+            batch_id=self._batch_id,
+            seed=self._seed
+        )
         self.entries.append(entry)
         return entry
+
+    def set_batch_context(self, batch_id: str, seed: int) -> None:
+        """Inject batch_id and seed into the logger context for all subsequent logs."""
+        self._batch_id = batch_id
+        self._seed = seed
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
@@ -84,30 +90,56 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     """
-    Setup a logger instance. Accepts multiple call shapes:
-    1. setup_logger("name_string") -> positional arg
-    2. setup_logger(batch_id="id") -> keyword arg
-    3. setup_logger(__name__) -> positional arg
-    
-    Returns a ReproducibilityLogger that never raises on unexpected call shapes.
+    Setup and return a logger instance.
+    Accepts various call shapes:
+      - setup_logger("name_string")
+      - setup_logger(batch_id="id")
+      - setup_logger(__name__)
+      - setup_logger()
+    Returns a ReproducibilityLogger which supports .log(), .to_json(), and context injection.
     """
-    global _GLOBAL_LOGGER
-    
-    # If called with positional args, use the first as name
+    logger_name = None
+    batch_id = None
+    seed = None
+
     if args:
-        name_or_batch = args[0]
-        if isinstance(name_or_batch, str):
-            # If it looks like a module name or simple string, use as name
-            logger = ReproducibilityLogger(name=name_or_batch, **kwargs)
+        if isinstance(args[0], str):
+            logger_name = args[0]
+        elif args[0] is None:
+            logger_name = "reproducibility"
         else:
-            # Fallback
-            logger = ReproducibilityLogger(*args, **kwargs)
-    else:
-        # If called with only kwargs (e.g., batch_id=...), use kwargs
-        logger = ReproducibilityLogger(**kwargs)
-    
-    # Update global if not set
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = logger
-    
+            logger_name = str(args[0])
+
+    if "batch_id" in kwargs:
+        batch_id = kwargs.pop("batch_id")
+    if "seed" in kwargs:
+        seed = kwargs.pop("seed")
+    if "name" in kwargs:
+        logger_name = kwargs.pop("name")
+
+    if not logger_name:
+        logger_name = "reproducibility"
+
+    # Use the global logger singleton for consistency across the project
+    logger = get_logger(name=logger_name)
+
+    # If batch_id and seed are provided at setup, inject them immediately
+    if batch_id is not None and seed is not None:
+        logger.set_batch_context(batch_id, seed)
+
     return logger
+
+
+def inject_batch_context(logger: ReproducibilityLogger, batch_id: str, seed: int) -> None:
+    """
+    Inject batch_id and seed into the logger context.
+    This function must be called at the start of every simulation batch.
+    It updates the logger instance in-place so all subsequent log records
+    include the batch_id and seed.
+    """
+    if hasattr(logger, 'set_batch_context'):
+        logger.set_batch_context(batch_id, seed)
+    else:
+        # Fallback for any logger that doesn't support the method directly
+        # (though in this project, we always use ReproducibilityLogger)
+        pass

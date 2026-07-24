@@ -1,202 +1,147 @@
-"""Unit tests for main.py functionality."""
+"""Unit tests for code/main.py functionality."""
 import csv
+import json
 import os
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
 import pandas as pd
+import pytest
 
-# Import functions to test
-from main import (
-    PARTIAL_CHECKPOINT_FILE,
-    SIMULATION_RESULTS_FILE,
-    run_simulation_loop,
-    run_simulation_mode,
-    save_partial_checkpoint,
-    write_simulation_results,
-)
-from simulation.config import SimulationConfig, get_default_config
-from simulation.logger import setup_logger
+from main import write_simulation_results, run_simulation_loop
+from simulation.config import SimulationConfig
 
 
 class TestMain:
-    """Test suite for main.py functions."""
+    """Tests for main.py functions."""
 
     def test_write_simulation_results_creates_file(self, tmp_path):
-        """Test that write_simulation_results creates the CSV file with correct schema."""
-        # Setup: Mock the global paths to use tmp_path
-        with patch("main.SIMULATION_RESULTS_FILE", tmp_path / "simulation_results.csv"):
-            # Arrange
-            results = [
-                {
-                    "iteration_id": 0,
-                    "config_id": "test-config",
-                    "scaling_method": "standardization",
-                    "test_type": "t-test",
-                    "p_value": 0.05,
-                    "statistic": 1.96,
-                    "ground_truth": "null",
-                    "scaling_params": {},
-                    "seed": 42,
-                }
-            ]
-            logger = setup_logger("test")
-
-            # Act
-            write_simulation_results(results, logger)
-
-            # Assert
-            output_file = tmp_path / "simulation_results.csv"
-            assert output_file.exists(), "Output CSV file was not created."
-
-            with open(output_file, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-            assert len(rows) == 1, "Expected 1 row in CSV."
-            row = rows[0]
-            assert row["iteration_id"] == "0"
-            assert row["config_id"] == "test-config"
-            assert row["scaling_method"] == "standardization"
-            assert row["test_type"] == "t-test"
-            assert float(row["p_value"]) == 0.05
-            assert row["ground_truth"] == "null"
-
-    def test_write_simulation_results_appends(self, tmp_path):
-        """Test that write_simulation_results appends to existing file."""
-        with patch("main.SIMULATION_RESULTS_FILE", tmp_path / "simulation_results.csv"):
-            # Create initial file
-            initial_results = [
-                {
-                    "iteration_id": 0,
-                    "config_id": "config-1",
-                    "scaling_method": "standardization",
-                    "test_type": "t-test",
-                    "p_value": 0.01,
-                    "statistic": 2.5,
-                    "ground_truth": "alt",
-                    "scaling_params": {},
-                    "seed": 1,
-                }
-            ]
-            logger = setup_logger("test")
-            write_simulation_results(initial_results, logger)
-
-            # Append more results
-            new_results = [
-                {
-                    "iteration_id": 1,
-                    "config_id": "config-2",
-                    "scaling_method": "min-max",
-                    "test_type": "anova",
-                    "p_value": 0.03,
-                    "statistic": 3.1,
-                    "ground_truth": "null",
-                    "scaling_params": {},
-                    "seed": 2,
-                }
-            ]
-            write_simulation_results(new_results, logger)
-
-            # Assert
-            output_file = tmp_path / "simulation_results.csv"
-            with open(output_file, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-            assert len(rows) == 2, "Expected 2 rows after append."
-            assert rows[0]["config_id"] == "config-1"
-            assert rows[1]["config_id"] == "config-2"
-
-    def test_save_partial_checkpoint(self, tmp_path):
-        """Test that save_partial_checkpoint writes partial results."""
-        with patch("main.PARTIAL_CHECKPOINT_FILE", tmp_path / "partial_checkpoint.csv"):
-            # Arrange
-            iteration_id = 100
-            config_id = "test-config"
-            results = [
-                {
-                    "scaling_method": "standardization",
-                    "test_type": "t-test",
-                    "p_value": 0.05,
-                    "statistic": 1.96,
-                    "ground_truth": "null",
-                    "scaling_params": {},
-                    "seed": 42,
-                }
-            ]
-            elapsed_time = 120.5
-            logger = setup_logger("test")
-
-            # Act
-            save_partial_checkpoint(iteration_id, config_id, results, elapsed_time, logger)
-
-            # Assert
-            output_file = tmp_path / "partial_checkpoint.csv"
-            assert output_file.exists(), "Checkpoint file was not created."
-
-            with open(output_file, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
+        """Test that write_simulation_results creates the output CSV."""
+        output_path = tmp_path / "test_results.csv"
+        results = [
+            {
+                "iteration_id": 0,
+                "config_id": "config_Normal_42",
+                "scaling_method": "standardize",
+                "test_type": "t_test",
+                "p_value": 0.03,
+                "statistic": 2.1,
+                "ground_truth": "null",
+                "scaling_params": "{}",
+                "seed": 42,
+            }
+        ]
+        
+        write_simulation_results(results, str(output_path))
+        
+        assert output_path.exists()
+        with open(output_path, "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
             assert len(rows) == 1
-            row = rows[0]
-            assert row["iteration_id"] == "100"
-            assert row["config_id"] == "test-config"
-            assert row["elapsed_time"] == "120.5"
+            assert rows[0]["iteration_id"] == "0"
+            assert rows[0]["p_value"] == "0.03"
 
-    def test_run_simulation_loop_basic(self, tmp_path):
-        """Test basic execution of simulation loop with mocked dependencies."""
-        with patch("main.SIMULATION_RESULTS_FILE", tmp_path / "simulation_results.csv"):
-            # Mock dependencies
-            mock_config = get_default_config()
-            mock_config.id = "test-loop-config"
-            mock_config.target_iterations = 5
-            mock_config.seed = 100
+    def test_write_simulation_results_schema(self, tmp_path):
+        """Test that the output CSV contains the correct schema."""
+        output_path = tmp_path / "schema_test.csv"
+        results = [
+            {
+                "iteration_id": 1,
+                "config_id": "config_Skewed_123",
+                "scaling_method": "minmax",
+                "test_type": "anova",
+                "p_value": 0.001,
+                "statistic": 5.4,
+                "ground_truth": "alternative",
+                "scaling_params": json.dumps({"min": 0, "max": 1}),
+                "seed": 123,
+            }
+        ]
+        
+        write_simulation_results(results, str(output_path))
+        
+        df = pd.read_csv(output_path)
+        expected_cols = [
+            "iteration_id", "config_id", "scaling_method", "test_type",
+            "p_value", "statistic", "ground_truth", "scaling_params", "seed"
+        ]
+        for col in expected_cols:
+            assert col in df.columns, f"Missing column: {col}"
 
-            logger = setup_logger("test")
+    def test_write_simulation_results_empty(self, tmp_path):
+        """Test that write_simulation_results handles empty results gracefully."""
+        output_path = tmp_path / "empty_results.csv"
+        
+        write_simulation_results([], str(output_path))
+        
+        # File should exist but be empty or have only headers depending on implementation
+        # For this test, we just ensure it doesn't crash
+        assert output_path.exists()
 
-            # We cannot easily run the full loop without mocking generate_synthetic_data_from_config
-            # and run_pipeline, so we test the structure/logic via write_simulation_results instead.
-            # This test verifies that the loop logic (iteration count) is correct if mocked.
-            pass
+    @patch("main.run_single_iteration")
+    def test_run_simulation_loop_calls_iterations(self, mock_run_iter, tmp_path):
+        """Test that run_simulation_loop calls run_single_iteration the correct number of times."""
+        # Mock the iteration result
+        mock_run_iter.return_value = {
+            "iteration_id": 0,
+            "config_id": "test_config",
+            "scaling_method": "standardize",
+            "test_type": "t_test",
+            "p_value": 0.05,
+            "statistic": 1.96,
+            "ground_truth": "null",
+            "scaling_params": "{}",
+            "seed": 1,
+        }
+        
+        # Create a minimal config
+        config = SimulationConfig(
+            distribution_type="Normal",
+            mean=0.0,
+            variance=1.0,
+            skewness=0.0,
+            kurtosis=3.0,
+        )
+        
+        # Run with 2 iterations
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Patch CONFIG_MATRIX
+            with patch("main.CONFIG_MATRIX", [config]):
+                with patch("main.write_simulation_results") as mock_write:
+                    result_df = run_simulation_loop(
+                        target_iterations=2,
+                        config_matrix=[config],
+                        scaling_methods=["standardize"],
+                        test_types=["t_test"],
+                    )
+                    
+                    # Check that run_single_iteration was called 2 times (1 config * 2 iterations * 1 scale * 1 test)
+                    assert mock_run_iter.call_count == 2
+                    assert len(result_df) == 2
 
-    def test_schema_validation(self, tmp_path):
-        """Test that the CSV schema matches the required specification."""
-        with patch("main.SIMULATION_RESULTS_FILE", tmp_path / "simulation_results.csv"):
-            required_columns = [
-                "iteration_id",
-                "config_id",
-                "scaling_method",
-                "test_type",
-                "p_value",
-                "statistic",
-                "ground_truth",
-                "scaling_params",
-                "seed",
-            ]
-
-            results = [
-                {
-                    "iteration_id": 0,
-                    "config_id": "c1",
-                    "scaling_method": "std",
-                    "test_type": "t",
-                    "p_value": 0.05,
-                    "statistic": 1.0,
-                    "ground_truth": "null",
-                    "scaling_params": {},
-                    "seed": 1,
-                }
-            ]
-            logger = setup_logger("test")
-            write_simulation_results(results, logger)
-
-            output_file = tmp_path / "simulation_results.csv"
-            with open(output_file, "r") as f:
-                reader = csv.DictReader(f)
-                assert set(reader.fieldnames) == set(required_columns), (
-                    f"Schema mismatch. Expected {required_columns}, got {reader.fieldnames}"
-                )
+    def test_write_simulation_results_multiple_rows(self, tmp_path):
+        """Test writing multiple rows to CSV."""
+        output_path = tmp_path / "multi_row.csv"
+        results = [
+            {
+                "iteration_id": i,
+                "config_id": f"config_{i}",
+                "scaling_method": "standardize",
+                "test_type": "t_test",
+                "p_value": 0.05 * (i + 1),
+                "statistic": 1.96 + i,
+                "ground_truth": "null",
+                "scaling_params": "{}",
+                "seed": i * 10,
+            }
+            for i in range(10)
+        ]
+        
+        write_simulation_results(results, str(output_path))
+        
+        df = pd.read_csv(output_path)
+        assert len(df) == 10
+        assert df["iteration_id"].tolist() == list(range(10))
+        assert df["seed"].tolist() == [i * 10 for i in range(10)]

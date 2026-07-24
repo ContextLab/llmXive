@@ -1,21 +1,21 @@
 {
   "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
   "ok": false,
-  "reason": "6 command(s) failed: python code/main.py --mode simulation (rc=1); python code/main.py --mode real_world (rc=1); python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 (rc=1)",
+  "reason": "6 command(s) failed: python code/main.py --mode simulation (rc=2); python code/main.py --mode real_world (rc=2); python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 (rc=2)",
   "artifacts": [],
   "failures": [
-    "python code/main.py --mode simulation -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'",
-    "python code/main.py --mode real_world -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'",
-    "python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'",
-    "python code/main.py --mode visualize -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'",
-    "python code/main.py --mode analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'",
-    "python code/main.py --mode verify-checksums -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 156, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py\", line 129, in main\n    logger = setup_logger(batch_id=\"main_pipeline\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'batch_id'"
+    "python code/main.py --mode simulation -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode real_world -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode visualize -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode analyze -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode verify-checksums -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-19T06:36:28Z"
+  "updated_at": "2026-07-24T15:59:48Z"
 }

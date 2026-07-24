@@ -1,14 +1,11 @@
-T027c:
+T005b:
   c: false
-  h: 766899941467a687a11798fa6baab724d3aaf91c019b15d5d4f7507beeed41c4
-  r: "The required output file `results/real_world_ingestion_log.csv` does not exist,\
-    \ so the ingestion pipeline\u2019s deliverable is missing. Additionally, the provided\
-    \ `ingestion.py` is truncated and does not clearly implement all required functions\
-    \ (e.g., `clean_dataset`, `compute_checksum`, `update_manifest`, `process_real_world_dataset`,\
-    \ `run_ingestion_pipeline`, `validate_dataset_availability`) needed for the unit\
-    \ test to pass. The next implementer must create the missing CSV log with the\
-    \ specified columns and ensure the full ingestion logic and all referenced functions\
-    \ are implemented and exercise"
+  h: 12831b6e186f987dbfdf7503e3f636bcb04304a0dae785660e9177ac77f93bf7
+  r: "The `logger.py` file ends abruptly inside the `setup_logger` definition and\
+    \ does not contain a complete implementation, nor is there any `save_seed_config`\
+    \ function present. Additionally, `seed_config.json` is an empty `{}` with no\
+    \ evidence that new batch entries are being appended according to the required\
+    \ schema. The task\u2019s core requirements are therefore unmet."
 T028a:
   c: false
   h: 7c480ebea748c0b882aa42a0b013d00695380b85ac19da470d99cc578e3440eb
@@ -26,13 +23,25 @@ T028b:
     \ checkpoint mechanism in `main.py` and add a test that confirms `partial_checkpoint.csv`\
     \ is created and populated as expected."
 T028c:
-  c: true
-  h: 762dc5ca2f483733eec0637d8df12f30918df270c911d3c184428c2a915c9f4c
-  r: "The repository contains `code/main.py` with the required implementation (including\
-    \ a `write_simulation_results` function) and a unit test `code/tests/unit/simulation/test_main.py`\
-    \ that creates a CSV at a temporary path, checks that the file is written, and\
-    \ validates the schema. The test imports the function successfully, confirming\
-    \ the aggregation and CSV\u2011writing logic is present."
+  c: false
+  h: 200c5cfe8b9a296a1cc35a5f0660224473779e5a313d5fc575db897d684acaa9
+  r: "The repository lacks the required `results/simulation_results.csv` file, and\
+    \ the provided `code/main.py` excerpt does not show an implementation of `write_simulation_results`\
+    \ (or any logic that writes to the `results/` directory). Consequently, the task\u2019\
+    s core requirement\u2014aggregating results and persisting them to `results/simulation_results.csv`\
+    \ with the specified schema\u2014is not satisfied. The next implementer must add\
+    \ a `write_simulation_results` function (and any supporting aggregation code)\
+    \ that writes the exact schema to `results/simulation_results.csv` and ensure\
+    \ the file is created durin"
+T029:
+  c: false
+  h: d1f1b6a7425ae25836385c3b9fa8cf2fbb219df3054bd49da0aea72db054da79
+  r: "The repository lacks the required input file `results/simulation_results.csv`,\
+    \ and the function `calculate_aggregate_metrics` is only partially implemented\
+    \ (it does not compute separate power values, does not calculate Clopper\u2011\
+    Pearson confidence intervals, and never writes `results/aggregate_metrics.csv`).\
+    \ Consequently the deliverable CSV is missing and the implementation does not\
+    \ meet the specification."
 T039:
   c: false
   h: 7ce3bfe1c83a7a1af0d44673bce7447d7abc93bd6b75a815203391c8869d2f3b
@@ -97,11 +106,11 @@ T050:
     \ are absent."
 T057:
   c: false
-  h: 4e07702e79339f7682ef642655571889825b6b89a86273ed911ba79f23b40587
-  r: The provided `metrics.py` does not contain a `run_sensitivity_analysis` implementation
-    (the file ends abruptly with a typo in `calculate_aggregate_metrics`), and the
-    required output file `results/sensitivity_analysis.csv` is absent. Both the function
-    and the CSV result are needed to satisfy the task.
+  h: 205a4bf839f1230baacc856745dd81fbf7df4ca0844c595ec6bb906b8de11a07
+  r: The `metrics.py` file does not contain a `run_sensitivity_analysis` function,
+    and the required data files `results/simulation_results.csv` and the generated
+    `results/sensitivity_analysis.csv` are absent. Consequently the sensitivity analysis
+    implementation and its deliverables are missing.
 T064:
   c: false
   h: 298b1d41597eadef2e1bac295d860e235529aed726f489d03a81d71525acbf19

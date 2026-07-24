@@ -1,6 +1,5 @@
 """
-Metrics and analysis for the simulation pipeline.
-Implements aggregation, confidence intervals, mixed-effects models, and sensitivity analysis.
+Aggregation, metrics, and analysis functions.
 """
 from __future__ import annotations
 
@@ -11,330 +10,340 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-import statsmodels.formula.api as smf
 from scipy import stats
-from statsmodels.stats.proportion import proportion_confint
 
-# Import local utilities if needed, otherwise rely on standard libs
-# Ensure paths are relative to the project root when imported via code/
+# Import from local modules as per project structure
+# Assuming these are available in the codebase as per the API surface
+# If not, they should be imported from the correct relative paths
+try:
+    from analysis.tests import TestResult
+except ImportError:
+    # Fallback if running as main script or different import context
+    TestResult = Any  # type: ignore
 
 logger = logging.getLogger(__name__)
 
-# Constants
-ALPHA_DEFAULT = 0.05
-SENSITIVITY_ALPHA_LEVELS = [0.01, 0.05, 0.10]
-
-def load_simulation_results(filepath: Optional[str] = None) -> pd.DataFrame:
+def load_simulation_results(filepath: str = "results/simulation_results.csv") -> pd.DataFrame:
     """Load simulation results from CSV."""
-    if filepath is None:
-        filepath = "results/simulation_results.csv"
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Simulation results file not found at {filepath}")
-    logger.info(f"Loading simulation results from {filepath}")
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Simulation results file not found: {filepath}")
     return pd.read_csv(filepath)
 
-def load_real_world_results(filepath: Optional[str] = None) -> pd.DataFrame:
+def load_real_world_results(filepath: str = "results/real_world_results.csv") -> pd.DataFrame:
     """Load real world results from CSV."""
-    if filepath is None:
-        filepath = "results/real_world_results.csv"
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Real world results file not found at {filepath}")
-    logger.info(f"Loading real world results from {filepath}")
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Real world results file not found: {filepath}")
     return pd.read_csv(filepath)
-
-def calculate_confidence_interval(
-    successes: int, total: int, alpha: float = 0.05
-) -> Tuple[float, float]:
-    """
-    Calculate the Clopper-Pearson exact confidence interval for a binomial proportion.
-    
-    Args:
-        successes: Number of successes (e.g., rejections of null)
-        total: Total number of trials
-        alpha: Significance level for the CI (e.g., 0.05 for 95% CI)
-        
-    Returns:
-        Tuple of (lower_bound, upper_bound)
-    """
-    if total == 0:
-        return 0.0, 0.0
-    # statsmodels or scipy.stats.beta can be used. 
-    # Using scipy.stats.beta for Clopper-Pearson
-    lower = stats.beta.ppf(alpha / 2, successes, total - successes + 1) if successes > 0 else 0.0
-    upper = stats.beta.ppf(1 - alpha / 2, successes + 1, total - successes) if successes < total else 1.0
-    return lower, upper
 
 def calculate_aggregate_metrics(
-    results_df: pd.DataFrame, alpha: float = ALPHA_DEFAULT
+    df: pd.DataFrame,
+    alpha: float = 0.05
 ) -> pd.DataFrame:
     """
-    Calculate aggregate metrics (Type I error, Power) per configuration.
-    
+    Calculate aggregate metrics (Type I error, Power) for each config/scaling/test.
+
+    Formula:
+    Type I error = count(p < alpha) / total_iterations (for null hypothesis)
+    Power = count(p < alpha) / total_iterations (for alternative hypothesis)
+
     Args:
-        results_df: DataFrame with columns including 'p_value', 'ground_truth', 
-                    'scaling_method', 'test_type', 'config_id'.
-        alpha: Significance threshold.
-                    
+        df: DataFrame with columns: config_id, scaling_method, test_type, p_value, ground_truth
+        alpha: Significance threshold
+
     Returns:
-        DataFrame with aggregated metrics.
+        DataFrame with metrics per group
     """
-    if results_df.empty:
-        logger.warning("Input DataFrame is empty.")
+    if df.empty:
         return pd.DataFrame()
 
-    # Ensure numeric types
-    results_df['p_value'] = pd.to_numeric(results_df['p_value'], errors='coerce')
-    
-    # Group by configuration
-    groups = results_df.groupby(['config_id', 'scaling_method', 'test_type'])
-    
-    records = []
-    for (config_id, scaling_method, test_type), group in groups:
+    # Ensure p_value is numeric
+    df = df.copy()
+    df['p_value'] = pd.to_numeric(df['p_value'], errors='coerce')
+
+    # Group by config, scaling, test
+    groups = df.groupby(['config_id', 'scaling_method', 'test_type', 'ground_truth'])
+
+    results = []
+    for (config_id, scaling_method, test_type, ground_truth), group in groups:
         total = len(group)
         if total == 0:
             continue
-            
-        # Type I Error: Rejection rate when ground_truth is 'null'
-        null_mask = group['ground_truth'] == 'null'
-        null_count = null_mask.sum()
-        null_rejections = (group.loc[null_mask, 'p_value'] < alpha).sum()
-        type1_error = null_rejections / null_count if null_count > 0 else 0.0
-        
-        # Power: Rejection rate when ground_truth is 'alternative'
-        alt_mask = group['ground_truth'] == 'alternative'
-        alt_count = alt_mask.sum()
-        alt_rejections = (group.loc[alt_mask, 'p_value'] < alpha).sum()
-        power = alt_rejections / alt_count if alt_count > 0 else 0.0
-        
-        # Confidence Intervals
-        ci_low_type1, ci_high_type1 = calculate_confidence_interval(null_rejections, null_count)
-        ci_low_power, ci_high_power = calculate_confidence_interval(alt_rejections, alt_count)
-        
-        records.append({
+
+        significant = (group['p_value'] < alpha).sum()
+        error_rate = significant / total if total > 0 else 0.0
+
+        # Determine if this is null or alternative
+        is_null = ground_truth == 'null'
+
+        results.append({
             'config_id': config_id,
             'scaling_method': scaling_method,
             'test_type': test_type,
-            'error_rate': type1_error,
-            'power': power,
-            'ci_lower': ci_low_type1,
-            'ci_upper': ci_high_type1,
-            'total_null': null_count,
-            'total_alt': alt_count
+            'ground_truth': ground_truth,
+            'total_iterations': total,
+            'significant_count': int(significant),
+            'error_rate': error_rate,
+            'is_null': is_null
         })
-        
-    return pd.DataFrame(records)
+
+    result_df = pd.DataFrame(results)
+
+    # Pivot to get error_rate and power separately
+    # For null: error_rate is Type I error
+    # For alternative: error_rate is Power
+    if result_df.empty:
+        return result_df
+
+    # Calculate CI using Clopper-Pearson
+    def clopper_pearson_ci(successes, n, alpha_conf=0.05):
+        if n == 0:
+            return 0.0, 0.0
+        if successes == 0:
+            lower = 0.0
+            upper = 1 - (alpha_conf / 2) ** (1 / n)
+        elif successes == n:
+            lower = (alpha_conf / 2) ** (1 / n)
+            upper = 1.0
+        else:
+            lower = stats.beta.ppf(alpha_conf / 2, successes, n - successes + 1)
+            upper = stats.beta.ppf(1 - alpha_conf / 2, successes + 1, n - successes)
+        return lower, upper
+
+    ci_results = []
+    for _, row in result_df.iterrows():
+        lower, upper = clopper_pearson_ci(row['significant_count'], row['total_iterations'])
+        ci_results.append({
+            'config_id': row['config_id'],
+            'scaling_method': row['scaling_method'],
+            'test_type': row['test_type'],
+            'ground_truth': row['ground_truth'],
+            'error_rate': row['error_rate'],
+            'ci_lower': lower,
+            'ci_upper': upper,
+            'total_iterations': row['total_iterations'],
+            'significant_count': row['significant_count']
+        })
+
+    return pd.DataFrame(ci_results)
+
+def calculate_confidence_interval(
+    successes: int,
+    n: int,
+    alpha_conf: float = 0.05
+) -> Tuple[float, float]:
+    """
+    Calculate Clopper-Pearson exact confidence interval.
+
+    Args:
+        successes: Number of successes
+        n: Total trials
+        alpha_conf: Confidence level (e.g., 0.05 for 95% CI)
+
+    Returns:
+        (lower, upper) tuple
+    """
+    if n == 0:
+        return 0.0, 0.0
+    if successes == 0:
+        lower = 0.0
+        upper = 1 - (alpha_conf / 2) ** (1 / n)
+    elif successes == n:
+        lower = (alpha_conf / 2) ** (1 / n)
+        upper = 1.0
+    else:
+        lower = stats.beta.ppf(alpha_conf / 2, successes, n - successes + 1)
+        upper = stats.beta.ppf(1 - alpha_conf / 2, successes + 1, n - successes)
+    return lower, upper
 
 def fit_mixed_effects_model(
-    df: pd.DataFrame, 
-    response_col: str = 'error_rate',
-    random_effect: str = 'config_id'
+    df: pd.DataFrame,
+    model_type: str = "synthetic"
 ) -> Any:
     """
-    Fit a linear mixed-effects model.
-    
+    Fit a mixed-effects model to analyze the impact of scaling methods.
+
+    For synthetic data: model ~ scaling_method + (1 | config_id)
+    For real-world data: model ~ scaling_method + (1 | dataset_id)
+
     Args:
-        df: DataFrame containing the metrics.
-        response_col: Name of the response variable.
-        random_effect: Name of the grouping variable for random effects.
-        
+        df: DataFrame with metrics
+        model_type: 'synthetic' or 'real_world'
+
     Returns:
-        statsmodels MixedLMResults object.
+        Model summary object
     """
-    # Prepare formula
-    # response ~ scaling_method + (1 | random_effect)
-    formula = f"{response_col} ~ C(scaling_method)"
-    if random_effect:
-        formula += f" + (1 | {random_effect})"
-        
     try:
-        model = smf.mixedlm(formula, df, groups=df[random_effect])
+        import statsmodels.formula.api as smf
+    except ImportError:
+        logger.warning("statsmodels not available. Skipping mixed-effects model.")
+        return None
+
+    # Prepare data
+    df_clean = df.dropna(subset=['error_rate', 'scaling_method'])
+
+    if model_type == "synthetic":
+        if 'config_id' not in df_clean.columns:
+            logger.warning("config_id not found in data for synthetic model.")
+            return None
+        formula = "error_rate ~ scaling_method + (1 | config_id)"
+    else:
+        if 'dataset_id' not in df_clean.columns:
+            logger.warning("dataset_id not found in data for real-world model.")
+            return None
+        formula = "error_rate ~ scaling_method + (1 | dataset_id)"
+
+    try:
+        model = smf.mixedlm(formula, df_clean, groups=df_clean['config_id'] if model_type == "synthetic" else df_clean['dataset_id'])
         result = model.fit()
-        logger.info("Mixed effects model fitted successfully.")
         return result
     except Exception as e:
-        logger.error(f"Failed to fit mixed effects model: {e}")
+        logger.error(f"Failed to fit mixed-effects model: {e}")
         return None
 
 def generate_comparison_report(
-    synthetic_df: pd.DataFrame, 
-    real_df: pd.DataFrame, 
+    synthetic_df: pd.DataFrame,
+    real_df: pd.DataFrame,
     output_path: str = "results/comparison_report.md"
 ) -> None:
     """
     Generate a markdown comparison report between synthetic and real-world results.
+
+    Args:
+        synthetic_df: Synthetic results DataFrame
+        real_df: Real-world results DataFrame
+        output_path: Path to save the report
     """
-    # Calculate metrics
-    # Assume synthetic_df and real_df have 'error_rate' and 'power' columns
-    # Group by test_type and scaling_method to align
-    
-    report_lines = ["# Comparison Report: Synthetic vs Real-World Results\n\n"]
-    report_lines.append("## Error Rate Comparison\n")
-    report_lines.append("| Metric | Synthetic Value | Real Value | Mean Abs Diff | Correlation |\n")
-    report_lines.append("| --- | --- | --- | --- | --- |\n")
-    
-    if synthetic_df.empty or real_df.empty:
-        report_lines.append("| Note | Data missing for comparison | | | |\n")
+    # Aggregate both
+    synth_agg = calculate_aggregate_metrics(synthetic_df)
+    real_agg = calculate_aggregate_metrics(real_df)
+
+    # Compute metrics
+    # Mean Absolute Difference
+    if not synth_agg.empty and not real_agg.empty:
+        # Merge on common keys if possible, or just compare overall means
+        mean_synth = synth_agg['error_rate'].mean()
+        mean_real = real_agg['error_rate'].mean()
+        mad = abs(mean_synth - mean_real)
+
+        # Correlation (if we can align them)
+        # For simplicity, we compare overall distributions if not aligned
+        corr = np.corrcoef(synth_agg['error_rate'].dropna(), real_agg['error_rate'].dropna())[0, 1] if len(synth_agg) > 1 and len(real_agg) > 1 else np.nan
     else:
-        # Merge on common keys if possible, or just aggregate
-        # For simplicity, compare global averages if grouping is complex
-        syn_mean = synthetic_df['error_rate'].mean()
-        real_mean = real_df['error_rate'].mean()
-        mad = abs(syn_mean - real_mean)
-        
-        # Correlation
-        if len(synthetic_df) > 1 and len(real_df) > 1:
-            # Align rows? Assuming they are ordered similarly or just aggregate
-            # A robust way is to merge on keys if they exist
-            merged = pd.merge(synthetic_df, real_df, on=['scaling_method', 'test_type'], suffixes=('_syn', '_real'))
-            if not merged.empty and len(merged) > 1:
-                corr = merged['error_rate_syn'].corr(merged['error_rate_real'])
-            else:
-                corr = np.nan
-        else:
-            corr = np.nan
-            
-        report_lines.append(f"| Error Rate | {syn_mean:.4f} | {real_mean:.4f} | {mad:.4f} | {corr:.4f} |\n")
-        
-    report_lines.append("\n## Power Comparison\n")
-    report_lines.append("| Metric | Synthetic Value | Real Value | Mean Abs Diff | Correlation |\n")
-    report_lines.append("| --- | --- | --- | --- | --- |\n")
-    
-    if not synthetic_df.empty and not real_df.empty:
-        syn_mean = synthetic_df['power'].mean()
-        real_mean = real_df['power'].mean()
-        mad = abs(syn_mean - real_mean)
-        
-        if len(synthetic_df) > 1 and len(real_df) > 1:
-            merged = pd.merge(synthetic_df, real_df, on=['scaling_method', 'test_type'], suffixes=('_syn', '_real'))
-            if not merged.empty and len(merged) > 1:
-                corr = merged['power_syn'].corr(merged['power_real'])
-            else:
-                corr = np.nan
-        else:
-            corr = np.nan
-            
-        report_lines.append(f"| Power | {syn_mean:.4f} | {real_mean:.4f} | {mad:.4f} | {corr:.4f} |\n")
-    
+        mad = np.nan
+        corr = np.nan
+
+    report = f"""# Comparison Report: Synthetic vs Real-World Results
+
+## Summary Metrics
+
+| Metric | Synthetic Value | Real Value | Mean Absolute Difference | Correlation Coefficient |
+|--------|-----------------|------------|--------------------------|-------------------------|
+| Error Rate | {mean_synth if not synth_agg.empty else 'N/A':.4f} | {mean_real if not real_agg.empty else 'N/A':.4f} | {mad:.4f} | {corr:.4f} |
+
+## Detailed Breakdown
+
+### Synthetic Results
+{synth_agg.to_markdown() if not synth_agg.empty else "No synthetic data available."}
+
+### Real-World Results
+{real_agg.to_markdown() if not real_agg.empty else "No real-world data available."}
+"""
+
     with open(output_path, 'w') as f:
-        f.writelines(report_lines)
-    logger.info(f"Comparison report written to {output_path}")
-
-def run_full_analysis_pipeline(
-    results_df: Optional[pd.DataFrame] = None
-) -> Dict[str, Any]:
-    """
-    Run the full analysis pipeline on simulation results.
-    Accepts optional DataFrame or loads from default path.
-    """
-    if results_df is None:
-        results_df = load_simulation_results()
-        
-    if results_df is None or results_df.empty:
-        logger.error("No data available for analysis.")
-        return {}
-
-    # Calculate aggregate metrics
-    aggregate_df = calculate_aggregate_metrics(results_df)
-    
-    # Save aggregate metrics
-    output_path = "results/aggregate_metrics.csv"
-    aggregate_df.to_csv(output_path, index=False)
-    logger.info(f"Aggregate metrics saved to {output_path}")
-    
-    # Fit mixed effects model
-    model = fit_mixed_effects_model(aggregate_df)
-    
-    return {
-        'aggregate_metrics': aggregate_df,
-        'mixed_effects_model': model
-    }
+        f.write(report)
+    logger.info(f"Comparison report saved to {output_path}")
 
 def run_sensitivity_analysis(
-    results_df: Optional[pd.DataFrame] = None,
-    alpha_levels: Optional[List[float]] = None,
-    output_path: str = "results/sensitivity_analysis.csv"
+    input_path: str = "results/simulation_results.csv",
+    output_path: str = "results/sensitivity_analysis.csv",
+    alpha_levels: Optional[List[float]] = None
 ) -> pd.DataFrame:
     """
-    Run sensitivity analysis for different alpha thresholds.
-    Re-calculates Type I error rates and power for each alpha level.
-    
+    Run sensitivity analysis for a range of alpha thresholds.
+
+    Reads raw simulation results and recalculates error rates and power
+    for each specified alpha level.
+
     Args:
-        results_df: DataFrame with simulation results. If None, loads from default.
-        alpha_levels: List of alpha levels to test. Defaults to [0.01, 0.05, 0.10].
-        output_path: Path to save the results CSV.
-        
+        input_path: Path to simulation_results.csv
+        output_path: Path to save sensitivity_analysis.csv
+        alpha_levels: List of alpha thresholds to test. Defaults to [0.01, 0.05, 0.10]
+
     Returns:
-        DataFrame containing error rates and power for each alpha level and scaling method.
+        DataFrame with sensitivity analysis results
     """
     if alpha_levels is None:
-        alpha_levels = SENSITIVITY_ALPHA_LEVELS
-        
-    if results_df is None:
-        results_df = load_simulation_results()
-        
-    if results_df is None or results_df.empty:
-        logger.error("No data available for sensitivity analysis.")
+        alpha_levels = [0.01, 0.05, 0.10]
+
+    logger.info(f"Running sensitivity analysis with alpha levels: {alpha_levels}")
+
+    # Load data
+    df = load_simulation_results(input_path)
+    if df.empty:
+        logger.warning("Input data is empty. Returning empty result.")
         return pd.DataFrame()
 
-    logger.info(f"Running sensitivity analysis for alpha levels: {alpha_levels}")
-    
-    records = []
-    
-    # Ensure numeric
-    results_df['p_value'] = pd.to_numeric(results_df['p_value'], errors='coerce')
-    
-    # Group by config, scaling, test
-    groups = results_df.groupby(['config_id', 'scaling_method', 'test_type'])
-    
+    # Ensure p_value is numeric
+    df['p_value'] = pd.to_numeric(df['p_value'], errors='coerce')
+
+    results = []
+
     for alpha in alpha_levels:
-        logger.info(f"Processing alpha = {alpha}")
-        
-        for (config_id, scaling_method, test_type), group in groups:
-            total = len(group)
-            if total == 0:
-                continue
-            
-            # Type I Error
-            null_mask = group['ground_truth'] == 'null'
-            null_count = null_mask.sum()
-            if null_count > 0:
-                null_rejections = (group.loc[null_mask, 'p_value'] < alpha).sum()
-                type1_error = null_rejections / null_count
-                ci_low, ci_high = calculate_confidence_interval(null_rejections, null_count)
-            else:
-                type1_error = 0.0
-                ci_low, ci_high = 0.0, 0.0
-            
-            # Power
-            alt_mask = group['ground_truth'] == 'alternative'
-            alt_count = alt_mask.sum()
-            if alt_count > 0:
-                alt_rejections = (group.loc[alt_mask, 'p_value'] < alpha).sum()
-                power = alt_rejections / alt_count
-                ci_low_p, ci_high_p = calculate_confidence_interval(alt_rejections, alt_count)
-            else:
-                power = 0.0
-                ci_low_p, ci_high_p = 0.0, 0.0
-            
-            records.append({
-                'alpha_level': alpha,
-                'config_id': config_id,
-                'scaling_method': scaling_method,
-                'test_type': test_type,
-                'error_rate': type1_error,
-                'ci_lower': ci_low,
-                'ci_upper': ci_high,
-                'power': power,
-                'power_ci_lower': ci_low_p,
-                'power_ci_upper': ci_high_p,
-                'total_null': null_count,
-                'total_alt': alt_count
-            })
-    
-    df_result = pd.DataFrame(records)
-    df_result.to_csv(output_path, index=False)
-    logger.info(f"Sensitivity analysis results saved to {output_path}")
-    
-    return df_result
+        # Calculate aggregate metrics for this alpha
+        agg_df = calculate_aggregate_metrics(df, alpha=alpha)
+        agg_df['alpha_level'] = alpha
+        results.append(agg_df)
+
+    if not results:
+        return pd.DataFrame()
+
+    combined_df = pd.concat(results, ignore_index=True)
+
+    # Save to CSV
+    combined_df.to_csv(output_path, index=False)
+    logger.info(f"Sensitivity analysis saved to {output_path}")
+
+    return combined_df
+
+def run_full_analysis_pipeline(
+    df: Optional[pd.DataFrame] = None,
+    input_path: str = "results/simulation_results.csv",
+    output_path: str = "results/aggregate_metrics.csv"
+) -> pd.DataFrame:
+    """
+    Run the full analysis pipeline: load data, calculate aggregate metrics, and save results.
+
+    This function is tolerant of being called with or without a DataFrame argument.
+
+    Args:
+        df: Optional DataFrame. If provided, used directly.
+        input_path: Path to input CSV if df is not provided.
+        output_path: Path to save results.
+
+    Returns:
+        DataFrame with aggregate metrics
+    """
+    # Handle both call signatures
+    if df is None:
+        # Called as run_full_analysis_pipeline() -> load from path
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        df = load_simulation_results(input_path)
+    else:
+        # Called as run_full_analysis_pipeline(df) -> use provided df
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("Expected a pandas DataFrame")
+
+    if df.empty:
+        logger.warning("Input data is empty.")
+        return pd.DataFrame()
+
+    # Calculate metrics
+    metrics_df = calculate_aggregate_metrics(df)
+
+    # Save if path provided
+    if output_path:
+        metrics_df.to_csv(output_path, index=False)
+        logger.info(f"Aggregate metrics saved to {output_path}")
+
+    return metrics_df

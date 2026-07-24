@@ -1,59 +1,52 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/main.py --mode simulation`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --mode`
+- run-book command: `python code/main.py --mode real_world`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --mode`
+- run-book command: `python code/main.py --mode simulation --config-id "test-config-1" --iterations 100`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --mode`
+- run-book command: `python code/main.py --mode visualize`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --mode`
+- run-book command: `python code/main.py --mode analyze`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: unrecognized arguments: --mode`
+- run-book command: `python code/main.py --mode verify-checksums`
+  - script usage: `main.py [-h] {simulation,real_world,analyze,visualize} ...`
+  - argparse error: `main.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/main.py --mode simulation (rc=1); python code/main.py --mode real_world (rc=1); python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 (rc=1)
+**Summary**: 6 command(s) failed: python code/main.py --mode simulation (rc=2); python code/main.py --mode real_world (rc=2); python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode simulation -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
-- python code/main.py --mode real_world -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
-- python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
-- python code/main.py --mode visualize -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
-- python code/main.py --mode analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
-- python code/main.py --mode verify-checksums -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 156, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/code/main.py", line 129, in main
-    logger = setup_logger(batch_id="main_pipeline")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'batch_id'
+- python code/main.py --mode simulation -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: unrecognized arguments: --mode
+- python code/main.py --mode real_world -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: unrecognized arguments: --mode
+- python code/main.py --mode simulation --config-id "test-config-1" --iterations 100 -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: unrecognized arguments: --mode
+- python code/main.py --mode visualize -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: unrecognized arguments: --mode
+- python code/main.py --mode analyze -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: unrecognized arguments: --mode
+- python code/main.py --mode verify-checksums -> rc=2
+    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...
+main.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -63,26 +56,33 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_full_analysis_pipeline` — defined in `code/analysis/metrics.py`; called 3 way(s):
+### `run_full_analysis_pipeline` — defined in `code/analysis/metrics.py`; called 2 way(s):
 
-- code/main.py: analysis_results = run_full_analysis_pipeline(results_df)
 - code/tests/unit/analysis/test_metrics.py: result = run_full_analysis_pipeline(df)
 - code/tests/unit/analysis/test_metrics.py: result = run_full_analysis_pipeline()
 
 Make `run_full_analysis_pipeline` in `code/analysis/metrics.py` accept ALL of the above.
 
-### `setup_logger` — defined in `code/simulation/logger.py`; called 10 way(s):
+### `setup_logger` — defined in `code/simulation/logger.py`; called 18 way(s):
 
-- code/validate_quickstart.py: logger = setup_logger("quickstart_validation")
 - code/main.py: logger = setup_logger(batch_id="main_pipeline")
 - code/benchmark_generator.py: logger = setup_logger(__name__)
+- code/validate_quickstart.py: logger = setup_logger("quickstart_validation")
 - code/utils/env.py: logger = setup_logger(logger_name)
-- code/simulation/orchestrator.py: logger = setup_logger("orchestrator")
-- code/simulation/generator.py: logger = setup_logger(__name__)
-- code/simulation/persistence.py: logger = setup_logger(__name__)
+- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger("test_name")
+- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger(batch_id="main_pipeline")
+- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger(__name__)
+- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger()
+- code/tests/unit/simulation/test_logger_fix.py: logger = setup_logger("test")
+- code/tests/unit/simulation/test_main.py: logger = setup_logger("test")
 - code/tests/unit/preprocessing/test_scaling.py: test_logger = setup_logger("test_scaling")
-- code/tests/unit/simulation/test_generator_edge_cases.py: logger = setup_logger(__name__)
-- code/tests/unit/simulation/test_generator_performance.py: return setup_logger(__name__)
+- code/simulation/persistence.py: logger = setup_logger(__name__)
+- code/simulation/generator.py: logger = setup_logger(__name__)
+- code/simulation/logger.py: 1. setup_logger("name_string") -> positional arg
+- code/simulation/logger.py: 2. setup_logger(batch_id="id") -> keyword arg
+- code/simulation/logger.py: 3. setup_logger(__name__) -> positional arg
+- code/simulation/orchestrator.py: logger = setup_logger("orchestrator")
+- code/preprocessing/ingestion.py: logger = setup_logger("preprocessing.ingestion")
 
 Make `setup_logger` in `code/simulation/logger.py` accept ALL of the above.
 

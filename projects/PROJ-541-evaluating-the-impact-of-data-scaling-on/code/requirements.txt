@@ -10,3 +10,6 @@ datasets>=2.14.0
 ruff>=0.0.280
 black>=23.0.0
 pytest>=7.0.0
+jax  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
