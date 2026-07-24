@@ -1,6 +1,7 @@
 """
-Security hardening module for PII scanning in EEG research data.
-Implements regex-based scanning for common PII patterns (emails, SSNs, phone numbers).
+Security scanning module for PII detection in data files.
+Implements scanning for common PII patterns including emails, SSNs, phone numbers,
+credit cards, and other sensitive information.
 """
 import os
 import re
@@ -9,323 +10,312 @@ import json
 import csv
 from pathlib import Path
 from datetime import datetime
+import logging
+from typing import List, Dict, Tuple, Optional
 
-# Define PII patterns
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# PII detection patterns
 PII_PATTERNS = {
-    'email': r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
-    'ssn': r'\b\d{3}-\d{2}-\d{4}\b',
-    'ssn_no_dash': r'\b\d{9}\b',
-    'phone_us': r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b',
-    'credit_card': r'\b(?:\d{4}[-\s]?){3}\d{4}\b',
-    'ip_address': r'\b(?:\d{1,3}\.){3}\d{1,3}\b',
-    'driver_license': r'\b[A-Z]{1,2}\d{4,8}\b',
-    'date_of_birth': r'\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b',
+    'email': re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'),
+    'ssn': re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),
+    'ssn_compact': re.compile(r'\b\d{9}\b'),
+    'phone_us': re.compile(r'\b(?:\+1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'),
+    'credit_card': re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'),
+    'ip_address': re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
+    'date_of_birth': re.compile(r'\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b'),
+    'url': re.compile(r'https?://[^\s]+'),
+    'ip_address_v6': re.compile(r'\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b'),
+    'driver_license': re.compile(r'\b[A-Z]{1,2}\d{6,8}\b'),
 }
 
 def is_valid_credit_card(card_number: str) -> bool:
     """
-    Validates a credit card number using the Luhn algorithm.
-    """
-    def digits_of(n):
-        return [int(d) for d in str(n)]
+    Validate a credit card number using the Luhn algorithm.
     
-    digits = digits_of(card_number.replace("-", "").replace(" ", ""))
-    odd_digits = digits[-1::-2]
-    even_digits = digits[-2::-2]
-    total = sum(odd_digits)
-    for d in even_digits:
-        total += sum(digits_of(d * 2))
+    Args:
+        card_number: The credit card number as a string
+        
+    Returns:
+        True if the number passes the Luhn check, False otherwise
+    """
+    # Remove spaces and dashes
+    cleaned = re.sub(r'[\s-]', '', card_number)
+    
+    if not cleaned.isdigit() or len(cleaned) < 13 or len(cleaned) > 19:
+        return False
+    
+    digits = [int(d) for d in cleaned]
+    # Reverse the digits
+    digits = digits[::-1]
+    
+    total = 0
+    for i, digit in enumerate(digits):
+        if i % 2 == 1:  # Double every second digit (from the right in original)
+            doubled = digit * 2
+            if doubled > 9:
+                doubled -= 9
+            total += doubled
+        else:
+            total += digit
+    
     return total % 10 == 0
 
-def scan_text_for_pii(text: str, patterns: dict = None) -> list:
+def scan_text_for_pii(text: str, filename: str = "unknown") -> List[Dict]:
     """
-    Scans a string for PII patterns.
+    Scan a text string for PII patterns.
     
     Args:
-        text: The string to scan.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    if patterns is None:
-        patterns = PII_PATTERNS
-    
-    findings = []
-    for pattern_name, pattern_regex in patterns.items():
-        matches = re.findall(pattern_regex, text)
-        for match in matches:
-            findings.append({
-                'type': pattern_name,
-                'value': match,
-                'position': text.find(match)
-            })
-    return findings
-
-def scan_csv_file(file_path: str, patterns: dict = None) -> list:
-    """
-    Scans a CSV file for PII.
-    
-    Args:
-        file_path: Path to the CSV file.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    findings = []
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            reader = csv.reader(f)
-            for row_num, row in enumerate(reader):
-                for col_num, cell in enumerate(row):
-                    if cell:
-                        cell_findings = scan_text_for_pii(str(cell), patterns)
-                        for finding in cell_findings:
-                            finding['file'] = file_path
-                            finding['row'] = row_num
-                            finding['column'] = col_num
-                            findings.append(finding)
-    except Exception as e:
-        findings.append({
-            'error': str(e),
-            'file': file_path,
-            'type': 'read_error'
-        })
-    return findings
-
-def scan_json_file(file_path: str, patterns: dict = None) -> list:
-    """
-    Scans a JSON file for PII.
-    
-    Args:
-        file_path: Path to the JSON file.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    findings = []
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            data = json.load(f)
-            # Recursively scan JSON structure
-            def scan_obj(obj, path=""):
-                if isinstance(obj, dict):
-                    for k, v in obj.items():
-                        scan_obj(v, f"{path}.{k}")
-                elif isinstance(obj, list):
-                    for i, item in enumerate(obj):
-                        scan_obj(item, f"{path}[{i}]")
-                elif isinstance(obj, str):
-                    obj_findings = scan_text_for_pii(obj, patterns)
-                    for finding in obj_findings:
-                        finding['file'] = file_path
-                        finding['path'] = path
-                        findings.append(finding)
-            scan_obj(data)
-    except Exception as e:
-        findings.append({
-            'error': str(e),
-            'file': file_path,
-            'type': 'read_error'
-        })
-    return findings
-
-def scan_yaml_file(file_path: str, patterns: dict = None) -> list:
-    """
-    Scans a YAML file for PII.
-    
-    Args:
-        file_path: Path to the YAML file.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    findings = []
-    try:
-        import yaml
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            data = yaml.safe_load(f)
-            if data:
-                def scan_obj(obj, path=""):
-                    if isinstance(obj, dict):
-                        for k, v in obj.items():
-                            scan_obj(v, f"{path}.{k}")
-                    elif isinstance(obj, list):
-                        for i, item in enumerate(obj):
-                            scan_obj(item, f"{path}[{i}]")
-                    elif isinstance(obj, str):
-                        obj_findings = scan_text_for_pii(obj, patterns)
-                        for finding in obj_findings:
-                            finding['file'] = file_path
-                            finding['path'] = path
-                            findings.append(finding)
-                scan_obj(data)
-    except ImportError:
-        findings.append({
-            'error': 'PyYAML not installed',
-            'file': file_path,
-            'type': 'dependency_error'
-        })
-    except Exception as e:
-        findings.append({
-            'error': str(e),
-            'file': file_path,
-            'type': 'read_error'
-        })
-    return findings
-
-def scan_text_file(file_path: str, patterns: dict = None) -> list:
-    """
-    Scans a text file for PII.
-    
-    Args:
-        file_path: Path to the text file.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    findings = []
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-            text_findings = scan_text_for_pii(content, patterns)
-            for finding in text_findings:
-                finding['file'] = file_path
-                findings.append(finding)
-    except Exception as e:
-        findings.append({
-            'error': str(e),
-            'file': file_path,
-            'type': 'read_error'
-        })
-    return findings
-
-def scan_directory(directory_path: str, patterns: dict = None) -> list:
-    """
-    Recursively scans a directory for PII in supported file types.
-    
-    Args:
-        directory_path: Path to the directory to scan.
-        patterns: Dictionary of pattern names and regex patterns.
-                
-    Returns:
-        List of dictionaries containing match details.
-    """
-    all_findings = []
-    supported_extensions = {'.csv', '.json', '.yaml', '.yml', '.txt', '.md'}
-    
-    if not os.path.exists(directory_path):
-        all_findings.append({
-            'error': f'Directory not found: {directory_path}',
-            'file': directory_path,
-            'type': 'directory_error'
-        })
-        return all_findings
-    
-    for root, _, files in os.walk(directory_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            ext = os.path.splitext(file)[1].lower()
-            
-            if ext in supported_extensions:
-                if ext == '.csv':
-                    findings = scan_csv_file(file_path, patterns)
-                elif ext == '.json':
-                    findings = scan_json_file(file_path, patterns)
-                elif ext in ['.yaml', '.yml']:
-                    findings = scan_yaml_file(file_path, patterns)
-                else:  # .txt, .md, etc.
-                    findings = scan_text_file(file_path, patterns)
-                
-                all_findings.extend(findings)
-    
-    return all_findings
-
-def generate_report(findings: list, output_path: str) -> None:
-    """
-    Generates a PII scan report.
-    
-    Args:
-        findings: List of PII findings.
-        output_path: Path to write the report.
-    """
-    report_path = Path(output_path)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(report_path, 'w', encoding='utf-8') as f:
-        f.write("PII Security Scan Report\n")
-        f.write("=" * 50 + "\n")
-        f.write(f"Scan Time: {datetime.now().isoformat()}\n")
-        f.write(f"Total Findings: {len(findings)}\n")
-        f.write("=" * 50 + "\n\n")
+        text: The text to scan
+        filename: Source filename for context
         
-        if not findings:
-            f.write("No PII findings detected.\n")
-        else:
-            # Group findings by type
-            by_type = {}
-            for finding in findings:
-                p_type = finding.get('type', 'unknown')
-                if p_type not in by_type:
-                    by_type[p_type] = []
-                by_type[p_type].append(finding)
+    Returns:
+        List of dictionaries containing match details
+    """
+    findings = []
+    
+    for pattern_name, pattern in PII_PATTERNS.items():
+        matches = pattern.findall(text)
+        for match in matches:
+            # Additional validation for credit cards
+            if pattern_name == 'credit_card':
+                if not is_valid_credit_card(match):
+                    continue
             
-            for p_type, items in by_type.items():
-                f.write(f"\n{p_type.upper()} ({len(items)} occurrences):\n")
-                f.write("-" * 30 + "\n")
-                for item in items[:10]:  # Limit to first 10 per type
-                    f.write(f"  File: {item.get('file', 'N/A')}\n")
-                    f.write(f"  Value: {item.get('value', 'N/A')}\n")
-                    if 'row' in item:
-                        f.write(f"  Row: {item['row']}, Col: {item.get('column', 'N/A')}\n")
-                    if 'path' in item:
-                        f.write(f"  Path: {item['path']}\n")
-                    f.write("\n")
+            findings.append({
+                'file': filename,
+                'type': pattern_name,
+                'match': match,
+                'line_number': text[:text.find(match)].count('\n') + 1
+            })
+    
+    return findings
+
+def scan_csv_file(filepath: Path) -> List[Dict]:
+    """
+    Scan a CSV file for PII patterns.
+    
+    Args:
+        filepath: Path to the CSV file
+        
+    Returns:
+        List of dictionaries containing match details
+    """
+    findings = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            reader = csv.reader(f)
+            for row_num, row in enumerate(reader, 1):
+                for cell in row:
+                    cell_findings = scan_text_for_pii(str(cell), str(filepath))
+                    for finding in cell_findings:
+                        finding['line_number'] = row_num
+                    findings.extend(cell_findings)
+    except Exception as e:
+        logger.error(f"Error scanning CSV file {filepath}: {e}")
+    
+    return findings
+
+def scan_json_file(filepath: Path) -> List[Dict]:
+    """
+    Scan a JSON file for PII patterns.
+    
+    Args:
+        filepath: Path to the JSON file
+        
+    Returns:
+        List of dictionaries containing match details
+    """
+    findings = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+            findings = scan_text_for_pii(content, str(filepath))
+    except Exception as e:
+        logger.error(f"Error scanning JSON file {filepath}: {e}")
+    
+    return findings
+
+def scan_yaml_file(filepath: Path) -> List[Dict]:
+    """
+    Scan a YAML file for PII patterns.
+    
+    Args:
+        filepath: Path to the YAML file
+        
+    Returns:
+        List of dictionaries containing match details
+    """
+    findings = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+            findings = scan_text_for_pii(content, str(filepath))
+    except Exception as e:
+        logger.error(f"Error scanning YAML file {filepath}: {e}")
+    
+    return findings
+
+def scan_text_file(filepath: Path) -> List[Dict]:
+    """
+    Scan a text file for PII patterns.
+    
+    Args:
+        filepath: Path to the text file
+        
+    Returns:
+        List of dictionaries containing match details
+    """
+    findings = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+            findings = scan_text_for_pii(content, str(filepath))
+    except Exception as e:
+        logger.error(f"Error scanning text file {filepath}: {e}")
+    
+    return findings
+
+def scan_directory(directory: Path, extensions: Optional[List[str]] = None) -> List[Dict]:
+    """
+    Recursively scan a directory for PII in files.
+    
+    Args:
+        directory: Path to the directory to scan
+        extensions: Optional list of file extensions to scan (default: all text-based)
+        
+    Returns:
+        List of dictionaries containing match details
+    """
+    if extensions is None:
+        extensions = ['.csv', '.json', '.yaml', '.yml', '.txt', '.log', '.md']
+    
+    findings = []
+    
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = Path(root) / file
             
-            if len(findings) > 10:
-                f.write(f"\n... and {len(findings) - 10} more findings (truncated).\n")
+            if file_path.suffix.lower() in extensions:
+                try:
+                    if file_path.suffix.lower() == '.csv':
+                        file_findings = scan_csv_file(file_path)
+                    elif file_path.suffix.lower() in ['.json']:
+                        file_findings = scan_json_file(file_path)
+                    elif file_path.suffix.lower() in ['.yaml', '.yml']:
+                        file_findings = scan_yaml_file(file_path)
+                    else:
+                        file_findings = scan_text_file(file_path)
+                    
+                    findings.extend(file_findings)
+                except Exception as e:
+                    logger.warning(f"Could not scan file {file_path}: {e}")
+    
+    return findings
+
+def generate_report(findings: List[Dict], output_path: Path) -> None:
+    """
+    Generate a PII scan report and save it to a file.
+    
+    Args:
+        findings: List of PII findings
+        output_path: Path to save the report
+    """
+    report_lines = [
+        "PII SCAN REPORT",
+        "=" * 50,
+        f"Scan Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Total Findings: {len(findings)}",
+        "",
+        "SUMMARY BY TYPE:",
+        "-" * 30
+    ]
+    
+    # Count findings by type
+    type_counts = {}
+    for finding in findings:
+        ptype = finding['type']
+        type_counts[ptype] = type_counts.get(ptype, 0) + 1
+    
+    for ptype, count in sorted(type_counts.items()):
+        report_lines.append(f"  {ptype}: {count}")
+    
+    if not findings:
+        report_lines.append("  No PII detected.")
+    
+    report_lines.extend([
+        "",
+        "DETAILED FINDINGS:",
+        "-" * 30
+    ])
+    
+    if findings:
+        for i, finding in enumerate(findings, 1):
+            report_lines.append(f"{i}. File: {finding['file']}")
+            report_lines.append(f"   Type: {finding['type']}")
+            report_lines.append(f"   Match: {finding['match'][:50]}{'...' if len(finding['match']) > 50 else ''}")
+            report_lines.append(f"   Line: {finding['line_number']}")
+            report_lines.append("")
+    else:
+        report_lines.append("No PII findings detected in scanned files.")
+    
+    report_lines.extend([
+        "",
+        "=" * 50,
+        "END OF REPORT"
+    ])
+    
+    # Write report to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(report_lines))
+    
+    logger.info(f"PII scan report written to {output_path}")
 
 def main():
     """
-    Main entry point for PII scanning.
-    Scans data/raw and data/processed directories.
+    Main entry point for the security scan.
+    Scans data directories and generates a report.
     """
     # Define directories to scan
-    project_root = Path(__file__).parent.parent
-    directories_to_scan = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'processed'
+    base_path = Path(__file__).parent.parent
+    data_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed"
     ]
+    
+    output_path = base_path / "pii_scan_report.txt"
+    
+    logger.info("Starting PII security scan...")
     
     all_findings = []
     
-    print("Starting PII Security Scan...")
-    for directory in directories_to_scan:
-        if directory.exists():
-            print(f"Scanning {directory}...")
-            findings = scan_directory(str(directory))
+    for data_dir in data_dirs:
+        if data_dir.exists():
+            logger.info(f"Scanning directory: {data_dir}")
+            findings = scan_directory(data_dir)
             all_findings.extend(findings)
+            logger.info(f"Found {len(findings)} potential PII instances in {data_dir}")
         else:
-            print(f"Directory not found, skipping: {directory}")
+            logger.warning(f"Directory not found: {data_dir}")
     
     # Generate report
-    report_path = project_root / 'pii_scan_report.txt'
-    generate_report(all_findings, str(report_path))
+    generate_report(all_findings, output_path)
     
-    print(f"Scan complete. Report written to {report_path}")
-    print(f"Total findings: {len(all_findings)}")
-    
-    # Exit with error code if PII found
     if all_findings:
-        print("WARNING: PII detected in scanned files!")
+        logger.warning(f"PII detected! Review report at {output_path}")
         sys.exit(1)
     else:
-        print("SUCCESS: No PII detected.")
+        logger.info("No PII detected. Scan complete.")
         sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

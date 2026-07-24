@@ -1,13 +1,20 @@
-T010:
+T014:
   c: false
-  h: cc9eb46e885b37cc78d9e7fc6e67b84fe800d154fcd93b12033f1e845e6cecab
-  r: "The required output file `data/processed/cleaned_eeg.fif` does not exist, and\
-    \ the integration test `test_line_noise_attenuation` (which must check >20\u202F\
-    dB attenuation and handle the \u226530\u2011participant condition) is missing\
-    \ from `tests/integration/test_preprocess.py`. Additionally, the provided `preprocess.py`\
-    \ snippet is truncated and does not show logic for writing the output file, generating\
-    \ the justification document conditionally, or handling the \u226530 participant\
-    \ requirement. These pieces must be added for the task to be considered complete."
+  h: 1ef4b1bc4d0d6b299daab0d1aaeb0684172355761b49546d7dd3e54096f7cd61
+  r: The required output file `data/processed/lzc_metrics.csv` does not exist, so
+    the verification step cannot be satisfied. Moreover, the provided `code/features.py`
+    only defines helper functions (e.g., `calculate_lzc`) and does not contain any
+    logic that iterates over participants/channels, computes LZC per channel, and
+    writes the results to the specified CSV with the required schema. The task therefore
+    remains unfinished.
+T015:
+  c: false
+  h: 9a62d8dab5955f23f8c25ee4ae27681f73ea216a4f03b1db12b9f1cc4776c89b
+  r: "The required output file `data/processed/pe_metrics.csv` does not exist, and\
+    \ the provided `code/features.py` is truncated (the permutation\u2011entropy function\
+    \ is incomplete and there is no code that writes the CSV with the specified schema\
+    \ or runs the synthetic\u2011signal test). The task\u2019s core deliverables are\
+    \ therefore missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
