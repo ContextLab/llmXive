@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.10168",
+  "judged_at": "2026-07-24T07:15:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"opid: on-policy skill distillation for agentic reinforcement learning\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism of on-policy reinforcement learning for resolving misunderstandings in language-conditioned agents, providing empirical evidence on the specific domain of linguistic instruction-following and action correction that the user's question targets.",
+  "relevant": true
+}

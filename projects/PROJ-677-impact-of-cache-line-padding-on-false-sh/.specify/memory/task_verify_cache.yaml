@@ -1,0 +1,40 @@
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `verify_layout.cpp` file was provided in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`;
+    the required utility is missing, so the task is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The required files `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/counter_packed.hpp`\
+    \ and `counter_padded.hpp` are not present in the provided evidence; no code content,\
+    \ size, or pragma/alignment directives can be verified. Without these artifacts\
+    \ the task\u2019s core requirement is unmet."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts (e.g., a modified `run_benchmarks.sh` implementing `taskset` core
+    pinning, code that creates the output directory, compiled binaries, CSV results,
+    or analysis outputs) are present or referenced. The claim lacks any concrete files
+    or evidence that the environment configuration was actually set up, so the requirement
+    is not satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.cpp` file was presented in `projects/PROJ-677-impact-of-cache-line-padding-false-sharing/code/benchmark/`,
+    and no code showing argument parsing for thread count and configuration (packed/padded)
+    is available. The required source artifact is missing, so the task is not satisfied.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `build.sh` script was presented in the evidence, and there is no indication
+    that a file exists at `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/build.sh`
+    containing commands to compile `main.cpp` (and `verify_layout.cpp`) with `-O3
+    -march=native`. The required artifact is missing, so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` file or any code changes were presented, so there is no evidence\
+    \ that single\u2011threaded validation logic was added to ensure atomic increments\
+    \ aren\u2019t optimized away. The required artifact (the modified source file)\
+    \ is missing."

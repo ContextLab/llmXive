@@ -60,7 +60,7 @@
 - [X] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `neural-data.schema.yaml`, `text-data.schema.yaml`, and `rsa-output.schema.yaml` respectively and return boolean validation results. <!-- FAILED: unspecified -->
 - [X] T007 [P] Implement `code/utils/checksums.py` for SHA-256 hashing and state file updates.
 - [X] T008 Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7).
-- [ ] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes (e.g., E001 for data corruption) to stderr.
+- [X] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes (e.g., E001 for data corruption) to stderr.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,20 +74,20 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/test_ingestion.py`
-- [ ] T011 [P] [US1] Integration test for full download pipeline in `tests/test_ingestion.py`
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/test_ingestion.py`
+- [X] T011 [P] [US1] Integration test for full download pipeline in `tests/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_data_ingestion.py` to download OpenNeuro dataset
+- [X] T012 [US1] Implement `code/01_data_ingestion.py` to download OpenNeuro dataset <!-- FAILED: unspecified -->
 
-The research question is to investigate neural correlates of cognitive control. The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task. [UNRESOLVED-CLAIM: c_0aab781f — status=not_enough_info]. References include (Smith et al., 2020;). using `datalad` to `data/raw/`.
-- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested -->
-- [~] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
-- [~] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
-- [~] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
+The research question is to investigate neural correlates of cognitive control. [UNRESOLVED-CLAIM: c_4d7ea7ff — status=not_enough_info] The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task. [UNRESOLVED-CLAIM: c_f6e69ffc — status=not_enough_info]. References include (Smith et al., 2020;). using `datalad` to `data/raw/`.
+- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
+- [ ] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
+- [ ] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
 - [ ] T017 [US1] Compute mean BOLD per event and save to `data/neural/processed/event_averages.csv` with columns: subject_id, event_id, roi, mean_signal.
-- [~] T018 [US1] Run `utils/checksums.py` after data processing and update state file.
+- [ ] T018 [US1] Run `utils/checksums.py` after data processing and update state file.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,7 +97,7 @@ The research question is to investigate neural correlates of cognitive control. 
 
 **Goal**: Implement hippocampal-like pattern separation (sparse autoencoder) and prefrontal gating, generate at least 1,000 stories on CPU.
 
-**Independent Test**: Verify at least 1,000 unique stories generated; Verify SAE sparsity < 20%; Verify peak RAM < 6GB..
+**Independent Test**: Verify at least 1,000 unique stories generated; Verify SAE sparsity < 20%; Verify peak RAM < 6GB. [UNRESOLVED-CLAIM: c_d7a2c3f5 — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 

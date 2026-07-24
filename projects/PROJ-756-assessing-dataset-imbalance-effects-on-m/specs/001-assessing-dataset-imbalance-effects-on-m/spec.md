@@ -25,7 +25,7 @@ The researcher downloads the Materials Project, OQMD, and AFLOW datasets, comput
 
 ### User Story 2 - Apply Resampling and Measure Performance Degradation (Priority: P2)
 
-The researcher applies stratified undersampling/oversampling to create balanced training sets, retrains the models, and statistically compares the performance metrics (MAE, R²) against the baseline to quantify the impact of imbalance.
+The researcher applies stratified undersampling/oversampling (or cost-sensitive learning/SMOTE if binning fails) to create balanced training sets, retrains the models, and statistically compares the performance metrics (MAE, R²) against the baseline to quantify the impact of imbalance.
 
 **Why this priority**: This directly addresses the core research question: "How does the degree of imbalance influence predictive accuracy?" It requires the baseline from US-1 to be meaningful.
 
@@ -33,8 +33,8 @@ The researcher applies stratified undersampling/oversampling to create balanced 
 
 **Acceptance Scenarios**:
 
-1. **Given** the original skewed dataset, **When** the stratified resampling algorithm is applied, **Then** a balanced training set is created where bin counts for target properties are approximately uniform (within ±10% variance).
-2. **Given** the balanced training set, **When** the models are retrained and evaluated on the original skewed test set, **Then** the system calculates the difference in MAE and R² compared to the baseline.
+1. **Given** the original skewed dataset, **When** the stratified resampling algorithm (using equal-frequency binning) is applied, **Then** a balanced training set is created where bin counts are uniform within a Coefficient of Variation (CV) of ≤ 0.10.
+2. **Given** the balanced training set, **When** the models are retrained and evaluated on stratified subsets of the original skewed test set (specifically the bottom [deferred] of the target distribution), **Then** the system calculates the absolute percentage change in MAE compared to the baseline on that specific subset.
 3. **Given** results from 10 different random seeds, **When** the paired statistical test is executed, **Then** the system reports whether the performance difference is statistically significant (α = 0.05).
 
 ---
@@ -57,26 +57,26 @@ The researcher generates SHAP values for both skewed and balanced models, compar
 
 ### Edge Cases
 
-- What happens if a specific target property (e.g., bulk modulus) has fewer than 100 data points in the entire merged dataset? (System should skip that property for that specific dataset and log a warning).
-- How does the system handle API rate limits when downloading 5 GB of data? (System must implement exponential backoff with a max retry count of 5 and a 60-second timeout per request).
-- What if the stratified binning results in a bin with zero samples after undersampling? (System must enforce a minimum bin size of 10 samples and merge adjacent bins if necessary).
+- What happens if a specific target property (e.g., bulk modulus) has fewer than 100 data points in the entire merged dataset? (System MUST skip that property for that specific dataset, log a warning, and exclude it from the ImbalanceScore calculation).
+- How does the system handle API rate limits when downloading 5 GB of data? (System MUST implement exponential backoff with a max retry count of 5 and a 60-second timeout per request).
+- What if the equal-frequency binning results in a bin with zero samples or excessive data loss (>20%)? (System MUST automatically switch to 'cost-sensitive learning' or 'SMOTE for regression' as defined in FR-003).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download and merge data from Materials Project, OQMD, and AFLOW APIs, ensuring the total dataset size does not exceed 5 GB and includes at least formation energy, band gap, and bulk modulus as targets. (See US-1)
-- **FR-002**: System MUST compute Magpie compositional descriptors for all entries and calculate an "imbalance score" based on the inverse frequency of target property bins. (See US-1)
-- **FR-003**: System MUST implement a stratified resampling algorithm that creates a balanced training set with bin counts uniform within ±10% variance. (See US-2)
+- **FR-002**: System MUST compute Magpie compositional descriptors for all entries and calculate an "imbalance score" defined as the Gini coefficient of the compositional feature space (derived from K-Means clustering with k=50 and Euclidean distance). If a property has <100 samples, it is skipped and excluded from this calculation. (See US-1)
+- **FR-003**: System MUST implement a stratified resampling algorithm using equal-frequency binning into 20 bins. If this results in >20% data loss or empty bins, the system MUST switch to cost-sensitive learning (class weights) or SMOTE for regression. The resulting training set must have bin counts with a Coefficient of Variation (CV) ≤ 0.10. (See US-2)
 - **FR-004**: System MUST train Random Forest and Gradient Boosting regressors on both skewed and balanced datasets using identical hyperparameters and evaluate them on a stratified test set preserving the original imbalance. (See US-2)
 - **FR-005**: System MUST perform paired statistical tests (paired t-test or Wilcoxon signed-rank) across 10 random seeds to determine the significance of performance differences between skewed and balanced models. (See US-2)
 - **FR-006**: System MUST generate SHAP values for the trained models and output a comparison of the top-10 feature importance rankings between skewed and balanced conditions. (See US-3)
-- **FR-007**: System MUST log all API errors and data ingestion failures, including a retry count of at most 3 attempts per endpoint before marking the dataset as incomplete. (See US-1)
+- **FR-007**: System MUST log all API errors and data ingestion failures, including a retry count of at most 5 attempts per endpoint before marking the dataset as incomplete. (See US-1)
 
 ### Key Entities
 
 - **MaterialEntry**: Represents a single material record with composition, target properties (energy, gap, modulus), and computed descriptors.
-- **ImbalanceScore**: A derived metric quantifying the skewness of the dataset based on target property bin frequencies.
+- **ImbalanceScore**: A derived metric quantifying the skewness of the dataset based on the Gini coefficient of the compositional feature space (K-Means, k=50).
 - **ModelArtifact**: A container for the trained model, hyperparameters, and performance metrics (MAE, R²) associated with a specific training strategy (skewed vs. balanced).
 - **SHAPComparison**: A dataset linking features to their importance ranks in both skewed and balanced models, used to calculate rank shifts.
 
@@ -86,17 +86,23 @@ The researcher generates SHAP values for both skewed and balanced models, compar
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The reduction in MAE and increase in R² for under-represented bins is measured against the baseline performance of the skewed model. (See US-2)
+- **SC-001**: The absolute percentage change in MAE (|MAE_baseline - MAE_balanced| / MAE_baseline * 100) for the bottom [deferred] target subset is measured against the baseline performance of the skewed model. (See US-2)
 - **SC-002**: The statistical significance of performance differences (p-value) is measured against the threshold α = 0.05 across 10 random seeds. (See US-2)
-- **SC-003**: The magnitude of feature importance distortion is measured by the average rank shift of the top-10 features between skewed and balanced models. (See US-3)
-- **SC-004**: The computational efficiency is measured against the constraint of completing the full pipeline (ingestion, training, evaluation) within 6 hours on a CPU-only runner. (See Assumptions)
-- **SC-005**: The memory footprint is measured against the constraint of staying within 7 GB RAM during the training and SHAP analysis phases. (See Assumptions)
+- **SC-003**: The magnitude of feature importance distortion is measured by the mean rank shift of the top-10 features (ties broken by average rank) between skewed and balanced models. (See US-3)
+- **SC-004**: The correlation between the compositional ImbalanceScore and the performance degradation on the minority subset is measured to determine the causal link between feature space diversity and target imbalance. (See Assumptions)
+
+### Operational Constraints
+
+> These are hard limits required for the system to function within the available infrastructure.
+
+- **Constraint-001**: The full pipeline (ingestion, training, evaluation) MUST complete within 6 hours on a CPU-only GitHub Actions runner.
+- **Constraint-002**: The memory footprint MUST stay within 7 GB RAM during the training and SHAP analysis phases.
 
 ## Assumptions
 
 - **Assumption about data availability**: The public REST APIs for Materials Project, OQMD, and AFLOW will remain accessible and free of charge for the duration of the analysis, and the total merged dataset will not exceed 5 GB.
 - **Assumption about computational resources**: The analysis will run on a standard GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk) with no GPU acceleration; therefore, no deep learning models (e.g., GNNs) will be trained, and only CPU-tractable methods (Random Forest, Gradient Boosting) will be used.
-- **Assumption about imbalance definition**: The "imbalance" is defined strictly by the frequency distribution of target property bins (e.g., formation energy ranges), and compositional imbalance is treated as a secondary factor unless explicitly correlated.
+- **Assumption about imbalance definition**: The research design assumes that target property imbalance is often a consequence of compositional imbalance. The system will explicitly analyze the correlation between the compositional ImbalanceScore (feature space) and the target distribution to decouple these causal mechanisms.
 - **Assumption about statistical power**: The sample size of the merged datasets is assumed to be sufficient to perform 10 random splits with adequate power for paired t-tests, though specific power calculations are deferred to the implementation phase.
-- **Assumption about resampling method**: Stratified undersampling/oversampling is assumed to be the primary method for balancing, as it is computationally cheaper than synthetic generation (SMOTE) for regression tasks and fits within the CPU constraints.
+- **Assumption about resampling method**: Stratified undersampling/oversampling (or SMOTE/cost-sensitive learning) is assumed to be the primary method for balancing, as it is computationally cheaper than deep generative models and fits within the CPU constraints.
 - **Assumption about SHAP validity**: SHAP values are assumed to be a valid proxy for feature importance in the context of Random Forest and Gradient Boosting models, despite the inherent approximations of the method.

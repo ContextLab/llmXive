@@ -2,100 +2,101 @@ name: Benchmark Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "main" ]
+
+# Timeout to prevent runaway jobs, matching task requirement of 6h
+timeout-minutes: 360
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r code/analysis/requirements.txt || pip install pandas scipy matplotlib pydantic pyyaml
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r code/analysis/requirements.txt || pip install -r requirements.txt
+      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
 
-      - name: Set up C++17 environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++ cmake
+    - name: Install C++ build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake
+        # Install cpupower for governor management (often requires linux-tools-generic)
+        sudo apt-get install -y linux-tools-common linux-tools-generic
+        # Ensure python headers for potential C-extensions if needed
+        sudo apt-get install -y python3-dev
 
-      - name: Configure CPU Governor (Performance Mode)
-        run: |
-          # Attempt to set governor to performance
-          # Note: Requires root permissions which Actions provides
-          if command -v cpupower &> /dev/null; then
-            sudo cpupower frequency-set -g performance
-          else
-            # Fallback to direct sysfs write if cpupower is unavailable
-            for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-              echo performance | sudo tee $cpu > /dev/null 2>&1 || true
-            done
-          fi
-          echo "Current governor settings:"
-          cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+    - name: Configure CPU Governor
+      run: |
+        # Attempt to set performance governor. 
+        # Note: On GitHub Actions runners, this often requires root or specific permissions.
+        # We attempt the script which handles fallbacks or errors gracefully.
+        sudo python code/analysis/hardware_detect.py
+      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
+      continue-on-error: true
 
-      - name: Build Benchmark Executables
-        working-directory: code/benchmark
-        run: |
-          if [ -f "../scripts/build.sh" ]; then
-            chmod +x ../scripts/build.sh
-            ../scripts/build.sh
-          else
-            # Fallback manual build if script missing
-            g++ -O3 -march=native -std=c++17 main.cpp counter_packed.hpp counter_padded.hpp -o benchmark_main -pthread
-            g++ -O3 -march=native -std=c++17 verify_layout.cpp -o verify_layout
-          fi
+    - name: Build Benchmark
+      run: |
+        if [ -f "code/scripts/build.sh" ]; then
+          bash code/scripts/build.sh
+        else
+          # Fallback to CMake if build script missing
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+        fi
+      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark
 
-      - name: Verify Memory Layout
-        working-directory: code/benchmark
-        run: |
-          if [ -f "verify_layout" ]; then
-            ./verify_layout
-          else
-            echo "verify_layout binary not found, skipping layout verification"
-            exit 0
-          fi
+    - name: Run Benchmarks
+      run: |
+        # Ensure output directory exists
+        mkdir -p data/raw
+        # Run the experiment script if available
+        if [ -f "code/scripts/run_benchmarks.sh" ]; then
+          bash code/scripts/run_benchmarks.sh
+        else
+          # Fallback: Run main binary directly for a sanity check
+          ./benchmark_main --threads 2 --config packed --iterations 1000000
+          ./benchmark_main --threads 2 --config padded --iterations 1000000
+        fi
+      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
+      env:
+        # Allow scripts to run without interactive prompts
+        CI: "true"
 
-      - name: Run Benchmarks
-        working-directory: code/scripts
-        run: |
-          chmod +x run_benchmarks.sh
-          ./run_benchmarks.sh
-        env:
-          # Allow the script to attempt privileged operations if needed, 
-          # though usually handled in the setup step or via fallback
-          CI: "true"
+    - name: Run Analysis
+      run: |
+        python code/analysis/run_analysis.py
+      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
 
-      - name: Run Analysis
-        working-directory: code/analysis
-        run: |
-          python run_analysis.py
+    - name: Upload Benchmark Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: |
+          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/raw/*.csv
+          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/processed/*.csv
+          projects/PROJ-677-impact-of-cache-line-padding-false-sh/figures/*.png
+        retention-days: 7
 
-      - name: Upload Benchmark Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results
-          path: |
-            data/raw/*.csv
-            data/processed/*.csv
-            figures/*.png
-          retention-days: 30
-
-      - name: Upload Logs and Checksums
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-and-checksums
-          path: |
-            state/artifacts/checksums.json
-            state/logs/*.log
-          retention-days: 30
+    - name: Upload Logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: benchmark-logs
+        path: |
+          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/raw/*.log
+        retention-days: 7

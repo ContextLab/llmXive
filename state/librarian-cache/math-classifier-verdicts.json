@@ -1619,6 +1619,10 @@
     "classified_at": "2026-07-19T09:53:32Z",
     "verdict": false
   },
+  "PROJ-970-llmxive-follow-up-extending-opid-on-poli::1.6.0": {
+    "classified_at": "2026-07-24T07:15:30Z",
+    "verdict": false
+  },
   "PROJ-971-llmxive-follow-up-extending-in-context-w::1.6.0": {
     "classified_at": "2026-07-10T21:34:43Z",
     "verdict": false

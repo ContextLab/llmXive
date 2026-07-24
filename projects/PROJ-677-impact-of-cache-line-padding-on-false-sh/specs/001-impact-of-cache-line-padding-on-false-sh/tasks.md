@@ -61,9 +61,9 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to {{claim:c_97e99955}}
  - **DEPENDS_ON**: T007
 - [X] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
-- [~] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (≥192 bytes)
+- [ ] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (≥192 bytes)
 - [ ] T008 [P] Configure GitHub Actions workflow `.github/workflows/benchmark.yml` with `ubuntu-latest`, timeout 6h, and steps for build, run, and analysis
-- [~] T009 [P] Setup environment configuration for `run_benchmarks.sh` to handle core pinning via `taskset` and output directory creation
+- [ ] T009 [P] Setup environment configuration for `run_benchmarks.sh` to handle core pinning via `taskset` and output directory creation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,9 +86,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T014 [P] [US1] Implement `main.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with argument parsing for thread count and configuration (packed/padded)
-- [~] T015 [US1] Implement `build.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to compile `main.cpp` with `-O3 -march=native` and `verify_layout.cpp`
-- [~] T016 [US1] Add single-threaded validation logic in `main.cpp` to ensure atomic increments are not optimized away (FR-004)
+- [ ] T014 [P] [US1] Implement `main.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with argument parsing for thread count and configuration (packed/padded)
+- [ ] T015 [US1] Implement `build.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to compile `main.cpp` with `-O3 -march=native` and `verify_layout.cpp`
+- [ ] T016 [US1] Add single-threaded validation logic in `main.cpp` to ensure atomic increments are not optimized away (FR-004)
 - [~] T017 [US1] Add logging for compilation warnings and errors in `build.sh` and exit with code 1 on failure
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,7 +103,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
+- [X] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
 - [X] T020 [P] [US2] Integration test for `run_benchmarks.sh` generating a set of samples in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_benchmark_run.sh`
 
 ### Implementation for User Story 2
@@ -128,18 +128,18 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for Cohen's d calculation in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/unit/test_statistics.py`
-- [ ] T029 [P] [US3] Integration test for `run_analysis.py` generating `statistical_comparison.csv` and plot in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_analysis.py`
+- [X] T028 [P] [US3] Unit test for Cohen's d calculation in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/unit/test_statistics.py`
+- [X] T029 [P] [US3] Integration test for `run_analysis.py` generating `statistical_comparison.csv` and plot in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `run_analysis.py` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/` to load raw CSVs and validate against Pydantic schemas
-- [ ] T031 [US3] Implement aggregation logic in `run_analysis.py` to compute mean throughput and standard deviation per thread_count/configuration (FR-005)
-- [ ] T032 [US3] Implement two-sample t-test and Cohen's d calculation in `run_analysis.py` for each thread count comparison, outputting p-values for downstream correction (FR-007, FR-008, SC-005)
-- [ ] T033 [US3] Implement Benjamini-Hochberg FDR correction in `run_analysis.py` applied to the p-values generated by T032 for the 4 thread count comparisons (Success Criteria SC-005)
-- [ ] T034 [US3] Implement matplotlib plotting in `run_analysis.py` to generate line plot with confidence interval error bars (FR-009)
-- [ ] T035 [US3] Write final `statistical_comparison.csv` to `data/processed/` as the Single Source of Truth (Plan: IV. Single Source of Truth) with columns: thread_count, config, t_stat, p_value, cohens_d, fdr_adjusted_p
-- [ ] T036 [US3] Update `state/artifacts/checksums.json` with hash of final artifacts (SHA-256) and timestamp in format `{ "file": "statistical_comparison.csv", "hash": "<sha256>" }` (Plan: V. Versioning Discipline)
+- [~] T030 [P] [US3] Implement `run_analysis.py` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/` to load raw CSVs and validate against Pydantic schemas
+- [~] T031 [US3] Implement aggregation logic in `run_analysis.py` to compute mean throughput and standard deviation per thread_count/configuration (FR-005)
+- [~] T032 [US3] Implement two-sample t-test and Cohen's d calculation in `run_analysis.py` for each thread count comparison, outputting p-values for downstream correction (FR-007, FR-008, SC-005)
+- [~] T033 [US3] Implement Benjamini-Hochberg FDR correction in `run_analysis.py` applied to the p-values generated by T032 for the 4 thread count comparisons (Success Criteria SC-005)
+- [~] T034 [US3] Implement matplotlib plotting in `run_analysis.py` to generate line plot with confidence interval error bars (FR-009)
+- [~] T035 [US3] Write final `statistical_comparison.csv` to `data/processed/` as the Single Source of Truth (Plan: IV. Single Source of Truth) with columns: thread_count, config, t_stat, p_value, cohens_d, fdr_adjusted_p
+- [~] T036 [US3] Update `state/artifacts/checksums.json` with hash of final artifacts (SHA-256) and timestamp in format `{ "file": "statistical_comparison.csv", "hash": "<sha256>" }` (Plan: V. Versioning Discipline)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,11 +149,11 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [US3] Implement verification script in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/verify_results.py` to run the benchmark, load the CSV, and assert that padded throughput > packed throughput at higher thread counts (FR-010)
-- [ ] T038 [P] Update README.md with build instructions and usage examples
-- [ ] T039 [P] Generate API documentation for Python analysis scripts
-- [ ] T040 [P] Code cleanup and refactoring of C++ and Python scripts
-- [ ] T041 [P] Apply clang-format to all C++ source files
+- [X] T037 [US3] Implement verification script in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/verify_results.py` to run the benchmark, load the CSV, and assert that padded throughput > packed throughput at higher thread counts (FR-010)
+- [~] T038 [P] Update README.md with build instructions and usage examples
+- [~] T039 [P] Generate API documentation for Python analysis scripts
+- [~] T040 [P] Code cleanup and refactoring of C++ and Python scripts <!-- ATOMIZE: requested -->
+- [~] T041 [P] Apply clang-format to all C++ source files
 - [ ] T042 [P] Remove unused headers and dependencies from C++ files
 - [ ] T043 [P] Additional unit tests for edge cases (e.g., fewer than 8 cores) in `tests/unit/`
 - [ ] T044 [P] Security hardening of build scripts

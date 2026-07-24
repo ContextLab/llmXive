@@ -1,222 +1,229 @@
 """
-Integration tests for the full data ingestion pipeline.
+Contract tests for data schema validation in the ingestion pipeline.
 
-This module verifies that the complete download and preprocessing workflow
-functions correctly end-to-end, ensuring data integrity and schema compliance.
+These tests verify that data produced by the ingestion scripts conforms to the
+expected schema definitions before downstream processing. They validate:
+1. Neural ROI timecourses CSV structure and data types
+2. Event averages CSV structure and data types
+3. Text story JSONL format and required fields
 """
+
 import os
+import sys
 import json
+import csv
 import tempfile
-import shutil
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, List, Any
 
 import pytest
-import pandas as pd
 import numpy as np
 
-# Import project utilities
-import sys
-from pathlib import Path as SysPath
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-# Add project root to path for imports
-project_root = SysPath(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root / "code"))
+from utils.schema_validation import validate_neural_data, validate_text_data, validate_rsa_output
+from utils.logging_config import get_logger, error
 
-from config import get_config
-from utils.logging_config import get_logger, info, error
-from utils.schema_validation import validate_neural_data, validate_text_data
-from utils.checksums import compute_sha256, update_state_file, load_state_file
 
-# Mock the ingestion script logic for testing without heavy downloads
-# In a real CI environment, this would run the actual 01_data_ingestion.py
-# but for this integration test, we simulate the pipeline's output structure
-# to verify the *verification logic* and *state management* work correctly.
-#
-# Note: The actual download logic is in code/01_data_ingestion.py (T012),
-# which is not yet implemented. This test validates the *infrastructure*
-# around ingestion (logging, validation, checksums) using a controlled mock.
+class TestNeuralDataSchema:
+    """Contract tests for neural data schema validation."""
 
-logger = get_logger("test_ingestion_integration")
+    def test_valid_roi_timecourses_schema(self):
+        """Test that valid ROI timecourses pass schema validation."""
+        # Create a temporary valid CSV file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['subject_id', 'roi', 'timepoint', 'signal'])
+            writer.writerow(['sub-001', 'hippocampus_L', 0, 1.234])
+            writer.writerow(['sub-001', 'hippocampus_L', 1, 1.245])
+            writer.writerow(['sub-001', 'hippocampus_R', 0, 1.123])
+            writer.writerow(['sub-001', 'dlpfc', 0, 0.987])
+            temp_path = f.name
 
-def _create_mock_neural_data(temp_dir: Path) -> Path:
-    """Create a mock neural data file that matches expected schema."""
-    neural_dir = temp_dir / "neural" / "processed"
-    neural_dir.mkdir(parents=True, exist_ok=True)
-    
-    file_path = neural_dir / "roi_timecourses.csv"
-    
-    # Create a small valid dataset: 2 subjects, 3 ROIs, 5 timepoints
-    data = {
-        "subject_id": ["sub-01", "sub-01", "sub-01", "sub-01", "sub-01",
-                       "sub-02", "sub-02", "sub-02", "sub-02", "sub-02"],
-        "roi": ["L_Hipp", "R_Hipp", "DLPFC"] * 2 + ["L_Hipp", "R_Hipp", "DLPFC"], # Actually 3*2=6, need 10 rows? Let's fix structure
-        # Correct structure: 2 subjects * 3 ROIs * 5 timepoints = 30 rows
-    }
-    
-    rows = []
-    for subj in ["sub-01", "sub-02"]:
-        for roi in ["L_Hipp", "R_Hipp", "DLPFC"]:
-            for t in range(5):
-                rows.append({
-                    "subject_id": subj,
-                    "roi": roi,
-                    "timepoint": t,
-                    "bold_signal": np.random.normal(1000, 50)
-                })
-    
-    df = pd.DataFrame(rows)
-    df.to_csv(file_path, index=False)
-    return file_path
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is True, "Valid ROI timecourses should pass validation"
+        finally:
+            os.unlink(temp_path)
 
-def _create_mock_text_data(temp_dir: Path) -> Path:
-    """Create a mock text data file matching JSONL schema."""
-    text_dir = temp_dir / "text"
-    text_dir.mkdir(parents=True, exist_ok=True)
-    
-    file_path = text_dir / "rocstories_sample.jsonl"
-    
-    stories = [
-        {"story_id": 1, "text": "John went to the park.", "source": "rocstories"},
-        {"story_id": 2, "text": "It was a sunny day.", "source": "rocstories"},
-        {"story_id": 3, "text": "He saw a dog.", "source": "rocstories"}
-    ]
-    
-    with open(file_path, "w") as f:
-        for story in stories:
-            f.write(json.dumps(story) + "\n")
-    
-    return file_path
+    def test_missing_required_columns_roi(self):
+        """Test that missing required columns fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            # Missing 'signal' column
+            writer.writerow(['subject_id', 'roi', 'timepoint'])
+            writer.writerow(['sub-001', 'hippocampus_L', 0])
+            temp_path = f.name
 
-def _run_mock_pipeline(temp_dir: Path) -> Dict[str, Any]:
-    """Simulate the ingestion pipeline steps: create data, validate, checksum."""
-    info("Starting mock ingestion pipeline integration test")
-    
-    # 1. Generate Mock Data
-    neural_file = _create_mock_neural_data(temp_dir)
-    text_file = _create_mock_text_data(temp_dir)
-    
-    # 2. Validate Data
-    info("Validating neural data schema...")
-    is_neural_valid = validate_neural_data(str(neural_file))
-    assert is_neural_valid, "Neural data validation failed"
-    
-    info("Validating text data schema...")
-    is_text_valid = validate_text_data(str(text_file))
-    assert is_text_valid, "Text data validation failed"
-    
-    # 3. Compute Checksums and Update State
-    info("Computing checksums and updating state file...")
-    state_file = temp_dir / "state" / "pipeline_state.json"
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing state or create new
-    try:
-        state = load_state_file(str(state_file))
-    except FileNotFoundError:
-        state = {"files": {}, "last_run": None}
-    
-    # Update state with new files
-    update_state_file(str(state_file), "neural_roi_timecourses", str(neural_file))
-    update_state_file(str(state_file), "text_rocstories", str(text_file))
-    
-    # 4. Verify Integrity
-    info("Verifying file integrity from state...")
-    if os.path.exists(str(state_file)):
-        state_after = load_state_file(str(state_file))
-        assert "neural_roi_timecourses" in state_after["files"]
-        assert "text_rocstories" in state_after["files"]
-    
-    info("Mock ingestion pipeline completed successfully")
-    
-    return {
-        "neural_file": str(neural_file),
-        "text_file": str(text_file),
-        "state_file": str(state_file)
-    }
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is False, "Missing required columns should fail validation"
+        finally:
+            os.unlink(temp_path)
 
-@pytest.fixture
-def temp_project_dir():
-    """Create a temporary directory structure mimicking the project."""
-    temp_dir = Path(tempfile.mkdtemp(prefix="nnn_test_"))
-    # Create standard directories
-    (temp_dir / "data" / "raw").mkdir(parents=True)
-    (temp_dir / "data" / "processed").mkdir(parents=True)
-    (temp_dir / "data" / "results").mkdir(parents=True)
-    (temp_dir / "state").mkdir(parents=True)
-    yield temp_dir
-    # Cleanup
-    shutil.rmtree(temp_dir)
+    def test_invalid_data_types_roi(self):
+        """Test that invalid data types in signal column fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['subject_id', 'roi', 'timepoint', 'signal'])
+            writer.writerow(['sub-001', 'hippocampus_L', 0, 'invalid_float'])
+            temp_path = f.name
 
-def test_full_ingestion_pipeline_integration(temp_project_dir):
-    """
-    Integration test: Verify the full download/processing pipeline logic.
-    
-    Since T012 (actual download) is not yet implemented, this test mocks
-    the data generation step to verify the downstream validation, checksum,
-    and state management logic works correctly with real data structures.
-    
-    This ensures that when T012 is implemented, the pipeline infrastructure
-    is ready to handle the real data.
-    """
-    # Change to temp dir to simulate project root
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(temp_project_dir)
-        
-        # Run the mock pipeline
-        results = _run_mock_pipeline(temp_project_dir)
-        
-        # Assertions
-        assert os.path.exists(results["neural_file"]), "Neural file not created"
-        assert os.path.exists(results["text_file"]), "Text file not created"
-        assert os.path.exists(results["state_file"]), "State file not created"
-        
-        # Verify content of state file
-        state = load_state_file(results["state_file"])
-        assert "neural_roi_timecourses" in state["files"]
-        assert "text_rocstories" in state["files"]
-        
-        # Verify checksums are stored
-        assert state["files"]["neural_roi_timecourses"]["checksum"] is not None
-        assert state["files"]["text_rocstories"]["checksum"] is not None
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is False, "Invalid data types should fail validation"
+        finally:
+            os.unlink(temp_path)
 
-    finally:
-        os.chdir(original_cwd)
+    def test_empty_file_roi(self):
+        """Test that empty files fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            # Write only header, no data
+            writer = csv.writer(f)
+            writer.writerow(['subject_id', 'roi', 'timepoint', 'signal'])
+            temp_path = f.name
 
-def test_schema_validation_with_corrupted_data(temp_project_dir):
-    """
-    Test that the pipeline correctly identifies and rejects corrupted data.
-    """
-    # Create a file that violates the schema (e.g., missing required columns)
-    bad_file = temp_project_dir / "data" / "processed" / "bad_neural.csv"
-    bad_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write CSV missing 'roi' column
-    with open(bad_file, "w") as f:
-        f.write("subject_id,timepoint,signal\n")
-        f.write("sub-01,0,100\n")
-    
-    # Validation should return False or raise an error depending on implementation
-    # Based on T006, validate_neural_data returns a boolean
-    is_valid = validate_neural_data(str(bad_file))
-    assert not is_valid, "Corrupted data should fail validation"
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is False, "Empty data files should fail validation"
+        finally:
+            os.unlink(temp_path)
 
-def test_state_file_persistence(temp_project_dir):
-    """
-    Verify that state files persist correctly across operations.
-    """
-    state_path = temp_project_dir / "state" / "test_state.json"
-    
-    # Initial update
-    update_state_file(str(state_path), "key1", "value1")
-    state1 = load_state_file(str(state_path))
-    assert state1["files"]["key1"]["path"] == "value1"
-    
-    # Second update (should not overwrite unrelated keys if logic supports it,
-    # but here we just verify the file exists and is readable)
-    update_state_file(str(state_path), "key2", "value2")
-    state2 = load_state_file(str(state_path))
-    
-    assert "key1" in state2["files"]
-    assert "key2" in state2["files"]
+    def test_valid_event_averages_schema(self):
+        """Test that valid event averages pass schema validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['subject_id', 'event_id', 'roi', 'mean_signal'])
+            writer.writerow(['sub-001', 'evt_001', 'hippocampus_L', 1.234])
+            writer.writerow(['sub-001', 'evt_001', 'hippocampus_R', 1.123])
+            writer.writerow(['sub-001', 'evt_002', 'dlpfc', 0.987])
+            temp_path = f.name
+
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is True, "Valid event averages should pass validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_missing_required_columns_event(self):
+        """Test that missing required columns in event averages fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            # Missing 'mean_signal' column
+            writer.writerow(['subject_id', 'event_id', 'roi'])
+            writer.writerow(['sub-001', 'evt_001', 'hippocampus_L'])
+            temp_path = f.name
+
+        try:
+            result = validate_neural_data(temp_path)
+            assert result is False, "Missing required columns should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+
+class TestTextDataSchema:
+    """Contract tests for text data schema validation."""
+
+    def test_valid_jsonl_schema(self):
+        """Test that valid JSONL file passes schema validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            f.write('{"story_id": "story_001", "text": "Once upon a time...", "source": "rocstories"}\n')
+            f.write('{"story_id": "story_002", "text": "The end.", "source": "rocstories"}\n')
+            temp_path = f.name
+
+        try:
+            result = validate_text_data(temp_path)
+            assert result is True, "Valid JSONL should pass validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_missing_required_fields_jsonl(self):
+        """Test that missing required fields fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            # Missing 'text' field
+            f.write('{"story_id": "story_001", "source": "rocstories"}\n')
+            temp_path = f.name
+
+        try:
+            result = validate_text_data(temp_path)
+            assert result is False, "Missing required fields should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_invalid_json_line(self):
+        """Test that invalid JSON lines fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            f.write('{"story_id": "story_001", "text": "Valid line"}\n')
+            f.write('invalid json line\n')
+            temp_path = f.name
+
+        try:
+            result = validate_text_data(temp_path)
+            assert result is False, "Invalid JSON lines should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_empty_jsonl_file(self):
+        """Test that empty JSONL files fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            # Empty file
+            temp_path = f.name
+
+        try:
+            result = validate_text_data(temp_path)
+            assert result is False, "Empty JSONL files should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+
+class TestRSAOutputSchema:
+    """Contract tests for RSA output schema validation."""
+
+    def test_valid_rsa_matrix_schema(self):
+        """Test that valid RSA matrix passes schema validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['condition_1', 'condition_2', 'distance', 'p_value'])
+            writer.writerow(['story_A', 'story_B', 0.123, 0.05])
+            writer.writerow(['story_A', 'story_C', 0.456, 0.01])
+            temp_path = f.name
+
+        try:
+            result = validate_rsa_output(temp_path)
+            assert result is True, "Valid RSA matrix should pass validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_missing_required_columns_rsa(self):
+        """Test that missing required columns in RSA output fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            # Missing 'p_value' column
+            writer.writerow(['condition_1', 'condition_2', 'distance'])
+            writer.writerow(['story_A', 'story_B', 0.123])
+            temp_path = f.name
+
+        try:
+            result = validate_rsa_output(temp_path)
+            assert result is False, "Missing required columns should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+    def test_invalid_distance_value(self):
+        """Test that negative distance values fail validation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['condition_1', 'condition_2', 'distance', 'p_value'])
+            writer.writerow(['story_A', 'story_B', -0.123, 0.05])
+            temp_path = f.name
+
+        try:
+            result = validate_rsa_output(temp_path)
+            assert result is False, "Negative distance values should fail validation"
+        finally:
+            os.unlink(temp_path)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

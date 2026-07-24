@@ -1247,42 +1247,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T03:43:52Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
-  attempts: 7
-  canonical: generate at least 1000 stories on CPU
-  claim_id: c_bf581d69
-  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
-    and prefrontal gating, generate at least 1,000 stories on CPU.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_stories_on_CPU
-  kind: magnitude
-  raw_text: generate at least 1,000 stories on CPU
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T03:44:38Z'
-- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
-  attempts: 1
-  canonical: verify at least 1000 unique stories generated
-  claim_id: c_99107a23
-  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
-    SAE sparsity < 20%; Verify peak RAM < 6GB..'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_at_least_1000_unique_stories_generated
-  kind: magnitude
-  raw_text: Verify at least 1,000 unique stories generated
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T03:44:41Z'
-- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
   canonical: verify sparse autoencoder sparsity less than 20 percent
   claim_id: c_e66dc28e
@@ -1357,3 +1321,427 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T03:45:46Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: research question investigate neural correlates of cognitive control
+  claim_id: c_28e7f441
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_investigate_neural_correlates_of_cognitive
+  kind: entity_fact
+  raw_text: The research question is to investigate neural correlates of cognitive
+    control.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:05:04Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: method involves fMRI with stop-signal task
+  claim_id: c_955b0679
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_stop-signal_task
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:05:44Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2020 cited as reference
+  claim_id: c_7b7d121d
+  context: The method involves functional magnetic resonance imaging (fMRI) with a
+    stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include (Smith et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:05:58Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 8
+  canonical: generate at least 1000 stories on CPU
+  claim_id: c_bf581d69
+  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
+    and prefrontal gating, generate at least 1,000 stories on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_stories_on_CPU
+  kind: magnitude
+  raw_text: generate at least 1,000 stories on CPU
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:06:24Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: verify at least 1000 unique stories generated
+  claim_id: c_99107a23
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_1000_unique_stories_generated
+  kind: magnitude
+  raw_text: Verify at least 1,000 unique stories generated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:06:47Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 6 gigabytes
+  claim_id: c_188a952a
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_6_gigabytes
+  kind: magnitude
+  raw_text: Verify peak RAM < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:07:36Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: method involves fMRI with stop-signal task
+  claim_id: c_8977e8d7
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_stop-signal_task
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:08:24Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: references include Smith et al. 2020
+  claim_id: c_cde2841d
+  context: The method involves functional magnetic resonance imaging (fMRI) with a
+    stop-signal task.. References include (Smith et al., 2020;). using `datalad` to
+    `data/raw/`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include (Smith et al., 2020;).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:08:24Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: research question investigates neural correlates of cognitive control
+  claim_id: c_9527514f
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task..
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_investigates_neural_correlates_of_cognitiv
+  kind: entity_fact
+  raw_text: The research question is to investigate neural correlates of cognitive
+    control.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:09:20Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: method uses fMRI with stop-signal task
+  claim_id: c_7c857d0c
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_uses_fMRI_with_stop-signal_task
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:09:22Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2020 cited
+  claim_id: c_678f4094
+  context: The method involves functional magnetic resonance imaging (fMRI) with a
+    stop-signal task.. References include (Smith et al., 2020;). using `datalad` to
+    `data/raw/`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include (Smith et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:09:23Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: generate at least 1,000 stories on CPU
+  claim_id: c_9e341d12
+  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
+    and prefrontal gating, generate at least 1,000 stories on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1,000_stories_on_CPU
+  kind: magnitude
+  raw_text: Generate at least 1,000 stories on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:10:06Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: verify SAE sparsity less than 20 percent
+  claim_id: c_f8a222cd
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_SAE_sparsity_less_than_20_percent
+  kind: magnitude
+  raw_text: Verify SAE sparsity < 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:10:08Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 6 GB
+  claim_id: c_3ce28c0c
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify peak RAM < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:10:11Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Generate at least 1,000 stories on CPU
+  claim_id: c_16a418b9
+  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
+    and prefrontal gating, generate at least 1,000 stories on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1,000_stories_on_CPU
+  kind: magnitude
+  raw_text: Generate at least 1,000 stories on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:12:25Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Verify at least 1,000 unique stories generated
+  claim_id: c_cee45fba
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_1,000_unique_stories_generated
+  kind: magnitude
+  raw_text: Verify at least 1,000 unique stories generated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:12:27Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Verify SAE sparsity less than 20 percent
+  claim_id: c_f3c6c2fa
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_SAE_sparsity_less_than_20_percent
+  kind: magnitude
+  raw_text: Verify SAE sparsity < 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:12:29Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Verify peak RAM less than 6GB
+  claim_id: c_d7a2c3f5
+  context: 'Independent Test: Verify at least 1,000 unique stories generated; Verify
+    SAE sparsity < 20%; Verify peak RAM < 6GB..'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_6GB
+  kind: magnitude
+  raw_text: Verify peak RAM < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:12:33Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Produce at least 1,000 unique stories
+  claim_id: c_0e219e43
+  context: 'T026 [US2] Run generation loop to produce at least 1,000 unique stories
+    (N >= 1,000) and save to `data/results/generated_stories.jsonl` where each line
+    is a JSON object with keys: `story_id`, `text`, `model_type`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Produce_at_least_1,000_unique_stories
+  kind: magnitude
+  raw_text: Run generation loop to produce at least 1,000 unique stories (N >= 1,000).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:13:52Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Ensure peak memory usage less than 6GB limit
+  claim_id: c_62a2eaf4
+  context: T027 [US2] Implement memory monitoring to log peak usage and ensure < 6GB
+    limit.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_memory_usage_less_than_6GB_limit
+  kind: magnitude
+  raw_text: Ensure peak memory usage is less than 6GB limit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:14:13Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Investigate neural correlates of cognitive control
+  claim_id: c_4d7ea7ff
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Investigate_neural_correlates_of_cognitive_control
+  kind: entity_fact
+  raw_text: The research question is to investigate neural correlates of cognitive
+    control.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:14:15Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Method involves fMRI with stop-signal task
+  claim_id: c_f6e69ffc
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_stop-signal_task
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:14:17Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Reference Smith et al 2020
+  claim_id: c_7f9520fe
+  context: The research question is to investigate neural correlates of cognitive
+    control. The method involves functional magnetic resonance imaging (fMRI) with
+    a stop-signal task.. References include (Smith et al., 2020;).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include Smith et al., 2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T07:14:35Z'

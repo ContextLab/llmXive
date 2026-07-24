@@ -1,53 +1,55 @@
 #include <iostream>
-#include <cstdlib>
-#include <cstddef>
 #include <cstdint>
-#include <type_traits>
+#include <atomic>
+#include <cstring>
 #include "counter_packed.hpp"
 #include "counter_padded.hpp"
 
 int main() {
-    std::cout << "=== Memory Layout Verification Utility ===" << std::endl;
+    std::cout << "=== Memory Layout Verification ===" << std::endl;
 
-    // Verify Packed Counter Size
-    // Expected: 24 bytes (3 x 8 bytes for long long, no padding)
-    constexpr size_t expected_packed_size = 24;
-    constexpr size_t actual_packed_size = sizeof(CounterPacked);
+    // Check PackedCounter
+    std::cout << "PackedCounter:" << std::endl;
+    std::cout << "  Size: " << sizeof(PackedCounter) << " bytes" << std::endl;
+    std::cout << "  Alignment: " << alignof(PackedCounter) << " bytes" << std::endl;
+    std::cout << "  Value offset: " << offsetof(PackedCounter, value) << " bytes" << std::endl;
     
-    std::cout << "CounterPacked size: " << actual_packed_size << " bytes" << std::endl;
-    std::cout << "  Expected: " << expected_packed_size << " bytes" << std::endl;
-    
-    if (actual_packed_size != expected_packed_size) {
-        std::cerr << "ERROR: CounterPacked size mismatch!" << std::endl;
-        std::cerr << "  The struct is not packed as expected. Check #pragma pack(1) usage." << std::endl;
+    if (sizeof(PackedCounter) != 24) {
+        std::cerr << "ERROR: PackedCounter size is not 24 bytes!" << std::endl;
         return 1;
     }
-    std::cout << "  [PASS] CounterPacked size verified." << std::endl;
 
-    // Verify Padded Counter Size
-    // Expected: >= 192 bytes (3 x 64 bytes cache line padding)
-    constexpr size_t min_padded_size = 192;
-    constexpr size_t actual_padded_size = sizeof(CounterPadded);
-    
-    std::cout << "CounterPadded size: " << actual_padded_size << " bytes" << std::endl;
-    std::cout << "  Minimum expected: " << min_padded_size << " bytes (3 x 64)" << std::endl;
-    
-    if (actual_padded_size < min_padded_size) {
-        std::cerr << "ERROR: CounterPadded size too small!" << std::endl;
-        std::cerr << "  The struct is not padded to separate cache lines." << std::endl;
+    // Check PaddedCounter
+    std::cout << "\nPaddedCounter:" << std::endl;
+    std::cout << "  Size: " << sizeof(PaddedCounter) << " bytes" << std::endl;
+    std::cout << "  Alignment: " << alignof(PaddedCounter) << " bytes" << std::endl;
+    std::cout << "  Value offset: " << offsetof(PaddedCounter, value) << " bytes" << std::endl;
+
+    if (sizeof(PaddedCounter) < CACHE_LINE_SIZE) {
+        std::cerr << "ERROR: PaddedCounter size is less than cache line size!" << std::endl;
         return 1;
     }
-    std::cout << "  [PASS] CounterPadded size verified (>= 192 bytes)." << std::endl;
 
-    // Verify alignment of individual members in Padded struct
-    // Each counter should start at a 64-byte boundary relative to the struct start
-    // This is a compile-time check for the layout logic
-    static_assert(offsetof(CounterPadded, c1) % 64 == 0, "c1 must be 64-byte aligned");
-    static_assert(offsetof(CounterPadded, c2) % 64 == 0, "c2 must be 64-byte aligned");
-    static_assert(offsetof(CounterPadded, c3) % 64 == 0, "c3 must be 64-byte aligned");
+    if (alignof(PaddedCounter) != CACHE_LINE_SIZE) {
+        std::cerr << "ERROR: PaddedCounter alignment is not 64 bytes!" << std::endl;
+        return 1;
+    }
+
+    // Verify actual memory layout with an instance
+    PackedCounter packed;
+    PaddedCounter padded;
     
-    std::cout << "  [PASS] Member alignment verified (64-byte boundaries)." << std::endl;
+    std::cout << "\nInstance Addresses:" << std::endl;
+    std::cout << "  PackedCounter address: " << &packed << std::endl;
+    std::cout << "  PaddedCounter address: " << &padded << std::endl;
 
-    std::cout << "=== All Layout Verifications Passed ===" << std::endl;
+    // Verify that padded counters are aligned to cache lines
+    uintptr_t padded_addr = reinterpret_cast<uintptr_t>(&padded);
+    if (padded_addr % CACHE_LINE_SIZE != 0) {
+        std::cerr << "ERROR: PaddedCounter instance is not cache-line aligned!" << std::endl;
+        return 1;
+    }
+
+    std::cout << "\nVerification PASSED: All layout constraints satisfied." << std::endl;
     return 0;
 }

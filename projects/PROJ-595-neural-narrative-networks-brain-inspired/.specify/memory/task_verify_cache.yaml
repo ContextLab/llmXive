@@ -1,0 +1,34 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing chunked loading/subsampling for
+    large fMRI datasets is present; the only evidence is the task description itself,
+    with no concrete artifact to verify the feature. The required implementation and
+    any associated tests or usage examples are missing.
+T015:
+  c: false
+  h: d43586a850d43b9f27008f95dfb186ced91d43524ea2c24d38e8b8447eb54c24
+  r: The required output file `data/text/rocstories_sample.jsonl` does not exist,
+    so the ROCStories corpus has not been downloaded and sampled as specified. The
+    implementer must create this JSONL file with a representative subset of stories
+    in the indicated path.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script or code was provided that checks for corrupted or incomplete\
+    \ data and aborts with specific error messages. The required artifact (e.g., a\
+    \ Python/ Bash validation step integrated into the data pipeline) is missing,\
+    \ so the task\u2019s requirement is not satisfied."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of `utils/checksums.py` being executed or of a state file being\
+    \ updated is provided; the required artifact (updated state file with checksum\
+    \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No training\u2011loop script, configuration, or logs are present; there is no\
+    \ code implementing a retry mechanism across three random seeds for the sparse\
+    \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
+    \ plots) that such a loop was executed. The required artifact is missing."

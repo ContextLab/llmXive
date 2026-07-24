@@ -41,15 +41,23 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`
-- [ ] T001b Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/` <!-- FAILED: unspecified -->
-- [ ] T001c Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/raw/`
-- [ ] T001d Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/`
-- [ ] T001e Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/test/`
-- [ ] T001f Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/`
-- [ ] T001g Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/`
-- [ ] T001h Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (sentence-transformers, scikit-learn, pandas, numpy, datasets, jsonschema, statsmodels, pytest, transformers, accelerate, openai)
+- [ ] T001a-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`
+- [ ] T001a-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` exists via `os.path.isdir`
+- [ ] T001b-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/`
+- [ ] T001b-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/` exists via `os.path.isdir`
+- [ ] T001c-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/raw/`
+- [ ] T001c-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/raw/` exists via `os.path.isdir`
+- [ ] T001d-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/`
+- [ ] T001d-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/` exists via `os.path.isdir`
+- [ ] T001e-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/test/`
+- [ ] T001e-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/test/` exists via `os.path.isdir`
+- [ ] T001f-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/`
+- [ ] T001f-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/` exists via `os.path.isdir`
+- [ ] T001g-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/`
+- [ ] T001g-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/` exists via `os.path.isdir`
+- [ ] T001h-CREATE Create directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/`
+- [ ] T001h-VERIFY Verify directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/` exists via `os.path.isdir`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (sentence-transformers, scikit-learn, pandas, numpy, datasets, jsonschema, statsmodels, pytest, transformers, accelerate)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` (create `.ruff.toml` and `pyproject.toml`)
 
 ---
@@ -70,6 +78,7 @@
 - [ ] T007 [P] Setup `checksums.json` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` for raw data integrity tracking
 - [X] T008a [P] Implement `taxonomy_builder.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to generate centroid embeddings using `all-MiniLM-L6-v2` (CPU-first, batched to fit <100MB RAM) using the taxonomy mapped by T005-map (input: `data/raw/taxonomy_agentdog.json`)
 - [ ] T008b [US2] Implement runtime memory monitoring logic in `taxonomy_builder.py` using `tracemalloc` to profile centroid generation and enforce a strict peak RAM limit of < 7GB; raise an exception if exceeded (DEPENDS ON T008a execution)
+- [ ] T008c [P] Save the generated taxonomy with embeddings to `data/processed/taxonomy_centroids.json` as a persistent artifact for reproducibility (input: output of T008a)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,7 +88,7 @@
 
 **Goal**: Implement the core drift scoring mechanism to compute cosine distances between logs and taxonomy centroids.
 
-**Independent Test**: The system can be tested by feeding a static JSON file of a sufficient number of known benign logs and a comparable number of known novel attack logs (where novelty is defined by human annotation from the US-02 process, not merely by absence from the taxonomy) and verifying that the "Drift Score" distribution is statistically distinguishable between the two groups with p < 0.05 and an effect size (Cohen's d) ≥ 0.5. **CRITICAL**: Task T018b generates a synthetic ground truth fixture to satisfy the 'Independent Test' requirement for US-01 without requiring US-02 completion. Task T018c performs the final validation against human-annotated ground truth from US-02. Static fixtures from T018b are sufficient for the independent test; T018c is reserved for the final validation against real human judgment.
+**Independent Test**: The system can be tested by feeding a static JSON file of a sufficient number of known benign logs and a comparable number of known novel attack logs (where novelty is defined by human annotation from the US-02 process, not merely by absence from the taxonomy) and verifying that the "Drift Score" distribution is statistically distinguishable between the two groups with p < 0.05 and an effect size (Cohen's d) ≥ 0.5. **CRITICAL**: Task T018b generates a synthetic ground truth fixture to satisfy the 'Independent Test' requirement for US-01 without requiring US-02 completion. Task T018d performs the statistical validation against this synthetic ground truth. Task T018c performs the final validation against real human-annotated ground truth from US-02. Static fixtures from T018b are sufficient for the independent test; T018c is reserved for the final validation against real human judgment.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -96,10 +105,11 @@
 - [ ] T014 [US1] Add logic to handle empty/whitespace logs by explicitly assigning a Drift Score representing the maximum theoretical cosine distance and adding a 'review_flag' column to the output CSV set to 'true' for these records, as per Edge Cases
 - [ ] T017 [US1] Implement `export_results` function in `drift_scoring.py` to export results to CSV (`data/processed/drift_scores.csv`) with columns: `log_id`, `drift_score`, `review_flag`; verify file is generated with correct columns before marking task complete
 - [ ] T016 [US1] Create `main.py` orchestration script in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run the full scoring pipeline including export (DEPENDS ON T017)
-- [ ] T018b [US1] Implement `generate_synthetic_ground_truth` function in `validation.py` to create `data/processed/synthetic_ground_truth.json` with 'benign' and 'novel attack' labels for independent US-01 testing; this task MUST run before T018c
-- [ ] T018c [US1] Implement statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 Independent Test verification using human-annotated ground truth from US-02 (input: `data/processed/merged_annotations.csv`, output: `data/processed/us01_stats.json`); ensure `data/processed/us01_stats.json` is generated. **Note**: This task depends on US-02 completion and is NOT independent. <!-- ATOMIZE: requested -->
+- [ ] T018b [US1] Implement `generate_synthetic_ground_truth` function in `validation.py` to create `data/processed/synthetic_ground_truth.json` with 'benign' and 'novel attack' labels for independent US-01 testing; use a deterministic algorithm (random seed) to simulate distributions; this task MUST run before T018d
+- [ ] T018d [US1] Implement statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 Independent Test verification using the synthetic ground truth from T018b (input: `data/processed/synthetic_ground_truth.json`, output: `data/processed/us01_synthetic_stats.json`); ensure `data/processed/us01_synthetic_stats.json` is generated. **Note**: This task enables MVP independence.
+- [ ] T018c [US1] Implement statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 final validation using human-annotated ground truth from US-02 (input: `data/processed/merged_annotations.csv`, output: `data/processed/us01_final_stats.json`); ensure `data/processed/us01_final_stats.json` is generated. **Note**: This task depends on US-02 completion.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (T018b for synthetic test, T018c for final human validation)
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (T018b/T018d for synthetic test, T018c for final human validation)
 
 ---
 
@@ -117,14 +127,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021d [US2] Implement `ingest_human_annotations` function in `validation.py` to load annotation CSVs from `data/raw/human_annotations/` (wildcard `*.csv`). Use `glob` to dynamically discover files. If fewer than 2 distinct files are found, raise an error. If 2 or more are found but fewer than 3, log a warning but proceed. The system must re-run ingestion if new files are added (iterative). (input: `data/raw/human_annotations/*.csv`, output: `data/raw/validated_annotations/` directory with individual files)
+- [ ] T023a [US2] Implement `stratify_logs` function in `annotator_interface.py` to calculate indices, sort, slice, and bin logs based on drift scores and config parameters (input: `data/processed/drift_scores.csv`)
+- [ ] T023b [US2] Implement `generate_blinded_annotation_files` function in `annotator_interface.py` to combine stratification (T023a) and blinding (T025a) logic to generate final blinded CSVs for human annotators; save to `data/processed/blinded_annotation_batches/*.csv` (DEPENDS ON T023a)
+- [ ] T021d [US2] Implement `ingest_human_annotations` function in `validation.py` to load annotation CSVs from `data/processed/blinded_annotation_batches/` (wildcard `*.csv`). Use `glob` to dynamically discover files. If fewer than a sufficient number of distinct files are found, raise an error. If a small number are found but fewer than 3, log a warning but proceed. The system must re-run ingestion if new files are added (iterative). (input: `data/processed/blinded_annotation_batches/*.csv`, output: `data/raw/validated_annotations/` directory with individual files)
 - [ ] T021a [US2] Implement `merge_annotations` logic in `validation.py` to read the validated annotated CSVs from T021d, merge with drift scores, and output `data/processed/merged_annotations.csv` (DEPENDS ON T021d)
 - [ ] T021b [US2] Implement `validation.py` logic to perform logistic regression (using `statsmodels.formula.api.logit`) and Mann-Whitney U tests on `data/processed/merged_annotations.csv`, outputting `data/processed/validation_stats.json`
-- [ ] T021c [US2] Implement `prepare_annotation_interface` function in `annotator_interface.py` to generate a CSV template ready for human upload (columns: `log_id`, `text`, `drift_score` for reference ONLY, but `drift_score` must be removed before export) based on stratified bins from T023a
+- [ ] T021c [US2] Implement `prepare_annotation_interface` function in `annotator_interface.py` to generate a CSV template ready for human upload (columns: `log_id`, `text`, `drift_score` for reference ONLY, but `drift_score` must be removed before export) based on stratified bins from T023a (DEPENDS ON T023a)
 - [ ] T021e [US2] Generate mock annotation fixtures for testing purposes (input: `data/processed/drift_scores.csv`, output: `data/test/mock_annot_1.csv`, `data/test/mock_annot_2.csv`, `data/test/mock_annot_3.csv`)
-- [ ] T022 [US2] Implement `export_stratified_bins` function in `annotator_interface.py` to export pre-calculated bins as blinded CSVs for annotation (using T025a logic)
+- [ ] T022 [US2] Implement `export_stratified_bins` function in `annotator_interface.py` to export pre-calculated bins as blinded CSVs for annotation (using T025a logic) (DEPENDS ON T023a)
 - [ ] T023 [US2] Implement logic to handle stratification parameters (deferred percentiles) via `config.py`
-- [ ] T023a [US2] Implement `stratify_logs` function in `annotator_interface.py` to calculate indices, sort, slice, and bin logs based on drift scores and config parameters
 - [ ] T024 [US2] Implement inter-annotator agreement (Kappa) calculation in `validation.py` using `sklearn.metrics.cohen_kappa_score` on the merged annotations from T021a (input: `data/processed/merged_annotations.csv`). **Threshold**: Kappa > 0.6 indicates substantial agreement. If Kappa < 0.6, log a warning, set `confidence_level` to 'low' in `data/processed/kappa_stats.json`, but proceed with the data. Do NOT fail the system. (DEPENDS ON T021a)
 - [ ] T025 [US2] Verify output CSVs contain required columns: `log_id`, `text`, `label` (blinded) and no `drift_score` column
 - [ ] T025a [US2] Implement blinding logic (remove `drift_score` column) in `annotator_interface.py` prior to export for human review
@@ -135,9 +146,9 @@
 
 ## Phase 5: User Story 3 - Baseline Performance Comparison (Priority: P3)
 
-**Goal**: Compare Drift Score detector against a standard zero-shot LLM classifier (local model or API).
+**Goal**: Compare Drift Score detector against a standard zero-shot LLM classifier (local model).
 
-**Independent Test**: The system can be tested by running a comparison script on a small subset of logs. where both the Drift Score and a zero-shot LLM inference (using a local CPU-friendly model by default, or gpt-4o-mini if API key is provided) are available, and verifying the output includes AUC-ROC and inference time metrics against the human-annotated ground truth from US-02.
+**Independent Test**: The system can be tested by running a comparison script on a small subset of logs. where both the Drift Score and a zero-shot LLM inference (using a local CPU-friendly model) are available, and verifying the output includes AUC-ROC and inference time metrics against the human-annotated ground truth from US-02.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -146,11 +157,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028-gpt [US3] Implement `comparison.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a zero-shot LLM classifier using a large language model (via OpenAI API) on `data/processed/merged_annotations.csv`, comparing with Drift Scores. The task MUST use the `gpt-4o-mini` model with a system prompt for attack detection. Implement deterministic inference caching mechanism to ensure reproducibility (Constitution Principle I).
-- [ ] T028-local [US3] Implement `comparison.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a zero-shot LLM classifier using a **local CPU-friendly model** (`facebook/bart-large-mnli`) on `data/processed/merged_annotations.csv`, comparing with Drift Scores. The Drift Score method remains CPU-only, and the baseline MUST also be CPU-only to satisfy Constitution Principle I (Reproducibility) and Principle VII (Resource-Constrained Integrity). *Note: This task provides a CPU-only baseline for reproducibility comparison, while T028-gpt provides the Spec US-03 required baseline.*
+- [ ] T028-local [US3] Implement `comparison.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a zero-shot LLM classifier using a **local CPU-friendly model** (`facebook/bart-large-mnli`) on `data/processed/merged_annotations.csv`, comparing with Drift Scores. The Drift Score method remains CPU-only, and the baseline MUST also be CPU-only to satisfy Constitution Principle I (Reproducibility) and Principle VII (Resource-Constrained Integrity). **Constraint**: NO external API calls (e.g., OpenAI) are permitted for this baseline.
 - [ ] T029 [US3] Implement bootstrap iteration logic for AUC-ROC stability
 - [ ] T029a [US3] Implement deterministic inference caching mechanism in `comparison.py` for local model outputs to ensure reproducibility (Constitution Principle I)
-- [ ] T030 [US3] Generate comparison report containing AUC-ROC for both methods and average inference time per log
+- [ ] T030 [US3] Generate comparison report containing AUC-ROC for both methods and average inference time per log (DEPENDS ON T028-local)
 - [ ] T031 [US3] Add logic to flag "computationally efficient alternative" if |AUC_drift - AUC_llm| ≤ 0.10
 
 **Checkpoint**: All user stories should now be independently functional
@@ -180,8 +190,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -229,7 +239,7 @@ Task: "Add logic to handle empty/whitespace logs in code/drift_scoring.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T018b for independent testing, T018c for final validation)
+3. Complete Phase 3: User Story 1 (including T018b for independent testing, T018d for synthetic validation, T018c for final human validation)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -247,9 +257,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -265,14 +275,14 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Hygiene**: Ensure `data_loader.py` fails loudly on real data fetch errors; never use synthetic fallbacks.
 - **Memory**: Ensure batch processing in `drift_scoring.py` respects 7GB RAM limits.
-- **Compute**: Use `all-MiniLM-L6-v2` on CPU for drift scoring; use `gpt-4o-mini` for baseline comparison (as per Spec US-03) and `facebook/bart-large-mnli` for CPU-only reproducibility comparison.
+- **Compute**: Use `all-MiniLM-L6-v2` on CPU for drift scoring; use `facebook/bart-large-mnli` for CPU-only reproducibility comparison.
 - **Reproducibility**: All inference (including baseline comparison) must use local models or cached data; no external API calls for Drift Score or Baseline.
 - **Taxonomy Fetch**: Ensure T005d successfully retrieves the taxonomy from the canonical source (OWASP/Top-LLM) before T005-map runs.
 - **Taxonomy Mapping**: Ensure T005-map successfully maps OWASP taxonomy to AgentDoG 1.5 schema before T008a runs.
-- **Ground Truth**: Ensure T018b (synthetic) runs before T018c (final validation) and T021d (human ingestion) runs before T024 (Kappa) and T018c (US-01 stats) is complete.
-- **Edge Cases**: Ensure T014 explicitly flags empty logs with Drift Score 2.0.
-- **Performance**: Ensure T034a and T034b enforce the 30-minute limit.
+- **Ground Truth**: Ensure T018b (synthetic) runs before T018d (synthetic validation) and T021d (human ingestion) runs before T024 (Kappa) and T018c (US-01 stats) is complete.
+- **Edge Cases**: Ensure T014 explicitly flags empty logs with Drift Score.
+- **Performance**: Ensure T034a and T034b enforce a time limit.
 - **Blinding**: Ensure T025a explicitly removes `drift_score` before export.
 - **RAM Limit**: Ensure T008b enforces a strict peak RAM limit of < 7GB.
 - **US-02 Threshold**: Ensure T024 explicitly defines Kappa > 0.6 as the threshold for substantial agreement and handles <0.6 gracefully.
-- **Ordering**: Ensure T017 precedes T016, and T021d precedes T021a which precedes T024.
+- **Ordering**: Ensure T017 precedes T016, T023a/T023b precede T021d/T021a, T021d precedes T021a, and T028-local precedes T030.
