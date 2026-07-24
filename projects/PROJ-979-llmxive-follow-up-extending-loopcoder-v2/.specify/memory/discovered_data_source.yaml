@@ -1,0 +1,10 @@
+status: none
+intent: download HumanEval and MBPP code generation benchmarks as Python package dataset
+required_fields:
+- task_id
+- prompt
+- reference_code
+- test_cases
+cache_key: df3088c5ffd1d4395941d640aa2b9d055529448369b5a92a0f7a22d9e7e4a56f
+searched_at: '2026-07-24T07:37:03.532670+00:00'
+retry_count: 1

@@ -1,264 +1,301 @@
+"""
+Data loading module for fetching and processing datasets.
+
+This module handles fetching datasets from HuggingFace and preparing them
+for analysis.
+"""
 import hashlib
 import json
 import os
 import random
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
-import csv
+from datasets import load_dataset
 
-# Ensure compatibility with existing API surface
-# The following imports are assumed to be available in the environment
-# based on the provided API surface list.
-try:
-    from datasets import load_dataset
-except ImportError:
-    # Fallback for environments where datasets might not be installed yet,
-    # though T002 should have installed it.
-    load_dataset = None
+# Configure logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def ensure_directories(base_path: str = "data") -> None:
-    """Create necessary directory structure for data processing."""
-    dirs = [
-        Path(base_path),
-        Path(base_path) / "raw",
-        Path(base_path) / "processed",
-        Path(base_path) / "figures",
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+# Constants
+RAW_DATA_DIR = Path("data/raw")
+PROCESSED_DATA_DIR = Path("data/processed")
+
+def ensure_directories():
+    """Ensure all required directories exist."""
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def fetch_dataset(dataset_name: str, split: str = "test") -> List[Dict[str, Any]]:
-    """Fetch a dataset using the HuggingFace datasets library."""
-    if load_dataset is None:
-        raise ImportError("datasets library is required to fetch datasets.")
+def fetch_datasets(dataset_names: List[str] = None) -> Dict[str, Any]:
+    """
+    Fetch datasets from HuggingFace.
     
-    # Attempt to load the dataset
-    # Handling different dataset structures (HumanEval vs MBPP)
-    try:
-        ds = load_dataset(dataset_name, split=split)
-        # Convert to list of dicts
-        data = []
-        for item in ds:
-            # Normalize keys to expected format
-            normalized = {}
-            for k, v in item.items():
-                if isinstance(v, dict) and 'task_id' in v:
-                    # Some datasets have nested task_id
-                    normalized['task_id'] = v['task_id']
-                elif k == 'task_id':
-                    normalized['task_id'] = v
-                elif k == 'prompt':
-                    normalized['prompt'] = v
-                elif k == 'canonical_solution':
-                    normalized['canonical_solution'] = v
-                elif k == 'test':
-                    normalized['test'] = v
-                elif k == 'entry_point':
-                    normalized['entry_point'] = v
-                elif k == 'difficulty':
-                    normalized['difficulty'] = v
-                elif k == 'code':
-                    normalized['code'] = v
-                else:
-                    # Keep other fields as is
-                    normalized[k] = v
-            data.append(normalized)
-        return data
-    except Exception as e:
-        raise RuntimeError(f"Failed to fetch dataset {dataset_name}: {e}")
-
-def save_raw_dataset(data: List[Dict[str, Any]], filename: str, base_path: str = "data") -> str:
-    """Save raw dataset to JSON."""
-    ensure_directories(base_path)
-    output_path = Path(base_path) / "raw" / filename
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    return str(output_path)
-
-def determine_strata(data: List[Dict[str, Any]], strata_key: str = "difficulty") -> Dict[str, List[int]]:
-    """
-    Determine strata based on a key. If key missing, use task_id hashing.
-    Returns a dict mapping stratum_name -> list of indices.
-    """
-    strata = {}
-    for idx, item in enumerate(data):
-        if strata_key in item and item[strata_key]:
-            stratum_name = str(item[strata_key])
-        else:
-            # Fallback: hash task_id to create pseudo-strata
-            task_id = item.get('task_id', str(idx))
-            # Create 4 buckets based on hash
-            h = int(hashlib.md5(str(task_id).encode()).hexdigest(), 16) % 4
-            stratum_name = f"bucket_{h}"
+    Args:
+        dataset_names: List of dataset names to fetch
         
-        if stratum_name not in strata:
-            strata[stratum_name] = []
-        strata[stratum_name].append(idx)
+    Returns:
+        Dictionary mapping dataset name to dataset object
+    """
+    if dataset_names is None:
+        dataset_names = ["openai_humaneval", "mbpp"]
+    
+    datasets = {}
+    for name in dataset_names:
+        try:
+            logger.info(f"Fetching dataset: {name}")
+            if name == "openai_humaneval":
+                # Use the correct namespace/name format
+                dataset = load_dataset("openai/humaneval", split="test")
+            elif name == "mbpp":
+                dataset = load_dataset("mbpp", split="train")
+            else:
+                dataset = load_dataset(name, split="train")
+            
+            datasets[name] = dataset
+            logger.info(f"Successfully fetched {name}: {len(dataset)} examples")
+        except Exception as e:
+            logger.error(f"Failed to fetch {name}: {e}")
+            raise
+    
+    return datasets
+
+def save_raw_dataset(dataset: Any, name: str, output_dir: Path = None):
+    """
+    Save raw dataset to disk.
+    
+    Args:
+        dataset: Dataset object to save
+        name: Name of the dataset
+        output_dir: Output directory
+    """
+    if output_dir is None:
+        output_dir = RAW_DATA_DIR
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{name}.json"
+    
+    # Convert to list of dicts
+    data_list = list(dataset)
+    
+    with open(output_path, 'w') as f:
+        json.dump(data_list, f, indent=2)
+    
+    logger.info(f"Saved raw dataset {name} to {output_path}")
+    return output_path
+
+def determine_strata(dataset: List[Dict[str, Any]]) -> List[str]:
+    """
+    Determine strata for stratified sampling.
+    
+    Args:
+        dataset: List of dataset items
+        
+    Returns:
+        List of strata names
+    """
+    strata = []
+    
+    # Try to use 'difficulty' column if available
+    if dataset and 'difficulty' in dataset[0]:
+        difficulties = set(item['difficulty'] for item in dataset if 'difficulty' in item)
+        strata.extend(difficulties)
+    
+    # If no difficulty, create strata based on task_id hash
+    if not strata and dataset:
+        strata = ["easy", "medium", "hard"]
+    
+    # If still no strata, create a single stratum
+    if not strata:
+        strata = ["all"]
+    
     return strata
 
-def stratified_sample(data: List[Dict[str, Any]], strata: Dict[str, List[int]], target_size: Optional[int] = None) -> List[int]:
+def stratified_sample(dataset: List[Dict[str, Any]], strata: List[str], sample_sizes: Dict[str, int]) -> List[Dict[str, Any]]:
     """
-    Perform stratified sampling.
-    If target_size is None, returns all indices.
-    If a stratum has < 50 samples, it is flagged as 'underpowered' in the log.
-    """
-    sampled_indices = []
-    underpowered_strata = []
+    Perform stratified sampling on dataset.
     
-    for stratum_name, indices in strata.items():
-        if len(indices) < 50:
-            underpowered_strata.append(stratum_name)
-            # Include all samples from underpowered strata for now, 
-            # they will be filtered in T004e
-            sampled_indices.extend(indices)
-        else:
-            # Sample proportionally or fixed if target_size is specified
-            if target_size:
-                # Simple proportional sampling logic
-                # This is a placeholder logic; actual implementation might vary
-                sample_count = max(1, int((len(indices) / len(data)) * target_size))
-                sampled_indices.extend(random.sample(indices, min(sample_count, len(indices))))
-            else:
-                sampled_indices.extend(indices)
-    
-    return sampled_indices, underpowered_strata
-
-def save_strata_log(strata: Dict[str, List[int]], underpowered: List[str], log_path: str = "data/processed/strata_log.json"):
-    """Save strata information and underpowered flags to JSON."""
-    ensure_directories("data")
-    log_data = {
-        "strata": {k: len(v) for k, v in strata.items()},
-        "underpowered_strata": underpowered,
-        "total_samples": sum(len(v) for v in strata.values())
-    }
-    with open(log_path, "w", encoding="utf-8") as f:
-        json.dump(log_data, f, indent=2)
-
-def save_processed_split(data: List[Dict[str, Any]], indices: List[int], filename: str, base_path: str = "data"):
-    """Save the processed split (subset of data) to JSON."""
-    ensure_directories(base_path)
-    output_path = Path(base_path) / "processed" / filename
-    subset = [data[i] for i in indices]
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(subset, f, indent=2)
-    return str(output_path)
-
-def save_checksums(checksums: Dict[str, str], path: str = "data/checksums.txt"):
-    """Save checksums to a text file."""
-    with open(path, "w", encoding="utf-8") as f:
-        for filename, checksum in checksums.items():
-            f.write(f"{checksum}  {filename}\n")
-
-def save_splits(data: List[Dict[str, Any]], train_indices: List[int], test_indices: List[int], base_path: str = "data"):
-    """Save train and test splits."""
-    ensure_directories(base_path)
-    train_path = Path(base_path) / "processed" / "train_split.json"
-    test_path = Path(base_path) / "processed" / "test_split.json"
-    
-    with open(train_path, "w", encoding="utf-8") as f:
-        json.dump([data[i] for i in train_indices], f, indent=2)
-    with open(test_path, "w", encoding="utf-8") as f:
-        json.dump([data[i] for i in test_indices], f, indent=2)
-
-def filter_underpowered(strata_log_path: str = "data/processed/strata_log.json", 
-                        input_dataset_path: str = "data/processed/split_dataset.json",
-                        output_dataset_path: str = "data/processed/filtered_dataset.json") -> str:
-    """
-    Read strata_log.json, identify underpowered strata, and exclude samples belonging to them.
-    Save the filtered dataset to output_dataset_path.
-    """
-    # Load strata log
-    try:
-        with open(strata_log_path, "r", encoding="utf-8") as f:
-            strata_log = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Strata log not found at {strata_log_path}. Run T004c first.")
-    
-    underpowered_strata = strata_log.get("underpowered_strata", [])
-    strata_map = strata_log.get("strata", {}) # This is {name: count}, we need to know which indices belong to which stratum
-    
-    # We need to reconstruct which indices belong to which stratum.
-    # The strata_log from T004c only stored counts. We need to re-read the original split
-    # or the log must have been more detailed. 
-    # However, T004c's logic (as implied by the task description) flags strata.
-    # To filter correctly, we need to know the stratum assignment for each item in the input dataset.
-    # Since the input dataset (split_dataset.json) doesn't inherently have stratum info unless added,
-    # we must re-calculate strata or rely on the log having stored the mapping.
-    # Given the constraint "Read strata_log.json", we assume the log might need to be more detailed
-    # OR we re-calculate strata on the input dataset to match the original logic.
-    
-    # Let's assume the input dataset has a 'difficulty' or 'task_id' that can be used to re-determine strata.
-    # We will re-run the strata determination logic on the input dataset to identify underpowered ones.
-    
-    try:
-        with open(input_dataset_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Input dataset not found at {input_dataset_path}.")
-    
-    # Re-determine strata to map indices to stratum names
-    # Using the same logic as determine_strata in T004c
-    current_strata = determine_strata(data, strata_key="difficulty")
-    
-    # Identify which strata are underpowered based on the log's list
-    # We compare the stratum names from the log with the ones we just computed.
-    # Note: If the original T004c used a different random seed or logic for stratification,
-    # the indices might differ. But since we are filtering the *output* of T004c (the split),
-    # we assume the strata definitions (names) are consistent.
-    
-    underpowered_set = set(underpowered_strata)
-    indices_to_keep = []
-    excluded_count = 0
-    excluded_reasons = []
-
-    for idx, item in enumerate(data):
-        # Determine stratum for this item
-        if "difficulty" in item and item["difficulty"]:
-            stratum_name = str(item["difficulty"])
-        else:
-            task_id = item.get('task_id', str(idx))
-            h = int(hashlib.md5(str(task_id).encode()).hexdigest(), 16) % 4
-            stratum_name = f"bucket_{h}"
+    Args:
+        dataset: List of dataset items
+        strata: List of strata names
+        sample_sizes: Dictionary mapping stratum to sample size
         
-        if stratum_name in underpowered_set:
-            excluded_count += 1
-            excluded_reasons.append({"task_id": item.get("task_id", idx), "stratum": stratum_name})
+    Returns:
+        Stratified sample
+    """
+    sample = []
+    
+    for stratum in strata:
+        # Filter items for this stratum
+        if stratum == "all":
+            items = dataset
+        elif 'difficulty' in dataset[0]:
+            items = [item for item in dataset if item.get('difficulty') == stratum]
         else:
-            indices_to_keep.append(idx)
+            # Use hash-based strata
+            items = [item for item in dataset if hash(item.get('task_id', '')) % 3 == strata.index(stratum)]
+        
+        # Sample from this stratum
+        sample_size = sample_sizes.get(stratum, len(items))
+        if sample_size > len(items):
+            sample_size = len(items)
+        
+        sampled = random.sample(items, sample_size)
+        sample.extend(sampled)
     
-    # Filter data
-    filtered_data = [data[i] for i in indices_to_keep]
+    return sample
+
+def save_strata_log(strata_info: List[Dict[str, Any]], output_path: str = None):
+    """
+    Save strata information to JSON file.
     
-    # Save filtered dataset
-    ensure_directories("data")
-    with open(output_dataset_path, "w", encoding="utf-8") as f:
-        json.dump(filtered_data, f, indent=2)
+    Args:
+        strata_info: List of strata information dictionaries
+        output_path: Output file path
+    """
+    if output_path is None:
+        output_path = str(PROCESSED_DATA_DIR / "strata_log.json")
     
-    # Log exclusion details (optional but good practice)
-    exclusion_log_path = output_dataset_path.replace("filtered_dataset.json", "filter_exclusion_log.json")
-    with open(exclusion_log_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "total_excluded": excluded_count,
-            "underpowered_strata": list(underpowered_set),
-            "excluded_items": excluded_reasons[:10] # Limit log size
-        }, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump({"strata": strata_info}, f, indent=2)
     
-    return output_dataset_path
+    logger.info(f"Saved strata log to {output_path}")
+
+def stratify_data(dataset: Any, sample_size: int = None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Stratify and sample dataset.
+    
+    Args:
+        dataset: Dataset object
+        sample_size: Total sample size (optional)
+        
+    Returns:
+        Tuple of (stratified_data, strata_info)
+    """
+    dataset_list = list(dataset)
+    
+    # Determine strata
+    strata = determine_strata(dataset_list)
+    
+    # Calculate sample sizes per stratum
+    if sample_size is None:
+        sample_size = min(50, len(dataset_list))
+    
+    strata_info = []
+    sample_sizes = {}
+    
+    for stratum in strata:
+        if stratum == "all":
+            items = dataset_list
+        elif 'difficulty' in dataset_list[0]:
+            items = [item for item in dataset_list if item.get('difficulty') == stratum]
+        else:
+            items = [item for item in dataset_list if hash(item.get('task_id', '')) % 3 == strata.index(stratum)]
+        
+        count = len(items)
+        underpowered = count < 50
+        
+        strata_info.append({
+            "name": stratum,
+            "count": count,
+            "underpowered": underpowered
+        })
+        
+        # Allocate sample size proportionally
+        if sample_size <= len(dataset_list):
+            sample_sizes[stratum] = max(1, int(sample_size * count / len(dataset_list)))
+        else:
+            sample_sizes[stratum] = count
+    
+    # Perform stratified sampling
+    sampled_data = stratified_sample(dataset_list, strata, sample_sizes)
+    
+    # Save strata log
+    save_strata_log(strata_info)
+    
+    return sampled_data, strata_info
+
+def save_checksums(file_paths: List[str], output_path: str = None):
+    """
+    Save checksums for files.
+    
+    Args:
+        file_paths: List of file paths
+        output_path: Output file path
+    """
+    if output_path is None:
+        output_path = str(Path("data/checksums.txt"))
+    
+    with open(output_path, 'w') as f:
+        for path in file_paths:
+            checksum = compute_sha256(path)
+            f.write(f"{checksum}  {path}\n")
+    
+    logger.info(f"Saved checksums to {output_path}")
+
+def save_splits(sampled_data: List[Dict[str, Any]], strata_info: List[Dict[str, Any]], output_path: str = None):
+    """
+    Save processed splits to disk.
+    
+    Args:
+        sampled_data: Stratified sample data
+        strata_info: Strata information
+        output_path: Output file path
+    """
+    if output_path is None:
+        output_path = str(PROCESSED_DATA_DIR / "humaneval_processed.csv")
+    
+    import csv
+    if sampled_data:
+        fieldnames = list(sampled_data[0].keys())
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(sampled_data)
+    
+    logger.info(f"Saved processed splits to {output_path}")
 
 def main():
-    """Main entry point for data loader script."""
-    print("Data Loader Module Loaded.")
-    # Example usage if run as script
-    # This is typically called by other scripts
-    pass
+    """Main entry point for data loading."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Fetch and process datasets")
+    parser.add_argument("--download", action="store_true", help="Download datasets")
+    parser.add_argument("--sample-size", type=int, default=50, help="Sample size")
+    
+    args = parser.parse_args()
+    
+    ensure_directories()
+    
+    if args.download:
+        datasets = fetch_datasets()
+        for name, dataset in datasets.items():
+            save_raw_dataset(dataset, name)
+        
+        # Compute checksums
+        raw_files = list(RAW_DATA_DIR.glob("*.json"))
+        save_checksums([str(f) for f in raw_files])
+        
+        logger.info("Datasets downloaded and checksums computed")
+    else:
+        # Load and process existing dataset
+        try:
+            dataset = load_dataset("openai/humaneval", split="test")
+        except Exception as e:
+            logger.warning(f"Failed to load HumanEval: {e}, trying MBPP")
+            dataset = load_dataset("mbpp", split="train")
+        
+        sampled_data, strata_info = stratify_data(dataset, args.sample_size)
+        save_splits(sampled_data, strata_info)
+        
+        logger.info(f"Processed {len(sampled_data)} samples")
 
 # Ensure the function is available for import as per API surface
 # The function 'filter_underpowered' is now implemented.

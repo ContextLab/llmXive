@@ -1,0 +1,23 @@
+{
+  "project_id": "PROJ-979-llmxive-follow-up-extending-loopcoder-v2",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/entropy.py: function `execute_and_compare` returns a bare RNG draw (line 55) \u2014 a reported value computed from no real input; 6 command(s) failed: python code/src/data_loader.py --download (rc=1); python code/src/entropy.py --output data/processed/entropy_results.csv --sample-size 50 (rc=1); python code/src/inference.py --output data/processed/convergence_results.csv --sample-size 50 (rc=1); 4 declared deliverable(s) absent: data/processed/convergence_results.csv; data/processed/entropy_results.csv; data/processed/exclusion_log.json",
+  "artifacts": [],
+  "failures": [
+    "python code/src/data_loader.py --download -> rc=1\n    ath(url_or_filename)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py\", line 305, in resolve_path\n    parsed = parse_hf_uri(f\"{constants.HF_PROTOCOL}{path}\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/huggingface_hub/utils/_hf",
+    "python code/src/entropy.py --output data/processed/entropy_results.csv --sample-size 50 -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file\n    f",
+    "python code/src/inference.py --output data/processed/convergence_results.csv --sample-size 50 -> rc=1\n    2026-07-24 07:35:11,219 - __main__ - INFO - Loading model: codellama/CodeLlama-1.3b-Instruct-hf on cpu\n2026-07-24 07:35:11,322 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/codellama/CodeLlama-1.3b-Instruct-hf/resolve/main/config.json \"HTTP/1.1 401 Unauthorized\"\n2026-07-24 07:35:11,398 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/codellama/CodeLlama-1.3b-Instruct-hf/resolve/main/config.json \"HTTP/1.1 401 Unauthorized\"\n2026-07-24 07:35:11,398 - __main__ - ERROR - ",
+    "python code/src/entropy.py --output data/processed/entropy_results.csv -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file\n    file = cached_file",
+    "python code/src/inference.py --output data/processed/convergence_results.csv -> rc=1\n    2026-07-24 07:35:23,181 - __main__ - INFO - Loading model: codellama/CodeLlama-1.3b-Instruct-hf on cpu\n2026-07-24 07:35:23,298 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/codellama/CodeLlama-1.3b-Instruct-hf/resolve/main/config.json \"HTTP/1.1 401 Unauthorized\"\n2026-07-24 07:35:23,377 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/codellama/CodeLlama-1.3b-Instruct-hf/resolve/main/config.json \"HTTP/1.1 401 Unauthorized\"\n2026-07-24 07:35:23,377 - __main__ - ERROR - Failed to load mo",
+    "python code/src/analysis.py --entropy data/processed/entropy_results.csv  --convergence data/processed/convergence_results.csv  --output data/processed/router_simulation.csv -> rc=1\n    2026-07-24 07:35:25,568 - __main__ - INFO - Starting router training analysis...\n2026-07-24 07:35:25,569 - __main__ - ERROR - Analysis failed: Entropy results not found at data/processed/entropy_results.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/src/analysis.py\", line 337, in <module>\n    main()\n  File \"/home/r"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/src/data_loader.py --download"
+  ],
+  "updated_at": "2026-07-24T07:35:29Z"
+}

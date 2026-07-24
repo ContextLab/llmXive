@@ -16,8 +16,8 @@ This project investigates the **associational** link between initial semantic un
 **Storage**: Local file system (`data/`, `code/`), HuggingFace Hub (datasets/models)  
 **Testing**: `pytest` (unit/integration), `pytest-cov` for coverage  
 **Target Platform**:
-- **Validation Mode**: Linux (GitHub Actions runner: multiple vCPUs, sufficient RAM). Uses `CodeLlama-1.3b-Instruct` (FP32). Sample size restricted to N=50 to verify pipeline within 6 hours.
-- **Full Analysis Mode**: Linux (GitHub Actions GPU runner or self-hosted GPU). Uses `CodeLlama-3b-Instruct` or `7b-Instruct` in FP32. Runs full dataset (HumanEval + MBPP) to satisfy SC-005.
+- **Validation Mode**: Linux (GitHub Actions runner: multiple vCPUs, sufficient RAM). Uses `CodeLlama-Instruct` (FP32). Sample size restricted to N=50 to verify pipeline within 6 hours.
+- **Full Analysis Mode**: Linux (GitHub Actions GPU runner or self-hosted GPU). Uses `CodeLlama-Instruct` in FP32. Runs full dataset (HumanEval + MBPP) to satisfy SC-005.
 
 **Constraints**:
 - **No GPU/Quantization for Validation**: The CPU validation run uses default precision on a model small enough to fit in limited RAM (CodeLlama-small).

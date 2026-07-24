@@ -6,14 +6,33 @@ T001:
     the required folders (`data/raw`, `data/processed`, `code/src`, `code/tests`,
     `code/notebooks`, etc.) actually exist. The implementer must supply concrete evidence
     that the directories were created and verified.
-T004e:
+T004b:
   c: false
-  h: d65ec679a53127c8e13780b95aad41fc49ad897397080d81f921463011648adf
-  r: "The repository lacks a `filter_underpowered()` implementation in `code/src/data_loader.py`\
-    \ (the shown code ends mid\u2011function and never defines it). Moreover, the\
-    \ required input file `data/processed/strata_log.json` and the expected output\
-    \ `data/processed/filtered_dataset.json` are absent. Consequently the task\u2019\
-    s functional and data\u2011file requirements are not met."
+  h: f363d164737b93b780ac411bd090ed55cf39fbe7c6c9bcda0c068f0e0014797b
+  r: The provided `code/src/data_loader.py` excerpt does not contain a `checksum_datasets()`
+    function, and the required output file `data/checksums.txt` is absent from the
+    repository. Both the implementation and the recorded checksums are missing, so
+    the task is not fulfilled.
+T004c:
+  c: false
+  h: 404ecb893e95eb438545b5773f24c9af9df5502093ae4b8589fc363c2053e7ea
+  r: The repository lacks a `stratify_data()` implementation in `code/src/data_loader.py`
+    (the file is truncated before such a function appears) and the required `data/processed/strata_log.json`
+    file does not exist. Both the core function and its output artifact are missing.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The required deliverable `paper/model_substitution_rationale.md` is not present
+    nor shown, and no content with the three required sections (Hypothesis, Pilot
+    Results, Rationale) is provided. Without this document, the pilot comparison and
+    baseline hypothesis are not documented.
+T012d:
+  c: false
+  h: 12b8d1812f7daffbdcfe2a3224768e90d973df2de716e7971f2cc6797d9c7e6f
+  r: "The repository lacks the required `data/processed/exclusion_log.json` file,\
+    \ and the shown portion of `code/src/entropy.py` does not contain any logic that\
+    \ writes exclusion counts or rates to that JSON path. Consequently, the exclusion\u2011\
+    logging feature is not implemented."
 T013a:
   c: false
   h: 08e3a415f94bdd8b679b467bd1550ed7df25f042eac7d64509a10aa6e53d3d4e
