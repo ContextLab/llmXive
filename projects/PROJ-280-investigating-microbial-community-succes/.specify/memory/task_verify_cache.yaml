@@ -1,14 +1,78 @@
-T007:
+T001a:
   c: false
-  h: 30384b0f0e0ada8a0618afa65674989b923c94f2cefae7b2ca2b1120fcbf8421
-  r: The `code/data_models.py` file defines a complete `Sample` model but the `Taxon`
-    class is truncated/incomplete, and the required `contracts/feature-table.schema.yaml`
-    file is missing entirely, so the models cannot be verified against the schema.
-    The task is therefore not fully satisfied.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system evidence were provided showing that the\
+    \ required root project folders (`projects/PROJ-280-investigating-microbial-community-succes/`,\
+    \ `data/`, `code/`, `tests/`, `state/`, `contracts/`) actually exist; without\
+    \ such artifacts the claim cannot be confirmed. The implementer must supply a\
+    \ view of the repository (e.g., a tree listing or screenshots) demonstrating that\
+    \ these directories are present and non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system evidence were provided showing that the\
+    \ required subdirectories (`data/raw`, `data/processed`, `data/config`, `tests/unit`,\
+    \ `tests/contract`, `tests/integration`, `state/projects`) actually exist; thus\
+    \ the task\u2019s deliverable is missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No MANIFEST.txt file was presented in the evidence, nor any listing of expected
+    files/directories from T001a and T001b. Without the manifest artifact, the task
+    requirement is not satisfied.
+T004:
+  c: false
+  h: 11904454ac04a31926ac7193d5da33df01bc91d0f7e9ddcd4826885d3e5395c4
+  r: The required `contracts/dataset-config.schema.yaml` file is missing, and the
+    existing `data/config/dataset_ids.json` does not contain the required `url` field
+    nor uses the exact enum values (`NCBI_SRA`, `Zenodo`). Additionally, the `validate_dataset_config`
+    function in `code/validators.py` is truncated and does not fully implement the
+    specified behavior.
 T014:
   c: false
-  h: 63e9e56ad46066a59994320c6447129a3f04a0ab40e5fea3172e266e694365fc
+  h: a9ead3e504e202cbb3fdbbbac748b5771cfb82dc6475eaa795b0d88438818108
   r: "The required output files (`data/processed/low_depth_results.json`, `medium_depth_results.json`,\
-    \ `high_depth_results.json`, and `sensitivity_sweep_results.json`) are missing,\
-    \ indicating the sensitivity analysis and robustness report were not generated.\
-    \ Consequently the task\u2019s deliverables are not present."
+    \ `high_depth_results.json`, and `robustness_verification_report.json`) are absent,\
+    \ and the provided `code/02_preprocess.py` excerpt shows no implementation of\
+    \ a subsampling depth sweep or generation of those artifacts. The task\u2019s\
+    \ core deliverables are therefore not present."
+T020:
+  c: false
+  h: d99a28a60d58dfb7731bbe86051ab0a4c77f7e00f85d78882ee0e86acdf72100
+  r: "The required output files `data/processed/power_analysis_report.json` and `data/processed/sample_size_validation.json`\
+    \ are absent, and the shown portion of `code/03_diversity.py` contains no logic\
+    \ for estimating PERMANOVA power, writing those JSON reports, or exiting on under\u2011\
+    power conditions. The task\u2019s core functionality is therefore not implemented."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or report files were presented that implement the requested\
+    \ logic for flagging R\xB2\u202F<\u202F0.1 effect sizes as \u201Cstatistically\
+    \ significant but ecologically weak.\u201D Without an artifact (e.g., updated\
+    \ analysis script, template change, or example output) the requirement is not\
+    \ satisfied. The next implementer must add and provide the actual implementation\
+    \ and a sample report demonstrating the new annotation."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, script, notebook, or generated network graph\
+    \ file that demonstrates the edge\u2011retention filtering (|\u03C1|\u202F\u2265\
+    \u202F0.6, p\u202F\u2264\u202F0.01) or the construction of a `networkx` graph.\
+    \ Without any artifact to inspect, the requirement cannot be confirmed as met.\
+    \ The next implementer must add the implementation (e.g., a Python script/notebook)\
+    \ and include the resulting `networkx` graph object or a saved graph file."
+T030:
+  c: false
+  h: ccf8a229a293e195a9b9781c4f32b6ed7263da0fa45c0f3b67b6fa824063cc6c
+  r: "The provided `code/04_network.py` does not contain any logic that sweeps correlation\
+    \ thresholds, computes early\u2011 vs\u2011mature modularity differences, or calculates\
+    \ their variance, nor does it write a JSON report. Moreover, the required output\
+    \ file `data/processed/network_sensitivity_report.json` is absent. The task\u2019\
+    s core requirements are therefore unmet."
+T03a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` file was presented in the evidence; the required configuration file
+    at `projects/PROJ-280-investigating-microbial-community-succes/.flake8` with the
+    specified rules is missing. The implementer must add the file containing `max-line-length
+    = 100`, `ignore = E203,W503`, and `exclude = venv,build`.

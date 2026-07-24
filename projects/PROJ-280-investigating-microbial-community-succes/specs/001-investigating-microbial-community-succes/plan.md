@@ -15,7 +15,7 @@ This project implements a reproducible, CPU-tractable pipeline to investigate mi
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-bio`, `networkx`, `statsmodels`, `seaborn`, `pyyaml`  
 **Storage**: Local file system (`data/raw`, `data/processed`), JSON config (`data/config/dataset_ids.json`)  
 **Testing**: `pytest` (unit tests for data loading, schema validation, statistical output integrity)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM)  
 **Project Type**: Computational Biology / Data Analysis Pipeline  
 **Performance Goals**: Complete full pipeline (download to final stats) within 6 hours on 2 CPU cores; peak RAM < 7 GB.  
 **Constraints**: No GPU; no raw read processing (only pre-processed tables); strict adherence to verified dataset URLs; all statistical tests must include multiple-comparison correction and power analysis gates.  

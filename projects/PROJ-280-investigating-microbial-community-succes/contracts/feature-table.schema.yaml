@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Table Schema
+description: JSON Schema for the microbial community feature table data structure.
+type: object
+required:
+  - samples
+  - taxon_ids
+  - metadata
+properties:
+  samples:
+    type: array
+    description: List of sample objects containing metadata and taxon abundances.
+    items:
+      type: object
+      required:
+        - id
+        - stage
+        - metadata
+        - taxa
+      properties:
+        id:
+          type: string
+          description: Unique sample identifier.
+        stage:
+          type: string
+          description: Wetland establishment stage.
+          enum:
+            - early
+            - mature
+            - transition
+            - unknown
+        metadata:
+          type: object
+          description: Dictionary containing environmental parameters (N/P removal rates, pH, temperature, etc.).
+          additionalProperties: true
+        taxa:
+          type: array
+          description: List of taxon objects found in this sample.
+          items:
+            type: object
+            required:
+              - id
+              - abundance
+              - metadata
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the taxon (e.g., OTU ID or ASV sequence hash).
+              abundance:
+                type: number
+                description: The count/abundance of this taxon in the sample.
+                minimum: 0
+              metadata:
+                type: object
+                description: Dictionary containing taxonomic classification (Kingdom, Phylum, etc.).
+                additionalProperties: true
+  taxon_ids:
+    type: array
+    description: List of unique taxon IDs found across all samples.
+    items:
+      type: string
+  metadata:
+    type: object
+    description: Global metadata about the feature table (source, processing date, etc.).
+    additionalProperties: true
+additionalProperties: false
