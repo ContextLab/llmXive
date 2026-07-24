@@ -5,9 +5,9 @@
 
 ## Summary
 
-This project implements a recursive self-improvement pipeline for a GPT 124M model. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSM8K, ARC-Challenge, and Wikitext-2.
+This project implements a recursive self-improvement pipeline for a GPT model of moderate scale. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSMK, ARC-Challenge, and Wikitext.
 
-**Critical Scope Adjustment**: Due to the strict 6-hour time limit and 7GB RAM constraint of the GitHub Actions free-tier runner, the **primary deliverable is a Single Cycle (US-1)**. The 3-cycle trajectory (US-2) is re-classified as a "Scaling Study" that will only be attempted if the single cycle completes successfully within 1.5 hours. If the single cycle exceeds the time limit, the job terminates, and the result is recorded as "Incomplete - Timeout".
+**Critical Scope Adjustment**: Due to the strict time limit and GB RAM constraint of the GitHub Actions free-tier runner, the **primary deliverable is a Single Cycle (US-1)**. The 3-cycle trajectory (US-2) is re-classified as a "Scaling Study" that will only be attempted if the single cycle completes successfully within 1.5 hours. If the single cycle exceeds the time limit, the job terminates, and the result is recorded as "Incomplete - Timeout".
 
 **Data Integrity Policy**: The pipeline enforces a strict **Fail-Fast** policy for all datasets (OpenWebText, GSM8K, ARC-Challenge, Wikitext-2). If these datasets cannot be loaded from their standard HuggingFace sources, the pipeline **terminates immediately** with a specific error code. **Synthetic data is NOT permitted for any part of the experiment**, including training or evaluation. Training on synthetic data renders the "recursive improvement" hypothesis untestable, and evaluation on synthetic data yields meaningless metrics. The experiment is designed to fail if verified data sources are unavailable.
 
@@ -23,7 +23,7 @@ The implementation strictly adheres to CPU-only constraints and incorporates rig
 **Project Type**: Computational research pipeline / CLI  
 **Performance Goals**: Single cycle runtime ≤1.5 hours; Peak RAM ≤7 GB; Evaluation latency ≤30 minutes per cycle  
 **Constraints**: No GPU/CUDA; No 8-bit/4-bit quantization; Parameter count ≤130% of baseline; Strict separation of generative and verification logic (Constitution Principle VII); No synthetic data for training or evaluation  
-**Scale/Scope**: cycle (Primary); 3 cycles (Scaling Study, conditional); ~10k-50k training samples (subset of OpenWebText); 3 benchmarks per cycle
+**Scale/Scope**: cycle (Primary); multiple cycles (Scaling Study, conditional); A large-scale set of training samples (subset of OpenWebText); benchmarks per cycle
 
 > **Note on Dataset Availability**: The plan relies on OpenWebText, GSMK, and ARC-Challenge. If standard HuggingFace loaders fail to retrieve these datasets, the pipeline **terminates immediately**. No synthetic data is permitted as a fallback. The experiment is designed to fail gracefully if verified data sources are unavailable, ensuring that no invalid scientific claims are made.
 
@@ -102,7 +102,7 @@ projects/PROJ-561-self-improving-llm-recursive-architectur/
 
 ## Risk Mitigation
 
-- **RAM Overflow**: Use `gradient_checkpointing`, `batch_size=2` (reducing to 1 if >6.5GB), and a hard "Memory Watchdog" that proactively reduces batch size if RAM exceeds 6.5GB. If usage > 7GB, kill the process to prevent system crash.
+- **RAM Overflow**: Use `gradient_checkpointing`, `batch_size=2` (reducing to 1 if >6.5GB), and a hard "Memory Watchdog" that proactively reduces batch size if RAM exceeds a substantial threshold.. If usage > 7GB, kill the process to prevent system crash.
 - **Timeout**: Strict time limit per cycle. If exceeded, terminate and log "Timeout".
 - **Dataset Unavailability**: Fail immediately for all datasets. No fallback to synthetic data.
 - **Model Proposal Failure**: Implement validation step. Retry up to 2 times. If still invalid, log failure and proceed to next cycle (or terminate if single cycle).

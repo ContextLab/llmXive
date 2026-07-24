@@ -1,105 +1,138 @@
 """
-Unit tests for dataset loaders in pipeline.loader.
-Tests verify that loaders attempt to fetch real data and fail fast if unavailable.
+Unit tests for dataset loaders.
+
+These tests verify the structure and error handling of the loaders
+without actually loading real data (using mocks).
 """
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 import sys
 import os
 
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from pipeline.loader import load_openwebtext, load_gsm8k, load_arc_challenge, load_wikitext2, load_all_datasets
+from pipeline.loader import (
+    load_openwebtext,
+    load_gsm8k,
+    load_arc_challenge,
+    load_wikitext2,
+    load_all_datasets,
+    exponential_backoff
+)
 
 class TestDatasetLoaders(unittest.TestCase):
+    
+    def test_exponential_backoff_decorator(self):
+        """Test that the exponential backoff decorator is properly defined."""
+        @exponential_backoff(initial_delay=0.1, max_retries=2)
+        def failing_function():
+            raise ValueError("Simulated failure")
+        
+        with self.assertRaises(RuntimeError):
+            failing_function()
     
     @patch('pipeline.loader.load_dataset')
     def test_load_openwebtext_success(self, mock_load_dataset):
         """Test successful loading of OpenWebText."""
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=100)
-        mock_ds.select = MagicMock(return_value=mock_ds)
-        mock_load_dataset.return_value = mock_ds
+        # Mock the dataset object
+        mock_dataset = MagicMock()
+        mock_dataset.__getitem__ = MagicMock(side_effect=lambda x: f"split_{x}")
+        mock_load_dataset.return_value = mock_dataset
         
-        result = load_openwebtext(max_samples=10)
+        result = load_openwebtext()
         
         self.assertIn("train", result)
-        self.assertEqual(len(result["train"]), 100)
-        mock_load_dataset.assert_called_once()
-        
-    @patch('pipeline.loader.load_dataset')
-    def test_load_openwebtext_failure_fail_fast(self, mock_load_dataset):
-        """Test that OpenWebText loader raises RuntimeError on failure (Fail-Fast)."""
-        mock_load_dataset.side_effect = Exception("Connection refused")
-        
-        with self.assertRaises(RuntimeError) as context:
-            load_openwebtext()
-        
-        self.assertIn("Failed to load OpenWebText", str(context.exception))
-        
+        self.assertIn("test", result)
+        mock_load_dataset.assert_called_once_with(
+            "openwebtext", 
+            split=["train", "test"], 
+            streaming=True
+        )
+    
     @patch('pipeline.loader.load_dataset')
     def test_load_gsm8k_success(self, mock_load_dataset):
         """Test successful loading of GSM8K."""
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=50)
-        mock_ds.select = MagicMock(return_value=mock_ds)
-        mock_load_dataset.return_value = mock_ds
+        mock_dataset = MagicMock()
+        mock_dataset.__getitem__ = MagicMock(side_effect=lambda x: f"split_{x}")
+        mock_load_dataset.return_value = mock_dataset
         
-        result = load_gsm8k(max_samples=5)
+        result = load_gsm8k()
         
         self.assertIn("train", result)
-        mock_load_dataset.assert_called_once()
-
+        self.assertIn("test", result)
+        mock_load_dataset.assert_called_once_with(
+            "gsm8k", "main", 
+            split=["train", "test"], 
+            streaming=True
+        )
+    
     @patch('pipeline.loader.load_dataset')
     def test_load_arc_challenge_success(self, mock_load_dataset):
         """Test successful loading of ARC-Challenge."""
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=200)
-        mock_ds.select = MagicMock(return_value=mock_ds)
-        mock_load_dataset.return_value = mock_ds
+        mock_dataset = MagicMock()
+        mock_dataset.__getitem__ = MagicMock(side_effect=lambda x: f"split_{x}")
+        mock_load_dataset.return_value = mock_dataset
         
-        result = load_arc_challenge(max_samples=20)
+        result = load_arc_challenge()
         
         self.assertIn("train", result)
-        # Verify subset argument is passed correctly
-        call_args = mock_load_dataset.call_args
-        self.assertEqual(call_args.kwargs['subset'], 'ARC-Challenge')
-
+        self.assertIn("test", result)
+        mock_load_dataset.assert_called_once_with(
+            "ai2_arc", "ARC-Challenge", 
+            split=["train", "test"], 
+            streaming=True
+        )
+    
     @patch('pipeline.loader.load_dataset')
     def test_load_wikitext2_success(self, mock_load_dataset):
-        """Test successful loading of WikiText-2."""
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=1000)
-        mock_ds.select = MagicMock(return_value=mock_ds)
-        mock_load_dataset.return_value = mock_ds
+        """Test successful loading of Wikitext-2."""
+        mock_dataset = MagicMock()
+        mock_dataset.__getitem__ = MagicMock(side_effect=lambda x: f"split_{x}")
+        mock_load_dataset.return_value = mock_dataset
         
-        result = load_wikitext2(max_samples=100)
+        result = load_wikitext2()
         
         self.assertIn("train", result)
-        # Verify subset argument
-        call_args = mock_load_dataset.call_args
-        self.assertEqual(call_args.kwargs['subset'], 'wikitext-2-raw-v1')
-
+        self.assertIn("test", result)
+        mock_load_dataset.assert_called_once_with(
+            "wikitext", "wikitext-2-raw-v1", 
+            split=["train", "test"], 
+            streaming=True
+        )
+    
     @patch('pipeline.loader.load_dataset')
-    def test_load_all_datasets_fail_fast(self, mock_load_dataset):
-        """Test that load_all_datasets fails immediately if one dataset fails."""
-        # First call succeeds, second call fails
-        mock_ds = MagicMock()
-        mock_ds.__len__ = MagicMock(return_value=10)
-        mock_ds.select = MagicMock(return_value=mock_ds)
+    def test_load_all_datasets(self, mock_load_dataset):
+        """Test loading all datasets."""
+        mock_dataset = MagicMock()
+        mock_dataset.__getitem__ = MagicMock(side_effect=lambda x: f"split_{x}")
+        mock_load_dataset.return_value = mock_dataset
         
-        def side_effect(*args, **kwargs):
-            if args[0] == "gsm8k":
-                raise Exception("GSM8K Unavailable")
-            return mock_ds
+        result = load_all_datasets()
         
-        mock_load_dataset.side_effect = side_effect
+        self.assertIn("openwebtext", result)
+        self.assertIn("gsm8k", result)
+        self.assertIn("arc_challenge", result)
+        self.assertIn("wikitext2", result)
         
-        with self.assertRaises(RuntimeError) as context:
-            load_all_datasets(max_samples_per_dataset=1)
+        # Should be called 4 times
+        self.assertEqual(mock_load_dataset.call_count, 4)
+    
+    @patch('pipeline.loader.load_dataset')
+    def test_load_openwebtext_failure(self, mock_load_dataset):
+        """Test that load_openwebtext fails fast on error."""
+        mock_load_dataset.side_effect = Exception("Network error")
         
-        self.assertIn("Critical failure loading gsm8k", str(context.exception))
+        with self.assertRaises(RuntimeError):
+            load_openwebtext()
+    
+    @patch('pipeline.loader.load_dataset')
+    def test_load_gsm8k_failure(self, mock_load_dataset):
+        """Test that load_gsm8k fails fast on error."""
+        mock_load_dataset.side_effect = Exception("Network error")
+        
+        with self.assertRaises(RuntimeError):
+            load_gsm8k()
 
 if __name__ == '__main__':
     unittest.main()

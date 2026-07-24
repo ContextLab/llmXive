@@ -1,146 +1,140 @@
-"""
-Trajectory schema and writer for tracking self-improvement cycles.
-
-This module defines the Pydantic model for a single trajectory entry
-and provides a writer function to append entries to results/trajectory.json.
-"""
-
 import json
 import os
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-
 from pydantic import BaseModel, Field, field_validator
-from config import PathConfig
 
-# Initialize path config to get the results directory
-_path_config = PathConfig()
-TRAJECTORY_PATH = _path_config.results_dir / "trajectory.json"
+from config import PathConfig
 
 
 class TrajectoryEntry(BaseModel):
     """
-    Schema for a single refinement cycle result.
-
-    Captures the state of the model after one cycle of modification,
-    training, and evaluation.
+    Schema for a single cycle's trajectory data.
+    Captures the state and metrics after one refinement cycle.
     """
-    cycle_number: int = Field(..., description="Sequential cycle number (1-based)")
-    timestamp: str = Field(..., description="ISO 8601 timestamp of cycle completion")
-    param_count: int = Field(..., description="Total number of trainable parameters")
+    cycle_number: int = Field(..., description="The 1-based index of the cycle")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat(),
+        description="ISO 8601 timestamp of when the cycle completed"
+    )
+    param_count: int = Field(..., description="Total number of trainable parameters in the model")
     
     # Benchmark metrics
-    gsm8k_accuracy: float = Field(..., description="GSM8K accuracy (0.0 - 1.0)")
-    arc_accuracy: float = Field(..., description="ARC-Challenge accuracy (0.0 - 1.0)")
-    wikitext2_ece: float = Field(..., description="Wikitext-2 Expected Calibration Error")
+    gsm8k_accuracy: float = Field(..., ge=0.0, le=1.0, description="Accuracy on GSM8K benchmark")
+    arc_challenge_accuracy: float = Field(..., ge=0.0, le=1.0, description="Accuracy on ARC-Challenge benchmark")
+    wikitext2_ece: float = Field(..., ge=0.0, description="Expected Calibration Error on Wikitext-2")
     
-    # Resource usage
-    flops: int = Field(..., description="Total FLOPs consumed during training")
-    training_time_seconds: float = Field(..., description="Wall-clock training time in seconds")
+    # Resource metrics
+    flops: float = Field(..., description="Total FLOPs consumed during training")
+    training_time_seconds: float = Field(..., ge=0.0, description="Wall-clock time for training in seconds")
     
-    # Metadata
+    # Modification details
     modification_type: Optional[str] = Field(None, description="Type of architectural modification applied")
     modification_magnitude: Optional[float] = Field(None, description="Magnitude of the modification")
-    status: str = Field(default="completed", description="Cycle status: completed, failed, timeout")
+    
+    # Status
+    status: str = Field(default="completed", description="Status of the cycle: completed, failed, timeout")
+    error_message: Optional[str] = Field(None, description="Error message if status is not completed")
 
     @field_validator('timestamp')
     @classmethod
-    def validate_timestamp(cls, v: str) -> str:
-        """Ensure timestamp is valid ISO format."""
+    def validate_timestamp(cls, v):
+        # Ensure ISO format
         try:
             datetime.fromisoformat(v.replace('Z', '+00:00'))
         except ValueError:
-            raise ValueError(f"Invalid ISO timestamp: {v}")
-        return v
-
-    @field_validator('gsm8k_accuracy', 'arc_accuracy', 'wikitext2_ece')
-    @classmethod
-    def validate_metrics_range(cls, v: float) -> float:
-        """Ensure metrics are within valid ranges."""
-        if not (0.0 <= v <= 1.0):
-            raise ValueError(f"Metric must be between 0.0 and 1.0, got {v}")
-        return v
-
-    @field_validator('flops', 'param_count')
-    @classmethod
-    def validate_non_negative(cls, v: int) -> int:
-        """Ensure counts are non-negative."""
-        if v < 0:
-            raise ValueError(f"Count must be non-negative, got {v}")
-        return v
-
-    @field_validator('training_time_seconds')
-    @classmethod
-    def validate_time_positive(cls, v: float) -> float:
-        """Ensure time is positive."""
-        if v < 0:
-            raise ValueError(f"Time must be non-negative, got {v}")
+            raise ValueError("Timestamp must be in ISO 8601 format")
         return v
 
 
-def write_trajectory(entries: List[TrajectoryEntry]) -> str:
+class TrajectoryData(BaseModel):
     """
-    Write a list of trajectory entries to results/trajectory.json.
+    Container for the full trajectory history.
+    """
+    version: str = Field(default="1.0", description="Schema version")
+    created_at: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat(),
+        description="ISO 8601 timestamp of when the trajectory file was created"
+    )
+    entries: List[TrajectoryEntry] = Field(default_factory=list, description="List of cycle entries")
 
-    If the file exists, it loads existing entries and appends the new ones.
-    If the file does not exist, it creates a new one.
+    def add_entry(self, entry: TrajectoryEntry) -> None:
+        """Add a new trajectory entry."""
+        self.entries.append(entry)
 
+    def get_latest_entry(self) -> Optional[TrajectoryEntry]:
+        """Return the most recent entry, or None if empty."""
+        if not self.entries:
+            return None
+        return self.entries[-1]
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "version": self.version,
+            "created_at": self.created_at,
+            "entries": [entry.dict() for entry in self.entries]
+        }
+
+
+def write_trajectory(trajectory: TrajectoryData, output_path: Optional[str] = None) -> str:
+    """
+    Write the trajectory data to a JSON file.
+    
     Args:
-        entries: List of TrajectoryEntry objects to write.
-
+        trajectory: The TrajectoryData object to write.
+        output_path: Optional path to write to. If None, uses config default.
+        
     Returns:
-        Path to the written file.
+        The path where the file was written.
     """
-    # Ensure results directory exists
-    os.makedirs(_path_config.results_dir, exist_ok=True)
-
-    # Load existing entries if file exists
-    existing_entries = []
-    if TRAJECTORY_PATH.exists():
-        with open(TRAJECTORY_PATH, 'r', encoding='utf-8') as f:
-            try:
-                data = json.load(f)
-                if isinstance(data, list):
-                    existing_entries = [TrajectoryEntry(**item) for item in data]
-            except (json.JSONDecodeError, ValueError) as e:
-                # If file is corrupted, start fresh but log warning
-                print(f"Warning: Could not load existing trajectory, starting fresh. Error: {e}")
-                existing_entries = []
-
-    # Combine and write
-    all_entries = existing_entries + entries
-    output_data = [entry.model_dump() for entry in all_entries]
-
-    with open(TRAJECTORY_PATH, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2, ensure_ascii=False)
-
-    return str(TRAJECTORY_PATH)
+    if output_path is None:
+        config = PathConfig()
+        output_path = os.path.join(config.results_dir, "trajectory.json")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Write JSON with indentation for readability
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(trajectory.to_dict(), f, indent=2)
+    
+    return output_path
 
 
-def read_trajectory() -> List[TrajectoryEntry]:
+def read_trajectory(input_path: Optional[str] = None) -> TrajectoryData:
     """
-    Read all entries from results/trajectory.json.
-
+    Read trajectory data from a JSON file.
+    
+    Args:
+        input_path: Optional path to read from. If None, uses config default.
+        
     Returns:
-        List of TrajectoryEntry objects. Returns empty list if file doesn't exist.
+        TrajectoryData object populated with file contents.
     """
-    if not TRAJECTORY_PATH.exists():
-        return []
+    if input_path is None:
+        config = PathConfig()
+        input_path = os.path.join(config.results_dir, "trajectory.json")
+    
+    if not os.path.exists(input_path):
+        # Return empty trajectory if file doesn't exist
+        return TrajectoryData()
+    
+    with open(input_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return TrajectoryData(**data)
 
-    with open(TRAJECTORY_PATH, 'r', encoding='utf-8') as f:
-        try:
-            data = json.load(f)
-            return [TrajectoryEntry(**item) for item in data]
-        except (json.JSONDecodeError, ValueError) as e:
-            raise RuntimeError(f"Failed to parse trajectory file: {e}")
 
-
-def get_latest_entry() -> Optional[TrajectoryEntry]:
+def get_latest_entry(input_path: Optional[str] = None) -> Optional[TrajectoryEntry]:
     """
-    Get the most recent trajectory entry.
-
+    Helper to get the latest entry from the trajectory file.
+    
+    Args:
+        input_path: Optional path to read from. If None, uses config default.
+        
     Returns:
         The latest TrajectoryEntry or None if no entries exist.
     """
-    entries = read_trajectory()
-    return entries[-1] if entries else None
+    trajectory = read_trajectory(input_path)
+    return trajectory.get_latest_entry()

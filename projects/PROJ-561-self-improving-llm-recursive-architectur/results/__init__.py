@@ -1,1 +1,1 @@
-# Results storage for metrics, logs, and analysis outputs
+# Results output package

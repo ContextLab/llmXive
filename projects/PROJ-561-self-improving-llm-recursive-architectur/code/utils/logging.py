@@ -1,207 +1,255 @@
 """
 utils/logging.py
 
-Structured cycle logging and checkpointing for the self-improving LLM pipeline.
-Provides deterministic, JSON-based logging of cycle metrics and state snapshots
-to support reproducibility and trajectory analysis.
+Implements structured cycle logging and checkpointing for the self-improving LLM pipeline.
+Provides functions to initialize cycle-specific loggers, update logs with metrics,
+checkpoint model states, and retrieve cycle history.
 """
-
 import json
 import os
 import time
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
-from pathlib import Path
-import threading
+import shutil
 
-from config import PathConfig, get_config_summary
+# Import PathConfig from config to ensure consistent paths
+from config import get_config
 
+# Constants
+LOG_FILE_NAME = "cycle_log.json"
+CHECKPOINT_DIR_NAME = "checkpoints"
+METRICS_LOG_NAME = "metrics_log.json"
 
-# Global lock for thread-safe logging
-_log_lock = threading.Lock()
-
-# Configure standard logger
-_logger = logging.getLogger("llmxive.cycle_logger")
-_logger.setLevel(logging.INFO)
-if not _logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    _logger.addHandler(handler)
-
-
-def get_log_path() -> Path:
+def get_log_path() -> str:
     """
-    Returns the path to the main trajectory log file based on PathConfig.
+    Returns the absolute path to the project's results directory where logs are stored.
     """
-    config = get_config_summary()
-    # PathConfig is usually instantiated in config.py, but we access via helper
-    # to ensure we get the active configuration.
-    # Assuming PathConfig has a 'results_dir' attribute.
-    # Fallback if config summary doesn't expose it directly:
-    if hasattr(config, 'results_dir'):
-        base_dir = config.results_dir
-    else:
-        # Fallback to standard project structure if config is minimal
-        base_dir = "results"
+    config = get_config()
+    return config.results_path
 
-    log_file = Path(base_dir) / "trajectory.json"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    return log_file
+def _ensure_log_dir():
+    """
+    Ensures the logging directory exists.
+    """
+    log_dir = get_log_path()
+    os.makedirs(log_dir, exist_ok=True)
+    # Also ensure checkpoints subdirectory exists
+    checkpoint_dir = os.path.join(log_dir, CHECKPOINT_DIR_NAME)
+    os.makedirs(checkpoint_dir, exist_ok=True)
 
+def _get_log_file_path() -> str:
+    """
+    Returns the full path to the main cycle log file.
+    """
+    return os.path.join(get_log_path(), LOG_FILE_NAME)
+
+def _get_metrics_file_path() -> str:
+    """
+    Returns the full path to the metrics log file.
+    """
+    return os.path.join(get_log_path(), METRICS_LOG_NAME)
+
+def _get_checkpoint_path(cycle_id: int) -> str:
+    """
+    Returns the full path to a specific cycle's checkpoint directory.
+    """
+    return os.path.join(get_log_path(), CHECKPOINT_DIR_NAME, f"cycle_{cycle_id}")
 
 def init_cycle_logger(cycle_id: int) -> Dict[str, Any]:
     """
-    Initializes a new log entry structure for a specific cycle.
-    Returns the initial log dictionary.
-    """
-    entry = {
-        "cycle_id": cycle_id,
-        "start_time_iso": datetime.utcnow().isoformat(),
-        "start_timestamp": time.time(),
-        "status": "started",
-        "metrics": {},
-        "artifacts": [],
-        "errors": []
-    }
-    _logger.info(f"Initialized log for cycle {cycle_id}")
-    return entry
-
-
-def update_cycle_log(
-    cycle_id: int,
-    metrics: Optional[Dict[str, Any]] = None,
-    artifacts: Optional[List[str]] = None,
-    status: Optional[str] = None,
-    error: Optional[str] = None
-) -> None:
-    """
-    Updates the persistent log file for a given cycle with new metrics, artifacts,
-    status, or errors. Uses a lock to ensure thread safety.
-    """
-    log_path = get_log_path()
-    log_data = []
-
-    # Load existing data if file exists
-    if log_path.exists():
-        try:
-            with open(log_path, 'r', encoding='utf-8') as f:
-                log_data = json.load(f)
-        except json.JSONDecodeError:
-            _logger.warning(f"Corrupt log file at {log_path}, initializing fresh.")
-            log_data = []
-
-    # Ensure log_data is a list
-    if not isinstance(log_data, list):
-        log_data = [log_data] if log_data else []
-
-    # Find existing entry for this cycle or create new
-    entry_index = None
-    for i, entry in enumerate(log_data):
-        if entry.get("cycle_id") == cycle_id:
-            entry_index = i
-            break
-
-    if entry_index is None:
-        # Create new entry
-        new_entry = {
-            "cycle_id": cycle_id,
-            "start_time_iso": datetime.utcnow().isoformat(),
-            "start_timestamp": time.time(),
-            "status": "running",
-            "metrics": {},
-            "artifacts": [],
-            "errors": []
-        }
-        log_data.append(new_entry)
-        entry_index = len(log_data) - 1
-
-    # Update the entry
-    entry = log_data[entry_index]
-
-    if metrics:
-        entry["metrics"].update(metrics)
+    Initializes a new log entry for a specific cycle.
+    Creates the log file if it doesn't exist.
     
-    if artifacts:
-        # Append unique artifacts
-        existing = set(entry.get("artifacts", []))
-        for art in artifacts:
-            if art not in existing:
-                entry["artifacts"].append(art)
-                existing.add(art)
-
-    if status:
-        entry["status"] = status
-        if status == "completed":
-            entry["end_time_iso"] = datetime.utcnow().isoformat()
-            entry["end_timestamp"] = time.time()
-            duration = entry.get("end_timestamp", 0) - entry.get("start_timestamp", 0)
-            entry["duration_seconds"] = duration
-        elif status == "failed":
-            entry["end_time_iso"] = datetime.utcnow().isoformat()
-            entry["end_timestamp"] = time.time()
-
-    if error:
-        entry["errors"].append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "message": error
-        })
-        entry["status"] = "failed"
-
-    # Write back atomically
-    with _log_lock:
-        temp_path = str(log_path) + ".tmp"
-        with open(temp_path, 'w', encoding='utf-8') as f:
-            json.dump(log_data, f, indent=2, default=str)
-        os.replace(temp_path, log_path)
-
-    _logger.info(f"Updated log for cycle {cycle_id} with status: {status}")
-
-
-def checkpoint_model_state(
-    cycle_id: int,
-    model_path: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> str:
+    Args:
+        cycle_id: The unique integer identifier for the current cycle.
+        
+    Returns:
+        A dictionary representing the initialized cycle log entry.
     """
-    Records a checkpoint of the model state in the log.
-    Returns the relative path to the checkpoint.
-    """
-    # Ensure the path is recorded as an artifact
-    rel_path = os.path.relpath(model_path, start=get_config_summary().results_dir if hasattr(get_config_summary(), 'results_dir') else "results")
-    update_cycle_log(
-        cycle_id,
-        artifacts=[rel_path],
-        metrics={"checkpoint_path": rel_path}
-    )
-    if metadata:
-        update_cycle_log(cycle_id, metrics=metadata)
-    return rel_path
+    _ensure_log_dir()
+    log_file = _get_log_file_path()
+    
+    # Load existing logs if they exist
+    if os.path.exists(log_file):
+        with open(log_file, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    else:
+        logs = []
+    
+    # Check if cycle_id already exists to avoid overwriting
+    existing_ids = [entry.get('cycle_id') for entry in logs]
+    if cycle_id in existing_ids:
+        raise ValueError(f"Cycle ID {cycle_id} already exists in log. Cannot re-initialize.")
+    
+    new_entry = {
+        "cycle_id": cycle_id,
+        "start_time": datetime.now().isoformat(),
+        "status": "running",
+        "metrics": {},
+        "modification_proposal": None,
+        "error": None,
+        "end_time": None,
+        "checkpoint_path": _get_checkpoint_path(cycle_id)
+    }
+    
+    logs.append(new_entry)
+    
+    with open(log_file, 'w', encoding='utf-8') as f:
+        json.dump(logs, f, indent=2)
+    
+    return new_entry
 
-
-def log_cycle_summary(cycle_id: int, summary: Dict[str, Any]) -> None:
+def update_cycle_log(cycle_id: int, updates: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Logs a final summary for a cycle, typically containing aggregated metrics
-    and final status.
+    Updates an existing cycle log entry with new metrics or status.
+    
+    Args:
+        cycle_id: The cycle ID to update.
+        updates: A dictionary of fields to update (e.g., {"status": "completed", "metrics": {...}}).
+                
+    Returns:
+        The updated log entry.
     """
-    update_cycle_log(cycle_id, metrics=summary, status="completed")
-    _logger.info(f"Cycle {cycle_id} summary logged: {summary}")
+    _ensure_log_dir()
+    log_file = _get_log_file_path()
+    
+    if not os.path.exists(log_file):
+        raise FileNotFoundError(f"Log file {log_file} does not exist.")
+    
+    with open(log_file, 'r', encoding='utf-8') as f:
+        logs = json.load(f)
+    
+    updated_entry = None
+    for i, entry in enumerate(logs):
+        if entry['cycle_id'] == cycle_id:
+            # Merge updates
+            entry.update(updates)
+            updated_entry = entry
+            logs[i] = entry
+            break
+    
+    if updated_entry is None:
+        raise ValueError(f"Cycle ID {cycle_id} not found in log.")
+    
+    with open(log_file, 'w', encoding='utf-8') as f:
+        json.dump(logs, f, indent=2)
+    
+    return updated_entry
 
+def checkpoint_model_state(cycle_id: int, model_state_dict: Dict[str, Any], optimizer_state_dict: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Saves the model and optimizer states to a checkpoint file for a specific cycle.
+    
+    Args:
+        cycle_id: The cycle ID associated with this checkpoint.
+        model_state_dict: The state dictionary from torch.nn.Module.state_dict().
+        optimizer_state_dict: Optional state dictionary from optimizer.state_dict().
+        
+    Returns:
+        The path to the saved checkpoint file.
+    """
+    checkpoint_dir = _get_checkpoint_path(cycle_id)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
+    checkpoint_file = os.path.join(checkpoint_dir, "model_checkpoint.pt")
+    
+    checkpoint_data = {
+        "cycle_id": cycle_id,
+        "timestamp": datetime.now().isoformat(),
+        "model_state": model_state_dict
+    }
+    
+    if optimizer_state_dict is not None:
+        checkpoint_data["optimizer_state"] = optimizer_state_dict
+    
+    # Save using torch.save for compatibility with PyTorch models
+    import torch
+    torch.save(checkpoint_data, checkpoint_file)
+    
+    # Also update the log to record the checkpoint path
+    update_cycle_log(cycle_id, {"checkpoint_path": checkpoint_dir})
+    
+    return checkpoint_file
+
+def log_cycle_summary(cycle_id: int, summary_data: Dict[str, Any]) -> None:
+    """
+    Appends a summary entry to a separate metrics log file for easier analysis.
+    This is useful for plotting trajectories without parsing the full cycle log.
+    
+    Args:
+        cycle_id: The cycle ID.
+        summary_data: A dictionary containing key metrics (e.g., GSM8K accuracy, FLOPs, time).
+    """
+    _ensure_log_dir()
+    metrics_file = _get_metrics_file_path()
+    
+    if os.path.exists(metrics_file):
+        with open(metrics_file, 'r', encoding='utf-8') as f:
+            metrics_log = json.load(f)
+    else:
+        metrics_log = []
+    
+    summary_entry = {
+        "cycle_id": cycle_id,
+        "timestamp": datetime.now().isoformat(),
+        **summary_data
+    }
+    
+    metrics_log.append(summary_entry)
+    
+    with open(metrics_file, 'w', encoding='utf-8') as f:
+        json.dump(metrics_log, f, indent=2)
 
 def get_cycle_history() -> List[Dict[str, Any]]:
     """
-    Reads and returns the full history of cycles from the log file.
+    Retrieves the full history of all logged cycles.
+    
+    Returns:
+        A list of dictionaries, each representing a cycle's log entry.
     """
-    log_path = get_log_path()
-    if not log_path.exists():
+    _ensure_log_dir()
+    log_file = _get_log_file_path()
+    
+    if not os.path.exists(log_file):
         return []
     
-    try:
-        with open(log_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        _logger.error(f"Failed to parse log file: {log_path}")
+    with open(log_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def get_metrics_history() -> List[Dict[str, Any]]:
+    """
+    Retrieves the history of cycle summaries from the metrics log.
+    
+    Returns:
+        A list of dictionaries containing summary metrics for each cycle.
+    """
+    _ensure_log_dir()
+    metrics_file = _get_metrics_file_path()
+    
+    if not os.path.exists(metrics_file):
         return []
+    
+    with open(metrics_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def finalize_cycle(cycle_id: int, status: str = "completed", error_msg: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Finalizes a cycle log entry by setting status, end time, and optional error.
+    
+    Args:
+        cycle_id: The cycle ID to finalize.
+        status: Final status string (e.g., "completed", "failed", "timeout").
+        error_msg: Optional error message if the cycle failed.
+        
+    Returns:
+        The finalized log entry.
+    """
+    updates = {
+        "status": status,
+        "end_time": datetime.now().isoformat()
+    }
+    if error_msg:
+        updates["error"] = error_msg
+    
+    return update_cycle_log(cycle_id, updates)

@@ -1,1 +1,1 @@
-# Integration tests for system-level workflows
+# Integration tests package
