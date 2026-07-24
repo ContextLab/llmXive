@@ -796,3 +796,775 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T01:13:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 0
+  canonical: SNPs flagged as significant if q-value is less than 0.05
+  claim_id: c_14ced891
+  context: Task T023 implementation for FDR application and significance flagging.
+  evidence:
+    entailment_evidence: SNPs are flagged as significant if q-value is less than 0.05
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/SNPs_are_flagged_as_significant_if_q-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: flag SNPs with q < 0.05 as significant
+  resolved_value: SNPs are flagged as significant if q-value is less than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T06:05:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_d78532ad
+  context: Task T005 implementation for power analysis logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:06:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if calculated power is less than 0.20
+  claim_id: c_35c64a6b
+  context: Task T005 implementation for power analysis logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_calculated_power_is_less_than_0.20
+  kind: magnitude
+  raw_text: 'If Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:07:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for odds ratio greater than or equal to
+    2.5 at alpha 0.05
+  claim_id: c_3f0b3d89
+  context: Task T005 implementation for power analysis logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_odds_ratio_greater_than_or
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:07:37Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation fails if live bee population is less than 10%
+    of peak season
+  claim_id: c_4ead8c94
+  context: Task T009 synthetic data generation logic for CCD diagnosis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_fails_if_live_bee_population_is_les
+  kind: magnitude
+  raw_text: Logic MUST fail validation if Live bee population < 10% relative to peak
+    season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:07:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Variant calling filters require quality greater than 30 and depth greater
+    than or equal to 10
+  claim_id: c_773c36fc
+  context: Task T014 implementation for alignment and variant calling.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variant_calling_filters_require_quality_greater_than_30_and
+  kind: magnitude
+  raw_text: QUAL > 30 and depth >= 10 filters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:08:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning performed with r-squared less than 0.2
+  claim_id: c_c681b7b0
+  context: Task T016 implementation for phenotype preprocessing.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P9644: PLINK'
+      source_id: Q48989513
+      url: https://www.wikidata.org/wiki/Q48989513
+      value: PLINK
+    filled: true
+  kind: magnitude
+  raw_text: "Perform LD pruning (r\xB2 < 0.2) on genotype data using PLINK before\
+    \ association testing."
+  resolved_value: PLINK
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T06:08:25Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Collinearity guard switches to PCA strategy if VIF is greater than or
+    equal to 5
+  claim_id: c_522c4431
+  context: Task T046 implementation for collinearity handling strategy.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_guard_switches_to_PCA_strategy_if_VIF_is_greate
+  kind: magnitude
+  raw_text: 'If VIF >= 5 (inclusive boundary): Log High collinearity detected and
+    Switching to PCA.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:08:51Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK2 logistic regression executed with 0.95 confidence interval
+  claim_id: c_2a2d6966
+  context: Task T017 implementation for GWAS execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PLINK2 --logistic hide-covar --ci 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:09:03Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep performed across 1e-7, 5e-8, and 1e-8
+  claim_id: c_e9bf96d7
+  context: Task T021 implementation for threshold sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement threshold sensitivity sweep across the specific set of thresholds\
+    \ {\xD710\u207B\u2077, 5\xD710\u207B\u2078, 1\xD710\u207B\u2078}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:09:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO AUC result flagged as low predictive power if value is less than
+    0.75
+  claim_id: c_c7a73686
+  context: Task T030 implementation for AUC reporting logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LASSO_AUC_result_flagged_as_low_predictive_power_if_value_is
+  kind: magnitude
+  raw_text: If AUC < 0.75, the system MUST flag the result as low predictive power
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:09:48Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if less than 80% of cohort has Varroa data
+  claim_id: c_d50c3854
+  context: Task T044 implementation for edge case handling of missing Varroa metadata.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_less_than_80%25_of_cohort_has_Varroa_data
+  kind: magnitude
+  raw_text: If < 80% of the total cohort has Varroa data (i.e. > 20% missing), raise
+    ERR_VARROA_COVARIATE_MISSING and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:10:10Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl API retry logic uses exponential backoff of 1, 2, and 4 seconds
+  claim_id: c_c209932b
+  context: Task T032 implementation for SNP annotation with Ensembl API.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry logic with a configurable maximum number of attempts and exponential
+    backoff (1s, 2s, 4s).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:10:25Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation
+  claim_id: c_776d8280
+  context: Task T027 implementation for ML validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.linear_model.LogisticRegressionCV with penalty='l1', solver='liblinear',
+    and cv=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:10:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK LD pruning uses window size 5 and r-squared 0.2
+  claim_id: c_fde645d3
+  context: Task T016 implementation for LD pruning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run PLINK --indep-pairwise 5 0.2 on the genotype data to generate the
+    prune list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:10:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Citation of Author et al. 2023 with DOI 10.xxxx/xxxxx regarding insertion
+    distance and read alignment
+  claim_id: c_8dcd2468
+  context: Task T013c implementation details regarding dwgsim parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:11:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: GWAS model includes geographic region, sampling year, and Varroa mite
+    count as covariates
+  claim_id: c_dd494e2f
+  context: 'MANDATORY: MUST include geographic region, sampling year, and Varroa mite
+    count in the model. MANDATORY: {{claim:c_c681b7b0}} (Wikidata Q48989513, https://www.wikidata.org/wiki/Q48989513)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GWAS_model_includes_geographic_region,_sampling_year,_and_Va
+  kind: entity_fact
+  raw_text: The system MUST include geographic region, sampling year, and Varroa mite
+    count in the model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:14:17Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Varroa destructor identified as mite species via Wikidata Q48989513
+  claim_id: c_ec7012ff
+  context: 'MANDATORY: MUST include geographic region, sampling year, and Varroa mite
+    count in the model. MANDATORY: {{claim:c_c681b7b0}} (Wikidata Q48989513, https://www.wikidata.org/wiki/Q48989513)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Varroa destructor
+      source_id: Q48564
+      url: https://www.wikidata.org/wiki/Q48564
+      value: Varroa destructor
+    filled: true
+  kind: entity_fact
+  raw_text: Varroa destructor is a mite species (Wikidata Q48989513).
+  resolved_value: Varroa destructor
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T06:14:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Insertion distance impact on read alignment accuracy investigated
+  claim_id: c_0b152ba7
+  context: 'The research question investigates the impact of insertion distance on
+    read alignment accuracy. The method involves simulating sequencing reads using
+    dwgsim with adjustable parameters. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Insertion_distance_impact_on_read_alignment_accuracy_investi
+  kind: entity_fact
+  raw_text: The research question investigates the impact of insertion distance on
+    read alignment accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:14:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_339fd047
+  context: 'Implement code/utils/power_analysis.py for FR-012. MUST: ... 2. If n <
+    80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:15:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if calculated power is less than 0.20
+  claim_id: c_90d112e2
+  context: 'If n >= 80: Calculate power. - If Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_calculated_power_is_less_than_0.20
+  kind: magnitude
+  raw_text: 'If Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:15:47Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for detecting odds ratio greater than or
+    equal to 2.5 at alpha 0.05
+  claim_id: c_b8b6a892
+  context: 'If Power >= 0.20: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_detecting_odds_ratio_greate
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:15:49Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation fails if live bee population is less than 10%
+    relative to peak season
+  claim_id: c_946bd51e
+  context: 'MUST implement CCD diagnosis validation logic that explicitly checks:
+    ... 3. Live bee population < 10% relative to peak season.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_fails_if_live_bee_population_is_les
+  kind: magnitude
+  raw_text: 'Logic MUST fail validation if any of these criteria are not met: Live
+    bee population < 10% relative to peak season.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:16:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim simulation uses 1000000 reads with adjustable insertion distance
+  claim_id: c_43e82729
+  context: '2. Use dwgsim with a fixed random seed to ensure reproducibility. Command:
+    dwgsim -e -d [variable_insertion_distance] -s SEED -N 1000000 data/interim/synthetic.vcf
+    data/interim/synthetic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command:
+    dwgsim -e -d [variable_insertion_distance] -s SEED -N 1000000 data/interim/synthetic.vcf
+    data/interim/synthetic'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:16:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Variant calling applies quality filter greater than 30 and depth filter
+    greater than or equal to 10
+  claim_id: c_5f389538
+  context: Create code/02_align_call.sh to wrap bwa mem (alignment) and FreeBayes
+    (variant calling) with QUAL > 30 and depth >= 10 filters (FR-002).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variant_calling_applies_quality_filter_greater_than_30_and_d
+  kind: magnitude
+  raw_text: Execute alignment and variant calling with QUAL > 30 and depth >= 10 filters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:17:05Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK LD pruning uses window size 5 and r-squared threshold 0.2
+  claim_id: c_618146fa
+  context: 1. Run PLINK --indep-pairwise 5 0.2 on the genotype data to generate the
+    prune list.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run PLINK --indep-pairwise 5 0.2 on the genotype data to generate the
+    prune list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:17:05Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Collinearity guard switches to PCA strategy if VIF is greater than or
+    equal to 5
+  claim_id: c_4d2b0de6
+  context: '**Condition**: If VIF >= 5 (inclusive boundary): - Log ''High collinearity
+    detected (VIF >= 5). Switching to PCA as per Plan Constitution Check VII.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_guard_switches_to_PCA_strategy_if_VIF_is_greate
+  kind: magnitude
+  raw_text: 'If VIF >= 5 (inclusive boundary): Log ''High collinearity detected (VIF
+    >= 5). Switching to PCA as per Plan Constitution Check VII.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:17:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: PLINK2 logistic regression uses 0.95 confidence interval
+  claim_id: c_c2d3e82b
+  context: 5. Run PLINK2 --logistic hide-covar --ci 0.95 --out data/interim/gwas_raw
+    with the determined covariates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PLINK2 --logistic hide-covar --ci 0.95 --out data/interim/gwas_raw with
+    the determined covariates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:17:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity analysis sweeps thresholds 1e-7, 5e-8, and 1e-8
+  claim_id: c_0d888475
+  context: "Implement threshold sensitivity sweep across the specific set of thresholds\
+    \ {\xD710\u207B\u2077, 5\xD710\u207B\u2078, 1\xD710\u207B\u2078} in code/utils/threshold_sensitivity.py\
+    \ (FR-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Explicitly sweep the thresholds across a set of orders of magnitude:\
+    \ {\xD710\u207B\u2077, 5\xD710\u207B\u2078, 1\xD710\u207B\u2078}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:17:53Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl API retry logic uses exponential backoff with delays of 1, 2,
+    and 4 seconds
+  claim_id: c_013311a9
+  context: 'Retry Logic: Implement retry logic with a configurable maximum number
+    of attempts and exponential backoff (1s, 2s, 4s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry logic with a configurable maximum number of attempts and
+    exponential backoff (1s, 2s, 4s).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:18:09Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO model flags results as low predictive power if AUC is less than
+    0.75
+  claim_id: c_f63b2ff9
+  context: 'MANDATORY: If AUC < 0.75, the system MUST flag the result as ''low predictive
+    power'' in the output artifact data/processed/lasso_auc_report.json (as per Spec
+    US-3 AC3).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LASSO_model_flags_results_as_low_predictive_power_if_AUC_is
+  kind: magnitude
+  raw_text: If AUC < 0.75, the system MUST flag the result as 'low predictive power'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:18:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if more than 20% of cohort lacks Varroa data
+  claim_id: c_4d5434b1
+  context: 'Mandatory: If < 80% of the total cohort has Varroa data (i.e., > 20% missing),
+    raise ERR_VARROA_COVARIATE_MISSING and halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_more_than_20%25_of_cohort_lacks_Varroa_data
+  kind: magnitude
+  raw_text: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise
+    ERR_VARROA_COVARIATE_MISSING and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:18:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation
+  claim_id: c_0ee314a6
+  context: 'Implementation: Use sklearn.linear_model.LogisticRegressionCV with penalty=''l1'',
+    solver=''liblinear'', and cv=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.linear_model.LogisticRegressionCV with penalty='l1', solver='liblinear',
+    and cv=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:18:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: impact of insertion distance on read alignment accuracy Author et al
+    2023
+  claim_id: c_3aefa73b
+  context: 'The research question investigates the impact of insertion distance on
+    read alignment accuracy. The method involves simulating sequencing reads using
+    dwgsim with adjustable parameters. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx)
+    -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The research question investigates the impact of insertion distance on
+    read alignment accuracy. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:18:30Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Include geographic region, sampling year, and Varroa mite count as covariates
+    in the model
+  claim_id: c_4c6e5ff7
+  context: T016 Implementation for User Story 1, MANDATORY requirement for covariate
+    encoding.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_geographic_region,_sampling_year,_and_Varroa_mite_co
+  kind: entity_fact
+  raw_text: The system MUST include geographic region, sampling year, and Varroa mite
+    count in the model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:20:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Insertion distance impacts read alignment accuracy
+  claim_id: c_2867ee5d
+  context: T013c Implementation details regarding dwgsim simulation parameters.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Insertion_distance_impacts_read_alignment_accuracy
+  kind: entity_fact
+  raw_text: The research question investigates the impact of insertion distance on
+    read alignment accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:20:13Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Simulate sequencing reads using dwgsim with adjustable parameters
+  claim_id: c_8f3ceb22
+  context: T013c Implementation details regarding dwgsim simulation parameters.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulate_sequencing_reads_using_dwgsim_with_adjustable_param
+  kind: entity_fact
+  raw_text: The method involves simulating sequencing reads using dwgsim with adjustable
+    parameters.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:20:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Reference to Author et al. 2023 with DOI 10.xxxx/xxxxx regarding insertion
+    distance and alignment
+  claim_id: c_07547e15
+  context: T013c Implementation details regarding dwgsim simulation parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:20:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: research investigates impact of insertion distance on read alignment
+    accuracy
+  claim_id: c_40321049
+  context: 'The method involves simulating sequencing reads using dwgsim with adjustable
+    parameters. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_investigates_impact_of_insertion_distance_on_read_a
+  kind: entity_fact
+  raw_text: The research question investigates the impact of insertion distance on
+    read alignment accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:25:51Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Research investigates impact of insertion distance on read alignment
+    accuracy
+  claim_id: c_173c0baf
+  context: 'The method involves simulating sequencing reads using dwgsim with adjustable
+    parameters. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx) -s SEED -N 1000000
+    data/interim/synthetic.vcf data/interim/synthetic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_investigates_impact_of_insertion_distance_on_read_a
+  kind: entity_fact
+  raw_text: The research question investigates the impact of insertion distance on
+    read alignment accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:26:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Varroa mite count included as required covariate
+  claim_id: c_a0b2ec7f
+  context: 'MANDATORY: MUST include geographic region, sampling year, and Varroa mite
+    count in the model. MANDATORY: {{claim:c_c681b7b0}} (Wikidata Q48989513, https://www.wikidata.org/wiki/Q48989513)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Varroa_mite_count_included_as_required_covariate
+  kind: entity_fact
+  raw_text: Varroa mite count is a required covariate in the model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:27:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Study is observational without randomization
+  claim_id: c_ab190786
+  context: 'MANDATORY: MUST create data/processed/gwas_results_metadata.json containing:
+    disclaimer: ''Findings are associational, not causal. This is an observational
+    study without randomization.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_is_observational_without_randomization
+  kind: entity_fact
+  raw_text: The study design is an observational study without randomization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T06:27:36Z'

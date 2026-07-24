@@ -60,15 +60,18 @@ def test_output_column_types_and_values():
         if col in df.columns:
             # Allow for potential NaNs in calculation, but ensure non-NaN are numeric
             non_null = df[col].dropna()
-            assert non_null.dtype in ['float64', 'int64', 'int32', 'float32'], \
+            assert len(non_null) > 0, f"Column {col} is entirely NaN or empty."
+            assert non_null.dtype in ['float64', 'int64', 'int32', 'float32', 'float'], \
                 f"Column {col} has non-numeric dtype: {non_null.dtype}"
 
     # Check specific constraints
     if "proportion_significant" in df.columns:
-        assert (df["proportion_significant"].dropna() >= 0).all(), \
-            "Proportion significant cannot be negative"
-        assert (df["proportion_significant"].dropna() <= 1).all(), \
-            "Proportion significant cannot exceed 1"
+        valid_proportions = df["proportion_significant"].dropna()
+        if len(valid_proportions) > 0:
+            assert (valid_proportions >= 0).all(), \
+                "Proportion significant cannot be negative"
+            assert (valid_proportions <= 1).all(), \
+                "Proportion significant cannot exceed 1"
 
 def test_output_row_count():
     """Verify that the sensitivity sweep produced multiple data points."""

@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18306a/bd4a4ae5998f36d1fd1fc25e3c86e590e1370be6c270fafe5253f12f576dcd3a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783066365&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMDZhL2JkNGE0YWU1OTk4ZjM2ZDFmZDFmYzI1ZTNjODZlNTkwZTEzNzBiZTZjMjcwZmFmZTUyNTNmMTJmNTc2ZGNkM2FcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwNjYzNjV9fX1dfQ__&Signature=MEUCIGysM%7E%7EVL8hbcX%7EjdLii8d-3T6tTAstmCY8yA09mHEKeAiEAhsEa2UKm82CMQcUwrm7vYN-d6xxVMIDHE8I0v20Om7A_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-03T07:12:44.755498Z'
+- artifact_hash: 6937e1e5e77b36d53ac8ec45ed573da17a24f9f50adcea0e5ede114812df4253
+  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Plink - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q48989513
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q48989513
+  verified_at: '2026-07-24T06:27:36.342880Z'

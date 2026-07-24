@@ -1,18 +1,14 @@
 #!/bin/bash
-# T022: Apply Benjamini-Hochberg FDR correction to GWAS results
+# T022: Apply FDR Correction to GWAS Results
+# This script post-processes the raw GWAS output using the Benjamini-Hochberg
+# procedure implemented in code/utils/fdr_correction.py.
 #
-# This script post-processes the raw GWAS output (data/interim/gwas_raw.tsv)
-# using the Benjamini-Hochberg procedure implemented in code/utils/fdr_correction.py.
-# It writes the final results to data/processed/gwas_results_fdr.tsv.
+# Input:  data/interim/gwas_raw.tsv (produced by T017/code/03_gwas.py)
+# Output: data/processed/gwas_results_fdr.tsv
 #
 # Dependencies:
 #   - code/utils/fdr_correction.py (T020)
-#   - data/interim/gwas_raw.tsv (Output of T017/code/03_gwas.sh)
-#
-# Exit Codes:
-#   0: Success
-#   1: Input file not found or processing error
-#   2: Missing dependencies
+#   - data/interim/gwas_raw.tsv (T017)
 
 set -e
 
@@ -25,6 +21,8 @@ OUTPUT_FILE="$PROJECT_ROOT/data/processed/gwas_results_fdr.tsv"
 FDR_SCRIPT="$PROJECT_ROOT/code/utils/fdr_correction.py"
 
 echo "=== T022: Applying FDR Correction ==="
+echo "Input:  $INPUT_FILE"
+echo "Output: $OUTPUT_FILE"
 
 # Check if input file exists
 if [ ! -f "$INPUT_FILE" ]; then
@@ -36,6 +34,7 @@ fi
 # Check if FDR script exists
 if [ ! -f "$FDR_SCRIPT" ]; then
     echo "ERROR: FDR correction script not found: $FDR_SCRIPT"
+    echo "Please ensure T020 has been implemented."
     exit 1
 fi
 
@@ -43,18 +42,18 @@ fi
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 # Execute FDR correction
-echo "Processing: $INPUT_FILE"
-echo "Output: $OUTPUT_FILE"
-
+# The Python script handles the BH calculation and writes the final TSV
 python "$FDR_SCRIPT" \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE"
 
-if [ $? -eq 0 ]; then
-    echo "=== T022 Complete ==="
-    echo "FDR-corrected results written to: $OUTPUT_FILE"
-    exit 0
+# Verify output was created
+if [ -f "$OUTPUT_FILE" ]; then
+    echo "SUCCESS: FDR correction complete."
+    echo "Output written to: $OUTPUT_FILE"
+    echo "Preview (first 5 lines):"
+    head -n 5 "$OUTPUT_FILE"
 else
-    echo "ERROR: FDR correction failed."
+    echo "ERROR: Output file was not created."
     exit 1
 fi

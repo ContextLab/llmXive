@@ -1,0 +1,10 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- T046 (Collinearity Guard) depends on T016 (Preprocessing) and T006 (Diag). T017 (GWAS) depends on T046. This ordering is correct for the data flow (Preprocess -> Check Collinearity -> Run GWAS). However, T046 is marked as '[Foundational Logic Moved to US1]' but placed *after* T043. If T043 halts, T046 never runs. This is acceptable. The issue is T046's output `model_config.yaml` is required by T017. T017 description says 'Read model_config.yaml'. If T046 fails or is skipped (e.g. if T043 halts), T017 will fail. The dependency chain is tight but valid. The concern is the placement of T046 *after* T016. T016 produces `phenotypes_cleaned.fam`. T046 reads it. This is correct. Wait, T046 depends on T016. T017 depends on T046. This is correct. Re-evaluating: The concern is actually about T046's logic. It generates `model_config.yaml`. T017 reads it. This is a valid producer-consumer. No ordering violation here. Removing this concern.
+- T013a and T013b are marked [P] (Parallel) and depend on nothing. T013c depends on T013a and T013b. This is correct. However, T013c is in Phase 3 (US1). T013a/b are in Phase 3 (US1). The dependency is explicit. No violation. Wait, T013a/b are marked [P] but T013c depends on them. This is fine. The concern is that T013a/b are 'Setup' tasks. They should ideally be in Phase 1 or 2 if they are global dependencies. But since they are specific to the synthetic path (dwgsim), keeping them in US1 is acceptable. No ordering violation.

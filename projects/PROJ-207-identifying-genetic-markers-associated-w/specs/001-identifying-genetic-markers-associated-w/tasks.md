@@ -1,7 +1,3 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
 
 **Input**: Design documents from `/specs/001-gene-regulation/`
@@ -56,16 +52,15 @@ description: "Task list template for feature implementation"
 ```
 plink2
 freebayes
-bwa
 scikit-learn
 pandas
 numpy
 statsmodels
-dwgsim
 pyyaml
 requests
 biopython
 ```
+**Note**: `dwgsim` is a system binary, not a Python package. It must be installed via conda/bioconda, not pip. Do NOT include it in requirements.txt.
 
 ---
 
@@ -82,8 +77,8 @@ biopython
  1. Calculate power using non-central chi-squared distribution.
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
-    - If Power < 0.20: HALT with error code `ERR_POWER_INSUFFICIENT`.
-    - If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
+ - If Power < 0.20: Generate a detailed warning report `data/processed/power_warning_report.md` explaining the low power and recommending cohort expansion, but DO NOT HALT the pipeline.
+ - If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
  4. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
@@ -93,6 +88,12 @@ biopython
  2. Absence of dead pupae.
  3. Live bee population < 10% relative to peak season.
  Logic MUST fail validation if any of these criteria are not met in the synthetic data generation process (FR-011).
+- [X] T043 [P] [Foundational] Implement `code/04_check_power_and_halt.sh` to execute `code/utils/power_analysis.py` (T005) immediately after data loading.
+ - **Logic**: Run `code/utils/power_analysis.py`.
+ - **Mandatory Behavior**: If `n < 80`, halt the pipeline with error code `ERR_SAMPLE_SIZE_INSUFFICIENT` BEFORE any preprocessing (T016) or GWAS execution (T017) runs. If `Power < 0.20`, generate a warning report but DO NOT halt.
+ - **Input**: `data/raw/ncbi_metadata.json` (if real) or `data/interim/synthetic.vcf` (if synthetic).
+ - **Output**: `data/processed/power_analysis.txt` and `data/processed/power_warning_report.md` (if applicable).
+ - **Depends on**: T009, T012a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -117,43 +118,43 @@ biopython
  1. **Default Action**: Attempt to fetch real data from NCBI BioProject using `requests` with SSL verification.
  2. **On SSL Error**: If SSL verification fails, the system MUST HALT with a clear error message indicating the certificate validation failure. Do NOT proceed. (Compliance with FR-001).
  3. **On Missing File (404/403)**: If the fetch fails because the file is missing or network is unreachable (but SSL is valid):
-    - **MUST NOT HALT**.
-    - Log "Falling back to synthetic data generation due to missing source".
-    - Trigger execution of `code/00_generate_simulated_fastq.py` (T013c).
-    - Ensure T013a (Install dwgsim) and T013b (Verify dwgsim) are executed or satisfied before calling T013c.
-    - Proceed to T016 using the synthetic data.
- 4. **On Success**: If fetch succeeds and data is valid, verify checksums, write `artifact_hash` to `state/verified_sources.yaml`, and proceed to T016.
- 5. **Verification**:
- - Simulate an SSL error (e.g., invalid cert) and verify the script exits with code 1 and prints the error.
- - Simulate a missing file (404) and verify the script calls T013c and proceeds without halting.
- - Verify that `state/verified_sources.yaml` is NOT written in the fallback case.
- - **MANDATORY**: Assert that the log message explicitly states "Falling back to synthetic data generation due to missing source" when 404 occurs.
+ - **MUST NOT HALT**.
+ - Log "Falling back to synthetic data generation due to missing source. Deviation from FR-001 primary goal."
+ - **Dependency Enforcement**: Ensure T009 (Synthetic VCF) and T013a/b (dwgsim) have completed before proceeding. If not, wait for them to complete.
+ - Trigger execution of `code/00_generate_simulated_fastq.py` (T013c).
+ - Ensure T013a (Install dwgsim) and T013b (Verify dwgsim) are executed or satisfied before calling T013c.
+ - Proceed to T043 using the synthetic data.
+ 4. **On Success**: If fetch succeeds and data is valid, verify checksums, write `artifact_hash` to `state/verified_sources.yaml`, and proceed to T043.
+ 5. **Varroa Check (Mandatory - Atomic)**:
+ - **IMMEDIATELY** after fetching (real) or generating (synthetic) data, parse metadata to count `Varroa_mite_count` presence.
+ - If < 80% of samples have this field, raise `ERR_VARROA_COVARIATE_MISSING` immediately and halt with a clear error message.
+ - If >= 80%, proceed to T043.
+ - **Output Artifacts**:
+ - If real: `data/raw/ncbi_metadata.json` and `data/raw/real_data.vcf` (or similar).
+ - If synthetic: `data/interim/synthetic.vcf` (generated by T009).
+ - **Note**: This task now includes the logic previously in T050.
 - [X] T013a [P] [US1] [Setup] Install `dwgsim` in the environment.
- - **Implementation**: Add `dwgsim` to `code/requirements.txt` or create a `setup.sh` script that runs: `conda config --add channels bioconda && conda install -c bioconda dwgsim`.
+ - **Implementation**: Add `dwgsim` to `code/environment.yml` or create a `setup.sh` script that runs: `conda config --add channels bioconda && conda install -c bioconda dwgsim`.
+ - **Note**: `dwgsim` is a system binary, not a Python package.
 - [X] T013b [P] [US1] [Setup] Verify `dwgsim` availability.
  - **Implementation**: Run `dwgsim --help` and verify it exits with code 0.
  - **Depends on**: T013a.
 - [X] T013c [US1] Implement `code/00_generate_simulated_fastq.py` to simulate FASTQ to enable FR-002.
  - **Input**: `data/interim/synthetic.vcf` (generated by T009).
- - **Output**: `data/interim/synthetic_R1.fastq` and `data/interim/synthetic_R2.fastq`.
+ - **Output**: `data/interim/synthetic_R1.fq` and `data/interim/synthetic_R2.fq`.
  - **Implementation**:
  1. Ensure `dwgsim` is installed (T013a, T013b).
- 2. Use `dwgsim` with a fixed random seed to ensure reproducibility. Command: `dwgsim -e -d [variable_insertion_distance]
-
-The research question investigates the impact of insertion distance on read alignment accuracy. The method involves simulating sequencing reads using dwgsim with adjustable parameters. (Reference: Author et al., 2023; DOI: 10.xxxx/xxxxx) -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic`.
- 3. This task is the explicit fallback path triggered by T012a on 404 errors.
+ 2. Use `dwgsim` with a fixed random seed to ensure reproducibility. Command: `dwgsim -e -d [variable_insertion_distance] -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic`.
+ 3. **Output Verification**: Ensure output files exist and contain valid FASTQ format. If `dwgsim` outputs files with different names (e.g., `synthetic_R1.fq`), rename them to `synthetic_R1.fq` and `synthetic_R2.fq` to match the expected output.
+ 4. This task is the explicit fallback path triggered by T012a on 404 errors.
  - **Verification**: Ensure output files exist and contain valid FASTQ format.
- - **Depends on**: T009, T013a, T013b.
-- [X] T014 [US1] Create `code/02_align_call.sh` to wrap `bwa mem` (alignment) and `FreeBayes` (variant calling) with QUAL > 30 and depth >= 10 filters (FR-002). MUST accept input from either `data/interim/real_*.fastq` (T012a) or `data/interim/synthetic_*.fastq` (T013c).
- - **Implementation**:
- 1. Ensure bwa and freebayes are installed: `conda config --add channels bioconda` then `conda install -c bioconda bwa freebayes`.
- 2. Execute alignment and variant calling.
+ - **Depends on**: T009, T013a, T013b, and T012a (if fallback triggered).
 - [X] T015 [US1] Implement VCF to PLINK format conversion in `code/utils/vcf_to_plink.py` (FR-003)
 - [X] T016 [US1] Implement `code/utils/preprocess_phenotype.py` for LD pruning (r² < 0.2) and covariate encoding (geographic region, sampling year, Varroa mite count) (FR-003).
  - **Input**: Phenotype data from T009 (synthetic) or T012a (real).
  - **Output**: `data/processed/phenotypes_cleaned.fam` and `data/processed/phenotypes_cleaned.pheno`.
  - **MANDATORY**: MUST include geographic region, sampling year, and Varroa mite count in the model.
- - **MANDATORY**: Perform LD pruning (r² < 0.2) on genotype data using PLINK before association testing.
+ - **MANDATORY**: (Wikidata Q48989513, https://www.wikidata.org/wiki/Q48989513)
  - **Implementation**:
  1. Run PLINK `--indep-pairwise 5 0.2` on the genotype data to generate the prune list.
  2. Run PLINK `--extract` with the prune list to generate the pruned dataset.
@@ -162,45 +163,45 @@ The research question investigates the impact of insertion distance on read alig
  - Verify `data/processed/phenotypes_cleaned.fam` exists.
  - Verify `data/processed/phenotypes_cleaned.pheno` contains the required set of covariate columns (geographic_region, sampling_year, Varroa_mite_count).
  - Verify that the pruned genotype file exists.
- - **Depends on**: T009, T012a, T015.
-- [X] T043 [US1] Implement `code/04_check_power_and_halt.sh` to execute `code/utils/power_analysis.py` (T005) immediately after data loading and preprocessing.
- - **Logic**: Run `code/utils/power_analysis.py`.
- - **Mandatory Behavior**: If `n < 80`, halt the pipeline with error code `ERR_SAMPLE_SIZE_INSUFFICIENT` BEFORE any GWAS execution (T017) runs. If `Power < 0.20`, halt with `ERR_POWER_INSUFFICIENT`.
- - **Depends on**: T009, T012a, T016.
+ - **Depends on**: T009, T012a, T015, T043.
 - [X] T046 [US1] [Foundational Logic Moved to US1] Implement `code/08_collinearity_guard.py` to enforce the collinearity handling strategy (FR-003, Constitution Check VII).
  - **Implementation**:
  - Input: Read `data/processed/phenotypes_cleaned.fam` (Output of T016).
  - Logic: Calculate VIF using `code/utils/collinearity_diag.py` (T006).
  - **Condition**: If VIF >= 5 (inclusive boundary):
- - Log "High collinearity detected (VIF >= 5). Switching to PCA as per Plan Constitution Check VII."
+ - Log "High collinearity detected (VIF >= 5). Documenting as per Spec FR-010. Covariates will be retained."
  - **Output**: Generate `data/processed/model_config.yaml` containing:
- - `strategy: "PCA"`
- - `covariate_columns: []`
- - `pc_columns: ["PC1", "PC2", ...]` (generated via PLINK PCA)
- - `collinearity_warning: "VIF >= 5 detected; using PCA for population structure correction."`
+ - `strategy: "Covariates"` (Always retain covariates, never switch to PCA)
+ - `covariate_columns: ["geographic_region", "sampling_year", "Varroa_mite_count"]`
+ - `pc_columns: []`
+ - `collinearity_warning: "VIF >= 5 detected; covariates retained as per Spec FR-003/FR-010."`
+ - `collinearity_pairs`: List of specific pairs with r² > 0.8 (calculated in T051).
  - **Condition**: If VIF < 5:
  - Log "Collinearity check passed."
  - **Output**: Generate `data/processed/model_config.yaml` containing:
  - `strategy: "Covariates"`
  - `covariate_columns: ["geographic_region", "sampling_year", "Varroa_mite_count"]`
  - `pc_columns: []`
- - **MANDATORY**: The script MUST produce `model_config.yaml` with the correct strategy based on VIF.
- - **Verification**: Ensure the script exits with code 0 and the `model_config.yaml` file exists. Verify that `strategy` is "PCA" when VIF >= 5.
+ - **MANDATORY**: The script MUST produce `model_config.yaml` with the correct strategy (Covariates) based on VIF, never switching to PCA.
+ - **Verification**: Ensure the script exits with code 0 and the `model_config.yaml` file exists. Verify that `strategy` is always "Covariates".
  - **Depends on**: T006, T016.
-- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T022. Output to `data/interim/gwas_raw.tsv`.
+ - **Note**: If T043 halts, T046 is skipped, and T017 will also be skipped.
+- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
  - **Implementation**:
  1. **Required Artifacts**: `data/processed/model_config.yaml` (Output of T046), `data/processed/phenotypes_cleaned.fam` (Output of T016), `data/processed/pruned_genotypes.bed` (Output of T016).
  2. **Execution Gates**: T043 (Power Analysis) MUST pass (exit code 0) before this task executes. T046 (Collinearity Guard) MUST pass (exit code 0) before this task executes.
  3. Read `data/processed/model_config.yaml`.
- 4. Extract `covariate_columns` or `pc_columns` and pass them to PLINK `--covar`.
+ 4. Extract `covariate_columns` and pass them to PLINK `--covar`.
  5. Run PLINK2 `--logistic hide-covar --ci 0.95 --out data/interim/gwas_raw` with the determined covariates.
  6. **Output**: Write results to `data/interim/gwas_raw.tsv`. **MUST** ensure this file is created with columns: `SNP`, `CHR`, `POS`, `P`, `Odds_Ratio`, `SE`.
  7. **MANDATORY Post-Processing**: PLINK2 may output `OR`. You MUST add a step to rename the `OR` column to `Odds_Ratio` in the final TSV to guarantee schema compatibility with T020 and T022.
+ - **Implementation Detail**: Use pandas: `import pandas as pd; df = pd.read_csv('data/interim/gwas_raw.tsv', sep='\t'); df.rename(columns={'OR': 'Odds_Ratio'}, inplace=True); df.to_csv('data/interim/gwas_raw.tsv', sep='\t', index=False)`.
  - **Verification**: Verify `data/interim/gwas_raw.tsv` exists and contains the required columns with correct names.
  - **Depends on**: T015, T016, T043, T046.
-- [X] T020 [P] [US2] Implement Benjamini-Hochberg FDR correction in `code/utils/fdr_correction.py` (FR-004).
+- [X] T020 [P] [US1] Implement Benjamini-Hochberg FDR correction in `code/utils/fdr_correction.py` (FR-004).
  - **MANDATORY**: MUST implement BH correction as required by Spec FR-004.
  - **Note**: The Spec (FR-004) mandates BH. The Plan's "Complexity Tracking" suggests Bonferroni, but the Spec is the governing requirement. This contradiction is flagged for Plan revision (see T049).
+ - **Implementation**: Explicitly implement BH correction. Do NOT use Bonferroni or Me-based thresholds for the correction calculation.
  - **Output**: Write q-values to `data/interim/gwas_raw_fdr.tsv` (appending column).
  - **Verification**: Verify `data/interim/gwas_raw_fdr.tsv` exists and contains the `q_value` column.
  - **Depends on**: T017.
@@ -230,7 +231,7 @@ The research question investigates the impact of insertion distance on read alig
  - **MANDATORY**: MUST apply Benjamini-Hochberg (BH) correction as required by Spec FR-004 and FR-005.
  - **Output**: Write a report to `data/processed/threshold_sensitivity_report.tsv` containing columns: `threshold`, `snp_count`, `min_q_value`, `significant_count`.
  - **Depends on**: T020.
-- [X] T023 [US2] Update `code/04_apply_fdr.sh` to flag SNPs with q < 0.05 as significant and document the study design.
+- [X] T023 [US2] Update `code/04_apply_fdr.sh` to and document the study design.
  - **MANDATORY**: MUST create `data/processed/gwas_results_metadata.json` containing:
  - `disclaimer`: "Findings are associational, not causal. This is an observational study without randomization."
  - `correction_method`: "Benjamini-Hochberg FDR"
@@ -272,19 +273,24 @@ The research question investigates the impact of insertion distance on read alig
  - **Output**: Write `data/processed/lasso_auc_report.json` containing key "auc" with float value.
  - **Verification**: Assert file exists and key is present.
  - **Depends on**: T022, T016.
-- [X] T028 [US3] Implement Polygenic Risk Score (PRS) calculation in `code/04_ml_validation.py` (FR-007)
-- [X] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007)
+- [X] T028 [US3] Implement Polygenic Risk Score (PRS) calculation in `code/04_ml_validation.py` (FR-007).
+ - **Output**: Write `data/processed/prs_scores.tsv` with columns: `colony_id`, `prs_value`.
+ - **Depends on**: T022.
+- [X] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007).
+ - **Output**: Write `data/processed/prs_validation_results.json` containing `p_value` and `likelihood_ratio_statistic`.
+ - **Depends on**: T028, T022.
 - [X] T030 [US3] Add AUC reporting logic in `code/04_ml_validation.py`:
  - **MANDATORY**: Report the AUC value computed in T027.
  - **MANDATORY**: If AUC < 0.75, the system MUST flag the result as "low predictive power" in the output artifact `data/processed/lasso_auc_report.json` (as per Spec US-3 AC3).
  - **Depends on**: T027, T028, T029.
 - [X] T031 [US3] Implement collinearity diagnostics (VIF) for covariates (geographic region, sampling year) in `code/04_ml_validation.py` (FR-010, US-3 AC4).
  - **MANDATORY**: MUST implement VIF calculation and flag relationships where r² > 0.8 in the output artifact `data/processed/collinearity_report.tsv`.
+ - **Output Schema**: `collinearity_report.tsv` MUST contain columns: `covariate_pair`, `r_squared`, `vif`, `status` (flagged/clear).
  - **MANDATORY**: Document findings descriptively, framing joint relationships as such rather than independent effects.
 - [X] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API and query GO terms (FR-008).
  - **MANDATORY**: Output `data/processed/annotated_snps.tsv` with columns: rs_id, gene_symbol, go_terms, pathway.
  - **Implementation**: Use `biopython` and the Ensembl REST API.
- - **Retry Logic**: Implement retry logic with a configurable maximum number of attempts and exponential backoff (1s, 2s, 4s).
+ - **Retry Logic**: Implement retry logic with a configurable maximum number of attempts and exponential backoff with increasing intervals.
  - **Graceful Degradation**: If all attempts fail or service is "not known", log a clear warning "Ensembl API unavailable; skipping annotation", set `go_terms` to "UNAVAILABLE", and continue the pipeline (do not exit with code 1).
  - **Verification**: Verify `data/processed/annotated_snps.tsv` exists and contains rows with `go_terms` set to "UNAVAILABLE" if the API failed, or valid terms if successful.
  - **Depends on**: T022.
@@ -360,6 +366,31 @@ The research question investigates the impact of insertion distance on read alig
  - Recommendation: "Update Plan.md to align with Spec.md priorities."
  - **Output**: `docs/plan_revision_notes.md`.
  - **Depends on**: T002, T005, T006, T020, T046.
+- [X] T051 [P] [Review Fix] Update `code/08_collinearity_guard.py` (T046) to explicitly log the specific covariate pairs causing high VIF.
+ - **Rationale**: Address reviewer concern about "defining relationships" (FR-010). The current task calculates VIF but doesn't explicitly identify the pairs (e.g., "Region vs Year").
+ - **Implementation**:
+ 1. In `code/08_collinearity_guard.py`, after calculating VIF, compute the correlation matrix of covariates.
+ 2. If VIF >= 5, identify pairs with correlation > 0.8.
+ 3. Log "High collinearity detected between [ColA] and [ColB] (r² = X.XX)."
+ 4. Include this specific pair info in `data/processed/model_config.yaml` under `collinearity_pairs`.
+ - **Verification**: Verify `model_config.yaml` contains the specific pair names when VIF is high.
+ - **Depends on**: T006, T046.
+- [X] T052 [P] [Review Fix] Add explicit task for "Effective Number of Independent Tests (Me)" calculation in `code/utils/gwas_thresholds.py`.
+ - **Rationale**: Address reviewer concern in Assumptions regarding the genome-wide significance threshold. The Spec mentions "effective number of independent tests" but the tasks only implement BH. We need a specific task to calculate Me for the honeybee genome to document the Me value used for BH context (NOT for Bonferroni correction).
+ - **Implementation**:
+ 1. Implement a script that estimates Me using the spectral decomposition of the LD matrix (or a standard approximation for honeybee LD).
+ 2. Output `data/processed/me_estimate.txt` with the calculated Me value.
+ 3. Update `code/utils/fdr_correction.py` (T020) to log this Me value in the output metadata.
+ 4. **MANDATORY**: This task is for documentation ONLY. It must NOT alter the FDR method (BH) used in T020.
+ - **Verification**: Verify `me_estimate.txt` exists and contains a plausible integer value for honeybee genome.
+ - **Depends on**: T016 (for LD pruning data).
+- [X] T054 [P] [Polish] Implement `code/10_final_validation.py` to run a comprehensive check of all artifacts against the Spec requirements.
+ - **Implementation**:
+ 1. Check for existence of all required output files.
+ 2. Verify schema compliance of all TSV/JSON outputs.
+ 3. Verify that all mandatory disclaimers and warnings are present.
+ 4. Generate `data/processed/final_validation_report.md`.
+ - **Depends on**: All previous tasks.
 
 ---
 
@@ -454,7 +485,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Revision**: Tasks T012a, T046, T013a/b/c updated to resolve Spec/Plan conflicts and ordering issues.
-- **Correction**: T012a now distinguishes SSL errors (Halt) from missing data (Fallback to Synthetic). T046 now correctly implements the mandatory PCA fallback when VIF >= 5. T013 split into Setup (T013a, T013b) and Implementation (T013c).
-- **Removed**: T057, T058 (GPU logic - out of scope), T049, T052 (Streaming - unnecessary), T054 (Verified Source manifest - out of scope), T053, T055 (Redundant/Contradictory).
+- **Correction**: T012a now distinguishes SSL errors (Halt) from missing data (Fallback to Synthetic). T046 now correctly implements the mandatory Covariates retention (no PCA fallback). T013 split into Setup (T013a, T013b) and Implementation (T013c).
+- **Removed**: T057, T058 (GPU logic - out of scope), T049, T052 (Streaming - unnecessary), T054 (Verified Source manifest - out of scope), T053, T055 (Redundant/Contradictory). T050, T053 merged into T012a and T005. T051, T052, T054 added/updated to address specific reviewer concerns.
 - **New**: T049 added to formally document Spec/Plan contradictions for future revision.
 - **Note**: The Plan's 'Complexity Tracking' section regarding Bonferroni vs BH and 'Constitution Check VII' regarding PCA fallback are flagged for Plan revision to align with the Spec. Tasks follow the Spec.
+- **Note**: T050, T053 merged into T012a and T005 respectively. T051, T052, T054 added/updated to address specific reviewer concerns.

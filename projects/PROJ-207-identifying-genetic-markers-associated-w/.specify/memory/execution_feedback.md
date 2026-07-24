@@ -8,14 +8,14 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/04_ml_validation.py: self-declared fabricated metric — “…# For this task, we will simulate the result     lr_stat, df_diff, p_value…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…al biological data.  The synthetic data generation strictly adhe…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic SNP data associated with…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…None:     """     Write synthetic SNP data to VCF format.      VCF…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ON report validating the synthetic data against FR-011.     """…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main entry point for synthetic data generation."""     parse…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic VCF and Phenotype data f…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -24,10 +24,13 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 - run-book command: `python code/04_ml_validation.py`
   - script usage: `04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO`
   - argparse error: `04_ml_validation.py: error: the following arguments are required: --gwas, --pheno, --geno`
+- run-book command: `python code/05_annotation.py`
+  - script usage: `05_annotation.py [-h] --gwas GWAS [--output OUTPUT]`
+  - argparse error: `05_annotation.py: error: the following arguments are required: --gwas`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 22 fabricated/simulated-result signal(s) — results are not real measurements: code/04_ml_validation.py: self-declared fabricated metric — “…# For this task, we will simulate the result     lr_stat, df_diff, p_value…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
+**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=2); 5 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/collinearity_report.tsv
 
 ## Failing / missing run-book commands
 
@@ -54,13 +57,15 @@ AttributeError: 'function' object has no attribute 'getsockopt'
     usage: 04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO
                            [--output-dir OUTPUT_DIR]
 04_ml_validation.py: error: the following arguments are required: --gwas, --pheno, --geno
-- python code/05_annotation.py -> rc=1
-    Error: GWAS results file not found: data/processed/gwas_results_fdr.tsv
+- python code/05_annotation.py -> rc=2
+    usage: 05_annotation.py [-h] --gwas GWAS [--output OUTPUT]
+05_annotation.py: error: the following arguments are required: --gwas
 
 ## Declared deliverables still missing
 
 - data/interim/gwas_raw.tsv
 - data/processed/annotated_snps.tsv
+- data/processed/collinearity_report.tsv
 - data/processed/gwas_results_fdr.tsv
 - data/processed/threshold_sensitivity_report.tsv
 
@@ -75,8 +80,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/annotated_snps.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/05_annotation.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/annotated_snps.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/collinearity_report.tsv` is declared but was NOT written. Scripts referencing it:
+    - `code/04_ml_validation.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/collinearity_report.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/gwas_results_fdr.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/05_annotation.py` — IS a run-book command
     - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/gwas_results_fdr.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_sensitivity_report.tsv` is declared but was NOT written. Scripts referencing it:
@@ -91,5 +98,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/gwas_results_fdr.tsv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/05_annotation.py`, `code/utils/threshold_sensitivity.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/05_annotation.py`, `code/utils/threshold_sensitivity.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/utils/threshold_sensitivity.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/gwas_results_fdr.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/utils/threshold_sensitivity.py`.

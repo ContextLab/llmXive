@@ -1,10 +1,11 @@
-T022:
+T017:
   c: true
-  h: f253aacd0faf4faa9a1ab8f2cf8a6b4ee2689f97856d8177e9f82a0b082cc747
-  r: "The `code/04_apply_fdr.sh` script is present, non\u2011empty, and correctly\
-    \ invokes `code/utils/fdr_correction.py` on `data/interim/gwas_raw.tsv`, writing\
-    \ the results to `data/processed/gwas_results_fdr.tsv`. The required files are\
-    \ referenced as specified, satisfying the task\u2019s deliverable."
+  h: 6e29254b66be73a3d2cd55698b66d7158d99cbf5dc8dc069a262f9d83b0d2f10
+  r: "The `code/03_gwas.sh` script exists, is non\u2011empty, and contains logic to\
+    \ run PLINK logistic regression with covariates, avoid any FDR steps, and post\u2011\
+    process the PLINK output into `data/interim/gwas_raw.tsv`. The missing `gwas_raw.tsv`\
+    \ file is acceptable because it is the expected runtime product of the script,\
+    \ not a required artifact to be pre\u2011generated."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

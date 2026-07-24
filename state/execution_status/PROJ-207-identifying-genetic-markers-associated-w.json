@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-207-identifying-genetic-markers-associated-w",
   "ok": false,
-  "reason": "22 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/04_ml_validation.py: self-declared fabricated metric \u2014 \u201c\u2026# For this task, we will simulate the result     lr_stat, df_diff, p_value\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Honeybee C\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates deterministic synthetic VCF and Phenotype data f\u2026\u201d; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=1); 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv",
+  "reason": "19 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Honeybee C\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates deterministic synthetic VCF and Phenotype data f\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate synthetic colony data with CCD dia\u2026\u201d; 3 command(s) failed: python code/01_download.py (rc=1); python code/04_ml_validation.py (rc=2); python code/05_annotation.py (rc=2); 5 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/collinearity_report.tsv",
   "artifacts": [],
   "failures": [
     "python code/01_download.py -> rc=1\n    Verifying SSL connection to NCBI...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.py\", line 262, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.py\", line 213, in main\n    if not check_ssl_verification():\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/01_download.p",
     "python code/04_ml_validation.py -> rc=2\n    usage: 04_ml_validation.py [-h] --gwas GWAS --pheno PHENO --geno GENO\n                           [--output-dir OUTPUT_DIR]\n04_ml_validation.py: error: the following arguments are required: --gwas, --pheno, --geno",
-    "python code/05_annotation.py -> rc=1\n    Error: GWAS results file not found: data/processed/gwas_results_fdr.tsv"
+    "python code/05_annotation.py -> rc=2\n    usage: 05_annotation.py [-h] --gwas GWAS [--output OUTPUT]\n05_annotation.py: error: the following arguments are required: --gwas"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-20T00:27:46Z"
+  "updated_at": "2026-07-24T06:03:15Z"
 }
