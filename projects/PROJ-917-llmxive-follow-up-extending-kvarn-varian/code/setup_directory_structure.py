@@ -1,67 +1,139 @@
 """
 Script to create the required directory structure for the llmXive project.
-Creates 'code/' with subdirectories and 'tests/' with subdirectories as specified.
+Creates code/, data/, tests/, and state/ directories with their subdirectories.
 """
 import os
+import sys
 from pathlib import Path
+import logging
 
-def create_directories():
-    """Create the project directory structure."""
-    # Define the base project root (assumed to be the parent of this script's location)
-    # or explicitly relative to the current working directory if run from root.
-    # We will create directories relative to the current working directory.
-    base_path = Path.cwd()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-    # Define the required directories under 'code/'
-    code_dirs = [
+def create_directories(base_path: Path = None) -> bool:
+    """
+    Create the required directory structure for the project.
+
+    Args:
+        base_path: Base path for the project. Defaults to current directory.
+
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+
+    # Define directory structure relative to base_path
+    directories = [
+        # Code structure
         "code/data_generation",
         "code/model_training",
         "code/simulation",
         "code/analysis",
-        "code/tests", # This acts as a container for the test subdirs
-    ]
-
-    # Define the required directories under 'tests/' (as per task T001c requirement, though T001a focuses on code/)
-    # The task T001a specifically asks for 'code/' structure and 'tests/' inside it?
-    # Re-reading T001a: "Create `code/` directory structure (`data_generation`, `model_training`, `simulation`, `analysis`, `tests/`)"
-    # This implies the tests folder should be inside code/ OR the task description lists the subfolders of code/ AND tests/ as a group.
-    # Looking at T001c: "Create `tests/` directory structure (`test_data_generation`, `test_model_training`, `test_simulation`)"
-    # Standard Python project structure usually has tests/ at root.
-    # However, the task T001a explicitly lists `tests/` as a subdirectory of `code/` in the parenthetical list.
-    # But T001c says "Create `tests/` directory structure" implying a root level tests/.
-    # Let's look at the existing API surface provided in the prompt:
-    # `code/tests/conftest.py` exists in the API surface list.
-    # `code/tests/test_data_generation/test_checksum.py` exists.
-    # This confirms the project structure places tests INSIDE the code/ directory.
-    # Therefore, T001a creates code/ and its subdirs including tests/.
-    # T001c will then populate the subdirs inside code/tests/.
-
-    # Subdirectories for code/tests/
-    test_subdirs = [
+        "code/tests",
         "code/tests/test_data_generation",
         "code/tests/test_model_training",
-        "code/tests/test_simulation"
+        "code/tests/test_simulation",
+        "code/tests/test_analysis",
+        
+        # Data structure
+        "data/generated",
+        "data/models",
+        "data/simulation",
+        "data/analysis",
+        
+        # State structure (for checksums, logs, etc.)
+        "state",
     ]
 
-    all_dirs = code_dirs + test_subdirs
-
     created_count = 0
-    for dir_path in all_dirs:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
+    failed_count = 0
 
-    return created_count
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        try:
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {full_path}")
+                created_count += 1
+            else:
+                logger.debug(f"Directory already exists: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            failed_count += 1
+
+    if failed_count > 0:
+        logger.warning(f"Completed with {failed_count} failures out of {len(directories)} directories.")
+        return False
+
+    logger.info(f"Successfully created {created_count} directories.")
+    return True
+
+def verify_structure(base_path: Path = None) -> bool:
+    """
+    Verify that all required directories exist.
+
+    Args:
+        base_path: Base path for the project. Defaults to current directory.
+
+    Returns:
+        bool: True if all directories exist, False otherwise.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+
+    required_directories = [
+        "code/data_generation",
+        "code/model_training",
+        "code/simulation",
+        "code/analysis",
+        "code/tests",
+        "code/tests/test_data_generation",
+        "code/tests/test_model_training",
+        "code/tests/test_simulation",
+        "code/tests/test_analysis",
+        "data/generated",
+        "data/models",
+        "data/simulation",
+        "data/analysis",
+        "state",
+    ]
+
+    all_exist = True
+    for dir_path in required_directories:
+        full_path = base_path / dir_path
+        if not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        else:
+            logger.debug(f"Verified directory: {full_path}")
+
+    return all_exist
 
 def main():
-    """Entry point for the script."""
-    print("Starting directory structure setup...")
-    count = create_directories()
-    print(f"Setup complete. Created {count} new directories.")
+    """Main entry point for directory structure setup."""
+    logger.info("Starting directory structure setup...")
+    
+    base_path = Path.cwd()
+    logger.info(f"Base path: {base_path}")
+    
+    success = create_directories(base_path)
+    
+    if success:
+        logger.info("Verifying directory structure...")
+        if verify_structure(base_path):
+            logger.info("All required directories verified successfully.")
+            return 0
+        else:
+            logger.error("Directory verification failed.")
+            return 1
+    else:
+        logger.error("Directory creation failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

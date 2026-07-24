@@ -14,285 +14,173 @@ logger = logging.getLogger(__name__)
 
 def create_directories(base_path: Optional[Path] = None) -> Path:
     """
-    Create the standard data directory structure for the project.
+    Creates the required directory structure for the llmXive project.
     
     Args:
-        base_path: Optional base path. Defaults to the project root 'data/'.
+        base_path: Optional base path. Defaults to current working directory.
         
     Returns:
-        Path to the created data directory.
+        The base Path object used.
     """
     if base_path is None:
-        base_path = Path(__file__).parent.parent / "data"
+        base_path = Path.cwd()
     
-    subdirs = [
-        "generated",
-        "models",
-        "simulation",
-        "analysis"
+    # Define the required directory structure relative to base_path
+    # Based on tasks.md: data/ generated, models, simulation, analysis
+    sub_dirs = [
+        "data/generated",
+        "data/models",
+        "data/simulation",
+        "data/analysis",
+        # Also create state/ for checksums as referenced in T001d
+        "state"
     ]
     
-    logger.info(f"Creating data directories under: {base_path}")
-    base_path.mkdir(parents=True, exist_ok=True)
+    created_paths = []
+    for sub_dir in sub_dirs:
+        full_path = base_path / sub_dir
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(full_path)
+            logger.info(f"Created directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
     
-    for subdir in subdirs:
-        subdir_path = base_path / subdir
-        subdir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"  Created: {subdir_path}")
-    
+    logger.info(f"Successfully created {len(created_paths)} directories.")
     return base_path
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute the cryptographic checksum of a file.
+    Computes the SHA-256 checksum of a file.
     
     Args:
         file_path: Path to the file.
-        algorithm: Hash algorithm to use (default: sha256).
         
     Returns:
-        Hex digest string of the checksum.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        Hexadecimal string of the SHA-256 hash.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    
-    return hasher.hexdigest()
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def record_checksums(data_root: Optional[Path] = None) -> Dict[str, Any]:
+def record_checksums(base_path: Path, files: List[Path]) -> Dict[str, str]:
     """
-    Scan the data directory and record checksums for all files.
+    Records checksums for a list of files relative to base_path.
     
     Args:
-        data_root: Optional root path. Defaults to 'data/'.
+        base_path: The root path for relative paths.
+        files: List of file paths to checksum.
         
     Returns:
-        Dictionary mapping relative file paths to their checksums and metadata.
+        Dictionary mapping relative file paths to their checksums.
     """
-    if data_root is None:
-        data_root = Path(__file__).parent.parent / "data"
-    
-    if not data_root.exists():
-        logger.warning(f"Data root does not exist: {data_root}. Creating it first.")
-        create_directories(data_root)
-    
-    checksums: Dict[str, Any] = {
-        "root": str(data_root),
-        "files": {}
-    }
-    
-    for root, _, files in os.walk(data_root):
-        for filename in files:
-            # Skip the checksum file itself to avoid circular dependency
-            if filename == "checksums.json":
-                continue
-            
-            file_path = Path(root) / filename
-            rel_path = file_path.relative_to(data_root)
-            
-            try:
-                checksum = compute_file_checksum(file_path)
-                file_stat = file_path.stat()
-                
-                checksums["files"][str(rel_path)] = {
-                    "checksum": checksum,
-                    "size_bytes": file_stat.st_size,
-                    "modified_time": file_stat.st_mtime
-                }
-                logger.debug(f"Checksummed: {rel_path} -> {checksum[:16]}...")
-            except Exception as e:
-                logger.error(f"Failed to checksum {file_path}: {e}")
-    
+    checksums = {}
+    for file_path in files:
+        if file_path.exists():
+            rel_path = str(file_path.relative_to(base_path))
+            checksum = compute_file_checksum(file_path)
+            checksums[rel_path] = checksum
+            logger.debug(f"Checksum recorded for {rel_path}: {checksum}")
+        else:
+            logger.warning(f"File not found, skipping checksum: {file_path}")
     return checksums
 
-def save_checksums(checksums: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
     """
-    Save the checksum record to a JSON file.
+    Saves the checksum dictionary to a JSON file.
     
     Args:
-        checksums: The checksum dictionary.
-        output_path: Optional output path. Defaults to 'data/checksums.json'.
-        
-    Returns:
-        Path to the saved file.
+        checksums: Dictionary of checksums.
+        output_path: Path to the output JSON file.
     """
-    if output_path is None:
-        data_root = Path(__file__).parent.parent / "data"
-        output_path = data_root / "checksums.json"
-    
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(checksums, f, indent=2, sort_keys=True)
-    
-    logger.info(f"Saved checksums to: {output_path}")
-    return output_path
+    with open(output_path, 'w') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Checksums saved to {output_path}")
 
-def load_checksums(input_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_checksums(input_path: Path) -> Dict[str, str]:
     """
-    Load the checksum record from a JSON file.
+    Loads checksums from a JSON file.
     
     Args:
-        input_path: Optional input path. Defaults to 'data/checksums.json'.
+        input_path: Path to the input JSON file.
         
     Returns:
-        The loaded checksum dictionary.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        Dictionary of checksums.
     """
-    if input_path is None:
-        input_path = Path(__file__).parent.parent / "data" / "checksums.json"
-    
-    with open(input_path, 'r', encoding='utf-8') as f:
+    with open(input_path, 'r') as f:
         return json.load(f)
 
-def verify_integrity(data_root: Optional[Path] = None, 
-                     checksum_path: Optional[Path] = None) -> bool:
+def verify_integrity(base_path: Path, checksums_file: Path) -> bool:
     """
-    Verify the integrity of all files in the data directory against stored checksums.
+    Verifies the integrity of files against stored checksums.
     
     Args:
-        data_root: Optional root path. Defaults to 'data/'.
-        checksum_path: Optional path to checksums.json. Defaults to 'data/checksums.json'.
+        base_path: The root path for relative paths.
+        checksums_file: Path to the JSON file containing stored checksums.
         
     Returns:
-        True if all files match, False otherwise.
+        True if all files match their checksums, False otherwise.
     """
-    if data_root is None:
-        data_root = Path(__file__).parent.parent / "data"
-    
-    if checksum_path is None:
-        checksum_path = data_root / "checksums.json"
-    
-    if not checksum_path.exists():
-        logger.error(f"Checksum file not found: {checksum_path}")
+    if not checksums_file.exists():
+        logger.error(f"Checksums file not found: {checksums_file}")
         return False
     
-    if not data_root.exists():
-        logger.error(f"Data root not found: {data_root}")
-        return False
-    
-    try:
-        stored_checksums = load_checksums(checksum_path)
-    except Exception as e:
-        logger.error(f"Failed to load checksums: {e}")
-        return False
-    
+    stored_checksums = load_checksums(checksums_file)
     all_valid = True
-    recorded_files = stored_checksums.get("files", {})
     
-    # Check files that are recorded
-    for rel_path_str, record in recorded_files.items():
-        file_path = data_root / rel_path_str
-        
-        if not file_path.exists():
-            logger.warning(f"Missing file: {rel_path_str}")
-            all_valid = False
-            continue
-        
-        try:
-            current_checksum = compute_file_checksum(file_path)
-            if current_checksum != record["checksum"]:
-                logger.error(f"Checksum mismatch: {rel_path_str}")
-                logger.error(f"  Expected: {record['checksum']}")
-                logger.error(f"  Got:      {current_checksum}")
+    for rel_path, stored_hash in stored_checksums.items():
+        file_path = base_path / rel_path
+        if file_path.exists():
+            current_hash = compute_file_checksum(file_path)
+            if current_hash != stored_hash:
+                logger.error(f"Integrity check failed for {rel_path}")
                 all_valid = False
             else:
-                logger.debug(f"Verified: {rel_path_str}")
-        except Exception as e:
-            logger.error(f"Error verifying {rel_path_str}: {e}")
+                logger.debug(f"Integrity check passed for {rel_path}")
+        else:
+            logger.warning(f"File missing during integrity check: {rel_path}")
             all_valid = False
-    
-    # Check for new files not in the record (optional strict mode could flag this)
-    current_files = set()
-    for root, _, files in os.walk(data_root):
-        for filename in files:
-            if filename == "checksums.json":
-                continue
-            file_path = Path(root) / filename
-            rel_path = str(file_path.relative_to(data_root))
-            current_files.add(rel_path)
-    
-    recorded_files_set = set(recorded_files.keys())
-    new_files = current_files - recorded_files_set
-    
-    if new_files:
-        logger.warning(f"New files found since last checksum (not verified): {new_files}")
-        # Depending on policy, this might be an error. For now, just warn.
-    
-    if all_valid:
-        logger.info("Integrity check PASSED.")
-    else:
-        logger.error("Integrity check FAILED.")
-    
+            
     return all_valid
 
-def main() -> None:
+def main():
     """
-    Main entry point for the script.
-    
-    Usage:
-        python setup_data_directories.py [--create] [--checksum] [--verify]
-    
-    If no arguments provided, it performs create -> checksum -> verify.
+    Main entry point to create data directories and optionally manage checksums.
+    For T001b, this primarily creates the directory structure.
     """
-    import argparse
+    base_path = Path.cwd()
+    logger.info(f"Starting directory setup in: {base_path}")
     
-    parser = argparse.ArgumentParser(description="Setup and manage data directory checksums.")
-    parser.add_argument("--create", action="store_true", help="Create directories.")
-    parser.add_argument("--checksum", action="store_true", help="Compute and save checksums.")
-    parser.add_argument("--verify", action="store_true", help="Verify integrity against checksums.")
-    
-    args = parser.parse_args()
-    
-    # Default behavior if no flags are set: do everything
-    if not (args.create or args.checksum or args.verify):
-        args.create = True
-        args.checksum = True
-        args.verify = True
-    
-    data_root = Path(__file__).parent.parent / "data"
-    
-    if args.create:
-        logger.info("Step 1: Creating directories...")
-        create_directories(data_root)
-    
-    if args.checksum:
-        logger.info("Step 2: Recording checksums...")
-        # Ensure directories exist first if we didn't create them
-        if not data_root.exists():
-            create_directories(data_root)
+    try:
+        create_directories(base_path)
+        logger.info("Directory creation completed successfully.")
         
-        checksums = record_checksums(data_root)
-        save_checksums(checksums, data_root / "checksums.json")
-    
-    if args.verify:
-        logger.info("Step 3: Verifying integrity...")
-        if not data_root.exists():
-            logger.error("Data root does not exist. Cannot verify.")
-            return
+        # T001b specific deliverable: Directories created.
+        # We log the specific paths created for verification.
+        data_dirs = [
+            base_path / "data" / "generated",
+            base_path / "data" / "models",
+            base_path / "data" / "simulation",
+            base_path / "data" / "analysis"
+        ]
         
-        if not (data_root / "checksums.json").exists():
-            logger.error("Checksum file does not exist. Run with --checksum first.")
-            return
+        for d in data_dirs:
+            if d.exists() and d.is_dir():
+                logger.info(f"Verified existence: {d}")
+            else:
+                logger.error(f"Missing expected directory: {d}")
+                return 1
+                
+        return 0
         
-        success = verify_integrity(data_root)
-        if not success:
-            logger.error("Verification failed. Exiting with error code 1.")
-            exit(1)
-    
-    logger.info("Data directory setup and checksum management completed successfully.")
+    except Exception as e:
+        logger.critical(f"Setup failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

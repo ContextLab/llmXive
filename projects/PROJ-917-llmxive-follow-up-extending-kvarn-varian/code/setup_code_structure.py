@@ -1,21 +1,21 @@
 """
-Setup script to create the project directory structure.
-Creates the main code/ directory and its required subdirectories:
-- data_generation
-- model_training
-- simulation
-- analysis
-- tests
+Setup script to create the required directory structure for the llmXive project.
+Creates the `code/` directory and its subdirectories as specified in T001a.
 """
 import os
 from pathlib import Path
 
 def create_directories():
-    """Create the code/ directory structure."""
-    base_path = Path(__file__).resolve().parent.parent
-    code_dir = base_path / "code"
-    
-    # Define required subdirectories
+    """
+    Creates the directory structure:
+    code/
+    ├── data_generation
+    ├── model_training
+    ├── simulation
+    ├── analysis
+    └── tests
+    """
+    base_dir = Path("code")
     subdirs = [
         "data_generation",
         "model_training",
@@ -23,26 +23,22 @@ def create_directories():
         "analysis",
         "tests"
     ]
-    
-    # Create directories
+
+    created_paths = []
     for subdir in subdirs:
-        dir_path = code_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created: {dir_path}")
-    
-    # Create __init__.py files to make them packages
-    for subdir in subdirs:
-        init_path = code_dir / subdir / "__init__.py"
-        if not init_path.exists():
-            init_path.touch()
-            print(f"Created: {init_path}")
-    
-    print(f"Directory structure created successfully at {code_dir}")
-    return code_dir
+        path = base_dir / subdir
+        path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(path))
+        print(f"Created directory: {path}")
+
+    return created_paths
 
 def main():
-    """Main entry point."""
-    create_directories()
+    """Entry point for the script."""
+    print("Setting up code directory structure...")
+    paths = create_directories()
+    print(f"Successfully created {len(paths)} directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

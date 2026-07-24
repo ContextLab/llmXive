@@ -1,1 +1,3 @@
-"""Test suite for simulation module."""
+"""
+Tests for the simulation module.
+"""

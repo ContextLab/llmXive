@@ -1,1 +1,3 @@
-"""Test suite for data generation module."""
+"""
+Tests for the data_generation module.
+"""

@@ -626,3 +626,729 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T16:51:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Dataset size of 10000 rows asserted for MVP
+  claim_id: c_6c3cb626
+  context: Dataset size for T017c is read from config, not hardcoded, to allow runtime
+    adjustment, but must assert 10000 rows for MVP.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset size for T017c must assert 10000 rows for MVP.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:35:37Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 30 independent simulation runs generated
+  claim_id: c_5d09f20d
+  context: 'Execute batch_runner.py to generate 30 independent simulation runs (n=30).
+    Output: data/simulation/run_001.json through data/simulation/run_030.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:35:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses epsilon values 1e-9, 1e-6, 1e-3
+  claim_id: c_85f50f5d
+  context: 'Sweep: Use fixed values [1e-9, 1e-6, 1e-3].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep uses fixed epsilon values of [1e-9, 1e-6,
+    1e-3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:36:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound formula Delta^2/12
+  claim_id: c_6d60c9b3
+  context: Implement theoretical lower bound calculation using the analytical noise
+    model formula Delta^2/12 (where Delta is the quantization interval).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound calculation uses the analytical noise model
+    formula Delta^2/12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:36:28Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: static synthetic matrix generator asserts count of 10000 matrices
+  claim_id: c_43c0426d
+  context: 'T017a [US1] Implement static synthetic matrix generator... Requirement:
+    Must assert count == 10000 matrices in output.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The static synthetic matrix generator must assert count == 10000 matrices
+    in output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:37:42Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: data generation script produces 10000 rows
+  claim_id: c_4692243f
+  context: 'T017c [US1] Execute data generation script... Requirement: Must assert
+    10000 rows in output.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data generation script must produce a substantial set of synthetic
+    attention matrices with row count == 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:37:54Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: autoregressive simulation engine executes 1000 steps
+  claim_id: c_a3e2e78c
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine... Requirement:
+    Must execute exactly 1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The autoregressive simulation engine must execute exactly 1000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:38:08Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation loop runs for 1000 steps
+  claim_id: c_4d2168bc
+  context: 'T029 [US3] Implement wall-clock profiling... Requirement: Must run the
+    simulation loop for the full 1000 steps defined in the spec/constitution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation loop must run for the full 1000 steps defined in the spec/constitution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:38:23Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: batch runner generates 30 independent simulation runs
+  claim_id: c_f02bb6ec
+  context: T030b [US3] Execute batch_runner.py to generate 30 independent simulation
+    runs (n=30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner must generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:39:14Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: aggregation script derives scalar from 1000-step runs
+  claim_id: c_f8f0a612
+  context: 'T030c [US3] ... Requirement: Must derive the final scalar value from the
+    1000-step runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aggregation script must derive the final scalar value from the 1000-step
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:40:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses epsilon values 1e-9, 1e-6, 1e-3
+  claim_id: c_44ba2661
+  context: 'T025 [US3] ... Sweep: Use fixed values [1e-9, 1e-6, 1e-3].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must use fixed epsilon values [1e-9, 1e-6, 1e-3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:40:40Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test with n=30 runs
+  claim_id: c_b8eace70
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test must be a paired t-test with n=30 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:41:36Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: t-test verifies input from 1000-step simulation runs
+  claim_id: c_7f9b9d61
+  context: T031 [US3] ... Verify input is the final scalar value derived from the
+    full 1000-step simulation runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-test must verify input is the final scalar value derived from the
+    full 1000-step simulation runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:42:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound uses formula Delta^2/12
+  claim_id: c_6eea9162
+  context: T032 [US3] Implement theoretical lower bound calculation using the analytical
+    noise model formula Delta^2/12...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound calculation uses the analytical noise model
+    formula Delta^2/12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:42:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: closed-form baseline predictor is s = 1/variance
+  claim_id: c_45dbbe62
+  context: T024 [US2] Implement closed-form baseline predictor (s = 1/variance)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Closed-form_baseline_predictor_is_s_%3D_1/variance
+  kind: entity_fact
+  raw_text: The closed-form baseline predictor is defined as s = 1/variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:42:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon floor configuration defaults to 1e-6
+  claim_id: c_90add6c4
+  context: T009 [P] [US1] ... with a Config dataclass containing ... EPSILON_FLOOR=1e-6...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon floor configuration defaults to 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:42:48Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_f99e2c4c
+  context: T003 Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:43:06Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: batch runner produces 30 files
+  claim_id: c_2ec710cf
+  context: T030b ... Must produce exactly 30 files (run_001.json to run_030.json)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner must produce exactly 30 files (run_001.json to run_030.json).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:43:21Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: profiling protocol discards initial burn-in period and averages remainder
+  claim_id: c_8acf7aec
+  context: 'T029 ... Protocol: Run multiple iterations, discard the initial burn-in
+    period, and average the remainder for both methods.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Profiling_protocol_discards_initial_burn-in_period_and_avera
+  kind: entity_fact
+  raw_text: The profiling protocol requires running multiple iterations, discarding
+    the initial burn-in period, and averaging the remainder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:44:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: t-test pairing between static prior and KVarN results from same run index
+  claim_id: c_3a5830ca
+  context: 'T031 ... Requirement: Pairing must be between static prior and KVarN results
+    from the same run index (run_XXX_static vs run_XXX_kvarn).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_pairing_between_static_prior_and_KVarN_results_from_s
+  kind: entity_fact
+  raw_text: The t-test pairing must be between static prior and KVarN results from
+    the same run index.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:44:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: execute exactly 1000 steps in autoregressive simulation
+  claim_id: c_0d579d1e
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine... Requirement:
+    Must execute exactly 1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must execute exactly 1000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:46:32Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: run simulation loop for full 1000 steps
+  claim_id: c_b87b0f44
+  context: 'T029 [US3] Implement wall-clock profiling... Requirement: Must run the
+    simulation loop for the full 1000 steps defined in the spec/constitution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must run the simulation loop for the full 1000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:47:02Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 30 independent simulation runs
+  claim_id: c_9d91f140
+  context: T030b [US3] Execute batch_runner.py to generate 30 independent simulation
+    runs (n=30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 30 independent simulation runs (n=30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:47:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: each simulation run is 1000 steps
+  claim_id: c_22c6e9c0
+  context: 'T030b [US3] ... Requirement: Each run must be a 1000-step simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each simulation run must be a 1000-step simulation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:47:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: derive final scalar from 1000-step runs
+  claim_id: c_740150b9
+  context: 'T030c [US3] Implement aggregation script... Requirement: Must derive the
+    final scalar value from the 1000-step runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive the final scalar value from the 1000-step runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:47:59Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon sweep uses fixed values 1e-9, 1e-6, 1e-3
+  claim_id: c_d2a27d12
+  context: 'T025 [US3] Implement sensitivity analysis logic... Sweep: Use fixed values
+    [1e-9, 1e-6, 1e-3].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed values [1e-9, 1e-6, 1e-3] for epsilon sweep
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:48:19Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test with 30 runs
+  claim_id: c_1dceff84
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the final accumulated KL-divergence (scalar value).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform paired t-test with n=30 runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:48:36Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: verify input is final scalar from 1000-step runs
+  claim_id: c_30d3b6ad
+  context: T031 [US3] ... Verify input is the final scalar value derived from the
+    full 1000-step simulation runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify input is the final scalar value derived from the full 1000-step
+    simulation runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:48:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model uses 2 inputs mean and variance
+  claim_id: c_015a2610
+  context: 'T022 [P] [US2] Define a multi-layer perceptron (MLP) model architecture...
+    Constraint: Must use exactly 2 inputs (mean, variance) as per Spec FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use exactly 2 inputs (mean, variance) for the MLP model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:49:25Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project
+  claim_id: c_6e4d4c26
+  context: T003 Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:49:39Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: compute checksums using SHA-256 algorithm
+  claim_id: c_01cf3f0a
+  context: 'T001c [P] Implement checksumming script... Output: A JSON map at state/checksums.json
+    using SHA-256 algorithm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute and store checksums using SHA-256 algorithm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:49:53Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: EPSILON_FLOOR configuration value is 1e-6
+  claim_id: c_dfeb77d0
+  context: T009 [P] [US1] Setup environment configuration management... with a Config
+    dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, and RANDOM_SEED.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configuration includes EPSILON_FLOOR=1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:50:09Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound formula is Delta squared over 12
+  claim_id: c_5eee5a30
+  context: T032 [US3] Implement theoretical lower bound calculation using the analytical
+    noise model formula $\Delta^2/12$ (where $\Delta$ is the quantization interval).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use analytical noise model formula Delta^2/12 for theoretical lower bound
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:51:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: isolate overhead by subtracting baseline 100 iterations discarding 10
+  claim_id: c_18e423df
+  context: 'T029 [US3] ... Protocol: Run multiple iterations, discard the initial
+    burn-in period... Crucial: T029 must isolate optimization overhead by subtracting
+    baseline inference time (100 iterations, discard 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Isolate optimization overhead by subtracting baseline inference time (100
+    iterations, discard 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:51:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: produce 30 files run_001 to run_030
+  claim_id: c_49f697db
+  context: 'T030b [US3] ... Crucial: Tb must produce exactly 30 files (run_001.json
+    to run_030.json) via batch_runner.py using seed offsets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Produce exactly 30 files (run_001.json to run_030.json)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:52:06Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Assert count of 10000 matrices in output
+  claim_id: c_6e7f3263
+  context: 'Requirement: Must assert count == 10000 matrices in output.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output must assert a count of 10000 matrices.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Execute exactly 1000 steps in autoregressive simulation
+  claim_id: c_c11f8d99
+  context: 'Requirement: Must execute exactly 1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The autoregressive simulation engine must execute exactly 1000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Run simulation loop for full 1000 steps
+  claim_id: c_44d78d90
+  context: 'Requirement: Must run the simulation loop for the full 1000 steps defined
+    in the spec/constitution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation loop must run for the full 1000 steps defined in the spec/constitution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 30 independent simulation runs
+  claim_id: c_33593175
+  context: Execute batch_runner.py to generate 30 independent simulation runs (n=30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner must generate 30 independent simulation runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:14Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Perform paired t-test with n=30 runs
+  claim_id: c_dc5dc206
+  context: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the final accumulated KL-divergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test uses a paired t-test with n=30 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Epsilon sweep values are 1e-9, 1e-6, 1e-3
+  claim_id: c_35d478d7
+  context: 'Sweep: Use fixed values [1e-9, 1e-6, 1e-3].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon sweep uses fixed values [1e-9, 1e-6, 1e-3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound formula is Delta^2/12
+  claim_id: c_33d48fe9
+  context: Implement theoretical lower bound calculation using the analytical noise
+    model formula Delta^2/12 (where Delta is the quantization interval).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound calculation uses the analytical noise model
+    formula Delta^2/12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 'MLP model uses 2 inputs: mean and variance'
+  claim_id: c_d665614a
+  context: 'Constraint: Must use exactly 2 inputs (mean, variance) as per Spec FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MLP model uses exactly 2 inputs (mean and variance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:54:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 'Baseline inference time protocol: 100 iterations, discard 10'
+  claim_id: c_c3f1d59c
+  context: 'Protocol: Run multiple iterations, discard the initial burn-in period,
+    and average the remainder for both methods.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline inference time subtraction protocol runs 100 iterations and
+    discards the initial 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:55:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Batch runner produces 30 files named run_001.json to run_030.json
+  claim_id: c_4380d032
+  context: 'Output: data/simulation/run_001.json through data/simulation/run_030.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner produces exactly 30 files named run_001.json to run_030.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:55:20Z'

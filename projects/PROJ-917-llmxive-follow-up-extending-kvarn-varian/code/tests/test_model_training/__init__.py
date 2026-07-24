@@ -1,1 +1,3 @@
-"""Test suite for model training module."""
+"""
+Tests for the model_training module.
+"""

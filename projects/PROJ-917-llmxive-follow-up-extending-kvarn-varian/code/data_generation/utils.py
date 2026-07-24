@@ -1,250 +1,181 @@
-"""
-Numerical stability utilities for the llmXive pipeline.
-
-This module provides functions for:
-- Epsilon floor handling to prevent division by zero and log(0).
-- Temporal drift models for synthetic data generation.
-- Numerical stability checks (NaN, Inf).
-- Sensitivity analysis utilities (epsilon sweep generation).
-"""
 import numpy as np
 from typing import Union, Optional, Callable, List
 import json
 import hashlib
 from pathlib import Path
+import logging
+import os
 
-# Default epsilon for numerical stability
-DEFAULT_EPSILON = 1e-8
+# Configure logger
+logger = logging.getLogger(__name__)
 
-def apply_epsilon_floor(
-    arr: Union[np.ndarray, float],
-    epsilon: Optional[float] = None
-) -> np.ndarray:
+def apply_epsilon_floor(value: float, epsilon: float) -> float:
     """
-    Apply an epsilon floor to an array or scalar to prevent values from being
-    too close to zero (e.g., for variance or probabilities).
-
-    Args:
-        arr: Input array or scalar.
-        epsilon: The floor value. Defaults to DEFAULT_EPSILON.
-
-    Returns:
-        A numpy array (or scalar if input was scalar) with values clamped
-        to be >= epsilon.
+    Applies an epsilon floor to a value to ensure numerical stability.
+    Returns max(value, epsilon).
     """
-    if epsilon is None:
-        epsilon = DEFAULT_EPSILON
+    if not isinstance(value, (int, float, np.floating)):
+        raise TypeError(f"Value must be a number, got {type(value)}")
+    if not isinstance(epsilon, (int, float, np.floating)):
+        raise TypeError(f"Epsilon must be a number, got {type(epsilon)}")
+    
+    return float(max(float(value), float(epsilon)))
 
-    input_is_scalar = np.isscalar(arr)
-    arr = np.asarray(arr, dtype=np.float64)
-
-    result = np.maximum(arr, epsilon)
-
-    if input_is_scalar:
-        return float(result)
-    return result
-
-def safe_log(
-    arr: Union[np.ndarray, float],
-    epsilon: Optional[float] = None
-) -> np.ndarray:
+def safe_log(x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """
-    Compute the natural logarithm safely by applying an epsilon floor first.
-
-    Args:
-        arr: Input array or scalar.
-        epsilon: The floor value applied before log.
-
-    Returns:
-        The natural logarithm of the input, with values >= epsilon.
+    Computes logarithm safely, replacing non-positive values with a small epsilon.
     """
-    safe_arr = apply_epsilon_floor(arr, epsilon)
-    return np.log(safe_arr)
+    if isinstance(x, np.ndarray):
+        result = np.log(x, where=x > 0)
+        result = np.where(x <= 0, np.log(1e-10), result)
+        return result
+    else:
+        return np.log(x) if x > 0 else np.log(1e-10)
 
-def safe_divide(
-    numerator: Union[np.ndarray, float],
-    denominator: Union[np.ndarray, float],
-    epsilon: Optional[float] = None
-) -> np.ndarray:
+def safe_divide(numerator: Union[float, np.ndarray], denominator: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """
-    Perform safe division by applying an epsilon floor to the denominator.
-
-    Args:
-        numerator: Numerator array or scalar.
-        denominator: Denominator array or scalar.
-        epsilon: The floor value applied to the denominator.
-
-    Returns:
-        The result of numerator / denominator.
+    Performs division safely, handling division by zero.
+    Returns 0.0 if denominator is 0.
     """
-    safe_denom = apply_epsilon_floor(denominator, epsilon)
-    return np.asarray(numerator) / safe_denom
+    if isinstance(denominator, np.ndarray):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            result = numerator / denominator
+            result = np.where(denominator == 0, 0.0, result)
+            result = np.where(~np.isfinite(result), 0.0, result)
+        return result
+    else:
+        if denominator == 0 or not np.isfinite(denominator):
+            return 0.0
+        res = numerator / denominator
+        return res if np.isfinite(res) else 0.0
 
-def check_numerical_stability(
-    arr: np.ndarray,
-    name: str = "array"
-) -> bool:
+def check_numerical_stability(value: Union[float, np.ndarray], name: str = "value") -> bool:
     """
-    Check an array for NaN and Inf values.
-
-    Args:
-        arr: The array to check.
-        name: A name for the array (for error messages).
-
-    Returns:
-        True if the array is stable (no NaN or Inf), False otherwise.
+    Checks if a value is numerically stable (finite and not NaN).
+    Returns True if stable, False otherwise.
     """
-    if np.any(np.isnan(arr)):
-        raise ValueError(f"NaN values detected in {name}")
-    if np.any(np.isinf(arr)):
-        raise ValueError(f"Inf values detected in {name}")
-    return True
+    if isinstance(value, np.ndarray):
+        return bool(np.all(np.isfinite(value)))
+    return bool(np.isfinite(value))
 
-# --- Drift Models ---
-
-def linear_drift(
-    t: Union[np.ndarray, float],
-    slope: float = 0.01,
-    intercept: float = 1.0
-) -> np.ndarray:
+def linear_drift(x: float, slope: float, intercept: float) -> float:
     """
-    Generate a linear drift over time.
-
-    Args:
-        t: Time steps (scalar or array).
-        slope: The slope of the drift.
-        intercept: The starting value at t=0.
-
-    Returns:
-        Drifted values.
+    Computes linear drift: y = slope * x + intercept
     """
-    t = np.asarray(t, dtype=np.float64)
-    return slope * t + intercept
+    return slope * x + intercept
 
-def exponential_drift(
-    t: Union[np.ndarray, float],
-    rate: float = 0.01,
-    initial: float = 1.0
-) -> np.ndarray:
+def exponential_drift(x: float, base: float, rate: float) -> float:
     """
-    Generate an exponential drift over time.
-
-    Args:
-        t: Time steps (scalar or array).
-        rate: The growth/decay rate.
-        initial: The starting value at t=0.
-
-    Returns:
-        Drifted values.
+    Computes exponential drift: y = base * exp(rate * x)
     """
-    t = np.asarray(t, dtype=np.float64)
-    return initial * np.exp(rate * t)
+    return base * np.exp(rate * x)
 
-def sinusoidal_drift(
-    t: Union[np.ndarray, float],
-    amplitude: float = 0.5,
-    frequency: float = 0.1,
-    phase: float = 0.0,
-    offset: float = 1.0
-) -> np.ndarray:
+def sinusoidal_drift(x: float, amplitude: float, frequency: float, phase: float) -> float:
     """
-    Generate a sinusoidal drift over time.
-
-    Args:
-        t: Time steps (scalar or array).
-        amplitude: Amplitude of the sine wave.
-        frequency: Frequency of the sine wave.
-        phase: Phase shift.
-        offset: Vertical offset (mean value).
-
-    Returns:
-        Drifted values.
+    Computes sinusoidal drift: y = amplitude * sin(frequency * x + phase)
     """
-    t = np.asarray(t, dtype=np.float64)
-    return offset + amplitude * np.sin(2 * np.pi * frequency * t + phase)
+    return amplitude * np.sin(frequency * x + phase)
 
-def get_drift_model(name: str) -> Callable:
+def get_drift_model(model_type: str):
     """
-    Retrieve a drift model function by name.
-
-    Args:
-        name: One of 'linear', 'exponential', 'sinusoidal'.
-
-    Returns:
-        The corresponding drift function.
-
-    Raises:
-        ValueError: If the name is not recognized.
+    Returns the appropriate drift function based on model_type string.
+    Supported: 'linear', 'exponential', 'sinusoidal'
     """
-    models = {
-        'linear': linear_drift,
-        'exponential': exponential_drift,
-        'sinusoidal': sinusoidal_drift
-    }
-    if name not in models:
-        raise ValueError(f"Unknown drift model: {name}. Choose from {list(models.keys())}")
-    return models[name]
+    if model_type == 'linear':
+        return linear_drift
+    elif model_type == 'exponential':
+        return exponential_drift
+    elif model_type == 'sinusoidal':
+        return sinusoidal_drift
+    else:
+        raise ValueError(f"Unknown drift model type: {model_type}. Supported: linear, exponential, sinusoidal")
 
-# --- Sensitivity Analysis Utilities ---
-
-def generate_epsilon_sweep_values(
-    start: float,
-    end: float,
-    steps: int
-) -> List[float]:
+def generate_epsilon_sweep_values() -> List[float]:
     """
-    Generate a list of epsilon values for sensitivity analysis.
-    Creates a linearly spaced sweep from start to end inclusive.
-
-    Args:
-        start: The starting epsilon value (e.g., 1e-8).
-        end: The ending epsilon value (e.g., 1e-2).
-        steps: The number of points to generate in the sweep.
-
-    Returns:
-        A list of float values representing the epsilon sweep.
-
-    Raises:
-        ValueError: If steps < 2 or start > end.
+    Generates a list of epsilon values for sensitivity analysis.
+    Returns a list of floats spanning a range from negligible to substantial.
     """
-    if steps < 2:
-        raise ValueError(f"steps must be at least 2, got {steps}")
-    if start > end:
-        raise ValueError(f"start ({start}) must be <= end ({end})")
-
-    # Use numpy to generate the linearly spaced values
-    values = np.linspace(start, end, steps)
-    return values.tolist()
+    # Fixed list as per task T005b and spec requirements
+    return [1e-9, 1e-6, 1e-3]
 
 def compute_checksum(file_path: Union[str, Path]) -> str:
     """
-    Compute the SHA-256 checksum of a file.
-
-    Args:
-        file_path: Path to the file.
-
-    Returns:
-        Hexadecimal string of the checksum.
+    Computes the SHA-256 checksum of a file.
+    Raises FileNotFoundError if the file does not exist.
+    Raises IOError if the file cannot be read.
     """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Error reading file {path}: {e}")
 
 def save_json_with_checksum(data: dict, output_path: Union[str, Path]) -> None:
     """
-    Save a dictionary to JSON and compute its checksum.
-
-    Args:
-        data: The dictionary to save.
-        output_path: Path to the output file.
+    Saves data to a JSON file and computes its checksum.
+    The checksum is stored in the same directory with a .sha256 extension.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    json_str = json.dumps(data, indent=2, sort_keys=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(json_str)
+    
+    checksum = compute_checksum(path)
+    checksum_path = path.with_suffix(path.suffix + '.sha256')
+    
+    with open(checksum_path, 'w', encoding='utf-8') as f:
+        f.write(checksum)
+    
+    logger.info(f"Saved {path} with checksum {checksum}")
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-
-    checksum = compute_checksum(output_path)
-    return checksum
+def compute_and_store_checksums(data_dir: Union[str, Path], output_dir: Union[str, Path]) -> dict:
+    """
+    Computes SHA-256 checksums for all files in the specified data_dir
+    and stores the results in a JSON map at output_dir/checksums.json.
+    
+    Args:
+        data_dir: Path to the directory to scan for files.
+        output_dir: Path to the directory where checksums.json will be saved.
+    
+    Returns:
+        A dictionary mapping relative file paths to their SHA-256 checksums.
+    """
+    data_path = Path(data_dir)
+    output_path = Path(output_dir)
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data directory not found: {data_path}")
+    
+    if not data_path.is_dir():
+        raise NotADirectoryError(f"Data path is not a directory: {data_path}")
+    
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    checksums = {}
+    
+    logger.info(f"Computing checksums for all files in {data_path}...")
+    
+    for file_path in sorted(data_path.rglob('*')):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(data_path)
+            try:
+                checksum = compute_checksum(file_path)
+                checksums[str(rel_path)] = checksum
+                logger.debug(f"Computed checksum for {rel_path}: {checksum[:16]}...")
+            except (FileNotFoundError, IOError) as e:
+                logger.warning(f"Skipping file {rel_path} due to error: {e}")
+    
+    output_file = output_path / "checksums.json"
+    save_json_with_checksum(checksums, output_file)
+    
+    logger.info(f"Checksums saved to {output_file}. Total files processed: {len(checksums)}")
+    return checksums
