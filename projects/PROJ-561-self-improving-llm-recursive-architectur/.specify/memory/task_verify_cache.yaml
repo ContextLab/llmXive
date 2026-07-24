@@ -10,20 +10,17 @@ T001:
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/memory.py` file or its contents were provided, and therefore the required
-    `check_and_terminate_if_exceeds` function that monitors RAM usage and terminates
-    the process is missing. The implementer must add the file with the specified function
-    and ensure it actually checks memory usage and kills the process when the limit
-    is exceeded.
+  r: "No `utils/memory.py` file is present, and there is no implementation of `check_and_terminate_if_exceeds(limit_gb:\
+    \ float)` or any of the requested features (gradient checkpointing, batch\u2011\
+    size auto\u2011scaling, RAM watchdog). The required artifact is missing, so the\
+    \ task is not satisfied."
 T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/loader.py` file or its contents were provided, so we cannot verify\
-    \ that dataset loaders for OpenWebText, GSM8K, ARC\u2011Challenge, and Wikitext\u2011\
-    2 have been implemented with the required fail\u2011fast logic. The implementer\
-    \ must add the `loader.py` module containing functional loader classes/functions\
-    \ for each dataset and ensure they raise errors (rather than using synthetic fallbacks)\
-    \ when data is unavailable."
+  r: "No `pipeline/loader.py` file or any code implementing dataset loaders for OpenWebText,\
+    \ GSM8K, ARC\u2011Challenge, or Wikitext\u20112 is present. Consequently the required\
+    \ fail\u2011fast logic and absence of synthetic fallbacks cannot be verified.\
+    \ The artifact is missing, so the task is not satisfied."
 T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,23 +31,23 @@ T005b:
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/model.py` file or its contents were provided for review, so we\
-    \ cannot confirm that a medium\u2011sized GPT model is loaded and that CPU\u2011\
-    compatible weight manipulation is implemented. The required artifact is missing,\
-    \ making the task unverified."
+  r: "No `pipeline/model.py` file or any code implementing GPT\u20112 124M checkpoint\
+    \ loading and CPU\u2011compatible weight manipulation was provided. The required\
+    \ artifact is missing, so the task is not satisfied."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `pipeline/stats.py` file or any code implementing paired bootstrap testing
-    and exponential decay curve fitting is present in the provided artifacts; therefore
-    the required implementation is missing.
+    and exponential decay curve fitting is present; without the artifact we cannot
+    verify that the required functionality exists or meets the specifications. The
+    task therefore remains unfinished.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or its contents were supplied; therefore the required hyperparameters,\
-    \ constraint definition, and path settings are absent. The implementer must add\
-    \ a `config.py` containing `lr = 5e-5`, `bs = 4`, a seed value, a constraint ensuring\
-    \ \u226430% parameter increase, and appropriate path definitions."
+  r: "No `config.py` file or its contents were presented; therefore the required hyperparameters,\
+    \ constraint definition, and path settings are missing. The implementer must add\
+    \ a `config.py` containing `lr = 5e-5`, `bs = 4`, a seed variable, a constraint\
+    \ ensuring \u226430% parameter increase, and appropriate path definitions."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,14 +70,15 @@ T013:
     code artifact entirely.
 T014:
   c: false
-  h: d699b456be38ee0bec75c7e236a49b0cfa20101b40923e25592f3c9dd98e381f
-  r: The required artifact `tests/integration/test_single_cycle.py` does not exist
-    in the repository, so the integration test for the full single cycle cannot be
-    verified. The task needs the missing test file created with the appropriate test
-    logic.
-T034:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code for `validate_modification_distinctness` in `pipeline/model.py` was presented;
+    the required function is missing from the provided evidence. The task cannot be
+    considered fulfilled until the function exists and implements the distinctness
+    check.
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code or diff for `pipeline/trainer.py` was provided, so there is no evidence\
-    \ that a timeout wrapper, logging of \"Timeout\", and partial\u2011metric recording\
-    \ were added. The required implementation artifact is missing."
+  r: No updated `pipeline/evaluator.py` file or code snippet was provided showing
+    a separation layer between generative modification logic and benchmark evaluation
+    logic, nor any tests or documentation confirming that evaluation results are inaccessible
+    during proposal generation. The required artifact is missing.

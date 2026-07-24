@@ -110,7 +110,7 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 
 - HuggingFace Datasets (OpenWebText subset, GSM8K, ARC-Challenge, Wikitext-2) will remain publicly accessible without authentication requirements during the 6-hour execution window
 - PyTorch CPU backend with gradient checkpointing and batch size 4 will support GPT-2 124M model loading and training within the 7 GB RAM constraint; the self-prompting model is the same instance as the training model and is unloaded before training to save memory, acknowledging the tight margin and risk of runtime crash if overhead exceeds 7GB
-- The GitHub Actions free-tier runner will provide the specified multiple CPU cores, sufficient RAM, and adequate disk space. without resource contention from other jobs
+- The GitHub Actions free-tier runner will provide the specified multiple CPU cores, ~7 GB RAM, and Adequate disk space. without resource contention from other jobs
 - Paired bootstrap testing with A large number of resamples will complete within the remaining time budget after model training (estimated ≤30 minutes)
 - The modification magnitude is determined by the model's self-prompted suggestion, not a fixed percentage or random integer
 - OpenWebText subset of [deferred] samples provides adequate training signal for detecting performance changes after 1 epoch of fine-tuning, acknowledging the risk of noise due to short training duration

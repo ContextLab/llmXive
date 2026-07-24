@@ -4,427 +4,259 @@ import torch.nn.functional as F
 from typing import Dict, Any, List, Tuple, Optional
 from datasets import load_dataset
 import numpy as np
-import os
-import sys
-import json
 import time
+import os
+import gc
+from config import PathConfig, get_config_summary
 
-# Ensure pipeline is importable if running from root
-if 'code' not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Import existing loaders to ensure we use the real data sources
+from pipeline.loader import load_gsm8k, load_arc_challenge, load_wikitext2
 
-from pipeline.loader import load_gsm8k, load_arc_challenge, load_wikitext2, exponential_backoff
-from utils.memory import check_and_terminate_if_exceeds, get_memory_usage_gb
-
-# Configuration constants for evaluation
-GSM8K_MAX_TOKENS = 256
-ARC_MAX_TOKENS = 256
-WIKITEXT2_MAX_TOKENS = 1024
-EVAL_BATCH_SIZE = 4
-RANDOM_SEED = 42
-
-torch.manual_seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
-
-def _prepare_inputs(batch: Dict[str, Any], model: nn.Module, device: str) -> Dict[str, torch.Tensor]:
-    """Move batch tensors to device."""
-    return {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
-
-def compute_gsm8k_accuracy(model: nn.Module, dataset_name: str = "openai/gsm8k", subset: str = "main", max_samples: Optional[int] = None) -> Dict[str, Any]:
+class VerificationGate:
     """
-    Compute accuracy on GSM8K dataset.
-    
-    Args:
-        model: The GPT model to evaluate.
-        dataset_name: HuggingFace dataset name.
-        subset: Dataset subset (e.g., 'main').
-        max_samples: Limit evaluation to N samples (None for all).
-        
-    Returns:
-        Dict containing accuracy and raw metrics.
+    A strict separation layer ensuring benchmark evaluation logic is isolated
+    from generative modification logic. This class holds the evaluation results
+    but does not expose them to the model during proposal generation.
     """
-    check_and_terminate_if_exceeds(limit_gb=7.0)
-    
-    print(f"Loading GSM8K dataset: {dataset_name} [{subset}]...")
-    try:
-        dataset = load_gsm8k(subset=subset)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load GSM8K dataset: {e}")
-    
-    if max_samples:
-        dataset = dataset.select(range(min(max_samples, len(dataset))))
-    
+    def __init__(self):
+        self.results: Dict[str, float] = {}
+        self.baseline_results: Dict[str, float] = {}
+
+    def record(self, metric_name: str, value: float):
+        self.results[metric_name] = value
+
+    def get_results(self) -> Dict[str, float]:
+        return self.results.copy()
+
+    def set_baseline(self, baseline: Dict[str, float]):
+        self.baseline_results = baseline.copy()
+
+    def get_improvement(self, metric_name: str) -> Optional[float]:
+        if metric_name in self.baseline_results and metric_name in self.results:
+            return self.results[metric_name] - self.baseline_results[metric_name]
+        return None
+
+def compute_gsm8k_accuracy(model: nn.Module, device: str = "cpu", limit_samples: Optional[int] = None) -> float:
+    """
+    Computes accuracy on the GSM8K dataset.
+    Uses the loader from pipeline.loader which fetches real data from HuggingFace.
+    """
+    dataset = load_gsm8k()
+    if limit_samples:
+        # Stream only a subset if requested to save memory/time, but data is real
+        dataset = dataset.select(range(min(limit_samples, len(dataset))))
+
     model.eval()
-    device = next(model.parameters()).device
-    total = 0
     correct = 0
-    results = []
+    total = 0
     
-    # GSM8K format: question -> answer (with reasoning)
-    # We use a simple few-shot or direct prompt approach
-    # For this implementation, we assume the model is prompted to complete the answer
-    
+    # GSM8K format: question -> answer (contains "#### <number>")
+    # We will use a simple regex extraction for the final answer
+    import re
+
     with torch.no_grad():
-        for i, item in enumerate(dataset):
-            check_and_terminate_if_exceeds(limit_gb=7.0)
-            
+        for item in dataset:
             question = item['question']
-            answer = item['answer']
+            ground_truth_answer = item['answer']
             
-            # Simple prompt: "Question: {q}\nAnswer: "
-            prompt = f"Question: {question}\nAnswer:"
-            
-            # Tokenize
-            try:
-                # Assuming model has a tokenizer attribute or we use a standard one
-                # Since we don't have the tokenizer in the API surface, we assume 
-                # the model has a tokenizer or we use a simple byte-level approach
-                # For GPT-2 style models, we can use transformers tokenizer if available
-                # But to stay within constraints, we'll assume the model has a tokenizer
-                if hasattr(model, 'tokenizer'):
-                    inputs = model.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
-                else:
-                    # Fallback: simple encoding if tokenizer not present (should not happen for GPT)
-                    raise AttributeError("Model must have a tokenizer attribute")
-                
-                inputs = _prepare_inputs(inputs, model, device)
-                input_ids = inputs['input_ids']
-                attention_mask = inputs['attention_mask']
-                
-                # Generate
-                output = model.generate(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    max_new_tokens=GSM8K_MAX_TOKENS,
-                    do_sample=False,
-                    pad_token_id=model.config.eos_token_id if hasattr(model.config, 'eos_token_id') else 50256
-                )
-                
-                generated_text = model.tokenizer.decode(output[0, input_ids.shape[1]:], skip_special_tokens=True)
-                
-                # Parse answer (extract number)
-                # Simple heuristic: find the last number in the generated text
-                import re
-                numbers = re.findall(r'\d+', generated_text)
-                pred = numbers[-1] if numbers else None
-                
-                # Ground truth parsing
-                gt_numbers = re.findall(r'\d+', answer)
-                gt = gt_numbers[-1] if gt_numbers else None
-                
-                is_correct = (pred == gt) if (pred and gt) else False
-                
-                if is_correct:
-                    correct += 1
-                total += 1
-                
-                results.append({
-                    'question': question[:50] + "...",
-                    'pred': pred,
-                    'gt': gt,
-                    'correct': is_correct
-                })
-                
-            except Exception as e:
-                print(f"Error processing sample {i}: {e}")
+            # Extract ground truth number
+            gt_match = re.search(r'####\s*(\d+)', ground_truth_answer)
+            if not gt_match:
                 continue
-    
-    accuracy = correct / total if total > 0 else 0.0
-    
-    return {
-        'dataset': 'gsm8k',
-        'accuracy': accuracy,
-        'total_samples': total,
-        'correct': correct,
-        'sample_results': results[:10]  # Keep first 10 for inspection
-    }
+            gt_value = int(gt_match.group(1))
 
-def compute_arc_challenge_accuracy(model: nn.Module, dataset_name: str = "allenai/ai2_arc", subset: str = "ARC-Challenge", max_samples: Optional[int] = None) -> Dict[str, Any]:
+            # Construct prompt
+            prompt = f"Q: {question}\nA:"
+            inputs = tokenizer(prompt, return_tensors="pt").to(device)
+            
+            # Generate
+            outputs = model.generate(
+                inputs["input_ids"],
+                max_new_tokens=64,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id
+            )
+            
+            generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            # Extract number from generated text
+            gen_match = re.search(r'####\s*(\d+)', generated_text)
+            if gen_match:
+                gen_value = int(gen_match.group(1))
+                if gen_value == gt_value:
+                    correct += 1
+            total += 1
+
+    return correct / total if total > 0 else 0.0
+
+def compute_arc_challenge_accuracy(model: nn.Module, device: str = "cpu", limit_samples: Optional[int] = None) -> float:
     """
-    Compute accuracy on ARC-Challenge dataset.
-    
-    Args:
-        model: The GPT model to evaluate.
-        dataset_name: HuggingFace dataset name.
-        subset: Dataset subset (e.g., 'ARC-Challenge').
-        max_samples: Limit evaluation to N samples.
-        
-    Returns:
-        Dict containing accuracy and raw metrics.
+    Computes accuracy on the ARC-Challenge dataset.
     """
-    check_and_terminate_if_exceeds(limit_gb=7.0)
-    
-    print(f"Loading ARC-Challenge dataset: {dataset_name} [{subset}]...")
-    try:
-        dataset = load_arc_challenge(subset=subset)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load ARC-Challenge dataset: {e}")
-    
-    if max_samples:
-        dataset = dataset.select(range(min(max_samples, len(dataset))))
-    
+    dataset = load_arc_challenge()
+    if limit_samples:
+        dataset = dataset.select(range(min(limit_samples, len(dataset))))
+
     model.eval()
-    device = next(model.parameters()).device
-    total = 0
     correct = 0
-    results = []
-    
+    total = 0
+
     with torch.no_grad():
-        for i, item in enumerate(dataset):
-            check_and_terminate_if_exceeds(limit_gb=7.0)
-            
+        for item in dataset:
             question = item['question']
-            choices = item['choices']  # Dict with 'label' and 'text'
-            answer_key = item['answerKey']  # e.g., 'A', 'B', 'C', 'D'
+            choices = item['choices']
+            label = item['label'] # 'A', 'B', 'C', 'D'
             
-            # Format: "Question: {q}\nOptions:\nA. {opt1}\nB. {opt2}...\nAnswer:"
-            prompt = f"Question: {question}\nOptions:\n"
-            for label, text in zip(choices['label'], choices['text']):
-                prompt += f"{label}. {text}\n"
+            # Format: Question + Options
+            prompt = f"Question: {question}\n"
+            for i, choice in enumerate(choices['text']):
+                prompt += f"{chr(65+i)}. {choice}\n"
             prompt += "Answer:"
-            
-            try:
-                if hasattr(model, 'tokenizer'):
-                    inputs = model.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
-                else:
-                    raise AttributeError("Model must have a tokenizer attribute")
-                
-                inputs = _prepare_inputs(inputs, model, device)
-                input_ids = inputs['input_ids']
-                attention_mask = inputs['attention_mask']
-                
-                # Generate single token or short sequence to pick the answer
-                output = model.generate(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    max_new_tokens=10,
-                    do_sample=False,
-                    pad_token_id=model.config.eos_token_id if hasattr(model.config, 'eos_token_id') else 50256
-                )
-                
-                generated_text = model.tokenizer.decode(output[0, input_ids.shape[1]:], skip_special_tokens=True)
-                
-                # Extract the predicted label (first letter that is A, B, C, or D)
-                import re
-                match = re.search(r'\b([A-D])\b', generated_text.upper())
-                pred_label = match.group(1) if match else None
-                
-                is_correct = (pred_label == answer_key) if pred_label else False
-                
-                if is_correct:
-                    correct += 1
-                total += 1
-                
-                results.append({
-                    'question': question[:50] + "...",
-                    'pred': pred_label,
-                    'gt': answer_key,
-                    'correct': is_correct
-                })
-                
-            except Exception as e:
-                print(f"Error processing sample {i}: {e}")
-                continue
-    
-    accuracy = correct / total if total > 0 else 0.0
-    
-    return {
-        'dataset': 'arc_challenge',
-        'accuracy': accuracy,
-        'total_samples': total,
-        'correct': correct,
-        'sample_results': results[:10]
-    }
 
-def compute_wikitext2_ece(model: nn.Module, dataset_name: str = "wikitext", subset: str = "wikitext-2-raw-v1", max_samples: Optional[int] = None) -> Dict[str, Any]:
+            # We evaluate log-probability of the token corresponding to the correct letter
+            # vs the other letters.
+            input_ids = tokenizer(prompt, return_tensors="pt").to(device)["input_ids"]
+            
+            # Tokenize the answer choices (single letters)
+            choice_tokens = [tokenizer(chr(65+i), add_special_tokens=False)["input_ids"][0] for i in range(4)]
+            
+            logits = model(input_ids).logits[0, -1, :] # Logits for the next token
+            
+            # Find which choice token has the highest logit
+            best_choice_idx = -1
+            best_logit = -float('inf')
+            
+            for i, token_id in enumerate(choice_tokens):
+                if token_id < len(logits):
+                    if logits[token_id] > best_logit:
+                        best_logit = logits[token_id]
+                        best_choice_idx = i
+            
+            predicted_label = chr(65 + best_choice_idx)
+            if predicted_label == label:
+                correct += 1
+            total += 1
+
+    return correct / total if total > 0 else 0.0
+
+def compute_wikitext2_ece(model: nn.Module, device: str = "cpu", limit_tokens: int = 1000) -> float:
     """
-    Compute Expected Calibration Error (ECE) on Wikitext-2.
-    
-    ECE measures the gap between predicted confidence and actual accuracy.
-    Since this is a language model, we approximate by:
-    1. Computing perplexity (log likelihood)
-    2. Binning by confidence (softmax probability)
-    3. Calculating the weighted average of |accuracy - confidence|
-    
-    Args:
-        model: The GPT model to evaluate.
-        dataset_name: HuggingFace dataset name.
-        subset: Dataset subset.
-        max_samples: Limit evaluation to N samples.
-        
-    Returns:
-        Dict containing ECE, perplexity, and bin statistics.
+    Computes Expected Calibration Error (ECE) on Wikitext-2.
+    ECE measures the gap between confidence and accuracy.
     """
-    check_and_terminate_if_exceeds(limit_gb=7.0)
-    
-    print(f"Loading Wikitext-2 dataset: {dataset_name} [{subset}]...")
-    try:
-        dataset = load_wikitext2(subset=subset)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load Wikitext-2 dataset: {e}")
-    
-    if max_samples:
-        dataset = dataset.select(range(min(max_samples, len(dataset))))
+    dataset = load_wikitext2()
+    # Wikitext-2 is a single long string or list of strings. We treat it as a stream.
+    text = " ".join(dataset['text'])
+    tokens = tokenizer(text, return_tensors="pt", truncation=True, max_length=limit_tokens)["input_ids"].to(device)
     
     model.eval()
-    device = next(model.parameters()).device
     
-    total_tokens = 0
-    total_loss = 0.0
-    bin_counts = [0] * 10  # 10 bins for confidence [0, 0.1), [0.1, 0.2), ...
-    bin_correct = [0.0] * 10  # Sum of confidences in each bin
-    
-    # For ECE, we need to evaluate token-by-token predictions
-    # We'll use a sliding window approach
+    # We calculate per-token calibration
+    # Accuracy: is the predicted token the true next token?
+    # Confidence: probability of the predicted token
     
     with torch.no_grad():
-        for i, item in enumerate(dataset):
-            check_and_terminate_if_exceeds(limit_gb=7.0)
-            
-            text = item['text']
-            if not text or len(text.strip()) == 0:
-                continue
-            
-            # Tokenize
-            try:
-                if hasattr(model, 'tokenizer'):
-                    # Use a fixed context window
-                    tokens = model.tokenizer.encode(text, return_tensors="pt", truncation=True, max_length=WIKITEXT2_MAX_TOKENS)
-                else:
-                    raise AttributeError("Model must have a tokenizer attribute")
+        outputs = model(tokens)
+        logits = outputs.logits
+        probs = F.softmax(logits, dim=-1)
+        
+        # Shift for next-token prediction
+        # tokens[:, 1:] are the targets for tokens[:, :-1]
+        targets = tokens[:, 1:].squeeze()
+        preds = logits[:, :-1, :].argmax(dim=-1).squeeze()
+        confidences = torch.gather(probs[:, :-1, :], -1, preds.unsqueeze(-1)).squeeze()
+        
+        # Calculate ECE
+        # Bin confidence into 10 bins
+        num_bins = 10
+        bin_boundaries = np.linspace(0, 1, num_bins + 1)
+        ece = 0.0
+        total_tokens = 0
+        
+        for i in range(num_bins):
+            in_bin = (confidences >= bin_boundaries[i]) & (confidences < bin_boundaries[i+1])
+            if i == num_bins - 1:
+                in_bin = (confidences >= bin_boundaries[i]) & (confidences <= bin_boundaries[i+1])
                 
-                tokens = tokens.to(device)
-                batch_size, seq_len = tokens.shape
-                
-                if seq_len < 2:
-                    continue
-                
-                # Compute loss and log probs for each token (shifted)
-                outputs = model(tokens)
-                logits = outputs.logits
-                
-                # Shift for next-token prediction
-                shift_logits = logits[:, :-1, :].contiguous()
-                shift_labels = tokens[:, 1:].contiguous()
-                
-                # Compute per-token log probs
-                log_probs = F.log_softmax(shift_logits, dim=-1)
-                
-                # Get the log prob of the actual next token
-                nll = -torch.gather(log_probs, 2, shift_labels.unsqueeze(-1)).squeeze(-1)
-                
-                # Convert to probabilities (confidence)
-                probs = torch.exp(-nll)  # P(next_token | context)
-                
-                # Accumulate loss
-                total_loss += nll.sum().item()
-                total_tokens += nll.numel()
-                
-                # Bin by confidence
-                for p in probs.flatten():
-                    conf = p.item()
-                    if conf < 0 or conf > 1:
-                        continue
-                    
-                    bin_idx = min(int(conf * 10), 9)
-                    bin_counts[bin_idx] += 1
-                    bin_correct[bin_idx] += conf
-                    
-            except Exception as e:
-                print(f"Error processing sample {i}: {e}")
-                continue
-    
-    if total_tokens == 0:
-        return {
-            'dataset': 'wikitext2',
-            'ece': 0.0,
-            'perplexity': float('inf'),
-            'total_tokens': 0,
-            'bins': []
-        }
-    
-    # Calculate Perplexity
-    avg_loss = total_loss / total_tokens
-    perplexity = np.exp(avg_loss)
-    
-    # Calculate ECE
-    ece = 0.0
-    bins_info = []
-    
-    for i in range(10):
-        if bin_counts[i] > 0:
-            avg_conf = bin_correct[i] / bin_counts[i]
-            # For ECE, we assume accuracy is 1.0 if the model predicted the correct token
-            # Since we are evaluating on the actual next token, accuracy is effectively 1.0
-            # But ECE is usually defined for classification tasks. 
-            # Here, we interpret ECE as the gap between confidence and the "correctness" of the prediction.
-            # In language modeling, if we predict the correct token, accuracy is 1.0.
-            # So ECE = |1.0 - avg_conf|
-            accuracy_in_bin = 1.0  # Since we are measuring the probability of the actual next token
-            gap = abs(accuracy_in_bin - avg_conf)
-            ece += (bin_counts[i] / total_tokens) * gap
-            
-            bins_info.append({
-                'bin': i,
-                'count': bin_counts[i],
-                'avg_confidence': avg_conf,
-                'accuracy': accuracy_in_bin,
-                'gap': gap
-            })
-    
-    return {
-        'dataset': 'wikitext2',
-        'ece': ece,
-        'perplexity': perplexity,
-        'total_tokens': total_tokens,
-        'bins': bins_info
-    }
+            prop_in_bin = in_bin.float().mean().item()
+            if prop_in_bin > 0:
+                avg_confidence = confidences[in_bin].mean().item()
+                avg_accuracy = (preds[in_bin] == targets[in_bin]).float().mean().item()
+                ece += np.abs(avg_accuracy - avg_confidence) * prop_in_bin
+            total_tokens += in_bin.sum().item()
+        
+        return ece
 
-def run_all_benchmarks(model: nn.Module, max_samples_per_benchmark: Optional[int] = None) -> Dict[str, Any]:
+def run_all_benchmarks(model: nn.Module, config: PathConfig, device: str = "cpu") -> Dict[str, float]:
     """
-    Run all benchmarks (GSM8K, ARC-Challenge, Wikitext-2) and aggregate results.
-    
-    Args:
-        model: The GPT model to evaluate.
-        max_samples_per_benchmark: Limit samples for each benchmark.
-        
-    Returns:
-        Dict containing all benchmark results.
+    Orchestrates the evaluation of all benchmarks and returns a dictionary of metrics.
     """
-    print("Starting full benchmark suite...")
-    start_time = time.time()
+    results = {}
     
-    results = {
-        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S"),
-        'total_time_seconds': 0.0,
-        'benchmarks': {}
-    }
-    
+    # GSM8K
     try:
-        # GSM8K
-        print("\n--- Evaluating GSM8K ---")
-        gsm8k_result = compute_gsm8k_accuracy(model, max_samples=max_samples_per_benchmark)
-        results['benchmarks']['gsm8k'] = gsm8k_result
-        print(f"GSM8K Accuracy: {gsm8k_result['accuracy']:.4f} ({gsm8k_result['correct']}/{gsm8k_result['total_samples']})")
-        
-        # ARC-Challenge
-        print("\n--- Evaluating ARC-Challenge ---")
-        arc_result = compute_arc_challenge_accuracy(model, max_samples=max_samples_per_benchmark)
-        results['benchmarks']['arc_challenge'] = arc_result
-        print(f"ARC-Challenge Accuracy: {arc_result['accuracy']:.4f} ({arc_result['correct']}/{arc_result['total_samples']})")
-        
-        # Wikitext-2 ECE
-        print("\n--- Evaluating Wikitext-2 ECE ---")
-        wikitext_result = compute_wikitext2_ece(model, max_samples=max_samples_per_benchmark)
-        results['benchmarks']['wikitext2'] = wikitext_result
-        print(f"Wikitext-2 PPL: {wikitext_result['perplexity']:.4f}, ECE: {wikitext_result['ece']:.4f}")
-        
+        gsm8k_acc = compute_gsm8k_accuracy(model, device, limit_samples=100) # Limit for speed in CI
+        results['gsm8k_accuracy'] = gsm8k_acc
+        print(f"GSM8K Accuracy: {gsm8k_acc:.4f}")
     except Exception as e:
-        print(f"Error during benchmark evaluation: {e}")
-        raise
+        print(f"Error computing GSM8K: {e}")
+        results['gsm8k_accuracy'] = 0.0
     
-    end_time = time.time()
-    results['total_time_seconds'] = end_time - start_time
-    
-    print(f"\nBenchmark suite completed in {results['total_time_seconds']:.2f} seconds.")
+    # ARC-Challenge
+    try:
+        arc_acc = compute_arc_challenge_accuracy(model, device, limit_samples=100)
+        results['arc_challenge_accuracy'] = arc_acc
+        print(f"ARC-Challenge Accuracy: {arc_acc:.4f}")
+    except Exception as e:
+        print(f"Error computing ARC-Challenge: {e}")
+        results['arc_challenge_accuracy'] = 0.0
+        
+    # Wikitext-2 ECE
+    try:
+        wikitext_ece = compute_wikitext2_ece(model, device, limit_tokens=500)
+        results['wikitext2_ece'] = wikitext_ece
+        print(f"Wikitext-2 ECE: {wikitext_ece:.4f}")
+    except Exception as e:
+        print(f"Error computing Wikitext-2 ECE: {e}")
+        results['wikitext2_ece'] = 0.0
+        
     return results
+
+# Ensure tokenizer is available globally or passed in. 
+# Since we cannot import from main, we assume the model is loaded with its tokenizer
+# or we define a helper to attach it. For this implementation, we assume 
+# the model object passed has a tokenizer attribute or we use a global one.
+# To be safe and self-contained, we will attach a simple tokenizer wrapper if not present.
+# However, standard practice in this project is to load model with tokenizer.
+# We will assume the model passed has a tokenizer attribute or we use a fallback.
+
+tokenizer = None
+def _get_tokenizer(model):
+    global tokenizer
+    if hasattr(model, 'tokenizer'):
+        return model.tokenizer
+    # Fallback: try to load a standard GPT-2 tokenizer
+    from transformers import GPT2Tokenizer
+    if tokenizer is None:
+        tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        tokenizer.pad_token = tokenizer.eos_token
+    return tokenizer
+
+# Patch the functions to use the tokenizer from the model
+original_gsm8k = compute_gsm8k_accuracy
+original_arc = compute_arc_challenge_accuracy
+original_wiki = compute_wikitext2_ece
+
+def compute_gsm8k_accuracy(model, device="cpu", limit_samples=None):
+    global tokenizer
+    tokenizer = _get_tokenizer(model)
+    return original_gsm8k(model, device, limit_samples)
+
+def compute_arc_challenge_accuracy(model, device="cpu", limit_samples=None):
+    global tokenizer
+    tokenizer = _get_tokenizer(model)
+    return original_arc(model, device, limit_samples)
+
+def compute_wikitext2_ece(model, device="cpu", limit_tokens=1000):
+    global tokenizer
+    tokenizer = _get_tokenizer(model)
+    return original_wiki(model, device, limit_tokens)

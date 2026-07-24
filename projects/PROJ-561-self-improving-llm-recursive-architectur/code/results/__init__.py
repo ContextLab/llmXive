@@ -1,1 +1,2 @@
-# Results package
+# Results module initialization
+pass

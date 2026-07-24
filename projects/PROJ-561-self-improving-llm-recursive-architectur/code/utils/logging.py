@@ -1,9 +1,9 @@
 """
 utils/logging.py
 
-Implements structured cycle logging and checkpointing for the self-improving LLM pipeline.
-Provides functions to initialize cycle-specific loggers, update logs with metrics,
-checkpoint model states, and retrieve cycle history.
+Structured cycle logging and checkpointing for the self-improving LLM pipeline.
+Provides utilities to initialize cycle-specific loggers, update logs with metrics,
+checkpoint model states, and retrieve historical cycle data.
 """
 import json
 import os
@@ -11,245 +11,233 @@ import time
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
-import shutil
-
-# Import PathConfig from config to ensure consistent paths
-from config import get_config
+from config import PathConfig
 
 # Constants
-LOG_FILE_NAME = "cycle_log.json"
-CHECKPOINT_DIR_NAME = "checkpoints"
-METRICS_LOG_NAME = "metrics_log.json"
+LOG_LEVEL = logging.INFO
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-def get_log_path() -> str:
+def get_log_path(cycle_number: int, config: Optional[PathConfig] = None) -> str:
     """
-    Returns the absolute path to the project's results directory where logs are stored.
-    """
-    config = get_config()
-    return config.results_path
+    Generate the file path for a specific cycle's log.
 
-def _ensure_log_dir():
-    """
-    Ensures the logging directory exists.
-    """
-    log_dir = get_log_path()
-    os.makedirs(log_dir, exist_ok=True)
-    # Also ensure checkpoints subdirectory exists
-    checkpoint_dir = os.path.join(log_dir, CHECKPOINT_DIR_NAME)
-    os.makedirs(checkpoint_dir, exist_ok=True)
-
-def _get_log_file_path() -> str:
-    """
-    Returns the full path to the main cycle log file.
-    """
-    return os.path.join(get_log_path(), LOG_FILE_NAME)
-
-def _get_metrics_file_path() -> str:
-    """
-    Returns the full path to the metrics log file.
-    """
-    return os.path.join(get_log_path(), METRICS_LOG_NAME)
-
-def _get_checkpoint_path(cycle_id: int) -> str:
-    """
-    Returns the full path to a specific cycle's checkpoint directory.
-    """
-    return os.path.join(get_log_path(), CHECKPOINT_DIR_NAME, f"cycle_{cycle_id}")
-
-def init_cycle_logger(cycle_id: int) -> Dict[str, Any]:
-    """
-    Initializes a new log entry for a specific cycle.
-    Creates the log file if it doesn't exist.
-    
     Args:
-        cycle_id: The unique integer identifier for the current cycle.
-        
-    Returns:
-        A dictionary representing the initialized cycle log entry.
-    """
-    _ensure_log_dir()
-    log_file = _get_log_file_path()
-    
-    # Load existing logs if they exist
-    if os.path.exists(log_file):
-        with open(log_file, 'r', encoding='utf-8') as f:
-            logs = json.load(f)
-    else:
-        logs = []
-    
-    # Check if cycle_id already exists to avoid overwriting
-    existing_ids = [entry.get('cycle_id') for entry in logs]
-    if cycle_id in existing_ids:
-        raise ValueError(f"Cycle ID {cycle_id} already exists in log. Cannot re-initialize.")
-    
-    new_entry = {
-        "cycle_id": cycle_id,
-        "start_time": datetime.now().isoformat(),
-        "status": "running",
-        "metrics": {},
-        "modification_proposal": None,
-        "error": None,
-        "end_time": None,
-        "checkpoint_path": _get_checkpoint_path(cycle_id)
-    }
-    
-    logs.append(new_entry)
-    
-    with open(log_file, 'w', encoding='utf-8') as f:
-        json.dump(logs, f, indent=2)
-    
-    return new_entry
+        cycle_number: The integer cycle number (e.g., 1, 2, 3).
+        config: PathConfig instance. If None, uses default config.
 
-def update_cycle_log(cycle_id: int, updates: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Updates an existing cycle log entry with new metrics or status.
-    
-    Args:
-        cycle_id: The cycle ID to update.
-        updates: A dictionary of fields to update (e.g., {"status": "completed", "metrics": {...}}).
-                
     Returns:
-        The updated log entry.
+        Absolute path to the log file for the given cycle.
     """
-    _ensure_log_dir()
-    log_file = _get_log_file_path()
-    
-    if not os.path.exists(log_file):
-        raise FileNotFoundError(f"Log file {log_file} does not exist.")
-    
-    with open(log_file, 'r', encoding='utf-8') as f:
-        logs = json.load(f)
-    
-    updated_entry = None
-    for i, entry in enumerate(logs):
-        if entry['cycle_id'] == cycle_id:
-            # Merge updates
-            entry.update(updates)
-            updated_entry = entry
-            logs[i] = entry
-            break
-    
-    if updated_entry is None:
-        raise ValueError(f"Cycle ID {cycle_id} not found in log.")
-    
-    with open(log_file, 'w', encoding='utf-8') as f:
-        json.dump(logs, f, indent=2)
-    
-    return updated_entry
+    if config is None:
+        config = PathConfig()
+    os.makedirs(config.results_dir, exist_ok=True)
+    return os.path.join(config.results_dir, f"cycle_{cycle_number}.log")
 
-def checkpoint_model_state(cycle_id: int, model_state_dict: Dict[str, Any], optimizer_state_dict: Optional[Dict[str, Any]] = None) -> str:
+def init_cycle_logger(cycle_number: int, config: Optional[PathConfig] = None) -> logging.Logger:
     """
-    Saves the model and optimizer states to a checkpoint file for a specific cycle.
-    
+    Initialize a dedicated logger for a specific cycle.
+
+    Creates a file handler that writes to results/cycle_N.log and a console
+    handler for immediate feedback.
+
     Args:
-        cycle_id: The cycle ID associated with this checkpoint.
-        model_state_dict: The state dictionary from torch.nn.Module.state_dict().
-        optimizer_state_dict: Optional state dictionary from optimizer.state_dict().
-        
+        cycle_number: The integer cycle number.
+        config: PathConfig instance.
+
     Returns:
-        The path to the saved checkpoint file.
+        Configured logging.Logger instance.
     """
-    checkpoint_dir = _get_checkpoint_path(cycle_id)
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    
-    checkpoint_file = os.path.join(checkpoint_dir, "model_checkpoint.pt")
-    
-    checkpoint_data = {
-        "cycle_id": cycle_id,
+    if config is None:
+        config = PathConfig()
+
+    logger_name = f"cycle_{cycle_number}"
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(LOG_LEVEL)
+
+    # Prevent duplicate handlers if logger is reused
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # File handler
+    log_path = get_log_path(cycle_number, config)
+    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler.setLevel(LOG_LEVEL)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(LOG_LEVEL)
+
+    # Formatter
+    formatter = logging.Formatter(
+        f'%(asctime)s [%(levelname)s] [Cycle {cycle_number}] %(message)s',
+        datefmt=DATE_FORMAT
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    logger.info(f"Initialized logging for cycle {cycle_number}")
+    logger.info(f"Log file: {log_path}")
+
+    return logger
+
+def update_cycle_log(
+    logger: logging.Logger,
+    cycle_number: int,
+    metrics: Dict[str, Any],
+    status: str = "running",
+    message: Optional[str] = None,
+    config: Optional[PathConfig] = None
+) -> None:
+    """
+    Update the cycle log with new metrics and status.
+
+    Args:
+        logger: The initialized logger for this cycle.
+        cycle_number: The cycle number.
+        metrics: Dictionary of key-value metrics to log.
+        status: Current status string (e.g., 'running', 'completed', 'failed').
+        message: Optional human-readable message.
+        config: PathConfig instance.
+    """
+    if message:
+        logger.info(message)
+
+    log_entry = {
         "timestamp": datetime.now().isoformat(),
-        "model_state": model_state_dict
-    }
-    
-    if optimizer_state_dict is not None:
-        checkpoint_data["optimizer_state"] = optimizer_state_dict
-    
-    # Save using torch.save for compatibility with PyTorch models
-    import torch
-    torch.save(checkpoint_data, checkpoint_file)
-    
-    # Also update the log to record the checkpoint path
-    update_cycle_log(cycle_id, {"checkpoint_path": checkpoint_dir})
-    
-    return checkpoint_file
-
-def log_cycle_summary(cycle_id: int, summary_data: Dict[str, Any]) -> None:
-    """
-    Appends a summary entry to a separate metrics log file for easier analysis.
-    This is useful for plotting trajectories without parsing the full cycle log.
-    
-    Args:
-        cycle_id: The cycle ID.
-        summary_data: A dictionary containing key metrics (e.g., GSM8K accuracy, FLOPs, time).
-    """
-    _ensure_log_dir()
-    metrics_file = _get_metrics_file_path()
-    
-    if os.path.exists(metrics_file):
-        with open(metrics_file, 'r', encoding='utf-8') as f:
-            metrics_log = json.load(f)
-    else:
-        metrics_log = []
-    
-    summary_entry = {
-        "cycle_id": cycle_id,
-        "timestamp": datetime.now().isoformat(),
-        **summary_data
-    }
-    
-    metrics_log.append(summary_entry)
-    
-    with open(metrics_file, 'w', encoding='utf-8') as f:
-        json.dump(metrics_log, f, indent=2)
-
-def get_cycle_history() -> List[Dict[str, Any]]:
-    """
-    Retrieves the full history of all logged cycles.
-    
-    Returns:
-        A list of dictionaries, each representing a cycle's log entry.
-    """
-    _ensure_log_dir()
-    log_file = _get_log_file_path()
-    
-    if not os.path.exists(log_file):
-        return []
-    
-    with open(log_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def get_metrics_history() -> List[Dict[str, Any]]:
-    """
-    Retrieves the history of cycle summaries from the metrics log.
-    
-    Returns:
-        A list of dictionaries containing summary metrics for each cycle.
-    """
-    _ensure_log_dir()
-    metrics_file = _get_metrics_file_path()
-    
-    if not os.path.exists(metrics_file):
-        return []
-    
-    with open(metrics_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def finalize_cycle(cycle_id: int, status: str = "completed", error_msg: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Finalizes a cycle log entry by setting status, end time, and optional error.
-    
-    Args:
-        cycle_id: The cycle ID to finalize.
-        status: Final status string (e.g., "completed", "failed", "timeout").
-        error_msg: Optional error message if the cycle failed.
-        
-    Returns:
-        The finalized log entry.
-    """
-    updates = {
+        "cycle_number": cycle_number,
         "status": status,
-        "end_time": datetime.now().isoformat()
+        "metrics": metrics
     }
-    if error_msg:
-        updates["error"] = error_msg
+
+    # Log metrics as a JSON string for structured parsing later
+    logger.info(f"Metrics update: {json.dumps(metrics)}")
+
+    # Optionally append to a rolling summary file if needed
+    summary_path = os.path.join(config.results_dir if config else "results", "cycle_summary.jsonl")
+    os.makedirs(os.path.dirname(summary_path), exist_ok=True)
+    with open(summary_path, 'a') as f:
+        f.write(json.dumps(log_entry) + "\n")
+
+def checkpoint_model_state(
+    cycle_number: int,
+    model_state: Dict[str, Any],
+    optimizer_state: Optional[Dict[str, Any]] = None,
+    config: Optional[PathConfig] = None
+) -> str:
+    """
+    Save the model and optimizer state to disk.
+
+    Args:
+        cycle_number: The current cycle number.
+        model_state: The model's state_dict.
+        optimizer_state: The optimizer's state_dict (optional).
+        config: PathConfig instance.
+
+    Returns:
+        Path to the saved checkpoint file.
+    """
+    if config is None:
+        config = PathConfig()
+
+    checkpoint_dir = os.path.join(config.data_dir, "checkpoints")
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    checkpoint_path = os.path.join(checkpoint_dir, f"cycle_{cycle_number}.pt")
+
+    checkpoint_data = {
+        "cycle_number": cycle_number,
+        "timestamp": datetime.now().isoformat(),
+        "model_state": model_state,
+        "optimizer_state": optimizer_state
+    }
+
+    # Using torch.save would be ideal but we are restricted to standard lib + existing imports
+    # Since config imports torch, we assume torch is available for saving complex dicts
+    try:
+        import torch
+        torch.save(checkpoint_data, checkpoint_path)
+    except ImportError:
+        # Fallback to JSON if torch is somehow unavailable (unlikely given config)
+        # Note: torch tensors cannot be serialized to JSON directly.
+        # This fallback is a safety net; in practice, torch.save is expected.
+        raise RuntimeError("Torch is required for checkpointing model states.")
+
+    return checkpoint_path
+
+def log_cycle_summary(
+    cycle_number: int,
+    final_metrics: Dict[str, Any],
+    duration_seconds: float,
+    status: str = "completed",
+    config: Optional[PathConfig] = None
+) -> None:
+    """
+    Log the final summary for a completed cycle.
+
+    Args:
+        cycle_number: The cycle number.
+        final_metrics: Final metrics dictionary.
+        duration_seconds: Total time taken for the cycle.
+        status: Final status (e.g., 'completed', 'failed', 'timeout').
+        config: PathConfig instance.
+    """
+    if config is None:
+        config = PathConfig()
+
+    logger = init_cycle_logger(cycle_number, config)
     
-    return update_cycle_log(cycle_id, updates)
+    summary = {
+        "cycle_number": cycle_number,
+        "status": status,
+        "duration_seconds": duration_seconds,
+        "final_metrics": final_metrics,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    logger.info(f"Cycle {cycle_number} finished with status: {status}")
+    logger.info(f"Duration: {duration_seconds:.2f}s")
+    logger.info(f"Final Metrics: {json.dumps(final_metrics)}")
+
+    # Append to trajectory summary if not already done by run_single_cycle
+    # This ensures a persistent log of cycle summaries
+    summary_path = os.path.join(config.results_dir, "cycle_summaries.jsonl")
+    with open(summary_path, 'a') as f:
+        f.write(json.dumps(summary) + "\n")
+
+def get_cycle_history(cycle_number: int, config: Optional[PathConfig] = None) -> List[Dict[str, Any]]:
+    """
+    Retrieve the history of log entries for a specific cycle or all previous cycles.
+
+    Args:
+        cycle_number: If specified, returns history for this cycle. 
+                      If None, returns history for all cycles.
+        config: PathConfig instance.
+
+    Returns:
+        List of log entries (dicts) parsed from the summary file.
+    """
+    if config is None:
+        config = PathConfig()
+
+    summary_path = os.path.join(config.results_dir, "cycle_summaries.jsonl")
+    history = []
+
+    if not os.path.exists(summary_path):
+        return history
+
+    with open(summary_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                if cycle_number is None or entry.get("cycle_number") == cycle_number:
+                    history.append(entry)
+            except json.JSONDecodeError:
+                continue
+
+    return history

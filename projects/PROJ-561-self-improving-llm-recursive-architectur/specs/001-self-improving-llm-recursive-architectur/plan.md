@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a recursive self-improvement pipeline for a GPT model of moderate scale. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSMK, ARC-Challenge, and Wikitext.
+This project implements a recursive self-improvement pipeline for a GPT model of moderate scale. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSM8K, ARC-Challenge, and Wikitext-2.
 
 **Critical Scope Adjustment**: Due to the strict time limit and GB RAM constraint of the GitHub Actions free-tier runner, the **primary deliverable is a Single Cycle (US-1)**. The 3-cycle trajectory (US-2) is re-classified as a "Scaling Study" that will only be attempted if the single cycle completes successfully within 1.5 hours. If the single cycle exceeds the time limit, the job terminates, and the result is recorded as "Incomplete - Timeout".
 

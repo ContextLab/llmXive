@@ -1,7 +1,3 @@
-"""
-Configuration management for the self-improving LLM pipeline.
-Defines hyperparameters, safety constraints, and path definitions.
-"""
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -9,11 +5,9 @@ import random
 import numpy as np
 import torch
 
-
 @dataclass
 class Hyperparameters:
-    """Training and optimization hyperparameters."""
-    # Learning rate
+    """Core training hyperparameters."""
     learning_rate: float = 5e-5
     
     # Batch size (FIXED at 4 per FR-004, no auto-scaling)
@@ -21,22 +15,11 @@ class Hyperparameters:
     
     # Random seed for reproducibility
     seed: int = 42
-    
-    # Number of epochs per cycle
-    epochs_per_cycle: int = 1
-    
-    # Weight decay for AdamW
+    gradient_accumulation_steps: int = 4
+    max_epochs: int = 1
     weight_decay: float = 0.01
-    
-    # Gradient clipping norm
-    gradient_clip_norm: float = 1.0
-    
-    # Max sequence length
-    max_seq_length: int = 512
-    
-    # Warmup steps (fraction of total steps)
-    warmup_fraction: float = 0.1
-    
+    warmup_steps: int = 100
+
     def set_seed(self):
         """Set all random seeds for reproducibility."""
         random.seed(self.seed)
@@ -45,159 +28,85 @@ class Hyperparameters:
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(self.seed)
 
-
 @dataclass
 class SafetyConstraints:
-    """Safety and resource constraints for the pipeline."""
-    # Maximum parameter increase allowed (30% as per spec)
-    max_param_increase_ratio: float = 1.3
-    
-    # Maximum RAM usage in GB (7GB per T004)
+    """Safety and resource constraints for the recursive loop."""
+    max_param_increase_percent: float = 30.0
     max_ram_gb: float = 7.0
-    
-    # Maximum training time per cycle in seconds (1.5 hours for US-1)
-    max_cycle_time_seconds: int = 5400
-    
-    # Maximum total runtime in seconds (6 hours for full run)
-    max_total_runtime_seconds: int = 21600
-    
-    # Early stop threshold: degradation >= 5% triggers early stop
+    max_training_time_hours: float = 6.0
+    max_cycle_timeout_seconds: int = 3600
     early_stop_degradation_threshold: float = 0.05
-    
-    # Maximum number of retry attempts for failed cycles
-    max_retry_attempts: int = 2
-    
-    # Timeout for individual benchmark evaluations (seconds)
-    benchmark_timeout_seconds: int = 300
-    
-    # Minimum improvement required to accept a modification (for self-acceptance)
-    min_acceptable_improvement: float = 0.0
-    
-    def validate_param_count(self, current_count: int, proposed_count: int) -> bool:
-        """Check if proposed parameter count is within safety limits."""
-        ratio = proposed_count / current_count if current_count > 0 else float('inf')
-        return ratio <= self.max_param_increase_ratio
-
+    max_retries: int = 2
 
 @dataclass
 class PathConfig:
-    """Path configuration for project directories and files."""
-    # Base project root (assumes code/ is at project root)
-    project_root: str = field(default_factory=lambda: os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # Data directories
-    data_raw_dir: str = field(default="data/raw")
-    data_processed_dir: str = field(default="data/processed")
-    data_cache_dir: str = field(default="data/cache")
-    
-    # Results directory
-    results_dir: str = field(default="results")
-    
-    # Specs directory
-    specs_dir: str = field(default="specs")
-    
-    # Code directory
-    code_dir: str = field(default="code")
-    
-    # Tests directory
-    tests_dir: str = field(default="tests")
-    
-    # Logs directory
-    logs_dir: str = field(default="logs")
-    
-    # Checkpoints directory
-    checkpoints_dir: str = field(default="checkpoints")
-    
-    # Prompts directory
-    prompts_dir: str = field(default="prompts")
-    
-    # Schemas directory
-    schemas_dir: str = field(default="schemas")
-    
-    # Specific file paths
-    trajectory_file: str = field(default="results/trajectory.json")
-    trade_off_file: str = field(default="results/trade_off_analysis.json")
-    modification_proposal_prompt: str = field(default="prompts/modification_proposal.txt")
-    config_file: str = field(default="config.yaml")
-    
+    """Project path definitions."""
+    root: str = field(default_factory=lambda: os.getcwd())
+    code_dir: str = "code"
+    data_raw_dir: str = "data/raw"
+    data_processed_dir: str = "data/processed"
+    results_dir: str = "results"
+    specs_dir: str = "specs"
+    tests_dir: str = "tests"
+    figures_dir: str = "figures"
+    checkpoints_dir: str = "data/checkpoints"
+    logs_dir: str = "results/logs"
+    trajectory_file: str = "results/trajectory.json"
+    trade_off_file: str = "results/trade_off_analysis.json"
+
     def __post_init__(self):
-        """Ensure all directories exist."""
-        self._ensure_directories()
-    
-    def _ensure_directories(self):
-        """Create all required directories if they don't exist."""
+        """Ensure required directories exist."""
         dirs = [
             self.data_raw_dir,
             self.data_processed_dir,
-            self.data_cache_dir,
             self.results_dir,
             self.specs_dir,
-            self.code_dir,
             self.tests_dir,
-            self.logs_dir,
+            self.figures_dir,
             self.checkpoints_dir,
-            self.prompts_dir,
-            self.schemas_dir
+            self.logs_dir
         ]
-        
-        for dir_path in dirs:
-            full_path = os.path.join(self.project_root, dir_path)
-            os.makedirs(full_path, exist_ok=True)
-    
-    def get_full_path(self, relative_path: str) -> str:
-        """Get full absolute path for a relative path."""
-        return os.path.join(self.project_root, relative_path)
-    
-    def get_trajectory_path(self) -> str:
-        """Get full path to trajectory file."""
-        return self.get_full_path(self.trajectory_file)
-    
-    def get_trade_off_path(self) -> str:
-        """Get full path to trade-off analysis file."""
-        return self.get_full_path(self.trade_off_file)
+        for d in dirs:
+            os.makedirs(os.path.join(self.root, d), exist_ok=True)
 
+    @property
+    def trajectory_path(self) -> str:
+        return os.path.join(self.root, self.trajectory_file)
 
-@dataclass
-class Config:
-    """Main configuration class combining all settings."""
-    hyperparameters: Hyperparameters = field(default_factory=Hyperparameters)
-    safety: SafetyConstraints = field(default_factory=SafetyConstraints)
-    paths: PathConfig = field(default_factory=PathConfig)
-    
-    def __post_init__(self):
-        """Initialize seeds and validate configuration."""
-        self.hyperparameters.set_seed()
-    
-    def summary(self) -> dict:
-        """Return a dictionary summary of the configuration."""
-        return {
-            'hyperparameters': {
-                'learning_rate': self.hyperparameters.learning_rate,
-                'batch_size': self.hyperparameters.batch_size,
-                'seed': self.hyperparameters.seed,
-                'epochs_per_cycle': self.hyperparameters.epochs_per_cycle,
-                'weight_decay': self.hyperparameters.weight_decay,
-                'gradient_clip_norm': self.hyperparameters.gradient_clip_norm,
-                'max_seq_length': self.hyperparameters.max_seq_length,
-                'warmup_fraction': self.hyperparameters.warmup_fraction
-            },
-            'safety': {
-                'max_param_increase_ratio': self.safety.max_param_increase_ratio,
-                'max_ram_gb': self.safety.max_ram_gb,
-                'max_cycle_time_seconds': self.safety.max_cycle_time_seconds,
-                'max_total_runtime_seconds': self.safety.max_total_runtime_seconds,
-                'early_stop_degradation_threshold': self.safety.early_stop_degradation_threshold,
-                'max_retry_attempts': self.safety.max_retry_attempts,
-                'benchmark_timeout_seconds': self.safety.benchmark_timeout_seconds,
-                'min_acceptable_improvement': self.safety.min_acceptable_improvement
-            },
-            'paths': {
-                'project_root': self.paths.project_root,
-                'data_raw_dir': self.paths.data_raw_dir,
-                'data_processed_dir': self.paths.data_processed_dir,
-                'results_dir': self.paths.results_dir,
-                'trajectory_file': self.paths.trajectory_file
-            }
+    @property
+    def trade_off_path(self) -> str:
+        return os.path.join(self.root, self.trade_off_file)
+
+    @property
+    def checkpoints_path(self) -> str:
+        return os.path.join(self.root, self.checkpoints_dir)
+
+    @property
+    def logs_path(self) -> str:
+        return os.path.join(self.root, self.logs_dir)
+
+def get_config_summary() -> dict:
+    """Return a dictionary summary of current configuration."""
+    hp = Hyperparameters()
+    sc = SafetyConstraints()
+    pc = PathConfig()
+    return {
+        "hyperparameters": {
+            "learning_rate": hp.learning_rate,
+            "batch_size": hp.batch_size,
+            "seed": hp.seed,
+            "gradient_accumulation_steps": hp.gradient_accumulation_steps
+        },
+        "constraints": {
+            "max_param_increase_percent": sc.max_param_increase_percent,
+            "max_ram_gb": sc.max_ram_gb,
+            "max_training_time_hours": sc.max_training_time_hours
+        },
+        "paths": {
+            "data_raw": pc.data_raw_dir,
+            "data_processed": pc.data_processed_dir,
+            "results": pc.results_dir,
+            "checkpoints": pc.checkpoints_dir
         }
 
 
