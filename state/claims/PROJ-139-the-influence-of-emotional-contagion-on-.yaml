@@ -265,3 +265,304 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T01:58:35Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data fetching implements fallback chain from Pushshift to Reddit API
+    to HuggingFace archives
+  claim_id: c_2e6f36f2
+  context: 'T008 [S] [US1] Implement code/data/download.py to fetch data: Primary:
+    Pushshift API. Fallback 1: Reddit Official API (OAuth). Fallback 2: Verified HuggingFace
+    archives.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetching_implements_fallback_chain_from_Pushshift_to_Re
+  kind: entity_fact
+  raw_text: 'The script MUST implement the full fallback chain: if the primary fails,
+    automatically attempt the next, and log the origin_type (API vs. archive) for
+    every thread.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:18:54Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Dataset contains at least 2 subreddits and 1 Stack Exchange site
+  claim_id: c_c274e4fe
+  context: "Verification: Assert that the final dataset contains \u22652 subreddits\
+    \ and \u22651 Stack Exchange site. Log counts and origin_type distribution."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_2_subreddits_and_1_Stack_Exchange
+  kind: magnitude
+  raw_text: "The final dataset contains \u22652 subreddits and \u22651 Stack Exchange\
+    \ site."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:19:21Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with fewer than 3 top-level posts are flagged as insufficient
+    seeds
+  claim_id: c_55eb56ff
+  context: 'T010 [S] [US1] Implement exclusion logic in code/data/extract.py: Flag
+    threads with <3 top-level posts with reason code SEED_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_fewer_than_3_top-level_posts_are_flagged_as_ins
+  kind: magnitude
+  raw_text: Threads with <3 top-level posts are flagged with reason code SEED_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:19:52Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if valid thread percentage is less than 30 percent
+  claim_id: c_daed0eac
+  context: 'Constraint: If valid_thread_percentage < 30, raise a RuntimeError with
+    message SC-006 Compliance Failed: <30% valid threads. Analysis is invalid.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_valid_thread_percentage_is_less_than_30_pe
+  kind: magnitude
+  raw_text: If valid_thread_percentage < 30, the pipeline MUST halt with a RuntimeError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:20:44Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Metadata completeness is at least 95 percent for extracted threads
+  claim_id: c_af8a473a
+  context: "T011 [S] [US1] Implement validation logic in code/data/extract.py to ensure\
+    \ metadata (timestamp, author, comment ID) is complete for \u226595% of extracted\
+    \ threads."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metadata_completeness_is_at_least_95_percent_for_extracted_t
+  kind: magnitude
+  raw_text: "Metadata (timestamp, author, comment ID) is complete for \u226595% of\
+    \ extracted threads."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:21:37Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sentiment validation uses Cohen's Kappa with a threshold of 0.6
+  claim_id: c_f6cc12e6
+  context: 'Reliability: Calculate inter-rater reliability (Cohen''s Kappa). If Kappa
+    < 0.6 OR if annotations/corpus are not available, log a warning and proceed with
+    VADER bounds validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inter-rater reliability (Cohen's Kappa) is calculated, and if Kappa <
+    0.6, a warning is logged.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:21:37Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with fewer than 5 replies are excluded from contagion analysis
+  claim_id: c_2f1bfbc7
+  context: 'T016 [S] [US2] Implement exclusion logic in code/data/metrics.py: Flag
+    threads with <5 replies as insufficient for contagion analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_fewer_than_5_replies_are_excluded_from_contagio
+  kind: magnitude
+  raw_text: Threads with <5 replies are excluded from contagion analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:22:16Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Contagion index is Pearson correlation of seed sentiment and sentiment
+    slope over first 20 replies
+  claim_id: c_c19dbff5
+  context: 'Logic: Calculate the change in sentiment (delta) of subsequent replies...
+    Delta is defined as the slope of the linear regression of sentiment score vs.
+    reply position (1 to min(20, available_replies)). Compute the Pearson correlation
+    between the seed-post sentiment and this delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Contagion_index_is_Pearson_correlation_of_seed_sentiment_and
+  kind: entity_fact
+  raw_text: The contagion index is defined as the Pearson correlation between seed-post
+    sentiment and the slope of the linear regression of sentiment score vs. reply
+    position (1 to min(20, available_replies)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:22:52Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: GLMMs use thread-level random intercepts
+  claim_id: c_0f91f1b6
+  context: T020 [S] [US3] Implement code/data/modeling.py to fit Generalized Linear
+    Mixed Models (GLMM) with thread-level random intercepts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMMs_use_thread-level_random_intercepts
+  kind: entity_fact
+  raw_text: Generalized Linear Mixed Models (GLMM) use thread-level random intercepts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:23:32Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Significance testing uses Wald tests with alpha of 0.05
+  claim_id: c_274ef4a4
+  context: "T021 [S] [US3] Implement significance testing in code/data/modeling.py:\
+    \ Wald tests (\u03B1=0.05) for contagion coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Wald tests are performed with \u03B1=0.05 for contagion coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:23:58Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction applied when 3 or more hypothesis tests
+    are run
+  claim_id: c_0da056a9
+  context: "T022 [S] [US3] Implement multiple-comparison correction in code/data/modeling.py:\
+    \ Apply Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests are\
+    \ run (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Multiple-comparison correction (Bonferroni or Benjamini-Hochberg FDR)\
+    \ is applied when \u22653 hypothesis tests are run."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:23:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps agreement cutoffs 0.5, 0.6, 0.7 and entropy
+    thresholds 0.2, 0.4, 0.6
+  claim_id: c_a4cce5aa
+  context: 'Sweep: Agreement cutoff across {0.5, 0.6, 0.7} and entropy threshold across
+    {0.2, 0.4, 0.6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps agreement cutoff across {0.5, 0.6, 0.7} and
+    entropy threshold across {0.2, 0.4, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:24:29Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics use VIF threshold of 5
+  claim_id: c_800b7a2a
+  context: 'Threshold Logic: VIF > 5 is strict greater than. If any predictor has
+    VIF > 5, set flagged: true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Collinearity diagnostics use a Variance Inflation Factor (VIF) threshold
+    of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:24:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on up to 500 threads within 6 hours
+  claim_id: c_8828b699
+  context: 'T025 [S] [US3] Review Fix: Run full pipeline on up to N=500 threads and
+    verify completion within 6 hours on CPU-only runner (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline runs on up to N=500 threads and must complete within
+    6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:25:03Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Power limitation warning generated if thread count is less than 100
+  claim_id: c_1ab29c6e
+  context: 'Logic: Read thread_count from state/performance_log.json. If thread_count
+    < 100, generate a warning block in the summary stating: Power limitation detected:
+    n < 100 threads.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_warning_generated_if_thread_count_is_less_t
+  kind: magnitude
+  raw_text: A power limitation warning is generated if thread_count < 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:25:52Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Study framed as observational with correlational relationships
+  claim_id: c_b37b0a9a
+  context: 'T034 [S] Review Fix: Ensure docs/paper.md explicitly frames all findings
+    as associational (not causal) as required by Assumption 4. Logic: Insert a Limitations
+    section that states: This study is observational with no random assignment.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_framed_as_observational_with_correlational_relationshi
+  kind: entity_fact
+  raw_text: The study is framed as observational with no random assignment, and relationships
+    are correlational.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:26:28Z'
