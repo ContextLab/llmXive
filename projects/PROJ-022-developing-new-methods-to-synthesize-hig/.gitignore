@@ -1,18 +1,18 @@
-# Data directories - ignore all contents
+# Data directories - do not commit raw or processed data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/reports/*
 !data/reports/.gitkeep
+data/figures/*
+!data/figures/.gitkeep
 
-# Model artifacts
+# Pickle files (model artifacts and intermediate states)
 *.pkl
-*.joblib
-*.pth
-*.onnx
+*.pickle
 
-# Python cache and temporary files
+# Python cache and temp files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -35,14 +35,13 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
+# Environment and config (keep secrets out)
+.env
+.env.local
+.env.*.local
 
-# Jupyter notebooks
-.ipynb_checkpoints/
+# Jupyter notebooks with large outputs (optional, uncomment if needed)
+# *.ipynb_checkpoints
 
 # Temporary files
 tmp/

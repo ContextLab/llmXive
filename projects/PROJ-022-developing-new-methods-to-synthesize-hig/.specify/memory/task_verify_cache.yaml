@@ -1,3 +1,12 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw` and `data/processed` directories or accompanying
+    `.gitignore` files was provided; without these artifacts we cannot confirm the
+    directories exist or that appropriate ignore rules for large files were added.
+    The implementer must create the directories and add `.gitignore` entries that
+    exclude typical large data files (e.g., `*.csv`, `*.h5`, `*.parquet`) from version
+    control.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

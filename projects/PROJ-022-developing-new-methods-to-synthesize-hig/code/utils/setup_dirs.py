@@ -1,51 +1,62 @@
+"""
+Utility functions for setting up project directories.
+"""
 import os
 import sys
 from pathlib import Path
 import logging
 from utils.logging_config import setup_pipeline_logger
 
-def ensure_directory(path: Path) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    path.mkdir(parents=True, exist_ok=True)
-    logging.debug(f"Ensured directory exists: {path}")
-
-def setup_project_structure(root_path: Path) -> None:
+def ensure_directory(path: Path) -> bool:
     """
-    Create the standard project directory structure.
-    
-    Creates:
-    - code/
-    - data/raw
-    - data/processed
-    - data/reports
-    - tests/
-    - artifacts/
-    """
-    logger = setup_pipeline_logger("setup_dirs")
-    logger.info("Setting up project directory structure...")
+    Ensure a directory exists, creating it if necessary.
 
-    directories = [
-        root_path / "code",
-        root_path / "data" / "raw",
-        root_path / "data" / "processed",
-        root_path / "data" / "reports",
-        root_path / "tests",
-        root_path / "artifacts",
+    Args:
+        path: The Path object representing the directory.
+
+    Returns:
+        True if the directory was created or already existed, False on error.
+    """
+    try:
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            return True
+        return True
+    except OSError as e:
+        logging.getLogger(__name__).error(f"Failed to create directory {path}: {e}")
+        return False
+
+def setup_project_structure(root_dir: Path) -> None:
+    """
+    Sets up the standard directory structure for the llmXive pipeline.
+
+    Args:
+        root_dir: The root directory of the project.
+    """
+    logger = logging.getLogger(__name__)
+    dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/reports",
+        "tests",
+        "artifacts"
     ]
 
-    for dir_path in directories:
-        ensure_directory(dir_path)
-        logger.info(f"Created/verified directory: {dir_path}")
+    for d in dirs:
+        target = root_dir / d
+        if ensure_directory(target):
+            logger.info(f"Ensured directory: {target}")
 
-    logger.info("Project directory structure setup complete.")
-
-def main() -> None:
-    """Entry point for CLI execution."""
-    logger = setup_pipeline_logger("setup_dirs_main")
+def main():
+    """
+    CLI entry point for directory setup.
+    """
+    logger = setup_pipeline_logger("setup_dirs")
+    logger.info("Running setup_dirs module directly.")
     root = Path.cwd()
-    logger.info(f"Running setup from: {root}")
     setup_project_structure(root)
-    logger.info("Setup complete.")
+    logger.info("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

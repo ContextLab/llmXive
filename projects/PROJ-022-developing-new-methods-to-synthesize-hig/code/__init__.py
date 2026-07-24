@@ -1,3 +1,1 @@
-"""
-Code package for the membrane synthesis project.
-"""
+# Empty file to make code a package

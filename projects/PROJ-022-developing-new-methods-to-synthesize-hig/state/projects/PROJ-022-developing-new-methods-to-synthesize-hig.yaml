@@ -1,0 +1,55 @@
+project_id: PROJ-022-developing-new-methods-to-synthesize-hig
+project_name: Developing New Methods to Synthesize High-Performance Membranes using Sustainable Materials
+current_stage: setup
+created_at: "2023-10-27T10:00:00Z"
+last_updated: "2023-10-27T10:00:00Z"
+artifact_hashes:
+  requirements_txt: null
+  gitignore: null
+  data_hygiene_check: null
+  traceability_matrix: null
+  versioning_audit: null
+  descriptor_reproducibility_check: null
+  statistical_rigor_final_check: null
+  constants: null
+  imputation_values: null
+  models: null
+  errors: null
+  manual_extraction: null
+  automated_fetch: null
+  handle_missing_data: null
+  load_literature_data: null
+  known_high_performance: null
+  validate_dataset: null
+  flag_high_variance: null
+  standardized_polymers: null
+  calculate_descriptors: null
+  feature_selection: null
+  train_model: null
+  cross_validate: null
+  encode_synthesis_method: null
+  model_pkl: null
+  feature_matrix: null
+  generate_bio_candidates: null
+  generate_petro_benchmarks: null
+  experimental_petro_benchmarks: null
+  predicted_benchmarks: null
+  rank_candidates: null
+  statistical_test: null
+  validation_protocol: null
+  power_analysis: null
+  screening_results: null
+  candidate_recommendation_report: null
+  final_report: null
+  validate_citations: null
+  main_pipeline: null
+stage_history:
+  - stage: setup
+    timestamp: "2023-10-27T10:00:00Z"
+    status: active
+compliance_gates:
+  data_hygiene: pending
+  traceability: pending
+  versioning: pending
+  reproducibility: pending
+  statistical_rigor: pending

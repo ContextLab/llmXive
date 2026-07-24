@@ -46,12 +46,12 @@
 - [ ] T001a [P] Create directory structure: `code/`, `data/raw`, `data/processed`, `data/reports`, `tests/`, `artifacts/` at the repository root.
 - [X] T001b [P] Create `requirements.txt` pinning `rdkit==2023.9.5`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `pyyaml==6.0.1`, `datasets==2.14.6`
 - [ ] T001c [P] Create `.gitignore` rules for `data/raw/*`, `data/processed/*`, `*.pkl`, `__pycache__`, `*.log`
-- [ ] T002a [P] Create `code/utils/data_hygiene_check.py` to verify checksums for `data/raw` and ensure no in-place modifications in `data/processed` (Required for T045).
-- [ ] T002b [P] Create `code/utils/traceability_matrix.py` to generate `artifacts/traceability_matrix.json` linking stats to code/data rows (Required for T046).
+- [X] T002a [P] Create `code/utils/data_hygiene_check.py` to verify checksums for `data/raw` and ensure no in-place modifications in `data/processed` (Required for T045).
+- [X] T002b [P] Create `code/utils/traceability_matrix.py` to generate `artifacts/traceability_matrix.json` linking stats to code/data rows (Required for T046).
 - [ ] T002c [P] Create `code/utils/versioning_audit.py` to validate `state.yaml` artifact hashes (Required for T047).
-- [ ] T002d [P] Create `code/utils/descriptor_reproducibility_check.py` to re-calculate descriptors and verify bitwise equality (Required for T048).
-- [ ] T002e [P] Create `code/utils/statistical_rigor_final_check.py` to validate Mann-Whitney U test and power analysis reports (Required for T049).
-- [ ] T002f [P] Initialize `state/projects/PROJ-022-developing-new-methods-to-synthesize-hig.yaml` with `artifact_hashes` map and `current_stage` field (Required for T047).
+- [X] T002d [P] Create `code/utils/descriptor_reproducibility_check.py` to re-calculate descriptors and verify bitwise equality (Required for T048).
+- [X] T002e [P] Create `code/utils/statistical_rigor_final_check.py` to validate Mann-Whitney U test and power analysis reports (Required for T049).
+- [X] T002f [P] Initialize `state/projects/PROJ-022-developing-new-methods-to-synthesize-hig.yaml` with `artifact_hashes` map and `current_stage` field (Required for T047).
 
 ---
 
@@ -66,7 +66,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 [P] Setup `data/raw` and `data/processed` directories with `.gitignore` rules for large files
 - [ ] T005 [P] Implement `utils/logging_config.py` for structured logging across pipeline stages
 - [X] T006a [P] [FR-001] Create `code/utils/constants.py` with unit conversion factors (Barrer, LMH/bar) and random seed=42
-- [X] T006b [P] [FR-006] Create `code/ingestion/calculate_imputation_values.py` to dynamically calculate polymer-class averages from the aggregated dataset (`data/processed/standardized_polymers.csv`) and output them to `data/processed/imputation_values.json`. **Definition**: The script MUST calculate mean permeability/selectivity per polymer class ('cellulose', 'chitosan', 'lignin', 'polyimide') from the current dataset. **Constraint**: The script MUST NOT use hardcoded static values; it MUST derive values from the data to ensure Data Hygiene.
+- [X] T006b [P] [FR-006] Create `code/ingestion/calculate_imputation_values.py` to dynamically calculate polymer-class averages from the aggregated dataset (`data/processed/standardized_polymers.csv`) and output them to `data/processed/imputation_values.json`. **Definition**: The script MUST calculate mean permeability/selectivity per polymer class ('cellulose', 'chitosan', 'lignin', 'polyimide') from the current dataset. [UNRESOLVED-CLAIM: c_02ae1d7b — status=not_enough_info] **Constraint**: The script MUST NOT use hardcoded static values; it MUST derive values from the data to ensure Data Hygiene.
 - [X] T007 Create base `PolymerRecord` dataclass in `code/ingestion/models.py`
 - [X] T008 Configure error handling infrastructure with custom `DataInsufficientError` in `code/utils/errors.py`
 
@@ -120,10 +120,10 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement `code/features/calculate_descriptors.py` to compute VdW volume, H-bond counts, and MW using RDKit (handle parse failures gracefully). **Note**: If FFV is requested but experimental density is missing, log a warning and skip FFV calculation for that record; do not attempt to calculate it from SMILES alone.
-- [X] T020 [US2] [FR-011] Implement `code/features/feature_selection.py` to perform dimensionality reduction. **Option Selection**: The implementer may choose **either** Recursive Feature Elimination (RFE) **or** Principal Component Analysis (PCA) as permitted by FR-011. 
-   - If RFE is chosen: Retain a minimal subset of features to mitigate overfitting.
-   - If PCA is chosen: Retain components explaining > 95% variance, but **cap the number of components at 10** to prevent overfitting in the small-N regime (Plan: "small-N vs High-Dimensionality").
-   **Constraint**: Do not use all descriptors without reduction.
+- [X] T020 [US2] [FR-011] Implement `code/features/feature_selection.py` to perform dimensionality reduction. **Option Selection**: The implementer may choose **either** Recursive Feature Elimination (RFE) **or** Principal Component Analysis (PCA) as permitted by FR-011.
+ - If RFE is chosen: Retain a minimal subset of features to mitigate overfitting.
+ - If PCA is chosen: Retain components explaining > 95% variance, but **cap the number of components at 10** to prevent overfitting in the small-N regime (Plan: "small-N vs High-Dimensionality").
+ **Constraint**: Do not use all descriptors without reduction.
 - [X] T021 [US2] [FR-003] Implement `code/modeling/train_model.py` with Random Forest (initial max_depth=10, n_estimators=100). **Implementation Detail**: Wrap training in a `time` context manager. If **per-attempt** elapsed time > 3600s (60-minute target), raise `RuntimeExceededError` with `new_depth=6` to trigger the outer retry loop. If the second attempt (depth=6) exceeds 3600s, raise `RuntimeExceededError` with `new_depth=4`. **Global Limit**: Implement a global runtime guard. If the *cumulative* time of all retries exceeds 6 hours (SC-004), halt execution, emit error code `ERR_RUNTIME_EXCEEDED`, and generate `data/reports/runtime_exceeded_report.json`. **Traceability**: Use fallback depths (6, then 4) as explicitly resolved in `plan.md` Complexity Tracking. **Artifact**: Log the fallback decision and runtime metrics to `data/reports/runtime_fallback_log.json`. **Pre-training**: Log sample size (N) and confirm it matches the power analysis assumptions (N≥30) based on **T014's** prior validation. Do NOT perform the validation check here; rely on T014's success.
 - [X] T022 [US2] Implement `code/modeling/cross_validate.py` to run stratified k-fold CV and report R² and MAE
 - [X] T023 [US2] [FR-008] Add categorical encoding for 'synthesis method' in the feature matrix
