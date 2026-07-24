@@ -1,63 +1,53 @@
-"""
-Setup test directories for the project.
-Creates the necessary directory structure for tests and state management.
-"""
 import os
 import sys
 from pathlib import Path
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-
-def create_test_directories(base_path: Path) -> None:
+def create_test_directories():
     """
-    Create the required test and state directories.
-
-    Args:
-        base_path: The root directory of the project.
-    """
-    directories = [
-        base_path / "tests",
-        base_path / "state",
-        base_path / "state" / "projects"
-    ]
-
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {directory}")
-        else:
-            logger.info(f"Directory already exists: {directory}")
-
-
-def main() -> int:
-    """
-    Main entry point for the setup script.
-
+    Create the required test and state directories for the project.
+    
+    Directories created:
+    - tests/
+    - state/projects/
+    
     Returns:
-        0 on success, 1 on failure.
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Determine project root
-    # The script is expected to be run from the project root or code/ directory
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    # Determine the project root (assuming this script is in code/ directory)
+    project_root = Path(__file__).resolve().parent.parent
+    
+    directories_to_create = [
+        project_root / "tests",
+        project_root / "state" / "projects"
+    ]
+    
+    success = True
+    for directory in directories_to_create:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            logging.info(f"Directory created or verified: {directory}")
+        except OSError as e:
+            logging.error(f"Failed to create directory {directory}: {e}")
+            success = False
+    
+    return success
 
-    logger.info(f"Project root detected at: {project_root}")
-
-    try:
-        create_test_directories(project_root)
-        logger.info("Test directories setup completed successfully.")
+def main():
+    """Main entry point for the test directory setup script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    logging.info("Starting test directory creation...")
+    
+    if create_test_directories():
+        logging.info("Test directories created successfully.")
         return 0
-    except Exception as e:
-        logger.error(f"Failed to create test directories: {e}", exc_info=True)
+    else:
+        logging.error("Failed to create one or more test directories.")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

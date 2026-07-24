@@ -1,13 +1,11 @@
 """
-Verify linting configuration by running black and flake8.
+Verify linting configuration by running black --check and flake8.
 
-This script executes the linting checks defined in the project setup:
-- black --check .
-- flake8 .
+This script ensures that the project codebase adheres to the defined
+linting standards (Black formatting and Flake8 rules).
 
-It exits with code 0 if all checks pass, or non-zero if any check fails.
+It serves as the single source of truth for lint verification.
 """
-
 import subprocess
 import sys
 import os
@@ -21,80 +19,83 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def run_command(command: list, description: str) -> bool:
+def run_command(command: list[str], description: str) -> bool:
     """
     Run a shell command and return True if it succeeds.
 
     Args:
-        command: List of command arguments
-        description: Human-readable description of the command
+        command: List of command arguments.
+        description: Human-readable description of the command.
 
     Returns:
-        True if command exits with code 0, False otherwise
+        True if the command executed successfully (exit code 0), False otherwise.
     """
-    logger.info(f"Running: {description}")
+    logger.info(f"Running {description}...")
     logger.info(f"Command: {' '.join(command)}")
 
     try:
         result = subprocess.run(
             command,
-            cwd=Path(__file__).parent.parent,
+            cwd=Path(__file__).parent.parent,  # Run from project root
             capture_output=True,
-            text=True
+            text=True,
+            timeout=300  # 5 minute timeout
         )
 
         if result.returncode == 0:
-            logger.info(f"✓ {description} passed")
+            logger.info(f"{description} passed successfully.")
+            if result.stdout:
+                logger.debug(f"Output: {result.stdout}")
             return True
         else:
-            logger.error(f"✗ {description} failed")
+            logger.error(f"{description} failed.")
             if result.stdout:
                 logger.error(f"STDOUT:\n{result.stdout}")
             if result.stderr:
                 logger.error(f"STDERR:\n{result.stderr}")
             return False
 
-    except FileNotFoundError:
-        logger.error(f"✗ {description} failed: Command not found")
-        logger.error("Ensure black and flake8 are installed in the environment")
+    except subprocess.TimeoutExpired:
+        logger.error(f"{description} timed out.")
+        return False
+    except FileNotFoundError as e:
+        logger.error(f"Command not found: {e}. Ensure tools are installed.")
         return False
     except Exception as e:
-        logger.error(f"✗ {description} failed with exception: {e}")
+        logger.error(f"Error running {description}: {e}")
         return False
 
-def main():
+def main() -> int:
     """
-    Main function to run all linting checks.
-    """
-    logger.info("=" * 60)
-    logger.info("Starting Linting Verification (Task T003b)")
-    logger.info("=" * 60)
+    Main entry point for lint verification.
 
-    # Change to project root directory
+    Runs black --check and flake8. Returns 0 if all checks pass, 1 otherwise.
+    """
+    logger.info("Starting lint verification...")
+
+    # Check if we are in the correct project structure
     project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
-    logger.info(f"Working directory: {project_root}")
+    if not (project_root / "requirements.txt").exists():
+        logger.error("Could not find requirements.txt. Are you running from the project root?")
+        return 1
 
-    # Define linting commands
-    checks = [
-        (["black", "--check", "."], "Black code formatting check"),
-        (["flake8", "."], "Flake8 linting check"),
-    ]
+    # Run Black check
+    black_success = run_command(
+        ["black", "--check", "."],
+        "Black format check"
+    )
 
-    # Run all checks
-    all_passed = True
-    for command, description in checks:
-        if not run_command(command, description):
-            all_passed = False
+    # Run Flake8
+    flake8_success = run_command(
+        ["flake8", "."],
+        "Flake8 lint check"
+    )
 
-    logger.info("=" * 60)
-    if all_passed:
-        logger.info("✓ All linting checks passed successfully")
-        logger.info("Task T003b: VERIFIED")
+    if black_success and flake8_success:
+        logger.info("All linting checks passed.")
         return 0
     else:
-        logger.error("✗ Some linting checks failed")
-        logger.error("Task T003b: FAILED")
+        logger.error("Linting checks failed. Please fix the reported issues.")
         return 1
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was presented showing that the directories `projects/PROJ-096-exploring-the-role-of-network-topology-o/code/utils` and `projects/PROJ-096-exploring-the-role-of-network-topology-o/code/data` actually exist (or were created). The implementer must provide a file‑system listing, screenshot, or command output confirming the presence of those directories.
-- `T001b` (rejected 1x): No directory listings or screenshots were provided to show that `data/processed`, `data/checksums`, and `data/raw` actually exist under `projects/PROJ-096-exploring-the-role-of-network-topology-o/`. Without concrete evidence of these folders being created, the task requirement is not satisfied.
+- `T001c` (rejected 1x): No evidence of the required directories (`tests` and `state/projects` inside `projects/PROJ-096-exploring-the-role-of-network-topology-o/`) is provided; the artifact list is empty, so we cannot confirm the `mkdir -p` command was executed. The implementer must supply a directory listing or screenshots showing the created folders.
+- `T003b` (rejected 1x): No linting output, log file, or any evidence that `black --check` and `flake8` were executed and passed without errors is present. The required artifact (a linting verification report or command output) is missing, so the task is not demonstrably completed.
 
 ## Required change
 

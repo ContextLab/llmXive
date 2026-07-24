@@ -1,4 +1,4 @@
-- artifact_hash: 0ee12bbcd1e0442e976bb30d443607d8d41165642b4dc873e709f018ee5fffef
+- artifact_hash: b360675c49dfdd2e5153a63bf68189f2e6cca84cd1a369426be18e21e647289c
   artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q47604
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-07-20T14:50:16.534164Z'
+  verified_at: '2026-07-24T01:00:12.309383Z'
