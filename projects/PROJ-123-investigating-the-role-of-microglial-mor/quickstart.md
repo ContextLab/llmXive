@@ -1,64 +1,83 @@
-# Quickstart Guide: Investigating the Role of Microglial Morphology
-
-This guide provides the commands to run the full pipeline end-to-end.
+# Quickstart Guide
 
 ## Prerequisites
 
 - Python 3.11+
-- Install dependencies: `pip install -r code/requirements.txt`
+- Required packages (install via `pip install -r requirements.txt`)
 
-## Execution Modes
-
-### 1. Generate Synthetic Data (Validation Only)
-
-Use this mode to validate the pipeline logic without real data.
-This runs T007 (synthetic data generation) and then T018 (output metrics).
+## Installation
 
 ```bash
-python code/run_t018_output.py --mode synthetic
+pip install -r requirements.txt
 ```
 
-**Expected Output**: `data/processed/morphological_metrics.csv`
+## Running the Pipeline
 
-### 2. Run Full Pipeline (Real Data)
-
-Use this mode for the actual research analysis.
-**Prerequisite**: Ensure T013-T017 (morphometry pipeline) has run and produced
-`data/intermediates/processed_morphology.csv`.
+### 1. Generate Synthetic Data (for validation)
 
 ```bash
-python code/run_t018_output.py --mode real
+python code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv
 ```
 
-**Expected Output**: `data/processed/morphological_metrics.csv`
+### 2. Run Full Pipeline (Analysis + Output + Reports)
 
-## Running the Full Research Pipeline
+```bash
+python code/main.py --mode run-full --data data/processed/synthetic_dataset.csv
+```
 
-To run the entire research pipeline from ingestion to validation:
+This will:
+- Run the analysis pipeline (normalization, VIF check, regression, CV, sensitivity)
+- Generate morphological metrics CSV
+- Generate regression reports (JSON and Markdown)
+- Generate validation report
 
-1. **Ingest & Process (T012a-T017)**:
- (This step is assumed to be run separately or via the main pipeline script if available)
- ```bash
- # Example: Run morphometry pipeline (placeholder for the actual command)
- python code/morphometry.py --run-pipeline
- ```
+### 3. Run Individual Components
 
-2. **Output Metrics (T018)**:
- ```bash
- python code/run_t018_output.py --mode real
- ```
+#### Analysis Pipeline Only
 
-3. **Analysis (T023-T029)**:
- ```bash
- python code/analysis.py --run-full
- ```
+```bash
+python code/main.py --mode run-analysis --data data/processed/synthetic_dataset.csv
+```
 
-4. **Validation (T033-T036)**:
- ```bash
- python code/validation_report.py --run-full
- ```
+#### Output Pipeline Only
+
+```bash
+python code/main.py --mode run-output
+```
+
+#### Report Generation Only
+
+```bash
+python code/main.py --mode run-report
+```
+
+#### Validation Report Only
+
+```bash
+python code/main.py --mode run-validation
+```
+
+## Expected Outputs
+
+- `data/processed/synthetic_dataset.csv` - Synthetic input data
+- `data/processed/morphological_metrics.csv` - Extracted morphological metrics
+- `data/intermediate/normalized_cognitive_scores.csv` - Normalized cognitive scores
+- `data/intermediate/vif_check.json` - VIF analysis results
+- `data/intermediate/pca_model.pkl` - PCA model (or identity wrapper)
+- `reports/regression_results.json` - Regression results in JSON
+- `reports/regression_results.md` - Regression results in Markdown
+- `reports/validation_report.md` - Validation report with CV and sensitivity metrics
 
 ## Troubleshooting
 
-- **Missing Intermediate Data**: If T018 fails with "FileNotFoundError", ensure the morphometry pipeline (T013-T017) has completed successfully.
-- **Synthetic Data Path**: Use `--mode synthetic` for quick validation without real data.
+If you encounter errors:
+1. Ensure all dependencies are installed
+2. Check that input data exists at the specified path
+3. Verify that output directories have write permissions
+4. Review logs for specific error messages
+
+## Next Steps
+
+- For real data analysis, replace synthetic data with actual microscopy data
+- Configure parameters in `code/config.py`
+- Extend analysis in `code/analysis.py` for additional metrics

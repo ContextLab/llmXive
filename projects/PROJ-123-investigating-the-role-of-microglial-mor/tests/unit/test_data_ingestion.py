@@ -8,6 +8,7 @@ import os
 import tempfile
 import pytest
 from pathlib import Path
+import logging
 import numpy as np
 from PIL import Image
 
@@ -115,3 +116,44 @@ def test_ingest_directory_handles_mixed_extensions(tmp_path):
     names = {r['path'].name for r in results}
     assert "sub_01_cortex_20231027.tif" in names
     assert "sub_02_cortex_20231027.png" in names
+
+def test_ingest_directory_logs_warning_for_untagged(tmp_path, caplog):
+    """
+    T011: Verify that the ingestion pipeline logs a specific warning 
+    when excluding images with missing or invalid brain region tags.
+    
+    Verification: Run the test and verify exit code 0 and that the log 
+    contains the specific warning message for untagged images.
+    """
+    # Setup logging to capture messages
+    caplog.set_level(logging.WARNING)
+    
+    img_valid = np.zeros((100, 100), dtype=np.uint8)
+    img_invalid = np.zeros((100, 100), dtype=np.uint8)
+    
+    # Valid file
+    valid_path = tmp_path / "sub_01_hippocampus_20231027.tif"
+    Image.fromarray(img_valid).save(valid_path)
+    
+    # Invalid file (missing brain region in filename)
+    invalid_path = tmp_path / "sub_02_unknown_20231027.tif"
+    Image.fromarray(img_invalid).save(invalid_path)
+    
+    # Invalid file (missing timestamp)
+    invalid_path2 = tmp_path / "sub_03_hippocampus.tif"
+    Image.fromarray(img_invalid).save(invalid_path2)
+
+    # Run ingestion
+    results = ingest_directory(tmp_path)
+    
+    # Verify exclusion logic
+    assert len(results) == 1
+    assert results[0]['path'].name == "sub_01_hippocampus_20231027.tif"
+    
+    # Verify warning logs exist for excluded items
+    # The log message should contain "Excluding" and "missing" or "invalid"
+    warning_logs = [record.message for record in caplog.records if record.levelno == logging.WARNING]
+    
+    # We expect at least one warning about exclusion
+    assert any("Excluding" in msg or "missing" in msg or "invalid" in msg for msg in warning_logs), \
+        f"Expected warning log about exclusion, got: {warning_logs}"

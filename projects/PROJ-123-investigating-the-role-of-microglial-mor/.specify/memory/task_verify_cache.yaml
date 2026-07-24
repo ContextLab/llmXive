@@ -1,3 +1,11 @@
+T018a:
+  c: false
+  h: 9b587900952a7667b7e33a8b9b9089667635f2a7162e547e5f8895028d20eb2f
+  r: "The required output file `data/processed/morphological_metrics.csv` does not\
+    \ exist, and the provided `code/main.py` snippet shows no concrete logic that\
+    \ writes such a CSV (the `run_output_pipeline` implementation is not shown). Without\
+    \ the generated CSV containing the specified columns and brain_region tag, the\
+    \ task\u2019s core requirement is unmet."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

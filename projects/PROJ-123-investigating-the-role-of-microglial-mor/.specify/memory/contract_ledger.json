@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "run_analysis_pipeline",
+    "owner": null
+  },
+  {
+    "symbol": "run_synthetic_pipeline",
+    "owner": null
+  }
+]

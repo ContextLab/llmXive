@@ -1,189 +1,77 @@
-"""
-T036: Generate final validation report including CV metrics and sensitivity analysis results.
-
-This module loads the outputs from the k-fold cross-validation (T033) and
-the sensitivity analysis (T035) and synthesizes them into a final
-validation report (reports/validation_report.md).
-"""
 import json
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 import pandas as pd
 from datetime import datetime
+from code.config import get_path, ensure_dirs
+import logging
 
-from code.config import get_path, get_project_root
-from code.logging_utils import get_logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-
-def load_cv_results(filepath: str) -> Dict[str, Any]:
-    """
-    Load k-fold cross-validation results.
-    Expected keys: 'r2_scores' (list), 'mean_r2', 'std_r2', 'interaction_p_values' (list)
-    """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"CV results file not found: {filepath}")
-
-    with open(path, 'r') as f:
-        data = json.load(f)
-
-    # Validate structure
-    required_keys = ['mean_r2', 'std_r2']
-    for key in required_keys:
-        if key not in data:
-            raise ValueError(f"Missing required key '{key}' in CV results: {filepath}")
-
-    logger.info(f"Loaded CV results: mean_r2={data['mean_r2']:.4f}, std_r2={data['std_r2']:.4f}")
-    return data
-
-
-def load_sensitivity_results(filepath: str) -> Dict[str, Any]:
-    """
-    Load sensitivity analysis results.
-    Expected keys: 'step_sizes' (list), 'p_values' (list), 'variation_metrics' (dict)
-    """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Sensitivity results file not found: {filepath}")
-
-    with open(path, 'r') as f:
-        data = json.load(f)
-
-    # Validate structure
-    required_keys = ['variation_metrics']
-    for key in required_keys:
-        if key not in data:
-            raise ValueError(f"Missing required key '{key}' in sensitivity results: {filepath}")
-
-    logger.info(f"Loaded sensitivity results: {data['variation_metrics']}")
-    return data
-
-
-def generate_validation_report(
-    cv_results: Dict[str, Any],
-    sensitivity_results: Dict[str, Any],
-    output_path: str
-) -> None:
-    """
-    Generate the final validation report in Markdown format.
-    """
-    report_lines = [
-        "# Validation Report",
-        "",
-        f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "",
-        "## 1. Cross-Validation Metrics",
-        "",
-        "The regression model was evaluated using 5-fold cross-validation to assess generalizability.",
-        "",
-        f"- **Mean R² Score:** {cv_results['mean_r2']:.4f}",
-        f"- **Standard Deviation R²:** {cv_results['std_r2']:.4f}",
-        ""
-    ]
-
-    # Add stability check
-    if cv_results['mean_r2'] > 0:
-        cv_variance = cv_results['std_r2'] / cv_results['mean_r2']
-        stability_status = "Stable" if cv_variance < 0.05 else "Unstable"
-        report_lines.append(f"- **Relative Stability (σ/μ):** {cv_variance:.4f} ({stability_status})")
+def load_cv_results() -> Dict[str, Any]:
+    """Load cross-validation results."""
+    default_path = get_path('reports', 'cv_results.json')
+    if os.path.exists(default_path):
+        with open(default_path, 'r') as f:
+            return json.load(f)
     else:
-        report_lines.append("- **Relative Stability (σ/μ):** N/A (Mean R² is 0)")
+        raise FileNotFoundError(f"CV results not found at {default_path}")
 
-    report_lines.append("")
-    report_lines.append("## 2. Sensitivity Analysis (Sholl Radius Steps)")
-    report_lines.append("")
-    report_lines.append("The model's sensitivity to Sholl analysis radius step sizes was evaluated.")
-    report_lines.append("")
-
-    var_metrics = sensitivity_results.get('variation_metrics', {})
-    baseline_p = var_metrics.get('baseline_p_value', 'N/A')
-    max_deviation = var_metrics.get('max_deviation_percent', 0)
-    threshold_exceeded = var_metrics.get('threshold_exceeded', False)
-
-    report_lines.append(f"- **Baseline P-value (Reference):** {baseline_p}")
-    report_lines.append(f"- **Maximum P-value Deviation:** {max_deviation:.2f}%")
-    report_lines.append("")
-
-    if threshold_exceeded:
-        report_lines.append("⚠️ **Warning:** P-value deviation exceeded the stability threshold.")
-        report_lines.append("The interaction effect is sensitive to Sholl radius step selection.")
+def load_sensitivity_results() -> Dict[str, Any]:
+    """Load sensitivity analysis results."""
+    default_path = get_path('intermediate', 'sensitivity_analysis.json')
+    if os.path.exists(default_path):
+        with open(default_path, 'r') as f:
+            return json.load(f)
     else:
-        report_lines.append("✅ **Pass:** P-value deviation is within the acceptable stability threshold.")
+        raise FileNotFoundError(f"Sensitivity results not found at {default_path}")
 
-    report_lines.append("")
-    report_lines.append("## 3. Conclusion")
-    report_lines.append("")
+def generate_validation_report(cv_results: Dict[str, Any], sensitivity_results: Dict[str, Any]) -> str:
+    """Generate validation report."""
+    report_path = get_path('reports', 'validation_report.md')
+    ensure_dirs(report_path)
+    
+    with open(report_path, 'w') as f:
+        f.write("# Validation Report\n\n")
+        f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+        f.write("## Cross-Validation Results\n")
+        f.write(f"- Mean R²: {cv_results.get('r2_mean', 'N/A')}\n")
+        f.write(f"- Std R²: {cv_results.get('r2_std', 'N/A')}\n")
+        f.write(f"- K-folds: {cv_results.get('k_folds', 'N/A')}\n\n")
+        
+        f.write("## Sensitivity Analysis\n")
+        f.write("- P-value variation across Sholl steps:\n")
+        for key, value in sensitivity_results.items():
+            if isinstance(value, dict):
+                f.write(f"  - {key}: {value}\n")
+            else:
+                f.write(f"  - {key}: {value}\n")
+        
+        # Check stability
+        r2_std = cv_results.get('r2_std', 0)
+        r2_mean = cv_results.get('r2_mean', 1)
+        if r2_mean > 0:
+            variation = r2_std / r2_mean
+            f.write(f"\n- R² variation: {variation:.4f} ({'STABLE' if variation < 0.05 else 'UNSTABLE'})\n")
+    
+    logger.info(f"Validation report generated at {report_path}")
+    return report_path
 
-    if cv_variance < 0.05 and not threshold_exceeded:
-        report_lines.append("The model demonstrates robust generalizability and stability across Sholl radius parameters.")
-    elif cv_variance >= 0.05:
-        report_lines.append("The model shows high variance in cross-validation, suggesting potential overfitting or dataset heterogeneity.")
-    else:
-        report_lines.append("The model generalizes well but shows sensitivity to Sholl radius step selection.")
-
-    report_lines.append("")
-    report_lines.append("---")
-    report_lines.append("*Generated by T036 Validation Report Generator*")
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Write report
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(report_lines))
-
-    logger.info(f"Validation report written to {output_path}")
-
-
-def run_validation_pipeline() -> str:
-    """
-    Orchestrates the loading of results and generation of the final report.
-    Returns the path to the generated report.
-    """
-    root = get_project_root()
-    cv_path = get_path(root, "data/intermediates/cv_results.json")
-    sens_path = get_path(root, "data/intermediates/sensitivity_analysis.json")
-    output_path = get_path(root, "reports/validation_report.md")
-
-    logger.info("Starting validation report generation...")
-
-    try:
-        cv_data = load_cv_results(cv_path)
-        sens_data = load_sensitivity_results(sens_path)
-
-        generate_validation_report(cv_data, sens_data, output_path)
-
-        return output_path
-
-    except FileNotFoundError as e:
-        logger.error(f"Missing required input file: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Invalid data format in input files: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Failed to generate validation report: {e}")
-        raise
-
+def run_validation_pipeline() -> Dict[str, str]:
+    """Run the validation report pipeline."""
+    cv_results = load_cv_results()
+    sensitivity_results = load_sensitivity_results()
+    
+    report_path = generate_validation_report(cv_results, sensitivity_results)
+    
+    return {'report': report_path}
 
 def main():
-    """Entry point for script execution."""
-    import logging
-    from code.logging_utils import setup_file_logging
+    """Main entry point for validation report generation."""
+    run_validation_pipeline()
 
-    setup_file_logging("validation_report.log")
-
-    try:
-        report_path = run_validation_pipeline()
-        print(f"Validation report successfully generated: {report_path}")
-    except Exception as e:
-        print(f"Error: {e}")
-        raise
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

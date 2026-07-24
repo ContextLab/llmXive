@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-123-investigating-the-role-of-microglial-mor",
   "ok": false,
-  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eck is skipped (assuming synthetic data or external join later).\u2026\u201d; code/run_t018_output.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(\"Using synthetic data path for validation (T01\u2026\u201d; code/run_t018_output.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n (T012b)...\")         # Generate synthetic data for validation\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv; python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode run-full --data data/processed/synthetic_dataset.csv; 1 declared deliverable(s) absent: data/processed/morphological_metrics.csv",
+  "reason": "24 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/synthetic_data.py: metric `cognitive_score` assigned from an RNG draw (line 84); code/synthetic_data.py: metric `cognitive_score` assigned from an RNG draw (line 86); code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eck is skipped (assuming synthetic data or external join later).\u2026\u201d; 2 command(s) failed: python code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv (rc=1); python code/main.py --mode run-full --data data/processed/synthetic_dataset.csv (rc=1); 1 declared deliverable(s) absent: data/processed/morphological_metrics.csv",
   "artifacts": [],
   "failures": [
-    "python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py': [Errno 2] No such file or directory",
-    "python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode run-full --data data/processed/synthetic_dataset.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py': [Errno 2] No such file or directory"
+    "python code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv -> rc=1\n    2026-07-24 06:36:58,502 - __main__ - INFO - Mode: generate-synthetic\n2026-07-24 06:36:58,503 - __main__ - ERROR - Pipeline failed: run_synthetic_pipeline() got an unexpected keyword argument 'output_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py\", line 59, in main\n    run_synthetic_pipeline(output_path=output_path)\nTypeError: run_synthetic_pipeline() got an unexpected keyword argument ",
+    "python code/main.py --mode run-full --data data/processed/synthetic_dataset.csv -> rc=1\n    2026-07-24 06:36:59,829 - __main__ - INFO - Mode: run-full\n2026-07-24 06:36:59,829 - __main__ - INFO - Using provided data: data/processed/synthetic_dataset.csv\n2026-07-24 06:36:59,829 - __main__ - INFO - Running analysis pipeline...\n2026-07-24 06:36:59,829 - __main__ - ERROR - Pipeline failed: run_analysis_pipeline() got an unexpected keyword argument 'input_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-20T18:08:38Z"
+  "updated_at": "2026-07-24T06:37:01Z"
 }
