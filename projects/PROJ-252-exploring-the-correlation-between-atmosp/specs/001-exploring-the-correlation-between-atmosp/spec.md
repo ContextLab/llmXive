@@ -19,7 +19,7 @@ The research system MUST successfully download global sea-level pressure reanaly
 
 1. **Given** the NOAA and USGS data sources are accessible, **When** the download script runs, **Then** the system retrieves the full 2013-2023 earthquake catalog and the corresponding daily pressure grid files without error.
 2. **Given** the raw data files are downloaded, **When** the pre-processing step runs, **Then** the system outputs a master dataset where every earthquake event (M≥4.0, depth≤70km) is paired with pressure anomalies extracted from the nearest 1° grid point for the 0-48h window prior to the event.
-3. **Given** the master dataset, **When** the seasonal trend removal is applied, **Then** every record contains a calculated daily pressure anomaly (deviation from a left-censored 30-day moving average) and a control window label.
+3. **Given** the master dataset, **When** the seasonal trend removal is applied, **Then** every record contains a calculated daily pressure anomaly (deviation from a left-censored multi-day moving average) and a control window label.
 
 ---
 
@@ -50,7 +50,7 @@ The research system MUST validate the primary findings by repeating the analysis
 **Acceptance Scenarios**:
 
 1. **Given** the primary analysis results, **When** the robustness check runs, **Then** the system outputs separate p-values and effect sizes for subsets defined by magnitude (4.0–5.0, >5.0) and region (Pacific Ring of Fire vs. others).
-2. **Given** a defined anomaly threshold (e.g., pressure drop > X σ), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over {0.5σ, 1.0σ, 1.5σ} and reports the variation in significance rates or inconsistency rates.
+2. **Given** a defined anomaly threshold (e.g., pressure drop > X σ), **When** the sensitivity analysis runs, **Then** The system sweeps the threshold over a range of standard deviations and reports the variation in significance rates or inconsistency rates.
 3. **Given** the full analysis suite, **When** the final report is compiled, **Then** it includes a section detailing whether the primary association holds across different seasonal bins and geographic subsamples, accounting for climate indices.
 
 ---
@@ -66,7 +66,7 @@ The research system MUST validate the primary findings by repeating the analysis
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the NOAA NCEP/NCAR daily global surface pressure data (source resolution 2.5°) and the USGS earthquake catalog (2013-2023, M≥4.0, depth≤70km) from their respective public repositories. (See US-1)
+- **FR-001**: System MUST download the NOAA NCEP/NCAR daily global surface pressure data (source resolution at standard global grid spacing) and the USGS earthquake catalog (2013-2023, M≥4.0, depth≤70km) from their respective public repositories. (See US-1)
 - **FR-002**: System MUST interpolate the coarse pressure fields to a fine-resolution grid and extract the nearest grid point (or 3-point average) for every earthquake epicenter to calculate daily pressure anomalies. (See US-1)
 - **FR-003**: System MUST compute daily pressure anomalies by subtracting a moving average calculated from a left-censored window (excluding the event window and a preceding baseline period) to remove seasonal trends for every event and control window. (See US-1)
 - **FR-004**: System MUST perform a two-sample Kolmogorov–Smirnov test and a permutation test with a sufficient number of iterations to compare pressure anomaly distributions between event and control windows. (See US-2)

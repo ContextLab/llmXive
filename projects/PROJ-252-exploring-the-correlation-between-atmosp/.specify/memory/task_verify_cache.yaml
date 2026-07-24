@@ -6,6 +6,36 @@ T009:
     (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
     the repository. Both the test logic and the dependent schema artifacts are missing,
     so the task is not genuinely fulfilled.
+T014:
+  c: false
+  h: 648a44827140a05d3e18e98839bece56a912c43822fe8ae9cbff8110dd3e1752
+  r: "The repository lacks the required `data/processed/config.yaml` (and a top\u2011\
+    level `config.yaml`), so the code cannot read `moving_average_days` nor perform\
+    \ the asserted validation. Moreover, the provided excerpt of `code/preprocess.py`\
+    \ shows only data loading and interpolation functions; there is no visible implementation\
+    \ of a left\u2011censored moving\u2011average anomaly calculation or the exclusion\
+    \ of the t\u2011N to t\u20110 period. The task\u2019s core logic and configuration\
+    \ handling are therefore missing."
+T016:
+  c: false
+  h: a01a406d85d1d03a0fff0af256873d588ec8ff3cf76ff1cb99d7231e4a683c0b
+  r: "The repository lacks the required output file `data/interim/deduplicated_with_anomalies.csv`,\
+    \ and the shown portion of `code/preprocess.py` does not contain any deduplication\
+    \ implementation (no function that groups by USGS ID and keeps the most recent\
+    \ revision). Consequently the task\u2019s core requirement is not satisfied."
+T017:
+  c: false
+  h: d98609393ce1f736a10926dc12eadee8e0b0565893b0bcd142706cdc3c721788
+  r: "The required output `data/processed/master_dataset.csv` (and its checksum) does\
+    \ not exist, nor do its inputs (`data/interim/deduplicated_with_anomalies.csv`,\
+    \ `data/processed/config.yaml`) or the schema files needed for validation. Consequently\
+    \ the task\u2019s verification steps cannot be performed."
+T017b:
+  c: false
+  h: 10cae2444d6ca03a7762c80ae92c3285918a231f3e797812ce188ecac594d597
+  r: The required files `data/processed/master_dataset.csv` and `data/processed/config.yaml`
+    are both missing, so there is no row count to compare against the expected count
+    of 12. Without these artifacts the verification test cannot be performed.
 T027:
   c: false
   h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
