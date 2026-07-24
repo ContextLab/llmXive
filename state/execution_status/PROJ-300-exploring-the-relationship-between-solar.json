@@ -4,13 +4,13 @@
   "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026vity analysis on real or synthetic data and output results. This\u2026\u201d; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026oints=5000):     \"\"\"     Generate synthetic data that mimics the str\u2026\u201d; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# For this task, we generate synthetic data to ensure the scrip\u2026\u201d; 1 command(s) failed: python code/main.py --start 2023-01-01 --end 2023-01-03 (rc=1); 1 declared deliverable(s) absent: data/processed/quality_log.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1\n    >\n    from pandas.compat.numpy import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py\", line 4, in <module>\n    from pandas.util.version import Version\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/util/__init__.py\", line 2, in <module>\n    from pandas.util._decorators import (  # noqa:F401\n  File \"/ho"
+    "python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1\n    Fetching solar wind data from 2023-01-01 to 2023-01-03...\nPipeline failed: Real OMNIWeb API fetch is required. Network access to NASA OMNIWeb is needed."
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 6,
+  "total_attempts": 7,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T12:35:54Z",
   "failure_class": "fabrication",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-07-24T00:29:20Z"
 }

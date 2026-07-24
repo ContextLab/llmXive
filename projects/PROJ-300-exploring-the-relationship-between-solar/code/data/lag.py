@@ -1,6 +1,6 @@
 """
-Physics-based lag calculation and application module.
-File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
+Lag calculation and application module.
+Computes physics-based propagation lag and applies shifts to time series.
 """
 import numpy as np
 import pandas as pd
@@ -8,62 +8,73 @@ from typing import Tuple, Optional
 from .clean import clean_and_resample
 from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
 
-def calculate_physics_lag(vsw_mean_km_s: float) -> float:
+# Physics constants (from config if not defined there, we define them here for clarity)
+# EARTH_RADIUS_KM = 6371
+# TAIL_DISTANCE_RE = 60
+# K_PROPAGATION = 1.0 # Simplified
+
+def calculate_physics_lag(vsw_mean: float) -> float:
     """
-    Calculate the physics-based propagation lag in minutes.
+    Calculate the physics-based propagation lag.
     
-    Formula: L_phys = (K * Earth_Radius_km * Tail_Distance_RE) / Vsw_mean_km_s / 60
-    (Converting seconds to minutes by dividing by 60)
+    Formula: L_phys_minutes = 6371 / vsw_mean (simplified form from FR-012)
+    Full derivation: (Tail Distance in km) / Vsw
+    Tail Distance = TAIL_DISTANCE_RE * EARTH_RADIUS_KM
     
     Args:
-        vsw_mean_km_s: Mean solar wind speed in km/s.
+        vsw_mean: Mean solar wind speed in km/s.
         
     Returns:
         Lag in minutes.
     """
-    if vsw_mean_km_s <= 0:
-        raise ValueError("Solar wind speed must be positive.")
+    if vsw_mean <= 0:
+        raise ValueError("Vsw must be positive for lag calculation.")
     
-    # Distance in km = Tail_Distance_RE * EARTH_RADIUS_KM
-    distance_km = TAIL_DISTANCE_RE * EARTH_RADIUS_KM
+    # Simplified formula as per FR-012
+    # The full derivation would be: (60 * 6371) / vsw_mean / 60
+    # Which simplifies to 6371 / vsw_mean
+    lag_minutes = 6371.0 / vsw_mean
     
-    # Time in seconds = Distance / Speed
-    time_seconds = (K_PROPAGATION * distance_km) / vsw_mean_km_s
-    
-    # Time in minutes
-    time_minutes = time_seconds / 60.0
-    
-    return time_minutes
+    return lag_minutes
 
-def apply_lag_shift(df: pd.DataFrame, lag_minutes: float) -> pd.DataFrame:
+def apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series:
     """
-    Apply a time lag shift to the DataFrame by shifting the index.
-    The lag is applied to the Vsw data to align it with the delayed Ey response.
-    We shift the Vsw index forward by `lag_minutes` so that Vsw(t) aligns with Ey(t + lag).
+    Shift the solar wind series forward by lag_minutes.
+    
+    Assumes a 5-minute cadence.
     
     Args:
-        df: DataFrame with 'timestamp' column.
-        lag_minutes: Lag to apply in minutes.
+        series: pd.Series with DatetimeIndex.
+        lag_minutes: Lag in minutes.
         
     Returns:
-        DataFrame with shifted timestamps.
+        Shifted series.
     """
-    df = df.copy()
-    # Shift the timestamp column forward by the lag
-    df['timestamp'] = df['timestamp'] + pd.Timedelta(minutes=lag_minutes)
-    return df
+    # Calculate number of 5-minute periods
+    periods = lag_minutes // 5
+    
+    # Shift the series
+    shifted_series = series.shift(periods=periods)
+    
+    return shifted_series
 
-def calculate_and_apply_lag(df_sw: pd.DataFrame, df_ey: pd.DataFrame, lag_minutes: float) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def calculate_and_apply_lag(df_sw: pd.DataFrame, df_ey: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Calculate physics lag and apply it to the solar wind data.
+    Calculate the physics lag and apply it to the solar wind data.
     
     Args:
         df_sw: Solar wind DataFrame.
         df_ey: THEMIS DataFrame.
-        lag_minutes: Lag in minutes.
         
     Returns:
-        Tuple of (shifted_df_sw, df_ey)
+        Tuple of (df_sw_lagged, df_ey) with aligned indices.
     """
-    shifted_sw = apply_lag_shift(df_sw, lag_minutes)
-    return shifted_sw, df_ey
+    vsw_mean = df_sw['Vsw'].mean()
+    lag_minutes = calculate_physics_lag(vsw_mean)
+    
+    df_sw['Vsw_lagged'] = apply_lag_shift(df_sw['Vsw'], int(lag_minutes))
+    
+    # Drop NaNs
+    df_sw = df_sw.dropna(subset=['Vsw_lagged'])
+    
+    return df_sw, df_ey

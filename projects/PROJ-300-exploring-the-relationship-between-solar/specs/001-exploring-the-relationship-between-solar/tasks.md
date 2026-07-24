@@ -165,7 +165,7 @@ Rewritten passage: with `requirements.txt` at `projects/PROJ-300-exploring-the-r
 
 - [X] T016 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to log data-quality warnings to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/quality_log.json` in JSON format (FR-009).
 
-- [X] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
+- [X] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012. <!-- FAILED: unspecified -->
 
 - [X] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003).
 
@@ -183,7 +183,7 @@ Rewritten passage: with `requirements.txt` at `projects/PROJ-300-exploring-the-r
 
 ### Implementation for User Story 1
 
-- [X] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`.
+- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`.
  - **Dependency**: This task depends on the *completion* of T005a, T005b, T006a, and T006b implementation.
  - **Deliverable**: `results/us1_correlation.json` containing keys: `pearson`, `spearman`, `p_val_permutation`, `significant_flag`.
  - **Verification**: Ensure `data/clean.py` and `data/lag.py` are fully implemented and runnable (T005a/b, T006a/b completion) before integration. Run `pytest tests/integration/test_us1.py`.
@@ -291,7 +291,7 @@ Rewritten passage: with `requirements.txt` at `projects/PROJ-300-exploring-the-r
 
 **Purpose**: Improvements that affect multiple user stories.
 
-- [X] T043 [P] Final review of all output artifacts to ensure they match the Spec's Success Criteria (SC-001 to SC-005). Verify specific artifacts: `results/us1_correlation.json` (schema check: keys `pearson`, `spearman`, `p_val_permutation`, `optimal_lag`, `lag_difference`, `sensitivity_table`), `results/plot_scatter.png` (existence & labels: X-axis "Vsw (km/s)", Y-axis "Ey (mV/m)", regression line), `results/plot_timeseries.png` (existence & labels: dual-axis, time range), and `results/quality_log.json` (existence & valid JSON).
+- [ ] T043 [P] Final review of all output artifacts to ensure they match the Spec's Success Criteria (SC-001 to SC-005). Verify specific artifacts: `results/us1_correlation.json` (schema check: keys `pearson`, `spearman`, `p_val_permutation`, `optimal_lag`, `lag_difference`, `sensitivity_table`), `results/plot_scatter.png` (existence & labels: X-axis "Vsw (km/s)", Y-axis "Ey (mV/m)", regression line), `results/plot_timeseries.png` (existence & labels: dual-axis, time range), and `results/quality_log.json` (existence & valid JSON). <!-- FAILED: unspecified -->
 
 - [X] T044 [P] Update `README.md` with instructions on how to run the full pipeline and interpret the results.
 

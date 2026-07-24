@@ -23,18 +23,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1
-    >
-    from pandas.compat.numpy import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py", line 4, in <module>
-    from pandas.util.version import Version
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/util/__init__.py", line 2, in <module>
-    from pandas.util._decorators import (  # noqa:F401
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/util/_decorators.py", line 14, in <module>
-    from pandas._libs.properties import cache_readonly
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/_libs/__init__.py", line 13, in <module>
-    from pandas._libs.interval import Interval
-  File "pandas/_libs/interval.pyx", line 1, in init pandas._libs.interval
-ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+    Fetching solar wind data from 2023-01-01 to 2023-01-03...
+Pipeline failed: Real OMNIWeb API fetch is required. Network access to NASA OMNIWeb is needed.
 
 ## Declared deliverables still missing
 
@@ -45,7 +35,7 @@ ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expec
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/quality_log.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/run_e2e_validation.py` — NOT invoked by the run-book
     - `code/run_us3_sample.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/quality_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

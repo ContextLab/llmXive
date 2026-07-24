@@ -1,49 +1,93 @@
 """
 Data cleaning and resampling module.
-File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py
+Handles NaN removal, resampling to a common cadence, and gap handling.
 """
 import pandas as pd
 import numpy as np
 from typing import Tuple
 from datetime import timedelta
+import logging
+import json
 
-def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+logger = logging.getLogger(__name__)
+
+def clean_and_resample(df_sw: pd.DataFrame, df_ey: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Clean two DataFrames by removing NaNs and resampling to a fixed cadence (5 minutes).
+    Remove NaN values and resample both DataFrames to a common regular cadence.
     
     Args:
-        df1: Solar wind data (Vsw, Bz) with 'timestamp' column.
-        df2: THEMIS data (Ey) with 'timestamp' column.
+        df_sw: Solar wind DataFrame with columns [timestamp, Vsw, Bz].
+        df_ey: THEMIS DataFrame with columns [timestamp, Ey].
         
     Returns:
-        Tuple of (cleaned_df1, cleaned_df2) aligned on timestamp.
+        Tuple of (df_sw_clean, df_ey_clean) resampled to 5-minute cadence.
     """
-    # Ensure timestamp is datetime
-    for df in [df1, df2]:
-        if 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
+    # Ensure timestamp is datetime and set as index
+    df_sw = df_sw.copy()
+    df_ey = df_ey.copy()
+    
+    df_sw['timestamp'] = pd.to_datetime(df_sw['timestamp'])
+    df_ey['timestamp'] = pd.to_datetime(df_ey['timestamp'])
+    
+    df_sw.set_index('timestamp', inplace=True)
+    df_ey.set_index('timestamp', inplace=True)
+    
+    # Drop rows with NaN in the value columns
+    df_sw = df_sw.dropna(subset=['Vsw', 'Bz'])
+    df_ey = df_ey.dropna(subset=['Ey'])
+    
+    # Resample to 5-minute intervals using mean
+    df_sw_resampled = df_sw.resample('5min').mean()
+    df_ey_resampled = df_ey.resample('5min').mean()
+    
+    # Re-align indices (inner join to keep only common timestamps)
+    common_index = df_sw_resampled.index.intersection(df_ey_resampled.index)
+    df_sw_clean = df_sw_resampled.loc[common_index]
+    df_ey_clean = df_ey_resampled.loc[common_index]
+    
+    # Drop any remaining NaNs resulting from resampling
+    df_sw_clean = df_sw_clean.dropna(subset=['Vsw', 'Bz'])
+    df_ey_clean = df_ey_clean.dropna(subset=['Ey'])
+    
+    logger.info(f"Cleaned data: {len(df_sw_clean)} points after resampling.")
+    
+    return df_sw_clean, df_ey_clean
+
+def handle_gaps(df: pd.DataFrame, max_gap_minutes: int = 30) -> pd.DataFrame:
+    """
+    Identify gaps > max_gap_minutes and truncate or flag the series.
+    
+    Args:
+        df: DataFrame with a DatetimeIndex.
+        max_gap_minutes: Maximum allowed gap in minutes.
+        
+    Returns:
+        DataFrame truncated at the first large gap, or the original if no gaps.
+    """
+    if df.empty:
+        return df
+    
+    # Calculate time differences
+    time_diffs = df.index.to_series().diff()
+    
+    # Identify gaps
+    gap_mask = time_diffs > timedelta(minutes=max_gap_minutes)
+    
+    if gap_mask.any():
+        # Find the first large gap
+        first_gap_idx = gap_mask[gap_mask].index[0]
+        # Truncate the dataframe before the gap
+        # We keep data up to the point before the gap
+        # The gap is at first_gap_idx, so we keep up to the previous index
+        prev_idx = df.index.get_loc(first_gap_idx) - 1
+        if prev_idx >= 0:
+            truncated_df = df.iloc[:prev_idx+1]
+            logger.warning(f"Truncated data at gap starting at {first_gap_idx}.")
+            return truncated_df
         else:
-            raise ValueError("Input DataFrames must have a 'timestamp' column")
+            # Gap is at the very beginning, return empty or original?
+            # Return original but log warning
+            logger.warning(f"Gap at the beginning of the series. No data kept.")
+            return df.iloc[:0]
     
-    # Sort by timestamp
-    df1 = df1.sort_values('timestamp')
-    df2 = df2.sort_values('timestamp')
-    
-    # Resample to 5-minute intervals
-    # We assume the index is timestamp for resampling, so set it
-    df1 = df1.set_index('timestamp')
-    df2 = df2.set_index('timestamp')
-    
-    # Resample: mean for numeric columns
-    df1_resampled = df1.resample('5T').mean()
-    df2_resampled = df2.resample('5T').mean()
-    
-    # Drop NaNs resulting from resampling (gaps in original data)
-    df1_clean = df1_resampled.dropna()
-    df2_clean = df2_resampled.dropna()
-    
-    # Reset index to make 'timestamp' a column again for merging later
-    df1_clean = df1_clean.reset_index()
-    df2_clean = df2_clean.reset_index()
-    
-    return df1_clean, df2_clean
+    return df

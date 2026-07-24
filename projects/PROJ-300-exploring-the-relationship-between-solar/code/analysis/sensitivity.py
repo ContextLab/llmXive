@@ -9,35 +9,64 @@ from ..config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 from .correlation import calculate_correlation
 from .lag_search import find_optimal_lag
 
-def analyze_thresholds(df: pd.DataFrame, thresholds: List[float]) -> List[Dict[str, Any]]:
+def analyze_thresholds(x: pd.Series, y: pd.Series, thresholds: list) -> dict:
     """
-    Compute correlations for different solar wind speed thresholds.
+    Sweep thresholds T and recompute correlations.
     
     Args:
-        df: Merged DataFrame with 'Vsw' and 'Ey'.
-        thresholds: List of Vsw thresholds in km/s.
-        
+        x: Solar wind speed series.
+        y: Ey series.
+        thresholds: List of speed thresholds (km/s).
+    
     Returns:
-        List of dictionaries with threshold and correlation.
+        Dictionary mapping threshold to correlation stats.
     """
-    results = []
+    results = {}
     for t in thresholds:
-        subset = df[df['Vsw'] >= t]
-        if len(subset) < 2:
-            corr = np.nan
-        else:
-            corr, _ = calculate_correlation(subset['Vsw'], subset['Ey'], method='pearson')
+        mask = x > t
+        x_sub = x[mask]
+        y_sub = y[mask]
         
-        results.append({
-            "threshold_km_s": t,
-            "n_points": len(subset),
-            "correlation": float(corr) if not np.isnan(corr) else None
-        })
+        if len(x_sub) < 2:
+            results[t] = {'pearson': np.nan, 'count': 0}
+            continue
+        
+        # Re-calculate optimal lag for this subset? Or use global optimal?
+        # Spec says "recompute correlations", implying we might need to find optimal lag again.
+        # For simplicity, we use the global optimal lag or re-run find_optimal_lag.
+        # Let's re-run to be accurate.
+        lag_res = find_optimal_lag(x_sub, y_sub, LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP)
+        
+        # Apply the found optimal lag
+        x_shifted = apply_lag_shift(x_sub, lag_res['optimal_lag'])
+        common_idx = x_shifted.index.intersection(y_sub.index)
+        x_al = x_shifted.loc[common_idx]
+        y_al = y_sub.loc[common_idx]
+        
+        corr = calculate_correlation(x_al, y_al)
+        
+        results[t] = {
+            'pearson': corr['pearson'],
+            'p_val': corr['p_val_pearson'],
+            'count': len(x_al),
+            'optimal_lag': lag_res['optimal_lag']
+        }
+    
     return results
 
-def run_sensitivity_sweep(df_sw: pd.DataFrame, df_ey: pd.DataFrame, thresholds: List[float]) -> List[Dict[str, Any]]:
+def run_sensitivity_sweep(x: pd.Series, y: pd.Series) -> dict:
     """
-    Run sensitivity sweep by filtering Vsw and recomputing correlations.
+    Run a full sensitivity sweep with default thresholds.
+    
+    Args:
+        x: Solar wind speed series.
+        y: Ey series.
+    
+    Returns:
+        Sensitivity results.
     """
-    merged = pd.merge(df_sw, df_ey, on='timestamp', how='inner')
-    return analyze_thresholds(merged, thresholds)
+    thresholds = [400, 500, 600]
+    return analyze_thresholds(x, y, thresholds)
+
+# Import here to avoid circular dependency if needed in other modules
+from ..data.lag import apply_lag_shift

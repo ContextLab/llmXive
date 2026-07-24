@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T08:56:11.013496Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-300-exploring-the-relationship-between-solar
-last_run_id: aec3f66f-9d7d-458a-b5fd-33d4b07c5709
+last_run_id: f25c6994-e732-4e28-baa4-2e4835b354aa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar
 title: Exploring the Relationship Between Solar Wind Speed and Geomagnetic Tail Reconnection
   Rates
-updated_at: '2026-07-23T14:24:31.066590Z'
+updated_at: '2026-07-24T00:28:46.362411Z'

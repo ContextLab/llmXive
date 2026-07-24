@@ -9045,3 +9045,854 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T13:57:06Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula 6371 divided by vsw mean
+  claim_id: c_7a0fadf0
+  context: Task T006a implements function calculate_l_phys with formula L_phys_minutes
+    = 6371 / vsw_mean as explicitly derived in FR-012.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula for physics-based propagation lag is L_phys_minutes = 6371
+    / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:36:21Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 400 500 600 km per second
+  claim_id: c_d101b43c
+  context: "Task T011 implements function analyze_thresholds to sweep thresholds T\
+    \ in {400, 500, 600} km s\u207B\xB9 and recompute correlations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps thresholds T in the set {400, 500, 600}\
+    \ km s\u207B\xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:36:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation test 10000 iterations
+  claim_id: c_f64d12e9
+  context: Task T008 implements function circular_block_permutation with n_iterations=10000
+    for empirical p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular block permutation test uses n_iterations=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:37:21Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap 1000 iterations for 95 percent confidence intervals
+  claim_id: c_60e46e19
+  context: Task T009 implements function moving_block_bootstrap with n_iterations=1000
+    for 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving block bootstrap uses n_iterations=1000 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:37:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag window range 30 to 90 minutes
+  claim_id: c_18dc4bdb
+  context: "Task T003 defines constants LAG_WINDOW_MIN=30 and LAG_WINDOW_MAX=90, and\
+    \ the goal for User Story 2 is to search a plausible lag window (30\u201390 min)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lag_window_range_30_to_90_minutes
+  kind: entity_fact
+  raw_text: The lag window for optimal lag search is defined as 30 to 90 minutes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:38:42Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data cleaning resamples to regular interval using mean aggregation
+  claim_id: c_d958d5ef
+  context: Task T005a logic for clean_and_resample includes resampling both to a regular
+    temporal interval using mean aggregation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_cleaning_resamples_to_regular_interval_using_mean_aggre
+  kind: entity_fact
+  raw_text: The data cleaning process resamples both DataFrames to a regular temporal
+    interval using mean aggregation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:39:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag shift assumes 5 minute cadence
+  claim_id: c_cf2fc7b7
+  context: Task T006b logic for apply_lag_shift uses series.shift(periods=lag_minutes
+    // 5) assuming 5-minute cadence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag shift function assumes a 5-minute cadence for the time series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:39:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: gap handling flags truncates series exceeding 30 minutes
+  claim_id: c_2f820a9d
+  context: Task T005b implements handle_gaps with max_gap_minutes=30 to flag or truncate
+    series with gaps exceeding this value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gap handling function flags or truncates series with gaps exceeding
+    30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:40:39Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: project requires python 3.11
+  claim_id: c_3c740d7c
+  context: Task T002 specifies to Initialize Python 3.11 project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:41:13Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_63ff5845
+  context: Task T002 lists exact pinned versions including pandas==2.0.3 in requirements.txt.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pandas library is pinned to version 2.0.3 in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:15Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_63321bbf
+  context: Task T002 lists exact pinned versions including numpy==1.24.3 in requirements.txt.
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The numpy library is pinned to version 1.24.3 in requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:16Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.4
+  claim_id: c_03172371
+  context: Task T002 lists exact pinned versions including scipy==1.11.4 in requirements.txt.
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scipy library is pinned to version 1.11.4 in requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_5409eb2d
+  context: Task T002 lists exact pinned versions including matplotlib==3.8.0 in requirements.txt.
+  evidence:
+    asserted: '3.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The matplotlib library is pinned to version 3.8.0 in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:20Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_1aad1779
+  context: Task T002 lists exact pinned versions including requests==2.31.0 in requirements.txt.
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requests library is pinned to version 2.31.0 in requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: tqdm version 4.66.1
+  claim_id: c_19932d59
+  context: Task T002 lists exact pinned versions including tqdm==4.66.1 in requirements.txt.
+  evidence:
+    asserted: '4.66'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The tqdm library is pinned to version 4.66.1 in requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:23Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_225ff19b
+  context: Task T002 lists exact pinned versions including pyyaml==6.0.1 in requirements.txt.
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pyyaml library is pinned to version 6.0.1 in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:25Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: cdaweb version 0.2.0
+  claim_id: c_7d98d012
+  context: Task T002 lists exact pinned versions including cdaweb==0.2.0 in requirements.txt.
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The cdaweb library is pinned to version 0.2.0 in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_3c493f62
+  context: Task T002 lists exact pinned versions including pytest==7.4.3 in requirements.txt.
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pytest library is pinned to version 7.4.3 in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T00:41:29Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: synthetic dataset test true lag 45 minutes
+  claim_id: c_57c6bf3c
+  context: The Independent Test for User Story 2 states to execute the lag-search
+    on a known synthetic dataset where the true lag is 45 min.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset test for User Story 2 uses a true lag of 45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:42:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: optimal lag reported within plus or minus 1 minute of true lag
+  claim_id: c_cdc0dbd5
+  context: "The Independent Test for User Story 2 requires the pipeline to report\
+    \ 45 min (\xB11 min) as the optimal lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The optimal lag L* must be reported within \xB11 minute of the true lag\
+    \ in the synthetic test."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:44:34Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: tail distance constant 60 RE
+  claim_id: c_7de74fa0
+  context: Task T003 defines the constant TAIL_DISTANCE_RE=60.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tail_distance_constant_60_RE
+  kind: entity_fact
+  raw_text: The tail distance constant is defined as 60 RE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:45:20Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: permutation test primary method for significance testing
+  claim_id: c_83e8eeca
+  context: Task T015 requires the narrative note to state that the permutation test
+    is the primary method for significance testing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_primary_method_for_significance_testing
+  kind: entity_fact
+  raw_text: The permutation test is the primary method for significance testing in
+    the project.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:46:00Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula equals 6371 divided by solar wind
+    mean velocity
+  claim_id: c_66e01f15
+  context: Task T006a implements the function calculate_l_phys to compute the physics-based
+    propagation lag. The formula is explicitly stated as L_phys_minutes = 6371 / vsw_mean.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The physics-based propagation lag formula is L_phys_minutes = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:47:17Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds are 400, 500, and 600 km per second
+  claim_id: c_3b0040a8
+  context: "Task T011 implements analyze_thresholds to sweep thresholds T \u2208 {400,\
+    \ 500, 600} km s\u207B\xB9 and recompute correlations. This is also referenced\
+    \ in the Independent Test for User Story 3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps thresholds T \u2208 {400, 500, 600} km\
+    \ s\u207B\xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:47:53Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag search window is 30 to 90 minutes with 5 minute steps
+  claim_id: c_ee8f24bd
+  context: Task T003 defines constants LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, and LAG_STEP=5.
+    Task T010 uses these to sweep the multi-minute window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag search window ranges from 30 to 90 minutes with a step of 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:48:30Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation test iterations count is 10000
+  claim_id: c_28ef8661
+  context: Task T008 implements circular_block_permutation with n_iterations=10000
+    for empirical p-values. Task T003 also defines PERMUTATION_ITERATIONS=10000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular block permutation test uses n_iterations=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:48:31Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap iterations count is 1000
+  claim_id: c_3a9a714b
+  context: Task T009 implements moving_block_bootstrap with n_iterations=1000 for
+    95% confidence intervals. Task T003 also defines BOOTSTRAP_ITERATIONS=1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving block bootstrap uses n_iterations=1000 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:48:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data resampling cadence is 5 minutes
+  claim_id: c_b80fd007
+  context: Task T005b mentions handling gaps exceeding 30 minutes and the verification
+    test test_clean_resamples_to_5min implies a 5-minute resampling interval. Task
+    T006b assumes a 5-minute cadence for lag shifts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data resampling cadence is 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:49:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: maximum gap duration for truncation is 30 minutes
+  claim_id: c_a1d8d869
+  context: Task T005b implements handle_gaps with max_gap_minutes=30 to flag or truncate
+    series with gaps exceeding this value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum gap duration for truncation or warning is 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:49:49Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: synthetic dataset validation expects optimal lag of 45 minutes with 1
+    minute tolerance
+  claim_id: c_79354605
+  context: "The Independent Test for User Story 2 states the pipeline must report\
+    \ 45 min (\xB11 min) as the optimal lag when executed on a known synthetic dataset\
+    \ where the true lag is 45 min."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic dataset validation test expects the reported optimal lag\
+    \ to be 45 minutes (\xB11 minute)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:50:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds are 400, 500, and 600 km/s
+  claim_id: c_adf353c8
+  context: "Task T011 requires implementing analyze_thresholds function to sweep thresholds\
+    \ T \u2208 {400, 500, 600} km s\u207B\xB9 and recompute correlations (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep thresholds T \u2208 {400, 500, 600} km s\u207B\xB9 and recompute\
+    \ correlations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:55:00Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation test uses 10000 iterations
+  claim_id: c_3c17fd85
+  context: Task T008 requires implementing circular_block_permutation with n_iterations=10000
+    for empirical p-values (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement circular_block_permutation with n_iterations=10000 for empirical
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:56:04Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap uses 1000 iterations
+  claim_id: c_6ae78692
+  context: Task T009 requires implementing moving_block_bootstrap with n_iterations=1000
+    for 95% confidence intervals (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement moving_block_bootstrap with n_iterations=1000 for 95% confidence
+    intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:56:41Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag search window is 30 to 90 minutes with 5 minute step
+  claim_id: c_09b2abb4
+  context: 'Task T003 defines constants: LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, LAG_STEP=5.
+    Task T010 implements find_optimal_lag to sweep this multi-minute window.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window for optimal lag search is 30 to 90 minutes with a step
+    of 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:57:24Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data resampling uses mean aggregation
+  claim_id: c_ff10e3f7
+  context: Task T005a requires implementing clean_and_resample to drop NaNs and resample
+    both DataFrames to a common regular cadence. Logic includes resampling to a regular
+    temporal interval using mean aggregation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_resampling_uses_mean_aggregation
+  kind: entity_fact
+  raw_text: Data is resampled to a regular temporal interval using mean aggregation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:58:08Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data gaps exceeding 30 minutes are handled
+  claim_id: c_8d371090
+  context: Task T005b requires implementing handle_gaps with max_gap_minutes=30. Logic
+    identifies gaps > 30 mins and truncates the series or raises a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaps exceeding 30 minutes are flagged or truncated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:58:30Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: solar wind data sourced from NASA OMNIWeb API
+  claim_id: c_697c1029
+  context: Task T004a requires implementing fetch_omni_sw to fetch solar wind data
+    (Vsw, Bz) from the NASA OMNIWeb API via requests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solar_wind_data_sourced_from_NASA_OMNIWeb_API
+  kind: entity_fact
+  raw_text: Solar wind data (Vsw, Bz) is fetched from the NASA OMNIWeb API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T00:59:13Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: THEMIS data sourced from NASA CDAWeb
+  claim_id: c_fb7821b3
+  context: Task T004b requires implementing fetch_themis_ey to fetch THEMIS data (Ey)
+    from NASA CDAWeb via cdaweb.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/THEMIS_data_sourced_from_NASA_CDAWeb
+  kind: entity_fact
+  raw_text: THEMIS data (Ey) is fetched from NASA CDAWeb.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:00:09Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag search accuracy verified within 1 minute on synthetic data
+  claim_id: c_7831078b
+  context: "Independent Test for User Story 2 requires executing the lag-search on\
+    \ a known synthetic dataset where the true lag is 45 min; the pipeline must report\
+    \ 45 min (\xB11 min) as the optimal lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The optimal lag L* is verified to be within \xB11 minute of the true\
+    \ lag on a synthetic dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:06:26Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_1c1912de
+  context: Task T002 requires initializing a Python 3.11 project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:08:15Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_e3995330
+  context: Task T002 lists requirements.txt containing pandas==2.0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:08:36Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_857736f8
+  context: Task T002 lists requirements.txt containing numpy==1.24.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.24.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:09:09Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.4
+  claim_id: c_90cf1686
+  context: Task T002 lists requirements.txt containing scipy==1.11.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scipy version 1.11.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:09:37Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_b114c0eb
+  context: Task T002 lists requirements.txt containing matplotlib==3.8.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses matplotlib version 3.8.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:10:13Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_555422da
+  context: Task T002 lists requirements.txt containing requests==2.31.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:10:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: tqdm version 4.66.1
+  claim_id: c_b5f822fa
+  context: Task T002 lists requirements.txt containing tqdm==4.66.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses tqdm version 4.66.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:11:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_70fa7fa0
+  context: Task T002 lists requirements.txt containing pyyaml==6.0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:11:36Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: cdaweb version 0.2.0
+  claim_id: c_6455870f
+  context: Task T002 lists requirements.txt containing cdaweb==0.2.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses cdaweb version 0.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:12:10Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_35066f2c
+  context: Task T002 lists requirements.txt containing pytest==7.4.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:12:37Z'
