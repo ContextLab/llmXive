@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 0c05839ad3bb487192bdb85212255e956b053e817b923531ea5ac00646fd98b6
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1145/3306260.3306265
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1145/3306260.3306265
+  verified_at: '2026-07-24T20:23:52.277180Z'
+- artifact_hash: a0e1ab378a43acaabf656400e248d8b081903dcf30708dede0d3cad3f7574cee
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
+  verified_at: '2026-07-24T20:24:08.301263Z'
+- artifact_hash: a0e1ab378a43acaabf656400e248d8b081903dcf30708dede0d3cad3f7574cee
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/minari/babyai-nav
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/minari/babyai-nav
+  verified_at: '2026-07-24T20:24:08.301263Z'

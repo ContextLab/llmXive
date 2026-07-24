@@ -21,19 +21,21 @@ properties:
     description: "The task category."
   token_index:
     type: "integer"
-    minimum: 0
-    description: "Index of the token in the sequence."
-  layer_index:
-    type: "integer"
-    minimum: 0
-    description: "Index of the transformer layer."
-  entropy_value:
-    type: "number"
-    description: "Shannon entropy value for this layer and token."
-  is_valid:
-    type: "boolean"
-    description: "True if the token matches the **external dataset ground truth**."
-  ground_truth_token:
-    type: "string"
-    description: "The actual token string for reference (from dataset)."
-additionalProperties: false
+    minimum: 1
+    description: "Length of the generated sequence"
+  entropy_profiles:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Layer-wise entropy values for each token (captured in same pass)"
+required:
+  - id
+  - task_type
+  - prompt
+  - ground_truth
+  - generated_tokens
+  - validity_flags
+  - sequence_length
+  - entropy_profiles

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Entropy Profile Schema"
-description: "Schema for raw entropy extraction output before merging."
+title: "EntropyProfile"
+description: "Schema for intermediate layer entropy profiles extracted from transformer models."
 type: "object"
 required:
   - "prompt_id"
@@ -9,18 +9,24 @@ required:
 properties:
   prompt_id:
     type: "string"
-    description: "Unique identifier for the prompt."
-  token_sequence:
-    type: "array"
-    items:
-      type: "integer"
-    description: "List of token IDs generated."
-  entropy_vectors:
-    type: "array"
-    description: "List of entropy vectors, one per token."
-    items:
-      type: "array"
-      description: "Entropy values for each layer for a single token."
-      items:
-        type: "number"
+    description: "Unique identifier for the token sequence."
+  token_index:
+    type: "integer"
+    description: "Position of the token in the sequence."
+  layer_entropies:
+    type: "object"
+    description: "Mapping of layer index to entropy value."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      description: "Shannon entropy value for the layer."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of extraction."
+required:
+  - sequence_id
+  - token_index
+  - layer_entropies
+  - timestamp
 additionalProperties: false

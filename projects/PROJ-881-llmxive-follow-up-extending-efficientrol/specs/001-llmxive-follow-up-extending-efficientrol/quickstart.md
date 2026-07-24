@@ -4,70 +4,72 @@
 
 - Python 3.11+
 - Git
-- Access to Hugging Face (optional, for model weights)
-- (Optional) Kaggle account for GPU offload (auto-detected by runner).
+- (Optional) Kaggle account for GPU offload (if CPU model is insufficient).
 
 ## Installation
 
-1.  **Clone and Setup**
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
+    ```
+
+2.  **Create and activate virtual environment**:
+    ```bash
     python -m venv venv
-    source venv/bin/activate
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
     pip install -r code/requirements.txt
     ```
 
-2.  **Environment Configuration**
-    Create `.env` in the project root:
+4.  **Configure environment**:
     ```bash
-    HF_TOKEN=your_token_here
-    RANDOM_SEED=42
-    MAX_EXAMPLES_PER_TASK=500
+    cp .env.example .env
+    # Edit .env to set HF_TOKEN (if needed) and other config
     ```
 
 ## Execution Workflow
 
-### Step 1: Data Download & Checksumming
+The pipeline is executed via the `main.py` entry point.
+
+### Step 1: Data Generation (CPU)
+Generates ground-truth sequences and labels.
 ```bash
-python code/src/data/download.py --task gsm8k --task minigrid
-# Verifies checksums against known hashes (commit hash from HF dataset card metadata)
+python code/src/generation/generation.py --task gsm8k --limit 500 --streaming
+python code/src/generation/generation.py --task minigrid --limit 500 --streaming
 ```
 
-### Step 2: Ground Truth Generation
+### Step 2: Entropy Extraction
+Captures intermediate layer entropy.
 ```bash
-python code/src/generation/generation.py --task gsm8k --model tinyllama-1.1b-4bit
-python code/src/generation/generation.py --task minigrid --model tinyllama-1.1b-4bit
-# Outputs: data/processed/generation_baseline.jsonl
-# Note: Validity labels are derived from external dataset ground truth.
-# Constraint: Full autoregressive forward pass, temperature=0.0.
+python code/src/generation/instrument.py --input data/processed/sequences.jsonl --batch-size 50
 ```
 
-### Step 3: Entropy Extraction
+### Step 3: Analysis
+Fits GLMM and calculates metrics.
 ```bash
-python code/src/utils/entropy_calc.py --input data/processed/generation_baseline.jsonl --batch-size 50
-# Outputs: data/processed/entropy_profiles.jsonl
-# Note: Input is raw logits; softmax applied internally; probabilities clamped.
-# Output format adheres to entropy_profile.schema.yaml.
+python code/src/analysis/models.py --input data/processed/merged_analysis.parquet --correction bh
 ```
 
-### Step 4: Analysis & Modeling
+### Step 4: Report Generation
+Generates the final research report.
 ```bash
-python code/src/analysis/glmm_fit.py --input data/processed/merged_data.parquet
-# Outputs: data/processed/results.json (AUC, p-values, thresholds, fdr_verified)
-# Note: Primary method is GLMM; Clustered SE is fallback if GLMM fails.
-# Note: FDR is explicitly compared against alpha=0.05.
+python code/src/analysis/report.py --input artifacts/reports/model_results.json --output artifacts/reports/final_report.md
 ```
 
-## Verification
+## GPU Offload (Kaggle)
 
-Run the test suite to ensure contract compliance:
-```bash
-pytest tests/ -v
-```
+If the CPU run fails or requires a larger model:
+1.  Push the code to a Kaggle notebook.
+2.  Enable GPU in the notebook settings.
+3.  The code automatically detects CUDA and switches to a quantized 7B model.
+4.  Run the same commands with `--gpu` flag.
 
 ## Troubleshooting
 
-- **OOM Error**: If `MemoryError` occurs, the system automatically reduces batch size. If it persists, the runner will attempt to offload to the GPU escape hatch (Kaggle).
-- **Missing Ground Truth**: Ensure `ground_truth` field is present in the downloaded dataset. If ambiguous (MiniGrid), the system labels a token as valid if it matches *any* known path from the dataset.
-- **Convergence Failure**: If GLMM fails to converge, the system automatically falls back to Clustered SE results.
+- **OOM Errors**: Ensure `--batch-size` is set to 50 or lower. Check RAM usage with `htop`.
+- **CUDA Errors**: Verify that the GPU escape hatch is triggered only when `CUDA_VISIBLE_DEVICES` is set.
+- **Data Fetching**: If Hugging Face datasets fail, check network connectivity and `HF_TOKEN`.

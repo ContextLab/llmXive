@@ -1,53 +1,64 @@
 # Data Model: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
-## Entity Definitions
+## Overview
+
+This document defines the data structures used throughout the pipeline, from raw dataset ingestion to final analysis artifacts. All data is stored in JSONL or Parquet formats for efficient streaming and schema validation.
+
+## Key Entities
 
 ### 1. TokenSequence
 Represents a generated response to a prompt.
-- **prompt_id**: Unique identifier for the input prompt.
-- **task_type**: Enum (`gsm8k`, `minigrid`).
-- **tokens**: List of integer token IDs.
-- **validity_flags**: List of booleans (True if token matches **external dataset ground truth**).
-- **ground_truth**: The full external ground-truth string or token sequence from the dataset.
+- **Fields**:
+  - `sequence_id`: Unique identifier (UUID).
+  - `task_type`: "GSM8K" or "MiniGrid".
+  - `prompt`: The input text.
+  - `tokens`: List of token IDs.
+  - `validity_labels`: List of booleans (True if token matches ground truth).
+  - `ground_truth`: The full ground truth string/sequence.
+  - `sequence_length`: Integer length of the sequence.
 
 ### 2. EntropyProfile
-Represents the internal state of a single token at a specific layer.
-- **prompt_id**: Foreign key to `TokenSequence`.
-- **token_index**: Integer index of the token in the sequence.
-- **layer_index**: Integer index of the transformer layer.
-- **entropy_value**: Float ($-\sum p \log p$).
-- **probability_distribution**: List of floats (optional, for debugging).
+Represents the internal state of a single token.
+- **Fields**:
+  - `sequence_id`: Foreign key to TokenSequence.
+  - `token_index`: Position in the sequence.
+  - `layer_entropies`: Dictionary mapping layer index (int) to entropy value (float).
+  - `timestamp`: ISO 8601 timestamp of extraction.
 
 ### 3. ValidityLabel
-Binary flag indicating token correctness.
-- **prompt_id**: Foreign key.
-- **token_index**: Integer index.
-- **is_valid**: Boolean (matches **external dataset ground truth**).
+A binary flag derived from the match between generated token and ground truth.
+- **Fields**:
+  - `sequence_id`: Foreign key.
+  - `token_index`: Position.
+  - `is_valid`: Boolean.
+  - `match_type`: "exact" or "partial" (if applicable).
 
 ### 4. RegressionModel
-Fitted statistical model results.
-- **model_id**: Unique identifier.
-- **task_type**: Enum.
-- **fixed_effects**: Dict of coefficients (e.g., `{"entropy": 0.45}`).
-- **random_effects_variance**: Dict of variance components (if GLMM).
-- **clustered_se**: Float (if Clustered SE model).
-- **auc_roc**: Float.
-- **p_value**: Float.
-- **fdr_corrected**: Boolean.
+The fitted statistical model.
+- **Fields**:
+  - `model_id`: Unique identifier.
+  - `method`: "GLMM".
+  - `coefficients`: Dictionary of fixed and random effects.
+  - `metrics`: AUC-ROC, p-values, FDR.
+  - `optimal_threshold`: The entropy value minimizing weighted error.
+
+### 5. MemoryBackOffState
+Represents the state of a memory back-off retry.
+- **Fields**:
+  - `original_batch_size`: Integer.
+  - `retry_batch_size`: Integer (reduced).
+  - `error_type`: "MemoryError".
+  - `success`: Boolean.
 
 ## Data Flow
 
-1.  **Ingestion**: Raw datasets (GSM8K, MiniGrid) downloaded to `data/raw/`.
-2.  **Generation**: `generation.py` produces `TokenSequence` with `validity_flags` (matched against **external dataset ground truth**).
-3.  **Instrumentation**: `entropy_calc.py` extracts `EntropyProfile` for each token. Input: raw logits. Output: entropy values (softmax applied internally, probabilities clamped to $1e-9$).
-4.  **Merging**: `preprocessing.py` merges `TokenSequence` and `EntropyProfile` into `data/processed/merged_data.parquet`. **Merge Key**: `prompt_id` and `token_index` (Inner Join).
-5.  **Analysis**: `glmm_fit.py` reads merged data, fits GLMM (or Clustered SE fallback), outputs `RegressionModel` metrics to `data/processed/results.json`.
+1.  **Raw Data**: `datasets.load_dataset()` -> `data/raw/gsm8k.parquet`, `data/raw/minari.parquet`.
+2.  **Generated Data**: `generation.py` -> `data/processed/sequences.jsonl`.
+3.  **Entropy Data**: `instrument.py` -> `data/processed/entropy_profiles.jsonl` (streamed, appended).
+4.  **Merged Data**: `preprocessing.py` -> `data/processed/merged_analysis.parquet`.
+5.  **Stratified Data**: `preprocessing.py` -> `data/processed/short_seqs.parquet`, `data/processed/long_seqs.parquet`.
+6.  **Results**: `analysis/models.py` -> `artifacts/reports/model_results.json`.
 
-## Constraints & Validation
+## Schema Validation
 
-- **Entropy Calculation**: Must handle $p=0$ by clamping to $1e-9$ before log. Input is raw logits; softmax is applied internally.
-- **Batching**: All processing must occur in batches of 50 tokens to respect 7GB RAM.
-- **Uniqueness**: `prompt_id` + `token_index` + `layer_index` must be unique.
-- **Missing Data**: Any missing entropy values result in row exclusion with a log warning.
-- **Schema Adherence**: All data files must adhere to `dataset.schema.yaml`, `entropy_profile.schema.yaml`, and `analysis_result.schema.yaml`.
-- **Validity Label Return**: The validity labeling function must return a structured record containing the original data, the validity flag, and a standardized log entry object (if applicable).
+All data files must conform to the schemas defined in `contracts/`. The `validators.py` module enforces these schemas at runtime. Memory back-off logic is handled by `preprocessing.py` and logged to `artifacts/logs/memory_backoff.json`, validated against `contracts/memory_backoff.schema.yaml`.
