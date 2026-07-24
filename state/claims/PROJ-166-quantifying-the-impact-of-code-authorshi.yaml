@@ -2648,3 +2648,169 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T20:20:02Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: author count coefficient is 0.4523 with p-value 0.0012
+  claim_id: c_c45f41bd
+  context: 'The primary analysis indicates a positive association between authorship
+    diversity (unique authors) and vulnerability counts. The coefficient for author
+    count is 0.4523 (p-value: 0.0012), which is statistically significant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The coefficient for author count is 0.4523 (p-value: 0.0012).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:58:55Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: author count coefficient 95% confidence interval is 0.2931 to 0.6115
+  claim_id: c_171275f7
+  context: Table of Primary Model Results showing Predictor, Coefficient, Std Error,
+    P-Value, and 95% CI Lower/Upper values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% CI for the author count coefficient is [0.2931, 0.6115].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:58:55Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: Python subsample author count coefficient is 0.4105 with p-value 0.0045
+    and 120 rows
+  claim_id: c_287324d9
+  context: Subsample Analysis by Language table showing Python coefficient 0.4105,
+    Std Error 0.0950, P-Value 0.0045, N Rows 120.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the Python subsample, the coefficient for author count is 0.4105 with
+    a p-value of 0.0045 based on 120 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T20:59:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: JavaScript subsample author count coefficient is 0.3890 with p-value
+    0.0120 and 95 rows
+  claim_id: c_70d9dd01
+  context: Subsample Analysis by Language table showing JavaScript coefficient 0.3890,
+    Std Error 0.1100, P-Value 0.0120, N Rows 95.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the JavaScript subsample, the coefficient for author count is 0.3890
+    with a p-value of 0.0120 based on 95 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:00:17Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: Shannon Entropy model coefficient is 0.4210
+  claim_id: c_ccf9a7d0
+  context: Shannon Entropy Model section listing Coefficient (Entropy) as 0.4210 and
+    Coefficient Difference (vs Author Count) as 0.0313.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Shannon Entropy model yielded a coefficient of 0.4210.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:00:38Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: coefficient difference between Shannon Entropy and Author Count models
+    is 0.0313
+  claim_id: c_63f8244a
+  context: Shannon Entropy Model section listing Coefficient Difference (vs Author
+    Count) as 0.0313.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coefficient difference between the Shannon Entropy model and the Author
+    Count model is 0.0313.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:01:19Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: lagged variable analysis lag period is 12 months
+  claim_id: c_437cfeca
+  context: Lagged Variable Analysis section listing Lag Period as 12 months.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lagged variable analysis used a lag period of 12 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:01:37Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: author count lag coefficient is 0.3950
+  claim_id: c_61843db0
+  context: Lagged Variable Analysis section listing Author Count Lag Coefficient as
+    0.3950.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The author count lag coefficient in the lagged variable analysis is 0.3950.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:01:56Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: CVE count lag coefficient is 0.1200
+  claim_id: c_02426ac0
+  context: Lagged Variable Analysis section listing CVE Count Lag Coefficient as 0.1200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CVE count lag coefficient in the lagged variable analysis is 0.1200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:02:10Z'
+- artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/docs/final_analysis_report.md
+  attempts: 1
+  canonical: 45 repositories excluded from lagged analysis due to data window
+  claim_id: c_ab3b1d18
+  context: Lagged Variable Analysis section listing Repos Excluded due to Data Window
+    as 45 and Limitations section reiterating this exclusion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 45 repositories were excluded from the lagged analysis because their history
+    fell outside the shallow clone window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T21:02:30Z'

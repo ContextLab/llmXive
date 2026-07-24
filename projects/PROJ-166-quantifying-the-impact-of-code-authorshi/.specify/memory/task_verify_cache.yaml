@@ -43,15 +43,6 @@ T022:
     \ and does not compute Shannon entropy, re\u2011fit a GLM with entropy as predictor,\
     \ or compute/report the coefficient difference. Moreover, the required output\
     \ file `data/processed/robustness_entropy_pvalues.csv` is absent."
-T034:
-  c: false
-  h: 1327b9fe6efa695ca8d5060910bd618eeecb14492834af9a972198e6cac59c31
-  r: "The repository lacks the required `data/processed/robustness_lagged_results.json`\
-    \ file, and the `calculate_lagged_metrics` function in `code/analysis/robustness.py`\
-    \ contains placeholder logic (\u201Csimulate a lagged version\u2026\u201D) rather\
-    \ than a real computation of 2015\u20112019 author and CVE counts, and no full\
-    \ Negative Binomial GLM fitting or JSON saving is present. The task\u2019s core\
-    \ requirements are therefore unmet."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
