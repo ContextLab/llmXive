@@ -43,7 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw/`, `data/curated/`, `data/results/`, `tests/unit/`, `tests/contract/`, `contracts/`, `docs/`, `paper/` AND configure linting (ruff/flake8) and formatting (black) tools.
+- [X] T001a [P] Create project structure: Run `mkdir -p code/ data/raw/ data/curated/ data/results/ tests/unit/ tests/contract/ contracts/ docs/ paper/`. Verify existence of all required directories by running `code/utils/verify_structure.py` (which checks `os.path.isdir` for each path).
+- [X] T001b [P] Configure Linting: Create `.ruff.toml` or `pyproject.toml` with ruff/flake8 configuration for the project.
+- [X] T001c [P] Configure Formatting: Create `.black.toml` or `pyproject.toml` with black formatting configuration for the project.
 
 ---
 
@@ -53,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 [P] Implement `code/config.py` to define paths (`data/raw/`, `data/curated/`, `data/results/`), random seeds, model config (CPU-only), AND critical thresholds: `COMPLEXITY_THRESHOLD` (for hard instance selection), `HARD_INSTANCE_PERCENTILE`, `VALIDATION_SAMPLE_SIZE` (See T012, T013).
+- [X] T002 [P] Implement `code/config.py` to define paths (`data/raw/`, `data/curated/`, `data/results/`), random seeds, model config (CPU-only), and critical thresholds: `HARD_INSTANCE_PERCENTILE` (default 0.2), `VALIDATION_SAMPLE_SIZE`, `BASELINE_QUERY_COUNT` (default 5, configurable), `SWEEP_SAMPLE_SIZE` (default 20), `SYNTHETIC_COUNT` (default 50).
 - [X] T003 [P] Implement `code/utils/hash_artifacts.py` for automated SHA256 hashing of `data/` artifacts (Constitution Principle V)
 - [X] T004 [P] Create `contracts/` directory with `dataset_schema.yaml`, `agent_log_schema.yaml`, `result_schema.yaml`
 - [X] T005 [P] Implement `code/utils/validation.py` for JSONL/Parquet schema validation against contracts
@@ -65,7 +67,7 @@
 
 ## Phase 3: User Story 1 - Data Curation and Hard Instance Selection (Priority: P1) 🎯 MVP
 
-**Goal**: Download SWE-Explore, derive ground truth, select "hard" instances based on **initial coverage scores** (Spec FR-001) to ensure alignment with the benchmark's definition of "hard" (low retrieval success), and generate synthetic ambiguous issues with dynamic power-based sizing.
+**Goal**: Download SWE-Explore, derive ground truth, compute initial coverage, select "hard" instances based on **initial coverage scores** (Spec FR-001), and generate a fixed set of synthetic ambiguous issues with mapped ground truth.
 
 **Independent Test**: Verify the existence of `data/curated/hard_subset.jsonl`, `data/curated/non_hard_subset.jsonl`, `data/curated/synthetic_issues.jsonl`, and `data/curated/validation_report.md` with correct schemas and valid AST parsing for synthetic issues.
 
@@ -79,36 +81,78 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [P] [US1] Implement `code/data/download.py` to fetch `bench.final.public.jsonl` from HuggingFace
-- [X] T011 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
-- [X] T012 [US1] **Filter Hard Subset (Spec Alignment)**.
- - **Requirement**: Implement filtering based on **initial coverage scores** as per **Spec FR-001** to identify "hard" instances (bottom [deferred] of scores).
- - **Rationale**: The Spec explicitly defines "hard" as low initial coverage. While the Plan suggested complexity to avoid tautology, the benchmark's core definition relies on the static baseline's failure rate. We implement Spec FR-001 as the primary path. The Plan's complexity metric will be computed as a diagnostic (T012-Coverage) but not used for selection.
- - **Logic**: Select the bottom [deferred] of initial coverage scores.
+- [X] T010 [P] [US1] **Download Dataset**.
+ - **Action**: Implement `code/data/download.py` to fetch `bench.final.public.jsonl` from the verified HuggingFace URL.
+ - **Constraint**: If the fetch fails (HTTP 404/500), raise a `ValueError` immediately. Do NOT fall back to synthetic data.
+ - **Output**: `data/raw/bench.final.public.jsonl`.
+ - **Traceability**: Implements Spec FR-001 (Data Source).
+- [X] T011 [P] [US1] **Derive Ground Truth**.
+ - **Action**: Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists.
+ - **Constraint**: Use `datasets.load_dataset(..., streaming=True)` to process large files in chunks to prevent OOM.
+ - **Output**: `data/raw/bench.final.public.gt.jsonl`.
+ - **Traceability**: Implements Spec FR-008 (Oracle Derivation).
+- [X] T012a-Impl [P] [US1] **Implement Baseline Retrieval**.
+ - **Requirement**: Implement `code/data/derive_coverage.py::run_baseline` to run a lightweight static baseline retrieval on the original code.
+ - **Logic**: The function iterates through `data/raw/bench.final.public.gt.jsonl` (T011) and retrieves context for each issue.
+ - **Output**: Intermediate list of retrieved contexts.
+ - **Dependency**: Depends on T011.
+ - **Traceability**: Provides the producer for Spec FR-001 (Filter by Coverage).
+- [X] T012a-Calc [P] [US1] **Compute Coverage Percentage**.
+ - **Requirement**: Implement `code/data/derive_coverage.py::calc_coverage` to calculate the percentage of ground-truth lines retrieved.
+ - **Logic**: Compare retrieved lines against `ground_truth_lines` for each issue.
+ - **Output**: List of coverage percentages.
+ - **Dependency**: Depends on T012a-Impl.
+ - **Traceability**: Provides the metric for Spec FR-001.
+- [X] T012a-Append [P] [US1] **Append Coverage to Dataset**.
+ - **Requirement**: Implement `code/data/derive_coverage.py::append_coverage` to append `initial_coverage` to each record in a single pass.
+ - **Output**: `data/raw/bench.final.public.gt.coverage.jsonl`.
+ - **Dependency**: Depends on T012a-Calc.
+ - **Traceability**: Provides the final dataset for T012.
+- [X] T012 [US1] **Filter Hard Subset & Compute Complexity**.
+ - **Requirement**: Filter the dataset to select the bottom `HARD_INSTANCE_PERCENTILE` (e.g., [deferred]) based on **initial coverage scores** (Spec FR-001).
+ - **Diagnostic**: Compute Cyclomatic Complexity for each issue and append as a metadata field `complexity_score`.
+ - **Logic**: Select the bottom % by `initial_coverage` (from T012a-Append). Append complexity scores for diagnostic purposes only (do NOT use for filtering).
  - **Deliverable**: Create `code/data/filter_hard.py` to perform this calculation and selection.
- - **Output**: `data/curated/hard_subset.jsonl` (Primary deliverable).
- - **Dependency**: Must verify `code/config.py` (T002) exists before execution.
- - **Traceability**: Implements Spec FR-001.
-- [X] T012-Complexity [US1] **Diagnostic: Complexity Metric**.
- - **Requirement**: Calculate Cyclomatic Complexity for each issue as a diagnostic metric only.
- - **Logic**: Compute complexity but do NOT use it for filtering the "hard" subset.
- - **Output**: Append complexity scores to `data/curated/hard_subset.jsonl` as a metadata field for later correlation analysis.
- - **Traceability**: Aligns with Plan Phase 0 as a diagnostic, not a selection criteria.
+ - **Output**: `data/curated/hard_subset.jsonl` (includes `initial_coverage` and `complexity_score`).
+ - **Dependency**: Depends on T012a-Append.
+ - **Traceability**: Implements Spec FR-001. Resolves contradiction with Plan by following Spec (Plan updated to align).
 - [X] T012c [US1] **Generate Non-Hard Subset**.
- - **Requirement**: Compute the complement of the Primary Hard Subset (T012) to provide the input pool for synthetic generation.
- - **Logic**: Select all issues from the full dataset that are NOT in `data/curated/hard_subset.jsonl`.
+ - **Requirement**: Compute the complement of the Hard Subset (T012) to provide the input pool for synthetic generation.
+ - **Logic**: Select all issues from `data/raw/bench.final.public.gt.coverage.jsonl` (T012a-Append) that are NOT in `data/curated/hard_subset.jsonl`.
  - **Output**: `data/curated/non_hard_subset.jsonl`.
- - **Dependency**: Depends on T012 completion.
- - **Traceability**: Resolves ordering-064eff0f by providing the correct input for T013.
-- [X] T013 [US1] **Generate Synthetic Ambiguous Issues (Power-Based)**.
- - **Input**: `data/curated/non_hard_subset.jsonl` (T012c output).
- - **Logic**: Apply mutations (rename variables, remove all comments, and apply structural obfuscation via control flow reordering) to generate a representative set of issues.
- - **Constraint**: **Dynamic Generation Loop**: Continue generating issues until `power_analysis` (using `statsmodels.stats.power` with effect size 0.5, alpha=0.05) confirms statistical power >= 0.8. **Hard Safety Cap**: Stop at a predefined maximum number of issues if power is not reached to prevent runaway generation. Log warnings if cap is hit.
+ - **Dependency**: Depends on T012a-Append and T012.
+ - **Traceability**: Resolves ordering-3673b074 by providing correct input for T013a.
+- [X] T013a [US1] **Derive GT for Synthetic Issues**.
+ - **Input**: `data/curated/non_hard_subset.jsonl` (T012c).
+ - **Action**: For each issue in the non-hard subset, prepare the original code and its `ground_truth_lines` (from T011) to be used as the oracle for the *mutated* version.
+ - **Logic**: Store the original code and its GT lines in a temporary mapping. This ensures that when T013 mutates the code, the GT lines refer to the original indices (as per FR-008) or are mapped correctly if line numbers shift.
+ - **Output**: `data/curated/non_hard_subset_with_gt_map.jsonl`.
+ - **Dependency**: Depends on T011 and T012c.
+ - **Traceability**: Ensures GT validity for synthetic issues (FR-008).
+- [X] T013-Mutate [P] [US1] **Implement Mutation Logic**.
+ - **Input**: `data/curated/non_hard_subset_with_gt_map.jsonl` (T013a).
+ - **Logic**: Implement `code/data/mutate.py::apply_mutations` to apply mutations (rename variables, remove all comments, and apply **structural obfuscation** via control flow reordering or API signature changes) to generate a set of issues.
+ - **Constraint**: Generate `min(SYNTHETIC_COUNT, len(non_hard_subset))` synthetic issues (from config.py T002). Do NOT exceed the available input pool.
+ - **Output**: List of mutated issues with original code hashes.
+ - **Traceability**: Aligns with Spec FR-002 and FR-009.
+- [X] T013-GTMap [P] [US1] **Map Ground Truth for Mutations**.
+ - **Input**: Output from T013-Mutate and `data/curated/non_hard_subset_with_gt_map.jsonl` (T013a).
+ - **Logic**: Assign the `ground_truth_lines` from the original unmutated code to the mutated issue, adjusting for line shifts if necessary (or storing original indices as per FR-008).
+ - **Output**: List of synthetic issues with mapped GT lines.
+ - **Dependency**: Depends on T013-Mutate.
+ - **Traceability**: Ensures GT validity (FR-008).
+- [X] T013-Validate [P] [US1] **Validate AST Parseability**.
+ - **Input**: Output from T013-GTMap.
+ - **Logic**: Ensure mutated code is syntactically valid (AST parseable). Skip invalid mutations and log warnings.
+ - **Output**: List of valid synthetic issues.
+ - **Dependency**: Depends on T013-GTMap.
+ - **Traceability**: Ensures syntactic validity.
+- [X] T013-Output [US1] **Generate Synthetic Issues Output**.
+ - **Input**: Output from T013-Validate.
+ - **Logic**: Write valid synthetic issues to `data/curated/synthetic_issues.jsonl`.
  - **Output**: `data/curated/synthetic_issues.jsonl`.
- - **Oracle**: Derive `ground_truth_lines` from the original unmutated code (FR-008).
- - **Validity**: Ensure mutated code is syntactically valid (AST parseable). Skip invalid mutations and log warnings.
- - **Deliverable**: Create `code/data/mutate.py` to implement this logic.
- - **Traceability**: Aligns with Spec FR-002 and SC-003 (Statistical Power).
+ - **Dependency**: Depends on T013-Validate.
+ - **Traceability**: Final output for synthetic issues.
 - [X] T014 [US1] **Metadata & Versioning**.
  - Save `data/curated/synthetic_issues_meta.json` containing original code hashes, mutation parameters, and the exact count generated.
  - Run `hash_artifacts.py` on `data/curated/` files.
@@ -117,13 +161,13 @@
  - Logic: Select `VALIDATION_SAMPLE_SIZE` (from config.py T002) random issues.
  - Output: Markdown table with columns [IssueID, CoverageScore, ComplexityScore, Notes].
  - **Note**: This report is a **tool for manual inspection**, not an automated validation result.
-- [X] T016-AutoValidate [US1] **Automated Validation Gate**.
+- [X] T016-AutoValidate [US1] **Automated Validation Gate with Manual Review**.
  - **Action**: Run `code/data/validate_hard.py` to automatically verify the "hard" subset against the coverage threshold and generate a validation report.
- - **Logic**: The script checks if the selected "hard" issues (by Coverage) exhibit low coverage (as a sanity check) and **includes a "Plan Override Justification" block** documenting the decision to use Coverage over Complexity to align with Spec FR-001.
- - **Output**: `data/curated/validation_report.md` and `data/curated/validation_status.json` (status: "PASSED" or "WARNING").
- - **Constraint**: The pipeline proceeds automatically regardless of status; manual review is optional.
- - **Dependency**: Phase 4 agents depend on T016-AutoValidate completion.
- - **Traceability**: Replaces manual gate T016 to ensure reproducibility (Constitution Principle I) and documents Spec Alignment.
+ - **Logic**: The script checks if the selected "hard" issues (by Coverage) exhibit low coverage (as a sanity check), generates a CSV report for manual notes, and **includes a "Plan Alignment Justification" block** documenting the decision to use Coverage over Complexity to align with Spec FR-001.
+ - **Output**: `data/curated/validation_report.md`, `data/curated/validation_manual_review.csv` (for human notes), and `data/curated/validation_status.json` (status: "PASSED" or "WARNING").
+ - **Constraint**: The pipeline **MUST NOT proceed** to Phase 4 until a human reviewer manually inspects `validation_report.md`, adds notes to the CSV, and sets a flag `MANUAL_REVIEWED=true` in `data/curated/validation_status.json`.
+ - **Dependency**: Phase 4 agents depend on T016-AutoValidate completion (specifically the manual review flag).
+ - **Traceability**: Resolves FR-010 by enforcing manual inspection and consolidating T052 logic.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -147,17 +191,17 @@
 - [X] T021 [US2] **Data Locking & Subset Consistency**.
  - **Action**: Before running agents, copy `data/curated/hard_subset.jsonl` to a locked execution directory (e.g., `data/results/locked_hard_subset.jsonl`).
  - **Purpose**: Ensure T022 (Baseline) and T023 (Iterative) consume the **exact same** file instance to enable 1:1 pairing.
- - **Dependency**: Depends on T012 (data generation) and T016-AutoValidate. **Not parallel**: Must wait for T016-AutoValidate.
+ - **Dependency**: Depends on T012 (data generation), T012c (non-hard), and T016-AutoValidate (manual review flag). **Not parallel**: Must wait for T016-AutoValidate.
  - **Prerequisite**: Phase 4 agents depend on this task.
 - [X] T022 [P] [US2] **Static Multi-Query Baseline**.
- - **Requirement**: Run **5 parallel queries** per issue (matching the *maximum* turn limit of the sweep in T024) to match iterative budget.
+ - **Requirement**: Run a configurable number of parallel queries per issue, as defined by `BASELINE_QUERY_COUNT` in `config.py`. to match iterative budget.
  - **Input**: `data/results/locked_hard_subset.jsonl` (T021).
  - **Deliverable**: Create `code/agent/static_baseline.py` to perform this execution.
  - **Output**: `data/results/baseline_logs.jsonl` (Unique path to avoid race conditions).
  - **Logging**: Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score`.
  - **Dependency**: Depends on T021 completion.
 - [X] T023 [P] [US2] **Iterative Agent**.
- - **Requirement**: Enforce configurable turn limit (default value, variable for sweep).
+ - **Requirement**: Enforce a configurable turn limit with a defined default.
  - **Turn Logic**: Query -> Retrieve -> Static Analysis -> Reformulate (if error).
  - **Loop Detection**: Detect repeated queries to break loops early.
  - **Input**: `data/results/locked_hard_subset.jsonl` (T021).
@@ -165,17 +209,24 @@
  - **Logging**: Explicitly log `issue_id`, `query_history`, `static_analysis_signals`, `turn_reasons`.
  - **Dependency**: Depends on T021 completion.
 - [X] T024a [US2] **Turn-Limit Sweep: Sampling**.
- - **Logic**: Generate a specific sample list file for **N=100** issues (random sample with **seed 42**, stratified by complexity quartiles from `data/curated/hard_subset.jsonl`). **Power Check**: Run a power analysis to verify N=100 is sufficient for SC-006 stability claims.
+ - **Logic**: Generate a specific sample list file for `SWEEP_SAMPLE_SIZE` (from config.py, default unspecified) issues (random sample with **a fixed seed**, stratified by `complexity_score` quartiles from `data/curated/hard_subset.jsonl`).
  - **Output**: `data/results/sweep_sample_list.json`.
  - **Dependency**: Depends on T012 (stratification).
-- [X] T024b [US2] **Turn-Limit Sweep: Execution**.
- - **Logic**: Execute the iterative agent loop for each turn limit in a range of low to moderate values.
- - **Parameter**: Pass `max_turns` dynamically to the agent execution script for each iteration.
- - **Output**: `data/results/sweep_execution_logs.json` (aggregated logs for all turn limits).
+- [X] T024b-Driver [US2] **Turn-Limit Sweep: Driver Implementation**.
+ - **Logic**: Implement `code/analysis/sweep_driver.py::run_sweep` to load the sample and iterate through a range of turn limits.
+ - **Output**: Intermediate state for execution.
  - **Dependency**: Depends on T024a.
-- [X] T024c [US2] **Turn-Limit Sweep: Aggregation**.
+- [X] T024b-Exec [US2] **Turn-Limit Sweep: Execution**.
+ - **Logic**: Invoke the iterative agent for each turn limit in the loop defined by T024b-Driver.
+ - **Output**: Raw execution logs per turn limit.
+ - **Dependency**: Depends on T024b-Driver.
+- [X] T024b-Agg [US2] **Turn-Limit Sweep: Aggregation**.
+ - **Logic**: Aggregate results from T024b-Exec into `data/results/sweep_execution_logs.json`.
+ - **Output**: `data/results/sweep_execution_logs.json`.
+ - **Dependency**: Depends on T024b-Exec.
+- [X] T024c [US2] **Turn-Limit Sweep: Final Aggregation**.
  - **Logic**: Aggregate results into `data/results/sweep_results.json` containing columns: `issue_id`, `turns_used`, `coverage`, `stability_flag` for each turn limit.
- - **Dependency**: Depends on T024b.
+ - **Dependency**: Depends on T024b-Agg.
 - [X] T025 [US2] **Hash Artifacts**.
  - Integrate `hash_artifacts.py` to hash `data/results/agent_logs/`.
 
@@ -185,41 +236,37 @@
 
 ## Phase 5: User Story 3 - Comparative Metric Calculation and Statistical Testing (Priority: P3)
 
-**Goal**: Compute line-level coverage and ranking efficiency, apply **Survival Analysis** (mandatory for censored data) or Wilcoxon (conditional), with Bonferroni correction, and frame results associatively.
+**Goal**: Compute line-level coverage and ranking efficiency, apply **Wilcoxon signed-rank test** (with exact permutation for ties/censoring as per Spec FR-006), apply **Survival Analysis** for ranking efficiency (per Plan), with Bonferroni correction, and frame results associatively.
 
 **Independent Test**: Provide pre-computed metrics for a small set and verify the statistical test returns a p-value and correct conclusion (significant vs. non-significant) at p < 0.05 threshold.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T026 [P] [US3] Contract test for result schema in `tests/contract/test_result_schema.py`
-- [X] T027 [P] [US3] Unit test for statistical tests in `tests/unit/test_stats.py`. **Includes**: Wilcoxon signed-rank test implementation AND **censored data handling logic (N+1 penalty assignment) for Survival Analysis validation**. This task explicitly validates the logic required for T030-Survival, ensuring that censored entries are handled correctly before the main analysis runs.
+- [X] T027 [P] [US3] Unit test for statistical tests in `tests/unit/test_stats.py`. **Includes**: Wilcoxon signed-rank test implementation AND **exact permutation test logic for censored/tied data** (as per Spec FR-006) to validate the implementation before the main analysis runs.
 
 ### Implementation for User Story 3
 
 - [X] T028 [P] [US3] Implement `code/metrics/coverage.py` to calculate % of `ground_truth_lines` retrieved
 - [X] T029 [P] [US3] Implement `code/metrics/ranking.py` to calculate position of first relevant line (handle censored data with penalty N+1)
-- [X] T030-Prep [US3] **Censoring Check & Routing**.
- - **Requirement**: Analyze `data/results/baseline_logs.jsonl` and `data/results/iterative_logs.jsonl` to determine if "Ranking Efficiency" data contains censored values (no relevant lines found).
- - **Logic**: If censored data exists (>0%), route to T030-Survival. If no censored data, route to T030-Wilcoxon.
- - **Output**: `data/results/statistical_routing.json` (flag: "SURVIVAL" or "WILCOXON").
- - **Dependency**: Depends on T022, T023.
-- [X] T030-Wilcoxon [P] [US3] **Coverage & Ranking Analysis (Conditional)**.
- - **Requirement**: Implement **Wilcoxon signed-rank test** as per **Spec FR-006** and **SC-003** ONLY if T030-Prep confirms no censored data.
- - **Method**: Apply Wilcoxon signed-rank test to paired coverage data and paired ranking data (with continuity correction for ties).
- - **Output**: P-values and effect sizes for both metrics.
- - **Traceability**: Implements Spec FR-006/SC-003 conditionally.
-- [X] T030-Survival [P] [US3] **Ranking Efficiency Analysis (Mandatory for Censored Data)**.
- - **Requirement**: Implement **Survival Analysis (Cox proportional hazards)** as per **Plan Phase 2** and **SC-003** if T030-Prep detects censored data.
- - **Method**: Apply Survival Analysis to handle censored ranking data (where no relevant lines found). **Validation**: Ensure the implementation correctly handles the N+1 penalty for censored entries as tested in T027.
- - **Output**: Hazard ratio and p-value.
- - **Traceability**: Aligns with Plan Phase 2 rationale for censored data; mandatory path.
-- [X] T030c [US3] **Multiplicity Correction & Framing**.
- - **Correction**: Apply **Bonferroni correction** to the family of tests: **Coverage**, **Ranking (Wilcoxon or Survival)**.
+- [X] T030-Wilcoxon [US3] **Coverage & Ranking Analysis (Primary)**.
+ - **Requirement**: Implement **Wilcoxon signed-rank test** as per **Spec FR-006** and **SC-003** for **Coverage** metrics.
+ - **Method**: Apply Wilcoxon signed-rank test to paired coverage data.
+ - **Censoring Handling**: If censored data exists (ranking == N+1), apply an **exact permutation test** (as authorized by FR-006 for ties/censoring) instead of Survival Analysis for the **Coverage** metric if ties dominate.
+ - **Output**: P-values and effect sizes for coverage.
+ - **Traceability**: Implements Spec FR-006/SC-003.
+- [X] T030-Survival [US3] **Ranking Efficiency Analysis (Survival)**.
+ - **Requirement**: Implement **Survival Analysis (Cox proportional hazards)** as per **Plan Phase 2** for **Ranking Efficiency** metrics to handle censored data.
+ - **Method**: Fit a Cox model to the ranking data (time-to-event) with censoring indicators.
+ - **Output**: Hazard ratios, p-values, and confidence intervals for ranking efficiency.
+ - **Traceability**: Implements Plan Phase 2 requirement for Survival Analysis on ranking data.
+- [X] T030c [US3] **Multiplicity Correction, Framing & Hashing**.
+ - **Correction**: Apply **Bonferroni correction** to the family of tests: **Coverage** (Wilcoxon/Permutation), **Ranking** (Survival).
  - **Framing**: Frame all results as **"associational differences"** per FR-007.
- - **Output**: `data/results/final_metrics.json`.
- - **Dependency**: Depends on T030-Wilcoxon or T030-Survival.
-- [X] T031 [US3] Implement `code/analysis/plots.py` for visualization of coverage and survival curves
-- [X] T032 [US3] Integrate `hash_artifacts.py` to hash final `data/results/final_metrics.json`
+ - **Hashing**: Hash `data/results/final_metrics.json` immediately after generation.
+ - **Output**: `data/results/final_metrics.json` (includes adjusted p-values) and `data/results/final_metrics.hash`.
+ - **Dependency**: Depends on T030-Wilcoxon and T030-Survival.
+- [X] T031 [US3] Implement `code/analysis/plots.py` for visualization of coverage and ranking distributions
 - [X] T033-Zero [US3] **Create Report Template**.
  - **Action**: Create `code/analysis/report_template.j2` using a Jinja2 template.
  - **Logic**: Define sections: Abstract, Methods, Results, Discussion.
@@ -230,20 +277,28 @@
  - Logic: Extract p-values, effect sizes, and metrics from `data/results/final_metrics.json`.
  - **Output**: `data/results/report_extract.json` (intermediate artifact).
  - **Dependency**: Depends on T030c.
-- [X] T033b [US3] **Report Generation: Template Filling**.
- - Logic: Populate sections: Abstract, Methods, Results, Discussion using extracted data from T033a and `code/analysis/report_template.j2` (T033-Zero).
+- [X] T033b-Vars [US3] **Report Generation: Define Variables**.
+ - **Logic**: Map extracted data to Jinja2 template variables.
+ - **Output**: Variable mapping object.
+ - **Dependency**: Depends on T033a.
+- [X] T033b-Populate [US3] **Report Generation: Populate Sections**.
+ - **Logic**: Populate Abstract, Methods, Results, and Discussion sections with mapped variables.
  - **Constraint**: Enforce "associational differences" language in Results/Discussion.
+ - **Output**: Populated section strings.
+ - **Dependency**: Depends on T033b-Vars.
+- [X] T033b-Render [US3] **Report Generation: Template Rendering**.
+ - **Logic**: Load the template (T033-Zero) and render the populated sections into `data/results/report_draft.md`.
  - **Output**: `data/results/report_draft.md` (intermediate artifact).
- - **Dependency**: Depends on T033a and T033-Zero.
+ - **Dependency**: Depends on T033b-Populate.
 - [X] T033d [US3] **Validate Report Language**.
  - **Requirement**: Implement a validator to ensure `paper/draft.md` does not contain causal language.
  - **Logic**: Run a regex scan and an LLM-based check (using a lightweight prompt) for keywords like "proves", "causes", "guarantees". Fail the build if found.
  - **Output**: `data/results/report_validation_report.json` (status: "PASSED" or "FAILED").
- - **Dependency**: Depends on T033b.
+ - **Dependency**: Depends on T033b-Render.
 - [X] T033c [US3] **Report Generation: Final Assembly & Validation**.
  - Logic: Assemble `paper/draft.md` and validate against schema using `report_draft.md` and T033d results.
  - **Output**: `paper/draft.md` and `data/results/report_validation_report.json`.
- - **Dependency**: Depends on T033b and T033d.
+ - **Dependency**: Depends on T033b-Render and T033d.
 - [X] T034 [US3] **Generate Results Summary**.
  - **Action**: Execute T033a -> T033b -> T033d -> T033c pipeline.
  - **Output**: `paper/results_summary.md` (containing Abstract draft, Methods summary, Results, Discussion).
@@ -257,35 +312,48 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T035 [P] Update `docs/quickstart.md` with execution instructions and data flow diagrams.
+- [X] T035 [P] Update `docs/quickstart.md` with execution instructions and data flow diagrams. **Includes**: Quickstart validation steps.
 - [X] T036 Refactor `code/agent/iterative.py` to reduce cyclomatic complexity.
 - [X] T037 Optimize memory usage in `code/metrics/coverage.py` by processing lines in chunks.
-- [X] T038 [P] Add unit tests for `code/analysis/stats.py` (Wilcoxon and Survival Analysis logic).
-- [X] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
-- [X] T040-Auto [US3] **Automate Quickstart Execution**.
- - **Action**: Create `code/tests/run_quickstart.py` to automate the execution of `docs/quickstart.md`.
- - **Logic**: Run the quickstart script, capture exit code, and save logs.
- - **Output**: `data/validation/quickstart_run.log`.
- - **Traceability**: Implements new FR-011 (Quickstart Validation) and SC-007 (Validation Execution).
-- [X] T040-Test [US3] **Validate Quickstart Execution**.
- - **Action**: Create `tests/unit/test_quickstart.py` to assert the success of T040-Auto.
- - **Logic**: Assert exit code is 0 and log file contains "Validation Successful".
- - **Traceability**: Implements new FR-011 and SC-007.
-- [X] T041 [US1] **Fix Data Loader Robustness**.
- - **Requirement**: Update `code/data/download.py` to **remove any synthetic fallback logic** and ensure it raises a clear `ValueError` if the HuggingFace fetch fails (HTTP 404/500).
- - **Traceability**: Implements new FR-012 (Data Loader Integrity) and SC-005 (Compute Feasibility).
+- [X] T038 [P] Add unit tests for `code/analysis/stats.py` (Wilcoxon and Permutation test logic).
+- [X] T051 [US3] **Implement Deterministic Runtime Monitor**.
+ - **Requirement**: Refactor `code/main.py` to implement a "Sample Size Lock" mechanism.
+ - **Logic**: Before execution, estimate the time required for the full sample size. If the estimate exceeds 5.5 hours, **reduce the sample size** to a fixed value that guarantees completion within 6 hours. This ensures the final N is fixed and reproducible *before* execution starts, avoiding runtime-dependent aborts.
+ - **Traceability**: Fixes SC-005 (Compute Feasibility) and Constitution Principle I (Reproducibility) by ensuring fixed N.
 - [X] T042 [US1] **Stream Large Datasets**.
  - **Requirement**: Refactor `code/data/derive_gt.py::load_dataset_streaming` to use `datasets.load_dataset(..., streaming=True)` and process ground truth derivation in chunks to prevent OOM errors on constrained-memory runners.
- - **Traceability**: Implements new FR-013 (Streaming Data Handling) and SC-005 (Compute Feasibility).
+ - **Traceability**: Implements SC-005 (Compute Feasibility) and ensures reproducibility.
 - [X] T043 [US2] **Implement CPU-Quantized Model Wrapper**.
  - **Requirement**: Create `code/agent/quantized_llm.py` to use `llama-cpp-python` with a 4-bit quantized model (e.g., `Qwen-2.5-1.5B-Instruct-GGUF`) to ensure inference fits within 7GB RAM, replacing any default precision assumptions.
- - **Traceability**: Implements new FR-014 (CPU Quantized Execution) and SC-005 (Compute Feasibility).
+ - **Traceability**: Implements SC-005 (Compute Feasibility).
 - [X] T044 [US2] **Add Turn-Loop Detection Logic**.
  - **Requirement**: Update `code/agent/iterative.py::detect_loop` to explicitly detect and break infinite loops if the reformulated query matches a previous turn's query string within a limited conversation history window.
  - **Traceability**: Implements Spec Edge Case (loop detection) and FR-003 (Turn Limit).
 - [X] T046 [US3] **Verify Bonferroni Correction**.
  - **Requirement**: Implement `tests/contract/test_result_schema.py::test_bonferroni_adjusted_pvalue` to validate that the `final_metrics.json` explicitly includes the adjusted p-value and the correction factor used, ensuring FR-007 compliance.
- - **Traceability**: Implements new FR-016 (Multiplicity Correction Validation) and SC-004 (Multiplicity Correction).
+ - **Traceability**: Implements SC-004 (Multiplicity Correction).
+- [X] T050 [US3] **Document Streaming Strategy for Large Datasets**.
+ - **Requirement**: Update `docs/quickstart.md` to explicitly describe the streaming strategy used in T042.
+ - **Logic**: Explain how `datasets.load_dataset(..., streaming=True)` is used to process the SWE-Explore dataset without loading it entirely into RAM, and how chunks are processed online.
+ - **Traceability**: Implements SC-005 (Compute Feasibility) and ensures reproducibility.
+- [X] T052 [US1] **Implement Hard Instance Proxy Validation Script**. [DEPRECATED: Logic merged into T016-AutoValidate]
+ - **Note**: This task is deprecated. Its logic (CSV generation, manual review flag) has been consolidated into Task T016-AutoValidate to avoid duplication. No further action required.
+- [X] T053 [US2] **Implement Static Analysis Fallback Handler**.
+ - **Requirement**: Update `code/agent/static_analysis.py` to handle cases where `pylint` returns no output or crashes.
+ - **Logic**: If `pylint` fails or returns empty, catch the `PylintError` or empty output, log a `NEUTRAL_SIGNAL` in the turn log, and proceed to the next turn without reformulating the query based on that specific turn's analysis, as per Spec Edge Case "static analysis tool returning no output".
+ - **Traceability**: Implements Spec Edge Case (Static Analysis Failure) and FR-004. Depends on T019.
+- [X] T054 [US2] **Implement Query Repetition Breaker**.
+ - **Requirement**: Enhance `code/agent/iterative.py` to detect if the reformulated query is identical (or >95% similar) to the previous turn's query.
+ - **Logic**: If a repeat is detected (similarity > 95%), terminate the loop early, log `TERMINATION_REASON: QUERY_LOOP_DETECTED`, and record the final state.
+ - **Traceability**: Implements Spec Edge Case (Loop Detection) and FR-003. Depends on T023.
+- [X] T055 [US3] **Implement Exact Permutation Test Fallback**.
+ - **Requirement**: Create `code/analysis/permutation.py` to perform an exact permutation test for paired data when ties dominate (as per FR-006).
+ - **Logic**: If the number of non-zero differences is < 10 or ties > 50%, switch from Wilcoxon to exact permutation test. Log the switch reason.
+ - **Traceability**: Implements Spec FR-006 (Tie Handling) and SC-003. Depends on T030-Wilcoxon.
+- [X] T056 [US3] **Implement Censoring Penalty Logic**.
+ - **Requirement**: Update `code/metrics/ranking.py` to handle the "no relevant lines found" case.
+ - **Logic**: Assign a penalty score of `N+1` (where N is the total number of lines in the repository) for censored data points to ensure they are ranked last but included in the statistical test.
+ - **Traceability**: Implements Spec FR-005 (Ranking Efficiency) and FR-006 (Censoring Handling). Depends on T029.
 
 ---
 
@@ -303,7 +371,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data (specifically `hard_subset.jsonl` and `validation_status.json`)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data (specifically `hard_subset.jsonl` and `validation_status.json` with manual review flag)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 for results
 
 ### Within Each User Story
@@ -346,7 +414,7 @@ Task: "Implement code/data/derive_gt.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (and pass automated gate T016-AutoValidate)
+4. **STOP and VALIDATE**: Test User Story 1 independently (and pass automated gate T016-AutoValidate with manual review)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -379,13 +447,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Feasibility**: Ensure all model tasks use CPU-only, <1B param or 4-bit quantized models on -core/7GB RAM. No CUDA/GPU.
+- **CPU Feasibility**: Ensure all model tasks use CPU-only, <1B param or 4-bit quantized models on 2-core/7GB RAM. No CUDA/GPU.
 - **Constraint Preservation**: All tasks must strictly implement the metrics and counts defined in FR-001, FR-002, SC-004, and FR-007.
- - **Hard Instance Selection**: Must use **initial coverage scores** (Spec FR-001) as the primary path (T012) to align with the benchmark definition. Complexity is diagnostic (T012-Complexity).
- - **Synthetic Issues**: Must generate dynamically until statistical power >= 0.8 (T013), with a hard cap of 200.
- - **Statistics**: Coverage and Ranking use Survival Analysis (T030-Survival) if censored data exists (mandatory), otherwise Wilcoxon (T030-Wilcoxon).
- - **Correction**: Bonferroni applied to Coverage, Ranking Wilcoxon/Survival tests.
+ - **Hard Instance Selection**: Must use **initial coverage scores** (Spec FR-001) as the primary path (T012) to align with the benchmark definition. Complexity is diagnostic (T012).
+ - **Synthetic Issues**: Must generate min(SYNTHETIC_COUNT, len(non_hard_subset)) issues (T013).
+ - **Statistics**: Coverage uses Wilcoxon signed-rank test with exact permutation for ties/censoring (T030-Wilcoxon) as per Spec FR-006. Ranking uses Survival Analysis (T030-Survival) as per Plan.
+ - **Correction**: Bonferroni applied to Coverage, Ranking tests.
 - **Data Integrity**: All analysis tasks must consume REAL data from `data/curated/`. No synthetic/fake input data generation tasks are permitted.
 - **Execution Order**: Tasks producing results (T023) MUST follow tasks generating those results (T021, T022). Tasks verifying results (T030) MUST follow result generation.
-- **Automated Validation**: Phase 4 cannot start until T016-AutoValidate completes successfully.
-- **New Functional Requirements (FR-011 to FR-016)**: Added to address coverage gaps for Quickstart, Data Loader, Streaming, Quantization, Censored Data, and Multiplicity Validation.
+- **Automated Validation**: Phase 4 cannot start until T016-AutoValidate completes successfully with manual review.
+- **Real Data Enforcement**: Tasks T010, T011, T012, T013, T042, T043, T044, T046, T050, T051 specifically address the requirement to use real data streams, fail loudly on fetch errors, and avoid synthetic fallbacks or fake GPU simulations.
+- **New Revision Tasks**: T053-T056 address specific reviewer concerns regarding manual validation of the "hard" proxy, robustness of the static analysis loop, handling of censored data in ranking metrics, and the fallback logic for statistical tests when ties dominate.

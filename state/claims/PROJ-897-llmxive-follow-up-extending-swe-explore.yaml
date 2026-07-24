@@ -214,23 +214,6 @@
   updated_at: '2026-07-21T20:54:30Z'
 - artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
   attempts: 1
-  canonical: Abort non-critical sweeps if elapsed time exceeds 5.5 hours
-  claim_id: c_3489fd51
-  context: 'Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
-    sweeps or reduce sample size to ensure completion within 6 hours.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Abort remaining non-critical sweeps or reduce sample size if elapsed time
-    exceeds 5.5 hours to ensure completion within 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-21T20:54:58Z'
-- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
-  attempts: 1
   canonical: Use 4-bit quantized model to fit within 7GB RAM
   claim_id: c_92824ff1
   context: 'Requirement: Update `code/agent/iterative.py` to use `llama-cpp-python`
@@ -574,3 +557,903 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T21:00:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model to fit within 7GB RAM
+  claim_id: c_1bd5338d
+  context: 'Task T043 [US2] **Implement CPU-Quantized Model Wrapper**. Requirement:
+    Create code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized
+    model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure inference fits within 7GB
+    RAM...'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:10:05Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic ambiguous issues
+  claim_id: c_8f1a6175
+  context: 'Task T013 [US1] **Generate Synthetic Ambiguous Issues (Fixed Size)**.
+    Logic: Apply mutations... to generate a fixed set of issues. Constraint: Generate
+    exactly N=50 synthetic issues...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:10:15Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_1ba560e3
+  context: 'Task T022 [P] [US2] **Static Multi-Query Baseline**. Requirement: Run
+    BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries per issue...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:10:30Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 100 issues with seed 42
+  claim_id: c_03180f04
+  context: 'Task T024a [US2] **Turn-Limit Sweep: Sampling**. Logic: Generate a specific
+    sample list file for N=100 issues (random sample with seed 42, stratified by complexity_score
+    quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:10:45Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort if elapsed time exceeds 5.5 hours to ensure 6 hour completion
+  claim_id: c_d2e35708
+  context: 'Task T039 [US2/US3] Implement runtime monitor... Logic: If elapsed time
+    > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size
+    to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort remaining non-critical sweeps or reduce sample size if elapsed time
+    exceeds 5.5 hours to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:11:19Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default hard instance percentile is 0.2
+  claim_id: c_29465ceb
+  context: 'Task T002 [P] Implement code/config.py to define paths... and critical
+    thresholds: HARD_INSTANCE_PERCENTILE (default 0.2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default threshold for HARD_INSTANCE_PERCENTILE is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:11:51Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default baseline query count is 5
+  claim_id: c_baee153b
+  context: 'Task T002 [P] Implement code/config.py to define paths... and critical
+    thresholds: ... BASELINE_QUERY_COUNT (default 5, configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default BASELINE_QUERY_COUNT is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:11:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate exactly 50 synthetic issues
+  claim_id: c_985c6b28
+  context: 'T013 [US1] Generate Synthetic Ambiguous Issues (Fixed Size). Constraint:
+    Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT from
+    config.py). Do NOT use dynamic power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:13:00Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_74ad9324
+  context: 'T022 [P] [US2] Static Multi-Query Baseline. Requirement: Run BASELINE_QUERY_COUNT
+    (from config.py, default 5) parallel queries per issue to match iterative budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:13:00Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 100 issues with seed 42
+  claim_id: c_6915a281
+  context: 'T024a [US2] Turn-Limit Sweep: Sampling. Logic: Generate a specific sample
+    list file for N=100 issues (random sample with seed 42, stratified by complexity_score
+    quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:13:00Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort sweeps if elapsed time exceeds 5.5 hours to finish within 6 hours
+  claim_id: c_1bb5426b
+  context: 'T039 [US2/US3] Implement runtime monitor in code/main.py to track total
+    execution time. Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, abort remaining non-critical sweeps or reduce
+    sample size to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:13:00Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Use 4-bit quantized model fitting within 7GB RAM
+  claim_id: c_00b9bc4f
+  context: 'T043 [US2] Implement CPU-Quantized Model Wrapper. Requirement: Create
+    code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized model
+    (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure inference fits within 7GB RAM, replacing
+    any default precision assumptions.'
+  evidence:
+    asserted: '4.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Use llama-cpp-python with a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF)
+    to ensure inference fits within 7GB RAM.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:13:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model to fit inference within 7GB RAM
+  claim_id: c_b8b63b44
+  context: 'T043 [US2] Implement CPU-Quantized Model Wrapper. Requirement: Create
+    code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized model
+    (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure inference fits within 7GB RAM.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:14:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic ambiguous issues
+  claim_id: c_23492102
+  context: 'T013 [US1] Generate Synthetic Ambiguous Issues (Fixed Size). Logic: Apply
+    mutations... to generate a fixed set of issues. Constraint: Generate exactly N=50
+    synthetic issues.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:02Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for static multi-query baseline
+  claim_id: c_42b55eea
+  context: 'T022 [P] [US2] Static Multi-Query Baseline. Requirement: Run BASELINE_QUERY_COUNT
+    (from config.py, default 5) parallel queries per issue to match iterative budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:02Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample of 100 issues with seed 42 stratified by complexity_score
+    quartiles
+  claim_id: c_9d21a2b8
+  context: 'T024a [US2] Turn-Limit Sweep: Sampling. Logic: Generate a specific sample
+    list file for N=100 issues (random sample with seed 42, stratified by complexity_score
+    quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort non-critical sweeps if elapsed time exceeds 5.5 hours
+  claim_id: c_5c2de9b6
+  context: 'T039 [US2/US3] Implement runtime monitor in code/main.py to track total
+    execution time. Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort remaining non-critical sweeps or reduce sample size if elapsed time
+    > 5.5 hours to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Select bottom 0.2 percentile of instances based on initial coverage scores
+  claim_id: c_d9d9a2a7
+  context: 'T002 [P] Implement code/config.py to define paths, random seeds, model
+    config (CPU-only), and critical thresholds: HARD_INSTANCE_PERCENTILE (default
+    0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the bottom HARD_INSTANCE_PERCENTILE (default 0.2) based on initial
+    coverage scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:35Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Use streaming dataset loading to prevent OOM errors
+  claim_id: c_32b327f7
+  context: 'T011 [P] [US1] Derive Ground Truth. Constraint: Use datasets.load_dataset(...,
+    streaming=True) to process large files in chunks to prevent OOM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_streaming_dataset_loading_to_prevent_OOM_errors
+  kind: entity_fact
+  raw_text: Use datasets.load_dataset(..., streaming=True) to process large files
+    in chunks to prevent OOM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:41Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Survival Analysis for censored data or Wilcoxon signed-rank test
+    otherwise
+  claim_id: c_1cf8da7e
+  context: 'Phase 5: User Story 3 - Comparative Metric Calculation and Statistical
+    Testing. Goal: Apply Survival Analysis (mandatory for censored data) or Wilcoxon
+    (conditional), with Bonferroni correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Survival_Analysis_for_censored_data_or_Wilcoxon_signed
+  kind: entity_fact
+  raw_text: Apply Survival Analysis (Cox proportional hazards) if censored data exists,
+    otherwise Wilcoxon signed-rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:49Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to coverage and ranking tests
+  claim_id: c_85b20acd
+  context: 'T030c [US3] Multiplicity Correction & Framing. Correction: Apply Bonferroni
+    correction to the family of tests: Coverage, Ranking (Wilcoxon or Survival).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_coverage_and_ranking_tests
+  kind: entity_fact
+  raw_text: 'Apply Bonferroni correction to the family of tests: Coverage, Ranking
+    (Wilcoxon or Survival).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:14:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Define censored data as ranking_efficiency equals N+1 or coverage equals
+    0
+  claim_id: c_a8466838
+  context: 'T030-Prep [US3] Censoring Check & Routing. Logic: Define ''censored''
+    as ranking_efficiency == N+1 or coverage == 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define 'censored' as ranking_efficiency == N+1 or coverage == 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:15:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model fitting in 7GB RAM
+  claim_id: c_c744a501
+  context: 'T043 [US2] Implement CPU-Quantized Model Wrapper. Requirement: Create
+    code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized model...
+    to ensure inference fits within 7GB RAM...'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:15:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic ambiguous issues
+  claim_id: c_f2e0323b
+  context: 'T013 [US1] Generate Synthetic Ambiguous Issues (Fixed Size). Logic: Apply
+    mutations... to generate a fixed set of issues. Constraint: Generate exactly N=50
+    synthetic issues...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:15:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_993cec67
+  context: 'T022 [US2] Static Multi-Query Baseline. Requirement: Run BASELINE_QUERY_COUNT
+    (from config.py, default 5) parallel queries per issue...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:15:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample of 100 issues stratified by complexity with seed 42
+  claim_id: c_78aac5bf
+  context: 'T024a [US2] Turn-Limit Sweep: Sampling. Logic: Generate a specific sample
+    list file for N=100 issues (random sample with seed 42...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:15:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort non-critical tasks if runtime exceeds 5.5 hours to finish within
+    6 hours
+  claim_id: c_5c94682a
+  context: 'T039 [US2/US3] Implement runtime monitor... Logic: If elapsed time > 5.5
+    hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure
+    completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, abort remaining non-critical sweeps or reduce
+    sample size to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:15:57Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model to fit within 7GB RAM
+  claim_id: c_e322d191
+  context: 'T043 [US2] **Implement CPU-Quantized Model Wrapper**. Requirement: Create
+    code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized model...
+    to ensure inference fits within 7GB RAM...'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:17:53Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic ambiguous issues
+  claim_id: c_7825a3dc
+  context: 'T013 [US1] **Generate Synthetic Ambiguous Issues (Fixed Size)**. Logic:
+    Apply mutations... to generate a fixed set of issues. Constraint: Generate exactly
+    N=50 synthetic issues...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:17:54Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 100 issue sample with seed 42 for turn-limit sweep
+  claim_id: c_3c4c7b53
+  context: 'T024a [US2] **Turn-Limit Sweep: Sampling**. Logic: Generate a specific
+    sample list file for N=100 issues (random sample with seed 42, stratified by complexity_score
+    quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:17:54Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for static baseline
+  claim_id: c_dd27a3c1
+  context: 'T022 [P] [US2] **Static Multi-Query Baseline**. Requirement: Run BASELINE_QUERY_COUNT
+    (from config.py, default 5) parallel queries per issue...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:17:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort non-critical sweeps if execution time exceeds 5.5 hours to meet
+    6-hour deadline
+  claim_id: c_96960f9d
+  context: 'T039 [US2/US3] Implement runtime monitor... Logic: If elapsed time > 5.5
+    hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure
+    completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, abort remaining non-critical sweeps or reduce
+    sample size to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:17:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Ensure inference fits within 7GB RAM
+  claim_id: c_e4417029
+  context: T043 [US2] **Implement CPU-Quantized Model Wrapper**... to ensure inference
+    fits within 7GB RAM, replacing any default precision assumptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_inference_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Ensure inference fits within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:18:12Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Select bottom 20% of instances based on initial coverage scores
+  claim_id: c_85829ff8
+  context: 'T002 [P] Implement code/config.py... and critical thresholds: HARD_INSTANCE_PERCENTILE
+    (default 0.2)... T012 [US1] **Filter Hard Subset & Compute Complexity**. Requirement:
+    Filter the dataset to select the bottom HARD_INSTANCE_PERCENTILE (e.g., [deferred])
+    based on initial coverage scores...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the bottom HARD_INSTANCE_PERCENTILE (default 0.2) based on initial
+    coverage scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:18:12Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to Coverage and Ranking tests
+  claim_id: c_9143dda7
+  context: 'T030c [US3] **Multiplicity Correction & Framing**. Correction: Apply Bonferroni
+    correction to the family of tests: Coverage, Ranking (Wilcoxon or Survival).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_Coverage_and_Ranking_tests
+  kind: entity_fact
+  raw_text: 'Apply Bonferroni correction to the family of tests: Coverage, Ranking
+    (Wilcoxon or Survival).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:18:14Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Define censored data as ranking efficiency equals N+1 or coverage equals
+    0
+  claim_id: c_1e63505b
+  context: 'T030-Prep [US3] **Censoring Check & Routing**. Logic: Define censored
+    as ranking_efficiency == N+1 or coverage == 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define censored data as ranking_efficiency == N+1 or coverage == 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:18:34Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Handle censored data with N+1 penalty for ranking efficiency
+  claim_id: c_1f09df6a
+  context: T029 [P] [US3] Implement code/metrics/ranking.py to calculate position
+    of first relevant line (handle censored data with penalty N+1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle censored data with penalty N+1 for ranking efficiency calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:18:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Fetch bench.final.public.jsonl from HuggingFace
+  claim_id: c_615e2655
+  context: 'T010 [P] [US1] **Download Dataset**. Action: Implement code/data/download.py
+    to fetch bench.final.public.jsonl from the verified HuggingFace URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_bench.final.public.jsonl_from_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch bench.final.public.jsonl from the verified HuggingFace URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:19:15Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Use streaming mode for datasets to prevent OOM
+  claim_id: c_ebacddc2
+  context: 'T011 [P] [US1] **Derive Ground Truth**. Constraint: Use datasets.load_dataset(...,
+    streaming=True) to process large files in chunks to prevent OOM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_streaming_mode_for_datasets_to_prevent_OOM
+  kind: entity_fact
+  raw_text: Use datasets.load_dataset(..., streaming=True) to process large files
+    in chunks to prevent OOM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:19:16Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model fitting within 7GB RAM
+  claim_id: c_f4b07cf2
+  context: 'T043 [US2] Implement CPU-Quantized Model Wrapper. Requirement: Create
+    code/agent/quantized_llm.py to use llama-cpp-python with a 4-bit quantized model
+    (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure inference fits within 7GB RAM.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:20:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate exactly 50 synthetic issues
+  claim_id: c_5fbea3dd
+  context: 'T013 [US1] Generate Synthetic Ambiguous Issues (Fixed Size). Logic: Apply
+    mutations... to generate a fixed set of issues. Constraint: Generate exactly N=50
+    synthetic issues.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_8c25e99d
+  context: 'T022 [P] [US2] Static Multi-Query Baseline. Requirement: Run BASELINE_QUERY_COUNT
+    (from config.py, default 5) parallel queries per issue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 100 issues with seed 42
+  claim_id: c_bdf92e2a
+  context: 'T024a [US2] Turn-Limit Sweep: Sampling. Logic: Generate a specific sample
+    list file for N=100 issues (random sample with seed 42, stratified by complexity_score
+    quartiles).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model to fit within 7GB RAM
+  claim_id: c_346644eb
+  context: 'Requirement: Create code/agent/quantized_llm.py to use llama-cpp-python
+    with a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure inference
+    fits within 7GB RAM, replacing any default precision assumptions.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-2.5-1.5B-Instruct-GGUF) to ensure
+    inference fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T09:20:54Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate 50 synthetic ambiguous issues
+  claim_id: c_55e6078b
+  context: 'Constraint: Generate exactly N=50 synthetic issues (or a configurable
+    SYNTHETIC_COUNT from config.py). Do NOT use dynamic power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly N=50 synthetic issues (or a configurable SYNTHETIC_COUNT
+    from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_5c467c9e
+  context: 'Requirement: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel
+    queries per issue to match iterative budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run BASELINE_QUERY_COUNT (from config.py, default 5) parallel queries
+    per issue to match iterative budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 100 issues with seed 42
+  claim_id: c_8a7ff84a
+  context: 'Logic: Generate a specific sample list file for N=100 issues (random sample
+    with seed 42, stratified by complexity_score quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 2
+  canonical: Abort non-critical sweeps if elapsed time exceeds 5.5 hours
+  claim_id: c_3489fd51
+  context: 'Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort remaining non-critical sweeps or reduce sample size if elapsed time
+    exceeds 5.5 hours to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T09:20:55Z'

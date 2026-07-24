@@ -18,10 +18,12 @@ DEFAULT_CONFIG: Final = {
     "MAX_WORKERS": 2,
     "HARD_INSTANCE_PERCENTILE": 0.2,
     "VALIDATION_SAMPLE_SIZE": 20,
+    "BASELINE_QUERY_COUNT": 5,
     "TURN_LIMIT_DEFAULT": 3,
     "SWEEP_SAMPLE_SIZE": 20,
     "SWEEP_TURN_LIMIT": 4,
     "TIMEOUT_HOURS": 6.0,
+    "SYNTHETIC_COUNT": 50,
     "timestamp": datetime.now().isoformat()
 }
 

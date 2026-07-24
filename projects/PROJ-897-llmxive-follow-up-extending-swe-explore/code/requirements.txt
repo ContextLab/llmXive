@@ -15,3 +15,7 @@ unidiff
 # New dependency for CPU-quantized LLM inference
 llama-cpp-python>=0.2.0
 huggingface_hub>=0.20.0
+datasets  # auto-added: imported by run-book but missing from venv
+lifelines  # auto-added: imported by run-book but missing from venv
+pyarrow  # auto-added: imported by run-book but missing from venv
+pylint  # auto-added: imported by run-book but missing from venv

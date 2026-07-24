@@ -1,157 +1,134 @@
-# llmXive Quickstart Guide
+# Quickstart Guide: llmXive - SWE-Explore Follow-up
 
-This guide provides step-by-step instructions to run the llmXive automated science pipeline.
+This guide provides the steps to set up and run the llmXive automated science pipeline for the SWE-Explore follow-up project.
 
 ## Prerequisites
 
-- Python 3.8+
-- pip package manager
-- Access to HuggingFace datasets
-- Minimum 7GB RAM
+- Python 3.10+
+- pip (Python package manager)
+- Git (for version control)
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone
-cd llmXive
-```
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repository-url>
+ cd llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore
+ ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-3. Verify installation:
-```bash
-python code/setup_project_structure.py
-```
+3. **Create project structure** (if not already done):
+ ```bash
+ python code/setup_project_structure.py
+ ```
 
-## Data Download
+## Execution Workflow
 
-Download the SWE-Explore benchmark dataset from HuggingFace:
+The pipeline consists of several sequential stages. Run them in order:
 
+### 1. Data Download
 ```bash
 python code/data/download.py
 ```
+Downloads the SWE-Explore dataset from HuggingFace.
+Output: `data/raw/bench.final.public.jsonl`
 
-This will fetch `bench.final.public.jsonl` and save it to `data/raw/`.
-
-## Ground Truth Derivation
-
-Parse solution patches to derive ground truth lines:
-
+### 2. Ground Truth Derivation
 ```bash
 python code/data/derive_gt.py
 ```
+Parses solution patches to derive ground truth line numbers.
+Output: `data/raw/bench.final.public.gt.jsonl`
 
-This generates ground truth annotations in `data/curated/`.
-
-## Hard Instance Selection
-
-Filter the dataset to select "hard" instances based on initial coverage scores:
-
+### 3. Data Curation (Hard Subset & Synthetic Issues)
 ```bash
-python code/data/curate.py --filter hard
+python code/data/curate.py
 ```
+Filters hard instances, generates synthetic issues, and creates metadata.
+Outputs:
+- `data/curated/hard_subset.jsonl`
+- `data/curated/non_hard_subset.jsonl`
+- `data/curated/synthetic_issues.jsonl`
+- `data/curated/synthetic_issues_meta.json`
 
-This creates `data/curated/hard_subset.jsonl` and `data/curated/non_hard_subset.jsonl`.
-
-## Synthetic Issue Generation
-
-Generate synthetic ambiguous issues from the non-hard subset:
-
+### 4. Validation
 ```bash
-python code/data/curate.py --generate-synthetic
+python code/data/validate_hard.py
 ```
+Generates a validation report for the hard subset.
+Output: `data/curated/validation_report.md`
 
-This produces `data/curated/synthetic_issues.jsonl` with up to 50 mutated issues.
-
-## Agent Execution
-
-Run the static multi-query baseline:
-
+### 5. Agent Execution (Baseline & Iterative)
 ```bash
-python code/agent/run_baseline.py
-```
-
-Run the iterative agent loop:
-
-```bash
+python code/agent/static_baseline.py
 python code/agent/iterative.py
 ```
+Runs the static multi-query baseline and iterative agent loop.
+Outputs:
+- `data/results/baseline_logs.jsonl`
+- `data/results/iterative_logs.jsonl`
 
-Both commands read from `data/results/locked_hard_subset.jsonl` and write logs to `data/results/`.
+### 6. Turn-Limit Sweep (Optional)
+```bash
+python code/agent/sweep_turns.py
+```
+Executes the iterative agent with varying turn limits.
+Output: `data/results/sweep_results.json`
 
-## Metrics Calculation
-
-Calculate coverage and ranking metrics:
-
+### 7. Metrics & Statistical Analysis
 ```bash
 python code/metrics/coverage.py
 python code/metrics/ranking.py
-```
-
-Run statistical analysis:
-
-```bash
 python code/analysis/stats.py
 ```
+Calculates coverage, ranking metrics, and performs statistical tests.
+Output: `data/results/final_metrics.json`
 
-This generates `data/results/final_metrics.json` with Wilcoxon signed-rank test results.
+### 8. Visualization
+```bash
+python code/analysis/plots.py
+```
+Generates plots for coverage and survival curves.
+Output: `docs/figures/`
 
-## Report Generation
-
-Generate the final research report:
-
+### 9. Report Generation
 ```bash
 python code/analysis/report_generator.py
 ```
+Generates the final research report.
+Output: `paper/draft.md`
 
-This produces `paper/draft.md` with all results and analysis.
+## Main Execution Script
 
-## Validation
+For a streamlined run (subject to configuration):
+```bash
+python code/main.py --max-hours 6
+```
+Note: The `--mode` flag is not supported. Use `--max-hours` to set execution time limits.
 
-Validate the entire pipeline:
+## Artifact Verification
 
+After running the full pipeline, verify the existence of key artifacts:
 ```bash
 python code/validate_quickstart.py
 ```
 
-This checks that all required artifacts exist and the pipeline executed successfully.
-
-Expected output:
-```
-Validation Status: PASSED
-Validation Successful
-```
-
-The validation log will be saved to `data/validation/quickstart_run.log`.
-
 ## Troubleshooting
 
-### Missing HuggingFace credentials
-If you encounter authentication errors, set your HF token:
-```bash
-export HF_TOKEN=your_token_here
-```
+- **Missing dependencies**: Ensure `requirements.txt` is installed.
+- **Data fetch failures**: The pipeline will fail loudly if the dataset cannot be downloaded. Check network connectivity and HuggingFace availability.
+- **Memory errors**: The pipeline uses streaming for large datasets. Ensure sufficient disk space for temporary files.
 
-### Memory issues
-If you experience OOM errors, reduce the sample size in `code/config.py`:
-```python
-VALIDATION_SAMPLE_SIZE = 10 # Reduce from default
-```
+## Configuration
 
-### Slow execution
-The pipeline may take several hours to complete. For faster testing, use a smaller sample:
-```bash
-python code/agent/iterative.py --sample-size 5
-```
-
-## Next Steps
-
-After completing the quickstart, you can:
-- Customize the agent prompts in `code/agent/prompts.py`
-- Adjust the hard instance selection criteria in `code/config.py`
-- Add new metrics in `code/metrics/`
-- Extend the statistical analysis in `code/analysis/stats.py`
+Edit `code/config.py` to modify:
+- Data paths
+- Random seeds
+- Hard instance percentile threshold
+- Validation sample size
+- Baseline query count
+- Synthetic issue count

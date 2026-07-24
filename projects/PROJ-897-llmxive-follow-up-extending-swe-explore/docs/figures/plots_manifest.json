@@ -1,0 +1,6 @@
+{
+  "coverage_histogram": "docs/figures/coverage_histogram.png",
+  "coverage_boxplot": "docs/figures/coverage_boxplot.png",
+  "survival_curve": "docs/figures/survival_curve.png",
+  "coverage_ranking_scatter": "docs/figures/coverage_ranking_scatter.png"
+}

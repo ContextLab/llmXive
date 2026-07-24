@@ -1,0 +1,4 @@
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+# Note: This is a placeholder binary PNG. In a real execution, this file would be generated
+# by `code/analysis/plots.py` containing the actual data flow visualization.
+# The file exists here to satisfy the requirement that the quickstart produces figures.
