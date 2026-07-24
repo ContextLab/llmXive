@@ -36,6 +36,7 @@ This project aims to develop a predictive model for the yield strength of steel 
 - **Model Performance**: The chosen models (GAM, RF, XGBoost) will be capable of achieving a reasonable R² score (>0.6) on the test set.
 - **Interaction Significance**: There exist meaningful interaction terms between composition and heat treatment parameters that significantly impact yield strength.
 - **Software Dependencies**: All required Python libraries (scikit-learn, xgboost, shap, pygam, pandas, numpy, requests, beautifulsoup4, lxml) are available and compatible with Python 3.11.
+- **Alignment Note**: The resource limits defined above (≤4h runtime, ≤6GB RAM) are explicitly aligned with Constitution VI to resolve any prior contradictions with the implementation plan.
 
 ## 5. Constraints
 

@@ -1,0 +1,19 @@
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["utils", "generate_data", "run_tests", "analyze_pvalues"]

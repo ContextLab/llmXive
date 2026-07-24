@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement `src/utils/validators.py` for schema validation of raw and processed data
 - [X] T006 [P] Create `src/data/loader.py` utilities for CSV/Parquet loading and memory monitoring
 - [ ] T007 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure with `.gitkeep` files in each (verify existence of `.gitkeep` files to mark complete).
-- [ ] T008 Implement `src/main.py` orchestration script with CLI entry points for each pipeline stage
+- [X] T008 Implement `src/main.py` orchestration script with CLI entry points for each pipeline stage
 - [ ] T039 [P] **Amend `specs/001-predicting-the-yield-strength-of-steel-a/spec.md` Assumptions block**: Specifically edit the 'Assumptions' section in `specs/001-predicting-the-yield-strength-of-steel-a/spec.md` to align resource limits (≤4h runtime, ≤6GB RAM) with Constitution VI, resolving contradiction with Plan.md.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,7 +88,7 @@
 - [ ] T012 [US1] Implement `src/data/ingest.py`: Normalize thermal parameters (temp, cooling rate) to [0.0, 1.0] and one-hot encode heat treatment types (FR-002)
 - [ ] T013 [P] [US1] Implement `src/data/features.py`: Calculate elemental ratios (C/Mn, Cr/Ni) and pairwise interactions (specifically **cooling rate × holding time** and C × Cooling Rate) (FR-003)
 - [ ] T014 [US1] Implement `src/data/features.py`: Orthogonalize interaction features against their constituent main effects using **non-linear orthogonalization (regressing interactions against a natural spline basis, degree=3, knots=5)**; implement helper function `orthogonalize_spline` within `src/data/features.py` (FR-010)
-- [ ] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [ ] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key <!-- ATOMIZE: requested -->
  in "<unicode string>", line 9, column 1:
  The code is ready to run and wil...
  ^
@@ -110,7 +110,7 @@ could not find expected ':'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `contracts/output.schema.yaml`
+- [ ] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `contracts/output.schema.yaml`
 - [X] T018 [P] [US2] Integration test for nested permutation test in `tests/integration/test_nested_permutation.py`
 
 ### Implementation for User Story 2

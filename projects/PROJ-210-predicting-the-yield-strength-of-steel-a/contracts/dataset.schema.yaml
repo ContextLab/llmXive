@@ -1,105 +1,55 @@
-title: Steel Yield Strength Dataset Schema
-description: Schema for the processed steel yield strength dataset used in the prediction pipeline.
-type: object
-required:
-  - composition
-  - thermal_parameters
-  - derived_features
-  - target
-properties:
-  composition:
-    type: object
-    description: Elemental composition percentages.
-    required:
-      - Carbon
-      - Manganese
-      - Chromium
-      - Nickel
-    properties:
-      Carbon:
-        type: number
-        minimum: 0
-        maximum: 100
-      Manganese:
-        type: number
-        minimum: 0
-        maximum: 100
-      Chromium:
-        type: number
-        minimum: 0
-        maximum: 100
-      Nickel:
-        type: number
-        minimum: 0
-        maximum: 100
-      Silicon:
-        type: number
-        minimum: 0
-        maximum: 100
-      Molybdenum:
-        type: number
-        minimum: 0
-        maximum: 100
-      Vanadium:
-        type: number
-        minimum: 0
-        maximum: 100
-      Copper:
-        type: number
-        minimum: 0
-        maximum: 100
-  thermal_parameters:
-    type: object
-    description: Heat treatment parameters.
-    required:
-      - austenitizing_temperature
-      - holding_time
-      - cooling_rate
-    properties:
-      austenitizing_temperature:
-        type: number
-        description: Temperature in Celsius.
-      holding_time:
-        type: number
-        description: Time in minutes.
-      cooling_rate:
-        type: number
-        description: Cooling rate in degrees per second.
-      heat_treatment_type:
-        type: string
-        enum:
-          - quench_and_temper
-          - normalize
-          - anneal
-          - stress_relief
-  derived_features:
-    type: object
-    description: Engineered features including ratios and interactions.
-    properties:
-      C_Mn_ratio:
-        type: number
-      Cr_Ni_ratio:
-        type: number
-      cooling_rate_holding_time_interaction:
-        type: number
-      C_cooling_rate_interaction:
-        type: number
-      C_Mn_ratio_orthogonalized:
-        type: number
-      Cr_Ni_ratio_orthogonalized:
-        type: number
-      cooling_rate_holding_time_interaction_orthogonalized:
-        type: number
-      C_cooling_rate_interaction_orthogonalized:
-        type: number
-  target:
-    type: object
-    description: Target variable.
-    required:
-      - yield_strength
-    properties:
-      yield_strength:
-        type: number
-        description: Yield strength in MPa.
-        minimum: 0
-additionalProperties: false
+# Dataset Schema for Steel Yield Strength Prediction
+# This schema defines the required structure for the processed dataset
+# used in User Story 1 (Data Ingestion and Preprocessing).
+
+required_columns:
+  - yield_strength_mpa
+  - carbon_pct
+  - manganese_pct
+  - chromium_pct
+  - nickel_pct
+  - molybdenum_pct
+  - heat_treatment_temp_c
+  - cooling_rate_c_per_min
+  - holding_time_min
+  - heat_treatment_type
+  - c_mn_ratio
+  - cr_ni_ratio
+  - cooling_rate_x_holding_time
+  - c_x_cooling_rate
+  - orthogonalized_cx_cr
+  - orthogonalized_cx_ni
+
+target_column: yield_strength_mpa
+
+column_types:
+  yield_strength_mpa: numeric
+  carbon_pct: numeric
+  manganese_pct: numeric
+  chromium_pct: numeric
+  nickel_pct: numeric
+  molybdenum_pct: numeric
+  heat_treatment_temp_c: numeric
+  cooling_rate_c_per_min: numeric
+  holding_time_min: numeric
+  heat_treatment_type: string
+  c_mn_ratio: numeric
+  cr_ni_ratio: numeric
+  cooling_rate_x_holding_time: numeric
+  c_x_cooling_rate: numeric
+  orthogonalized_cx_cr: numeric
+  orthogonalized_cx_ni: numeric
+
+interaction_columns:
+  - c_mn_ratio
+  - cr_ni_ratio
+  - cooling_rate_x_holding_time
+  - c_x_cooling_rate
+  - orthogonalized_cx_cr
+  - orthogonalized_cx_ni
+
+description: |
+  This schema ensures that the ingestion pipeline produces a dataset with
+  all necessary composition, thermal, and derived features for model training.
+  It validates that no null values exist in the target variable and that
+  derived features (ratios, interactions, orthogonalized interactions) are present.

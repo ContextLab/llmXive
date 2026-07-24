@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only a textual description of feature specifications; no directory
+    structure (code/, data/, tests/, docs/) or any files are shown or referenced.
+    Without concrete evidence that these folders exist and contain content, the requirement
+    to create the project structure is not satisfied. The missing artifact is the
+    actual project hierarchy on disk.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8`) or any documentation/commands
+    showing that ruff/flake8 and Black have been set up in the repository are present.
+    Consequently the required artifact for task T003 is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/synthetic/{seed}.json` file (or its contents) is presented, and there
+    is no evidence that such a file exists or that its `sha256` field matches the
+    hash of the generated dataset. The required artifact and verification are missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required JSON files under `data/synthetic/trajectories/{seed}.json`\
+    \ was provided; without the actual trajectory files we cannot confirm that full\
+    \ p\u2011value trajectories are being stored as specified. The implementer must\
+    \ add the JSON output files (non\u2011empty) at the indicated location."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test output, or any other artifact demonstrating the implementation\
+    \ of the p\u2011value collection logic is present. Consequently there is no evidence\
+    \ that exactly\u202F$p$\u202Fp\u2011values are gathered per iteration, nor any\
+    \ verification that the implementation meets the specified user stories. The required\
+    \ implementation artifact and its validation results are missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was presented showing that `generate_data.py`\
+    \ was integrated and that hypothesis tests are automatically run on each generated\
+    \ dataset. The only material provided is a high\u2011level feature specification;\
+    \ there is no concrete artifact (e.g., modified `generate_data.py`, a new driver\
+    \ script, or test logs) to confirm the integration was implemented. The required\
+    \ integration artifact is missing."

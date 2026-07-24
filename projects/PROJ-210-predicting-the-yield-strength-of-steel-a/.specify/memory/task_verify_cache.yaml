@@ -1,0 +1,43 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/`, `data/processed/`, and `data/results/`\
+    \ directories or their `.gitkeep` files is provided; the claim is unsupported\
+    \ by any tangible artifacts. The implementer must create the directories and include\
+    \ non\u2011empty `.gitkeep` files, then show their presence (e.g., a directory\
+    \ listing)."
+T009:
+  c: false
+  h: 9256cf55b64bf34b254c161d8fa3fe2739b20ffe0d9a80cff72b37d76abf8bba
+  r: The `tests/contract/test_data_schema.py` file is truncated and ends with an unfinished
+    assertion, and the required schema file `contracts/dataset.schema.yaml` is missing
+    entirely, so the contract test cannot actually validate against the schema. Both
+    the test implementation and the referenced schema artifact are absent/incomplete.
+T010:
+  c: false
+  h: 34d58e0b4bf10784e850cc0f18153dabcccd7f59ed72de74a9ca13d308c8664d
+  r: "The integration test file exists, but it relies on `contracts/dataset.schema.yaml`,\
+    \ which is absent, so the test cannot perform the required schema validation.\
+    \ Additionally, the test code is truncated (e.g., unfinished type\u2011check logic),\
+    \ indicating it is not a complete, functional artifact. The missing schema file\
+    \ must be added (and the test code completed) for the task to be satisfied."
+T011:
+  c: false
+  h: ce69a25b1810bcaf206402f71ec1e7f869b5383d015ad83db31a110f438d469d
+  r: "The required file `src/data/ingest.py` is missing entirely, so no code exists\
+    \ to fetch real data or clean missing yield strength rows. The task\u2019s core\
+    \ deliverable is absent."
+T017:
+  c: false
+  h: 5a96135b6f350b0476555e19c344326e2f4fe1be7a38450b4b66e77f245014eb
+  r: The test file `tests/contract/test_model_output.py` exists, but the required
+    schema file `contracts/output.schema.yaml` is missing, so the test cannot actually
+    validate the model output against the contract. The missing schema must be added
+    for the task to be complete.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `specs/001-predicting-the-yield-strength-of-steel-a/spec.md`\
+    \ file or its updated Assumptions section is provided; without the actual file\
+    \ content we cannot verify that the resource limits were aligned with Constitution\u202F\
+    VI and the contradiction resolved. The required artifact is missing."

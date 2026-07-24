@@ -1,1 +1,2 @@
-# Raw data directory
+# This directory contains raw data files
+# Data ingestion scripts will populate this directory

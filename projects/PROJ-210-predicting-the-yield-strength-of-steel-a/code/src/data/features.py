@@ -4,325 +4,296 @@ from typing import Dict, List, Optional, Union, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import LSQUnivariateSpline
 
 logger = logging.getLogger(__name__)
 
 def calculate_elemental_ratios(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate elemental ratios (e.g., C/Mn, Cr/Ni) for steel composition analysis.
-    
-    Args:
-        df: DataFrame containing composition columns (e.g., 'C', 'Mn', 'Cr', 'Ni')
-        
-    Returns:
-        DataFrame with added ratio columns
+    Calculate elemental ratios (C/Mn, Cr/Ni) and add them to the DataFrame.
+    Assumes columns exist: 'C', 'Mn', 'Cr', 'Ni'.
     """
     df = df.copy()
-    composition_cols = ['C', 'Mn', 'Cr', 'Ni', 'Mo', 'V', 'Cu', 'Si', 'P', 'S']
-    
-    # Calculate C/Mn ratio if both exist
+    ratio_cols = []
+
+    # C/Mn ratio
     if 'C' in df.columns and 'Mn' in df.columns:
         # Avoid division by zero
-        mask = df['Mn'] > 0
-        df.loc[mask, 'C_Mn_ratio'] = df.loc[mask, 'C'] / df.loc[mask, 'Mn']
-        # Handle zero Mn cases
-        df.loc[~mask, 'C_Mn_ratio'] = np.nan
-    
-    # Calculate Cr/Ni ratio if both exist
+        df['C_Mn_ratio'] = df['C'] / df['Mn'].replace(0, np.nan)
+        ratio_cols.append('C_Mn_ratio')
+
+    # Cr/Ni ratio
     if 'Cr' in df.columns and 'Ni' in df.columns:
-        mask = df['Ni'] > 0
-        df.loc[mask, 'Cr_Ni_ratio'] = df.loc[mask, 'Cr'] / df.loc[mask, 'Ni']
-        df.loc[~mask, 'Cr_Ni_ratio'] = np.nan
-        
-    logger.info(f"Calculated elemental ratios. Shape: {df.shape}")
+        df['Cr_Ni_ratio'] = df['Cr'] / df['Ni'].replace(0, np.nan)
+        ratio_cols.append('Cr_Ni_ratio')
+
+    logger.info(f"Calculated elemental ratios: {ratio_cols}")
     return df
 
 def calculate_pairwise_interactions(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate pairwise interactions, specifically:
-    - cooling_rate × holding_time
-    - C × cooling_rate
-    
-    Args:
-        df: DataFrame with thermal parameters and composition
-        
-    Returns:
-        DataFrame with added interaction columns
+    Calculate specific pairwise interactions:
+    1. cooling rate × holding time
+    2. C × Cooling Rate
     """
     df = df.copy()
-    
-    # Cooling rate × holding time interaction
-    if 'cooling_rate' in df.columns and 'holding_time' in df.columns:
-        df['cooling_rate_holding_time'] = df['cooling_rate'] * df['holding_time']
-        logger.info("Created cooling_rate × holding_time interaction")
-        
-    # C × Cooling Rate interaction
-    if 'C' in df.columns and 'cooling_rate' in df.columns:
-        df['C_cooling_rate'] = df['C'] * df['cooling_rate']
-        logger.info("Created C × cooling_rate interaction")
-        
+    interaction_cols = []
+
+    # cooling rate × holding time
+    # Assume normalized columns exist from T012: 'cooling_rate_norm', 'holding_time_norm'
+    if 'cooling_rate_norm' in df.columns and 'holding_time_norm' in df.columns:
+        df['cooling_rate_x_holding_time'] = df['cooling_rate_norm'] * df['holding_time_norm']
+        interaction_cols.append('cooling_rate_x_holding_time')
+
+    # C × Cooling Rate
+    if 'C' in df.columns and 'cooling_rate_norm' in df.columns:
+        df['C_x_cooling_rate'] = df['C'] * df['cooling_rate_norm']
+        interaction_cols.append('C_x_cooling_rate')
+
+    logger.info(f"Calculated pairwise interactions: {interaction_cols}")
     return df
 
-def orthogonalize_spline(
-    interaction_col: pd.Series, 
-    main_effects: List[pd.Series], 
-    degree: int = 3, 
-    knots: int = 5
-) -> pd.Series:
+def orthogonalize_spline(x: np.ndarray, y: np.ndarray, degree: int = 3, n_knots: int = 5) -> np.ndarray:
     """
-    Orthogonalize an interaction term against its constituent main effects 
-    using non-linear orthogonalization with natural spline basis.
-    
-    Args:
-        interaction_col: The interaction term to orthogonalize
-        main_effects: List of main effect series to regress against
-        degree: Degree of the spline basis (default 3)
-        knots: Number of knots in the spline (default 5)
-        
+    Perform non-linear orthogonalization of y against x using a natural spline basis.
+    Regress y against a spline basis of x, return the residuals.
+
+    Parameters:
+    -----------
+    x : np.ndarray
+        The predictor variable (main effect).
+    y : np.ndarray
+        The variable to orthogonalize (interaction term).
+    degree : int
+        Degree of the spline (default 3).
+    n_knots : int
+        Number of interior knots (default 5).
+
     Returns:
-        Orthogonalized interaction term (residuals)
+    --------
+    np.ndarray
+        Residuals of y after regressing against the spline basis of x.
     """
-    if len(main_effects) == 0:
-        return interaction_col
-        
-    # Combine main effects into a design matrix
-    X = pd.concat(main_effects, axis=1).values
-    
-    # Handle edge case where main effects are constant
-    if X.shape[1] == 0 or np.all(X == X[0, 0]):
-        return interaction_col - interaction_col.mean()
-    
-    # Create spline basis for each main effect
-    basis_matrix = []
-    for i, col in enumerate(main_effects):
-        x = col.values
-        # Skip constant columns
-        if np.std(x) < 1e-10:
-            continue
-            
-        # Create natural spline basis
-        # Using UnivariateSpline for flexibility
-        try:
-            # Normalize x for better spline fitting
-            x_norm = (x - x.min()) / (x.max() - x.min() + 1e-10)
-            spline = UnivariateSpline(x_norm, x_norm, k=degree, s=None)
-            
-            # Evaluate spline basis at each point
-            # We create a basis of 'degree' terms
-            for j in range(degree):
-                basis_col = spline(x_norm) * (x_norm ** j)
-                basis_matrix.append(basis_col)
-        except Exception as e:
-            logger.warning(f"Failed to create spline basis for column {i}: {e}")
-            # Fallback to polynomial terms
-            for j in range(degree):
-                basis_matrix.append(x ** (j + 1))
-    
-    if len(basis_matrix) == 0:
-        return interaction_col - interaction_col.mean()
-        
-    # Stack basis matrix
-    X_basis = np.column_stack(basis_matrix)
-    
-    # Add constant term
-    X_basis = np.column_stack([np.ones(len(interaction_col)), X_basis])
-    
-    # Perform least squares regression: interaction = X_basis * beta + residuals
+    if len(x) != len(y):
+        raise ValueError("x and y must have the same length")
+
+    # Create knot sequence for LSQUnivariateSpline
+    # We need to place knots appropriately within the range of x
+    x_sorted = np.sort(x)
+    if len(x_sorted) < n_knots + 2:
+        # Fallback if not enough data points
+        logger.warning(f"Not enough data points ({len(x)}) for {n_knots} knots. Reducing knots.")
+        n_knots = max(1, len(x_sorted) - 2)
+
+    # Generate interior knots
+    # LSQUnivariateSpline expects interior knots
+    t_min, t_max = x_sorted[0], x_sorted[-1]
+    knots = np.linspace(t_min, t_max, n_knots + 2)[1:-1]
+
     try:
-        # Use scipy's lstsq for numerical stability
-        coeffs, residuals, rank, s = np.linalg.lstsq(X_basis, interaction_col.values, rcond=None)
-        
-        # Calculate fitted values
-        fitted = X_basis @ coeffs
-        
-        # Return residuals (orthogonalized term)
-        orthogonalized = interaction_col.values - fitted
-        
-        logger.debug(f"Orthogonalization residuals stats: mean={np.mean(orthogonalized):.6f}, std={np.std(orthogonalized):.6f}")
-        return orthogonalized
-        
-    except np.linalg.LinAlgError:
-        logger.warning("Singular matrix in orthogonalization, returning centered interaction")
-        return interaction_col - interaction_col.mean()
+        spline = LSQUnivariateSpline(x, y, knots)
+        y_pred = spline(x)
+        residuals = y - y_pred
+    except Exception as e:
+        logger.warning(f"Spline fitting failed: {e}. Falling back to linear regression.")
+        # Fallback to linear regression if spline fails
+        slope, intercept, _, _, _ = stats.linregress(x, y)
+        y_pred = slope * x + intercept
+        residuals = y - y_pred
 
-def orthogonalize_interactions(df: pd.DataFrame, interaction_cols: List[str]) -> pd.DataFrame:
+    return residuals
+
+def orthogonalize_interactions(df: pd.DataFrame, interaction_cols: List[str], main_effect_cols: Dict[str, List[str]]) -> pd.DataFrame:
     """
-    Orthogonalize multiple interaction terms against their constituent main effects.
-    
-    Args:
-        df: DataFrame with interaction and main effect columns
-        interaction_cols: List of interaction column names to orthogonalize
-        
+    Orthogonalize interaction features against their constituent main effects.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        Input DataFrame.
+    interaction_cols : List[str]
+        List of interaction column names to orthogonalize.
+    main_effect_cols : Dict[str, List[str]]
+        Mapping from interaction column name to list of main effect column names.
+
     Returns:
-        DataFrame with orthogonalized interaction columns (prefixed with 'ortho_')
+    --------
+    pd.DataFrame
+        DataFrame with orthogonalized interaction columns.
     """
     df = df.copy()
-    
-    for interaction_col in interaction_cols:
-        if interaction_col not in df.columns:
-            logger.warning(f"Interaction column {interaction_col} not found, skipping")
+
+    for interaction in interaction_cols:
+        if interaction not in df.columns:
+            logger.warning(f"Interaction column {interaction} not found in DataFrame.")
             continue
-            
-        # Infer main effects from column name (e.g., "cooling_rate_holding_time" -> ["cooling_rate", "holding_time"])
-        parts = interaction_col.split('_')
-        main_effects = []
-        
-        for part in parts:
-            # Check if this part corresponds to a column in the dataframe
-            if part in df.columns:
-                main_effects.append(df[part])
-            else:
-                # Try to find a column that contains this part
-                found = False
-                for col in df.columns:
-                    if part in col:
-                        main_effects.append(df[col])
-                        found = True
-                        break
-                if not found:
-                    logger.warning(f"Could not find main effect for '{part}' in column '{interaction_col}'")
-        
-        if len(main_effects) > 0:
-            orthogonalized = orthogonalize_spline(df[interaction_col], main_effects)
-            df[f'ortho_{interaction_col}'] = orthogonalized
-            logger.info(f"Orthogonalized {interaction_col} against {len(main_effects)} main effects")
-        else:
-            logger.warning(f"No main effects found for {interaction_col}, skipping orthogonalization")
-            
+
+        if interaction not in main_effect_cols:
+            logger.warning(f"No main effects defined for interaction {interaction}. Skipping.")
+            continue
+
+        main_effects = main_effect_cols[interaction]
+        missing_effects = [col for col in main_effects if col not in df.columns]
+        if missing_effects:
+            logger.warning(f"Missing main effects for {interaction}: {missing_effects}. Skipping.")
+            continue
+
+        # Extract the interaction series
+        y = df[interaction].values
+
+        # Orthogonalize against each main effect sequentially or combined?
+        # Standard approach: Regress against all main effects (linear or spline) and take residuals.
+        # Here we apply spline orthogonalization against each main effect sequentially to be conservative,
+        # or combine them. The spec says "regressing interactions against a natural spline basis".
+        # We will regress against the combined set of main effects using a linear model first,
+        # then apply spline residuals if needed, or simply apply spline against each.
+        # Given the specific instruction "regressing interactions against a natural spline basis, degree=3, knots=5",
+        # we interpret this as applying the spline orthogonalization for each main effect.
+
+        orthogonalized_y = y.copy()
+        for main_col in main_effects:
+            x = df[main_col].values
+            orthogonalized_y = orthogonalize_spline(x, orthogonalized_y, degree=3, n_knots=5)
+
+        df[f'{interaction}_orthogonalized'] = orthogonalized_y
+        logger.info(f"Orthogonalized {interaction} against {main_effects}.")
+
     return df
 
-def detect_zero_variance_columns(df: pd.DataFrame, threshold: float = 1e-10) -> List[str]:
+def detect_zero_variance_columns(df: pd.DataFrame) -> List[str]:
     """
-    Detect and return columns with zero or near-zero variance (collinear/constant features).
-    
-    Args:
-        df: DataFrame to analyze
-        threshold: Variance threshold below which a column is considered zero-variance
-        
+    Detect columns with zero variance (constant values) or near-zero variance.
+    These are collinear features that provide no predictive power.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        Input DataFrame.
+
     Returns:
-        List of column names with zero or near-zero variance
+    --------
+    List[str]
+        List of column names with zero or near-zero variance.
     """
     zero_var_cols = []
-    
     for col in df.columns:
-        if df[col].dtype in ['object', 'category']:
-            # For categorical columns, check if only one unique value exists
-            if df[col].nunique() <= 1:
+        if df[col].dtype in ['float64', 'float32', 'int64', 'int32']:
+            # Check variance
+            var = df[col].var()
+            if var == 0 or np.isnan(var):
+                zero_var_cols.append(col)
+            # Also check for near-zero variance (e.g., variance < 1e-10)
+            elif var < 1e-10:
                 zero_var_cols.append(col)
         else:
-            # For numeric columns, check variance
-            var = df[col].var()
-            if pd.isna(var) or var < threshold:
+            # For categorical/object columns, check unique values
+            if df[col].nunique() <= 1:
                 zero_var_cols.append(col)
-                
+
     if zero_var_cols:
-        logger.warning(f"Detected {len(zero_var_cols)} zero/near-zero variance columns: {zero_var_cols}")
+        logger.info(f"Detected zero/near-zero variance columns: {zero_var_cols}")
     else:
-        logger.debug("No zero/near-zero variance columns detected")
-        
+        logger.info("No zero/near-zero variance columns detected.")
+
     return zero_var_cols
 
-def exclude_collinear_thermal_features(
-    df: pd.DataFrame, 
-    thermal_cols: Optional[List[str]] = None,
-    threshold: float = 1e-10
-) -> Tuple[pd.DataFrame, List[str]]:
+def exclude_collinear_thermal_features(df: pd.DataFrame, threshold: float = 0.95) -> pd.DataFrame:
     """
-    Detect and exclude collinear thermal features (zero-variance detection).
-    
-    This function identifies thermal parameters that have zero or near-zero variance
-    (indicating they are constant across the dataset) and removes them from the DataFrame.
-    
-    Args:
-        df: DataFrame containing thermal parameters
-        thermal_cols: List of thermal column names to check. If None, tries to infer.
-        threshold: Variance threshold for zero-variance detection
-        
+    Exclude collinear thermal features based on correlation or zero variance.
+    This implements the "zero-variance detection" and "collinear thermal features" exclusion.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        Input DataFrame.
+    threshold : float
+        Correlation threshold for considering features collinear (not used in this specific
+        implementation which focuses on zero-variance as per task description, but kept for extensibility).
+
     Returns:
-        Tuple of (cleaned DataFrame, list of removed column names)
+    --------
+    pd.DataFrame
+        DataFrame with collinear/zero-variance thermal features removed.
     """
     df = df.copy()
-    
-    # Infer thermal columns if not provided
-    if thermal_cols is None:
-        potential_thermal = ['temperature', 'cooling_rate', 'holding_time', 'quench_rate', 
-                           'anneal_temp', 'temper_temp', 'solution_temp']
-        thermal_cols = [col for col in potential_thermal if col in df.columns]
-        
-        # Also check for any column with 'temp' or 'rate' or 'time' in the name
-        if not thermal_cols:
-            thermal_cols = [col for col in df.columns 
-                           if any(keyword in col.lower() for keyword in ['temp', 'rate', 'time', 'cooling', 'holding'])]
-    
-    if not thermal_cols:
-        logger.info("No thermal columns found to check for zero variance")
-        return df, []
-    
-    # Detect zero-variance columns among thermal features
-    zero_var_thermal = []
-    for col in thermal_cols:
-        if col not in df.columns:
-            continue
-            
-        var = df[col].var()
-        if pd.isna(var) or var < threshold:
-            zero_var_thermal.append(col)
-    
-    # Remove zero-variance thermal columns
-    if zero_var_thermal:
-        logger.info(f"Removing {len(zero_var_thermal)} zero-variance thermal columns: {zero_var_thermal}")
-        df = df.drop(columns=zero_var_thermal)
+
+    # Step 1: Detect zero-variance columns
+    zero_var_cols = detect_zero_variance_columns(df)
+
+    # Step 2: Specifically look for thermal features that might be collinear
+    # Define thermal feature names that might be present
+    thermal_feature_keywords = ['temp', 'cooling', 'heating', 'time', 'rate', 'holding', 'anneal', 'quench']
+    thermal_cols = [col for col in df.columns if any(kw in col.lower() for kw in thermal_feature_keywords)]
+
+    # Check for high correlation among thermal features (optional, as per "collinear" requirement)
+    # If variance is zero, they are perfectly collinear with a constant.
+    # If variance is non-zero but correlation is 1.0, they are collinear.
+    collinear_thermal_cols = set(zero_var_cols) # Start with zero variance
+
+    if len(thermal_cols) > 1:
+        thermal_df = df[thermal_cols]
+        # Calculate correlation matrix
+        corr_matrix = thermal_df.corr().abs()
+
+        # Select upper triangle of correlation matrix
+        upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+        # Find features with correlation above threshold
+        to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+
+        collinear_thermal_cols.update(to_drop)
+
+    # Remove identified columns
+    cols_to_drop = list(collinear_thermal_cols)
+    if cols_to_drop:
+        logger.info(f"Dropping collinear/zero-variance thermal features: {cols_to_drop}")
+        df = df.drop(columns=cols_to_drop)
     else:
-        logger.debug("No zero-variance thermal columns detected")
-        
-    return df, zero_var_thermal
+        logger.info("No collinear thermal features to drop.")
+
+    return df
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Main feature engineering pipeline:
-    1. Calculate elemental ratios
-    2. Calculate pairwise interactions
-    3. Orthogonalize interactions
-    4. Detect and exclude zero-variance thermal features
-    
-    Args:
-        df: Raw or preprocessed DataFrame
-        
-    Returns:
-        DataFrame with all engineered features
-    """
-    logger.info(f"Starting feature engineering on dataset with shape: {df.shape}")
-    
-    # Step 1: Calculate elemental ratios
-    df = calculate_elemental_ratios(df)
-    
-    # Step 2: Calculate pairwise interactions
-    df = calculate_pairwise_interactions(df)
-    
-    # Step 3: Orthogonalize interactions
-    # Identify interaction columns created in step 2
-    interaction_cols = []
-    for col in ['cooling_rate_holding_time', 'C_cooling_rate']:
-        if col in df.columns:
-            interaction_cols.append(col)
-    
-    if interaction_cols:
-        df = orthogonalize_interactions(df, interaction_cols)
-    
-    # Step 4: Detect and exclude zero-variance thermal features
-    df, removed_cols = exclude_collinear_thermal_features(df)
-    
-    logger.info(f"Feature engineering complete. Final shape: {df.shape}, Removed columns: {removed_cols}")
-    return df
+    Main entry point for feature engineering.
+    1. Calculate elemental ratios.
+    2. Calculate pairwise interactions.
+    3. Orthogonalize interactions.
+    4. Detect and exclude zero-variance/collinear thermal features.
 
-# Export public names
-__all__ = [
-    'calculate_elemental_ratios',
-    'calculate_pairwise_interactions', 
-    'orthogonalize_spline',
-    'orthogonalize_interactions',
-    'engineer_features',
-    'detect_zero_variance_columns',
-    'exclude_collinear_thermal_features'
-]
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        Input DataFrame with raw and normalized features.
+
+    Returns:
+    --------
+    pd.DataFrame
+        DataFrame with engineered features.
+    """
+    logger.info("Starting feature engineering pipeline.")
+
+    # 1. Elemental Ratios
+    df = calculate_elemental_ratios(df)
+
+    # 2. Pairwise Interactions
+    df = calculate_pairwise_interactions(df)
+
+    # 3. Orthogonalize Interactions
+    # Define which interactions to orthogonalize and their main effects
+    interaction_map = {
+        'cooling_rate_x_holding_time': ['cooling_rate_norm', 'holding_time_norm'],
+        'C_x_cooling_rate': ['C', 'cooling_rate_norm']
+    }
+    interaction_cols = list(interaction_map.keys())
+    # Filter to only those present in df
+    present_interactions = [col for col in interaction_cols if col in df.columns]
+
+    if present_interactions:
+        df = orthogonalize_interactions(df, present_interactions, interaction_map)
+
+    # 4. Exclude Collinear Thermal Features (Zero Variance)
+    df = exclude_collinear_thermal_features(df)
+
+    logger.info("Feature engineering pipeline completed.")
+    return df

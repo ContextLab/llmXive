@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (code/, data/, tests/, docs/)
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy, pandas, matplotlib, seaborn, pytest)
+- [X] T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy, pandas, matplotlib, seaborn, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,10 +55,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement covariance regularization utility in `code/utils/regularization.py` (FR-009: handle singular matrices, condition number > 10^12)
+- [X] T004 Implement covariance regularization utility in `code/utils/regularization.py` (FR-009: handle singular matrices, condition number > 10^12)
 - [ ] T004.5 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py` specifically for condition number > 10^12 (required by T004 and referenced by T007 context)
-- [ ] T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
-- [ ] T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
+- [X] T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
+- [X] T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
 - [X] T007 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (does NOT raise a custom error as this threshold is not in spec) and verify by running a test that triggers the limit and asserts the warning is logged (FR-009 context only for condition number)
 - [X] T008 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05 (SC-005)
 
@@ -85,8 +85,8 @@
 - [X] T013 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning a range from no correlation to strong positive correlation.
 - [X] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
 - [X] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
-- [~] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
-- [~] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested -->
+- [ ] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
+- [ ] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,7 +105,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t-test, f-test)
+- [X] T020 [P] [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t-test, f-test)
 - [ ] T021 [US2] Implement p-value collection logic ensuring exactly $p$ values per iteration (FR-003)
 - [ ] T022 [US2] Integrate with `generate_data.py` to run tests on each generated dataset (Depends on T015 completion for dataset availability)
 
@@ -121,15 +121,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
-- [ ] T025 [P] [US3] Unit test for QQ-plot generation and visual validation in `tests/unit/test_plots.py`
+- [X] T024 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
+- [X] T025 [P] [US3] Unit test for QQ-plot generation and visual validation in `tests/unit/test_plots.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
-- [ ] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
-- [ ] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
-- [ ] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
+- [X] T026 [P] [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
+- [~] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
+- [~] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
+- [~] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
 - [ ] T030 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
 
 **Checkpoint**: All user stories should now be independently functional

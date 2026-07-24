@@ -1,8 +1,7 @@
-T001 Create project structure per implementation plan (code/, data/, tests/, docs/): 1
-T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy, pandas, matplotlib, seaborn, pytest): 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
-? 'T004 Implement covariance regularization utility in `code/utils/regularization.py`
-  (FR-009: handle singular matrices, condition number > 10^12)'
-: 1
-T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`: 1
-T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps): 1
+T001: 1
+T003: 1
+T016: 1
+T017: 1
+T021: 1
+T022: 1
+T030: 1
