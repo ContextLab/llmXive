@@ -6,7 +6,7 @@
   "failures": [
     "python code/data/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/code/data/download.py\", line 10, in <module>\n    from datasets import load_dataset\nModuleNotFoundError: No module named 'datasets'",
     "python code/data/derive_gt.py -> rc=1\n    Error: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/data/data/raw/bench.final.public.jsonl",
-    "python code/data/curate.py -> rc=1\n    2026-07-24 09:08:05,533 - INFO - Starting T014b: Synthetic Issue Generation\n2026-07-24 09:08:05,533 - INFO - Loading ground truth data...\n2026-07-24 09:08:05,533 - ERROR - Ground truth file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/data/data/curated/ground_truth.jsonl. Run T013 first.",
+    "python code/data/curate.py -> rc=1\n    2026-07-24 10:06:25,799 - INFO - Starting T014b: Synthetic Issue Generation\n2026-07-24 10:06:25,800 - INFO - Loading ground truth data...\n2026-07-24 10:06:25,800 - ERROR - Ground truth file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/data/data/curated/ground_truth.jsonl. Run T013 first.",
     "python code/data/validate_hard.py -> rc=1\n    Generating Validation Report...\nLoading hard subset...\n\nError: Hard subset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/data/curated/hard_subset.jsonl. Ensure T014a has been executed.\nEnsure T014a (curate.py) has been run to generate hard_subset.jsonl.",
     "python code/main.py --mode full -> rc=2\n    usage: main.py [-h] [--max-hours MAX_HOURS]\nmain.py: error: unrecognized arguments: --mode full",
     "python code/analysis/stats.py --input data/results/metrics.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore/code/analysis/stats.py\", line 9, in <module>\n    from lifelines import CoxPHFitter\nModuleNotFoundError: No module named 'lifelines'",
@@ -18,5 +18,5 @@
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-24T09:08:08Z"
+  "updated_at": "2026-07-24T10:06:29Z"
 }

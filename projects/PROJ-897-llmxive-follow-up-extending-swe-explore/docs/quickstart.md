@@ -1,108 +1,121 @@
-# Quickstart Guide: llmXive - SWE-Explore Follow-up
+# Quickstart Guide
 
-This guide provides the steps to set up and run the llmXive automated science pipeline for the SWE-Explore follow-up project.
+## Project Structure
 
-## Prerequisites
+This project follows the llmXive automated science pipeline structure:
 
-- Python 3.10+
-- pip (Python package manager)
-- Git (for version control)
+- `code/`: Source code for data processing, agent execution, and analysis
+- `data/raw/`: Raw downloaded datasets
+- `data/curated/`: Curated and processed datasets
+- `data/results/`: Agent execution results and metrics
+- `tests/unit/`: Unit tests
+- `tests/contract/`: Contract tests for data schemas
+- `contracts/`: Data schema definitions
+- `docs/`: Documentation
+- `paper/`: Research paper drafts
+- `figures/`: Generated plots and figures
 
-## Installation
+## Setup
 
-1. **Clone the repository** (if not already done):
+1. Install dependencies:
  ```bash
- git clone <repository-url>
- cd llmXive/projects/PROJ-897-llmxive-follow-up-extending-swe-explore
+ pip install -r code/requirements.txt
  ```
 
-2. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. **Create project structure** (if not already done):
+2. Create project structure (if not already created):
  ```bash
  python code/setup_project_structure.py
  ```
 
-## Execution Workflow
+3. Configure linting and formatting:
+ ```bash
+ python code/setup_linting.py
+ ```
 
-The pipeline consists of several sequential stages. Run them in order:
+## Execution Pipeline
 
-### 1. Data Download
+The full pipeline runs the following steps in order:
+
+### Step 1: Download Data
 ```bash
 python code/data/download.py
 ```
-Downloads the SWE-Explore dataset from HuggingFace.
-Output: `data/raw/bench.final.public.jsonl`
+Downloads the SWE-Explore benchmark dataset from HuggingFace.
 
-### 2. Ground Truth Derivation
+### Step 2: Derive Ground Truth
 ```bash
 python code/data/derive_gt.py
 ```
-Parses solution patches to derive ground truth line numbers.
-Output: `data/raw/bench.final.public.gt.jsonl`
+Parses solution patches to derive ground truth line references.
 
-### 3. Data Curation (Hard Subset & Synthetic Issues)
+### Step 3: Curate Dataset
 ```bash
 python code/data/curate.py
 ```
-Filters hard instances, generates synthetic issues, and creates metadata.
-Outputs:
-- `data/curated/hard_subset.jsonl`
-- `data/curated/non_hard_subset.jsonl`
-- `data/curated/synthetic_issues.jsonl`
-- `data/curated/synthetic_issues_meta.json`
+Filters hard instances, generates synthetic issues, and creates validation reports.
 
-### 4. Validation
+### Step 4: Validate Hard Subset
 ```bash
 python code/data/validate_hard.py
 ```
-Generates a validation report for the hard subset.
-Output: `data/curated/validation_report.md`
+Generates validation report for the hard subset.
 
-### 5. Agent Execution (Baseline & Iterative)
+### Step 5: Run Baseline Agent
+```bash
+python code/agent/static_baseline.py
+```
+Executes static multi-query baseline on hard subset.
+
+### Step 6: Run Iterative Agent
 ```bash
 python code/agent/static_baseline.py
 python code/agent/iterative.py
 ```
-Runs the static multi-query baseline and iterative agent loop.
-Outputs:
-- `data/results/baseline_logs.jsonl`
-- `data/results/iterative_logs.jsonl`
+Executes iterative agent loop on hard subset.
 
-### 6. Turn-Limit Sweep (Optional)
+### Step 7: Run Turn-Limit Sweep
 ```bash
 python code/agent/sweep_turns.py
 ```
-Executes the iterative agent with varying turn limits.
-Output: `data/results/sweep_results.json`
+Executes turn-limit sweep analysis.
 
-### 7. Metrics & Statistical Analysis
+### Step 8: Compute Metrics
 ```bash
 python code/metrics/coverage.py
 python code/metrics/ranking.py
+```
+Calculates coverage and ranking metrics.
+
+### Step 9: Statistical Analysis
+```bash
 python code/analysis/stats.py
 ```
-Calculates coverage, ranking metrics, and performs statistical tests.
-Output: `data/results/final_metrics.json`
+Performs statistical testing (Wilcoxon, Permutation, or Survival Analysis).
 
-### 8. Visualization
+### Step 10: Generate Plots
 ```bash
 python code/analysis/plots.py
 ```
-Generates plots for coverage and survival curves.
-Output: `docs/figures/`
+Generates visualization figures.
 
-### 9. Report Generation
+### Step 11: Generate Final Metrics
+```bash
+python code/analysis/generate_final_metrics.py
+```
+Aggregates all metrics and applies Bonferroni correction.
+
+### Step 12: Generate Report
 ```bash
 python code/analysis/report_generator.py
 ```
-Generates the final research report.
-Output: `paper/draft.md`
+Generates the research paper draft.
 
-## Main Execution Script
+## Hashing Artifacts
+
+To hash all curated and result artifacts:
+```bash
+python code/analysis/run_hash_pipeline.py
+```
 
 For a streamlined run (subject to configuration):
 ```bash
@@ -110,25 +123,63 @@ python code/main.py --max-hours 6
 ```
 Note: The `--mode` flag is not supported. Use `--max-hours` to set execution time limits.
 
-## Artifact Verification
-
-After running the full pipeline, verify the existence of key artifacts:
+To validate the quickstart pipeline:
 ```bash
 python code/validate_quickstart.py
 ```
 
-## Troubleshooting
+## Linting and Formatting
 
-- **Missing dependencies**: Ensure `requirements.txt` is installed.
-- **Data fetch failures**: The pipeline will fail loudly if the dataset cannot be downloaded. Check network connectivity and HuggingFace availability.
-- **Memory errors**: The pipeline uses streaming for large datasets. Ensure sufficient disk space for temporary files.
+Run linter:
+```bash
+ruff check code/
+flake8 code/
+```
 
-## Configuration
+Format code:
+```bash
+black code/
+```
 
-Edit `code/config.py` to modify:
-- Data paths
-- Random seeds
-- Hard instance percentile threshold
-- Validation sample size
-- Baseline query count
-- Synthetic issue count
+## Data Flow Diagram
+
+```
+Raw Data (HuggingFace)
+ ↓
+download.py
+ ↓
+data/raw/bench.final.public.jsonl
+ ↓
+derive_gt.py
+ ↓
+data/raw/swe_explore_with_gt.jsonl
+ ↓
+curate.py (filter_hard.py)
+ ↓
+data/curated/hard_subset.jsonl
+ ↓
+validate_hard.py
+ ↓
+data/curated/validation_report.md
+ ↓
+static_baseline.py & iterative.py
+ ↓
+data/results/baseline_logs.jsonl
+data/results/iterative_logs.jsonl
+ ↓
+metrics/coverage.py & metrics/ranking.py
+ ↓
+data/results/metrics.csv
+ ↓
+analysis/stats.py
+ ↓
+data/results/stats_summary.json
+ ↓
+analysis/generate_final_metrics.py
+ ↓
+data/results/final_metrics.json
+ ↓
+analysis/report_generator.py
+ ↓
+paper/draft.md
+```

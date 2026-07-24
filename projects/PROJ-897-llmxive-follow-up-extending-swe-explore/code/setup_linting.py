@@ -1,205 +1,106 @@
-"""
-Setup script to configure linting (ruff) and formatting (black) tools.
-
-This script generates configuration files for the project:
-- .ruff.toml: Linting configuration
-- .flake8: Flaked8 configuration (if needed, though ruff replaces it)
-- pyproject.toml: Black formatting configuration
-
-It also updates requirements.txt with necessary dependencies.
-"""
 import os
 import sys
 from pathlib import Path
+import subprocess
 
 def ensure_requirements():
-    """Ensure linting and formatting dependencies are in requirements.txt."""
-    requirements_path = Path("requirements.txt")
-    required_packages = [
-        "ruff>=0.1.0",
-        "black>=23.0.0",
-        "pytest>=7.0.0",
-        "pyyaml>=6.0",
-    ]
-    
-    existing_packages = set()
-    if requirements_path.exists():
-        with open(requirements_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    # Extract package name (before any version specifier)
-                    pkg_name = line.split(">=")[0].split("<=")[0].split("==")[0].split("[")[0].strip()
-                    existing_packages.add(pkg_name.lower())
-    
-    new_packages = []
-    for pkg in required_packages:
-        pkg_name = pkg.split(">=")[0].split("<=")[0].split("==")[0].split("[")[0].strip().lower()
-        if pkg_name not in existing_packages:
-            new_packages.append(pkg)
-    
-    if new_packages:
-        with open(requirements_path, "a", encoding="utf-8") as f:
-            f.write("\n")
-            for pkg in new_packages:
-                f.write(f"{pkg}\n")
-        print(f"Added to requirements.txt: {', '.join(new_packages)}")
-    else:
-        print("All linting/formatting dependencies already in requirements.txt")
+    """Ensure linting and formatting tools are available."""
+    try:
+        import ruff
+        import black
+        import flake8
+        return True
+    except ImportError:
+        print("Installing linting tools...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black", "flake8"])
+            return True
+        except subprocess.CalledProcessError:
+            print("Failed to install linting tools. Please install manually: pip install ruff black flake8")
+            return False
 
-def create_ruff_config():
-    """Create .ruff.toml configuration file."""
-    config_content = """[lint]
-# Enable all rules from the recommended set
+def create_ruff_config(root: Path):
+    """Create ruff.toml configuration."""
+    config_content = """# Ruff configuration
+[lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "SIM",# flake8-simplify
-    "ARG",# flake8-unused-arguments
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
-
-# Ignore specific rules that conflict with project style
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in tests)
-    "ARG001", # Unused function argument (sometimes intentional in interfaces)
-]
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "env",
-    ".eggs",
-    "*.egg",
-    "*.egg-info",
-    "build",
-    "dist",
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
 [lint.per-file-ignores]
-# Allow unused imports in __init__.py for public API exposure
 "__init__.py" = ["F401"]
 
 [lint.isort]
-# Configuration for import sorting
 known-first-party = ["code", "tests"]
-force-single-line = false
-lines-after-imports = 2
 
 [format]
-# Configuration for formatting (if using ruff format)
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
 """
-    config_path = Path(".ruff.toml")
-    with open(config_path, "w", encoding="utf-8") as f:
-        f.write(config_content)
-    print(f"Created {config_path}")
+    config_path = root / "ruff.toml"
+    config_path.write_text(config_content)
+    print(f"Created ruff configuration: {config_path}")
 
-def create_black_config():
-    """Create pyproject.toml with Black configuration."""
-    # Check if pyproject.toml exists
-    pyproject_path = Path("pyproject.toml")
-    
-    if pyproject_path.exists():
-        with open(pyproject_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        
-        # Check if [tool.black] section already exists
-        if "[tool.black]" in content:
-            print("Black configuration already exists in pyproject.toml")
-            return
-    
-    config_section = """
-[tool.black]
-line-length = 88
-target-version = ['py310']
-include = '\\.pyi?$'
-extend-exclude = '''
-(
-  .venv
-  | venv
-  | env
-  | __pycache__
-  | .git
-  | .eggs
-  | *.egg
-  | *.egg-info
-  | build
-  | dist
-)
-'''
-"""
-    
-    if pyproject_path.exists():
-        with open(pyproject_path, "a", encoding="utf-8") as f:
-            f.write(config_section)
-        print(f"Added Black configuration to {pyproject_path}")
+def create_black_config(root: Path):
+    """Create pyproject.toml with black configuration."""
+    config_path = root / "pyproject.toml"
+    if config_path.exists():
+        content = config_path.read_text()
+        if "[tool.black]" not in content:
+            content += "\n[tool.black]\nline-length = 88\ntarget-version = ['py39']\n"
+            config_path.write_text(content)
+            print(f"Updated pyproject.toml with black configuration: {config_path}")
+        else:
+            print(f"Black configuration already exists in {config_path}")
     else:
-        with open(pyproject_path, "w", encoding="utf-8") as f:
-            f.write("[project]\nname = \"llmxive\"\nversion = \"0.1.0\"\n")
-            f.write(config_section)
-        print(f"Created {pyproject_path} with Black configuration")
+        config_content = """[tool.black]
+line-length = 88
+target-version = ['py39']
+"""
+        config_path.write_text(config_content)
+        print(f"Created pyproject.toml with black configuration: {config_path}")
 
-def create_flake8_config():
-    """Create .flake8 configuration file (optional, for compatibility)."""
-    # Ruff can replace flake8, but we create a minimal config for compatibility
+def create_flake8_config(root: Path):
+    """Create .flake8 configuration."""
     config_content = """[flake8]
 max-line-length = 88
-exclude = 
+extend-ignore = E203, E501
+exclude =
     .git,
     __pycache__,
-    .venv,
-    venv,
-    env,
-    .eggs,
-    *.egg,
-    *.egg-info,
     build,
-    dist
-ignore = E501,B008
+    dist,
+    .eggs
 """
-    config_path = Path(".flake8")
-    # Only create if it doesn't exist
-    if not config_path.exists():
-        with open(config_path, "w", encoding="utf-8") as f:
-            f.write(config_content)
-        print(f"Created {config_path}")
-    else:
-        print(f"{config_path} already exists")
+    config_path = root / ".flake8"
+    config_path.write_text(config_content)
+    print(f"Created flake8 configuration: {config_path}")
 
 def main():
-    """Main entry point for setup script."""
-    print("Setting up linting and formatting tools...")
+    """Setup linting and formatting tools."""
+    root = Path(__file__).resolve().parent.parent
     
-    # Ensure we're in the project root
-    if not Path("code").exists() or not Path("data").exists():
-        print("Error: Please run this script from the project root directory.")
-        sys.exit(1)
+    if not ensure_requirements():
+        return 1
     
-    ensure_requirements()
-    create_ruff_config()
-    create_black_config()
-    create_flake8_config()
+    create_ruff_config(root)
+    create_black_config(root)
+    create_flake8_config(root)
     
-    print("\nLinting and formatting setup complete!")
-    print("\nTo use the tools:")
-    print("  Format code: black code/ tests/")
-    print("  Lint code: ruff check code/ tests/")
-    print("  Format and lint: black code/ tests/ && ruff check code/ tests/")
+    print("Linting and formatting tools configured successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

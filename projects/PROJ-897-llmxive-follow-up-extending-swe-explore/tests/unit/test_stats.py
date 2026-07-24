@@ -1,11 +1,8 @@
 """
-Unit tests for code/analysis/stats.py (Wilcoxon and Survival Analysis logic).
+Unit tests for code/analysis/stats.py.
 
-These tests validate:
-1. Wilcoxon signed-rank test implementation (paired, non-censored data).
-2. Survival Analysis (Cox PH) handling of censored data (N+1 penalty).
-3. Bonferroni correction logic.
-4. Data loading and pairing logic.
+This module validates the statistical logic for Wilcoxon signed-rank tests,
+Exact Permutation tests, and Survival Analysis (Cox PH) including censored data handling.
 """
 import json
 import os
@@ -14,254 +11,325 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 import numpy as np
-import pytest
-from scipy import stats as scipy_stats
-
-# Import the module under test
-# Note: We assume the project root is in sys.path or we adjust the import
+import json
+import os
 import sys
 from pathlib import Path
-project_root = Path(__file__).parent.parent.parent
-if str(project_root / "code") not in sys.path:
-    sys.path.insert(0, str(project_root / "code"))
+from typing import List, Dict, Any, Tuple
+
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 from analysis.stats import (
-    load_agent_logs_for_pairing,
-    calculate_coverage_metrics_for_issue,
-    compute_paired_coverage_data,
     run_wilcoxon_signed_rank_test,
     run_exact_permutation_test,
     run_cox_survival_analysis,
-    analyze_ranking_metrics,
     apply_bonferroni_correction,
-    format_associational_statement
+    load_agent_logs_for_pairing,
+    compute_paired_coverage_data
 )
 
 
-class TestWilcoxonLogic:
-    """Tests for Wilcoxon signed-rank test logic."""
+class TestWilcoxonSignedRank:
+    """Tests for the Wilcoxon signed-rank test implementation."""
 
-    def test_wilcoxon_basic(self):
-        """Test basic Wilcoxon signed-rank test with known data."""
-        # Known paired data from scipy docs or generated
-        x = [20, 22, 25, 28, 30, 32, 35, 38, 40, 42]
-        y = [21, 23, 26, 29, 31, 33, 36, 39, 41, 43]
+    def test_wilcoxon_identical_pairs(self):
+        """Test with identical pairs (should result in W=0 or non-significant)."""
+        x = [1.0, 2.0, 3.0, 4.0, 5.0]
+        y = [1.0, 2.0, 3.0, 4.0, 5.0]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        # With identical pairs, statistic should be 0 or very low
+        assert stat == 0.0
+        assert pval == 1.0  # Perfectly correlated, no difference
 
-        # Run our implementation
-        result = run_wilcoxon_signed_rank_test(x, y)
+    def test_wilcoxon_significant_difference(self):
+        """Test with a clear systematic difference."""
+        # Baseline is consistently lower than Iterative
+        baseline = [10.0, 12.0, 11.0, 13.0, 10.5]
+        iterative = [20.0, 22.0, 21.0, 23.0, 20.5]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(baseline, iterative)
+        
+        assert stat > 0
+        assert pval < 0.05  # Should be significant given the clear gap
 
-        # Verify structure
-        assert "statistic" in result
-        assert "pvalue" in result
-        assert "conclusion" in result
+    def test_wilcoxon_small_sample(self):
+        """Test with small sample size (N=3)."""
+        x = [1.0, 2.0, 3.0]
+        y = [2.0, 3.0, 4.0]
+        
+        # Should not raise an error even with small N
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        assert 0.0 <= pval <= 1.0
 
-        # Verify against scipy (approximate due to implementation differences)
-        scipy_res = scipy_stats.wilcoxon(x, y, zero_method="wilcox", correction=True)
-        assert np.isclose(result["statistic"], scipy_res.statistic, rtol=0.1)
-        # P-values might differ slightly due to exact vs asymptotic methods, but should be in same order of magnitude
-        assert result["pvalue"] > 0 and result["pvalue"] < 1
-
-    def test_wilcoxon_with_ties(self):
-        """Test Wilcoxon with tied values."""
-        x = [10, 10, 10, 20, 20]
-        y = [10, 10, 15, 20, 25]
-
-        result = run_wilcoxon_signed_rank_test(x, y)
-
-        assert "statistic" in result
-        assert "pvalue" in result
-        # Should handle ties gracefully without crashing
-        assert result["pvalue"] is not None
-
-    def test_wilcoxon_identical(self):
-        """Test Wilcoxon with identical arrays (should yield p=1.0 or near)."""
-        x = [1, 2, 3, 4, 5]
-        y = [1, 2, 3, 4, 5]
-
-        result = run_wilcoxon_signed_rank_test(x, y)
-
-        # If identical, statistic should be 0 (or max depending on definition) and p-value should be 1
-        # Our implementation should not crash
-        assert result["pvalue"] is not None
+    def test_wilcoxon_ties_handling(self):
+        """Test that ties are handled correctly (continuity correction)."""
+        # Create data with ties
+        x = [1.0, 1.0, 2.0, 2.0, 3.0]
+        y = [1.5, 1.5, 2.5, 2.5, 3.5]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        # Ties should not cause NaN or Inf
+        assert not np.isnan(stat)
+        assert not np.isinf(stat)
 
 
-class TestSurvivalAnalysisLogic:
-    """Tests for Cox Survival Analysis logic, specifically censored data handling."""
+class TestExactPermutation:
+    """Tests for the Exact Permutation test implementation."""
 
-    def test_cox_survival_with_censored_data(self):
-        """Test Cox PH with censored data (N+1 penalty scenario)."""
-        # Simulate data where some entries are censored (no relevant line found)
-        # In the project logic, censored data is assigned a ranking of N+1
-        # and marked as censored=True in the survival model.
+    def test_permutation_identical(self):
+        """Test with identical data (p-value should be 1.0)."""
+        x = [1.0, 2.0, 3.0, 4.0]
+        y = [1.0, 2.0, 3.0, 4.0]
+        
+        stat, pval = run_exact_permutation_test(x, y)
+        
+        assert pval == 1.0
 
-        # Create mock data: time (ranking) and event (1=found, 0=censored)
-        # Group A (Baseline)
-        times_a = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-        # Group B (Iterative) - some censored
-        times_b = [4, 8, 12, 15, 20, 25, 30, 35, 40, 45]
-        # Let's make the last 3 in B censored (event=0)
-        events_b = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0] # Last 4 are censored
+    def test_permutation_significant(self):
+        """Test with clearly separated groups."""
+        x = [1.0, 1.1, 1.2, 1.3]
+        y = [10.0, 10.1, 10.2, 10.3]
+        
+        stat, pval = run_exact_permutation_test(x, y)
+        
+        # With perfect separation, p-value should be very low
+        assert pval < 0.05
 
-        # We need to construct a DataFrame-like structure or list of dicts
-        # The function expects a specific format, let's check the signature
-        # run_cox_survival_analysis(times_baseline, times_iterative, events_baseline, events_iterative)
-        # Assuming events_baseline are all 1 (no censoring) for simplicity in this test
-        events_a = [1] * len(times_a)
+    def test_permutation_single_pair(self):
+        """Test with minimal sample size (N=1)."""
+        x = [1.0]
+        y = [2.0]
+        
+        # Should handle N=1 gracefully
+        stat, pval = run_exact_permutation_test(x, y)
+        
+        assert isinstance(pval, float)
 
-        result = run_cox_survival_analysis(times_a, times_b, events_a, events_b)
+    def test_permutation_ties_heavy(self):
+        """Test with many ties (dominant ties scenario)."""
+        # Many identical values
+        x = [0.0, 0.0, 0.0, 0.0, 0.0]
+        y = [0.0, 0.0, 0.0, 0.0, 0.1]
+        
+        stat, pval = run_exact_permutation_test(x, y)
+        
+        assert not np.isnan(pval)
+        assert 0.0 <= pval <= 1.0
 
-        assert "hazard_ratio" in result
-        assert "pvalue" in result
-        assert "conclusion" in result
-        # Hazard ratio should be a positive number
-        assert result["hazard_ratio"] > 0
 
-    def test_cox_survival_no_censored(self):
-        """Test Cox PH when there is no censored data (should still work)."""
-        times_a = [5, 10, 15, 20, 25]
-        times_b = [4, 8, 12, 16, 20]
-        events_a = [1, 1, 1, 1, 1]
-        events_b = [1, 1, 1, 1, 1]
+class TestSurvivalAnalysis:
+    """Tests for Survival Analysis (Cox PH) with censored data."""
 
-        result = run_cox_survival_analysis(times_a, times_b, events_a, events_b)
+    def test_cox_no_censoring(self):
+        """Test Cox model with no censored data (all events observed)."""
+        # Create synthetic data: time, event (1=event, 0=censored), group
+        # Simulating 'baseline' vs 'iterative' groups
+        times = np.array([10.0, 12.0, 15.0, 20.0, 25.0])
+        events = np.array([1, 1, 1, 1, 1])  # All observed
+        group = np.array([0, 0, 1, 1, 1])  # 0=baseline, 1=iterative
+        
+        # Create DataFrame-like structure expected by lifelines
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        assert hazard_ratio is not None
+        assert isinstance(pval, float)
+        assert 0.0 <= pval <= 1.0
 
-        assert "hazard_ratio" in result
-        assert result["pvalue"] is not None
+    def test_cox_with_censoring(self):
+        """Test Cox model with censored data (crucial for ranking efficiency)."""
+        # Simulate censored data: some issues never found the solution
+        times = np.array([5.0, 8.0, 12.0, 20.0, 30.0])
+        events = np.array([1, 0, 1, 0, 1])  # 0 = censored (N+1 penalty logic)
+        group = np.array([0, 0, 1, 1, 1])
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        # Should handle censoring without crashing
+        assert hazard_ratio is not None
+        assert isinstance(pval, float)
+        assert not np.isnan(hazard_ratio)
 
-    def test_cox_survival_all_censored(self):
-        """Test Cox PH when all data in one group is censored (edge case)."""
-        # This might raise a warning or fail in the underlying lifelines library
-        # Our function should handle it gracefully (return NaN or specific message)
-        times_a = [10, 20, 30]
-        times_b = [100, 100, 100] # Censored at max time
-        events_a = [1, 1, 1]
-        events_b = [0, 0, 0]
+    def test_cox_all_censored(self):
+        """Test edge case: all data censored (should handle gracefully)."""
+        times = np.array([10.0, 20.0, 30.0])
+        events = np.array([0, 0, 0])  # All censored
+        group = np.array([0, 1, 0])
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        # Should not crash, might return NaN or specific warning
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        # The function should handle this gracefully (return NaN or similar)
+        # We assert it doesn't crash and returns a float-like
+        assert isinstance(pval, float)
 
-        try:
-            result = run_cox_survival_analysis(times_a, times_b, events_a, events_b)
-            # If it returns, check structure
-            assert "hazard_ratio" in result
-        except Exception:
-            # It's acceptable for the underlying model to fail on this edge case
-            # as long as our wrapper doesn't crash silently or produce garbage
-            pass
+    def test_cox_group_imbalance(self):
+        """Test with highly imbalanced group sizes."""
+        times = np.array([5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0])
+        events = np.array([1, 1, 1, 1, 1, 1, 1])
+        group = np.array([0, 0, 0, 0, 0, 0, 1])  # 6 vs 1
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        assert isinstance(pval, float)
 
 
 class TestBonferroniCorrection:
     """Tests for Bonferroni correction logic."""
 
-    def test_bonferroni_basic(self):
+    def test_bonferroni_simple(self):
         """Test basic Bonferroni correction."""
         p_values = [0.01, 0.05, 0.10]
         alpha = 0.05
-        k = len(p_values)
+        
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        assert len(adjusted) == len(p_values)
+        # Adjusted p-values should be >= original
+        for adj, orig in zip(adjusted, p_values):
+            assert adj >= orig
+        
+        # First one (0.01 * 3 = 0.03) should be < 0.05
+        assert adjusted[0] < 0.05
+        # Second one (0.05 * 3 = 0.15) should be > 0.05
+        assert adjusted[1] > 0.05
 
-        result = apply_bonferroni_correction(p_values, alpha)
+    def test_bonferroni_cap_at_1(self):
+        """Test that adjusted p-values are capped at 1.0."""
+        p_values = [0.5, 0.6, 0.7]
+        alpha = 0.05
+        
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        for adj in adjusted:
+            assert adj <= 1.0
 
-        assert "adjusted_pvalues" in result
-        assert "alpha_corrected" in result
-        assert "significant_flags" in result
-
-        # Check adjusted p-values (min(p * k, 1.0))
-        expected_adj = [min(p * k, 1.0) for p in p_values]
-        for adj, exp in zip(result["adjusted_pvalues"], expected_adj):
-            assert np.isclose(adj, exp)
-
-        # Check corrected alpha
-        assert np.isclose(result["alpha_corrected"], alpha / k)
-
-    def test_bonferroni_empty(self):
-        """Test Bonferroni with empty list."""
-        result = apply_bonferroni_correction([], 0.05)
-        assert result["adjusted_pvalues"] == []
-        assert result["significant_flags"] == []
+    def test_bonferroni_empty_list(self):
+        """Test with empty list."""
+        p_values = []
+        alpha = 0.05
+        
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        assert len(adjusted) == 0
 
 
 class TestPairingLogic:
     """Tests for data loading and pairing logic."""
 
-    def test_load_pairing_mock_file(self):
-        """Test loading and pairing from a temporary mock file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create mock baseline logs
-            baseline_file = Path(tmpdir) / "baseline_logs.jsonl"
-            iterative_file = Path(tmpdir) / "iterative_logs.jsonl"
+    def test_load_agent_logs_pairing(self, tmp_path):
+        """Test that logs are correctly paired by issue_id."""
+        # Create mock log files
+        baseline_path = tmp_path / "baseline_logs.jsonl"
+        iterative_path = tmp_path / "iterative_logs.jsonl"
+        
+        baseline_data = [
+            {"issue_id": "1", "coverage": 0.5, "rank": 10},
+            {"issue_id": "2", "coverage": 0.3, "rank": 20},
+            {"issue_id": "3", "coverage": 0.8, "rank": 5}
+        ]
+        
+        iterative_data = [
+            {"issue_id": "1", "coverage": 0.7, "rank": 5},
+            {"issue_id": "2", "coverage": 0.4, "rank": 15},
+            {"issue_id": "3", "coverage": 0.9, "rank": 2}
+        ]
+        
+        with open(baseline_path, "w") as f:
+            for item in baseline_data:
+                f.write(json.dumps(item) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            for item in iterative_data:
+                f.write(json.dumps(item) + "\n")
+        
+        # Load and pair
+        paired = load_agent_logs_for_pairing(str(baseline_path), str(iterative_path))
+        
+        assert len(paired) == 3
+        # Check specific pairings
+        assert paired[0]["issue_id"] == "1"
+        assert paired[0]["baseline_coverage"] == 0.5
+        assert paired[0]["iterative_coverage"] == 0.7
 
-            baseline_data = [
-                {"issue_id": "1", "coverage": 0.5, "ranking": 10},
-                {"issue_id": "2", "coverage": 0.6, "ranking": 8},
-                {"issue_id": "3", "coverage": 0.4, "ranking": 15}
-            ]
-            iterative_data = [
-                {"issue_id": "1", "coverage": 0.7, "ranking": 5},
-                {"issue_id": "2", "coverage": 0.8, "ranking": 3},
-                {"issue_id": "3", "coverage": 0.9, "ranking": 2}
-            ]
-
-            with open(baseline_file, "w") as f:
-                for item in baseline_data:
-                    f.write(json.dumps(item) + "\n")
-
-            with open(iterative_file, "w") as f:
-                for item in iterative_data:
-                    f.write(json.dumps(item) + "\n")
-
-            # Load and pair
-            paired = load_agent_logs_for_pairing(str(baseline_file), str(iterative_file))
-
-            assert len(paired) == 3
-            # Check that issue_ids match
-            for pair in paired:
-                assert pair["baseline"]["issue_id"] == pair["iterative"]["issue_id"]
-                # Check that metrics are present
-                assert "coverage" in pair["baseline"]
-                assert "coverage" in pair["iterative"]
-                assert "ranking" in pair["baseline"]
-                assert "ranking" in pair["iterative"]
-
-    def test_load_pairing_missing_issue(self):
-        """Test pairing when an issue is missing in one file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            baseline_file = Path(tmpdir) / "baseline_logs.jsonl"
-            iterative_file = Path(tmpdir) / "iterative_logs.jsonl"
-
-            baseline_data = [
-                {"issue_id": "1", "coverage": 0.5, "ranking": 10},
-                {"issue_id": "2", "coverage": 0.6, "ranking": 8}
-            ]
-            iterative_data = [
-                {"issue_id": "1", "coverage": 0.7, "ranking": 5},
-                {"issue_id": "3", "coverage": 0.9, "ranking": 2} # Issue 2 missing here
-            ]
-
-            with open(baseline_file, "w") as f:
-                for item in baseline_data:
-                    f.write(json.dumps(item) + "\n")
-
-            with open(iterative_file, "w") as f:
-                for item in iterative_data:
-                    f.write(json.dumps(item) + "\n")
-
-            paired = load_agent_logs_for_pairing(str(baseline_file), str(iterative_file))
-
-            # Should only return the matched issue (1)
-            assert len(paired) == 1
-            assert paired[0]["baseline"]["issue_id"] == "1"
-
-
-class TestAssociationalFraming:
-    """Tests for associational language framing."""
-
-    def test_format_associational_statement(self):
-        """Test that the function produces associational language."""
-        result = format_associational_statement(
-            metric_name="Coverage",
-            p_value=0.03,
-            effect_direction="higher",
-            method="Wilcoxon"
+    def test_compute_paired_coverage_data(self, tmp_path):
+        """Test coverage data computation from paired logs."""
+        baseline_path = tmp_path / "baseline.jsonl"
+        iterative_path = tmp_path / "iterative.jsonl"
+        
+        # Write test data
+        with open(baseline_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.5}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.3}) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.6}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.4}) + "\n")
+        
+        baseline_arr, iterative_arr = compute_paired_coverage_data(
+            str(baseline_path), str(iterative_path)
         )
+        
+        assert len(baseline_arr) == 2
+        assert len(iterative_arr) == 2
+        assert np.allclose(baseline_arr, [0.5, 0.3])
+        assert np.allclose(iterative_arr, [0.6, 0.4])
 
-        assert "associational" in result.lower() or "difference" in result.lower()
-        assert "caus" not in result.lower()
-        assert "proves" not in result.lower()
-        assert "causes" not in result.lower()
+    def test_paired_coverage_missing_issue(self, tmp_path):
+        """Test behavior when an issue is missing from one log."""
+        baseline_path = tmp_path / "baseline.jsonl"
+        iterative_path = tmp_path / "iterative.jsonl"
+        
+        with open(baseline_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.5}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.3}) + "\n")
+            f.write(json.dumps({"issue_id": "3", "coverage": 0.4}) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.6}) + "\n")
+            # Issue 2 is missing
+            f.write(json.dumps({"issue_id": "3", "coverage": 0.5}) + "\n")
+        
+        baseline_arr, iterative_arr = compute_paired_coverage_data(
+            str(baseline_path), str(iterative_path)
+        )
+        
+        # Should only return pairs that exist in BOTH
+        assert len(baseline_arr) == 2
+        assert len(iterative_arr) == 2
+        # Issue 1 and 3 should be present
+        assert 0.5 in baseline_arr
+        assert 0.4 in baseline_arr

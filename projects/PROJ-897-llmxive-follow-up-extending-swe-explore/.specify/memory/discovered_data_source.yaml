@@ -1,5 +1,5 @@
 status: none
-intent: download real SWE-Explore dataset via SWE-bench pip python package dataset
+intent: SWE-Explore dataset SWE-bench download Python package dataset HuggingFace
 required_fields:
 - issue_id
 - repo
@@ -11,6 +11,6 @@ required_fields:
 - initial_coverage
 - cyclomatic_complexity
 - lines_of_code
-cache_key: 6c3a35bf3e4d28b803a63da1cd7778ab245aff2ebbb62203fade77f61bbcb073
-searched_at: '2026-07-24T09:09:08.378565+00:00'
+cache_key: 217bac96a095f683aee77151f8a463ce8e9f2a26d484124adb10e8db2435b8e7
+searched_at: '2026-07-24T10:07:06.623142+00:00'
 retry_count: 1

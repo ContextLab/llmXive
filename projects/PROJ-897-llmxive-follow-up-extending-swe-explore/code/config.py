@@ -1,6 +1,6 @@
 """
 Configuration module for llmXive project.
-Defines paths, seeds, and model configurations.
+Defines paths, seeds, model configurations, and critical thresholds.
 """
 import os
 from pathlib import Path
@@ -16,11 +16,18 @@ DEFAULT_CONFIG: Final = {
     "RANDOM_SEED": 42,
     "CPU_ONLY": True,
     "MAX_WORKERS": 2,
-    "HARD_INSTANCE_PERCENTILE": 0.2,
-    "VALIDATION_SAMPLE_SIZE": 20,
-    "BASELINE_QUERY_COUNT": 5,
+    # Critical Thresholds
+    "COMPLEXITY_THRESHOLD": 10,  # For hard instance selection (diagnostic)
+    "HARD_INSTANCE_PERCENTILE": 0.20,  # Bottom 20% of coverage scores
+    "MAX_SYNTHETIC_ISSUES": 50,  # Fixed size for synthetic generation
+    "VALIDATION_SAMPLE_SIZE": 20,  # For validation report (T015)
+    # Model Config
+    "MODEL_QUANTIZATION": "q4_0",
+    "N_GPU_LAYERS": 0,
+    "N_CTX": 2048,
+    # Execution Limits
     "TURN_LIMIT_DEFAULT": 3,
-    "SWEEP_SAMPLE_SIZE": 20,
+    "SWEEP_SAMPLE_SIZE": 100,
     "SWEEP_TURN_LIMIT": 4,
     "TIMEOUT_HOURS": 6.0,
     "SYNTHETIC_COUNT": 50,
