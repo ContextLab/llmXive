@@ -1,8 +1,8 @@
-torch --index-url https://download.pytorch.org/whl/cpu
-transformers
-scikit-learn
-pandas
-statsmodels
-pyyaml
-pytest
-requests
+torch>=2.0.0
+transformers>=4.30.0
+scikit-learn>=1.2.0
+pandas>=2.0.0
+statsmodels>=0.14.0
+pyyaml>=6.0
+pytest>=7.0.0
+psutil>=5.9.0

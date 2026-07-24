@@ -713,3 +713,296 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T19:09:14Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: 50% memory reduction for floats when downcasting float64 to float32
+  claim_id: c_d9c6170d
+  context: "Automatic downcasting of numeric types and category conversion: float64\
+    \ \u2192 float32 (50% memory reduction for floats)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "float64 \u2192 float32 (50% memory reduction for floats)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:29:18Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: up to 87.5% memory reduction when downcasting int64 to int8/int16/int32
+  claim_id: c_6cc1a7af
+  context: "Automatic downcasting of numeric types and category conversion: int64\
+    \ \u2192 int8/int16/int32 (up to 87.5% reduction)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "int64 \u2192 int8/int16/int32 (up to 87.5% reduction)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:29:43Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: up to 90% memory reduction when converting object columns with low cardinality
+    to category
+  claim_id: c_44ea4e20
+  context: "Automatic downcasting of numeric types and category conversion: Object\
+    \ columns with low cardinality \u2192 category (up to 90% reduction)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Object columns with low cardinality \u2192 category (up to 90% reduction)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:29:43Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Original memory usage in test was 2.5 MB
+  claim_id: c_641329f5
+  context: 'Validation Results: Original Memory (test) | 2.5 MB'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Original Memory (test) 2.5 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:30:01Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Optimized memory usage in test was 1.8 MB
+  claim_id: c_bc856b2d
+  context: 'Validation Results: Optimized Memory (test) | 1.8 MB'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimized Memory (test) 1.8 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:30:17Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Memory reduction of 28% achieved in test
+  claim_id: c_a5a0359c
+  context: 'Validation Results: Reduction | 28%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduction 28%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:30:17Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: human pilot data for calibration must contain at least 50 participants
+  claim_id: c_d9c4ccee
+  context: "T031 [P] [BLOCKER] [US5] Implement code/simulate/calibration.py to compare\
+    \ BKT predictions against human pilot data (\u226550 participants). Deliverable:\
+    \ data/pilot/calibration_report.json and updated code/simulate/bkt_params.yaml."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_data_for_calibration_must_contain_at_least_50_pa
+  kind: magnitude
+  raw_text: "Implement code/simulate/calibration.py to compare BKT predictions against\
+    \ human pilot data (\u226550 participants)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:32:01Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: human pilot dataset must contain at least 50 records
+  claim_id: c_a38f1406
+  context: "T031b [P] [US5] Implement code/download/fetch_pilot_data.py to ingest\
+    \ and validate the human pilot dataset (\u226550 participants) from the specified\
+    \ source. Deliverable: data/pilot/raw_pilot_data.csv with checksum and validation\
+    \ log."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_dataset_must_contain_at_least_50_records
+  kind: magnitude
+  raw_text: "Implement code/download/fetch_pilot_data.py to ingest and validate the\
+    \ human pilot dataset (\u226550 participants) from the specified source."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:32:24Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration logic requires RMSE difference less than or equal to 0.02
+    and absolute RMSE less than or equal to 0.15
+  claim_id: c_4172e6b1
+  context: "T032 [BLOCKER] [US5] Add validation logic to code/simulate/calibration.py\
+    \ to ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15. Deliverable:\
+    \ Script exits with code 1 if thresholds fail on valid human data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_logic_requires_RMSE_difference_less_than_or_equa
+  kind: magnitude
+  raw_text: "Add validation logic to code/simulate/calibration.py to ensure RMSE difference\
+    \ \u2264 0.02 and absolute RMSE \u2264 0.15."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:32:47Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration logic requires absolute RMSE less than or equal to 0.15
+  claim_id: c_40d3aec0
+  context: "T032 [BLOCKER] [US5] Add validation logic to code/simulate/calibration.py\
+    \ to ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15. Deliverable:\
+    \ Script exits with code 1 if thresholds fail on valid human data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_logic_requires_absolute_RMSE_less_than_or_equal
+  kind: magnitude
+  raw_text: "Add validation logic to code/simulate/calibration.py to ensure RMSE difference\
+    \ \u2264 0.02 and absolute RMSE \u2264 0.15."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:32:49Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: simulation sample size per condition must be at least 2000
+  claim_id: c_db0ee73c
+  context: 'T021b [US2] Implement configuration logic to define the list of three
+    conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per
+    condition. Deliverable: code/simulate/simulation_config.yaml located in code/simulate/.
+    Schema: Must include keys sample_size (min 2000), conditions (list), seed (int),
+    and calibration_status (bool).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_sample_size_per_condition_must_be_at_least_2000
+  kind: magnitude
+  raw_text: Implement code/simulate/simulation_config.yaml located in code/simulate/
+    with keys sample_size (min 2000), conditions (list), seed (int), and calibration_status
+    (bool).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:33:12Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: real student dataset must contain at least 200 records
+  claim_id: c_808d5987
+  context: "T034a [US7] Implement code/download/fetch_real_student_data.py to ingest\
+    \ and validate the real student dataset (\u2265200 participants). Input Schema:\
+    \ CSV with columns problem_id, condition, correct, rt_seconds, comprehension_rating,\
+    \ data_source. Deliverable: data/derived/real_student_data_validated.csv with\
+    \ checksum and validation log (\u2265200 records)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_dataset_must_contain_at_least_200_records
+  kind: magnitude
+  raw_text: "Implement code/download/fetch_real_student_data.py to ingest and validate\
+    \ the real student dataset (\u2265200 participants)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:33:32Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: merged real student data must contain at least 200 records
+  claim_id: c_665583ec
+  context: "T028a [US3] Implement logic to merge simulated and real student data (\u2265\
+    200 records) and validate data_source effects. Dependency: T034, T026."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_real_student_data_must_contain_at_least_200_records
+  kind: magnitude
+  raw_text: "Implement logic to merge simulated and real student data (\u2265200 records)\
+    \ and validate data_source effects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:33:58Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Aggressive downcasting of pandas DataFrames reduces memory footprint
+    significantly
+  claim_id: c_f086f4d7
+  context: 'Section 2: Data Type Optimization. Impact: Typically reduces memory usage
+    by 40-60% for tabular data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggressive_downcasting_of_pandas_DataFrames_reduces_memory_f
+  kind: entity_fact
+  raw_text: Aggressive downcasting of pandas DataFrames reduces memory footprint significantly.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:38:06Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Downcasting pandas DataFrames reduces memory usage by 40-60% for tabular
+    data
+  claim_id: c_05c7a0ee
+  context: 'Section 2: Data Type Optimization. Impact: Typically reduces memory usage
+    by 40-60% for tabular data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Typically reduces memory usage by 40-60% for tabular data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:38:31Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/docs/performance_optimization.md
+  attempts: 1
+  canonical: Forcing tensors to float32 reduces model inference memory by 50% compared
+    to float64
+  claim_id: c_b658c828
+  context: 'Section 4: Tensor Optimization. Impact: Reduces model inference memory
+    by ~50% compared to double precision.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduces model inference memory by ~50% compared to double precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T08:38:32Z'

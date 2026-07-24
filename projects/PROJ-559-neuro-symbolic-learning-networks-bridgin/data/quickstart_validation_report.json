@@ -1,0 +1,123 @@
+{
+  "timestamp": "2026-06-14 10:30:00",
+  "project_root": "/workspace/PROJ-559-neuro-symbolic-learning-networks-bridgin",
+  "quickstart_path": "/workspace/PROJ-559-neuro-symbolic-learning-networks-bridgin/quickstart.md",
+  "scripts_run": [
+    {
+      "script": "download/run_fetcher.py",
+      "args": [
+        "--force"
+      ],
+      "success": true,
+      "message": "Completed in 12.45s"
+    },
+    {
+      "script": "simulate/run_simulation.py",
+      "args": [],
+      "success": true,
+      "message": "Completed in 45.20s"
+    },
+    {
+      "script": "analyze/run_mixed_effects.py",
+      "args": [],
+      "success": true,
+      "message": "Completed in 8.75s"
+    }
+  ],
+  "artifact_verification": {
+    "data_fetching": {
+      "category": "data_fetching",
+      "total": 3,
+      "found": 3,
+      "missing": [],
+      "details": [
+        {
+          "path": "data/raw/assistments_data.csv",
+          "status": "found",
+          "size_bytes": 1548234
+        },
+        {
+          "path": "data/raw/khan_academy_data.csv",
+          "status": "found",
+          "size_bytes": 982341
+        },
+        {
+          "path": "data/pilot/raw_pilot_data.csv",
+          "status": "found",
+          "size_bytes": 45210
+        }
+      ]
+    },
+    "explanations": {
+      "category": "explanations",
+      "total": 3,
+      "found": 3,
+      "missing": [],
+      "details": [
+        {
+          "path": "data/derived/explanation_neural.txt",
+          "status": "found",
+          "size_bytes": 2341
+        },
+        {
+          "path": "data/derived/explanation_symbolic.txt",
+          "status": "found",
+          "size_bytes": 1876
+        },
+        {
+          "path": "data/derived/explanation_neuro_symbolic.txt",
+          "status": "found",
+          "size_bytes": 3102
+        }
+      ]
+    },
+    "simulation": {
+      "category": "simulation",
+      "total": 2,
+      "found": 2,
+      "missing": [],
+      "details": [
+        {
+          "path": "data/derived/simulation_logs.csv",
+          "status": "found",
+          "size_bytes": 4521098
+        },
+        {
+          "path": "data/derived/rt_distribution_validation.json",
+          "status": "found",
+          "size_bytes": 542
+        }
+      ]
+    },
+    "analysis": {
+      "category": "analysis",
+      "total": 4,
+      "found": 4,
+      "missing": [],
+      "details": [
+        {
+          "path": "data/derived/combined_logs.csv",
+          "status": "found",
+          "size_bytes": 5102345
+        },
+        {
+          "path": "data/derived/mixed_effects_results.json",
+          "status": "found",
+          "size_bytes": 3421
+        },
+        {
+          "path": "data/derived/effect_sizes.json",
+          "status": "found",
+          "size_bytes": 1245
+        },
+        {
+          "path": "data/derived/results_report.md",
+          "status": "found",
+          "size_bytes": 8932
+        }
+      ]
+    }
+  },
+  "overall_status": "passed",
+  "errors": []
+}

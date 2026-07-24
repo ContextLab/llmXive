@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-559-neuro-symbolic-learning-networks-bridgin
-last_run_id: 963883ac-55b5-46cc-999b-1aa9d5191cd4
+last_run_id: 3ad37524-7bc3-4a4c-8692-dc7a121bbeeb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin
 title: 'Neuro-Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in
   Education'
-updated_at: '2026-07-20T19:09:16.008220Z'
+updated_at: '2026-07-24T08:40:35.111997Z'
