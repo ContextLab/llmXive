@@ -15,12 +15,12 @@ T017b:
     \ metrics output."
 T024a:
   c: false
-  h: 3b2375f47ceb7815585af26fa2cc674592e9bb6b0de23978fd6bedc6c324bc6a
-  r: "The repository lacks the required input file `data/processed/samples_all.csv`\
-    \ and the output file `data/processed/metrics_all.csv`. Moreover, `code/analysis/metrics.py`\
-    \ is incomplete (truncated, missing the logic to read the CSV, compute metrics\
-    \ for all samples, and write the results). The task\u2019s core functionality\
-    \ is therefore not implemented."
+  h: 5877723bf4ff2612a6a0f958d4446aae17ef989173b38ac83a9aecfc4683151f
+  r: "The repository contains `code/analysis/metrics.py`, but the file is truncated\
+    \ and does not include any routine that reads `data/processed/samples_all.csv`,\
+    \ computes per\u2011task/style mean AST edit distance and mean n\u2011gram entropy,\
+    \ and writes `data/processed/metrics_all.csv`. Moreover, the required `metrics_all.csv`\
+    \ file is absent. The task\u2019s core output is therefore missing."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

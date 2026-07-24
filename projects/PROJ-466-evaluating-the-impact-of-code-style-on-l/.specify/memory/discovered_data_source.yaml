@@ -1,21 +1,15 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import datasets
-
-
-  ds_dict = datasets.load_dataset("openai/openai_humaneval")
-
-  total_records = sum(len(split) for split in ds_dict.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  first_split = next(iter(ds_dict.values()))
-
-  sample_record = first_split[0]
-
-  print("FIELDS=" + ",".join(sample_record.keys()))'
+access_python: "import sys\nfrom datasets import load_dataset\n\ndata = load_dataset(\"\
+  openai/openai_humaneval\")\nif isinstance(data, dict):\n    total = sum(len(split)\
+  \ for split in data.values())\n    # get a sample record from the first non\u2011\
+  empty split\n    sample = {}\n    for split in data.values():\n        if len(split)\
+  \ > 0:\n            sample = split[0]\n            break\nelse:\n    total = len(data)\n\
+  \    sample = data[0] if total > 0 else {}\n\nif total == 0:\n    raise RuntimeError(\"\
+  Loaded dataset contains zero records\")\n\nfields = list(sample.keys()) if isinstance(sample,\
+  \ dict) else []\n\nprint(f\"RECORDS={total}\")\nif fields:\n    print(\"FIELDS=\"\
+  \ + \",\".join(fields))"
 record_count: 164
 sample_fields:
 - task_id
@@ -29,5 +23,5 @@ required_fields:
 - Prompt Template
 - Unit Test Code
 - Expected Output
-intent: HumanEval dataset download Hugging Face python package dataset
-cache_key: 6b0103d9f9d1c645e0f351ecd5c92131822d90936f20223cfbab11e8d7ced6f6
+intent: HumanEval dataset download via huggingface python package dataset
+cache_key: d501be54e989b1b67b19ded26ed7c229adf91ed5af520d533a9592eb00e9402b

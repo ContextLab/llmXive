@@ -1,14 +1,10 @@
-# Existing dependencies
-transformers>=4.30.0
-torch>=2.0.0
-datasets>=2.14.0
-networkx>=3.0
-scipy>=1.11.0
-pandas>=2.0.0
-pytest>=7.0.0
-pyyaml>=6.0
-numpy>=1.24.0
-# New dependencies for performance testing (if any)
-# None added for T044 as it uses existing libs.
-psutil  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
+transformers
+torch
+datasets
+networkx
+scipy
+pandas
+pytest
+matplotlib
+statsmodels
+pyyaml

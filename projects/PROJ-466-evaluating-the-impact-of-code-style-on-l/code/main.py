@@ -26,6 +26,40 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+REQUIRED_ARTIFACTS = [
+    'data/processed/samples_all.csv',
+    'data/processed/samples_valid.csv',
+    'data/processed/metrics_all.csv',
+    'data/processed/metrics_valid.csv',
+    'code/analysis/collinearity_flag.json',
+    'data/processed/sensitivity_results.json'
+]
+
+def validate_artifacts_exist():
+    """
+    T048: Validates that all required intermediate artifacts exist before proceeding
+    to the reporting phase. Fails loudly with a descriptive error if any are missing.
+    """
+    missing_files = []
+    for artifact_path in REQUIRED_ARTIFACTS:
+        if not Path(artifact_path).exists():
+            missing_files.append(artifact_path)
+    
+    if missing_files:
+        error_msg = (
+            "ARTIFACT VALIDATION FAILED: The following required intermediate artifacts "
+            "are missing before proceeding to the reporting phase:\n"
+        )
+        for f in missing_files:
+            error_msg += f"  - {f}\n"
+        error_msg += "\nPlease ensure the generation, testing, and metrics pipelines " \
+                     "have completed successfully before running the reporter."
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+    
+    logger.info("All required intermediate artifacts validated successfully.")
+    return True
+
 def main():
     parser = argparse.ArgumentParser(description='llmXive Automated Science Pipeline')
     parser.add_argument('--config', type=str, default='config/analysis.yaml', help='Path to config file')
@@ -87,23 +121,31 @@ def main():
             run_sensitivity_analysis()
             logger.info("Sensitivity analysis completed")
 
-            # Step 8: Generate report
-            logger.info("Step 8: Generating report")
-            run_reporter_pipeline()
-            logger.info("Report generation completed")
+        # T048: VALIDATION STEP - Check artifacts before reporting
+        logger.info("Step 8: Validating intermediate artifacts before reporting phase")
+        validate_artifacts_exist()
 
-        # Step 9: Checksums
-        logger.info("Step 9: Computing checksums")
+        # Step 9: Generate report
+        logger.info("Step 9: Generating report")
+        run_reporter_pipeline()
+        logger.info("Report generation completed")
+
+        # Step 10: Checksums
+        logger.info("Step 10: Computing checksums")
         run_checksum_pipeline()
         logger.info("Checksums computed")
 
-        # Step 10: Update status
-        logger.info("Step 10: Updating status")
+        # Step 11: Update status
+        logger.info("Step 11: Updating status")
         run_status_update_pipeline()
         logger.info("Status updated")
 
         logger.info(f"Pipeline completed successfully at {datetime.now()}")
 
+    except FileNotFoundError as fnf_err:
+        # Re-raise validation errors with clear context
+        logger.error(f"Pipeline aborted due to missing artifacts: {fnf_err}")
+        raise
     except Exception as e:
         logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
