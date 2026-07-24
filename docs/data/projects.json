@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-24T18:34:50.100000+00:00",
+  "generated_at": "2026-07-24T18:44:49.449656+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -106842,7 +106842,7 @@
       },
       "authors": [
         {
-          "contributions": 2573,
+          "contributions": 2583,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -106902,83 +106902,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.973083,
-          "ended_at": "2026-07-24T17:37:26.431197Z",
+          "duration_s": 0.860824,
+          "ended_at": "2026-07-24T18:34:42.275007Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:25.458114Z"
+          "started_at": "2026-07-24T18:34:41.414183Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.0675,
-          "ended_at": "2026-07-24T17:37:25.409041Z",
+          "duration_s": 0.86108,
+          "ended_at": "2026-07-24T18:34:41.344728Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:24.341541Z"
+          "started_at": "2026-07-24T18:34:40.483648Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.924316,
-          "ended_at": "2026-07-24T17:37:24.287532Z",
+          "duration_s": 0.699067,
+          "ended_at": "2026-07-24T18:34:40.415021Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:23.363216Z"
+          "started_at": "2026-07-24T18:34:39.715954Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.015833,
-          "ended_at": "2026-07-24T17:37:23.313847Z",
+          "duration_s": 0.867113,
+          "ended_at": "2026-07-24T18:34:39.641257Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:22.298014Z"
+          "started_at": "2026-07-24T18:34:38.774144Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.776667,
-          "ended_at": "2026-07-24T17:37:22.247608Z",
+          "duration_s": 0.732214,
+          "ended_at": "2026-07-24T18:34:38.704534Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:21.470941Z"
+          "started_at": "2026-07-24T18:34:37.972320Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.842426,
-          "ended_at": "2026-07-24T17:37:21.422281Z",
+          "duration_s": 1.143228,
+          "ended_at": "2026-07-24T18:34:37.902734Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:20.579855Z"
+          "started_at": "2026-07-24T18:34:36.759506Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.71316,
-          "ended_at": "2026-07-24T17:37:20.476973Z",
+          "duration_s": 0.804485,
+          "ended_at": "2026-07-24T18:34:36.618071Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:19.763813Z"
+          "started_at": "2026-07-24T18:34:35.813586Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.732864,
-          "ended_at": "2026-07-24T17:37:19.624728Z",
+          "duration_s": 0.694741,
+          "ended_at": "2026-07-24T18:34:35.744084Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:18.891864Z"
+          "started_at": "2026-07-24T18:34:35.049343Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.041694,
-          "ended_at": "2026-07-24T17:37:18.842737Z",
+          "duration_s": 0.826542,
+          "ended_at": "2026-07-24T18:34:34.980394Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:17.801043Z"
+          "started_at": "2026-07-24T18:34:34.153852Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.556409,
-          "ended_at": "2026-07-24T17:37:17.739606Z",
+          "duration_s": 3.549448,
+          "ended_at": "2026-07-24T18:34:34.077818Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-24T17:37:14.183197Z"
+          "started_at": "2026-07-24T18:34:30.528370Z"
         }
       ],
       "paper_status": null,
@@ -154383,6 +154383,126 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 0.860824,
+      "ended_at": "2026-07-24T18:34:42.275007Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:41.414183Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.86108,
+      "ended_at": "2026-07-24T18:34:41.344728Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:40.483648Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.699067,
+      "ended_at": "2026-07-24T18:34:40.415021Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:39.715954Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.867113,
+      "ended_at": "2026-07-24T18:34:39.641257Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:38.774144Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.732214,
+      "ended_at": "2026-07-24T18:34:38.704534Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:37.972320Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.143228,
+      "ended_at": "2026-07-24T18:34:37.902734Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:36.759506Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.804485,
+      "ended_at": "2026-07-24T18:34:36.618071Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:35.813586Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.694741,
+      "ended_at": "2026-07-24T18:34:35.744084Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:35.049343Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.826542,
+      "ended_at": "2026-07-24T18:34:34.980394Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:34.153852Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.549448,
+      "ended_at": "2026-07-24T18:34:34.077818Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-24T18:34:30.528370Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 0.707578,
       "ended_at": "2026-07-24T18:34:32.056744Z",
       "failure_reason": "",
@@ -160260,126 +160380,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-24T12:33:31.370884Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.347711,
-      "ended_at": "2026-07-24T12:33:31.293914Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:33:27.946203Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 89.717942,
-      "ended_at": "2026-07-24T12:32:59.955773Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:31:30.237831Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 118.437504,
-      "ended_at": "2026-07-24T12:31:30.234155Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:29:31.796651Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 83.535437,
-      "ended_at": "2026-07-24T12:29:31.792969Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:28:08.257532Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 97.935103,
-      "ended_at": "2026-07-24T12:28:08.253843Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:26:30.318740Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 609.781041,
-      "ended_at": "2026-07-24T12:26:28.556304Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:16:18.775263Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 480.420965,
-      "ended_at": "2026-07-24T12:17:48.898115Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-251-investigating-the-correlation-between-gu",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:09:48.477150Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 637.838644,
-      "ended_at": "2026-07-24T12:16:18.695050Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-139-the-influence-of-emotional-contagion-on-",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:05:40.856406Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 63.648105,
-      "ended_at": "2026-07-24T12:09:46.441082Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-251-investigating-the-correlation-between-gu",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:08:42.792977Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 47.06024,
-      "ended_at": "2026-07-24T12:08:42.790328Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-251-investigating-the-correlation-between-gu",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-24T12:07:55.730088Z"
     }
   ],
   "reviewed_preprints": [
