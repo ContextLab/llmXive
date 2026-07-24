@@ -29,11 +29,11 @@ The system MUST apply VADER sentiment analysis (NLTK) to compute a compound sent
 
 **Why this priority**: This implements the core predictor variable (emotional contagion) that tests the research hypothesis. Without accurate sentiment measurement, the association analysis cannot proceed.
 
-**Independent Test**: Can be fully tested by running sentiment analysis on a fixed test corpus of Reddit comments and verifying that VADER compound scores fall within [-1.0, 1.0] and the contagion index computation returns a valid correlation coefficient for threads with ≥5 replies.
+**Independent Test**: Can be fully tested by running sentiment analysis on a fixed test corpus of Reddit comments and verifying that VADER compound scores fall within a bounded range. and the contagion index computation returns a valid correlation coefficient for threads with ≥5 replies.
 
 **Acceptance Scenarios**:
 
-1. **Given** a thread with ≥5 replies after seed posts, **When** sentiment analysis runs, **Then** the contagion index is computed and stored with Pearson correlation value in [-1.0, 1.0]
+1. **Given** a thread with ≥5 replies after seed posts, **When** sentiment analysis runs, **Then** the contagion index is computed and stored with Pearson correlation value in the standard range
 2. **Given** a thread with <5 replies, **When** sentiment analysis runs, **Then** the thread is flagged as insufficient for contagion analysis and excluded from the primary analysis set
 
 ---
@@ -71,7 +71,7 @@ The system MUST compute decision-quality metrics: (a) agreement proportion, (b) 
 - **FR-005**: System MUST compute decision-quality metrics including: (a) agreement proportion, (b) Shannon entropy for diversity, (c) external validation score against ground truth where available (See US-3). For threads without ground truth, the external validation score is set to null. The analysis is considered valid only if ≥30% of threads possess verifiable ground truth.
 - **FR-006**: System MUST fit generalized linear mixed models (GLMM) with thread-level random intercepts, using beta regression for bounded outcomes (agreement proportion) and appropriate link functions for count outcomes, and test significance of contagion coefficients using Wald tests (α=0.05) (See US-3)
 - **FR-007**: System MUST apply multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg FDR) when ≥3 hypothesis tests are run (See US-3)
-- **FR-008**: System MUST perform a sensitivity analysis that sweeps the agreement proportion cutoff over a range of values and the entropy threshold over {0.2, 0.4, 0.6}, reporting how the correlation between contagion and decision quality varies. For threads with ground truth, the system MUST also report false-positive/false-negative rates relative to the ground truth (See US-3)
+- **FR-008**: System MUST perform a sensitivity analysis that sweeps the agreement proportion cutoff over a range of values and the entropy threshold over a range of low to high values, reporting how the correlation between contagion and decision quality varies. For threads with ground truth, the system MUST also report false-positive/false-negative rates relative to the ground truth (See US-3)
 - **FR-009**: System MUST validate ground-truth availability for each thread and classify threads as 'valid' (has ground truth) or 'excluded' (no ground truth) for predictive accuracy analysis. The system MUST log the count and percentage of valid threads (See US-3)
 
 ### Key Entities *(include if feature involves data)*

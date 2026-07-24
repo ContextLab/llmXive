@@ -42,16 +42,3 @@ T036:
     \ on a free\u2011tier GitHub Actions runner. Without such evidence the requirement\
     \ to \u201Crun the full pipeline end\u2011to\u2011end on the GitHub Actions free\u2011\
     tier runner\u201D is not satisfied."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no evidence of existing processed files, checksum values,
-    or a verification report showing they conform to the schemas in `code/contracts/`.
-    Without those artifacts, the data integrity check cannot be confirmed.
-T038:
-  c: false
-  h: 0b485f66b19d80f40142bd73907b9076f50cd535fba6f0ec176fbfbdf6677718
-  r: The `docs/analysis_summary.md` file is absent, and the provided `docs/paper.md`
-    does not include the required concrete computed metrics, model coefficients, or
-    sensitivity analysis results (it is truncated and only contains narrative sections).
-    Both required artifacts are therefore missing or incomplete.

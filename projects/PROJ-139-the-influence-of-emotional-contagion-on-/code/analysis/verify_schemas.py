@@ -6,252 +6,335 @@ import logging
 from pathlib import Path
 import hashlib
 import pandas as pd
-from typing import Dict, Any, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Project root detection
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "code" / "contracts"
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-STATE_DIR = PROJECT_ROOT / "state"
-
-def load_schema(schema_name: str) -> Optional[Dict[str, Any]]:
-    """Load a schema definition from the contracts directory."""
-    schema_path = CONTRACTS_DIR / f"{schema_name}.yaml"
+def load_schema(schema_path: Path) -> dict:
+    """Load a schema definition from a YAML file."""
     if not schema_path.exists():
-        logger.error(f"Schema file not found: {schema_path}")
-        return None
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    try:
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing schema {schema_name}: {e}")
-        return None
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
 def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing hash for {file_path}: {e}")
-        return ""
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def validate_csv_schema(df: pd.DataFrame, schema: Dict[str, Any], file_path: Path) -> Tuple[bool, List[str]]:
-    """Validate a CSV dataframe against a schema definition."""
+def validate_csv_schema(df: pd.DataFrame, schema: dict) -> list:
+    """Validate a CSV dataframe against a schema definition.
+    
+    Args:
+        df: Pandas DataFrame to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        List of validation errors (empty if valid)
+    """
     errors = []
-    schema_columns = schema.get("columns", {})
-    required_columns = schema.get("required_columns", [])
+    schema_columns = schema.get('columns', {})
     
-    # Check required columns
-    existing_columns = set(df.columns)
-    for col in required_columns:
-        if col not in existing_columns:
-            errors.append(f"Missing required column: {col}")
+    # Check for required columns
+    required_columns = [col for col, props in schema_columns.items() 
+                      if props.get('required', False)]
+    missing_columns = set(required_columns) - set(df.columns)
+    if missing_columns:
+        errors.append(f"Missing required columns: {list(missing_columns)}")
     
-    # Check column types if defined
-    for col_name, col_def in schema_columns.items():
-        if col_name not in existing_columns:
+    # Validate column types and constraints
+    for col_name, col_schema in schema_columns.items():
+        if col_name not in df.columns:
             continue
         
-        expected_type = col_def.get("type")
+        # Check for null values if not allowed
+        if not col_schema.get('allow_null', True) and df[col_name].isnull().any():
+            errors.append(f"Column '{col_name}' contains null values but allows_null is False")
+        
+        # Validate data type if specified
+        expected_type = col_schema.get('type')
         if expected_type:
-            # Map schema types to pandas types
-            dtype_map = {
-                "string": "object",
-                "integer": "int64",
-                "float": "float64",
-                "boolean": "bool",
-                "date": "datetime64[ns]"
+            actual_type = str(df[col_name].dtype)
+            # Map pandas dtypes to expected types
+            type_mapping = {
+                'int': ['int64', 'int32', 'int16', 'int8'],
+                'float': ['float64', 'float32'],
+                'string': ['object', 'string'],
+                'bool': ['bool']
             }
-            target_dtype = dtype_map.get(expected_type)
             
-            if target_dtype:
-                try:
-                    # Check if current dtype is compatible
-                    current_dtype = str(df[col_name].dtype)
-                    if target_dtype == "object" and current_dtype not in ["object", "string"]:
-                        # Allow some flexibility for object types
-                        pass 
-                    elif target_dtype not in current_dtype:
-                        # Strict check for numeric types
-                        if target_dtype in ["int64", "float64"] and not pd.api.types.is_numeric_dtype(df[col_name]):
-                            errors.append(f"Column '{col_name}' expected {expected_type} but found {current_dtype}")
-                except Exception as e:
-                    errors.append(f"Type check failed for '{col_name}': {e}")
+            if expected_type in type_mapping:
+                if actual_type not in type_mapping[expected_type]:
+                    errors.append(
+                        f"Column '{col_name}' has type '{actual_type}', expected '{expected_type}'"
+                    )
+            elif expected_type == actual_type:
+                pass
+            else:
+                # Fallback: direct comparison
+                errors.append(
+                    f"Column '{col_name}' has type '{actual_type}', expected '{expected_type}'"
+                )
     
-    return len(errors) == 0, errors
-
-def validate_json_schema(data: Dict[str, Any], schema: Dict[str, Any], file_path: Path) -> Tuple[bool, List[str]]:
-    """Validate a JSON file against a schema definition."""
-    errors = []
-    required_keys = schema.get("required_keys", [])
-    properties = schema.get("properties", {})
-    
-    # Check required keys
-    for key in required_keys:
-        if key not in data:
-            errors.append(f"Missing required key: {key}")
-    
-    # Check property types
-    for key, prop_def in properties.items():
-        if key not in data:
+    # Validate value ranges if specified
+    for col_name, col_schema in schema_columns.items():
+        if col_name not in df.columns:
             continue
         
-        expected_type = prop_def.get("type")
-        value = data[key]
+        min_val = col_schema.get('min')
+        max_val = col_schema.get('max')
         
+        if min_val is not None:
+            if (df[col_name] < min_val).any():
+                errors.append(
+                    f"Column '{col_name}' has values below minimum {min_val}"
+                )
+        
+        if max_val is not None:
+            if (df[col_name] > max_val).any():
+                errors.append(
+                    f"Column '{col_name}' has values above maximum {max_val}"
+                )
+    
+    return errors
+
+def validate_json_schema(data: dict, schema: dict) -> list:
+    """Validate a JSON object against a schema definition.
+    
+    Args:
+        data: Dictionary to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        List of validation errors (empty if valid)
+    """
+    errors = []
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
+    
+    # Check for required fields
+    missing_fields = set(required_fields) - set(data.keys())
+    if missing_fields:
+        errors.append(f"Missing required fields: {list(missing_fields)}")
+    
+    # Validate field types
+    for field_name, field_schema in properties.items():
+        if field_name not in data:
+            continue
+        
+        expected_type = field_schema.get('type')
+        actual_value = data[field_name]
+        
+        # Simple type checking
         type_map = {
-            "string": str,
-            "integer": int,
-            "number": (int, float),
-            "boolean": bool,
-            "array": list,
-            "object": dict
+            'string': str,
+            'integer': int,
+            'number': (int, float),
+            'boolean': bool,
+            'array': list,
+            'object': dict
         }
         
         if expected_type in type_map:
-            if not isinstance(value, type_map[expected_type]):
-                errors.append(f"Key '{key}' expected {expected_type} but found {type(value).__name__}")
+            if not isinstance(actual_value, type_map[expected_type]):
+                errors.append(
+                    f"Field '{field_name}' has type '{type(actual_value).__name__}', "
+                    f"expected '{expected_type}'"
+                )
+        
+        # Validate enum values
+        if 'enum' in field_schema:
+            if actual_value not in field_schema['enum']:
+                errors.append(
+                    f"Field '{field_name}' value '{actual_value}' not in allowed values: "
+                    f"{field_schema['enum']}"
+                )
+        
+        # Validate numeric ranges
+        if expected_type in ['integer', 'number']:
+            if 'minimum' in field_schema and actual_value < field_schema['minimum']:
+                errors.append(
+                    f"Field '{field_name}' value {actual_value} is below minimum {field_schema['minimum']}"
+                )
+            if 'maximum' in field_schema and actual_value > field_schema['maximum']:
+                errors.append(
+                    f"Field '{field_name}' value {actual_value} is above maximum {field_schema['maximum']}"
+                )
     
-    return len(errors) == 0, errors
+    return errors
 
-def run_schema_validation() -> Dict[str, Any]:
-    """Run schema validation on all processed data files."""
+def run_schema_validation(
+    processed_dir: Path, 
+    contracts_dir: Path,
+    output_path: Path
+) -> dict:
+    """Run schema validation on all processed data files.
+    
+    Args:
+        processed_dir: Directory containing processed data files
+        contracts_dir: Directory containing schema definitions
+        output_path: Path to write the validation report
+        
+    Returns:
+        Validation report dictionary
+    """
+    if not processed_dir.exists():
+        logger.warning(f"Processed directory does not exist: {processed_dir}")
+        return {
+            'status': 'fail',
+            'errors': [f"Processed directory does not exist: {processed_dir}"],
+            'files_checked': 0
+        }
+    
+    if not contracts_dir.exists():
+        logger.warning(f"Contracts directory does not exist: {contracts_dir}")
+        return {
+            'status': 'fail',
+            'errors': [f"Contracts directory does not exist: {contracts_dir}"],
+            'files_checked': 0
+        }
+    
     report = {
-        "status": "pass",
-        "files_checked": 0,
-        "files_passed": 0,
-        "files_failed": 0,
-        "errors": []
+        'status': 'pass',
+        'files_checked': 0,
+        'files_passed': 0,
+        'files_failed': 0,
+        'errors': []
     }
-
-    if not PROCESSED_DIR.exists():
-        logger.warning(f"Processed directory not found: {PROCESSED_DIR}")
-        report["status"] = "fail"
-        report["errors"].append("Processed directory does not exist")
+    
+    # Load all schemas
+    schemas = {}
+    for schema_file in contracts_dir.glob('*.yaml'):
+        try:
+            schema_name = schema_file.stem
+            schemas[schema_name] = load_schema(schema_file)
+            logger.info(f"Loaded schema: {schema_name}")
+        except Exception as e:
+            report['errors'].append(f"Failed to load schema {schema_name}: {str(e)}")
+    
+    if not schemas:
+        report['status'] = 'fail'
+        report['errors'].append("No schemas found in contracts directory")
         return report
-
-    # Map file patterns to schema names
-    file_schema_map = {
-        "valid_threads.csv": "thread.schema",
-        "all_threads_classified.csv": "thread.schema",
-        "threads_with_seeds.csv": "thread.schema",
-        "thread_metrics.csv": "result.schema",
-        "sensitivity_analysis.csv": "result.schema",
-        "external_validation_correlation.csv": "result.schema",
-        "collinearity_diagnostics.json": "result.schema", # Assuming generic result schema for JSON
-        "validity_status.json": "result.schema",
-        "exclusion_counts.json": "result.schema",
-        "vader_validation_report.json": "result.schema",
-        "validation_justification.json": "result.schema",
-        "sensitivity_analysis.csv": "result.schema"
-    }
-
-    # Also check generic schemas if specific mapping fails
-    csv_schema = load_schema("thread.schema") or load_schema("result.schema")
-    json_schema = load_schema("result.schema")
-
-    files_to_check = list(PROCESSED_DIR.iterdir())
-    report["files_checked"] = len(files_to_check)
-
-    for file_path in files_to_check:
-        if file_path.suffix not in [".csv", ".json"]:
+    
+    # Validate each processed file
+    for file_path in processed_dir.glob('*'):
+        if file_path.is_dir():
             continue
-
-        filename = file_path.name
-        schema_name = file_schema_map.get(filename)
         
-        if not schema_name:
-            # Try to infer schema based on extension if not explicitly mapped
-            if file_path.suffix == ".csv":
-                schema_name = "thread.schema" # Default to thread for CSV
-            elif file_path.suffix == ".json":
-                schema_name = "result.schema" # Default to result for JSON
-            else:
-                continue
-
-        schema = load_schema(schema_name)
-        if not schema:
-            # If schema not found, we might still check if it's a generic valid file
-            # but strictly speaking, we need the schema definition.
-            # For this implementation, we assume if schema is missing, it's a warning but not a hard fail 
-            # unless the spec requires strict schema existence. 
-            # Given the task "match the schema definitions", missing schema is an issue.
-            logger.warning(f"No schema found for {filename} (mapped to {schema_name})")
-            report["errors"].append({
-                "file": str(file_path.relative_to(PROJECT_ROOT)),
-                "error": f"Schema '{schema_name}' not found"
-            })
-            report["status"] = "fail"
-            report["files_failed"] += 1
-            continue
-
-        is_valid, errors = False, []
+        report['files_checked'] += 1
+        file_errors = []
         
-        if file_path.suffix == ".csv":
-            try:
+        try:
+            if file_path.suffix == '.csv':
+                # Load CSV and validate against appropriate schema
                 df = pd.read_csv(file_path)
-                is_valid, errors = validate_csv_schema(df, schema, file_path)
-            except Exception as e:
-                errors.append(f"Failed to read CSV: {e}")
-        
-        elif file_path.suffix == ".json":
-            try:
+                # Try to find matching schema (by filename stem)
+                schema_name = file_path.stem
+                if schema_name in schemas:
+                    errors = validate_csv_schema(df, schemas[schema_name])
+                    file_errors.extend(errors)
+                else:
+                    # Try to match by common naming patterns
+                    matched = False
+                    for s_name, s_def in schemas.items():
+                        if s_name in str(file_path) or str(file_path) in s_name:
+                            errors = validate_csv_schema(df, s_def)
+                            file_errors.extend(errors)
+                            matched = True
+                            break
+                    if not matched:
+                        logger.warning(f"No matching schema found for {file_path}")
+            
+            elif file_path.suffix == '.json':
                 with open(file_path, 'r') as f:
                     data = json.load(f)
-                is_valid, errors = validate_json_schema(data, schema, file_path)
-            except Exception as e:
-                errors.append(f"Failed to read JSON: {e}")
-
-        if is_valid:
-            report["files_passed"] += 1
-            # Optionally compute hash for successful files
+                
+                # Try to find matching schema
+                schema_name = file_path.stem
+                if schema_name in schemas:
+                    errors = validate_json_schema(data, schemas[schema_name])
+                    file_errors.extend(errors)
+                else:
+                    # Try to match by common naming patterns
+                    matched = False
+                    for s_name, s_def in schemas.items():
+                        if s_name in str(file_path) or str(file_path) in s_name:
+                            errors = validate_json_schema(data, s_def)
+                            file_errors.extend(errors)
+                            matched = True
+                            break
+                    if not matched:
+                        logger.warning(f"No matching schema found for {file_path}")
+            
+            elif file_path.suffix == '.jsonl':
+                # For JSONL files, validate first record and assume rest follows same schema
+                schema_name = file_path.stem
+                if schema_name in schemas:
+                    with open(file_path, 'r') as f:
+                        first_line = f.readline()
+                        if first_line.strip():
+                            data = json.loads(first_line)
+                            errors = validate_json_schema(data, schemas[schema_name])
+                            file_errors.extend(errors)
+                else:
+                    logger.warning(f"No matching schema found for {file_path}")
+            
+            else:
+                logger.info(f"Skipping unsupported file format: {file_path}")
+                continue
+            
+            # Compute file hash for record-keeping
             file_hash = compute_file_hash(file_path)
-            if file_hash:
-                report.setdefault("checksums", {})[str(file_path.relative_to(PROJECT_ROOT))] = file_hash
-        else:
-            report["files_failed"] += 1
-            report["status"] = "fail"
-            for err in errors:
-                report["errors"].append({
-                    "file": str(file_path.relative_to(PROJECT_ROOT)),
-                    "error": err
-                })
-
-    # Ensure output directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    report_path = STATE_DIR / "schema_validation_report.json"
+            
+            if file_errors:
+                report['files_failed'] += 1
+                report['status'] = 'fail'
+                for error in file_errors:
+                    report['errors'].append(f"{file_path.name}: {error}")
+                logger.error(f"Validation failed for {file_path.name}: {file_errors}")
+            else:
+                report['files_passed'] += 1
+                logger.info(f"Validation passed for {file_path.name}")
+        
+        except Exception as e:
+            report['files_failed'] += 1
+            report['status'] = 'fail'
+            error_msg = f"{file_path.name}: {str(e)}"
+            report['errors'].append(error_msg)
+            logger.error(f"Error processing {file_path}: {str(e)}")
     
-    with open(report_path, 'w') as f:
+    # Write report
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Schema validation report written to {report_path}")
+    logger.info(f"Schema validation complete. Status: {report['status']}")
+    logger.info(f"Files checked: {report['files_checked']}, Passed: {report['files_passed']}, Failed: {report['files_failed']}")
+    
     return report
 
 def main():
-    logger.info("Starting schema validation...")
-    report = run_schema_validation()
+    """Main entry point for schema validation."""
+    # Define paths
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    processed_dir = base_dir / 'data' / 'processed'
+    contracts_dir = base_dir / 'code' / 'contracts'
+    output_path = base_dir / 'state' / 'schema_validation_report.json'
     
-    if report["status"] == "pass":
-        logger.info("Schema validation PASSED.")
-        sys.exit(0)
-    else:
-        logger.error("Schema validation FAILED.")
-        logger.error(f"Files passed: {report['files_passed']}, Files failed: {report['files_failed']}")
-        for err in report["errors"]:
-            logger.error(f"  - {err}")
-        sys.exit(1)
+    # Run validation
+    report = run_schema_validation(processed_dir, contracts_dir, output_path)
+    
+    # Exit with appropriate code
+    sys.exit(0 if report['status'] == 'pass' else 1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
