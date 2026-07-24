@@ -1,75 +1,73 @@
 # Quickstart: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
 ## Prerequisites
-*   Python 3.11+
-*   Sufficient RAM (GitHub Actions free-tier compatible)
-*   Git
+
+- Python 3.11+
+- Git
+- Access to Hugging Face (optional, for model weights)
+- (Optional) Kaggle account for GPU offload (auto-detected by runner).
 
 ## Installation
 
-1.  **Clone and Setup Environment**
+1.  **Clone and Setup**
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
-    python -m venv .venv
-    source .venv/bin/activate
+    python -m venv venv
+    source venv/bin/activate
     pip install -r code/requirements.txt
     ```
 
-2.  **Verify Dependencies**
+2.  **Environment Configuration**
+    Create `.env` in the project root:
     ```bash
-    python -c "import torch; import transformers; import datasets; import statsmodels; print('Dependencies OK')"
+    HF_TOKEN=your_token_here
+    RANDOM_SEED=42
+    MAX_EXAMPLES_PER_TASK=500
     ```
 
-## Running the Pipeline
+## Execution Workflow
 
-The pipeline is executed via the unified `main.py` orchestration script, which handles single-pass generation and analysis sequentially.
-
-### Step 1: Run the Full Pipeline
-This command performs data download, single-pass generation (with entropy extraction), and statistical analysis.
+### Step 1: Data Download & Checksumming
 ```bash
-python code/main.py \
-    --model TinyLlama/TinyLlamaB-Chat-v1.0 \
-    --datasets gsm8k,minigrid \
-    --subset-size: a fixed, representative sample size determined during the experimental design phase. \
-    --output-dir data/ \
-    --seed 42
+python code/src/data/download.py --task gsm8k --task minigrid
+# Verifies checksums against known hashes (commit hash from HF dataset card metadata)
 ```
 
-### Step 2: Run Individual Stages (Optional)
-If you need to run stages independently for debugging:
-
-**Stage 1: Single-Pass Generation & Entropy Extraction**
+### Step 2: Ground Truth Generation
 ```bash
-python code/src/generation/generation.py \
-    --dataset gsm8k \
-    --subset-size 50 \
-    --output data/raw/gsm8k_single_pass.jsonl \
-    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
-    --seed 42
-```
-*Note: This step captures both validity flags and entropy profiles in a single forward pass.*
-
-**Stage 2: Analysis & Threshold Optimization**
-```bash
-python code/src/analysis/logistic_model.py \
-    --input data/raw/gsm8k_single_pass.jsonl \
-    --output data/results/gsm8k_analysis.jsonl \
-    --correct-method bh \
-    --sweep-range start,step,0.001
-
-The specific value to remove/generalize: 'start'
-
-Rewritten passage:
-The study will investigate the effect of varying the initial parameter value across a defined range to determine optimal performance, using a systematic parameter sweep. This approach aligns with established methodologies for hyperparameter optimization (Smith et al., 2020; arXiv:2103.00001). The research question focuses on identifying the sensitivity of model convergence to the starting point of the optimization trajectory. The method involves executing a parameter sweep with a fixed step size, where the initial value is treated as a variable within a plausible domain rather than a fixed constant. \
-    --use-glmm
+python code/src/generation/generation.py --task gsm8k --model tinyllama-1.1b-4bit
+python code/src/generation/generation.py --task minigrid --model tinyllama-1.1b-4bit
+# Outputs: data/processed/generation_baseline.jsonl
+# Note: Validity labels are derived from external dataset ground truth.
+# Constraint: Full autoregressive forward pass, temperature=0.0.
 ```
 
-## Validation
-Run the contract tests to ensure data integrity:
+### Step 3: Entropy Extraction
 ```bash
-pytest tests/contract/ -v
+python code/src/utils/entropy_calc.py --input data/processed/generation_baseline.jsonl --batch-size 50
+# Outputs: data/processed/entropy_profiles.jsonl
+# Note: Input is raw logits; softmax applied internally; probabilities clamped.
+# Output format adheres to entropy_profile.schema.yaml.
 ```
 
-## Expected Outputs
-*   `data/raw/*.jsonl`: Ground truth sequences, validity labels, and entropy profiles (single-pass).
-*   `data/results/*.jsonl`: GLMM coefficients, p-values, optimal thresholds, and random effect variances.
+### Step 4: Analysis & Modeling
+```bash
+python code/src/analysis/glmm_fit.py --input data/processed/merged_data.parquet
+# Outputs: data/processed/results.json (AUC, p-values, thresholds, fdr_verified)
+# Note: Primary method is GLMM; Clustered SE is fallback if GLMM fails.
+# Note: FDR is explicitly compared against alpha=0.05.
+```
+
+## Verification
+
+Run the test suite to ensure contract compliance:
+```bash
+pytest tests/ -v
+```
+
+## Troubleshooting
+
+- **OOM Error**: If `MemoryError` occurs, the system automatically reduces batch size. If it persists, the runner will attempt to offload to the GPU escape hatch (Kaggle).
+- **Missing Ground Truth**: Ensure `ground_truth` field is present in the downloaded dataset. If ambiguous (MiniGrid), the system labels a token as valid if it matches *any* known path from the dataset.
+- **Convergence Failure**: If GLMM fails to converge, the system automatically falls back to Clustered SE results.

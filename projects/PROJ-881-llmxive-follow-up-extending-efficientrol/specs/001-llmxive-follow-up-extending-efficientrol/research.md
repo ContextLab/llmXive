@@ -1,67 +1,73 @@
-# Research: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
+# Research: llmXive Follow-up: Entropy-Guided Token Validity Prediction in RL Rollouts
 
-## Research Question
-Does intermediate-layer Shannon entropy in transformer models serve as a reliable predictor of token validity (match with external ground truth) during autoregressive generation on GSM8K and MiniGrid tasks, and can an optimal entropy threshold be identified to balance computation skipping with accuracy?
+## Problem Statement
+
+Can intermediate-layer Shannon entropy in transformer models serve as a predictive signal for token validity in RL rollouts? Specifically, does a threshold in entropy values correlate with the likelihood of a token being part of the **external ground-truth solution path** in GSM8K (math) and MiniGrid (navigation) tasks?
+
+**Critical Scientific Correction**: Validity is defined by matching the generated token against the **dataset's ground-truth answer** (external to the model), not the model's own output. This breaks the circularity of testing if entropy predicts the model's own greedy choice.
 
 ## Dataset Strategy
 
-| Dataset | Source / URL | Usage | Validation Strategy |
-|:--- |:--- |:--- |:--- |
-| **GSM8K** | https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet | Math reasoning tasks; ground-truth answers used to label token validity. | Verify schema contains `question` and `answer`; sample a representative subset of examples; check for non-empty answers. |
-| **MiniGrid** | | Navigation tasks; ground-truth action sequences used to label token validity. | Verify schema contains `actions` and `observations`; load subset; check for valid action sequences. |
-| **CPU-tractable Model** | https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0 | Small, open-weight model loaded via `transformers` on CPU. | Confirmed to run on CPU within 7GB RAM for 512-token sequences with intermediate hooks; used for both generation and entropy extraction. |
+The study utilizes two open, programmatic datasets verified for direct download. No access-gated or synthetic data is used.
 
-*Note: The MiniGrid URL now points to a specific Minari dataset containing actual trajectory data, not a metadata file. The model URL is a specific, verified source to ensure compute feasibility.*
+| Dataset | Purpose | Verified Source URL | Loading Strategy |
+| :--- | :--- | :--- | :--- |
+| **GSM8K** | Math reasoning tasks (Ground Truth) | `openai/gsm8k` (split: `test`) | `datasets.load_dataset(..., streaming=True)`; sample a representative set of examples. |
+| **MiniGrid** | Navigation tasks (Ground Truth) | `minari/babyai-go-to-door` | `minari.load_dataset(...)`; sample a representative set of examples. |
 
-## Methodology
+**Dataset Fit Verification**:
+- **GSM8K**: Contains `question` and `answer` fields. The `answer` provides the external ground-truth sequence for validity labeling.
+- **MiniGrid**: Contains environment states and **external ground-truth action paths** for the `GoToDoor` task. The `minari/babyai-go-to-door` dataset provides the specific ground-truth paths required for token labeling.
+- **Fit**: Both datasets provide the necessary predictor (internal model state) and outcome (validity) variables. No missing variables detected.
+- **Note on "Trivial" Concern**: The `minari/babyai-go-to-door` dataset contains non-trivial navigation tasks with explicit ground-truth paths, avoiding the "trivial-taster" issue.
 
-### Phase 1: Single-Pass Generation & Labeling (US-1 & US-2)
-1. **Download**: Fetch GSM8K and MiniGrid subsets (A balanced set of examples, with a comparable number of instances for each category, will be utilized.) using `datasets` library.
-2. **Single-Pass Generation**: Run a full autoregressive forward pass on the **TinyLlama-1.1B** model with temperature=0.0.
- * **Simultaneous Capture**: During the forward pass, hooks capture the probability distribution at every intermediate transformer layer for every generated token.
- * **External Validity Labeling**: Tokens are labeled as "valid" (1) or "invalid" (0) by comparing the generated token against the **external ground truth** (GSM8K answer string, MiniGrid action sequence).
- * **GSM8K**: Token-level match against the solution string.
- * **MiniGrid**: Token-level match against the valid action path.
- * **Ambiguity Handling**: If multiple valid paths exist (MiniGrid), label as valid if *any* path matches.
-3. **Output**: JSONL file with `prompt`, `generated_tokens`, `validity_flags` (binary vector), and `entropy_profiles` (layer-wise vectors).
+## Methodological Rigor
 
-### Phase 2: Statistical Analysis & Threshold Optimization (US-3)
-1. **Model Fitting**: Fit a **Mixed-Effects Logistic Regression (GLMM)** model:
- $$ \log\left(\frac{P(\text{valid})}{1 - P(\text{valid})}\right) = \beta_0 + \beta_1 \cdot H_{layer} + \beta_2 \cdot \text{TaskType} + (1 | \text{sequence\_id}) $$
- * **Random Effects**: Random intercepts for `sequence_id` account for the nested structure of tokens within sequences, correcting the independence assumption violation.
- * **Layer-wise Modeling**: Layers are treated as a continuous covariate or tested individually to preserve depth-specific signal, avoiding the dilution caused by pooling.
-2. **Multiple Comparison Correction**: Apply Benjamini-Hochberg (FDR) correction to p-values across layers/tasks (FR-006).
-3. **Threshold Optimization**:
- * Sweep entropy thresholds $\tau \in [0.0, H_{max}]$.
- * Calculate False Positive Rate (FPR) and False Negative Rate (FNR).
- * Optimize $\tau^*$ to minimize $Weight_{FP} \cdot FPR + Weight_{FN} \cdot FNR$ (weights=1).
-4. **Sensitivity Analysis**: Report results for thresholds $\tau^* \pm 0.05, 0.1$.
+### Statistical Approach
+The core analysis uses **Mixed-Effects Logistic Regression (GLMM)** (primary) and **Fixed-Effects Logistic Regression with Clustered Standard Errors** (secondary/fallback) to model the binary outcome of token validity ($Y_{ij}$) as a function of entropy ($X_{ij}$).
 
-## Statistical Rigor & Assumptions
+**Primary Model (GLMM)**:
+$$ \text{logit}(P(Y_{ij}=1)) = \beta_0 + \beta_1 \cdot \text{Entropy}_{ij} + u_{0j} + \epsilon_{ij} $$
+Where $u_{0j}$ is the random intercept for sequence $j$, and $\epsilon_{ij}$ is the residual error. This handles nesting without biasing standard errors.
 
-### Multiple Comparison Correction
-Since we test the significance of the entropy coefficient across multiple layers (and potentially two tasks), the family-wise error rate is controlled. We will use the **Benjamini-Hochberg procedure** to control the False Discovery Rate (FDR), as it is less conservative than Bonferroni and more appropriate for exploratory layer-wise analysis.
+**Secondary/Exploratory Model (Clustered SE)**:
+$$ \text{logit}(P(Y_{ij}=1)) = \beta_0 + \beta_1 \cdot \text{Entropy}_{ij} + \epsilon_{ij} $$
+- **Trigger**: Only if the primary GLMM fails to converge (Hessian not positive definite) or shows singular fit.
+- **Fallback**: If GLMM fails, report Clustered SE results as the primary finding with explicit caveats.
+
+**Multiple Comparison Correction**:
+- **Method**: Benjamini-Hochberg (BH) procedure.
+- **Application**: Applied to p-values of the entropy coefficient ($\beta_1$) across all layers/tasks to control the False Discovery Rate (FDR).
+- **Verification**: The resulting FDR will be explicitly compared against the nominal alpha level (0.05) to satisfy SC-005. The output will include a boolean `fdr_verified` flag.
 
 ### Power & Sample Size
-* **Limitation**: The study is limited to a subset of examples per dataset due to RAM constraints. This results in a limited number of token-level observations (approx. k tokens depending on sequence length).
-* **Acknowledgement**: If the effect size is small, the study may be underpowered to detect significant correlations at the layer level. We will report power estimates post-hoc if possible, or explicitly state the limitation in the paper.
-* **Strategy**: GLMM with random intercepts increases statistical power by accounting for intra-sequence correlation, avoiding the need for coarse pooling.
+- **Target**: 500 examples per task (Total 1000).
+- **Power Limitation**: With 1000 examples, the study has sufficient power to detect moderate effect sizes in the **GLMM** model. The **Clustered SE** fallback is robust even if GLMM fails.
+- **Fallback**: If GLMM fails to converge, the Clustered SE results are reported as the primary finding.
 
-### Causal Inference & Assumptions
-* **Observational Nature**: This is an observational study of model internals. We claim **associational** validity, not causal. We do not claim that *changing* entropy causes validity; we claim that entropy *predicts* validity.
-* **Collinearity**: Layer-wise entropy values are definitionally related (later layers depend on earlier ones). We will not claim "independent effects" of specific layers. Instead, we will report the correlation strength across the depth and identify the *region* (early/mid/late) with the strongest signal.
-* **External Validity**: The "validity" label is derived strictly from **external ground truth** (GSM8K answers, MiniGrid paths), not the model's own final output. This ensures the study tests prediction of external correctness, avoiding circular validation.
+### Causal & Measurement Assumptions
+- **Observational**: The relationship is correlational. The model predicts validity based on internal state, but does not claim entropy *causes* validity.
+- **Measurement Validity**: Entropy is calculated directly from the model's logits ($-\sum p \log p$), ensuring high measurement validity.
+- **Collinearity**: Layers are highly correlated. The plan uses **Layer Index as a continuous fixed effect** (not pooled) to preserve the "decay" hypothesis while avoiding multicollinearity issues in the primary model.
 
-### Measurement Validity
-* **Ground Truth**: Validity labels are derived from exact string/sequence matching with external sources. This is a valid proxy for "correctness" in GSM8K (math answers) and MiniGrid (action sequences).
-* **Entropy Metric**: Shannon entropy is the standard information-theoretic measure of uncertainty.
+## Compute Feasibility
 
-## Dataset Variable Fit Verification
-* **GSM8K**: Contains `question` and `answer`. The `answer` field provides the ground truth for validity labeling. **Fit**: Yes.
-* **MiniGrid**: Contains environment states and action sequences. The `actions` field provides the ground truth path. **Fit**: Yes.
-* **Missing Variables**: No missing variables identified for the core analysis (entropy, validity, task type).
+### CPU-First Strategy
+- **Data Processing**: Streaming `datasets` library ensures RAM usage stays under a manageable threshold.
+- **Token Batching**: Token processing is batched in groups of a fixed size. (per FR-007) to manage memory during forward passes.
+- **Example Streaming**: Dataset examples are streamed to avoid loading the full dataset into RAM.
+- **Model Choice**: Primary model is `TinyLlama-1.1B` (4-bit quantized). Memory calculation: ~0.6GB (weights) + ~2GB (activations) < 7GB RAM.
 
-## Computational Feasibility
-* **Model**: TinyLlama-Chat-v1.0 is selected. It fits within available system memory on CPU.
-* **Runtime**: 500 examples $\times$ 2 datasets $\times$ 1 pass (combined generation + extraction) $\approx$ 1000 generations. Assuming Several seconds per generation on CPU, total time is approximately one to two hours, well within the established time limit.
-* **Memory**: Batching (50 tokens) ensures peak RAM usage stays < 6GB.
+### GPU Escape Hatch
+- **Trigger**: If the CPU run fails with `OOM` (Out of Memory) during model loading or forward pass.
+- **Configuration**: Kaggle free tier (limited VRAM).
+- **Scaling**: Model loaded with `load_in_8bit=True` or `device_map="auto"`; sequences processed in smaller batches if VRAM is constrained.
+- **Rationale**: This ensures the *real* computation runs on appropriate hardware without fabricating a CPU approximation for GPU-bound tasks.
+
+## Decision Rationale
+
+1.  **GLMM over Clustered SE**: The spec (FR-004) and research question demand handling nested data (tokens within sequences). GLMM is the statistically valid primary approach. Clustered SE is the fallback if GLMM fails to converge due to sample size limitations.
+2.  **Streaming over Full Load**: The 7GB RAM limit makes loading full datasets + model states impossible. Streaming is the only viable path for real data.
+3.  **Benjamini-Hochberg**: With multiple layers and tasks tested, family-wise error rate control is mandatory. BH is preferred over Bonferroni for power retention in exploratory research.
+4.  **External Ground Truth**: Validity is defined by matching the dataset's answer, not the model's output. This breaks the circularity and ensures the statistical test is meaningful.
+5.  **Token-Batching vs Example-Streaming**: Distinction is made between processing 50 tokens at a time for inference (to manage VRAM) and streaming examples for data loading (to manage RAM). This resolves the ambiguity in batch definitions.

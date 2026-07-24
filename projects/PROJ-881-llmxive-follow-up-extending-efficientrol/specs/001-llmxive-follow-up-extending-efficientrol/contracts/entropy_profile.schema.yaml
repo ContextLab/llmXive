@@ -1,30 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EntropyProfile"
-description: "Schema for intermediate layer entropy extraction (US-2)"
+title: "Entropy Profile Schema"
+description: "Schema for raw entropy extraction output before merging."
 type: "object"
+required:
+  - "prompt_id"
+  - "token_sequence"
+  - "entropy_vectors"
 properties:
-  sequence_id:
+  prompt_id:
     type: "string"
-    description: "Foreign key to TokenSequence"
-  token_index:
-    type: "integer"
-    description: "Position of the token in the sequence"
-  token_id:
-    type: "integer"
-    description: "Vocabulary ID of the token"
-  entropy_values:
+    description: "Unique identifier for the prompt."
+  token_sequence:
     type: "array"
     items:
-      type: "number"
-      minimum: 0
-    description: "Shannon entropy values for each transformer layer"
-  is_valid:
-    type: "integer"
-    enum: [0, 1]
-    description: "Validity flag for this token (derived from external ground truth)"
-required:
-  - sequence_id
-  - token_index
-  - token_id
-  - entropy_values
-  - is_valid
+      type: "integer"
+    description: "List of token IDs generated."
+  entropy_vectors:
+    type: "array"
+    description: "List of entropy vectors, one per token."
+    items:
+      type: "array"
+      description: "Entropy values for each layer for a single token."
+      items:
+        type: "number"
+additionalProperties: false

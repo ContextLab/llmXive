@@ -1,0 +1,14 @@
+status: none
+intent: download GSM8K and MiniGrid datasets via huggingface datasets python package
+  dataset
+required_fields:
+- example_id
+- task_name
+- prompt
+- ground_truth_answer
+- ground_truth_action_sequence
+- tokenized_ground_truth_answer
+- tokenized_ground_truth_actions
+cache_key: 84b93a7605222439980c858b9af80f98acf0de80e7f2380f6928c96eea910f18
+searched_at: '2026-07-24T19:10:53.036742+00:00'
+retry_count: 1
