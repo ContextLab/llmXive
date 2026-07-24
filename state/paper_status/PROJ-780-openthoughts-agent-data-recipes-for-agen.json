@@ -11,12 +11,12 @@
         "page": 36
       }
     ],
-    "audited_at": "2026-07-24T20:19:36.376429+00:00"
+    "audited_at": "2026-07-24T20:54:39.396901+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-780-openthoughts-agent-data-recipes-for-agen",
-  "updated_at": "2026-07-24T20:19:36.376441+00:00"
+  "updated_at": "2026-07-24T20:54:39.396915+00:00"
 }
