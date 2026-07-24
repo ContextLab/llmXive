@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Report Schema"
+description: "Schema for the structure of the final analysis report"
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      seed_used:
+        type: integer
+      dataset_source:
+        type: string
+    required:
+      - generated_at
+      - seed_used
+      - dataset_source
+  sections:
+    type: array
+    items:
+      type: object
+      properties:
+        title:
+          type: string
+        content_type:
+          type: string
+          enum: ["text", "table", "plot", "statistic"]
+        data_ref:
+          type: string
+          description: "Reference to the data artifact or code block"
+      required:
+        - title
+        - content_type
+required:
+  - metadata
+  - sections
+additionalProperties: false

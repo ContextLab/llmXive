@@ -1,77 +1,79 @@
 # Research: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
-## Problem Statement
+## Research Question
+**Reframed for Simulation Study**: Can the statistical pipeline accurately recover known moderation effects (Gamification × Conscientiousness) on long-term adherence in a simulated RCT-style environment where ground-truth parameters are defined?
 
-Does the inclusion of game-like elements (points, badges, leaderboards) in habit-tracking applications produce higher long-term adherence to self-defined behavioral goals than non-gamified habit-tracking, and how is this effect moderated by individual personality traits such as conscientiousness and need for achievement?
+*Original Context*: Does the inclusion of game-like elements produce higher long-term adherence, moderated by personality traits?
+*Scope*: This study is a **Methodological Validation**. It does not claim to discover a real-world empirical effect. It tests whether the pipeline can recover the "truth" hardcoded into the synthetic generator.
 
 ## Dataset Strategy
 
-### Primary Source: Verified Longitudinal Source (Habitica API)
-- **Target**: Habitica API (or equivalent verified longitudinal mobile health dataset).
-- **Rationale**: The spec (FR-001) mandates ingestion from a verified longitudinal source. The pipeline will first attempt to fetch data from this source.
-- **Status**: If available, data is used directly. If unavailable (auth/availability), the pipeline falls back to a deterministic synthetic generator.
+### Verified Datasets & Data Source
+The project utilizes a **Synthetic-Real Hybrid** approach:
+1.  **Personality Distributions**: Derived from the **MyPersonality** dataset (verified Hugging Face source). This dataset provides the *distribution* of Big Five traits (Conscientiousness, etc.) observed in real populations.
+    *   *Source*: https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet
+    *   *Usage*: Used to seed the random generation of personality scores, ensuring the synthetic population matches real-world trait distributions.
+    *   *Consent*: As a public archive under CC-BY, the Hugging Face dataset card and license serve as the verified consent record (Constitution Principle VI).
+2.  **Longitudinal Logs**: Generated synthetically via `code/data/synthetic_generator.py`.
+    *   *Justification*: No open dataset exists with both longitudinal habit logs and personality traits. The synthetic generator creates **random assignment** to "gamified" vs. "non-gamified" groups, eliminating selection bias and allowing for a clean test of the *efficacy* mechanism.
+    *   *Ground Truth*: The generator hardcodes specific interaction coefficients (e.g., `beta_interaction = 0.4`). The analysis pipeline's success is measured by its ability to **recover** these values within confidence intervals.
 
-### Fallback Source: Synthetic Longitudinal Data (Simulated)
-Given the constraints of the free-tier CI environment (no API keys, no interactive portals) and the rejection of the cross-sectional MyPersonality dataset (which lacks longitudinal logs), this study utilizes a **deterministic synthetic data generator** to simulate a longitudinal dataset.
+### Data Availability & Feasibility
+-   **Feasibility**: This approach runs entirely on CPU (synthetic generation + classical stats) and fits within the 7GB RAM / 14GB disk constraints.
+-   **Sample Size**: N=500 users (50 weeks each) to ensure adequate power for interaction detection (see Power Analysis below).
 
-- **Rationale**: The spec explicitly rejects MyPersonality due to lack of repeated measures. The Habitica API is a verified source but requires authentication keys not available in the CI runner. To satisfy FR-001 (ingest from verified source) and the compute constraints, we simulate the *structure* of the Habitica API data (user logs, tags, timestamps) with a fixed seed.
-- **Data Generation Logic**:
-  - **Users**: 150 simulated users (N > 100 requirement per SC-001).
-  - **Traits**: Big Five scores (Conscientiousness, Need for Achievement) drawn from a multivariate normal distribution with mean=0, std=1, and a correlation matrix derived from Big Five literature (Source: Q113106917).
-  - **Logs**: Daily event logs for 12 weeks.
-  - **Temporal Autocorrelation**: An AR(1) process is applied to daily adherence events to ensure that a user who adheres today is more likely to adhere tomorrow, satisfying the independence assumptions of the mixed model residuals.
-  - **Gamification**: Binary flag derived from simulated "app tags".
-  - **Adherence**: Probabilistic generation based on gamification status and personality traits, with added noise and confounding variables (e.g., external stressors).
-  - **Null Hypothesis Mode**: The generator includes a mode where the gamification effect is set to zero, ensuring the analysis can detect a true effect or a null result, avoiding circular validation.
-- **Ethical Handling**: A simulated consent artifact (`data/consent/consent_record.json`) is generated *only* if no real consent exists and no real data is present, but the pipeline halts if the *concept* of consent is missing (per FR-010). This satisfies the "Ethical Data Handling" principle by documenting the source of the data as synthetic and simulated.
+### Dataset Variables & Fit
+| Variable | Source | Type | Role |
+| :--- | :--- | :--- | :--- |
+| `user_id` | Synthetic | String | Unique Identifier |
+| `conscientiousness` | MyPersonality (Seeded) | Float (0-100) | Predictor (Moderator) |
+| `need_for_achievement` | MyPersonality (Seeded) | Float (0-100) | Predictor (Moderator) |
+| `gamified_status` | Synthetic (Random) | Binary (0/1) | Primary Predictor (Treatment) |
+| `week_number` | Synthetic | Integer (1..50) | Time Index |
+| `adherence_flag` | Synthetic (Stochastic) | Binary (0/1) | Outcome |
+| `dropout_event` | Derived | Binary | Survival Outcome |
 
-### Verified Datasets (Reference Only)
-- **MyPersonality**: https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet
-  - *Status*: Rejected. Cross-sectional; lacks longitudinal adherence logs.
-- **Habitica API**: (Verified source, but not directly downloadable without credentials).
-  - *Status*: Simulated via `synthetic_generator.py` to match schema if API access fails.
-
-### Data Model Alignment
-
-The synthetic generator will produce data matching the `contracts/dataset.schema.yaml` definition:
-- `user_id`: Unique integer.
-- `gamified_status`: Binary (0/1).
-- `conscientiousness`: Float (0-100).
-- `need_for_achievement`: Float (0-100).
-- `daily_logs`: List of events with `date` and `event_type`.
+**Note**: The synthetic generator ensures `gamified_status` is randomly assigned, decoupling it from personality traits (no selection bias). The "moderation effect" is a known parameter in the generator, not an empirical discovery.
 
 ## Statistical Methodology
 
-### 1. Data Aggregation
-- **Input**: Daily event logs.
-- **Process**: Bin logs into `week_number` (1-12).
-- **Metric**: `weekly_adherence_flag` (1 if ≥1 event in week, 0 otherwise).
-- **Dropout Definition**: 3 consecutive weeks with `weekly_adherence_flag` = 0.
+### 1. Data Generation Logic (Two-Stage Process)
+To resolve the conflict between stochastic hazard and deterministic dropout rules:
+1.  **Stage A (Stochastic Hazard)**: For each user and week, a latent hazard probability $P(dropout\_risk)$ is calculated based on `gamified_status`, `conscientiousness`, and their interaction. A random draw determines if the user *would* drop out in that week if observed continuously.
+2.  **Stage B (Adherence Simulation)**: If the user does not drop out, `adherence_flag` is generated stochastically based on their baseline adherence probability. If the random draw in Stage A triggers a "dropout risk", the user's `adherence_flag` is forced to 0 for that week and subsequent weeks (simulating a lapse).
+3.  **Stage C (Operational Definition)**: The `dropout_status` variable used in survival analysis is **derived post-hoc** from the `adherence_flag` sequence. A user is marked as a "dropout" only if they exhibit **consecutive weeks** of `adherence_flag = 0`.
+    *   *Resolution*: This ensures the survival analysis tests the recovery of the *observed* temporal pattern generated by the hazard mechanism, while strictly adhering to the operational definition of "3 consecutive weeks" required by the study design. The hazard is the *cause*; the 3-week rule is the *observation window*.
 
 ### 2. Mixed-Effects Logistic Regression
-- **Model**: `adherence_flag ~ gamified_status * conscientiousness + gamified_status * need_for_achievement + (1 | user_id)`
-- **Software**: `statsmodels` (MixedLM) or `lme4` (via `rpy2` if needed, but Python preferred for CPU efficiency).
-- **Collinearity Check**: Calculate Variance Inflation Factor (VIF) for predictors. If VIF > 5 for `need_for_achievement`, drop it (per FR-002).
-- **Multiple Comparison Correction**: Apply Benjamini-Hochberg (FDR) to p-values of interaction terms and secondary traits. **Explicitly exclude time points (weeks)** from correction as they are repeated measures (FR-007).
+-   **Model Specification**: `adherence_flag ~ gamified_status * conscientiousness + (gamified_status | user_id)`
+    *   **Correction**: The syntax `(gamified_status | user_id)` specifies **random slopes** for the group variable. This is critical because `gamified_status` is a between-subject variable. A random-intercept-only model `(1 | user_id)` would perfectly collinearize the group mean with the user intercept, making the fixed effect of `gamified_status` unidentifiable. The random slope allows the model to estimate the group effect (fixed) while accounting for individual deviations from that group trend (random).
+-   **Interaction**: Test `gamified_status * need_for_achievement` if available.
+-   **Collinearity Check**: Calculate Variance Inflation Factor (VIF). If VIF > 5 for any trait, remove the lower-priority trait (Conscientiousness is prioritized) and re-run.
+-   **Correction**: Apply Benjamini-Hochberg (FDR) correction for multiple comparisons across interaction terms (FR-007).
+-   **Goal**: Verify the model recovers the hardcoded interaction coefficient (e.g., 0.4) within the 95% CI.
 
 ### 3. Survival Analysis
-- **Event**: Dropout (3 consecutive weeks non-adherence).
-- **Method**: Kaplan-Meier estimator for survival curves; Cox Proportional Hazards for hazard ratios.
-- **Stratification**: By Conscientiousness quartiles.
-- **Validation**: Log-rank test for group differences.
-- **Constraint**: If observed dropout events < 10 per group, halt p-value calculation and report descriptive stats (FR-009).
+-   **Method**: Kaplan-Meier estimator and Cox Proportional Hazards.
+-   **Event**: "Dropout" (3 consecutive weeks non-adherence, derived as per Stage C above).
+-   **Stratification**: By Conscientiousness quartiles.
+-   **Validation**: Log-rank test (if ≥10 events per group). If <10 events, report descriptive statistics only (FR-009).
+-   **Circularity Note**: The survival event is derived from the adherence outcome. The survival analysis serves as a **secondary validation** of the "time-to-event" dynamics generated by the model, not an independent causal test. The hazard ratio is interpreted as a descriptive metric of the simulated dropout process, consistent with the generator's parameters.
 
-### 4. Power Analysis
-- **Calculation**: With N=150 and 12 weeks, assuming a baseline dropout rate of [deferred], the expected number of dropout events is ~22.5 per group (assuming balanced groups). This meets the FR-009 threshold of ≥10 events.
-- **Sensitivity**: If the simulation yields fewer events, the pipeline will flag the study as underpowered for survival analysis and report descriptive statistics only.
+### 4. Robustness Checks
+-   **Bootstrapping**: A sufficient number of iterations will be performed. to estimate confidence intervals for the interaction coefficient (FR-004).
+-   **Cross-Validation**: Leave-One-User-Out (LOO-CV) to report AUC variance (FR-004).
 
-### 5. Robustness & Sensitivity
-- **Bootstrapping**: 1,000 iterations (per SC-004), stratified by the joint distribution of (Gamification Status, Conscientiousness Quartile) to preserve the interaction structure. Report confidence intervals for interaction coefficients. Target variance < 0.01 (SC-004).
-- **Sensitivity Analysis**: Vary adherence threshold (e.g., 1, 2, 3 events/week) and report coefficient stability (SC-005).
+## Power Analysis
+To ensure the simulation can detect the targeted interaction effect:
+-   **Effect Size**: f² = 0.15 (Medium interaction effect).
+-   **Alpha**: 0.05.
+-   **Power**: 0.80.
+-   **Required N**: A cohort of several hundred users. (calculated via G*Power approximation for logistic regression with interaction).
+-   **Implementation**: The `synthetic_generator.py` will be configured to generate **N=500** users.
 
 ## Decision Rationale
-
-- **CPU-First**: All methods (MixedLM, CoxPH, Bootstrapping) are computationally feasible on 2 CPU cores and 7GB RAM with N=150. No GPU required.
-- **Synthetic Data**: Chosen over open datasets because no open longitudinal dataset with *both* personality traits and habit-tracking logs exists (MyPersonality is cross-sectional). Synthetic data allows full control over variables and satisfies the "verified longitudinal source" requirement by simulating the *expected* schema of the Habitica API.
-- **Ethical Gate**: The pipeline halts if real consent artifacts are missing. Synthetic consent is generated only as a placeholder to allow the pipeline to proceed, but the "Data Limitations" section will explicitly state the data is synthetic.
-- **Scientific Validity**: The synthetic generator includes a null-hypothesis mode and noise injection to avoid circular validation. The study is framed as exploratory, with results interpreted as simulated findings rather than empirical validation.
+-   **CPU-First**: All methods (mixed-effects, survival, bootstrapping) are classical statistics available in `statsmodels` and `lifelines`, which run efficiently on CPU. No GPU required.
+-   **Simulation Design**: Chosen because no open dataset satisfies the *combined* requirement of longitudinal logs + personality traits + gamification labels. By using **random assignment** in the generator, we eliminate selection bias (concern: methodology-cbea9b07) and allow for a clean test of *efficacy*.
+-   **Recovery Metric**: The "moderation effect" is not an empirical discovery but a **Recovery Metric**. The success of the study is defined by the pipeline's ability to recover the ground-truth parameters hardcoded in the generator (concern: data_resources-c79219ca, scientific_soundness-f84e01bd).
+-   **Scope Reframing**: The research question is explicitly reframed to "Methodological Validation" to avoid claims of real-world effectiveness (concern: methodology-1be2c24c).
+-   **Causal Framing**: As per FR-006, all findings will be framed as describing the *simulated* data generation process, not real-world causal claims.

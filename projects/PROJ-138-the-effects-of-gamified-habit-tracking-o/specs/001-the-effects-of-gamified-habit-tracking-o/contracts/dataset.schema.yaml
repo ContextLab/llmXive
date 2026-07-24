@@ -1,50 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for data/processed/merged_data.csv"
 type: object
-description: "Schema for the analysis-ready merged dataset (data/processed/merged_data.csv)"
 properties:
   user_id:
-    type: integer
-    description: "Unique identifier for the user"
-  gamified_status:
-    type: integer
-    description: "Binary flag: 1 if gamified app used, 0 otherwise"
-    enum:
-      - 0
-      - 1
-  conscientiousness_score:
-    type: number
-    description: "Standardized score for Conscientiousness (0-100)"
-    minimum: 0
-    maximum: 100
-  need_for_achievement_score:
-    type: number
-    description: "Standardized score for Need for Achievement (0-100)"
-    minimum: 0
-    maximum: 100
+    type: string
+    description: "Unique anonymized user identifier"
   week_number:
     type: integer
-    description: "Sequential week number starting from 1"
+    description: "Sequential week number (1, 2, ...)"
     minimum: 1
   adherence_flag:
     type: integer
-    description: "Binary flag: 1 if at least one activity event in the week, 0 otherwise"
-    enum:
-      - 0
-      - 1
+    description: "Binary adherence (1=active, 0=inactive)"
+    enum: [0, 1]
   streak_length:
     type: integer
-    description: "Number of consecutive weeks of adherence ending at this week"
+    description: "Current consecutive weeks of adherence"
     minimum: 0
-  dropout_event:
-    type: boolean
-    description: "True if user experienced 3 consecutive weeks of non-adherence"
+  dropout_status:
+    type: integer
+    description: "0=active, 1=dropout (3 weeks), 2=censored"
+    enum: [0, 1, 2]
+  conscientiousness_score:
+    type: number
+    description: "Big Five Conscientiousness score (0-100)"
+    minimum: 0.0
+    maximum: 100.0
+  gamified_status:
+    type: integer
+    description: "Binary gamification status (1=gamified, 0=non-gamified)"
+    enum: [0, 1]
 required:
   - user_id
-  - gamified_status
-  - conscientiousness_score
-  - need_for_achievement_score
   - week_number
   - adherence_flag
   - streak_length
-  - dropout_event
+  - dropout_status
+  - conscientiousness_score
+  - gamified_status
 additionalProperties: false

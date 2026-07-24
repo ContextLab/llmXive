@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for statistical model results"
+type: object
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test performed"
+  coefficient:
+    type: number
+    description: "Estimated coefficient"
+  std_error:
+    type: number
+    description: "Standard error of the estimate"
+  p_value:
+    type: number
+    description: "Raw p-value"
+    minimum: 0.0
+    maximum: 1.0
+  p_value_corrected:
+    type: number
+    description: "FDR-corrected p-value"
+    minimum: 0.0
+    maximum: 1.0
+  confidence_interval_lower:
+    type: number
+    description: "Lower bound of 95% CI"
+  confidence_interval_upper:
+    type: number
+    description: "Upper bound of 95% CI"
+  sample_size:
+    type: integer
+    description: "Number of observations used"
+    minimum: 1
+required:
+  - test_type
+  - coefficient
+  - std_error
+  - p_value
+  - p_value_corrected
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - sample_size
+additionalProperties: false

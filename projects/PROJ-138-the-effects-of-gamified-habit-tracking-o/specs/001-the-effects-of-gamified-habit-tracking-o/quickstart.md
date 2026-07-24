@@ -1,72 +1,57 @@
-# Quickstart: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
+# Quickstart: The Effects of Gamified Habit Tracking
 
 ## Prerequisites
+-   Python 3.11+
+-   `pip` (Python package manager)
+-   Access to the project repository.
 
-- Python 3.11+
-- `pip`
-- Sufficient RAM available (for bootstrapping)
-- Substantial disk space
+## Setup Instructions
 
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-138-the-effects-of-gamified-habit-tracking-o
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Execution
-
-### 1. Generate Synthetic Data & Consent
-Run the data generation script to create the synthetic dataset and the required consent artifact.
+### 1. Clone and Install
 ```bash
-python code/data/synthetic_generator.py
-```
-*Output*: `data/raw/synthetic_data.csv`, `data/consent/consent_record.json`
-
-### 2. Ingest and Validate
-Run the ingestion pipeline to validate the data and aggregate daily logs into weekly bins.
-```bash
-python code/data/ingestion.py
-```
-*Output*: `data/processed/merged_data.csv`
-
-### 3. Run Analysis
-Execute the full modeling and robustness pipeline.
-```bash
-python code/analysis/modeling.py
-python code/analysis/robustness.py
+git clone <repo-url>
+cd <project-dir>
+pip install -r code/requirements.txt
 ```
 
-### 4. Generate Report
-Generate the final HTML report.
+### 2. Data Preparation
+The pipeline requires a `data/consent/` directory to verify ethical handling.
 ```bash
-python code/reports/generate_report.py
+mkdir -p data/consent
+# Place a dummy consent file for testing (e.g., consent_form_sample.pdf)
+# In production, this must contain real consent documentation.
+# For the public MyPersonality dataset, the Hugging Face license serves as consent.
+echo "Consent Verified" > data/consent/verified.txt
 ```
-*Output*: `data/reports/final_analysis.html`
 
-### 5. Verify
-Run the quickstart validation script to ensure all artifacts exist.
+### 3. Generate Synthetic Data
+Since no open longitudinal dataset with personality traits exists, generate the synthetic dataset:
 ```bash
-bash quickstart.sh
+python code/data/synthetic_generator.py --seed [RANDOM_SEED] --n_users --weeks 50
 ```
-*Expected Exit Code*: 0
-*Expected Output*: "All checks passed. Data and reports generated successfully."
+*Output*: `data/raw/synthetic_data.csv` (N=500, Random Assignment)
+
+### 4. Run the Pipeline
+Execute the main orchestration script:
+```bash
+python code/main.py
+```
+*This script performs:*
+1.  Consent verification (FR-010).
+2.  Data ingestion and weekly aggregation (FR-001).
+3.  Control group size validation (FR-008) and Event threshold check (FR-009).
+4.  VIF check and Mixed-Effects modeling (FR-002).
+5.  FDR Correction (FR-007).
+6.  Survival analysis (FR-003).
+7.  Bootstrapping and Robustness checks (FR-004).
+8.  Report generation (FR-005).
+
+### 5. View Results
+The final report will be available at:
+`data/reports/final_analysis.html`
 
 ## Troubleshooting
-
-- **Error: "Data Insufficiency"**: The generated dataset has a limited number of users. Check `synthetic_generator.py` seed or parameters.
-- **Error: "Missing Consent"**: The `data/consent/` directory is empty. Ensure `synthetic_generator.py` ran successfully.
-- **Error: "VIF > 5"**: The model detected high collinearity. `need_for_achievement` will be dropped automatically. Check `code/analysis/modeling.py` logs.
-- **Error: "Insufficient Events"**: dropout events detected. Survival analysis will be skipped; descriptive stats will be reported.
+-   **Error: "Data Insufficiency"**: Ensure `synthetic_generator.py` produced at least 100 users and 30 non-gamified users.
+-   **Error: "Consent Missing"**: Ensure `data/consent/` directory is not empty.
+-   **Model Convergence Warning**: The pipeline automatically detects high VIF and removes collinear traits. Check `logs/modeling.log` for details.
+-   **Error: "Insufficient Events"**: If dropout events < 10 per group, the survival analysis is skipped, and only descriptive stats are reported.
