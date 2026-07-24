@@ -1,63 +1,27 @@
-"""
-Setup script to initialize data directories.
-
-This script creates the required directory structure for the llmXive pipeline:
-- data/raw: For storing downloaded raw datasets (TELBench)
-- data/processed: For storing processed artifacts (graphs, metrics, reports)
-
-It uses the ensure_directories function from config.py to create these paths
-and places .gitkeep files to ensure the directories are tracked by git.
-"""
 import os
 from pathlib import Path
 from config import ensure_directories
 
-
 def main():
     """
-    Initialize data directories and create .gitkeep files.
-    
-    Creates:
-    - data/raw/.gitkeep
-    - data/processed/.gitkeep
-    - data/processed/graphs/.gitkeep (for intermediate DAGs)
-    - data/processed/reports/.gitkeep (for final reports)
-    
-    Prints status messages for each operation.
+    Setup data directories for the project.
+    Creates data/raw and data/processed directories with .gitkeep files.
     """
-    print("Setting up data directories...")
-    
-    # Ensure base directories exist using the config utility
     ensure_directories()
     
-    # Define the paths for the required directories
-    base_path = Path("data")
-    raw_path = base_path / "raw"
-    processed_path = base_path / "processed"
-    graphs_path = processed_path / "graphs"
-    reports_path = processed_path / "reports"
+    # Define the directories to create
+    raw_dir = Path("data/raw")
+    processed_dir = Path("data/processed")
     
     # Create directories if they don't exist
-    for dir_path in [raw_path, processed_path, graphs_path, reports_path]:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created directory: {dir_path}")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
     # Create .gitkeep files to ensure directories are tracked by git
-    gitkeep_content = "# This file ensures the directory is tracked by git.\n"
+    (raw_dir / ".gitkeep").touch()
+    (processed_dir / ".gitkeep").touch()
     
-    gitkeep_files = [
-        raw_path / ".gitkeep",
-        processed_path / ".gitkeep",
-        graphs_path / ".gitkeep",
-        reports_path / ".gitkeep",
-    ]
-    
-    for gitkeep_path in gitkeep_files:
-        gitkeep_path.write_text(gitkeep_content)
-        print(f"  Created .gitkeep: {gitkeep_path}")
-    
-    print("Data directory setup complete.")
-
-
-if __name__ == "__main__":
-    main()
+    print(f"Created directory: {raw_dir}")
+    print(f"Created directory: {processed_dir}")
+    print(f"Created .gitkeep in: {raw_dir}")
+    print(f"Created .gitkeep in: {processed_dir}")

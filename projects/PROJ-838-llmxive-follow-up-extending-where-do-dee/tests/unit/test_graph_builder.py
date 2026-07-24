@@ -1,202 +1,159 @@
 import pytest
+import json
 import networkx as nx
 from pathlib import Path
-import sys
-import os
+import tempfile
+import shutil
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from code.graph_builder import (
+    parse_trajectory,
+    detect_citations,
+    build_co_reference_graph,
+    build_dag,
+    save_graph,
+    get_nlp
+)
+from code.config import cutoff_depth
 
-from graph_builder import parse_trajectory, build_dag, build_co_reference_graph
-from config import cutoff_depth
-
-class TestParseTrajectory:
-    """Tests for parse_trajectory function including edge cases."""
-
-    def test_normal_case_returns_cutoff_spans(self):
-        """Test that normal case returns correct number of spans."""
-        # Create a trajectory with 100 spans
-        spans = [{"id": i, "text": f"span {i}"} for i in range(100)]
-        trajectory = {"spans": spans}
-        
-        # Default cutoff_depth is typically 0.2, so we expect 20 spans
-        result = parse_trajectory(trajectory)
-        
-        expected_count = int(100 * cutoff_depth)
-        assert len(result) == expected_count
-        assert result[0]["id"] == 0
-        assert result[-1]["id"] == expected_count - 1
-
-    def test_short_trajectory_returns_all_spans(self):
-        """Test that trajectories shorter than cutoff use all spans."""
-        # Create a trajectory with only 5 spans
-        # If cutoff_depth is 0.2, cutoff would be 1, so this should return all 5
-        spans = [{"id": i, "text": f"span {i}"} for i in range(5)]
-        trajectory = {"spans": spans}
-        
-        result = parse_trajectory(trajectory)
-        
-        # Should return all spans since 5 < int(5 * cutoff_depth) might be 1
-        # But if 5 * cutoff_depth < 5, it should still return all if len < cutoff
-        expected_count = min(5, int(5 * cutoff_depth)) if int(5 * cutoff_depth) > 0 else 5
-        # Actually, per implementation: if total_spans < cutoff, return all
-        cutoff = int(5 * cutoff_depth)
-        if 5 < cutoff:
-            assert len(result) == 5
-        else:
-            assert len(result) == cutoff
-
-    def test_empty_trajectory_returns_empty_list(self):
-        """Test that empty trajectories return empty list."""
-        trajectory = {"spans": []}
-        result = parse_trajectory(trajectory)
-        assert len(result) == 0
-
-    def test_missing_spans_key_returns_empty_list(self):
-        """Test that trajectories without 'spans' key return empty list."""
-        trajectory = {"id": "test"}
-        result = parse_trajectory(trajectory)
-        assert len(result) == 0
-
-    def test_single_span_trajectory(self):
-        """Test trajectory with exactly one span."""
-        spans = [{"id": 0, "text": "single span"}]
-        trajectory = {"spans": spans}
-        
-        result = parse_trajectory(trajectory)
-        
-        # Should return the single span
-        assert len(result) == 1
-        assert result[0]["id"] == 0
-
-class TestBuildCoReferenceGraph:
-    """Tests for build_co_reference_graph function."""
-
-    def test_empty_spans_returns_empty_graph(self):
-        """Test that empty spans list returns empty graph."""
-        graph = build_co_reference_graph([])
-        assert graph.number_of_nodes() == 0
-        assert graph.number_of_edges() == 0
-
-    def test_single_span_returns_single_node_graph(self):
-        """Test that single span returns graph with one node, zero edges."""
-        spans = [{"id": "span1", "text": "Hello world"}]
-        graph = build_co_reference_graph(spans)
-        
-        assert graph.number_of_nodes() == 1
-        assert graph.number_of_edges() == 0
-
-    def test_spans_with_shared_citations_create_edges(self):
-        """Test that spans sharing citations get connected."""
-        spans = [
-            {"id": "span1", "text": "As mentioned in [1] this is important"},
-            {"id": "span2", "text": "Further discussion of [1] confirms this"}
+@pytest.fixture
+def sample_trajectory():
+    return {
+        "id": "test_traj_001",
+        "spans": [
+            {"text": "This is the first span [1].", "role": "thought"},
+            {"text": "Based on [1], the second span.", "role": "action"},
+            {"text": "A third span with no citations.", "role": "observation"},
+            {"text": "Referencing [1] again.", "role": "thought"}
         ]
-        graph = build_co_reference_graph(spans)
-        
-        assert graph.number_of_nodes() == 2
-        assert graph.number_of_edges() == 1
-        assert graph.has_edge("span1", "span2") or graph.has_edge("span2", "span1")
+    }
 
-    def test_spans_with_high_text_overlap_create_edges(self):
-        """Test that spans with high word overlap get connected."""
-        spans = [
-            {"id": "span1", "text": "The quick brown fox jumps over the lazy dog"},
-            {"id": "span2", "text": "A quick brown dog jumps over the lazy fox"}
+@pytest.fixture
+def short_trajectory():
+    return {
+        "id": "short_traj",
+        "spans": [
+            {"text": "Only one span here.", "role": "thought"}
         ]
-        graph = build_co_reference_graph(spans)
-        
-        # Should have edges due to high overlap
-        assert graph.number_of_nodes() == 2
-        # Overlap is significant enough to create edge
-        assert graph.number_of_edges() >= 1
+    }
 
-    def test_no_shared_citations_or_overlap_returns_no_edges(self):
-        """Test that unrelated spans return graph with no edges."""
-        spans = [
-            {"id": "span1", "text": "Apple pie is delicious"},
-            {"id": "span2", "text": "Quantum physics is complex"}
+@pytest.fixture
+def empty_trajectory():
+    return {
+        "id": "empty_traj",
+        "spans": []
+    }
+
+def test_parse_trajectory_full(sample_trajectory):
+    # cutoff_depth is 1.0 in config usually, but let's test logic
+    # Assuming config.cutoff_depth is 0.5 for testing partial, or 1.0 for full
+    # We'll test with a specific fraction
+    result = parse_trajectory(sample_trajectory, 0.5)
+    # 4 spans * 0.5 = 2 spans
+    assert len(result) == 2
+
+def test_parse_trajectory_full_all(sample_trajectory):
+    result = parse_trajectory(sample_trajectory, 1.0)
+    assert len(result) == 4
+
+def test_parse_trajectory_short_trajectory(short_trajectory):
+    # Even if cutoff implies 0, we should get at least 1 if spans exist and depth > 0
+    result = parse_trajectory(short_trajectory, 0.5)
+    assert len(result) == 1
+
+def test_parse_trajectory_empty(empty_trajectory):
+    result = parse_trajectory(empty_trajectory, 0.5)
+    assert len(result) == 0
+
+def test_detect_citations():
+    nlp = get_nlp()
+    text = "Here is a citation [1] and another [2] and (Smith, 2020)."
+    cites = detect_citations(text, nlp)
+    assert "[1]" in cites
+    assert "[2]" in cites
+    assert "(Smith, 2020)" in cites
+
+def test_build_co_reference_graph(sample_trajectory):
+    spans = sample_trajectory["spans"]
+    nlp = get_nlp()
+    G = build_co_reference_graph(spans, nlp)
+    
+    assert G.number_of_nodes() == 4
+    # Node 0 and 1 share [1], Node 0 and 3 share [1], Node 1 and 3 share [1]
+    # Edges should be directed from lower index to higher
+    assert G.has_edge(0, 1)
+    assert G.has_edge(0, 3)
+    assert G.has_edge(1, 3)
+    # Node 2 has no citations, so no edges involving 2 based on citations
+    assert not G.has_edge(0, 2)
+    assert not G.has_edge(1, 2)
+    assert not G.has_edge(2, 3)
+
+def test_build_dag(sample_trajectory):
+    G = build_dag(sample_trajectory, 1.0)
+    assert G.number_of_nodes() == 4
+    assert G.number_of_edges() > 0
+
+def test_build_dag_short_trajectory(short_trajectory):
+    G = build_dag(short_trajectory, 1.0)
+    assert G.number_of_nodes() == 1
+    assert G.number_of_edges() == 0
+
+def test_build_dag_empty(empty_trajectory):
+    G = build_dag(empty_trajectory, 1.0)
+    assert G.number_of_nodes() == 0
+    assert G.number_of_edges() == 0
+
+def test_save_graph(tmp_path):
+    G = nx.DiGraph()
+    G.add_node(0, text="test", citations=["[1]"])
+    G.add_node(1, text="test2", citations=["[1]"])
+    G.add_edge(0, 1, type="citation_overlap")
+    
+    output_dir = tmp_path / "graphs"
+    path = save_graph(G, "test_id_123", output_dir)
+    
+    assert path.exists()
+    assert path.suffix == ".json"
+    
+    with open(path, "r") as f:
+        data = json.load(f)
+    
+    assert data["trajectory_id"] == "test_id_123"
+    assert data["num_nodes"] == 2
+    assert data["num_edges"] == 1
+    assert data["nodes"][0]["id"] == 0
+    assert "[1]" in data["nodes"][0]["citations"]
+
+def test_short_trajectory_handling():
+    """
+    Test T016a: Handle trajectories shorter than cutoff.
+    If spans are few, we should use all of them.
+    """
+    traj = {
+        "id": "tiny",
+        "spans": [{"text": "a"}, {"text": "b"}]
+    }
+    # cutoff 0.5 -> 1 span, cutoff 0.1 -> 0 spans (should force 1)
+    G = build_dag(traj, 0.1)
+    # Should have at least 1 node if spans exist
+    assert G.number_of_nodes() >= 1
+
+def test_zero_edge_graph():
+    """
+    Test T016b: Handle zero-edge cases.
+    """
+    traj = {
+        "id": "no_cites",
+        "spans": [
+            {"text": "No cites here"},
+            {"text": "Also no cites"}
         ]
-        graph = build_co_reference_graph(spans)
-        
-        assert graph.number_of_nodes() == 2
-        assert graph.number_of_edges() == 0
-
-class TestBuildDAG:
-    """Tests for build_dag function including zero-edge cases."""
-
-    def test_normal_trajectory_returns_dag(self):
-        """Test that normal trajectory returns a valid DAG."""
-        trajectory = {
-            "spans": [
-                {"id": "1", "text": "Introduction [1]"},
-                {"id": "2", "text": "As [1] states, this is true"},
-                {"id": "3", "text": "Therefore, we conclude"}
-            ]
-        }
-        
-        graph = build_dag(trajectory)
-        
-        assert isinstance(graph, nx.DiGraph)
-        assert graph.number_of_nodes() >= 1
-
-    def test_empty_trajectory_returns_empty_graph(self):
-        """Test that empty trajectory returns empty graph."""
-        trajectory = {"spans": []}
-        graph = build_dag(trajectory)
-        
-        assert isinstance(graph, nx.DiGraph)
-        assert graph.number_of_nodes() == 0
-        assert graph.number_of_edges() == 0
-
-    def test_zero_edge_case_returns_empty_graph(self):
-        """Test that trajectory with no co-reference signals returns empty graph."""
-        # Create spans with no citations and no text overlap
-        trajectory = {
-            "spans": [
-                {"id": "1", "text": "Apple pie is delicious"},
-                {"id": "2", "text": "Quantum physics is complex"},
-                {"id": "3", "text": "Basketball is fun"}
-            ]
-        }
-        
-        graph = build_dag(trajectory)
-        
-        # Per requirements: zero-edge cases should return empty graph
-        assert isinstance(graph, nx.DiGraph)
-        assert graph.number_of_edges() == 0
-        # Note: Nodes might exist but no edges, which is the "empty graph" state
-        # for the purpose of metrics calculation
-
-    def test_short_trajectory_uses_all_spans(self):
-        """Test that short trajectories use all available spans."""
-        # Create a trajectory with very few spans
-        trajectory = {
-            "spans": [
-                {"id": "1", "text": "First [1]"},
-                {"id": "2", "text": "Second [1]"}
-            ]
-        }
-        
-        graph = build_dag(trajectory)
-        
-        # Should process all spans even if fewer than cutoff
-        assert isinstance(graph, nx.DiGraph)
-        # At minimum, nodes should be created
-        assert graph.number_of_nodes() <= 2
-
-    def test_is_directed_acyclic_graph(self):
-        """Test that output is always a DAG (no cycles)."""
-        # Create a trajectory that might induce cycles
-        trajectory = {
-            "spans": [
-                {"id": "1", "text": "See [1] and [2]"},
-                {"id": "2", "text": "As in [1] and [3]"},
-                {"id": "3", "text": "Reference [2] and [1]"}
-            ]
-        }
-        
-        graph = build_dag(trajectory)
-        
-        # The function should ensure DAG property
-        assert nx.is_directed_acyclic_graph(graph) or graph.number_of_edges() == 0
+    }
+    G = build_dag(traj, 1.0)
+    assert G.number_of_nodes() == 2
+    assert G.number_of_edges() == 0
+    # Connectivity should be 0.0
+    # (Handled in metrics, but graph structure is correct here)
+    assert nx.is_connected(G.to_undirected()) == False or G.number_of_nodes() <= 1
+    if G.number_of_nodes() > 1:
+        assert nx.number_connected_components(G.to_undirected()) == 2

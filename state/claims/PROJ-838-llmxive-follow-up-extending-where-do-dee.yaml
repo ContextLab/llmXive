@@ -54,3 +54,205 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T12:19:44Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: TELBench dataset HuggingFace IDs primary HuggingFaceH4/tebench fallback
+    HuggingFaceH4/tebench-v1
+  claim_id: c_cd8644b7
+  context: 'Implement code/downloader.py to fetch TELBench dataset from HuggingFace
+    (Primary ID: ''HuggingFaceH4/tebench'', Fallback: ''HuggingFaceH4/tebench-v1'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TELBench_dataset_HuggingFace_IDs_primary_HuggingFaceH4/teben
+  kind: entity_fact
+  raw_text: The TELBench dataset is hosted on HuggingFace with the primary ID 'HuggingFaceH4/tebench'
+    and a fallback ID 'HuggingFaceH4/tebench-v1'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:40:07Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.11
+  claim_id: c_1f08a53e
+  context: Initialize Python 3.11 project with requirements.txt (pandas, networkx,
+    scikit-learn, spaCy, tqdm, pyyaml, requests, scipy).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:40:21Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds include 0.05 and 0.1
+  claim_id: c_88d9fc41
+  context: Implement code/config.py to define hyperparameters (cutoff_depth, seed,
+    dataset_url, sensitivity_thresholds=[low, 0.05, 0.1], sensitivity_percentiles=[,
+    20, 30]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration file defines sensitivity thresholds including values
+    of 0.05 and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:40:46Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity percentiles include 20 and 30
+  claim_id: c_564cfd4e
+  context: Implement code/config.py to define hyperparameters (cutoff_depth, seed,
+    dataset_url, sensitivity_thresholds=[low, 0.05, 0.1], sensitivity_percentiles=[,
+    20, 30]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration file defines sensitivity percentiles including values
+    of 20 and 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:41:06Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Black formatter line length 88
+  claim_id: c_cef31d42
+  context: 'Configure linting (ruff) and formatting (black) tools: Create pyproject.toml
+    with explicit [tool.black] (line-length=88, target-version=[''py311'']).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Black formatter is configured with a line length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:41:28Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps percentiles 10 20 30
+  claim_id: c_433b29f8
+  context: Run sensitivity_analysis in code/evaluator.py to sweep thresholds over
+    a specific set of small values and percentiles {10, 20, 30} as mandated by SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps over percentile values {10, 20, 30}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:41:49Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01 0.05 0.1
+  claim_id: c_a50b0501
+  context: T036 explicitly writes the sensitivity matrix to data/processed/sensitivity_matrix.json
+    for T046 to consume, using the exact values {0.01, 0.05, 0.1} and {10, 20, 30}.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We consider estimation at c = 0, 0.01, ...,0.1. When c >0.1, the identified
+        set is unbounded. Conversely,
+      source_id: '2309.06305'
+      url: https://arxiv.org/abs/2309.06305
+      value: '0.01'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps over threshold values {0.01, 0.05, 0.1}.
+  resolved_value: '0.01'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T22:42:10Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Primary decision boundary 20th percentile success class
+  claim_id: c_ec479637
+  context: FR-004 (Spec) mandates the '20th percentile of the success class' as the
+    primary decision boundary.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_decision_boundary_20th_percentile_success_class
+  kind: entity_fact
+  raw_text: The primary decision boundary for predicting collapse is the 20th percentile
+    of the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:42:47Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning index checks avg branching factor < 1.5
+  claim_id: c_5f64ffc3
+  context: Calculate a chain-like topology metric... AND check for low branching (avg
+    out-degree < 1.5, using avg_branching_factor column).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_reasoning_index_checks_avg_branching_factor_%3C_1.5
+  kind: magnitude
+  raw_text: The linear reasoning index checks for average branching factor less than
+    1.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:43:04Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning index checks global connectivity < 0.1
+  claim_id: c_ea8f96da
+  context: Calculate a chain-like topology metric... AND check for... low connectivity
+    (global connectivity < 0.1) for the success class.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_reasoning_index_checks_global_connectivity_%3C_0.1
+  kind: magnitude
+  raw_text: The linear reasoning index checks for global connectivity less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:43:25Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Power analysis flags if power < 0.8
+  claim_id: c_97bbcf1f
+  context: If power < 0.8, flag the limitation in the final report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_if_power_%3C_0.8
+  kind: magnitude
+  raw_text: The power analysis flags limitations if the calculated power is less than
+    0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T22:43:50Z'

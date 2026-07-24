@@ -49,6 +49,7 @@ def process_batch(graph_dir: str, output_path: str) -> None:
     Iterate over JSON files in graph_dir, calculate metrics, and write to output_path CSV.
     Includes progress logging using tqdm.
     Handles zero-node/zero-edge cases by returning 0.0 instead of NaN.
+    Output columns: trajectory_id, global_connectivity, avg_branching_factor.
     """
     graph_path = Path(graph_dir)
     if not graph_path.exists():
@@ -67,10 +68,13 @@ def process_batch(graph_dir: str, output_path: str) -> None:
             connectivity = calculate_global_connectivity(G)
             branching = calculate_avg_branching_factor(G)
             
+            # Extract trajectory_id from filename (remove .json extension)
+            trajectory_id = file_path.stem
+            
             results.append({
-                'filename': file_path.name,
-                'connectivity': connectivity,
-                'branching_factor': branching
+                'trajectory_id': trajectory_id,
+                'global_connectivity': connectivity,
+                'avg_branching_factor': branching
             })
         except Exception as e:
             # Log error but continue processing other files
@@ -81,7 +85,7 @@ def process_batch(graph_dir: str, output_path: str) -> None:
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_file, 'w', newline='') as csvfile:
-        fieldnames = ['filename', 'connectivity', 'branching_factor']
+        fieldnames = ['trajectory_id', 'global_connectivity', 'avg_branching_factor']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(results)
