@@ -146,7 +146,7 @@ projects/PROJ-523-quantifying-the-impact-of-data-gaps-on-r/
 
 ## Compute Feasibility Statement
 
-This plan explicitly targets the GitHub Actions free-tier (standard CPU, 7GB RAM, 14GB Disk, 6h).
+This plan explicitly targets the GitHub Actions free-tier (standard CPU, sufficient RAM, 14GB Disk, 6h).
 - **No GPU**: All methods (CAMB, healpy, scipy, statsmodels) are CPU-native.
 - **Memory**: Nside=512 maps are ~3M pixels. A large number of maps would exceed RAM if loaded at once. The pipeline processes one realization at a time.
 - **Runtime**: The pilot run ensures the total number of realizations is scaled to fit the 6h window.

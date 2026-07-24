@@ -1,9 +1,8 @@
 """
-Main analysis runner with convergence failure handling.
+Main analysis runner for gap filling algorithms.
 
-This script orchestrates the gap-filling algorithms and handles convergence failures
-according to FR-008. It wraps the individual algorithm implementations and ensures
-that failures are logged, recorded, and excluded from downstream analysis.
+Orchestrates the execution of all gap-filling algorithms and integrates
+the NaN guard and failure handling logic.
 """
 import os
 import sys
@@ -12,274 +11,163 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
 
-# Import from existing project modules
-from config import (
-    DATA_DERIVED_DIR,
-    DATA_RESULTS_DIR,
-    N_SIDE,
-    GAP_FRACTIONS,
-    GAP_MORPHOLOGIES,
-    get_dtype
-)
-from data_io import load_map_from_fits, load_mask_from_fits, save_metadata
-from simulation.utils import get_available_gap_fractions
-from gap_filling.failure_handler import (
-    handle_convergence_failure,
-    is_realization_excluded,
-    get_excluded_realization_ids
-)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Import algorithm implementations
 from gap_filling.harmonic_interp import apply_harmonic_filling
 from gap_filling.wiener_filter import apply_wiener_filling
 from gap_filling.iterative_synthesis import apply_iterative_filling
+from gap_filling.NaN_guard import NaNPropagationError
+from gap_filling.failure_handler import record_excluded_realization, handle_convergence_failure
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from data_io import load_map_from_fits, load_mask_from_fits, save_map_to_fits
+from analysis.metadata_recorder import record_algorithm_metadata
+
 logger = logging.getLogger(__name__)
 
-# Available algorithms
-ALGORITHMS = {
-    "harmonic_interpolation": apply_harmonic_filling,
-    "wiener_filter": apply_wiener_filling,
-    "iterative_synthesis": apply_iterative_filling
-}
-
-
 def run_single_algorithm(
-    realization_id: str,
+    map_path: str,
+    mask_path: str,
     algo_name: str,
-    gap_fraction: float,
-    gap_morphology: str,
-    map_path: Path,
-    mask_path: Path
-) -> Optional[Dict[str, Any]]:
+    algo_func,
+    realization_id: str,
+    output_dir: str
+) -> bool:
     """
-    Run a single gap-filling algorithm on a masked map.
-    
-    This function handles convergence failures according to FR-008:
-    - Logs the failure with full context
-    - Records the exclusion
-    - Returns None for failed cases (excluded from analysis)
-    
-    Args:
-        realization_id: Unique identifier for the realization
-        algo_name: Name of the algorithm to run
-        gap_fraction: Target gap fraction
-        gap_morphology: Type of gap morphology
-        map_path: Path to the CMB map file
-        mask_path: Path to the gap mask file
+    Runs a single gap-filling algorithm on a map.
     
     Returns:
-        Dictionary with results if successful, None if failed/excluded
+        True if successful, False if excluded (NaN or other error).
     """
-    # Check if this realization is already excluded
-    if is_realization_excluded(realization_id):
-        logger.info(f"Skipping excluded realization: {realization_id}")
-        return None
-    
-    logger.info(
-        f"Running {algo_name} on {realization_id} "
-        f"(gap={gap_fraction}, morphology={gap_morphology})"
-    )
-    
     start_time = time.time()
+    logger.info(f"Starting {algo_name} for realization {realization_id}")
     
     try:
-        # Load the map and mask
-        cmb_map = load_map_from_fits(map_path)
+        # Load data
+        input_map = load_map_from_fits(map_path)
         mask = load_mask_from_fits(mask_path)
         
-        # Get the appropriate algorithm function
-        algo_func = ALGORITHMS.get(algo_name)
-        if algo_func is None:
-            raise ValueError(f"Unknown algorithm: {algo_name}")
+        # Run algorithm (NaN guard is inside algo_func)
+        filled_map = algo_func(input_map, mask, realization_id)
         
-        # Run the algorithm
-        filled_map, metadata = algo_func(cmb_map, mask)
+        # Save result
+        output_path = os.path.join(output_dir, f"{realization_id}_{algo_name}.fits")
+        save_map_to_fits(filled_map, output_path)
         
         exec_time = time.time() - start_time
         
-        logger.info(
-            f"Successfully completed {algo_name} for {realization_id} "
-            f"in {exec_time:.2f}s"
-        )
-        
-        return {
-            "status": "SUCCESS",
-            "realization_id": realization_id,
-            "algorithm": algo_name,
-            "gap_fraction": gap_fraction,
-            "gap_morphology": gap_morphology,
-            "execution_time_sec": exec_time,
-            "filled_map": filled_map,
-            "metadata": metadata
-        }
-    
-    except Exception as e:
-        exec_time = time.time() - start_time
-        
-        # Handle the convergence failure
-        failure_result = handle_convergence_failure(
-            exception=e,
+        # Record metadata
+        record_algorithm_metadata(
             realization_id=realization_id,
             algo_name=algo_name,
-            gap_fraction=gap_fraction,
-            gap_morphology=gap_morphology,
-            exec_time_sec=exec_time
+            algo_version="1.0.0",
+            exec_time_sec=exec_time,
+            gap_config={"source": mask_path}
         )
         
-        logger.error(
-            f"Convergence failure for {algo_name} on {realization_id}: {str(e)}"
-        )
+        logger.info(f"{algo_name} completed successfully for {realization_id} in {exec_time:.2f}s")
+        return True
         
-        return None
-
+    except NaNPropagationError as e:
+        # Trigger exclusion logic (T024)
+        logger.error(f"NaN detected in {algo_name} for {realization_id}: {e}")
+        record_excluded_realization(
+            realization_id=realization_id,
+            reason=f"NaN propagation in {algo_name}",
+            algo_name=algo_name
+        )
+        return False
+        
+    except Exception as e:
+        # Handle other convergence failures
+        logger.error(f"Error in {algo_name} for {realization_id}: {e}")
+        handle_convergence_failure(
+            realization_id=realization_id,
+            reason=str(e),
+            algo_name=algo_name
+        )
+        return False
 
 def run_full_analysis(
-    realization_ids: List[str],
-    gap_fractions: Optional[List[float]] = None,
-    gap_morphologies: Optional[List[str]] = None,
-    algorithms: Optional[List[str]] = None
-) -> List[Dict[str, Any]]:
+    input_map_dir: str,
+    input_mask_dir: str,
+    output_dir: str,
+    realization_ids: list
+):
     """
-    Run the full gap-filling analysis across all configurations.
-    
-    Args:
-        realization_ids: List of realization IDs to process
-        gap_fractions: List of gap fractions to test (default: all available)
-        gap_morphologies: List of morphologies to test (default: all available)
-        algorithms: List of algorithms to run (default: all available)
-    
-    Returns:
-        List of successful results (excludes failed cases)
+    Runs all gap-filling algorithms on all realizations.
     """
-    if gap_fractions is None:
-        gap_fractions = get_available_gap_fractions()
+    os.makedirs(output_dir, exist_ok=True)
     
-    if gap_morphologies is None:
-        gap_morphologies = GAP_MORPHOLOGIES
+    algorithms = [
+        ("Harmonic Interpolation", apply_harmonic_filling),
+        ("Wiener Filter", apply_wiener_filling),
+        ("Iterative Synthesis", apply_iterative_filling)
+    ]
     
-    if algorithms is None:
-        algorithms = list(ALGORITHMS.keys())
+    results = {
+        "start_time": datetime.now().isoformat(),
+        "realizations": {}
+    }
     
-    results = []
-    total_configs = len(realization_ids) * len(gap_fractions) * len(algorithms)
-    current = 0
+    for rid in realization_ids:
+        map_path = os.path.join(input_map_dir, f"{rid}.fits")
+        mask_path = os.path.join(input_mask_dir, f"{rid}_mask.fits")
+        
+        if not os.path.exists(map_path) or not os.path.exists(mask_path):
+            logger.warning(f"Missing files for {rid}, skipping.")
+            continue
+        
+        results["realizations"][rid] = {
+            "status": "success",
+            "algorithms": {}
+        }
+        
+        for algo_name, algo_func in algorithms:
+            success = run_single_algorithm(
+                map_path, mask_path, algo_name, algo_func, rid, output_dir
+            )
+            results["realizations"][rid]["algorithms"][algo_name] = "success" if success else "excluded"
+            
+            if not success:
+                results["realizations"][rid]["status"] = "partial_failure"
     
-    for realization_id in realization_ids:
-        for gap_fraction in gap_fractions:
-            for algo_name in algorithms:
-                current += 1
-                
-                # Determine mask path (assuming standard naming convention)
-                # In a real implementation, this would be more robust
-                mask_path = Path(
-                    f"data/derived/masks/{realization_id}_gap_{gap_fraction:.2f}.fits"
-                )
-                map_path = Path(
-                    f"data/derived/maps/{realization_id}_cmb.fits"
-                )
-                
-                # Check if files exist
-                if not mask_path.exists() or not map_path.exists():
-                    logger.warning(
-                        f"Skipping {realization_id}: missing map or mask files"
-                    )
-                    continue
-                
-                result = run_single_algorithm(
-                    realization_id=realization_id,
-                    algo_name=algo_name,
-                    gap_fraction=gap_fraction,
-                    gap_morphology="random",  # Could be parameterized
-                    map_path=map_path,
-                    mask_path=mask_path
-                )
-                
-                if result is not None:
-                    results.append(result)
-                
-                logger.info(f"Progress: {current}/{total_configs}")
-    
-    logger.info(
-        f"Analysis complete: {len(results)} successful, "
-        f"{total_configs - len(results)} failed/skipped"
-    )
-    
+    results["end_time"] = datetime.now().isoformat()
     return results
 
-
-def save_analysis_results(results: List[Dict[str, Any]], output_path: Path):
-    """
-    Save analysis results to a JSON file.
-    
-    Args:
-        results: List of result dictionaries
-        output_path: Path to output file
-    """
-    # Remove non-serializable data (e.g., numpy arrays)
-    serializable_results = []
-    for result in results:
-        serializable_result = result.copy()
-        if "filled_map" in serializable_result:
-            # Convert numpy array to list for JSON serialization
-            serializable_result["filled_map"] = (
-                serializable_result["filled_map"].tolist()
-            )
-        serializable_results.append(serializable_result)
-    
+def save_analysis_results(results: dict, output_path: str):
+    """Saves the analysis results to a JSON file."""
     with open(output_path, 'w') as f:
-        json.dump(serializable_results, f, indent=2)
-    
-    logger.info(f"Saved {len(results)} results to {output_path}")
-
+        json.dump(results, f, indent=2)
+    logger.info(f"Analysis results saved to {output_path}")
 
 def main():
-    """Command-line entry point for the analysis runner."""
-    import argparse
+    """Main entry point for the gap filling analysis."""
+    logging.basicConfig(level=logging.INFO)
     
-    parser = argparse.ArgumentParser(
-        description="Run gap-filling analysis with failure handling"
-    )
-    parser.add_argument(
-        "--realizations",
-        nargs="+",
-        default=None,
-        help="List of realization IDs to process"
-    )
-    parser.add_argument(
-        "--output",
-        default="data/results/analysis_results.json",
-        help="Output file path"
-    )
+    # Example paths (in production, these would come from config)
+    input_map_dir = "data/derived/simulated_maps"
+    input_mask_dir = "data/derived/gap_masks"
+    output_dir = "data/derived/filled_maps"
+    output_log = "data/results/analysis_log.json"
     
-    args = parser.parse_args()
+    # For testing, we might just process a few
+    # In real run, this would be loaded from config or generated
+    realization_ids = ["sim_001", "sim_002", "sim_003"]
     
-    # Default realization IDs (in a real implementation, these would be loaded)
-    realization_ids = args.realizations or ["sim_001", "sim_002", "sim_003"]
+    # Ensure directories exist
+    os.makedirs(input_map_dir, exist_ok=True)
+    os.makedirs(input_mask_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     
-    logger.info(f"Starting analysis for {len(realization_ids)} realizations")
-    
-    # Run the analysis
-    results = run_full_analysis(realization_ids)
+    # Run analysis
+    results = run_full_analysis(input_map_dir, input_mask_dir, output_dir, realization_ids)
     
     # Save results
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    save_analysis_results(results, output_path)
+    save_analysis_results(results, output_log)
     
-    # Print summary
-    excluded_count = len(get_excluded_realization_ids())
-    logger.info(f"Analysis complete: {len(results)} success, {excluded_count} excluded")
-    
-    return 0
-
+    print("Analysis complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

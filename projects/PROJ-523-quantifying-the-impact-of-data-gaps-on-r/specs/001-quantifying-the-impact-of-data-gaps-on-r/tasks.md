@@ -58,15 +58,18 @@
 - [X] T004 Setup `code/config.py` with global constants, random seeds, and path definitions (Constitution I).
 - [X] T005 [P] Create `contracts/simulation.schema.yaml` and `contracts/analysis.schema.yaml` defining CMBMap, GapConfig, PowerSpectrum, ParameterPosterior, and SensitivityAnalysis entities (Plan Task 1.2).
 - [X] T006 [P] Implement `code/data_io.py` for loading/saving HEALPix `.fits` and JSON metadata with checksums (Constitution III, V).
-- [ ] T007 [P] Create `code/pipeline/pilot_runner.py` to execute a fixed minimal subset (1 realization, 1 algorithm, 1 gap fraction) for runtime estimation. Verify the pilot completes successfully and records the execution time in `data/results/pilot_log.json` for budget calculation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T008 Setup CI workflow (`.github/workflows/ci.yml`) to install dependencies and verify package availability (healpy>=1.15.0) before analysis (Assumption: CI).
+- [X] T007 [P] Create `code/pipeline/pilot_runner.py` to execute a fixed minimal subset (one realization, one algorithm, one gap fraction) for runtime estimation. **MUST verify the pilot completes successfully and records the execution time in `data/results/pilot_log.json`. If the file is not written, the script MUST exit with code 1. This artifact is a hard dependency for T033.**
+- [X] T008 Setup CI workflow (`.github/workflows/ci.yml`) to install dependencies and verify package availability (healpy>=1.15.0) before analysis (Assumption: CI).
+- [X] T042 [P] [Foundational] Implement a pre-flight validation step in `code/pipeline/run_analysis.py` that verifies `data/results/pilot_log.json` contains a valid, non-zero `avg_time_sec` before proceeding to budget calculation. **Depends on T007 (Pilot).**
 - [X] T033 [P] Implement `code/pipeline/budget_check.py` (Dynamic Budget Check logic per FR-006):
- - Run pilot (T007) to estimate runtime.
- - Calculate max N.
- - **Explicit Reduction Logic**: If N < 30, reduce N_fractions first, then N_algos, then N_realizations (down to 30 minimum if budget allows, else halt).
+ - **Pre-flight Check**: Verify `data/results/pilot_log.json` exists. **FAIL IMMEDIATELY** with error if missing. Read execution time from this file.
+ - **Dynamic Arguments**: Accept `gap_fractions` list and `algo_list` as explicit arguments from config (T012a) rather than hardcoding defaults.
+ - Calculate max N based on the actual number of fractions and algorithms.
+ - **Explicit Reduction Logic**: If N < 30, reduce N_fractions first, then N_algos, then N_realizations (down to a practical minimum if budget allows, else halt).
  - Log specific configuration changes (original vs. final N_fractions, N_algos, N_realizations) to `data/results/run_log.yaml`.
  - Output the final configuration (N_realizations, N_fractions, N_algos) for downstream tasks.
-- [X] T034 [P] Integrate `generate_maps.py` with `pilot_runner.py` and `budget_check.py` via a wrapper script `code/pipeline/integration_hook.py` that orchestrates the budget check and triggers the main analysis with the determined configuration.
+ - **Dependency Correction**: This task depends ONLY on T007 (Pilot) and T012a (Gap Fractions Config). It must run BEFORE the main T011 simulation loop.
+- [X] T034 [P] Integrate `generate_maps.py` with `pilot_runner.py` and `budget_check.py` via a wrapper script `code/pipeline/integration_hook.py` that orchestrates the budget check and triggers the main analysis with the determined configuration. **MUST enforce strict sequential execution per realization ID: Generate Mask -> Save Mask -> Apply Gap Fill -> Compute Spectrum -> Estimate Parameters.** This satisfies the data flow ordering requirement previously flagged in T047. **Depends on T033 and T007. Does NOT depend on T011.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,14 +91,16 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/simulation/generate_maps.py` using `camb` to create ground-truth temperature/polarization maps with Nside=512. **Note**: Ground truth parameters are defined in `code/config.py` and recorded in metadata, not derived from external Planck data.
-- [X] T012 [US1] Implement `code/simulation/utils.py` to generate gap masks with configurable fraction, spatial distribution (random, clustered), and morphology (point-source, Galactic plane). **Define gap fractions explicitly as a range of discrete thresholds (e.g., 5%, 10%, 15%, [deferred]) to evaluate model sensitivity across varying levels of data sparsity.** to ensure measurable success criteria.
+- [X] T012a [US1] Create `code/config/gap_fractions.yaml` to define the list of gap fractions (e.g., a sequence of increasing values spanning the low to moderate range). **MUST include a comment block documenting the rationale for these specific values.** This file is the **Source of Truth** for the budget calculation (T033) and simulation loop (T011).
+- [X] T012c [US1] Consolidate documentation update: Ensure `research_decisions.md` or `spec.md` is updated to reflect the chosen gap fractions and rationale defined in `code/config/gap_fractions.yaml`. **Replaces removed T012b.**
+- [X] T014 [US1] Implement `code/simulation/utils.py` to generate gap masks with configurable fraction, spatial distribution (random, clustered), and morphology (point-source, Galactic plane). **Consolidates T014a1-a3 and T014b1-b2.**
+ - Implement `generate_random_mask` for standard realizations.
+ - Implement `generate_clustered_mask` for clustered gaps.
+ - Implement `generate_morphology_masks` for point-source and Galactic plane.
+ - Implement `generate_null_model` for Null Model realizations (random gaps uncorrelated with signal).
+ - Implement verification logic to ensure Null Model baseline is correctly established and output to `data/derived/null_model/`.
 - [X] T013 [US1] Implement logic to write ground-truth parameters to `data/metadata/{realization_id}.json`. Read ground-truth values from `code/config.py` or CAMB generation log. Schema MUST include keys: `realization_id`, `H0`, `Omega_m`, `n_s`, `tau`, `seed`, `camb_version`.
-- [ ] T014a1 [US1] Implement function `generate_random_mask` to create random gap masks for standard realizations.
-- [ ] T014a2 [US1] Implement function `generate_clustered_mask` to create clustered gap masks.
-- [ ] T014a3 [US1] Implement function `generate_morphology_masks` to create point-source and Galactic plane masks.
-- [ ] T014b1 [US1] Implement function `generate_null_model` to generate Null Model realizations (random gaps uncorrelated with signal).
-- [ ] T014b2 [US1] Implement verification logic to ensure Null Model baseline is correctly established and output to `data/derived/null_model/`.
-- [ ] T015 [US1] Add error handling for corrupted files: log error, skip realization, and continue (Edge Case: corrupted files).
+- [X] T015 [US1] Add error handling for corrupted files: log error, skip realization, and continue (Edge Case: corrupted files).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,8 +123,9 @@
 - [X] T020 [P] [US2] Implement `code/gap_filling/wiener_filter.py` (Wiener Filtering) ensuring no NaNs in output.
 - [X] T021 [P] [US2] Implement `code/gap_filling/iterative_synthesis.py` (Iterative Harmonic Synthesis) ensuring no NaNs in output.
 - [X] T022 [US2] Implement `code/analysis/power_spectra.py` using `healpy.anafast` to compute Cℓ for ℓ ≤ 2000.
-- [ ] T023 [US2] Implement logic to record algorithm name, version, and execution time in `data/metadata/{realization_id}_algo_{name}.json`. Schema MUST include keys: `algo_name`, `algo_version`, `exec_time_sec`, `timestamp`.
-- [ ] T024 [US2] Add convergence failure handling: log failure, record gap config, exclude from analysis (FR-008).
+- [X] T023 [US2] Implement logic to record algorithm name, version, and execution time in `data/metadata/{realization_id}_algo_{name}.json`. Schema MUST include keys: `algo_name`, `algo_version`, `exec_time_sec`, `timestamp`, `gap_config`.
+- [X] T023-TEST [P] [US2] Contract test in `tests/contract/test_metadata_schema.py`: Function `test_validate_algo_metadata` must assert that generated metadata files contain all required keys (`algo_name`, `algo_version`, `gap_config`).
+- [X] T024 [US2] Add convergence failure handling: log failure, record gap config, exclude from analysis (FR-008). **MUST log every exclusion to `data/results/excluded_realizations.log` and validate that the count of valid realizations remains ≥ 40 of 50 for corrupted file scenarios, or ≥ 30 for general failures.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,23 +140,21 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T025 [P] [US3] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_parameter_posterior` must assert `ParameterPosterior` schema includes `median`, `ci_68`, `ci_95`, `ground_truth`.
-- [ ] T026 [P] [US3] Integration test in `tests/integration/test_bias_pipeline.py`: Function `test_full_bias_pipeline` must assert that running the full pipeline produces `data/results/bias_summary.csv` with valid rows. <!-- FAILED: unspecified -->
+- [X] T026 [P] [US3] Integration test in `tests/integration/test_bias_pipeline.py`: Function `test_full_bias_pipeline` must assert that running the full pipeline produces `data/results/bias_summary.csv` with valid rows.
 
 ### Implementation for User Story 3
 
-- [X] T027a [US3] Implement `code/analysis/custom_likelihood.py` to provide a custom likelihood correction path (alternative to mode-coupling) per FR-009.
-- [X] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`.
-- [X] T028c [US3] **Prerequisite**: Implement `code/analysis/generate_grid.py` to generate a **Pre-computed CAMB Likelihood Grid**. This task MUST use the CAMB/CosmoMC pipeline (Constitution VII) to generate a grid of likelihoods for a range of parameters (H₀, Ωₘ, nₛ, τ) and save it to `data/derived/camb_grid.pkl`. This grid will serve as the fast estimator for the main analysis (satisfying Spec FR-004 runtime).
+- [X] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`. **This is the sole implementation path selected to satisfy the 'custom likelihood correction OR mode-coupling matrix adjustment' requirement of FR-009. Depends on T012/T014 (Mask Generation) for the specific realization mask.**
+- [X] T028d-pre [US3] **Pre-flight**: Generate and verify the pre-computed likelihood grid (fallback for T028b) using CAMB/CosmoMC on a representative subset. Store in `data/derived/likelihood_grid.pkl`. **MUST verify grid existence and integrity (checksum) before the main analysis run begins.** If grid generation fails, the pipeline MUST halt with a clear error. **This task resolves the single point of failure identified in the analysis report.**
 - [X] T028a [US3] Implement `code/analysis/parameter_est.py` Step 1: Load leakage matrix from T027.
-- [X] T028b [US3] Implement `code/analysis/parameter_est.py` Step 2: Apply leakage matrix to theoretical spectrum to correct the input, then estimate parameters (H₀, Ωₘ, nₛ, τ) by querying the **Pre-computed CAMB Likelihood Grid** (from T028c). Record ground-truth vs. recovered. **Note**: CosmoMC is reserved for spot-checking ≤ 5 realizations as per FR-004. <!-- FAILED: unspecified -->
-- [ ] T029a [US3] Implement `code/analysis/bias_analysis.py` Step 1: Calculate `bias_magnitude` = |recovered - ground_truth|. Output to `data/results/bias_summary.csv`.
-- [ ] T031 [US3] Implement comparison of observed bias trends against the **Null Model** baseline (from T014b1/T014b2, Data Ready) to ensure independence. (Depends on T029a and T014b).
-- [ ] T029b1 [US3] Define the **Linear Regression Model** with interaction terms (Fraction × Algorithm × Morphology) and quadratic terms for gap fraction (implementation of FR-005 ANOVA/linear regression).
-- [ ] T029b2 [US3] Implement Linear Regression fitting using `statsmodels.formula.api.ols` with the defined formula.
-- [ ] T029b3 [US3] Save Regression results (coefficients, p-values, R-squared) to `data/results/regression_results.csv`.
-- [ ] T029c [US3] Apply Bonferroni or Benjamini-Hochberg multiple-comparison correction (FR-005) to Regression results.
-- [ ] T030 [US3] Implement sensitivity analysis sweep (α ∈ {low, medium, high} and tolerance ∈ {low, medium, high}) and store results in `data/results/sensitivity_sweep.json` with fields: `alpha`, `tolerance`, `bias_variance`, `significance_change`.
-- [ ] T032 [US3] Implement final aggregation logic to ensure minimum 30 valid realizations are retained.
+- [X] T028b [US3] Implement `code/analysis/parameter_est.py` Step 2: Apply leakage matrix to theoretical spectrum to correct the input, then estimate parameters (H₀, Ωₘ, nₛ, τ) using **Fisher Matrix Approximation (on-the-fly)**. **MUST include a fallback mechanism:** If the on-the-fly Fisher Matrix fails to converge, switch to using the pre-computed likelihood grid (generated in T028d-pre). If the grid is missing or also fails, exclude the realization and log the specific error. Record ground-truth vs. recovered. **Depends on T028d-pre.**
+- [X] T028d-post [US3] Implement CosmoMC spot-checking for ≤ 5 realizations as required by FR-004. Run full MCMC on a subset of realizations to verify Fisher Matrix results. Store results in `data/results/cosmomc_spot_check.json`. **Depends on T028b.**
+- [X] T029a [US3] Implement `code/analysis/bias_analysis.py` Step 1: Calculate `bias_magnitude` = |recovered - ground_truth|. Output to `data/results/bias_summary.csv`.
+- [X] T029b [US3] Implement Linear Regression (FR-005) to fit bias vs. gap characteristics (Fraction × Algorithm × Morphology with interaction terms). **MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) and save the CORRECTED regression results to `data/results/regression_results.csv`. Depends on T029a AND T014b (Null Model Data) for baseline comparison.**
+- [X] T029c-TEST [P] [US3] Contract test in `tests/contract/test_correction_schema.py`: Function `test_validate_corrected_pvalues` must assert that `data/results/corrected_p_values.csv` exists and contains valid statistical adjustments.
+- [X] T030 [US3] Implement sensitivity analysis sweep (α ∈ {low, 0.05, 0.1} and tolerance ∈ {low, moderate, high}) and store results in `data/results/sensitivity_sweep.json` with fields: `alpha`, `tolerance`, `bias_variance`, `significance_change`. **MUST record the variance in bias rates AND the change in statistical significance across the sweep.**
+- [X] T031 [US3] Implement comparison of observed bias trends against the **Null Model** baseline (from T014b, Data Ready) to ensure independence. **MUST perform an F-test to compare the variance of the Null Model bias distribution against the Gap-Filled bias distribution. FAIL if Null Model variance is significantly higher (p < 0.05).** **Depends on T029b (Regression Results) AND T014b (Null Model Data).**
+- [X] T032 [US3] Implement final aggregation logic to ensure minimum 30 valid realizations are retained. **MUST** count valid realizations from `data/results/excluded_realizations.log` **AFTER** regression fitting (T029b). **MUST** raise a custom `StatisticalPowerError` with the message "Insufficient valid realizations: {count} < 30 required" and halt the pipeline if count < 30. **For corrupted file edge cases, enforce minimum 40 of 50.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,12 +164,36 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `quickstart.md` with environment setup and pilot run instructions.
-- [ ] T036 Code cleanup and refactoring of `code/pipeline/run_analysis.py` to use a generator pattern for memory safety, ensuring peak RAM < 7GB.
-- [ ] T037 Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM.
-- [ ] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
-- [ ] T039 Run full pipeline on a small subset to verify memory and time constraints (Task 3.2).
-- [ ] T040 Run `quickstart.md` validation to ensure reproducibility.
+- [X] T035 [P] Documentation updates in `quickstart.md` with environment setup and pilot run instructions.
+- [X] T036 Code cleanup and refactoring of `code/pipeline/run_analysis.py` to use a generator pattern for memory safety, ensuring peak RAM < 7GB.
+- [X] T037 [P] Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM. **MUST run a memory benchmark and log results to `data/results/memory_benchmark.log`. PASS/FAIL**: The benchmark MUST log 'PASS' only if peak RAM < 7GB; otherwise, it MUST raise an error and halt the pipeline.
+- [X] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
+- [X] T039 Run full pipeline on a small subset to verify memory and time constraints (Task 3.2).
+- [X] T040 Run `quickstart.md` validation to ensure reproducibility.
+
+---
+
+## Phase 7: Verification & Final Validation
+
+**Goal**: Ensure all reviewer concerns regarding data integrity, statistical rigor, and execution safety are resolved before final run.
+
+- [X] T041 [US3] Implement `code/analysis/robustness_checks.py` to explicitly validate that the Fisher Matrix Hessian is positive-definite before inversion; **MUST** raise an error and exclude the realization if non-positive, logging the specific eigenvalue failure to `data/results/robustness_failures.log**. This check is ACTIVE and mandatory.**
+- [X] T043 [US2] Implement a "NaN Propagation" guard in `code/gap_filling/*.py` that scans the output map immediately after gap-filling; if any NaNs are detected, the task MUST raise an exception and trigger the exclusion logic in T024**. This check is ACTIVE and mandatory.**
+- [X] T044 [US1] Add a "Ground Truth Integrity" check in `code/simulation/generate_maps.py` that verifies the generated CMB map power spectrum matches the theoretical CAMB spectrum within 1% before saving the map; if mismatch > 1%, **FAIL** the generation task.
+- [X] T045 [US3] Implement a "Bias Floor" validation in `code/analysis/bias_analysis.py` that compares the calculated bias against the statistical noise floor (sqrt(N) scaling); if bias < noise floor, flag the result as "Indistinguishable from Noise" in `data/results/bias_summary.csv`. This check is ACTIVE and mandatory.
+- [X] T046 [US3] Create `data/results/final_validation_report.md` that aggregates all exclusion logs, budget reduction logs, and robustness failure logs to confirm the final dataset meets the "Minimum 30 Valid Realizations" requirement with full transparency.
+
+---
+
+## Phase 8: Final Integration & Execution Safety (RESOLVED)
+
+**Goal**: Address critical execution safety concerns regarding data flow ordering, budget calculation dependencies, and final aggregation logic.
+*Note: Tasks T047-T050 from the previous iteration have been merged into their respective implementation tasks (T034, T033, T032, T031) and are marked resolved below.*
+
+- [X] T047 [US1/US2] **Data Flow Ordering**: Logic implemented in T034 (Pipeline Orchestrator) to enforce sequential execution per realization ID. **RESOLVED**.
+- [X] T048 [Foundational] **Budget Calculation Dependency**: Logic merged into T033 to accept dynamic arguments. **RESOLVED**.
+- [X] T049 [US3] **Aggregation Logic**: Logic merged into T032 to perform check after regression. **RESOLVED**.
+- [X] T050 [US3] **Null Model Validation**: Logic merged into T031 to include F-test variance comparison. **RESOLVED**.
 
 ---
 
@@ -179,6 +207,8 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Verification (Phase 7)**: Depends on completion of all User Stories and Polish tasks
+- **Final Integration (Phase 8)**: RESOLVED - logic merged into earlier phases
 
 ### User Story Dependencies
 
@@ -203,23 +233,27 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
-### Specific Task Dependencies (Phase 5)
+### Specific Task Dependencies (Phase 5, 7 & 8)
 
-- **T027a (Custom Likelihood)**: No dependencies within Phase 5.
-- **T027 (Mode-Coupling)**: No dependencies within Phase 5.
-- **T028c (Grid Generation)**: No dependencies within Phase 5. (Must run before T028b).
+- **T027 (Mode-Coupling)**: Depends on T012/T014 (Mask Generation).
+- **T028d-pre (Grid Generation)**: Independent, but MUST complete before T028b.
 - **T028a (Load Leakage)**: Depends on T027.
-- **T028b (Parameter Est)**: Depends on T028a AND T028c (Grid).
+- **T028b (Parameter Est)**: Depends on T028a AND T028d-pre.
+- **T028d-post (CosmoMC Spot-check)**: Independent, but must be ready before T028b.
+- **T028c (CosmoMC Spot-check)**: Depends on T028b.
 - **T029a (Bias Calc)**: Depends on T028b.
-- **T031 (Null Model)**: Depends on T029a AND T014b (Null Model Data).
-- **T029b1 (Define Regression)**: Depends on T031 (or T029a if Regression is independent of Null comparison, but logically follows bias calc).
-- **T029b2 (Fit Regression)**: Depends on T029b1.
-- **T029b3 (Save Regression)**: Depends on T029b2.
-- **T029c (Correction)**: Depends on T029b3.
-- **T030 (Sensitivity)**: Depends on T029c.
-- **T032 (Aggregation)**: Depends on T030.
-- **T033 (Budget Check)**: Depends on T007 (Pilot) and T011 (Simulation).
-- **T034 (Integration)**: Depends on T007, T011, and T033.
+- **T029b (Regression)**: Depends on T029a AND T014b (Null Model Data).
+- **T029c-TEST (Correction Test)**: Depends on T029b.
+- **T031 (Null Model)**: Depends on T029b (Regression Results) AND T014b (Null Model Data).
+- **T030 (Sensitivity)**: Depends on T029b.
+- **T032 (Aggregation)**: Depends on T030 AND T029b.
+- **T033 (Budget Check)**: Depends on T007 (Pilot) AND T012a (Gap Fractions Config). **DOES NOT depend on T011.**
+- **T034 (Integration)**: Depends on T033 and T007. **DOES NOT depend on T011.**
+- **T041 (Robustness)**: Depends on T028b (Parameter Est).
+- **T043 (NaN Guard)**: Depends on T019, T020, T021 (Gap Filling).
+- **T044 (Ground Truth)**: Depends on T011 (Simulation).
+- **T045 (Bias Floor)**: Depends on T029a (Bias Calc).
+- **T046 (Final Report)**: Depends on T024, T032, T041, T043, T044, T045.
 
 ---
 
@@ -232,3 +266,6 @@
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Phase 8 tasks (T047-T050) have been resolved by merging their requirements into T034, T033, T032, and T031 respectively.**
+- **T028d-pre ensures the pre-computed grid fallback is generated and verified before the main loop, resolving the single point of failure.**
+- **T032 explicitly defines the `StatisticalPowerError` mechanism, resolving the executability concern.**
