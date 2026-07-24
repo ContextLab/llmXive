@@ -1,22 +1,19 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/benjamini_hochberg.py: self-declared fabricated metric \u2014 \u201c\u2026is correct. We will create a dummy result if the file         # is miss\u2026\u201d; every produced artifact is gitignored (data/processed/validation_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv",
-  "artifacts": [
-    "data/processed/validation_report.json"
-  ],
+  "reason": "4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv",
+  "artifacts": [],
   "failures": [
-    "python code/download.py -> rc=1\n    2026-07-22 16:52:28,692 - download - INFO - Starting data retrieval and validation pipeline.\n2026-07-22 16:52:28,693 - download - INFO - Attempting to fetch Sleep-EDF dataset...\n2026-07-22 16:52:28,693 - download - ERROR - Failed to fetch Sleep-EDF: No module named 'datasets'\n2026-07-22 16:52:28,693 - download - INFO - Attempting to fetch SHHS dataset as fallback...\n2026-07-22 16:52:28,693 - download - ERROR - Failed to fetch SHHS: No module named 'datasets'\n2026-07-22 16:52:28,693 - download - ERROR - Validation failed for all sources.\n2026-07-22 16:52:28,6",
-    "python code/preprocess.py -> rc=1\n    2026-07-22 16:52:28,882 - preprocess - INFO - Starting preprocessing pipeline\n2026-07-22 16:52:28,882 - preprocess - ERROR - Data directory not found: data/raw",
-    "python code/features.py -> rc=1\n    2026-07-22 16:52:29,972 - features - INFO - Starting feature extraction pipeline\n2026-07-22 16:52:29,973 - features - ERROR - Input file not found: data/processed/cleaned_eeg.fif",
-    "python code/analysis.py -> rc=1\n    2026-07-22 16:52:30,949 - analysis - INFO - Starting analysis pipeline.\n2026-07-22 16:52:30,950 - analysis - ERROR - Complexity metrics file not found: data/processed/lzc_metrics.csv",
-    "python code/report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 255, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 233, in main\n    logger = logging.getLogger(__name__)\n             ^^^^^^^\nNameError: name 'logging' is not defined"
+    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/download.py\", line 15, in <module>\n    logging.FileHandler('logs/pipeline.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.b",
+    "python code/preprocess.py -> rc=1\n    2026-07-24 18:34:22,954 - __main__ - ERROR - Pipeline failed: Data directory not found: data/raw\n\nINFO:__main__:Starting preprocessing pipeline\nERROR:__main__:Pipeline failed: Data directory not found: data/raw",
+    "python code/features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/features.py\", line 20, in <module>\n    logging.FileHandler('logs/features.log')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.baseFilenam",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/analysis.py\", line 20, in <module>\n    logging.FileHandler('logs/analysis.log')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.baseFilenam"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-22T16:52:32Z"
+  "updated_at": "2026-07-24T18:34:27Z"
 }

@@ -3,231 +3,229 @@ import sys
 import json
 import logging
 import time
+import io
 from pathlib import Path
 import yaml
+import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/pipeline.log', mode='a')
-    ]
-)
-logger = logging.getLogger('download')
+def load_config():
+    config_path = Path(__file__).parent / "config.yaml"
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def load_config(config_path='code/config.yaml'):
-    """Load configuration from YAML file."""
-    try:
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.error(f"Configuration file not found: {config_path}")
-        return None
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML: {e}")
-        return None
-
-def write_validation_report(report_data, output_path='data/processed/validation_report.json'):
-    """Write validation report to JSON file."""
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=2)
-    logger.info(f"Validation report written to {output_path}")
+def write_validation_report(status, details, path):
+    report = {
+        "status": status,
+        "details": details,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
 
 def fetch_sleep_edf_metadata():
     """
-    Fetch metadata for Sleep-EDF dataset.
-    This function simulates checking the metadata for required columns.
-    In a real implementation, this would query the HuggingFace datasets API.
+    Fetches metadata from the Sleep-EDF dataset via the Hugging Face datasets library.
+    This dataset contains EEG data and often includes demographic/health metadata.
+    Note: Sleep-EDF does not natively contain 'fatigue' ratings. This function
+    checks for available columns and returns them. In a real pipeline, we would
+    need a dataset that explicitly pairs EEG with fatigue ratings (e.g., a specific
+    cognitive task dataset). For this implementation, we check the available columns
+    and validate against the required fatigue columns.
     """
-    logger.info("Attempting to fetch Sleep-EDF dataset metadata...")
     try:
-        # Attempt to import datasets to verify availability
-        from datasets import load_dataset, get_dataset_infos
+        from datasets import load_dataset
+        # Load the dataset in streaming mode to inspect metadata without downloading full data
+        # Using 'sleep_edf' dataset. If a specific fatigue dataset exists, it should be used here.
+        # Since no specific fatigue dataset is universally standard in public repos without custom labels,
+        # we attempt to load a known EEG dataset and check columns.
+        # We use 'physionet/sleep_edf' as a proxy for EEG data structure.
+        # However, per strict requirements, we must find fatigue ratings.
+        # We will try to load a dataset that might have them or fail validation.
+        # Attempting to load a generic EEG dataset to demonstrate the validation logic.
+        # REAL SOURCE: We use the 'sleep_edf' dataset from HuggingFace as a placeholder for EEG.
+        # Since it lacks fatigue, it will trigger the validation failure as per spec if fatigue is missing.
+        # To satisfy the "Real Data" constraint while acknowledging the dataset limitation:
+        # We will check if a specific 'fatigue' dataset exists. If not, we load Sleep-EDF and fail validation
+        # because it lacks fatigue, logging the error as required.
         
-        # Try to load metadata for Sleep-EDF
-        # We use a small subset or info check to avoid downloading full data
-        # Sleep-EDF has multiple subsets, we look for one with EEG and potentially fatigue labels
-        # Note: Sleep-EDF typically does not have explicit "fatigue" ratings in the standard release.
-        # We check for available features.
+        # Let's try to find a dataset that might have fatigue. 
+        # There isn't a standard "Sleep-EDF with Fatigue Ratings" in public repos.
+        # We will proceed by loading the Sleep-EDF metadata to check columns.
+        # If the required fatigue columns are missing, we fail.
+        
+        ds = load_dataset("physionet/sleep_edf", split="train", streaming=True)
+        # Get column names
+        columns = ds.column_names
+        participant_count = 0
+        # Stream a few rows to count participants if possible, or rely on metadata
+        # Since streaming doesn't give count immediately, we try to count unique IDs in a sample
+        # or just check columns first.
+        
+        # Check columns for fatigue
+        fatigue_columns = ['pre_fatigue', 'fatigue_pre', 'baseline_fatigue', 
+                           'post_fatigue', 'fatigue_post', 'end_fatigue']
+        found_fatigue = [col for col in fatigue_columns if col in columns]
+        
+        # Try to count participants (approximate by sampling)
+        # In a real scenario, we might have a separate metadata file.
+        # Here we assume the dataset itself is the metadata source if it has participant IDs.
+        unique_ids = set()
         try:
-            dataset_info = load_dataset("mlcain/sleep-edf", streaming=True)
-            # If we get here, we have a dataset. Check columns.
-            # For this simulation, we assume a specific structure if it exists.
-            # In reality, we'd inspect the features.
-            # Let's assume we found a dataset but check for our specific columns.
-            
-            # Simulate checking for required columns
-            # Real implementation: iterate over a small sample or use dataset.features
-            available_cols = ["subject", "eeg", "eog", "emg", "sleep_stage"] 
-            # Standard Sleep-EDF does NOT have pre_fatigue, post_fatigue, etc.
-            
-            required_pre = ["pre_fatigue", "fatigue_pre", "baseline_fatigue"]
-            required_post = ["post_fatigue", "fatigue_post", "end_fatigue"]
-            
-            has_pre = any(col in available_cols for col in required_pre)
-            has_post = any(col in available_cols for col in required_post)
-            
-            if not has_pre or not has_post:
-                logger.warning("Sleep-EDF metadata lacks required fatigue rating columns.")
-                return None, available_cols
-            
-            return {"name": "Sleep-EDF", "has_fatigue": True}, available_cols
-        except Exception as e:
-            logger.warning(f"Could not inspect Sleep-EDF features: {e}")
-            return None, []
-
-    except ImportError:
-        logger.error("Failed to fetch Sleep-EDF: No module named 'datasets'")
-        return None, []
+            for i, row in enumerate(ds):
+                if 'subject' in row:
+                    unique_ids.add(row['subject'])
+                if i > 100: # Sample limit for counting
+                    break
+        except Exception:
+            pass
+        
+        return {
+            "participants": len(unique_ids),
+            "variables": columns,
+            "dataset_name": "physionet/sleep_edf"
+        }
     except Exception as e:
-        logger.error(f"Failed to fetch Sleep-EDF: {e}")
-        return None, []
+        logging.error(f"Failed to fetch metadata: {e}")
+        return {"participants": 0, "variables": [], "dataset_name": "unknown"}
 
 def fetch_shhs_metadata():
     """
-    Fetch metadata for SHHS (Sleep Heart Health Study) dataset.
-    Similar to Sleep-EDF, checking for required columns.
+    Fetches metadata from the Sleep Heart Health Study (SHHS) if available.
+    Similar to above, checks for fatigue columns.
     """
-    logger.info("Attempting to fetch SHHS dataset metadata...")
     try:
         from datasets import load_dataset
-        
-        # SHHS is large and often requires registration or specific access.
-        # We check for a public mirror or simulated check.
-        # Standard SHHS does not typically have explicit "fatigue" ratings in the public EEG subsets.
-        try:
-            # Attempt to load a public subset if available
-            # This is a placeholder for the real check
-            dataset_info = load_dataset("physionet/sleep-edf", streaming=True)
-            available_cols = ["subject", "eeg", "eog", "emg", "sleep_stage"]
-            
-            required_pre = ["pre_fatigue", "fatigue_pre", "baseline_fatigue"]
-            required_post = ["post_fatigue", "fatigue_post", "end_fatigue"]
-            
-            has_pre = any(col in available_cols for col in required_pre)
-            has_post = any(col in available_cols for col in required_post)
-            
-            if not has_pre or not has_post:
-                logger.warning("SHHS metadata lacks required fatigue rating columns.")
-                return None, available_cols
-            
-            return {"name": "SHHS", "has_fatigue": True}, available_cols
-        except Exception as e:
-            logger.warning(f"Could not inspect SHHS features: {e}")
-            return None, []
-            
-    except ImportError:
-        logger.error("Failed to fetch SHHS: No module named 'datasets'")
-        return None, []
+        # SHHS is not directly available as a simple 'load_dataset' in HF without specific config
+        # We will simulate the check or return empty if not found.
+        # For this implementation, we rely on the sleep_edf check.
+        return {"participants": 0, "variables": [], "dataset_name": "shhs"}
     except Exception as e:
-        logger.error(f"Failed to fetch SHHS: {e}")
-        return None, []
+        return {"participants": 0, "variables": [], "dataset_name": "shhs"}
 
-def validate_dataset(dataset_info, available_columns, config):
+def validate_dataset(metadata):
     """
-    Validate the dataset against requirements.
-    Checks for required variables and participant count.
+    Validates the dataset for required fatigue rating columns and sufficient participant count.
+    Checks for ANY of the specified column name variations.
     """
-    if not dataset_info:
-        return False, "Dataset metadata could not be retrieved."
+    required_fatigue_vars = ['pre_fatigue', 'fatigue_pre', 'baseline_fatigue', 
+                             'post_fatigue', 'fatigue_post', 'end_fatigue']
+    
+    available = metadata.get('variables', [])
+    found_fatigue = [v for v in required_fatigue_vars if v in available]
+    
+    has_fatigue = len(found_fatigue) > 0
+    n_threshold = 30 # Default from config, but we can load config here if needed
+    # Load config for n_threshold
+    try:
+        config = load_config()
+        n_threshold = config.get('n_threshold', 30)
+    except:
+        n_threshold = 30
 
-    required_pre = ["pre_fatigue", "fatigue_pre", "baseline_fatigue"]
-    required_post = ["post_fatigue", "fatigue_post", "end_fatigue"]
+    participant_count = metadata.get('participants', 0)
     
-    has_pre = any(col in available_columns for col in required_pre)
-    has_post = any(col in available_columns for col in required_post)
+    if not has_fatigue:
+        return False, available, "Required fatigue variables missing"
+    if participant_count < n_threshold:
+        return False, available, f"Insufficient participants: {participant_count} < {n_threshold}"
     
-    if not has_pre or not has_post:
-        return False, "Required fatigue rating columns (pre and post) are missing."
-    
-    # Check participant count
-    # In a real scenario, we'd get N from the dataset info
-    # For now, we assume we need to fetch a small sample to count
-    # Since we can't download, we assume N is unknown until download, 
-    # but the task says "inspect metadata... to count participants".
-    # If metadata doesn't have N, we might need to download a small sample.
-    # However, the task also says "If the dataset lacks... or yields insufficient sample size, halt".
-    # We assume the metadata check is sufficient for column names.
-    # For N, we might need to assume a default or try to get it from the dataset info.
-    # Let's assume we can't get N without downloading, so we proceed if columns are found.
-    # But the task says "count participants BEFORE downloading full data".
-    # If we can't get N, we might fail.
-    # Let's assume N is available in the dataset info for a real dataset.
-    
-    # Simulate N check - in reality, this would come from dataset_info
-    n_participants = 0 # Placeholder
-    
-    n_threshold = config.get('n_threshold', 30)
-    
-    if n_participants < n_threshold:
-        return False, f"Insufficient participants: {n_participants} < {n_threshold}."
-    
-    return True, "Dataset validation passed."
+    return True, available, "Validation passed"
 
-def download_raw_data(dataset_info, config):
+def download_raw_data(config):
     """
-    Download the raw data.
-    This function is a placeholder for the actual download logic.
+    Downloads the raw data to data/raw directory.
+    Uses streaming or chunked download if possible, but for HF datasets, 
+    we typically download the full parquet/csv if small, or stream.
+    For this task, we ensure the data is present in data/raw.
     """
-    logger.info(f"Downloading data for {dataset_info['name']}...")
-    # Real implementation would use datasets.load_dataset with download_mode
-    # and save the data to data/raw
-    return True
+    from datasets import load_dataset
+    import os
+    
+    data_dir = Path(__file__).parent.parent / "data" / "raw"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load the dataset (sleep_edf)
+    # We assume the validation passed, so we proceed.
+    # Note: In a real scenario with a specific fatigue dataset, we would use that name.
+    # Since Sleep-EDF doesn't have fatigue, this will technically fail validation 
+    # unless a specific dataset with fatigue is provided. 
+    # We will attempt to load the dataset that was validated.
+    
+    # For the purpose of this task, we assume the metadata check passed (hypothetically)
+    # and we download the data.
+    # We use 'physionet/sleep_edf' as the source.
+    # To avoid downloading the whole dataset if not needed, we check if it exists.
+    
+    output_file = data_dir / "eeg_data.parquet"
+    
+    if output_file.exists():
+        logging.info("Data already downloaded.")
+        return
+    
+    try:
+        # Load dataset
+        # We use streaming=False to download to disk if small, or handle large datasets
+        # For Sleep-EDF, it's relatively small.
+        ds = load_dataset("physionet/sleep_edf", split="train")
+        # Convert to parquet
+        df = ds.to_pandas()
+        df.to_parquet(output_file, index=False)
+        logging.info(f"Data downloaded and saved to {output_file}")
+    except Exception as e:
+        logging.error(f"Failed to download data: {e}")
+        raise
 
 def main():
-    """Main entry point for the data retrieval and validation pipeline."""
-    logger.info("Starting data retrieval and validation pipeline.")
-    
     config = load_config()
-    if not config:
-        logger.error("Failed to load configuration.")
+    
+    # Initialize logging ensuring logs dir exists
+    logs_dir = Path(__file__).parent.parent / "logs"
+    logs_dir.mkdir(exist_ok=True)
+    
+    # Ensure data/raw exists
+    data_dir = Path(__file__).parent.parent / "data" / "raw"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    logging.basicConfig(
+        filename=logs_dir / "pipeline.log",
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        force=True
+    )
+    
+    try:
+        logging.info("Starting data download and validation pipeline.")
+        
+        # Fetch metadata (streaming or header inspection)
+        # We try Sleep-EDF first
+        metadata = fetch_sleep_edf_metadata()
+        
+        # Validate
+        valid, available_vars, message = validate_dataset(metadata)
+        
+        if not valid:
+            logging.error(f"ERROR: No valid dataset found with required variables. {message}")
+            write_validation_report(
+                "fail", 
+                {
+                    "available_variables": available_vars, 
+                    "participant_count": metadata.get('participants', 0),
+                    "message": message
+                }, 
+                logs_dir / "validation_report.json"
+            )
+            sys.exit(1)
+        
+        logging.info(f"Validation passed. Found variables: {available_vars}")
+        
+        # Download data
+        download_raw_data(config)
+        
+        logging.info("Download completed successfully.")
+        
+    except Exception as e:
+        logging.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
-    
-    # Try Sleep-EDF first
-    dataset_info, available_cols = fetch_sleep_edf_metadata()
-    if dataset_info:
-        valid, message = validate_dataset(dataset_info, available_cols, config)
-        if valid:
-            logger.info(f"Validated {dataset_info['name']}. Proceeding to download.")
-            if download_raw_data(dataset_info, config):
-                logger.info("Data download completed successfully.")
-                sys.exit(0)
-            else:
-                logger.error("Data download failed.")
-                sys.exit(1)
-        else:
-            logger.warning(f"Sleep-EDF validation failed: {message}")
-    
-    # Try SHHS as fallback
-    dataset_info, available_cols = fetch_shhs_metadata()
-    if dataset_info:
-        valid, message = validate_dataset(dataset_info, available_cols, config)
-        if valid:
-            logger.info(f"Validated {dataset_info['name']}. Proceeding to download.")
-            if download_raw_data(dataset_info, config):
-                logger.info("Data download completed successfully.")
-                sys.exit(0)
-            else:
-                logger.error("Data download failed.")
-                sys.exit(1)
-        else:
-            logger.warning(f"SHHS validation failed: {message}")
-    
-    # If all sources failed
-    logger.error("Validation failed for all sources.")
-    report = {
-        "status": "fail",
-        "available_variables": [],
-        "participant_count": 0,
-        "message": "Required variables missing or insufficient power"
-    }
-    write_validation_report(report)
-    logger.error("ERROR: No valid dataset found with required variables.")
-    sys.exit(1)
 
 if __name__ == "__main__":
     main()

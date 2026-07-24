@@ -14,8 +14,12 @@ def create_test_raw_data(n_channels=10, n_times=256*60, sfreq=256):
     
     # Add 50Hz line noise
     t = np.arange(n_times) / sfreq
-    line_noise = 0.5 * np.sin(2 * np.pi * 50 * t)
+    line_noise = 50 * np.sin(2 * np.pi * 50 * t)  # Amplitude 50µV
     data += line_noise[np.newaxis, :]
+    
+    # Add white noise (10µV)
+    white_noise = 10 * np.random.randn(n_channels, n_times)
+    data += white_noise
     
     raw = mne.io.RawArray(data, info)
     return raw
@@ -26,8 +30,8 @@ def test_bandpass_attenuation():
     filtered = apply_bandpass_filter(raw, 1, 40)
     
     # Compute PSD before and after
-    psd_raw, freqs_raw = mne.time_frequency.psd_welch(raw, fmin=0, fmax=100)
-    psd_filtered, freqs_filtered = mne.time_frequency.psd_welch(filtered, fmin=0, fmax=100)
+    psd_raw, freqs_raw = mne.time_frequency.psd_welch(raw, fmin=0, fmax=100, n_fft=256)
+    psd_filtered, freqs_filtered = mne.time_frequency.psd_welch(filtered, fmin=0, fmax=100, n_fft=256)
     
     # Check attenuation at 0.5 Hz (below bandpass)
     idx_low = np.argmin(np.abs(freqs_raw - 0.5))
@@ -44,8 +48,8 @@ def test_line_noise_attenuation():
     """Test that notch filter attenuates line noise by >20dB."""
     raw = create_test_raw_data()
     
-    # Compute PSD before notch
-    psd_raw, freqs_raw = mne.time_frequency.psd_welch(raw, fmin=40, fmax=60)
+    # Compute PSD before notch (in the 40-60 Hz range to capture 50Hz)
+    psd_raw, freqs_raw = mne.time_frequency.psd_welch(raw, fmin=40, fmax=60, n_fft=256)
     peak_idx_raw = np.argmax(psd_raw.mean(axis=0))
     peak_freq_raw = freqs_raw[peak_idx_raw]
     peak_power_raw = psd_raw.mean(axis=0)[peak_idx_raw]
@@ -53,16 +57,20 @@ def test_line_noise_attenuation():
     # Apply notch filter
     config = load_config()
     notch_freq = config.get('notch_freq', 50)
-    filtered = apply_notch_filter(raw, notch_freq)
+    filtered = apply_notch_filter(raw, notch_freq, raw.info['sfreq'])
     
     # Compute PSD after notch
-    psd_filtered, freqs_filtered = mne.time_frequency.psd_welch(filtered, fmin=40, fmax=60)
+    psd_filtered, freqs_filtered = mne.time_frequency.psd_welch(filtered, fmin=40, fmax=60, n_fft=256)
     peak_idx_filtered = np.argmax(psd_filtered.mean(axis=0))
     peak_freq_filtered = freqs_filtered[peak_idx_filtered]
     peak_power_filtered = psd_filtered.mean(axis=0)[peak_idx_filtered]
     
     # Calculate attenuation in dB
-    attenuation = 10 * np.log10(peak_power_raw / (peak_power_filtered + 1e-10))
+    # Avoid division by zero
+    if peak_power_filtered < 1e-10:
+        attenuation = 100.0 # Effectively infinite attenuation
+    else:
+        attenuation = 10 * np.log10(peak_power_raw / peak_power_filtered)
     
     assert attenuation > 20, f"Line noise attenuation insufficient: {attenuation} dB"
 
@@ -87,7 +95,8 @@ def test_preprocess_stream():
         
         # Check outputs
         assert len(cleaned_data) > 0, "No cleaned data produced"
-        assert os.path.exists(os.path.join(temp_dir, "cleaned_eeg.fif")), "Output file not created"
+        output_path = os.path.join(temp_dir, "cleaned_eeg.fif")
+        assert os.path.exists(output_path), "Output file not created"
         
     finally:
         # Cleanup

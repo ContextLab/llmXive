@@ -4,117 +4,243 @@ import numpy as np
 import os
 import sys
 from pathlib import Path
+import json
+import tempfile
+import shutil
 
 # Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from collinearity import calculate_vif, run_collinearity_diagnostics, save_collinearity_report
+# Import the analysis module
+from analysis import load_config, validate_metadata, run_benjamini_hochberg, run_correlation_analysis, calculate_vif, main
 
-class TestVIFCheck:
-    """Tests for VIF calculation and collinearity diagnostics."""
+class TestBenjaminiHochberg:
+    """Unit tests for Benjamini-Hochberg correction implementation."""
 
-    def test_vif_calculation(self):
-        """Test that VIF is calculated correctly for a simple dataset."""
-        # Create a dataset with known collinearity
-        np.random.seed(42)
-        n = 100
+    def test_bh_correction_basic(self):
+        """Test BH correction on a known set of p-values."""
+        # Known p-values
+        p_values = np.array([0.01, 0.04, 0.03, 0.005, 0.02, 0.06, 0.15])
         
-        # Create features with some collinearity
-        x1 = np.random.randn(n)
-        x2 = x1 * 0.9 + np.random.randn(n) * 0.1  # Highly correlated with x1
-        x3 = np.random.randn(n)  # Independent
+        # Run the implementation
+        df = pd.DataFrame({'p_value': p_values})
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
         
-        df = pd.DataFrame({
-            'feature1': x1,
-            'feature2': x2,
-            'feature3': x3
-        })
+        # Verify output structure
+        assert 'p_value' in result_df.columns
+        assert 'p_adjusted' in result_df.columns
+        assert len(result_df) == len(p_values)
         
-        vif_df = calculate_vif(df)
+        # Verify values match expected (within floating point tolerance)
+        expected_sorted_adj = np.array([0.035, 0.035, 0.04666666666666667, 0.0525, 0.056, 0.07, 0.15])
+        actual_sorted_adj = result_df['p_adjusted'].sort_values().values
         
-        # Check that VIF values are calculated
-        assert len(vif_df) == 3
-        assert 'feature' in vif_df.columns
-        assert 'vif' in vif_df.columns
-        
-        # Feature 2 should have higher VIF due to correlation with feature 1
-        vif_2 = vif_df[vif_df['feature'] == 'feature2']['vif'].values[0]
-        assert vif_2 > 1.0  # VIF > 1 indicates some collinearity
+        np.testing.assert_array_almost_equal(actual_sorted_adj, expected_sorted_adj, decimal=4)
 
-    def test_vif_warning_for_high_values(self):
-        """Test that warnings are logged for VIF >= 5."""
-        # Create a dataset with very high collinearity
-        np.random.seed(42)
-        n = 100
+    def test_bh_correction_alpha_01(self):
+        """Test BH correction with alpha=0.01."""
+        p_values = np.array([0.001, 0.005, 0.01, 0.02, 0.05])
         
-        x1 = np.random.randn(n)
-        x2 = x1 * 0.99 + np.random.randn(n) * 0.01  # Very high correlation
+        df = pd.DataFrame({'p_value': p_values})
+        result_df = run_benjamini_hochberg(df, alpha=0.01)
         
-        df = pd.DataFrame({
-            'feature1': x1,
-            'feature2': x2
-        })
-        
-        vif_df, warnings = run_collinearity_diagnostics(df, threshold=5.0)
-        
-        # Check that warning was generated
-        assert len(warnings) >= 1
-        assert any("High collinearity" in w for w in warnings)
+        assert all(result_df['p_adjusted'] <= 1.0)
+        assert all(np.isfinite(result_df['p_adjusted']))
 
-    def test_save_vif_report(self, tmp_path):
-        """Test that VIF report is saved correctly."""
-        # Create sample data
-        df = pd.DataFrame({
-            'feature1': [1, 2, 3, 4, 5],
-            'feature2': [2, 4, 6, 8, 10],
-            'feature3': [1, 1, 1, 1, 1]
-        })
+    def test_bh_correction_empty_input(self):
+        """Test BH correction on empty dataframe."""
+        df = pd.DataFrame({'p_value': []})
         
-        output_path = tmp_path / "vif_report.csv"
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
         
-        vif_df = calculate_vif(df)
-        save_collinearity_report(vif_df, str(output_path))
-        
-        # Check that file was created
-        assert output_path.exists()
-        
-        # Check that file contains expected columns
-        saved_df = pd.read_csv(output_path)
-        assert 'feature' in saved_df.columns
-        assert 'vif' in saved_df.columns
-        assert len(saved_df) == 3
+        assert len(result_df) == 0
+        assert 'p_adjusted' in result_df.columns
 
-    def test_vif_with_missing_data(self):
-        """Test that VIF calculation handles missing data gracefully."""
-        df = pd.DataFrame({
-            'feature1': [1, 2, np.nan, 4, 5],
-            'feature2': [2, 4, 6, np.nan, 10],
-            'feature3': [1, 1, 1, 1, 1]
-        })
+    def test_bh_correction_single_value(self):
+        """Test BH correction on a single p-value."""
+        p_values = np.array([0.05])
         
-        # Should not raise an error
-        vif_df = calculate_vif(df)
+        df = pd.DataFrame({'p_value': p_values})
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
         
-        # Should have fewer rows due to NaN handling
-        assert len(vif_df) == 3  # Still 3 features, but rows with NaN dropped internally
+        assert np.isclose(result_df['p_adjusted'].values[0], 0.05)
 
-    def test_vif_threshold_parameter(self):
-        """Test that different thresholds produce different warning counts."""
-        np.random.seed(42)
-        n = 100
+    def test_bh_correction_monotonicity(self):
+        """Test that adjusted p-values are monotonically increasing with raw p-values."""
+        p_values = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
         
-        x1 = np.random.randn(n)
-        x2 = x1 * 0.9 + np.random.randn(n) * 0.1
+        df = pd.DataFrame({'p_value': p_values})
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
         
-        df = pd.DataFrame({
-            'feature1': x1,
-            'feature2': x2
-        })
+        sorted_result = result_df.sort_values('p_value')
+        assert all(sorted_result['p_adjusted'].diff().fillna(0) >= -1e-10)
+
+    def test_bh_correction_with_duplicate_pvalues(self):
+        """Test BH correction with duplicate p-values."""
+        p_values = np.array([0.01, 0.01, 0.02, 0.02, 0.05])
         
-        # Low threshold should produce more warnings
-        _, warnings_low = run_collinearity_diagnostics(df, threshold=2.0)
+        df = pd.DataFrame({'p_value': p_values})
+        result_df = run_benjamini_hochberg(df, alpha=0.05)
         
-        # High threshold should produce fewer warnings
-        _, warnings_high = run_collinearity_diagnostics(df, threshold=10.0)
+        assert len(result_df) == 5
+        assert all(np.isfinite(result_df['p_adjusted']))
+
+class TestAnalysisModeFailure:
+    """Unit tests for analysis mode failure conditions."""
+
+    def test_analysis_mode_failure(self):
+        """Test that analysis exits with an informative error when neither paired nor baseline data are available.
         
-        assert len(warnings_low) >= len(warnings_high)
+        Verification: Run pytest tests/unit/test_analysis.py::test_analysis_mode_failure and assert that
+        code/analysis.py exits with an informative error when neither paired nor baseline data are available.
+        """
+        # Create a temporary directory for the test
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a mock metadata file with NO fatigue columns (neither paired nor baseline)
+            metadata_path = os.path.join(tmpdir, 'metadata.csv')
+            df_no_fatigue = pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'age': [25, 30, 35],
+                'gender': ['M', 'F', 'M']
+            })
+            df_no_fatigue.to_csv(metadata_path, index=False)
+            
+            # Create a mock config file
+            config_path = os.path.join(tmpdir, 'config.yaml')
+            config_content = f"""
+            metadata_path: {metadata_path}
+            lzc_metrics_path: {os.path.join(tmpdir, 'lzc_metrics.csv')}
+            pe_metrics_path: {os.path.join(tmpdir, 'pe_metrics.csv')}
+            output_dir: {os.path.join(tmpdir, 'output')}
+            """
+            with open(config_path, 'w') as f:
+                f.write(config_content)
+            
+            # Create dummy complexity metric files (empty but valid structure)
+            lzc_path = os.path.join(tmpdir, 'lzc_metrics.csv')
+            pd.DataFrame(columns=['participant_id', 'channel', 'lzc_value']).to_csv(lzc_path, index=False)
+            
+            pe_path = os.path.join(tmpdir, 'pe_metrics.csv')
+            pd.DataFrame(columns=['participant_id', 'channel', 'pe_value']).to_csv(pe_path, index=False)
+            
+            # Create output directory
+            output_dir = os.path.join(tmpdir, 'output')
+            os.makedirs(output_dir, exist_ok=True)
+            
+            # Mock sys.argv to simulate running the script with this config
+            original_argv = sys.argv
+            try:
+                sys.argv = ['analysis.py', '--config', config_path]
+                
+                # Capture the exit
+                with pytest.raises(SystemExit) as excinfo:
+                    main()
+                
+                # Verify the exit code is 1 (error)
+                assert excinfo.value.code == 1
+                
+            finally:
+                sys.argv = original_argv
+
+    def test_analysis_mode_paired_data_present(self):
+        """Test that analysis proceeds normally when paired data is present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create metadata with paired fatigue columns
+            metadata_path = os.path.join(tmpdir, 'metadata.csv')
+            df_paired = pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'pre_fatigue': [1.0, 2.0, 3.0],
+                'post_fatigue': [4.0, 5.0, 6.0]
+            })
+            df_paired.to_csv(metadata_path, index=False)
+            
+            config_path = os.path.join(tmpdir, 'config.yaml')
+            config_content = f"""
+            metadata_path: {metadata_path}
+            lzc_metrics_path: {os.path.join(tmpdir, 'lzc_metrics.csv')}
+            pe_metrics_path: {os.path.join(tmpdir, 'pe_metrics.csv')}
+            output_dir: {os.path.join(tmpdir, 'output')}
+            """
+            with open(config_path, 'w') as f:
+                f.write(config_content)
+            
+            lzc_path = os.path.join(tmpdir, 'lzc_metrics.csv')
+            pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'channel': ['Fz', 'Fz', 'Fz'],
+                'lzc_value': [0.5, 0.6, 0.7]
+            }).to_csv(lzc_path, index=False)
+            
+            pe_path = os.path.join(tmpdir, 'pe_metrics.csv')
+            pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'channel': ['Fz', 'Fz', 'Fz'],
+                'pe_value': [0.3, 0.4, 0.5]
+            }).to_csv(pe_path, index=False)
+            
+            output_dir = os.path.join(tmpdir, 'output')
+            os.makedirs(output_dir, exist_ok=True)
+            
+            original_argv = sys.argv
+            try:
+                sys.argv = ['analysis.py', '--config', config_path]
+                
+                # This should NOT raise SystemExit with code 1
+                # It might raise SystemExit with code 0 on success, or other errors if data is insufficient
+                # but specifically for "no data" error, it should not fail.
+                try:
+                    main()
+                except SystemExit as e:
+                    # If it exits, it should be with code 0 (success) or not 1 (missing data error)
+                    assert e.code != 1, "Analysis should not fail with 'missing data' error when paired data exists"
+            finally:
+                sys.argv = original_argv
+
+    def test_analysis_mode_baseline_data_present(self):
+        """Test that analysis proceeds normally when only baseline data is present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create metadata with baseline fatigue column only
+            metadata_path = os.path.join(tmpdir, 'metadata.csv')
+            df_baseline = pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'baseline_fatigue': [2.5, 3.0, 3.5]
+            })
+            df_baseline.to_csv(metadata_path, index=False)
+            
+            config_path = os.path.join(tmpdir, 'config.yaml')
+            config_content = f"""
+            metadata_path: {metadata_path}
+            lzc_metrics_path: {os.path.join(tmpdir, 'lzc_metrics.csv')}
+            pe_metrics_path: {os.path.join(tmpdir, 'pe_metrics.csv')}
+            output_dir: {os.path.join(tmpdir, 'output')}
+            """
+            with open(config_path, 'w') as f:
+                f.write(config_content)
+            
+            lzc_path = os.path.join(tmpdir, 'lzc_metrics.csv')
+            pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'channel': ['Fz', 'Fz', 'Fz'],
+                'lzc_value': [0.5, 0.6, 0.7]
+            }).to_csv(lzc_path, index=False)
+            
+            pe_path = os.path.join(tmpdir, 'pe_metrics.csv')
+            pd.DataFrame({
+                'participant_id': ['P001', 'P002', 'P003'],
+                'channel': ['Fz', 'Fz', 'Fz'],
+                'pe_value': [0.3, 0.4, 0.5]
+            }).to_csv(pe_path, index=False)
+            
+            output_dir = os.path.join(tmpdir, 'output')
+            os.makedirs(output_dir, exist_ok=True)
+            
+            original_argv = sys.argv
+            try:
+                sys.argv = ['analysis.py', '--config', config_path]
+                
+                try:
+                    main()
+                except SystemExit as e:
+                    assert e.code != 1, "Analysis should not fail with 'missing data' error when baseline data exists"
+            finally:
+                sys.argv = original_argv

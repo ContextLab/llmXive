@@ -1,100 +1,111 @@
 import os
-import sys
-import csv
-import tempfile
-import shutil
-from pathlib import Path
+import pytest
+import pandas as pd
 import numpy as np
 import mne
-import pytest
+from pathlib import Path
+from datetime import datetime
+import tempfile
+import shutil
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
-
-from preprocess import reject_artifacts, save_rejection_log, load_config
-from utils.logging import save_exclusion_log_csv
+# Import the function to test
+from preprocess import reject_artifacts, setup_logger
 
 class TestArtifactRejection:
-    """Tests for T011: Artifact rejection logic."""
+    """Unit tests for artifact rejection logic in T011."""
 
     def setup_method(self):
-        """Create temporary directory for test logs."""
+        """Set up test fixtures."""
+        self.sampling_rate = 256
+        self.duration = 120 # seconds
+        self.n_samples = self.sampling_rate * self.duration
+        self.ch_names = ['EEG 001', 'EEG 002', 'EEG 003']
+        self.info = mne.create_info(ch_names=self.ch_names, sfreq=self.sampling_rate, ch_types='eeg')
+        
+        # Create a temporary directory for logs
         self.temp_dir = tempfile.mkdtemp()
-        self.log_path = os.path.join(self.temp_dir, 'exclusion_log.csv')
+        self.log_file = os.path.join(self.temp_dir, "test_exclusion_log.csv")
 
     def teardown_method(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        """Clean up test fixtures."""
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
-    def create_mock_raw(self, duration=130, amplitude=50e-6):
-        """Create a mock MNE Raw object for testing."""
-        sfreq = 250
-        n_samples = int(duration * sfreq)
-        # Create data with specified amplitude
-        data = np.random.randn(1, n_samples) * amplitude
-        info = mne.create_info(ch_names=['EEG001'], sfreq=sfreq, ch_types='eeg')
-        raw = mne.io.RawArray(data, info)
-        return raw
+    def test_valid_segment(self):
+        """Test that a valid segment (low amplitude, long duration) passes."""
+        # Create data with small amplitude (10 uV)
+        data = np.random.normal(0, 1e-6, (len(self.ch_names), self.n_samples))
+        raw = mne.io.RawArray(data, self.info)
+        
+        is_valid, reason, bad_channels = reject_artifacts(
+            raw, 
+            amplitude_threshold=100.0, 
+            min_duration=120.0
+        )
+        
+        assert is_valid is True
+        assert reason == "passed"
+        assert bad_channels is None
 
     def test_amplitude_rejection(self):
-        """Test that segments > 100uV are rejected."""
-        # Create signal with 150uV amplitude (should be rejected)
-        raw = self.create_mock_raw(duration=130, amplitude=150e-6)
+        """Test rejection when amplitude exceeds threshold (>100uV)."""
+        # Create data with high amplitude (150 uV)
+        data = np.ones((len(self.ch_names), self.n_samples)) * (150e-6) 
+        raw = mne.io.RawArray(data, self.info)
         
-        clean_raw, rejections = reject_artifacts(raw, amplitude_threshold=100e-6, min_duration=120)
+        is_valid, reason, bad_channels = reject_artifacts(
+            raw, 
+            amplitude_threshold=100.0, 
+            min_duration=120.0
+        )
         
-        assert clean_raw is None, "Signal with amplitude > 100uV should be rejected."
-        assert len(rejections) == 1
-        assert rejections[0]['reason'] == 'amplitude > 100uV'
+        assert is_valid is False
+        assert "amplitude > 100uV" in reason
+        assert len(bad_channels) > 0
 
     def test_duration_rejection(self):
-        """Test that segments < 120s are rejected."""
-        # Create signal with 100s duration (should be rejected)
-        raw = self.create_mock_raw(duration=100, amplitude=50e-6)
+        """Test rejection when segment duration is < 120 seconds."""
+        # Create short data (60 seconds)
+        short_duration = 60
+        short_samples = self.sampling_rate * short_duration
+        data = np.random.normal(0, 1e-6, (len(self.ch_names), short_samples))
+        raw = mne.io.RawArray(data, self.info)
         
-        clean_raw, rejections = reject_artifacts(raw, amplitude_threshold=100e-6, min_duration=120)
+        is_valid, reason, bad_channels = reject_artifacts(
+            raw, 
+            amplitude_threshold=100.0, 
+            min_duration=120.0
+        )
         
-        assert clean_raw is None, "Signal with duration < 120s should be rejected."
-        assert len(rejections) == 1
-        assert rejections[0]['reason'] == 'segment < 120s'
+        assert is_valid is False
+        assert "segment < 120s" in reason
 
-    def test_accept_clean_segment(self):
-        """Test that clean segments are accepted."""
-        # Create signal with 130s duration and 50uV amplitude
-        raw = self.create_mock_raw(duration=130, amplitude=50e-6)
+    def test_exclusion_log_creation(self):
+        """Verify that exclusion_log.csv is created with correct schema."""
+        # Setup logger
+        logger = setup_logger(os.path.join(self.temp_dir, "test.log"))
         
-        clean_raw, rejections = reject_artifacts(raw, amplitude_threshold=100e-6, min_duration=120)
+        # Create a short segment to trigger rejection
+        short_samples = self.sampling_rate * 60
+        data = np.random.normal(0, 1e-6, (len(self.ch_names), short_samples))
+        raw = mne.io.RawArray(data, self.info)
         
-        assert clean_raw is not None, "Clean signal should be accepted."
-        assert len(rejections) == 0
-
-    def test_log_file_format(self):
-        """Test that exclusion log has correct columns and valid reasons."""
-        # Simulate log entries
-        entries = [
-            {"participant_id": "sub-001", "reason": "amplitude > 100uV", "timestamp": "2023-01-01T00:00:00", "details": "Max: 150uV"},
-            {"participant_id": "sub-002", "reason": "segment < 120s", "timestamp": "2023-01-01T00:01:00", "details": "Dur: 100s"}
-        ]
+        # Trigger rejection
+        is_valid, reason, _ = reject_artifacts(raw, amplitude_threshold=100.0, min_duration=120.0)
+        assert not is_valid
         
-        save_rejection_log(self.log_path, entries)
+        # Manually log the rejection to simulate the pipeline behavior
+        from utils.logging import log_artifact_rejection
+        log_artifact_rejection("test_participant_01", reason, self.log_file)
         
-        assert os.path.exists(self.log_path), "Exclusion log file should exist."
+        # Verify file exists
+        assert os.path.exists(self.log_file), "Exclusion log file was not created."
         
-        with open(self.log_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) == 2, "Log should contain 2 entries."
+        # Verify schema
+        df = pd.read_csv(self.log_file)
+        expected_columns = ['participant_id', 'reason', 'timestamp']
+        assert list(df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(df.columns)}"
         
-        # Check required columns
-        required_cols = ['participant_id', 'reason', 'timestamp']
-        for col in required_cols:
-            assert col in rows[0], f"Column {col} missing in log."
-        
-        # Check valid reasons
+        # Verify valid rejection reasons
         valid_reasons = ['amplitude > 100uV', 'segment < 120s']
-        for row in rows:
-            assert row['reason'] in valid_reasons, f"Invalid reason found: {row['reason']}"
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        assert df['reason'].iloc[0] in valid_reasons, f"Invalid reason: {df['reason'].iloc[0]}"

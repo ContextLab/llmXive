@@ -5,213 +5,235 @@ import json
 import tracemalloc
 import argparse
 from pathlib import Path
-import yaml
-import numpy as np
 
-# Add code directory to path for imports if run from root
-code_dir = Path(__file__).parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Import existing pipeline components
+from preprocess import load_config, stream_eeg_files, apply_bandpass_filter, apply_notch_filter, reject_artifacts, process_eeg_stream, save_processed_data
+from features import load_config as load_features_config, calculate_lzc, calculate_permutation_entropy, process_eeg_segments, save_metrics_to_csv
 
-from preprocess import load_config as load_preprocess_config, stream_eeg_files, apply_bandpass_filter, apply_notch_filter, reject_artifacts
-from features import load_config as load_features_config, calculate_lzc, calculate_permutation_entropy
+# Ensure logs directory exists before any logging attempts
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 def profile_function(func, *args, **kwargs):
-    """
-    Profiles a given function for memory and time.
-    Returns a dict with 'peak_memory_mb' and 'wall_time_s'.
-    """
+    """Profile a function's memory usage using tracemalloc."""
     tracemalloc.start()
     start_time = time.time()
-    
-    try:
-        func(*args, **kwargs)
-    except Exception as e:
-        # If the function fails (e.g., missing data), we still report the time/memory up to failure
-        # or 0 if it failed immediately.
-        pass
-    
+    result = func(*args, **kwargs)
     end_time = time.time()
+    
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     
     return {
-        "peak_memory_mb": peak / (1024 * 1024),
+        "result": result,
+        "peak_memory_mb": peak / 1024 / 1024,
         "wall_time_s": end_time - start_time
     }
 
 def profile_preprocessing_pipeline():
-    """
-    Profiles the preprocessing pipeline steps.
-    """
-    config = load_preprocess_config()
-    report = {
-        "step": "preprocessing",
-        "sub_steps": []
-    }
+    """Profile the entire preprocessing pipeline for memory usage."""
+    print("Starting preprocessing pipeline memory profile...")
     
-    # 1. Streaming/Loading
-    def load_step():
-        # We attempt to stream. If no data exists, we simulate a small load for profiling structure
-        # but we must be careful not to fabricate data. 
-        # If data/raw is missing, we simulate a minimal load to satisfy the profiler structure.
-        data_dir = Path("data/raw")
-        if not data_dir.exists():
-            # Simulate a small dummy load to profile the logic without crashing or fabricating real data
-            # This is a structural profile, not a data generation step.
-            _ = np.random.rand(100, 10) 
-            return
-        
-        # Real streaming logic
-        for _ in stream_eeg_files(data_dir):
-            pass
-
-    stats_load = profile_function(load_step)
-    report["sub_steps"].append({"name": "streaming", **stats_load})
-
-    # 2. Filtering (Bandpass + Notch)
-    def filter_step():
-        # Create a dummy signal if real data is missing to profile the filter logic
-        # This is for profiling the *function* overhead, not the data size.
-        # If real data exists, we use a small chunk.
-        data_dir = Path("data/raw")
-        if data_dir.exists():
-            # Try to load one small segment
-            for segment in stream_eeg_files(data_dir):
-                # Apply filters to this segment
-                _ = apply_bandpass_filter(segment, config['filter_low'], config['filter_high'])
-                _ = apply_notch_filter(segment, config['notch_frequency'])
-                break # Only profile one segment to avoid long runtime
-        else:
-            # Dummy signal for profiling
-            dummy_signal = np.random.rand(1000, 10)
-            _ = apply_bandpass_filter(dummy_signal, config['filter_low'], config['filter_high'])
-            _ = apply_notch_filter(dummy_signal, config['notch_frequency'])
-
-    stats_filter = profile_function(filter_step)
-    report["sub_steps"].append({"name": "filtering", **stats_filter})
-
-    # 3. Artifact Rejection
-    def reject_step():
-        data_dir = Path("data/raw")
-        if data_dir.exists():
-            for segment in stream_eeg_files(data_dir):
-                _ = reject_artifacts(segment, config['artifact_threshold'])
-                break
-        else:
-            dummy_signal = np.random.rand(1000, 10)
-            _ = reject_artifacts(dummy_signal, config['artifact_threshold'])
-
-    stats_reject = profile_function(reject_step)
-    report["sub_steps"].append({"name": "artifact_rejection", **stats_reject})
-
-    # Calculate total for this step (sum of sub-steps or max peak)
-    # We sum wall time, take max peak memory
-    total_time = sum(s['wall_time_s'] for s in report["sub_steps"])
-    max_mem = max(s['peak_memory_mb'] for s in report["sub_steps"])
-    report["peak_memory_mb"] = max_mem
-    report["wall_time_s"] = total_time
+    # Ensure directories exist
+    Path("data/raw").mkdir(parents=True, exist_ok=True)
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
     
-    return report
-
-def profile_feature_extraction_pipeline():
-    """
-    Profiles the feature extraction pipeline steps.
-    """
-    config = load_features_config()
-    report = {
-        "step": "feature_extraction",
-        "sub_steps": []
-    }
-
-    # 1. LZC Calculation
-    def lzc_step():
-        # Profile on a small segment
-        dummy_signal = np.random.rand(1000) # 1 channel, 1000 samples
-        _ = calculate_lzc(dummy_signal, config.get('lzc_window', 100))
-
-    stats_lzc = profile_function(lzc_step)
-    report["sub_steps"].append({"name": "lzc_calculation", **stats_lzc})
-
-    # 2. Permutation Entropy
-    def pe_step():
-        dummy_signal = np.random.rand(1000)
-        _ = calculate_permutation_entropy(dummy_signal, config.get('embedding_dim', 3), config.get('tau', 1))
-
-    stats_pe = profile_function(pe_step)
-    report["sub_steps"].append({"name": "permutation_entropy", **stats_pe})
-
-    total_time = sum(s['wall_time_s'] for s in report["sub_steps"])
-    max_mem = max(s['peak_memory_mb'] for s in report["sub_steps"])
-    report["peak_memory_mb"] = max_mem
-    report["wall_time_s"] = total_time
-
-    return report
-
-def main():
-    """
-    Runs the profiling pipeline and generates profile_report.json.
-    """
-    output_dir = Path("data/analysis")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "profile_report.json"
-
-    print("Starting memory and time profiling...")
+    config = load_config()
+    n_participants = config.get("n_threshold", 30)
+    
+    # Generate synthetic data if real data is insufficient
+    # This is required by T026 verification: "If the available real dataset is smaller than N=30, generate synthetic EEG data"
+    raw_data_dir = Path("data/raw")
+    existing_files = list(raw_data_dir.glob("*.fif"))
+    
+    if len(existing_files) < n_participants:
+        print(f"Generating synthetic EEG data for {n_participants} participants (real data insufficient)...")
+        _generate_synthetic_eeg_data(n_participants, raw_data_dir, config)
     
     tracemalloc.start()
-    global_start = time.time()
-
-    steps = []
+    start_time = time.time()
     
-    # Profile Preprocessing
     try:
-        print("Profiling preprocessing pipeline...")
-        preproc_report = profile_preprocessing_pipeline()
-        steps.append(preproc_report)
-    except Exception as e:
-        steps.append({
-            "step": "preprocessing",
-            "status": "failed",
-            "error": str(e),
-            "peak_memory_mb": 0.0,
-            "wall_time_s": 0.0
-        })
-
-    # Profile Feature Extraction
-    try:
-        print("Profiling feature extraction pipeline...")
-        feat_report = profile_feature_extraction_pipeline()
-        steps.append(feat_report)
-    except Exception as e:
-        steps.append({
-            "step": "feature_extraction",
-            "status": "failed",
-            "error": str(e),
-            "peak_memory_mb": 0.0,
-            "wall_time_s": 0.0
-        })
-
-    global_end = time.time()
-    current, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-
-    total_peak_mb = peak / (1024 * 1024)
-    total_wall_time = global_end - global_start
-
-    final_report = {
-        "steps": steps,
-        "summary": {
-            "peak_memory_mb": total_peak_mb,
-            "wall_time_s": total_wall_time
+        # Run the actual preprocessing pipeline
+        # We call the main logic directly without the main() wrapper to control execution
+        process_eeg_stream(
+            raw_dir=raw_data_dir,
+            processed_dir=Path("data/processed"),
+            config=config
+        )
+        
+        end_time = time.time()
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        
+        profile_report = {
+            "stage": "preprocessing",
+            "peak_memory_mb": peak / 1024 / 1024,
+            "wall_time_s": end_time - start_time,
+            "participants_processed": n_participants,
+            "status": "success"
         }
-    }
+        
+        # Save report
+        report_path = Path("profile_report.json")
+        with open(report_path, "w") as f:
+            json.dump(profile_report, f, indent=2)
+        
+        print(f"Preprocessing profile complete. Peak memory: {profile_report['peak_memory_mb']:.2f} MB")
+        return profile_report
+        
+    except Exception as e:
+        tracemalloc.stop()
+        print(f"Preprocessing profile failed: {str(e)}")
+        return {
+            "stage": "preprocessing",
+            "status": "failed",
+            "error": str(e)
+        }
 
-    with open(output_path, 'w') as f:
-        json.dump(final_report, f, indent=2)
+def profile_feature_extraction_pipeline():
+    """Profile the feature extraction pipeline for memory usage."""
+    print("Starting feature extraction pipeline memory profile...")
+    
+    # Ensure directories exist
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
+    
+    config = load_features_config()
+    n_participants = config.get("n_threshold", 30)
+    
+    # Check if preprocessed data exists
+    processed_data_dir = Path("data/processed")
+    cleaned_eeg = processed_data_dir / "cleaned_eeg.fif"
+    
+    if not cleaned_eeg.exists():
+        print("Preprocessed data not found. Running preprocessing first...")
+        profile_preprocessing_pipeline()
+    
+    tracemalloc.start()
+    start_time = time.time()
+    
+    try:
+        # Run feature extraction
+        save_metrics_to_csv(
+            processed_dir=processed_data_dir,
+            output_dir=processed_data_dir,
+            config=config
+        )
+        
+        end_time = time.time()
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        
+        profile_report = {
+            "stage": "feature_extraction",
+            "peak_memory_mb": peak / 1024 / 1024,
+            "wall_time_s": end_time - start_time,
+            "participants_processed": n_participants,
+            "status": "success"
+        }
+        
+        # Append to existing report or create new
+        report_path = Path("profile_report.json")
+        if report_path.exists():
+            with open(report_path, "r") as f:
+                existing_report = json.load(f)
+                if isinstance(existing_report, dict) and "stages" not in existing_report:
+                    existing_report = {"stages": [existing_report]}
+                if "stages" not in existing_report:
+                    existing_report["stages"] = []
+                existing_report["stages"].append(profile_report)
+        else:
+            existing_report = {"stages": [profile_report]}
+        
+        with open(report_path, "w") as f:
+            json.dump(existing_report, f, indent=2)
+        
+        print(f"Feature extraction profile complete. Peak memory: {profile_report['peak_memory_mb']:.2f} MB")
+        return profile_report
+        
+    except Exception as e:
+        tracemalloc.stop()
+        print(f"Feature extraction profile failed: {str(e)}")
+        return {
+            "stage": "feature_extraction",
+            "status": "failed",
+            "error": str(e)
+        }
 
-    print(f"Profile report written to {output_path}")
-    print(f"Total Peak Memory: {total_peak_mb:.2f} MB")
-    print(f"Total Wall Time: {total_wall_time:.2f} s")
+def _generate_synthetic_eeg_data(n_participants, output_dir, config):
+    """Generate synthetic EEG data for testing memory profiling when real data is insufficient.
+    
+    This is REQUIRED by T026 verification: 'If the available real dataset is smaller than N=30, 
+    generate synthetic EEG data to reach N=30 participants for the purpose of this memory test.'
+    
+    IMPORTANT: This synthetic data is ONLY for MEMORY PROFILING verification, not for research results.
+    The actual research pipeline will fail if real data is not available, as per the 'Real data only' constraint.
+    """
+    import numpy as np
+    import mne
+    
+    sampling_rate = config.get("sampling_rate", 256)
+    duration = config.get("segment_duration", 120)  # seconds
+    n_channels = 19  # Standard EEG channels
+    channel_names = [f'EEG {i:03d}' for i in range(n_channels)]
+    
+    info = mne.create_info(ch_names=channel_names, sfreq=sampling_rate, ch_types='eeg')
+    
+    for i in range(n_participants):
+        participant_id = f"sub-{i:03d}"
+        
+        # Generate 120 seconds of synthetic EEG data
+        # Using realistic amplitude ranges (10-100 µV)
+        data = np.random.randn(n_channels, sampling_rate * duration) * 50  # 50 µV std dev
+        
+        # Add some realistic structure: alpha rhythm (8-12 Hz) for some channels
+        time_vector = np.linspace(0, duration, sampling_rate * duration)
+        for ch_idx, ch_name in enumerate(channel_names):
+            if 'O' in ch_name or 'P' in ch_name:  # Occipital/parietal channels
+                alpha = np.sin(2 * np.pi * 10 * time_vector) * 20  # 10 Hz alpha, 20 µV amplitude
+                data[ch_idx] += alpha
+        
+        raw = mne.io.RawArray(data, info)
+        raw.save(output_dir / f"{participant_id}_eeg.fif", overwrite=True)
+        
+    print(f"Generated {n_participants} synthetic EEG files in {output_dir}")
+
+def main():
+    """Main entry point for memory profiling."""
+    parser = argparse.ArgumentParser(description="Profile memory usage of the EEG analysis pipeline")
+    parser.add_argument("--stage", choices=["preprocessing", "features", "all"], default="all",
+                      help="Which pipeline stage to profile")
+    args = parser.parse_args()
+    
+    results = {}
+    
+    if args.stage in ["preprocessing", "all"]:
+        results["preprocessing"] = profile_preprocessing_pipeline()
+    
+    if args.stage in ["features", "all"]:
+        results["features"] = profile_feature_extraction_pipeline()
+    
+    # Final validation: check memory constraint (DC-001: peak memory ≤ 7 GB)
+    max_memory_gb = 7.0
+    failed_stages = []
+    
+    for stage, result in results.items():
+        if result.get("status") == "success":
+            peak_mb = result.get("peak_memory_mb", 0)
+            peak_gb = peak_mb / 1024
+            if peak_gb > max_memory_gb:
+                failed_stages.append(f"{stage} ({peak_gb:.2f} GB > {max_memory_gb} GB)")
+            else:
+                print(f"✓ {stage}: {peak_gb:.2f} GB ≤ {max_memory_gb} GB (PASS)")
+        else:
+            failed_stages.append(f"{stage}: FAILED")
+    
+    if failed_stages:
+        print(f"\n✗ Memory profiling FAILED for: {', '.join(failed_stages)}")
+        sys.exit(1)
+    else:
+        print(f"\n✓ All stages passed memory constraint (≤ {max_memory_gb} GB)")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

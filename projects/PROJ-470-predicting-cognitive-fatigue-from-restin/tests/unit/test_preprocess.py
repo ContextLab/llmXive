@@ -12,7 +12,7 @@ from unittest.mock import patch, MagicMock
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / 'code'))
 
-from preprocess import load_config, stream_eeg_files, main
+from preprocess import load_config, stream_eeg_files, main, apply_bandpass_filter
 from utils.logging import get_logger
 
 @pytest.fixture
@@ -36,6 +36,7 @@ def test_bandpass_attenuation(config_path):
     import numpy as np
     import mne
     from scipy import signal
+    from scipy.signal import welch
 
     # Create synthetic 50Hz signal
     fs = 256
@@ -49,10 +50,10 @@ def test_bandpass_attenuation(config_path):
     raw = mne.io.RawArray(data.reshape(1, -1), info)
 
     # Apply filter using MNE (1-40 Hz)
-    raw_filtered = raw.copy().filter(l_freq=1.0, h_freq=40.0)
+    # Using fir filter with default settings which provides good attenuation
+    raw_filtered = raw.copy().filter(l_freq=1.0, h_freq=40.0, method='fir', fir_window='hamming')
     
     # Calculate power spectral density
-    from scipy.signal import welch
     freqs_raw, psd_raw = welch(data, fs, nperseg=1024)
     freqs_filt, psd_filt = welch(raw_filtered.get_data().flatten(), fs, nperseg=1024)
 
@@ -100,7 +101,8 @@ def test_missing_data(config_path, mock_logger):
                 list(stream_eeg_files(non_existent_dir))
             
             # Verify the error message is clear
-            assert "not found" in str(exc_info.value).lower() or "no such file" in str(exc_info.value).lower()
+            error_msg = str(exc_info.value).lower()
+            assert "not found" in error_msg or "no such file" in error_msg, f"Error message '{exc_info.value}' did not contain expected keywords."
 
 def test_artifact_rejection_logic(config_path, mock_logger):
     """

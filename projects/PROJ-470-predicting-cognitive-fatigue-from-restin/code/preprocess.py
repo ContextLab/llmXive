@@ -1,164 +1,199 @@
 import os
 import sys
 import yaml
+import logging
 import numpy as np
 import mne
 from pathlib import Path
-import logging
 from datetime import datetime
-from utils.logging import log_artifact_rejection, get_logger
+from typing import Generator, Tuple, Optional, List, Dict, Any
 
-def load_config(config_path="code/config.yaml"):
-    with open(config_path, "r") as f:
+# Import logging utilities from the shared utils module
+from utils.logging import log_artifact_rejection, save_exclusion_log_csv
+
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load pipeline configuration from YAML file."""
+    with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def stream_eeg_files(raw_dir):
-    """Generator yielding (participant_id, raw) tuples."""
+def setup_logger(log_file: str = "logs/pipeline.log") -> logging.Logger:
+    """Set up the logger ensuring the directory exists."""
+    log_dir = os.path.dirname(log_file)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    
+    logger = logging.getLogger("preprocess_pipeline")
+    logger.setLevel(logging.INFO)
+    
+    # Remove existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    file_handler = logging.FileHandler(log_file, mode='a')
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    return logger
+
+def stream_eeg_files(raw_dir: str, extension: str = ".fif") -> Generator[Tuple[str, mne.io.Raw], None, None]:
+    """
+    Generator that yields (participant_id, raw_eeg_object) tuples.
+    Uses preload=False to ensure memory efficiency (DC-001).
+    """
     raw_path = Path(raw_dir)
     if not raw_path.exists():
         raise FileNotFoundError(f"Data directory not found: {raw_dir}")
     
-    # Assuming raw data is in .fif format or similar supported by MNE
-    # We iterate over files to simulate streaming without loading all at once
-    for file_path in raw_path.glob("*"):
-        if file_path.suffix in ['.fif', '.edf', '.bdf']:
-            # Extract participant ID from filename (e.g., 'sub-01_eeg.fif' -> '01')
-            # Adjust logic based on actual naming convention
-            pid = file_path.stem.split('_')[0].replace('sub-', '')
-            try:
-                raw = mne.io.read_raw_fif(file_path, preload=False)
-                yield pid, raw
-            except Exception:
-                try:
-                    raw = mne.io.read_raw_edf(file_path, preload=False)
-                    yield pid, raw
-                except Exception:
-                    logging.warning(f"Could not read {file_path}")
+    for file_path in raw_path.glob(f"*{extension}"):
+        try:
+            # CRITICAL: preload=False for streaming/memory safety
+            raw = mne.io.read_raw_fif(file_path, preload=False)
+            # Extract participant_id from filename (e.g., 'sub-001_eeg.fif' -> '001')
+            participant_id = file_path.stem.split('_')[0].replace('sub-', '')
+            yield participant_id, raw
+        except Exception as e:
+            logging.warning(f"Failed to load {file_path}: {e}")
+            continue
 
-def apply_bandpass_filter(raw, low_freq, high_freq):
-    """Apply bandpass filter (1-40 Hz) to raw data."""
-    raw_filtered = raw.copy()
-    raw_filtered.filter(l_freq=low_freq, h_freq=high_freq, method='iir')
-    return raw_filtered
+def apply_bandpass_filter(raw: mne.io.Raw, low_freq: float = 1.0, high_freq: float = 40.0) -> mne.io.Raw:
+    """Apply bandpass filter (1-40 Hz) to the raw data."""
+    # Filter in place
+    raw.filter(low_freq, high_freq, method='fir', fir_design='firwin')
+    return raw
 
-def detect_line_noise_peak(raw):
-    """Detect line noise peak in PSD."""
-    psd, freqs = mne.time_frequency.psd_welch(raw, fmin=40, fmax=60)
-    peak_idx = np.argmax(psd.mean(axis=0))
+def detect_line_noise_peak(raw: mne.io.Raw) -> float:
+    """Detect the peak frequency in the 45-55 Hz range to identify line noise."""
+    # Compute PSD
+    psd, freqs = mne.time_frequency.psd_welch(raw, fmin=45, fmax=55, n_fft=256)
+    mean_psd = psd.mean(axis=0)
+    peak_idx = np.argmax(mean_psd)
     return freqs[peak_idx]
 
-def apply_notch_filter(raw, notch_freq):
+def apply_notch_filter(raw: mne.io.Raw, notch_freq: float = 50.0) -> mne.io.Raw:
     """Apply notch filter to remove line noise."""
-    raw_notched = raw.copy()
-    raw_notched.notch_filter(notch_freq, method='iir')
-    return raw_notched
+    raw.notch_filter(notch_freq, method='spectrum_fit')
+    return raw
 
-def reject_artifacts(raw, threshold, min_duration):
-    """Reject epochs based on amplitude threshold and duration."""
-    # Convert raw to epochs for artifact rejection
-    events = mne.make_fixed_length_events(raw, duration=min_duration)
-    epochs = mne.Epochs(raw, events, tmin=0, tmax=min_duration/1000, baseline=None, preload=True)
+def reject_artifacts(raw: mne.io.Raw, amplitude_threshold: float = 100.0, min_duration: float = 120.0, logger: Optional[logging.Logger] = None) -> Tuple[bool, str, Optional[List[str]]]:
+    """
+    Reject artifacts based on amplitude and duration.
     
-    rejected_epochs = []
-    valid_epochs = []
-    
-    for i, epoch in enumerate(epochs):
-        if np.max(np.abs(epoch.get_data())) > threshold:
-            rejected_epochs.append(i)
-        else:
-            valid_epochs.append(epoch)
-    
-    return valid_epochs, rejected_epochs
+    Returns:
+      Tuple[is_valid, reason, rejected_channels]
+      - is_valid: True if data passes all checks
+      - reason: Description of rejection if invalid, or "passed"
+      - rejected_channels: List of channels rejected for amplitude (if any)
+    """
+    # 1. Check Duration
+    duration = raw.times[-1] - raw.times[0]
+    if duration < min_duration:
+        return False, f"segment < {int(min_duration)}s", None
 
-def process_eeg_stream(raw_dir, config, output_dir):
-    """Process EEG stream and save cleaned data."""
-    logger = get_logger(__name__)
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    # 2. Check Amplitude (Peak-to-Peak)
+    # Get data (channels x time)
+    data = raw.get_data()
+    ptp = np.ptp(data, axis=1) # Peak-to-peak per channel
     
-    low_freq = config.get('filter_low', 1)
-    high_freq = config.get('filter_high', 40)
-    notch_freq = config.get('notch_freq', 50)
-    artifact_threshold = config.get('artifact_threshold', 100)
-    min_duration = config.get('min_duration', 120)  # seconds
+    # Convert threshold to Volts (MNE uses Volts internally)
+    threshold_volts = amplitude_threshold * 1e-6
     
-    cleaned_data = []
-    exclusion_log = []
+    bad_channels = []
+    for i, ch_name in enumerate(raw.ch_names):
+        if ptp[i] > threshold_volts:
+            bad_channels.append(ch_name)
     
-    for pid, raw in stream_eeg_files(raw_dir):
-        try:
-            # Apply bandpass filter
-            raw_filtered = apply_bandpass_filter(raw, low_freq, high_freq)
-            
-            # Apply notch filter
-            raw_notched = apply_notch_filter(raw_filtered, notch_freq)
-            
-            # Reject artifacts
-            valid_epochs, rejected_epochs = reject_artifacts(
-                raw_notched, 
-                artifact_threshold, 
-                min_duration
-            )
-            
-            if not valid_epochs:
-                log_artifact_rejection(pid, 'No valid epochs after rejection', datetime.now())
-                continue
-            
-            # Concatenate valid epochs
-            cleaned_raw = mne.concatenate_epochs(valid_epochs)
-            
-            # Save cleaned data
-            out_file = output_path / f"cleaned_eeg_{pid}.fif"
-            cleaned_raw.save(out_file, overwrite=True)
-            cleaned_data.append(out_file)
-            
-        except Exception as e:
-            logger.error(f"Error processing {pid}: {e}")
-            exclusion_log.append({'participant_id': pid, 'reason': str(e), 'timestamp': datetime.now()})
-    
-    return cleaned_data, exclusion_log
+    if bad_channels:
+        reason = f"amplitude > {int(amplitude_threshold)}uV"
+        return False, reason, bad_channels
 
-def save_processed_data(cleaned_data, exclusion_log):
-    """Save processed data and exclusion log."""
-    # Save exclusion log
+    return True, "passed", None
+
+def process_eeg_stream(raw_dir: str, config: Dict[str, Any], logger: logging.Logger) -> None:
+    """
+    Process the stream of EEG files: Filter, Notch, Reject Artifacts.
+    Writes exclusion log to logs/exclusion_log.csv.
+    """
+    low_freq = config.get('filter_low', 1.0)
+    high_freq = config.get('filter_high', 40.0)
+    notch_freq = config.get('notch_frequency', 50.0)
+    artifact_threshold = config.get('artifact_threshold', 100.0)
+    min_duration = config.get('min_duration', 120.0)
+    
+    processed_dir = Path("data/processed")
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
     exclusion_log_path = Path("logs/exclusion_log.csv")
     exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    import pandas as pd
-    if exclusion_log:
-        df = pd.DataFrame(exclusion_log)
-        df.to_csv(exclusion_log_path, index=False)
+    # Prepare exclusion log data
+    exclusion_records = []
     
-    # Save final cleaned data file
-    output_path = Path("data/processed/cleaned_eeg.fif")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if cleaned_data:
-        # Concatenate all cleaned files into one
-        all_cleaned = []
-        for file_path in cleaned_data:
-            raw = mne.io.read_raw_fif(file_path, preload=False)
-            all_cleaned.append(raw)
+    for participant_id, raw in stream_eeg_files(raw_dir):
+        logger.info(f"Processing participant: {participant_id}")
         
-        final_raw = mne.concatenate_raws(all_cleaned)
-        final_raw.save(output_path, overwrite=True)
-    else:
-        # Create empty file if no data
-        with open(output_path, 'w') as f:
-            f.write("")
+        try:
+            # 1. Apply Bandpass
+            raw = apply_bandpass_filter(raw, low_freq, high_freq)
+            
+            # 2. Apply Notch
+            raw = apply_notch_filter(raw, notch_freq)
+            
+            # 3. Reject Artifacts
+            is_valid, reason, bad_channels = reject_artifacts(
+                raw, 
+                amplitude_threshold=artifact_threshold, 
+                min_duration=min_duration,
+                logger=logger
+            )
+            
+            if not is_valid:
+                logger.warning(f"Participant {participant_id} rejected: {reason}")
+                exclusion_records.append({
+                    "participant_id": participant_id,
+                    "reason": reason,
+                    "timestamp": datetime.now().isoformat()
+                })
+                # Log to the shared exclusion log utility
+                log_artifact_rejection(participant_id, reason, exclusion_log_path)
+                continue
+            
+            # 4. Save Valid Data
+            # Save as FIF for downstream compatibility
+            output_path = processed_dir / f"cleaned_eeg_{participant_id}.fif"
+            raw.save(output_path, overwrite=True)
+            logger.info(f"Saved cleaned data for {participant_id} to {output_path}")
+            
+        except Exception as e:
+            logger.error(f"Critical error processing {participant_id}: {e}")
+            exclusion_records.append({
+                "participant_id": participant_id,
+                "reason": f"processing_error: {str(e)}",
+                "timestamp": datetime.now().isoformat()
+            })
+            log_artifact_rejection(participant_id, f"processing_error: {str(e)}", exclusion_log_path)
+
+def save_processed_data(processed_dir: str = "data/processed") -> None:
+    """Placeholder for final aggregation if needed, currently handled in stream."""
+    pass
 
 def main():
-    config = load_config()
-    raw_dir = "data/raw"
-    
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    """Main entry point for the preprocessing pipeline."""
+    logger = setup_logger()
     logger.info("Starting preprocessing pipeline")
     
     try:
-        cleaned_data, exclusion_log = process_eeg_stream(raw_dir, config, "data/processed")
-        save_processed_data(cleaned_data, exclusion_log)
-        logger.info(f"Preprocessing complete. Processed {len(cleaned_data)} participants.")
+        config = load_config()
+        raw_dir = config.get('raw_data_dir', 'data/raw')
+        
+        if not os.path.exists(raw_dir):
+            logger.error(f"Data directory not found: {raw_dir}")
+            sys.exit(1)
+        
+        process_eeg_stream(raw_dir, config, logger)
+        logger.info("Preprocessing pipeline completed successfully")
+        
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         sys.exit(1)

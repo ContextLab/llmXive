@@ -1,35 +1,22 @@
 import os
-import sys
-import unittest
+import pytest
 from pathlib import Path
 
-class TestSkeletonFiles(unittest.TestCase):
-    def test_skeleton_files_exist(self):
-        """
-        Test that all required skeleton files exist.
-        """
-        project_root = Path(__file__).parent.parent.parent
-        required_files = [
-            "code/config.yaml",
-            "code/download.py",
-            "code/preprocess.py",
-            "code/features.py",
-            "code/analysis.py",
-            "code/report.py",
-            "code/models/__init__.py",
-            "docs/README.md"
-        ]
-        
-        missing_files = []
-        for file_path in required_files:
-            full_path = project_root / file_path
-            if not full_path.exists():
-                missing_files.append(file_path)
-        
-        if missing_files:
-            self.fail(f"Missing skeleton files: {missing_files}")
-        
-        print("All skeleton files exist.")
-
-if __name__ == '__main__':
-    unittest.main()
+def test_skeleton_files_exist():
+    base_dir = Path(__file__).parent.parent.parent
+    code_dir = base_dir / "code"
+    docs_dir = base_dir / "docs"
+    
+    required_files = [
+        code_dir / "config.yaml",
+        code_dir / "download.py",
+        code_dir / "preprocess.py",
+        code_dir / "features.py",
+        code_dir / "analysis.py",
+        code_dir / "report.py",
+        code_dir / "models" / "__init__.py",
+        docs_dir / "README.md"
+    ]
+    
+    missing = [f for f in required_files if not f.exists()]
+    assert len(missing) == 0, f"Missing skeleton files: {missing}"

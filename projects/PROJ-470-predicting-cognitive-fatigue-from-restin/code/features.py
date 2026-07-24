@@ -4,314 +4,283 @@ import yaml
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import mne
-from scipy import signal
 import logging
 from datetime import datetime
-import time
-from typing import List, Dict, Tuple, Optional, Iterator
+import mne
+from scipy.stats import pearsonr, spearmanr
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/features.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+# Import from utils.logging as per API surface
+from utils.logging import get_logger, save_exclusion_log_csv
 
-def load_config(config_path: str = "code/config.yaml") -> Dict:
-    """Load configuration from YAML file."""
-    try:
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.error(f"Config file not found: {config_path}")
-        sys.exit(1)
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML config: {e}")
-        sys.exit(1)
+def load_config(config_path='code/config.yaml'):
+    """Load pipeline configuration from YAML file."""
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def calculate_lzc(signal_data: np.ndarray, sampling_rate: float) -> float:
+def setup_logger(name, log_file='logs/pipeline.log', level=logging.INFO):
+    """Set up a logger that writes to both console and file."""
+    # Ensure log directory exists
+    log_dir = os.path.dirname(log_file)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Remove existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # File handler
+    fh = logging.FileHandler(log_file, mode='a')
+    fh.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    return logger
+
+def calculate_lzc(signal):
     """
-    Calculate Lempel-Ziv Complexity for a given signal.
-    
-    Args:
-        signal_data: 1D numpy array of signal values
-        sampling_rate: Sampling rate in Hz
-        
-    Returns:
-        Normalized LZC value between 0 and 1
+    Calculate Lempel-Ziv Complexity for a 1D signal.
+    Normalizes signal to [0, 1] and discretizes to binary.
     """
-    # Discretize the signal to binary (0 or 1)
-    median_val = np.median(signal_data)
-    binary_signal = (signal_data > median_val).astype(int)
-    
-    # Convert to string of '0's and '1's
-    binary_str = ''.join(map(str, binary_signal))
-    
-    # Calculate LZC
-    n = len(binary_str)
-    if n == 0:
+    if len(signal) == 0:
         return 0.0
-        
-    c = 1  # Start with first symbol
+    
+    # Normalize to [0, 1]
+    min_val, max_val = np.min(signal), np.max(signal)
+    if max_val - min_val < 1e-10:
+        return 0.0
+    
+    norm_signal = (signal - min_val) / (max_val - min_val)
+    
+    # Discretize to binary (0 if below mean, 1 otherwise)
+    threshold = np.mean(norm_signal)
+    binary_signal = (norm_signal > threshold).astype(int)
+    
+    # LZC algorithm
+    n = len(binary_signal)
+    c = 0
+    l = 1
     i = 0
-    j = 1
-    k = 0
-    
-    while i + j <= n:
-        if binary_str[i:i+j] in binary_str[:i+j-k]:
-            k += 1
-            if i + j == n:
-                c += 1
-            j += 1
-        else:
-            if k == 0:
-                k = 1
+    while i < n - l:
+        pattern = tuple(binary_signal[i:i+l])
+        found = False
+        for j in range(0, i):
+            if tuple(binary_signal[j:j+l]) == pattern:
+                found = True
+                break
+        if not found:
             c += 1
-            i += j
-            j = 1
-            k = 0
-            
-    # Normalize by the maximum possible complexity
-    max_c = n / np.log2(n) if n > 1 else 1
-    lzc_normalized = c / max_c
+            i += l
+            l = 1
+        else:
+            l += 1
+            if i + l >= n:
+                c += 1
+                break
     
-    return float(np.clip(lzc_normalized, 0, 1))
+    # Normalize by n / log2(n)
+    if n <= 1:
+        return 0.0
+    return c / (n / np.log2(n))
 
-def calculate_permutation_entropy(
-    signal_data: np.ndarray, 
-    sampling_rate: float, 
-    embedding_dim: int = 3, 
-    time_delay: int = 1
-) -> float:
+def calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1):
     """
-    Calculate Permutation Entropy for a given signal.
+    Calculate Permutation Entropy for a 1D signal.
     
-    Args:
-        signal_data: 1D numpy array of signal values
-        sampling_rate: Sampling rate in Hz
-        embedding_dim: Dimension of embedding (m)
-        time_delay: Time delay for embedding (tau)
+    Parameters:
+    -----------
+    signal : array-like
+        The input time series.
+    embedding_dim : int
+        The dimension of the embedding (order of the permutation).
+    time_delay : int
+        The time delay for the embedding.
         
     Returns:
-        Normalized PE value between 0 and 1
+    --------
+    float
+        The permutation entropy value.
     """
-    n = len(signal_data)
-    
-    # Ensure we have enough data points
-    if n < embedding_dim + (embedding_dim - 1) * time_delay:
-        logger.warning(f"Signal length {n} too short for embedding_dim={embedding_dim}")
+    if len(signal) < embedding_dim + (embedding_dim - 1) * time_delay:
         return 0.0
-        
+    
+    n = len(signal)
     # Create embedded vectors
+    # We need to form vectors of length 'embedding_dim' with 'time_delay' spacing
+    # Number of such vectors we can form
     num_vectors = n - (embedding_dim - 1) * time_delay
+    
     if num_vectors <= 0:
         return 0.0
-        
-    # Extract patterns and their ranks
-    patterns = []
-    for i in range(num_vectors):
-        vector = signal_data[i:i + embedding_dim * time_delay:time_delay]
-        # Get the rank order of the vector
-        rank = np.argsort(np.argsort(vector))
-        patterns.append(tuple(rank))
-        
-    # Count frequency of each pattern
-    from collections import Counter
-    pattern_counts = Counter(patterns)
-    total_patterns = len(patterns)
     
-    # Calculate probabilities
-    probabilities = np.array(list(pattern_counts.values())) / total_patterns
+    # Count permutations
+    from collections import Counter
+    permutation_counts = Counter()
+    
+    for i in range(num_vectors):
+        # Extract the embedded vector
+        vector = [signal[i + j * time_delay] for j in range(embedding_dim)]
+        
+        # Determine the permutation pattern by ranking
+        # argsort gives the indices that would sort the array
+        # We want the permutation of ranks
+        sorted_indices = np.argsort(vector)
+        # Create a tuple representing the permutation pattern
+        # We map the original indices to their rank positions
+        # Actually, we need the inverse: for each position j in the vector,
+        # what is the rank of vector[j]?
+        # If we sort, sorted_indices[k] is the index of the k-th smallest element.
+        # So the rank of element at index i is the position j such that sorted_indices[j] == i.
+        # We can compute this by:
+        permutation = np.empty(embedding_dim, dtype=int)
+        for rank, idx in enumerate(sorted_indices):
+            permutation[idx] = rank
+        
+        pattern = tuple(permutation)
+        permutation_counts[pattern] += 1
+    
+    total = sum(permutation_counts.values())
+    if total == 0:
+        return 0.0
     
     # Calculate entropy
-    # Avoid log(0) by filtering out zero probabilities
-    probs_nonzero = probabilities[probabilities > 0]
-    if len(probs_nonzero) == 0:
-        return 0.0
-        
-    entropy = -np.sum(probs_nonzero * np.log2(probs_nonzero))
+    entropy = 0.0
+    for count in permutation_counts.values():
+        p = count / total
+        if p > 0:
+            entropy -= p * np.log(p)
     
-    # Normalize by maximum possible entropy (log2 of factorial of embedding_dim)
-    max_entropy = np.log2(np.math.factorial(embedding_dim))
-    
+    # Normalize by max entropy (log2(embedding_dim!))
+    max_entropy = np.log(np.math.factorial(embedding_dim))
     if max_entropy == 0:
         return 0.0
-        
-    pe_normalized = entropy / max_entropy
     
-    return float(np.clip(pe_normalized, 0, 1))
+    return entropy / max_entropy
 
-def process_eeg_segments(
-    eeg_data: np.ndarray,
-    sfreq: float,
-    channels: List[str],
-    segment_duration: float = 120.0
-) -> Iterator[Tuple[str, str, np.ndarray]]:
+def process_eeg_segments(data_dir, config, logger):
     """
-    Generator to yield EEG segments for processing.
-    
-    Args:
-        eeg_data: 2D numpy array (n_channels, n_samples)
-        sfreq: Sampling frequency
-        channels: List of channel names
-        segment_duration: Duration of each segment in seconds
-        
-    Yields:
-        Tuples of (participant_id, channel_name, segment_data)
+    Process EEG segments from preprocessed data.
+    Reads cleaned_eeg.fif and calculates LZC and PE per participant/channel.
     """
-    segment_samples = int(segment_duration * sfreq)
-    n_channels, n_samples = eeg_data.shape
+    # Determine input file path
+    input_file = os.path.join(data_dir, 'processed', 'cleaned_eeg.fif')
+    if not os.path.exists(input_file):
+        # Try alternative path if data_dir is project root
+        input_file = os.path.join('data', 'processed', 'cleaned_eeg.fif')
     
-    # Assume participant_id is derived from the filename or context
-    # For now, we'll use a generic ID
-    participant_id = "participant_001"
+    if not os.path.exists(input_file):
+        logger.error(f"Preprocessed EEG file not found: {input_file}")
+        return None, None
     
-    # Process each channel
-    for i, channel in enumerate(channels):
-        channel_data = eeg_data[i, :]
-        
-        # Split into segments if data is long enough
-        num_segments = n_samples // segment_samples
-        
-        for seg_idx in range(num_segments):
-            start_idx = seg_idx * segment_samples
-            end_idx = start_idx + segment_samples
-            segment = channel_data[start_idx:end_idx]
-            
-            yield participant_id, channel, segment
-
-def save_metrics_to_csv(
-    metrics: List[Dict],
-    output_path: str,
-    columns: List[str]
-) -> None:
-    """
-    Save metrics to a CSV file.
+    logger.info(f"Loading preprocessed EEG from {input_file}")
     
-    Args:
-        metrics: List of dictionaries containing metrics
-        output_path: Path to output CSV file
-        columns: List of column names in order
-    """
-    if not metrics:
-        logger.warning("No metrics to save.")
-        # Create an empty file with headers
-        df = pd.DataFrame(columns=columns)
-    else:
-        df = pd.DataFrame(metrics, columns=columns)
-        
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Load data using MNE
+    # Assuming the file is in FIF format
+    raw = mne.read_raw_fif(input_file, preload=False)
     
-    df.to_csv(output_path, index=False)
-    logger.info(f"Metrics saved to {output_path} with {len(df)} rows")
-
-def main():
-    """Main function to run the feature extraction pipeline."""
-    logger.info("Starting feature extraction pipeline")
+    # Get data and info
+    data = raw.get_data()  # shape: (n_channels, n_times)
+    info = raw.info
+    channel_names = info['ch_names']
+    sfreq = info['sfreq']
     
-    # Load configuration
-    config = load_config()
+    logger.info(f"Loaded EEG data: {data.shape[0]} channels, {data.shape[1]} samples")
     
-    # Define paths
-    input_path = Path("data/processed/cleaned_eeg.fif")
-    lzc_output_path = Path("data/processed/lzc_metrics.csv")
-    pe_output_path = Path("data/processed/pe_metrics.csv")
-    
-    # Check if input file exists
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run preprocessing first to generate cleaned_eeg.fif")
-        sys.exit(1)
-        
-    # Load EEG data
-    logger.info(f"Loading EEG data from {input_path}")
-    try:
-        raw = mne.io.read_raw_fif(input_path, preload=False)
-        eeg_data = raw.get_data()  # Shape: (n_channels, n_samples)
-        sfreq = raw.info['sfreq']
-        channels = raw.ch_names
-        logger.info(f"Loaded data: {eeg_data.shape}, sampling rate: {sfreq} Hz, channels: {len(channels)}")
-    except Exception as e:
-        logger.error(f"Failed to load EEG data: {e}")
-        sys.exit(1)
-        
-    # Parameters
+    # Get embedding parameters from config
     embedding_dim = config.get('embedding_dim', 3)
-    segment_duration = 120.0  # seconds
+    time_delay = config.get('time_delay', 1)
     
-    # Lists to store metrics
-    lzc_metrics = []
-    pe_metrics = []
+    lzc_results = []
+    pe_results = []
     
-    # Process each channel
-    logger.info("Processing EEG segments for complexity metrics...")
-    start_time = time.time()
+    # Iterate over participants (assuming single participant per file for now,
+    # or we need to handle multiple segments)
+    # For simplicity, we assume the file contains one continuous recording per participant
+    # and we process it as a single segment per channel.
+    # If there are multiple participants, we would need to segment by participant_id.
+    # For now, we'll assume the file has one participant and process all channels.
     
-    for participant_id, channel, segment in process_eeg_segments(
-        eeg_data, sfreq, channels, segment_duration
-    ):
+    # If the data has multiple segments (e.g., by participant), we need to handle that.
+    # Since we don't have participant IDs in the FIF file directly, we'll assume
+    # the file is for one participant and use a placeholder ID or extract from filename.
+    participant_id = os.path.splitext(os.path.basename(input_file))[0]
+    
+    logger.info(f"Processing participant: {participant_id}")
+    
+    for ch_idx, ch_name in enumerate(channel_names):
+        signal = data[ch_idx, :]
+        
         # Calculate LZC
-        lzc_val = calculate_lzc(segment, sfreq)
-        lzc_metrics.append({
+        lzc_val = calculate_lzc(signal)
+        lzc_results.append({
             'participant_id': participant_id,
-            'channel': channel,
+            'channel': ch_name,
             'lzc_value': lzc_val
         })
         
-        # Calculate Permutation Entropy
-        pe_val = calculate_permutation_entropy(segment, sfreq, embedding_dim)
-        pe_metrics.append({
+        # Calculate PE
+        pe_val = calculate_permutation_entropy(signal, embedding_dim, time_delay)
+        pe_results.append({
             'participant_id': participant_id,
-            'channel': channel,
+            'channel': ch_name,
             'pe_value': pe_val
         })
         
-    elapsed_time = time.time() - start_time
-    logger.info(f"Feature extraction completed in {elapsed_time:.2f} seconds")
+        logger.debug(f"Channel {ch_name}: LZC={lzc_val:.4f}, PE={pe_val:.4f}")
     
-    # Define column order
-    lzc_columns = ['participant_id', 'channel', 'lzc_value']
-    pe_columns = ['participant_id', 'channel', 'pe_value']
+    return lzc_results, pe_results
+
+def save_metrics_to_csv(results, output_path, columns):
+    """Save metrics to CSV file."""
+    if not results:
+        logging.error("No results to save")
+        return
     
-    # Save LZC metrics
-    save_metrics_to_csv(lzc_metrics, str(lzc_output_path), lzc_columns)
+    df = pd.DataFrame(results)
+    # Ensure columns are in the correct order
+    df = df[columns]
+    df.to_csv(output_path, index=False)
+    logging.info(f"Saved metrics to {output_path}")
+
+def main():
+    """Main entry point for feature extraction."""
+    # Load config
+    config = load_config()
     
-    # Save PE metrics
-    save_metrics_to_csv(pe_metrics, str(pe_output_path), pe_columns)
+    # Set up logger
+    logger = setup_logger('features', 'logs/features.log')
+    logger.info("Starting feature extraction pipeline")
     
-    # Verification: Run on synthetic signal
-    logger.info("Running verification on synthetic signal...")
     try:
-        # Generate synthetic white noise
-        n_samples = int(256 * 120)  # 256 Hz * 120 seconds
-        np.random.seed(42)
-        synthetic_signal = np.random.randn(n_samples)
+        # Process EEG segments
+        lzc_results, pe_results = process_eeg_segments('data', config, logger)
         
-        # Calculate LZC
-        synthetic_lzc = calculate_lzc(synthetic_signal, 256)
-        logger.info(f"Synthetic LZC (white noise): {synthetic_lzc:.4f}")
+        if lzc_results is None or pe_results is None:
+            logger.error("Failed to process EEG segments")
+            sys.exit(1)
         
-        # Calculate PE
-        synthetic_pe = calculate_permutation_entropy(synthetic_signal, 256, embedding_dim=3)
-        logger.info(f"Synthetic PE (white noise): {synthetic_pe:.4f}")
+        # Save LZC metrics
+        lzc_output = os.path.join('data', 'processed', 'lzc_metrics.csv')
+        save_metrics_to_csv(lzc_results, lzc_output, ['participant_id', 'channel', 'lzc_value'])
         
-        # Verify ranges
-        assert 0 <= synthetic_lzc <= 1, f"LZC {synthetic_lzc} out of range [0, 1]"
-        assert 0 <= synthetic_pe <= 1, f"PE {synthetic_pe} out of range [0, 1]"
+        # Save PE metrics
+        pe_output = os.path.join('data', 'processed', 'pe_metrics.csv')
+        save_metrics_to_csv(pe_results, pe_output, ['participant_id', 'channel', 'pe_value'])
         
-        logger.info("Verification passed: Synthetic signal metrics are within theoretical range [0, 1]")
+        logger.info("Feature extraction completed successfully")
         
     except Exception as e:
-        logger.error(f"Verification failed: {e}")
+        logger.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
-        
-    logger.info("Feature extraction pipeline completed successfully")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

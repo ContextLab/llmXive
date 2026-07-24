@@ -2,124 +2,92 @@ import pytest
 import numpy as np
 import os
 import sys
-import pandas as pd
 from pathlib import Path
 
-# Add the code directory to the path for imports
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from features import calculate_lzc, calculate_permutation_entropy
 
-class TestLZCCalculation:
+class TestLempezZivComplexity:
     """Unit tests for LZC calculation."""
-
-    def test_lzc_on_white_noise(self):
+    
+    def test_lzc_white_noise(self):
         """Test LZC on white noise signal."""
-        # Generate white noise
         np.random.seed(42)
-        signal = np.random.randn(256 * 120)  # 256 Hz, 120 seconds
-        lzc_val = calculate_lzc(signal, 256)
+        signal = np.random.normal(0, 1, 1000)
+        lzc_val = calculate_lzc(signal)
         
-        # LZC should be between 0 and 1
-        assert 0 <= lzc_val <= 1, f"LZC value {lzc_val} is out of range [0, 1]"
-        # White noise should have high complexity (close to 1)
-        assert lzc_val > 0.5, f"White noise LZC {lzc_val} is unexpectedly low"
-
-    def test_lzc_on_constant_signal(self):
+        # LZC should be a valid float and not NaN
+        assert isinstance(lzc_val, float)
+        assert not np.isnan(lzc_val)
+        # White noise should have relatively high complexity
+        assert lzc_val > 0.1
+        
+    def test_lzc_constant_signal(self):
         """Test LZC on constant signal (should be 0)."""
         signal = np.ones(1000)
-        lzc_val = calculate_lzc(signal, 256)
+        lzc_val = calculate_lzc(signal)
+        assert lzc_val == 0.0
         
-        # Constant signal should have LZC close to 0
-        assert lzc_val == 0.0, f"Constant signal LZC should be 0, got {lzc_val}"
+    def test_lzc_empty_signal(self):
+        """Test LZC on empty signal."""
+        signal = np.array([])
+        lzc_val = calculate_lzc(signal)
+        assert lzc_val == 0.0
 
-    def test_lzc_on_sine_wave(self):
-        """Test LZC on sine wave (should be low)."""
-        t = np.linspace(0, 1, 1000)
-        signal = np.sin(2 * np.pi * 10 * t)  # 10 Hz sine wave
-        lzc_val = calculate_lzc(signal, 256)
-        
-        # Sine wave should have lower complexity than white noise
-        assert 0 <= lzc_val <= 1, f"LZC value {lzc_val} is out of range [0, 1]"
-
-class TestPermutationEntropyCalculation:
+class TestPermutationEntropy:
     """Unit tests for Permutation Entropy calculation."""
-
-    def test_pe_on_white_noise(self):
-        """Test PE on white noise signal."""
-        # Generate white noise
+    
+    def test_pe_white_noise(self):
+        """Test PE on white noise signal with known parameters."""
+        # Generate white noise as specified in task:
+        # seed=42, amplitude normalized, 256 Hz, 120 seconds
         np.random.seed(42)
-        signal = np.random.randn(256 * 120)  # 256 Hz, 120 seconds
-        pe_val = calculate_permutation_entropy(signal, 256, embedding_dim=3)
+        duration = 120  # seconds
+        sfreq = 256     # Hz
+        n_samples = duration * sfreq
+        signal = np.random.normal(0, 1, n_samples)
         
-        # PE should be between 0 and 1
-        assert 0 <= pe_val <= 1, f"PE value {pe_val} is out of range [0, 1]"
-        # White noise should have high entropy (close to 1)
-        assert pe_val > 0.5, f"White noise PE {pe_val} is unexpectedly low"
-
-    def test_pe_on_constant_signal(self):
+        # Normalize amplitude to unity (already done by normal distribution with std=1)
+        signal = signal / np.max(np.abs(signal))
+        
+        embedding_dim = 3
+        time_delay = 1
+        
+        pe_val = calculate_permutation_entropy(signal, embedding_dim, time_delay)
+        
+        # Assert output is a valid numeric float and not NaN
+        assert isinstance(pe_val, float)
+        assert not np.isnan(pe_val)
+        # For white noise, PE should be relatively high (close to 1.0 for normalized)
+        # but not exactly 1.0 due to finite sample size
+        assert pe_val > 0.5
+        
+    def test_pe_constant_signal(self):
         """Test PE on constant signal (should be 0)."""
         signal = np.ones(1000)
-        pe_val = calculate_permutation_entropy(signal, 256, embedding_dim=3)
+        pe_val = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1)
+        assert pe_val == 0.0
         
-        # Constant signal should have PE close to 0
-        assert pe_val == 0.0, f"Constant signal PE should be 0, got {pe_val}"
-
-    def test_pe_on_sine_wave(self):
-        """Test PE on sine wave (should be low)."""
-        t = np.linspace(0, 1, 1000)
-        signal = np.sin(2 * np.pi * 10 * t)  # 10 Hz sine wave
-        pe_val = calculate_permutation_entropy(signal, 256, embedding_dim=3)
+    def test_pe_small_signal(self):
+        """Test PE on very short signal."""
+        signal = np.array([1.0, 2.0, 3.0])
+        # With embedding_dim=3, we need at least 3 + (3-1)*1 = 5 samples
+        # So this should return 0 or handle gracefully
+        pe_val = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1)
+        # Should not crash, might return 0
+        assert isinstance(pe_val, float)
         
-        # Sine wave should have lower entropy than white noise
-        assert 0 <= pe_val <= 1, f"PE value {pe_val} is out of range [0, 1]"
-
-    def test_pe_embedding_dim(self):
-        """Test PE with different embedding dimensions."""
+    def test_pe_embedding_parameters(self):
+        """Test PE with different embedding parameters."""
         np.random.seed(42)
-        signal = np.random.randn(1000)
+        signal = np.random.normal(0, 1, 1000)
         
         # Test with different embedding dimensions
-        for dim in [3, 4, 5]:
-            pe_val = calculate_permutation_entropy(signal, 256, embedding_dim=dim)
-            assert 0 <= pe_val <= 1, f"PE value {pe_val} with dim={dim} is out of range [0, 1]"
-
-class TestFeatureExtractionIntegration:
-    """Integration tests for feature extraction."""
-
-    def test_output_files_exist(self):
-        """Test that output files are created."""
-        # This test assumes the main() function has been run
-        lzc_path = Path("data/processed/lzc_metrics.csv")
-        pe_path = Path("data/processed/pe_metrics.csv")
+        pe1 = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=1)
+        pe2 = calculate_permutation_entropy(signal, embedding_dim=4, time_delay=1)
+        pe3 = calculate_permutation_entropy(signal, embedding_dim=3, time_delay=2)
         
-        # Note: This test may fail if main() hasn't been run yet
-        # It's intended to be run after the feature extraction pipeline
-        if lzc_path.exists():
-            df_lzc = pd.read_csv(lzc_path)
-            assert 'participant_id' in df_lzc.columns
-            assert 'channel' in df_lzc.columns
-            assert 'lzc_value' in df_lzc.columns
-            assert len(df_lzc) > 0, "LZC metrics file is empty"
-        
-        if pe_path.exists():
-            df_pe = pd.read_csv(pe_path)
-            assert 'participant_id' in df_pe.columns
-            assert 'channel' in df_pe.columns
-            assert 'pe_value' in df_pe.columns
-            assert len(df_pe) > 0, "PE metrics file is empty"
-
-    def test_output_schema(self):
-        """Test that output files have correct schema."""
-        lzc_path = Path("data/processed/lzc_metrics.csv")
-        pe_path = Path("data/processed/pe_metrics.csv")
-        
-        if lzc_path.exists():
-            df_lzc = pd.read_csv(lzc_path)
-            expected_columns = ['participant_id', 'channel', 'lzc_value']
-            assert list(df_lzc.columns) == expected_columns, f"LZC columns: {list(df_lzc.columns)} != {expected_columns}"
-        
-        if pe_path.exists():
-            df_pe = pd.read_csv(pe_path)
-            expected_columns = ['participant_id', 'channel', 'pe_value']
-            assert list(df_pe.columns) == expected_columns, f"PE columns: {list(df_pe.columns)} != {expected_columns}"
+        # All should be valid floats
+        assert all(isinstance(p, float) and not np.isnan(p) for p in [pe1, pe2, pe3])

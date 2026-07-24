@@ -1,20 +1,13 @@
-T014:
+T010:
   c: false
-  h: 1ef4b1bc4d0d6b299daab0d1aaeb0684172355761b49546d7dd3e54096f7cd61
-  r: The required output file `data/processed/lzc_metrics.csv` does not exist, so
-    the verification step cannot be satisfied. Moreover, the provided `code/features.py`
-    only defines helper functions (e.g., `calculate_lzc`) and does not contain any
-    logic that iterates over participants/channels, computes LZC per channel, and
-    writes the results to the specified CSV with the required schema. The task therefore
-    remains unfinished.
-T015:
-  c: false
-  h: 9a62d8dab5955f23f8c25ee4ae27681f73ea216a4f03b1db12b9f1cc4776c89b
-  r: "The required output file `data/processed/pe_metrics.csv` does not exist, and\
-    \ the provided `code/features.py` is truncated (the permutation\u2011entropy function\
-    \ is incomplete and there is no code that writes the CSV with the specified schema\
-    \ or runs the synthetic\u2011signal test). The task\u2019s core deliverables are\
-    \ therefore missing."
+  h: 9e59fec3cebbe04f188ab7d1036822f2d28453cb9630bc7c38f5616525cb2015
+  r: "The `code/preprocess.py` file is truncated, contains a typo (`return ra`) and\
+    \ its `apply_notch_filter` signature does not match the test\u2019s call (missing\
+    \ `sfreq` argument). The required output file `data/processed/cleaned_eeg.fif`\
+    \ does not exist, and the integration test `test_line_noise_attenuation` is incomplete\
+    \ (truncated before the final assertion). These issues mean the band\u2011pass\
+    \ and notch filtering, config\u2011driven notch frequency, and output generation\
+    \ are not correctly implemented."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
