@@ -1,2 +1,1 @@
-# This directory is for synthetic/prototype data only
-# Do not place real fetched data here
+# This file ensures the data/synthetic directory exists in version control.

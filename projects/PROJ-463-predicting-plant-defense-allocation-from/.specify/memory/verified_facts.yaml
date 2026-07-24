@@ -1,5 +1,11 @@
-'|available halt if insufficient power report specy statistical':
-  quote: 'P12071: 11200'
-  source_id: Q136293754
-  url: https://www.wikidata.org/wiki/Q136293754
-  value: '11200'
+'|fdr':
+  quote: "1. Set m = 1000,\u03C00\u2208{ 0.5, 0.6, 0.7, 0.8, 0.95},m0 =m\u03C00, and\
+    \ nominal FDR level to be 0.05."
+  source_id: '1410.4274'
+  url: https://arxiv.org/abs/1410.4274
+  value: '0.05'
+'|permutation testing':
+  quote: '0.05'
+  source_id: Permutation test
+  url: https://en.wikipedia.org/wiki/Permutation_test
+  value: '0.05'

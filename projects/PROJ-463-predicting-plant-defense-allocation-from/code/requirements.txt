@@ -1,6 +1,26 @@
-requests>=2.31.0
-tqdm>=4.66.0
-pydantic>=2.0.0
+# Bioinformatics Pipeline Dependencies
+# Core Python libraries
 numpy>=1.24.0
 pandas>=2.0.0
-pytest>=7.4.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+requests>=2.31.0
+pydantic>=2.0.0
+rpy2>=3.5.0
+biopython>=1.81
+ete3>=3.1.2
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0
+
+# Linting & Formatting
+ruff>=0.0.290
+black>=23.3.0
+
+# Data handling
+pyyaml>=6.0
+jsonschema>=4.17.0

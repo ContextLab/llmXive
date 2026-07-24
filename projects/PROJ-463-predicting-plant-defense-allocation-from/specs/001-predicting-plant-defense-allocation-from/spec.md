@@ -85,7 +85,7 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 - **FR-011**: System MUST attempt to integrate alternative public sources (e.g., Phenoscape, GBIF trait extensions, or specific literature repositories) via a fallback lookup if the primary source (TRY) lacks data for a species. "Target species" is defined as the set of unique plant species present in the final RNA-seq dataset after initial QC filtering (US-1). If the total number of species missing data from *all* sources (primary + fallback) exceeds a significant proportion of the target species, the system MUST halt the modeling phase, log the exclusion count, and raise a `human_input_needed` flag (See US-3)
 - **FR-012**: System MUST perform pathway-level aggregation (e.g., KEGG/GO) to reduce the herbivore-response vector from 200 genes to ≤50 pathway-level features before model training to address the small-n, large-p problem (See US-3)
 - **FR-016**: System MUST perform a power analysis prior to modeling. If the available number of species is relatively small… (calculated to detect R²=0.3 with α=0.05 and β=0.2), the system MUST halt and report "Insufficient statistical power for reliable prediction" (See US-3)
-- **FR-017**: System MUST validate the predictive model against a phylogenetic null model. The system MUST generate a null distribution of R² values by shuffling species labels across the phylogenetic tree (sufficient iterations) and report if the observed R² exceeds the 95th percentile of this null distribution (See US-3)
+- **FR-017**: System MUST validate the predictive model against a phylogenetic null model. The system MUST generate a null distribution of R² values by shuffling species labels across the phylogenetic tree (sufficient iterations) and report if the observed R² exceeds a statistically significant threshold of this null distribution. (See US-3)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -107,7 +107,7 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 - **SC-003**: Predictive model performance (R², Spearman correlation) is measured against leave‑one‑species‑out test sets (See US-3)
 - **SC-004**: Statistical significance (p‑value) is measured against N=10,000 permutation null distribution (See US-3)
 - **SC-005**: Sensitivity to DE gene count is measured by R² variation across a range of gene counts. (See US-3)
-- **SC-006**: Phylogenetic independence is measured by comparing observed R² against the 95th percentile of the phylogenetic null distribution (See US-3)
+- **SC-006**: Phylogenetic independence is measured by comparing observed R² against a high percentile of the phylogenetic null distribution (See US-3)
 
 ## Assumptions
 

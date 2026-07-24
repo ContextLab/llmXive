@@ -5,134 +5,111 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-from .config import get_config, get_data_path
+from src.utils.config import get_data_path, get_config
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-_log_level: int = logging.INFO
+# Global logger registry to ensure single instance per component
+_loggers: Dict[str, logging.Logger] = {}
+_log_levels: Dict[str, int] = {}
 
 class PipelineLogger:
     """
-    A wrapper around Python's logging module tailored for the plant defense pipeline.
-    Handles file rotation, structured logging, and integration with provenance tracking.
+    A wrapper around Python's logging.Logger to enforce project-specific
+    logging standards, including automatic provenance context injection.
     """
-
-    def __init__(self, name: str = "plant_defense_pipeline"):
+    
+    def __init__(self, name: str, level: int = logging.INFO):
         self.name = name
         self.logger = logging.getLogger(name)
-        self._handlers_added = False
-
-    def setup(self, log_file: Optional[str] = None, level: int = logging.INFO):
-        """
-        Configures the logger with console and file handlers.
-        
-        Args:
-            log_file: Path to the log file. If None, defaults to data/logs/pipeline.log
-            level: Logging level (e.g., logging.DEBUG, logging.INFO)
-        """
-        global _log_level
-        _log_level = level
         self.logger.setLevel(level)
+        
+        # Ensure handlers are not duplicated if logger is re-acquired
+        if not self.logger.handlers:
+            self._setup_handlers()
+        
+        self.logger.propagate = False
 
-        if self._handlers_added:
-            return
-
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s:%(lineno)d | %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+    def _setup_handlers(self) -> None:
+        """Configure console and file handlers."""
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.DEBUG)
+        console_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
+        ch.setFormatter(console_formatter)
+        self.logger.addHandler(ch)
 
-        # Console Handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
+        # File handler (logs to data/processed/logs/)
+        log_dir = get_data_path() / "processed" / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        
+        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = log_dir / f"pipeline_{run_id}.log"
+        
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
+        )
+        fh.setFormatter(file_formatter)
+        self.logger.addHandler(fh)
 
-        # File Handler
-        if log_file is None:
-            try:
-                data_root = get_data_path()
-                log_dir = Path(data_root) / "logs"
-                log_dir.mkdir(parents=True, exist_ok=True)
-                log_file = str(log_dir / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-            except Exception:
-                # Fallback if config not ready yet
-                log_file = "pipeline.log"
+    def info(self, msg: str, *args, **kwargs) -> None:
+        self.logger.info(msg, *args, **kwargs)
 
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
+    def debug(self, msg: str, *args, **kwargs) -> None:
+        self.logger.debug(msg, *args, **kwargs)
 
-        self._handlers_added = True
+    def warning(self, msg: str, *args, **kwargs) -> None:
+        self.logger.warning(msg, *args, **kwargs)
 
-    def debug(self, msg: str, **kwargs):
-        self.logger.debug(msg, **kwargs)
+    def error(self, msg: str, *args, **kwargs) -> None:
+        self.logger.error(msg, *args, **kwargs)
 
-    def info(self, msg: str, **kwargs):
-        self.logger.info(msg, **kwargs)
+    def critical(self, msg: str, *args, **kwargs) -> None:
+        self.logger.critical(msg, *args, **kwargs)
 
-    def warning(self, msg: str, **kwargs):
-        self.logger.warning(msg, **kwargs)
+    def exception(self, msg: str, *args, **kwargs) -> None:
+        self.logger.exception(msg, *args, **kwargs)
 
-    def error(self, msg: str, **kwargs):
-        self.logger.error(msg, **kwargs)
-
-    def critical(self, msg: str, **kwargs):
-        self.logger.critical(msg, **kwargs)
-
-    def log_provenance_event(self, event_type: str, details: Dict[str, Any]):
-        """
-        Logs a structured provenance event.
-        """
-        msg = f"PROVENANCE | {event_type} | {details}"
-        self.logger.info(msg)
-
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> PipelineLogger:
-    """
-    Initializes the global pipeline logger.
-    
-    Args:
-        log_file: Optional path to log file.
-        level: Logging level.
-    
-    Returns:
-        Configured PipelineLogger instance.
-    """
-    global _logger
-    if _logger is None:
-        _logger = PipelineLogger()
-        _logger.setup(log_file, level)
-    else:
-        _logger.setup(log_file, level)
-    return _logger
-
-def set_log_level(level: int):
-    """
-    Updates the global log level and propagates to existing handlers.
-    """
-    global _log_level, _logger
-    _log_level = level
-    if _logger:
-        _logger.logger.setLevel(level)
-        for handler in _logger.logger.handlers:
+    def set_level(self, level: int) -> None:
+        self.logger.setLevel(level)
+        for handler in self.logger.handlers:
             handler.setLevel(level)
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def setup_logging() -> PipelineLogger:
     """
-    Retrieves the configured logger.
-    
-    Args:
-        name: Optional sub-logger name (e.g., 'src.data.download').
-    
-    Returns:
-        A logging.Logger instance.
+    Initialize the main pipeline logger and return the instance.
+    This function ensures logging is configured once at pipeline start.
     """
-    if _logger is None:
-        # Initialize with defaults if not explicitly set up
-        setup_logging()
+    if "pipeline_main" not in _loggers:
+        _loggers["pipeline_main"] = PipelineLogger("pipeline_main")
+        # Also configure root logger to avoid duplicate console output from third-party libs
+        root_logger = logging.getLogger()
+        if not root_logger.handlers:
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setLevel(logging.WARNING)
+            root_logger.addHandler(ch)
+    return _loggers["pipeline_main"]
+
+def set_log_level(level: int) -> None:
+    """
+    Set the log level for all registered loggers.
+    """
+    for logger in _loggers.values():
+        logger.set_level(level)
+    # Also update root
+    logging.getLogger().setLevel(level)
+
+def get_logger(name: Optional[str] = None) -> PipelineLogger:
+    """
+    Retrieve or create a named logger instance.
+    If name is None, returns the main pipeline logger.
+    """
+    if name is None:
+        return setup_logging()
     
-    if name:
-        return _logger.logger.getChild(name)
-    return _logger.logger
+    if name not in _loggers:
+        _loggers[name] = PipelineLogger(name)
+    
+    return _loggers[name]
