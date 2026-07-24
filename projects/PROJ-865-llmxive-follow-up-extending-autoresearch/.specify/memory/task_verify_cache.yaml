@@ -1,11 +1,9 @@
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any `.gitignore` file or show that the required\
-    \ lines for `data/raw/`, `data/derived/`, and `data/artifacts/` were added. No\
-    \ artifact was presented, so the task\u2019s requirement is unmet. The next implementer\
-    \ should create or update the root `.gitignore` to include those three directory\
-    \ rules."
+  r: No `.gitignore` file or its contents were provided; thus we cannot verify that
+    the required rules for `data/raw/`, `data/derived/`, and `data/artifacts/` were
+    added. The task lacks the necessary artifact.
 T007:
   c: false
   h: 60f28228e2ddcb6ffd1aacf550eeb70eb6b75b8faae27f36cbb4329ccb56746c
@@ -16,36 +14,50 @@ T007:
     \ is missing, so the hashes and timestamp cannot be recorded."
 T011b:
   c: false
-  h: 0387167b8b9ea663eb2ff5a0b272a6fdbcb3cc7bcde42b9e58dcbfecaf893b5c
-  r: The repository lacks the required input file `data/derived/parsed_traces.json`,
-    the output files `failure_cases.json`, `failure_cases_train.json`, `failure_cases_val.json`,
-    and `failure_cases_test.json`, and the schema file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`.
-    Moreover, `annotate_failures.py` is truncated and does not contain the full implementation
-    (e.g., the annotation loop, schema validation call, data splitting, and file writing).
-    These missing pieces prevent the task from being considered complete.
+  h: a04aab45846a9b4f7d097a7b19dea7604eaeb2e86cf27990f80b1ad00b822f9f
+  r: The repository lacks the required input `data/derived/parsed_traces.json`, the
+    generated `failure_cases.json` (and its train/val/test splits), and the schema
+    file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`. Moreover,
+    the provided `annotate_failures.py` is truncated and does not show the full implementation
+    of validation, splitting, and writing of the output files. These essential artifacts
+    are missing, so the task is not genuinely completed.
 T013:
   c: false
-  h: ad04abf85e2a130d71e2d81ffb539810caca7b6c7c2c05afa078f404a0d0d070
-  r: "The repository lacks the required `data/derived/failure_cases_val.json` input\
-    \ and the generated `data/derived/rules_library.json` output. Moreover, the provided\
-    \ `distill_rules.py` is truncated and does not contain the model\u2011selection,\
-    \ RAM\u2011monitoring, coverage\u2011checking, or LLM\u2011based rule generation\
-    \ logic mandated by the task. These essential components are missing, so the implementation\
-    \ is not complete."
+  h: 623df3e18f031fc0946a892abb84bed6678319b0912774c6493a0b9d9e151168
+  r: "The repository contains a `distill_rules.py` file, but it is truncated and does\
+    \ not implement the required model\u2011selection, RAM\u2011monitoring, \u2265\
+    90\u202F% coverage check, or mandatory failure behavior; it even mentions falling\
+    \ back to regex, which the task forbids. Moreover, the required output file `data/derived/rules_library.json`\
+    \ is missing. These missing/incorrect artifacts prevent the task from being considered\
+    \ complete."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `rule_engine.py` file or code changes were provided, so there is no evidence\
     \ that logic handling \u201CUnstructured\u201D cases and defaulting to the baseline\
     \ retrieval method was implemented. The required artifact is missing."
+T019:
+  c: false
+  h: 116d5c983e715ba84d7473b97aef0b69653753090e07b2af83f7e1e91690dd18
+  r: "The required `data/derived/experiment_manifest.csv` file is absent, so the script\
+    \ cannot read the task list. Moreover, the provided `run_experiments.py` only\
+    \ defines data\u2011loading utilities and never invokes the rule engine on the\
+    \ manifest entries, so it does not fulfill the \u201Crun the rule engine on the\
+    \ tasks\u201D requirement."
 T019a:
   c: false
-  h: 7158615777270d49316fbc39477cc655bb14c9cf175bc85ce9478f33421fb845
-  r: "The script `code/03_execution/generate_manifest.py` is present but appears truncated\
-    \ and does not contain a complete implementation (e.g., the `write_manifest` function\
-    \ ends abruptly with an unfinished `raise ValueError`). Moreover, the required\
-    \ output file `data/derived/experiment_manifest.csv` does not exist. The task\u2019\
-    s core requirement\u2014to generate that manifest CSV\u2014is therefore not satisfied."
+  h: b2bc59569d346410abfdafefc73878da6334c185de30752af5de5f5b04a4007c
+  r: The repository contains `code/03_execution/generate_manifest.py`, but the required
+    output file `data/derived/experiment_manifest.csv` is absent. Since the task explicitly
+    demands that the script create this manifest CSV, the missing artifact means the
+    requirement is not satisfied. The next implementer must ensure the script runs
+    and generates the CSV at the specified path.
+T020:
+  c: false
+  h: 588f2121acbb8cb22df8c6f629d407eb5d2ce4750cf5e35f75b46c54abddfc64
+  r: "The required `data/derived/results_rule_engine.csv` file does not exist, so\
+    \ no recorded metrics can be verified. The task\u2019s core output is missing,\
+    \ indicating the implementation has not fulfilled the requirement."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,9 +74,10 @@ T029a:
     \ core deliverable is therefore missing."
 T029b:
   c: false
-  h: 30a28683d874960c87d4de53d59062b15173df570e334d338a5fb8af7d817d4f
-  r: "The script `code/04_analysis/calculate_stratified_rates.py` is present but appears\
-    \ truncated and does not contain code that writes the required `data/derived/stratified_success_rates.csv`.\
-    \ Moreover, the expected CSV output file is missing from the repository. The task\u2019\
-    s core requirement\u2014producing a stratified success\u2011rate CSV with columns\
-    \ per failure type\u2014is therefore not satisfied."
+  h: c2387e0aa6e67aea20ce79ce8a866d9a1990c51746ee86cac23ac58c8662c36d
+  r: "The `calculate_stratified_rates.py` script is truncated (the CSV writer line\
+    \ is incomplete) and does not contain a runnable entry\u2011point that reads the\
+    \ merged results and writes the required `data/derived/stratified_success_rates.csv`.\
+    \ Moreover, the generated CSV (if it existed) would have rows with a `failure_type`\
+    \ column, not separate columns like `syntactic_rate` and `semantic_rate` as the\
+    \ task specifies. The expected output file is missing entirely."

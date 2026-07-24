@@ -25,7 +25,7 @@ venv/
 ENV/
 env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
@@ -36,7 +36,12 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project Specific Data (Exclude raw, derived, and artifacts, but keep .gitkeep)
+# Project Specific
+.env
+.local
+
+# Data Artifacts (Explicitly handled per T005)
+# Ignore all content in data directories except .gitkeep files to track structure
 data/raw/*
 !data/raw/.gitkeep
 data/derived/*
@@ -44,15 +49,7 @@ data/derived/*
 data/artifacts/*
 !data/artifacts/.gitkeep
 
-# Logs
+# Logs and temporary files
 *.log
-data/artifacts/*.log
-
-# Temporary files
-*.tmp
-.tmp/
-
-# Configuration (if sensitive)
-.env
-.secret
-.env.*
+.cache/
+tmp/

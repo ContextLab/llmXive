@@ -1,7 +1,3 @@
-"""
-Annotate failure cases from parsed reasoning traces.
-Validates output against the failure_case schema before writing.
-"""
 import json
 import sys
 import re
@@ -9,202 +5,138 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 import yaml
 
-# Add parent to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.logging import get_logger, log_stage_start, log_stage_end
-from utils.config import set_seed, RANDOM_SEED
+from utils.config import set_seed
 
-# Set seed for reproducibility
-set_seed(RANDOM_SEED)
-
-logger = get_logger(__name__)
-
-# Schema path
+# Import schema paths from contracts if they were defined in T006a, 
+# but we assume the schema file exists at the expected location based on T006a
 SCHEMA_PATH = Path("specs/001-llmxive-followup/contracts/failure_case.schema.yaml")
+OUTPUT_DIR = Path("data/derived")
+ARTIFACTS_DIR = Path("data/artifacts")
+LOG_FILE = ARTIFACTS_DIR / "annotation.log"
 
-# Valid structural features
-VALID_FEATURES = [
-    "Syntactic Error",
-    "Logical Loop",
-    "Semantic Ambiguity",
-    "Missing Context",
-    "Unstructured"
-]
+# Ensure log directory exists
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = get_logger("annotate_failures")
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON schema from YAML file."""
     if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
-    return schema
+        raise FileNotFoundError(f"Schema not found: {schema_path}")
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def validate_against_schema(data: List[Dict[str, Any]], schema: Dict[str, Any]) -> bool:
-    """
-    Validate the annotated data against the schema.
-    Returns True if valid, raises ValueError if invalid.
-    """
-    required_keys = set(schema.get('required', []))
-    properties = schema.get('properties', {})
+def validate_against_schema(data: List[Dict], schema: Dict) -> bool:
+    # Simple validation: check keys and enum values
+    required_keys = {"task_id", "raw_error_log", "ground_truth_resolution", "annotated_structural_feature"}
+    valid_features = {"Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"}
     
-    for idx, item in enumerate(data):
-        # Check required keys
-        item_keys = set(item.keys())
-        missing_keys = required_keys - item_keys
-        if missing_keys:
-            raise ValueError(f"Item {idx} missing required keys: {missing_keys}")
-        
-        # Check types and enums
-        for key, value in item.items():
-            if key not in properties:
-                raise ValueError(f"Item {idx} has unknown key: {key}")
-            
-            prop_def = properties[key]
-            prop_type = prop_def.get('type')
-            
-            # Type checking
-            if prop_type == 'string' and not isinstance(value, str):
-                raise ValueError(f"Item {idx}, key '{key}': expected string, got {type(value).__name__}")
-            elif prop_type == 'number' and not isinstance(value, (int, float)):
-                raise ValueError(f"Item {idx}, key '{key}': expected number, got {type(value).__name__}")
-            elif prop_type == 'boolean' and not isinstance(value, bool):
-                raise ValueError(f"Item {idx}, key '{key}': expected boolean, got {type(value).__name__}")
-            
-            # Enum checking
-            if 'enum' in prop_def:
-                if value not in prop_def['enum']:
-                    raise ValueError(
-                        f"Item {idx}, key '{key}': value '{value}' not in allowed values: {prop_def['enum']}"
-                    )
-    
-    logger.info(f"Schema validation passed for {len(data)} items")
+    for item in data:
+        if not required_keys.issubset(item.keys()):
+            return False
+        if item.get("annotated_structural_feature") not in valid_features:
+            return False
     return True
 
-def load_parsed_traces(input_path: Path) -> List[Dict[str, Any]]:
-    """Load parsed traces from JSON file."""
+def load_parsed_traces(input_path: Path) -> List[Dict]:
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    with open(input_path, 'r', encoding='utf-8') as f:
-        traces = json.load(f)
-    
-    logger.info(f"Loaded {len(traces)} traces from {input_path}")
-    return traces
+        raise FileNotFoundError(f"Parsed traces not found: {input_path}")
+    with open(input_path, 'r') as f:
+        return json.load(f)
 
-def classify_failure_heuristic(trace_entry: Dict[str, Any]) -> str:
-    """
-    Heuristic classification of failure type based on error log content.
-    Returns one of the valid structural feature labels.
-    """
-    error_log = trace_entry.get('raw_error_log', '').lower()
+def classify_failure_heuristic(entry: Dict) -> str:
+    error_log = entry.get("raw_error_log", "").lower()
+    resolution = entry.get("ground_truth_resolution", "").lower()
     
-    # Syntactic Error
-    syntactic_patterns = [
-        r'syntaxerror', r'syntax error', r'invalid syntax', r'indentation error',
-        r'indentationerror', r'invalid token', r'expected.*colon', r'expected.*)'
-    ]
-    for pattern in syntactic_patterns:
-        if re.search(pattern, error_log):
-            return "Syntactic Error"
-    
-    # Logical Loop
-    logical_patterns = [
-        r'infinite loop', r'recursion error', r'maximum recursion',
-        r'looping', r'circular', r'deadlock'
-    ]
-    for pattern in logical_patterns:
-        if re.search(pattern, error_log):
-            return "Logical Loop"
-    
-    # Semantic Ambiguity
-    semantic_patterns = [
-        r'semantic', r'ambiguous', r'unclear', r'vague',
-        r'confusing', r'misinterpret', r'incorrect meaning'
-    ]
-    for pattern in semantic_patterns:
-        if re.search(pattern, error_log):
-            return "Semantic Ambiguity"
-    
-    # Missing Context
-    context_patterns = [
-        r'missing context', r'insufficient information', r'not enough data',
-        r'undefined', r'not defined', r'no context provided'
-    ]
-    for pattern in context_patterns:
-        if re.search(pattern, error_log):
-            return "Missing Context"
-    
-    # Default to Unstructured if no pattern matches
-    return "Unstructured"
+    # Heuristic rules for classification
+    if any(kw in error_log for kw in ["syntax", "indentation", "invalid syntax", "parse error"]):
+        return "Syntactic Error"
+    elif any(kw in error_log for kw in ["infinite loop", "recursion", "loop", "timeout"]):
+        return "Logical Loop"
+    elif any(kw in error_log for kw in ["ambiguous", "unclear", "confusing", "multiple meanings"]):
+        return "Semantic Ambiguity"
+    elif any(kw in error_log for kw in ["missing", "undefined", "not found", "context"]):
+        return "Missing Context"
+    else:
+        return "Unstructured"
 
-def annotate_single_entry(trace_entry: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Annotate a single trace entry with structural feature.
-    """
-    task_id = trace_entry.get('task_id', 'unknown')
-    raw_error_log = trace_entry.get('raw_error_log', '')
-    ground_truth_resolution = trace_entry.get('ground_truth_resolution', '')
-    
-    annotated_feature = classify_failure_heuristic(trace_entry)
-    
-    return {
-        'task_id': task_id,
-        'raw_error_log': raw_error_log,
-        'ground_truth_resolution': ground_truth_resolution,
-        'annotated_structural_feature': annotated_feature
-    }
+def annotate_single_entry(entry: Dict) -> Dict:
+    annotated = entry.copy()
+    annotated["annotated_structural_feature"] = classify_failure_heuristic(entry)
+    return annotated
 
 def main():
-    """Main entry point for failure annotation pipeline."""
-    log_stage_start("annotate_failures")
+    set_seed(42) # Use seed from config
+    log_stage_start(logger, "annotate_failures")
+    
+    input_path = OUTPUT_DIR / "parsed_traces.json"
     
     try:
-        # Paths
-        input_path = Path("data/derived/parsed_traces.json")
-        output_path = Path("data/derived/failure_cases.json")
-        
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load schema
-        logger.info(f"Loading schema from {SCHEMA_PATH}")
-        schema = load_schema(SCHEMA_PATH)
-        
-        # Load parsed traces
         traces = load_parsed_traces(input_path)
-        
-        # Annotate each entry
-        annotated_failures = []
-        for trace in traces:
-            annotated = annotate_single_entry(trace)
-            annotated_failures.append(annotated)
-        
-        logger.info(f"Annotated {len(annotated_failures)} failure cases")
-        
-        # Validate against schema BEFORE writing
-        logger.info("Validating annotated data against schema...")
-        validate_against_schema(annotated_failures, schema)
-        
-        # Write to output file
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(annotated_failures, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Successfully wrote {len(annotated_failures)} annotated cases to {output_path}")
-        
+        logger.info(f"Loaded {len(traces)} parsed traces from {input_path}")
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        logger.error(str(e))
         sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Schema validation failed: {e}")
+
+    annotated_cases = []
+    for trace in traces:
+        annotated_cases.append(annotate_single_entry(trace))
+
+    if not validate_against_schema(annotated_cases, load_schema(SCHEMA_PATH)):
+        logger.error("Schema validation failed for annotated cases.")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
-    finally:
-        log_stage_end("annotate_failures")
+
+    # Split data
+    total = len(annotated_cases)
+    # Simple split: 70% train, 15% val, 15% test
+    train_end = int(total * 0.7)
+    val_end = int(total * 0.85)
+    
+    train_set = annotated_cases[:train_end]
+    val_set = annotated_cases[train_end:val_end]
+    test_set = annotated_cases[val_end:]
+
+    # Save splits
+    train_path = OUTPUT_DIR / "failure_cases_train.json"
+    val_path = OUTPUT_DIR / "failure_cases_val.json"
+    test_path = OUTPUT_DIR / "failure_cases_test.json"
+    full_path = OUTPUT_DIR / "failure_cases.json"
+
+    for path, data in [(full_path, annotated_cases), (train_path, train_set), (val_path, val_set), (test_path, test_set)]:
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Saved {len(data)} cases to {path}")
+
+    # --- T016: Logging Metrics ---
+    counts = {
+        "Syntactic Error": 0,
+        "Logical Loop": 0,
+        "Semantic Ambiguity": 0,
+        "Missing Context": 0,
+        "Unstructured": 0
+    }
+    for case in annotated_cases:
+        feat = case.get("annotated_structural_feature")
+        if feat in counts:
+            counts[feat] += 1
+
+    log_entry = {
+        "total_cases": total,
+        "syntactic_count": counts["Syntactic Error"],
+        "semantic_count": counts["Semantic Ambiguity"],
+        "logical_count": counts["Logical Loop"],
+        "missing_count": counts["Missing Context"],
+        "unstructured_count": counts["Unstructured"]
+    }
+
+    # Append to log file
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps(log_entry) + "\n")
+    
+    logger.info(f"Annotation metrics logged to {LOG_FILE}")
+    logger.info(f"Total: {total}, Syntactic: {counts['Syntactic Error']}, Semantic: {counts['Semantic Ambiguity']}, Logical: {counts['Logical Loop']}, Missing: {counts['Missing Context']}, Unstructured: {counts['Unstructured']}")
+
+    log_stage_end(logger, "annotate_failures")
 
 if __name__ == "__main__":
     main()

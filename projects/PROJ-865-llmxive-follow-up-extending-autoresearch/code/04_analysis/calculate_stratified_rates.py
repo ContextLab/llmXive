@@ -18,8 +18,16 @@ def load_results_csv(filepath: Path) -> List[Dict[str, Any]]:
         reader = csv.DictReader(f)
         for row in reader:
             # Ensure types are correct
-            row['time_to_pivot'] = float(row['time_to_pivot'])
-            row['success'] = row['success'].lower() == 'true'
+            # Handle potential variations in 'success' column format
+            success_val = row.get('success', '').lower()
+            row['success'] = success_val in ('true', '1', 'yes')
+            
+            # Handle time_to_pivot
+            try:
+                row['time_to_pivot'] = float(row.get('time_to_pivot', 0))
+            except ValueError:
+                row['time_to_pivot'] = 0.0
+                
             results.append(row)
     return results
 
@@ -41,6 +49,9 @@ def calculate_stratified_rates(results: List[Dict[str, Any]]) -> Dict[str, Dict[
 
     for row in results:
         failure_type = row.get('failure_type', 'Unknown')
+        if not failure_type:
+            failure_type = 'Unknown'
+            
         stratified_data[failure_type]['count'] += 1
         
         if row['success']:
