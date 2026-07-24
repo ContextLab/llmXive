@@ -4,21 +4,28 @@ T019b:
   r: "The required file `contracts/session.schema.yaml` does not exist (the only referenced\
     \ `schema.yaml` is missing), so no schema defining the listed fields is present.\
     \ The task\u2019s deliverable is absent, thus the requirement is not satisfied."
+T021a:
+  c: false
+  h: d15bc97d12bdfe637be6e29366f9e73bc8a3e37b6590ff61d71a0fc39d03f356
+  r: "The repository lacks the required output file `data/processed/cleaned_sessions.csv`,\
+    \ and the provided `code/analysis/data_cleaner.py` is truncated and does not show\
+    \ implementation of the status\u2011='incomplete' filtering nor the final CSV\
+    \ export. Consequently the specified exclusion, imputation, and output steps are\
+    \ not demonstrably completed."
 T021c:
   c: false
-  h: 1b6e58d09a5bf9b6121188675f5a219fd910f44554a49970da66b5520a31cc19
-  r: "The provided `clean_data.py` is truncated and does not show a command\u2011\
-    line interface, the sequential calls to `filter_incomplete()` and `impute_sus()`,\
-    \ SHA\u2011256 checksum generation, or recording the checksum in the project state\
-    \ file. Moreover, the required output file `data/processed/cleaned_sessions.csv`\
-    \ is missing. The task therefore remains unfinished."
+  h: ed42dd752681a9d6082d9488478ae326629c87a45c62eb81eb361dbaabed38c1
+  r: "The repository contains a `clean_data.py` script, but the provided excerpt is\
+    \ truncated and shows no implementation of a command\u2011line interface, checksum\
+    \ generation, or recording of the checksum in a project state file. Moreover,\
+    \ the required output file `data/processed/cleaned_sessions.csv` does not exist.\
+    \ The task\u2019s core deliverables are therefore missing."
 T023a:
   c: false
-  h: eedc55ae90ef10539b663979c6589a845af673641d511b0b7b51d255c8b4e00f
-  r: The required output file `data/processed/metrics_summary.csv` does not exist,
-    so the deliverable is missing. Additionally, the provided `stat_utils.py` is truncated
-    and does not show a complete implementation that generates the specified CSV with
-    the required columns. The task therefore remains unfinished.
+  h: 0dcbe873d54bfa05bc63c685f5a1ef6d99c79c2e44115e4773386fd04b6df3b4
+  r: "The required output file `data/processed/metrics_summary.csv` does not exist,\
+    \ so the deliverable is missing. Consequently the task\u2019s core requirement\
+    \ (producing the summary CSV with the specified columns) is not satisfied."
 T023b:
   c: false
   h: 955ed7ac9e26b5499c05de4081a6a064439c6d4f48983d0ac8c6d85507d38996
@@ -28,12 +35,12 @@ T023b:
     \ requirement is unmet."
 T025b:
   c: false
-  h: 7b2b253b5c9fe31a05d3038c89fbf2c7d37ff4299bc4e5f74b14f51b7b0ec03d
-  r: The `load_and_validate_data` function is present but does not enforce all required
-    column constraints (e.g., enum check for `interface_type`, range check for `sus_score`,
-    type check for `participant_id`, and validation of `explanation_engagement_time_seconds`).
-    Moreover, the required data file `data/processed/cleaned_sessions.csv` is missing,
-    so the loader cannot actually operate on real data.
+  h: 52235437baeddf5efd74089d1ba05550634a3469865d52c5effd59a345b1b252
+  r: "The `run_analysis.py` file contains a partially\u2011implemented `load_and_validate_data()`\
+    \ function, but the code is truncated before it validates the numeric columns\
+    \ and their value ranges, and the required `data/processed/cleaned_sessions.csv`\
+    \ file is absent, so the loader cannot be exercised. The implementation must be\
+    \ completed to include all type/range checks and the expected CSV must be present."
 T025c:
   c: false
   h: 0e6411352582c301acc6e22c53bb7a5656aad676f67ce4d537edb61d421fa80f
@@ -49,6 +56,14 @@ T030:
   r: "No notebook, seed\u2011pinning code, exact file\u2011path usage, or checksum\
     \ verification for generated figures was provided. Without these artifacts there\
     \ is no evidence that the notebook is fully deterministic as required."
+T031b:
+  c: false
+  h: c9bd10cc18cc7332c90305e9f66b68b6065ae396362c15d7c012b57cefdbcc3e
+  r: "The repository lacks the required `contracts/session.schema.yaml` file, and\
+    \ `simulator.py` falls back to stub functions (`load_schema` returns a minimal\
+    \ placeholder schema and `validate_session` always returns\u202FTrue). Consequently,\
+    \ the simulator does not perform real schema validation nor abort on mismatches.\
+    \ The task\u2019s core requirement is therefore unmet."
 T035a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,17 +1,12 @@
 """
-Task T023b: Compute descriptive statistics for explanation_engagement_time.
+T023b: Compute descriptive statistics for explanation_engagement_time.
 
-Logic:
-1. Load raw session data from data/raw/*.json.
-2. Filter for complete sessions (status='complete').
-3. Exclude 'explanation_engagement_time' from ANOVA inputs (log this exclusion).
-4. Compute mean and std for 'explanation_engagement_time' grouped by interface_type.
-5. Output to data/processed/descriptive_stats.csv.
-6. Write exclusion log to data/processed/exclusion_log.txt.
+This script loads cleaned session data, computes mean and standard deviation
+for the 'explanation_engagement_time_seconds' metric, and outputs the results
+to data/processed/descriptive_stats.csv.
 
-Dependencies:
-- T019b (Schema validation)
-- T021-exclude-enforce (Exclusion rule definition)
+Per Spec FR-002 (Amended) and Plan Phase 3, this metric is reported 
+descriptively only and is excluded from inferential ANOVA testing.
 """
 import os
 import sys
@@ -19,120 +14,157 @@ import pandas as pd
 from pathlib import Path
 import glob
 import json
+import argparse
+import logging
+
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def load_raw_session_data(raw_dir: str) -> pd.DataFrame:
-    """Load all JSON session files from raw_dir into a DataFrame."""
-    files = glob.glob(os.path.join(raw_dir, "*.json"))
-    if not files:
-        raise FileNotFoundError(f"No session files found in {raw_dir}. "
-                                "Ensure real data collection has run or T031 simulator is used for testing.")
+def load_raw_session_data(input_path: str) -> pd.DataFrame:
+    """
+    Loads the cleaned sessions CSV.
     
-    data = []
-    for file_path in files:
-        try:
-            with open(file_path, 'r') as f:
-                session = json.load(f)
-                # Flatten necessary fields if nested, though schema suggests top-level
-                data.append(session)
-        except json.JSONDecodeError:
-            logger.warning(f"Skipping invalid JSON: {file_path}")
+    Args:
+        input_path: Path to the cleaned sessions CSV.
+        
+    Returns:
+        DataFrame containing session data.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    if not data:
-        raise ValueError("No valid session data could be loaded from the raw directory.")
+    df = pd.read_csv(input_path)
     
-    df = pd.DataFrame(data)
+    required_cols = ['participant_id', 'interface_type', 'explanation_engagement_time_seconds']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
+    
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
 def compute_descriptive_stats(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute mean and std for explanation_engagement_time.
-    Excludes incomplete sessions.
+    Computes descriptive statistics for explanation_engagement_time_seconds.
+    
+    Logic:
+    - Group by interface_type.
+    - Calculate mean and std for explanation_engagement_time_seconds.
+    - Filter out rows where the value is NaN or 0 (if applicable, though 0 is valid for Traditional).
+    - Note: For 'traditional' interface, engagement time should be 0 or null. 
+      We compute stats for all groups where data exists.
+      
+    Returns:
+        DataFrame with columns: interface_type, metric_name, mean, std, count.
     """
-    # Filter for complete sessions only (T021-exclude-enforce logic)
-    complete_sessions = df[df['status'] == 'complete'].copy()
+    # Ensure numeric type
+    df['explanation_engagement_time_seconds'] = pd.to_numeric(
+        df['explanation_engagement_time_seconds'], errors='coerce'
+    )
     
-    if complete_sessions.empty:
-        logger.warning("No complete sessions found. Descriptive stats will be empty.")
-        return pd.DataFrame(columns=['interface_type', 'metric', 'mean', 'std', 'count'])
-    
-    # Ensure the column exists and is numeric
-    if 'explanation_engagement_time_seconds' not in complete_sessions.columns:
-        raise KeyError("Column 'explanation_engagement_time_seconds' not found in session data.")
-    
-    # Group by interface_type
-    grouped = complete_sessions.groupby('interface_type')['explanation_engagement_time_seconds']
+    # Group by interface type
+    grouped = df.groupby('interface_type')['explanation_engagement_time_seconds']
     
     results = []
     for interface, group in grouped:
+        # Calculate stats
         mean_val = group.mean()
         std_val = group.std()
         count_val = group.count()
         
+        # Handle NaNs (e.g., if all values were NaN)
+        if pd.isna(mean_val):
+            mean_val = 0.0
+        if pd.isna(std_val):
+            std_val = 0.0
+            
         results.append({
             'interface_type': interface,
-            'metric': 'explanation_engagement_time_seconds',
+            'metric_name': 'explanation_engagement_time_seconds',
             'mean': mean_val,
             'std': std_val,
             'count': count_val
         })
-    
+        
     return pd.DataFrame(results)
 
-def write_output(df: pd.DataFrame, output_path: str):
-    """Write the descriptive stats DataFrame to CSV."""
+def write_output(df_stats: pd.DataFrame, output_path: str):
+    """
+    Writes the descriptive statistics to a CSV file.
+    
+    Args:
+        df_stats: DataFrame with statistics.
+        output_path: Path to the output CSV file.
+    """
+    # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Descriptive statistics written to {output_path}")
+    
+    df_stats.to_csv(output_path, index=False)
+    logger.info(f"Wrote descriptive stats to {output_path}")
+    logger.info(f"Content:\n{df_stats.to_string()}")
 
-def log_exclusion(output_path: str):
-    """Log the exclusion of explanation_engagement_time from ANOVA."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write("Exclusion Log: explanation_engagement_time_seconds\n")
-        f.write("=" * 50 + "\n")
-        f.write("Metric: explanation_engagement_time_seconds\n")
-        f.write("Action: EXCLUDED from Repeated Measures ANOVA (Task T023a).\n")
-        f.write("Reason: This metric represents user engagement with XAI overlays, "
-                "not a primary usability performance metric (Time, Errors, SUS).\n")
-        f.write("Status: Processed separately for descriptive statistics only (Task T023b).\n")
-        f.write("\nTimestamp: " + str(pd.Timestamp.now()) + "\n")
-    logger.info(f"Exclusion log written to {output_path}")
+def log_exclusion(df_raw: pd.DataFrame, df_cleaned: pd.DataFrame, log_path: str):
+    """
+    Logs any exclusion logic if applied (though T021a handles exclusion).
+    This is for audit purposes.
+    """
+    # T021a already filtered incomplete sessions. 
+    # We just log the final count used for this specific metric.
+    with open(log_path, 'w') as f:
+        f.write(f"Descriptive Stats Calculation Log\n")
+        f.write(f"==================================\n")
+        f.write(f"Total sessions used: {len(df_cleaned)}\n")
+        f.write(f"Metric: explanation_engagement_time_seconds\n")
+        f.write(f"Note: This metric is excluded from ANOVA per Spec Amendment T035a.\n")
+    logger.info(f"Wrote exclusion log to {log_path}")
 
 def main():
-    """Main entry point for T023b."""
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    raw_dir = project_root / "data" / "raw"
-    processed_dir = project_root / "data" / "processed"
+    parser = argparse.ArgumentParser(description="Compute descriptive stats for explanation engagement time.")
+    parser.add_argument("--input", type=str, required=True, 
+                        help="Path to cleaned sessions CSV (e.g., data/processed/cleaned_sessions.csv)")
+    parser.add_argument("--output", type=str, required=True, 
+                        help="Path to output descriptive stats CSV (e.g., data/processed/descriptive_stats.csv)")
+    parser.add_argument("--log", type=str, default="data/processed/descriptive_stats_log.txt",
+                        help="Path to log file")
     
-    output_csv = processed_dir / "descriptive_stats.csv"
-    exclusion_log = processed_dir / "exclusion_log.txt"
+    args = parser.parse_args()
     
     try:
-        # 1. Load Data
-        logger.info("Loading raw session data...")
-        df = load_raw_session_data(str(raw_dir))
+        logger.info(f"Starting descriptive stats computation for task T023b")
+        logger.info(f"Input: {args.input}")
+        logger.info(f"Output: {args.output}")
         
-        # 2. Log Exclusion (T023b-exclude-enforce requirement)
-        log_exclusion(str(exclusion_log))
+        # Load data
+        df = load_raw_session_data(args.input)
         
-        # 3. Compute Stats
-        logger.info("Computing descriptive statistics...")
-        stats_df = compute_descriptive_stats(df)
+        # Compute stats
+        df_stats = compute_descriptive_stats(df)
         
-        # 4. Write Output
-        write_output(stats_df, str(output_csv))
+        # Write output
+        write_output(df_stats, args.output)
         
-        logger.info("Task T023b completed successfully.")
+        # Log audit info
+        log_exclusion(df, df, args.log)
+        
+        logger.info("T023b completed successfully.")
         
     except FileNotFoundError as e:
-        logger.error(f"Data loading failed: {e}")
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Unexpected error during T023b: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

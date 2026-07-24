@@ -1,14 +1,13 @@
 """
-Data Cleaning Pipeline for Usability Study.
+Orchestrate the data cleaning pipeline.
 
-This module orchestrates the cleaning of raw session data:
-1. Loads raw JSON sessions.
-2. Filters out incomplete sessions (status='incomplete').
-3. Imputes missing SUS scores (if <= 1 item missing).
-4. Validates dropout reasons for excluded sessions.
-5. Outputs a cleaned CSV and records a SHA-256 checksum.
+This script implements the cleaning pipeline for the usability study.
+It sequentially calls:
+1. filter_incomplete() - Removes sessions with status='incomplete'
+2. impute_sus() - Handles missing SUS questionnaire items
+
+Constraint: The output file MUST be checksummed and the checksum recorded.
 """
-
 import argparse
 import json
 import os
@@ -17,231 +16,249 @@ import hashlib
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import logging
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from analysis.data_cleaner import DataCleaner
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
-def load_raw_sessions(input_dir: str) -> List[Dict[str, Any]]:
+def load_raw_sessions(input_path: str) -> pd.DataFrame:
     """
-    Load all JSON session files from the input directory.
+    Load raw session data from a JSON file or directory of JSON files.
+    
+    Args:
+        input_path: Path to a single JSON file or directory containing JSON files
+        
+    Returns:
+        DataFrame containing all session records
     """
-    sessions = []
-    input_path = Path(input_dir)
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
-
-    json_files = list(input_path.glob("*.json"))
-    if not json_files:
-        logger.warning(f"No JSON files found in {input_dir}")
-        return sessions
-
-    for file_path in json_files:
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+    logger.info(f"Loading raw sessions from: {input_path}")
+    all_sessions = []
+    
+    input_path = Path(input_path)
+    
+    if input_path.is_file():
+        # Load single file
+        with open(input_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                all_sessions.extend(data)
+            else:
+                all_sessions.append(data)
+    elif input_path.is_dir():
+        # Load all JSON files in directory
+        for json_file in input_path.glob("*.json"):
+            with open(json_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                # Ensure it's a dict, sometimes loaded as list of dicts
-                if isinstance(data, dict):
-                    sessions.append(data)
-                elif isinstance(data, list):
-                    sessions.extend(data)
-            logger.debug(f"Loaded session from {file_path.name}")
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse JSON in {file_path.name}: {e}")
-        except Exception as e:
-            logger.error(f"Error reading {file_path.name}: {e}")
+                if isinstance(data, list):
+                    all_sessions.extend(data)
+                else:
+                    all_sessions.append(data)
+    else:
+        raise FileNotFoundError(f"Input path does not exist: {input_path}")
+    
+    if not all_sessions:
+        raise ValueError(f"No session data found in {input_path}")
+    
+    df = pd.DataFrame(all_sessions)
+    logger.info(f"Loaded {len(df)} sessions")
+    return df
 
-    return sessions
-
-
-def filter_incomplete(sessions: List[Dict[str, Any]]) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def filter_incomplete(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter sessions into complete and incomplete lists based on 'status' field.
-    Returns (complete_sessions, incomplete_sessions).
+    Filter out sessions where status='incomplete'.
+    
+    Args:
+        df: DataFrame containing session data
+        
+    Returns:
+        DataFrame with only complete sessions
     """
-    complete = []
-    incomplete = []
+    logger.info("Filtering incomplete sessions...")
+    initial_count = len(df)
+    
+    # Filter for complete sessions only
+    df_complete = df[df['status'] == 'complete'].copy()
+    
+    # Log excluded sessions for verification
+    excluded = df[df['status'] != 'complete']
+    if not excluded.empty:
+        logger.info(f"Excluded {len(excluded)} incomplete sessions")
+        for _, row in excluded.iterrows():
+            reason = row.get('dropout_reason', 'Unknown')
+            logger.info(f"  - Session {row.get('participant_id')}: {reason}")
+    
+    logger.info(f"Retained {len(df_complete)} complete sessions")
+    return df_complete
 
-    for session in sessions:
-        status = session.get('status', 'unknown')
-        if status == 'incomplete':
-            # Verify dropout_reason exists for incomplete sessions
-            reason = session.get('dropout_reason')
-            if not reason:
-                logger.warning(f"Session {session.get('participant_id')} is incomplete but missing dropout_reason.")
-            incomplete.append(session)
-        else:
-            complete.append(session)
-
-    logger.info(f"Filtered sessions: {len(complete)} complete, {len(incomplete)} incomplete.")
-    return complete, incomplete
-
-
-def impute_sus(sessions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def impute_sus(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Impute SUS scores for sessions with <= 1 missing item.
+    Impute missing SUS questionnaire items.
+    
     Logic:
-    - SUS items are typically keys like 'sus_q1' ... 'sus_q10' or similar.
-    - Based on the schema in T019b, the raw data might store the raw answers or the calculated score.
-    - If the raw answers exist, we calculate the score.
-    - If the score exists but is missing/NaN, we impute based on participant mean if possible.
-    - For this implementation, we assume the session contains 'sus_score' (calculated) or raw items.
-    - We will look for a 'sus_responses' list or individual 'sus_q*' keys.
+    - If <=1 item missing per participant, impute with participant mean
+    - If >1 item missing, mark as incomplete (should be handled by filter_incomplete)
     
-    Simplified Strategy for this task:
-    If 'sus_score' is missing or None:
-      1. Check if we have raw responses (e.g., 'sus_q1' to 'sus_q10').
-      2. If we have >= 9 responses, calculate the score.
-      3. If we have < 9 responses, mark as incomplete (should have been filtered, but safety check).
-    
-    If 'sus_score' exists but is invalid (e.g., negative), we might impute from participant mean if multiple sessions exist.
-    For this specific task (T021b), we focus on the case where the score is missing but data allows calculation.
+    Args:
+        df: DataFrame containing session data with SUS items
+        
+    Returns:
+        DataFrame with imputed SUS values
     """
-    imputed_count = 0
+    logger.info("Imputing missing SUS items...")
+    df = df.copy()
     
-    for session in sessions:
-        sus_score = session.get('sus_score')
+    # SUS items are typically Q1, Q3, Q5, Q7, Q9 (odd items) and Q2, Q4, Q6, Q8, Q10 (even items)
+    # Standard SUS scoring:
+    # Odd items: score = response - 1
+    # Even items: score = 5 - response
+    # Total SUS = sum of scores * 2.5
+    
+    # Check for SUS item columns (assuming standard naming: sus_q1, sus_q2, ..., sus_q10)
+    sus_cols = [f'sus_q{i}' for i in range(1, 11)]
+    available_cols = [col for col in sus_cols if col in df.columns]
+    
+    if not available_cols:
+        logger.warning("No SUS item columns found. Assuming pre-calculated sus_score exists.")
+        # If sus_score exists, we're done
+        if 'sus_score' not in df.columns:
+            logger.error("No SUS data found at all. Cannot proceed.")
+            raise ValueError("No SUS data found in input")
+        return df
+    
+    # Group by participant_id to calculate means
+    grouped = df.groupby('participant_id')
+    
+    for participant_id, group in grouped:
+        missing_counts = group[available_cols].isnull().sum(axis=1)
         
-        # If score is present and valid, skip
-        if sus_score is not None and isinstance(sus_score, (int, float)) and 0 <= sus_score <= 100:
-            continue
-
-        # Attempt to calculate from raw responses if available
-        # Assuming keys like 'sus_q1' ... 'sus_q10' exist in the session dict
-        q_keys = [f'sus_q{i}' for i in range(1, 11)]
-        responses = []
-        for key in q_keys:
-            if key in session:
-                val = session[key]
-                if val is not None:
-                    responses.append(val)
-        
-        if len(responses) >= 9:
-            # Calculate SUS score
-            # Standard SUS formula: 
-            # (Sum of (Odd items - 1) + Sum of (5 - Even items)) * 2.5
-            # Assuming 1-5 scale
-            sum_odd = 0
-            sum_even = 0
-            for i, val in enumerate(responses):
-                # i=0 is q1 (odd), i=1 is q2 (even)
-                if i % 2 == 0: # Odd item (1, 3, 5...)
-                    sum_odd += (val - 1)
-                else: # Even item (2, 4, 6...)
-                    sum_even += (5 - val)
+        for idx in group.index:
+            missing_count = missing_counts.loc[idx]
             
-            calculated_score = (sum_odd + sum_even) * 2.5
-            session['sus_score'] = calculated_score
-            session['sus_imputed'] = True
-            logger.debug(f"Calculated SUS score {calculated_score} for session {session.get('participant_id')} from {len(responses)} responses.")
-            imputed_count += 1
-        elif len(responses) > 0 and len(responses) < 9:
-            # Partial data, cannot impute reliably without participant mean across sessions
-            # We leave it as None/NaN, which will be handled by downstream exclusion if strict
-            logger.warning(f"Session {session.get('participant_id')} has {len(responses)} SUS responses, cannot calculate score.")
-        else:
-            # No responses found
-            pass
+            if missing_count == 0:
+                continue  # No missing items
+            elif missing_count == 1:
+                # Impute with participant mean
+                participant_data = df.loc[df['participant_id'] == participant_id]
+                valid_values = participant_data[available_cols].dropna()
+                if not valid_values.empty:
+                    mean_val = valid_values.mean()
+                    # Find the missing column and impute
+                    for col in available_cols:
+                        if pd.isna(df.loc[idx, col]):
+                            df.loc[idx, col] = mean_val
+                            logger.debug(f"Imputed {col} for participant {participant_id} with mean {mean_val:.2f}")
+            elif missing_count > 1:
+                # Mark as incomplete (should be filtered out)
+                logger.warning(f"Participant {participant_id} has {missing_count} missing SUS items. Marking as incomplete.")
+                df.loc[idx, 'status'] = 'incomplete'
+    
+    # Filter out any newly marked incomplete sessions
+    df = df[df['status'] == 'complete']
+    
+    # Recalculate sus_score if we imputed values
+    if len(available_cols) == 10:
+        # Standard SUS calculation
+        sus_scores = []
+        for idx, row in df.iterrows():
+            scores = []
+            for i in range(1, 11):
+                col = f'sus_q{i}'
+                if i % 2 == 1:  # Odd
+                    scores.append(row[col] - 1)
+                else:  # Even
+                    scores.append(5 - row[col])
+            sus_scores.append(sum(scores) * 2.5)
+        df['sus_score'] = sus_scores
+    
+    logger.info(f"Imputation complete. Final count: {len(df)} sessions")
+    return df
 
-    logger.info(f"Imputed SUS scores for {imputed_count} sessions.")
-    return sessions
-
-
-def compute_checksum(file_path: str) -> str:
+def compute_checksum(df: pd.DataFrame, output_path: str) -> str:
     """
-    Compute SHA-256 checksum of a file.
+    Compute SHA-256 checksum of the output file.
+    
+    Args:
+        df: DataFrame to be saved
+        output_path: Path where the file will be saved
+        
+    Returns:
+        Hex digest of the checksum
     """
+    # Save to CSV first
+    df.to_csv(output_path, index=False)
+    
+    # Compute checksum
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(output_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
+    
+    checksum = sha256_hash.hexdigest()
+    logger.info(f"Checksum computed: {checksum}")
+    return checksum
 
 def main():
-    parser = argparse.ArgumentParser(description="Clean raw session data.")
-    parser.add_argument("--input", type=str, required=True, help="Path to directory containing raw JSON sessions.")
-    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file.")
-    parser.add_argument("--checksum-file", type=str, default="data/processed/checksums.json", help="Path to store checksum record.")
+    """
+    Main entry point for the cleaning pipeline.
+    
+    Usage:
+        python -m code.analysis.clean_data --input data/raw/*.json --output data/processed/cleaned_sessions.csv
+    """
+    parser = argparse.ArgumentParser(description="Clean session data for analysis")
+    parser.add_argument("--input", required=True, help="Input path (JSON file or directory)")
+    parser.add_argument("--output", required=True, help="Output path (CSV file)")
+    parser.add_argument("--state-file", default="data/processed/state.json", help="Path to state file for checksum recording")
     
     args = parser.parse_args()
     
-    logger.info(f"Starting data cleaning pipeline.")
-    logger.info(f"Input: {args.input}")
-    logger.info(f"Output: {args.output}")
-
-    # 1. Load
-    try:
-        sessions = load_raw_sessions(args.input)
-        if not sessions:
-            logger.error("No valid sessions found. Exiting.")
-            sys.exit(1)
-        logger.info(f"Loaded {len(sessions)} sessions.")
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        sys.exit(1)
-
-    # 2. Filter
-    complete_sessions, incomplete_sessions = filter_incomplete(sessions)
-
-    # 3. Impute
-    cleaned_sessions = impute_sus(complete_sessions)
-
-    # 4. Convert to DataFrame and Write
-    if not cleaned_sessions:
-        logger.warning("No complete sessions remained after filtering. Creating empty CSV.")
-        df = pd.DataFrame()
-    else:
-        df = pd.DataFrame(cleaned_sessions)
-        # Ensure standard columns exist
-        required_cols = ['participant_id', 'interface_type', 'completion_time_seconds', 'error_count', 'sus_score', 'explanation_engagement_time_seconds', 'status']
-        for col in required_cols:
-            if col not in df.columns:
-                df[col] = None
-
-    # Create output directory if needed
+    # Ensure output directory exists
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote cleaned data to {args.output}")
-
-    # 5. Compute Checksum and Record
-    checksum = compute_checksum(str(output_path))
-    checksum_record = {
-        "file": str(output_path),
-        "sha256": checksum,
-        "rows": len(df),
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
-    
-    checksum_path = Path(args.checksum_file)
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing checksums if any
-    all_checksums = []
-    if checksum_path.exists():
-        try:
-            with open(checksum_path, 'r') as f:
-                all_checksums = json.load(f)
-        except json.JSONDecodeError:
-            all_checksums = []
-    
-    # Append new record
-    all_checksums.append(checksum_record)
-    
-    with open(checksum_path, 'w') as f:
-        json.dump(all_checksums, f, indent=2)
-    
-    logger.info(f"Checksum recorded: {checksum}")
-    logger.info("Data cleaning pipeline completed successfully.")
-
+    try:
+        # Step 1: Load raw data
+        df = load_raw_sessions(args.input)
+        
+        # Step 2: Filter incomplete sessions
+        df = filter_incomplete(df)
+        
+        # Step 3: Impute SUS items
+        df = impute_sus(df)
+        
+        # Step 4: Compute checksum and save
+        checksum = compute_checksum(df, str(args.output))
+        
+        # Step 5: Record checksum in state file
+        state_path = Path(args.state_file)
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        state = {}
+        if state_path.exists():
+            with open(state_path, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+        
+        state['cleaned_sessions'] = {
+            'file': str(args.output),
+            'checksum': checksum,
+            'records': len(df),
+            'timestamp': pd.Timestamp.now().isoformat()
+        }
+        
+        with open(state_path, 'w', encoding='utf-8') as f:
+            json.dump(state, f, indent=2)
+        
+        logger.info(f"Cleaning pipeline complete. Output: {args.output}")
+        logger.info(f"Records: {len(df)}, Checksum: {checksum}")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()

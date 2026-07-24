@@ -1,14 +1,18 @@
 status: none
-intent: download Usability.gov System Usability Scale SUS dataset python package dataset
+intent: SUS Instrument and HCI Metrics and XAI Simulation dataset python package dataset
 required_fields:
 - participant_id
-- task_id
-- interface_type
-- task_completion_time
-- error_count
-- explanation_engagement_time
-- SUS_score
-- disability_profile
-cache_key: db73159fe4566351fa499942521ff50adeb3f393d1c71535e459c4e21b648ea5
-searched_at: '2026-07-16T01:44:25.081468+00:00'
+- sus_item1
+- sus_item2
+- sus_item3
+- sus_item4
+- sus_item5
+- sus_item6
+- sus_item7
+- sus_item8
+- sus_item9
+- sus_item10
+- sus_total_score
+cache_key: 06d34bdd2e4dbdc85cfa45cb06fcbb8b13fd1cdee4d49741609ec8c5a3d0c43a
+searched_at: '2026-07-24T13:37:56.039451+00:00'
 retry_count: 1

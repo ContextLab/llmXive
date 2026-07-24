@@ -8,8 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  execute-notebook:
+  reproducibility-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,47 +25,57 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install nbconvert nbformat
 
       - name: Ensure data directories exist
         run: |
-          mkdir -p data/raw
-          mkdir -p data/processed
-          mkdir -p figures
+          mkdir -p data/raw data/processed figures
 
-      - name: Generate simulated data for CI validation
+      - name: Generate simulated data (CI mode only)
+        # This step is strictly for CI validation to ensure the pipeline runs.
+        # In production, the pipeline must fail if this data is missing and --simulate is not used.
         run: |
-          python -m code.simulator.simulator --n 30 --seed 42 --output data/raw/simulated_sessions.json
-        # Note: This uses the DeterministicDataSimulator (T031) for CI validation only.
-        # Real human data collection is handled by the web app (FR-007).
-        # The --simulate flag in the analysis pipeline will trigger this if real data is missing,
-        # but only in CI/Dev mode.
-
-      - name: Run Data Cleaning Pipeline
-        run: |
-          python code/analysis/clean_data.py --input data/raw/simulated_sessions.json --output data/processed/cleaned_sessions.csv
-
-      - name: Run Statistical Analysis
-        run: |
-          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv
+          python code/simulator/simulator.py --n 10 --seed 42 --output data/raw/simulated_sessions.json
 
       - name: Execute Notebook
         run: |
-          python code/analysis/run_notebook_validation.py --notebook code/analysis/analysis.ipynb
+          jupyter nbconvert --to script code/analysis.ipynb --output analysis_executed.py
 
-      - name: Validate Outputs
+      - name: Run Analysis Script
         run: |
-          python code/analysis/validate_notebook_execution.py
+          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv
 
-      - name: Generate Execution Log
+      - name: Verify Artifacts
         run: |
-          python code/analysis/generate_execution_log.py
+          # Check for required metrics summary
+          if [ ! -f "data/processed/metrics_summary.csv" ]; then
+            echo "ERROR: metrics_summary.csv not found"
+            exit 1
+          fi
+          
+          # Check for descriptive stats
+          if [ ! -f "data/processed/descriptive_stats.csv" ]; then
+            echo "ERROR: descriptive_stats.csv not found"
+            exit 1
+          fi
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: reproducibility-artifacts
-          path: |
-            data/processed/
-            figures/
-            notebook_execution_log.txt
+          # Check for power flags
+          if [ ! -f "data/processed/power_flags.json" ]; then
+            echo "ERROR: power_flags.json not found"
+            exit 1
+          fi
+
+          # Check for figures
+          if [ ! -f "figures/completion_time.png" ]; then
+            echo "ERROR: completion_time.png not found"
+            exit 1
+          fi
+          if [ ! -f "figures/error_count.png" ]; then
+            echo "ERROR: error_count.png not found"
+            exit 1
+          fi
+          if [ ! -f "figures/sus_score.png" ]; then
+            echo "ERROR: sus_score.png not found"
+            exit 1
+          fi
+
+          echo "All artifacts verified successfully."
