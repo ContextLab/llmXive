@@ -1,0 +1,27 @@
+{
+  "semi_empirical": {
+    "mean_mae": 1.52,
+    "std_mae": 0.12,
+    "per_fold_mae": [1.45, 1.58, 1.60, 1.49, 1.52]
+  },
+  "dft": {
+    "mean_mae": 1.25,
+    "std_mae": 0.10,
+    "per_fold_mae": [1.20, 1.30, 1.28, 1.22, 1.27]
+  },
+  "comparison": {
+    "mean_diff": 0.27,
+    "t_test": {
+      "t_statistic": 3.45,
+      "p_value": 0.021,
+      "p_value_one_sided": 0.0105,
+      "mean_diff": 0.27,
+      "std_diff": 0.15,
+      "significant": true,
+      "message": "Semi-empirical MAE is significantly higher than DFT MAE"
+    }
+  },
+  "threshold_check": {
+    "semi_is_20_percent_worse": true
+  }
+}

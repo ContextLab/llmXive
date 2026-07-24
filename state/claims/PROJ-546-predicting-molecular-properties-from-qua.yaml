@@ -1,0 +1,167 @@
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: Semi-Empirical Model DFTB+ has a mean MAE of 1.5200 kcal/mol
+  claim_id: c_98931116
+  context: '### Semi-Empirical Model (DFTB+) - Mean MAE: 1.5200 kcal/mol'
+  evidence:
+    asserted: '1.52'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Mean MAE: 1.5200 kcal/mol'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T12:50:11Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: Semi-Empirical Model DFTB+ has a standard deviation MAE of 0.1200 kcal/mol
+  claim_id: c_a4113d95
+  context: '### Semi-Empirical Model (DFTB+) - Std MAE: 0.1200 kcal/mol'
+  evidence:
+    asserted: '0.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Std MAE: 0.1200 kcal/mol'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T12:50:11Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: DFT Model Psi4 has a mean MAE of 1.2500 kcal/mol
+  claim_id: c_64aebbb0
+  context: '### DFT Model (Psi4) - Mean MAE: 1.2500 kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean MAE: 1.2500 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:53:32Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: DFT Model Psi4 has a standard deviation MAE of 0.1000 kcal/mol
+  claim_id: c_5996b2a6
+  context: '### DFT Model (Psi4) - Std MAE: 0.1000 kcal/mol'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Std MAE: 0.1000 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:56:55Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: The mean difference between Semi-Empirical and DFT MAE is 0.2700 kcal/mol
+  claim_id: c_19eddf83
+  context: '### Comparison (Paired T-Test) - Mean Difference (Semi - DFT): 0.2700
+    kcal/mol'
+  evidence:
+    asserted: '0.27'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Mean Difference (Semi - DFT): 0.2700 kcal/mol'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T12:56:55Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: The T-statistic for the comparison is 3.4500
+  claim_id: c_7b604860
+  context: '### Comparison (Paired T-Test) - T-Statistic: 3.4500'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T-Statistic: 3.4500'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:57:01Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: The two-sided P-value for the comparison is 0.0210
+  claim_id: c_0163d491
+  context: '### Comparison (Paired T-Test) - Two-sided P-value: 0.0210'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Two-sided P-value: 0.0210'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T12:57:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: The one-sided P-value for Semi-Empirical being greater than DFT is 0.0105
+  claim_id: c_95e08e45
+  context: '### Comparison (Paired T-Test) - One-sided P-value (Semi > DFT): 0.0105'
+  evidence:
+    asserted: '0.0105'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'One-sided P-value (Semi > DFT): 0.0105'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T12:57:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/data/reports/evaluation_summary.md
+  attempts: 1
+  canonical: Semi-empirical MAE exceeds DFT MAE by more than 20%
+  claim_id: c_e6534783
+  context: "\u26A0\uFE0F **WARNING**: Semi-empirical MAE (1.5200) exceeds DFT MAE\
+    \ (1.2500) by more than 20%."
+  evidence:
+    asserted: '1.52'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Semi-empirical MAE (1.5200) exceeds DFT MAE (1.2500) by more than 20%
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T12:57:09Z'

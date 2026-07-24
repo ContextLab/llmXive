@@ -1,11 +1,10 @@
 T018a:
   c: false
-  h: 9b587900952a7667b7e33a8b9b9089667635f2a7162e547e5f8895028d20eb2f
-  r: "The required output file `data/processed/morphological_metrics.csv` does not\
-    \ exist, and the provided `code/main.py` snippet shows no concrete logic that\
-    \ writes such a CSV (the `run_output_pipeline` implementation is not shown). Without\
-    \ the generated CSV containing the specified columns and brain_region tag, the\
-    \ task\u2019s core requirement is unmet."
+  h: b484809b51535debd0565d0f12f0f57f885e2b6c8b501bae6b378ce72cc93d92
+  r: "The required output file `data/processed/morphological_metrics.csv` is absent,\
+    \ and the provided `code/main.py` only calls a generic `run_output_pipeline()`\
+    \ without showing that it creates the CSV with the specified columns and `brain_region`\
+    \ tag. Hence the task\u2019s core deliverable is not present."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

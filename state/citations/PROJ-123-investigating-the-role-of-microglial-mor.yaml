@@ -1,4 +1,4 @@
-- artifact_hash: ecc76305db07150ef78603b8f48f17cad118bfc75a455c02e3dcae57ee87f24c
+- artifact_hash: 2f2997b54699ba69d282c468a530d67c3743fe9841b17152d3e6b2b477f12ee2
   artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-24T06:48:47.545214Z'
+  verified_at: '2026-07-24T13:20:13.905343Z'

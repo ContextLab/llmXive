@@ -1,2 +1,3 @@
-# This directory stores raw and processed data artifacts.
-# .gitkeep ensures the directory is tracked in version control.
+# This directory stores data artifacts.
+# Raw data is downloaded here by download_data.py
+# Processed data is generated here by generate_descriptors.py

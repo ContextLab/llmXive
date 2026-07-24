@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `projects/PROJ-546-predicting-molecular-properties-from-qua/`\
+    \ directory or its expected sub\u2011folders/files was provided; without a visible\
+    \ project structure the requirement cannot be confirmed."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
+    \ for Black, a `.ruff.toml` or `ruff` section, or a pre\u2011commit hook) were\
+    \ presented, nor any evidence that ruff and black have been set up and integrated\
+    \ into the project. The required artifacts are absent, so the task is not satisfied."
+T012:
+  c: false
+  h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
+  r: "The required integration test file `tests/test_descriptors.py` does not exist\
+    \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
+    \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
+    s requirement is unmet."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files were presented that implement the requested logic\
+    \ to detect non\u2011converged quantum chemistry calculations, skip those molecules,\
+    \ and record the failures. Consequently, the required artifact is missing, so\
+    \ the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test files were presented that implement the required validation\
+    \ logic for the descriptor CSV (checking required columns, ensuring HOMO\u202F\
+    <\u202FLUMO, and verifying that Mulliken charges sum to the molecular net charge).\
+    \ Without any artifact, the task\u2019s requirement is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, log files, or documentation showing that logging for
+    DFTB+ invocation, timing, and resource usage has been added is present. The implementer
+    provided only the task description and specifications, but no concrete artifact
+    (e.g., Python module, logging config, example log output) that fulfills the requirement.
+    The missing implementation must be supplied for the task to be considered complete.

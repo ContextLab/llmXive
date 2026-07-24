@@ -1,9 +1,14 @@
 """
-generate_descriptors.py
+Descriptor generation module supporting both DFTB+ (semi-empirical) and Psi4 (DFT) workflows.
 
-Invokes DFTB+ for geometry optimization and descriptor extraction.
-Implements logging for invocation, timing, and resource usage (Task T017).
+This module provides functions to:
+1. Convert SMILES to XYZ coordinates (using RDKit)
+2. Create input files for DFTB+ and Psi4
+3. Run geometry optimization and descriptor extraction
+4. Parse output files to extract HOMO, LUMO, Mayer charges, and total energy
+5. Process molecules with error handling for convergence failures and OOM events
 """
+
 import csv
 import logging
 import os
@@ -11,243 +16,690 @@ import re
 import shutil
 import subprocess
 import sys
-import time
-import resource
+import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
-# Import utilities from existing modules
+# Import from local modules
 from utils.error_utils import (
-    detect_convergence_failure,
-    check_oom_in_log,
-    handle_convergence_failure,
-    handle_oom,
-    run_with_oom_protection,
     ConvergenceError,
     OOMError,
+    detect_convergence_failure,
+    check_oom_in_log,
+    run_with_oom_protection,
+    handle_convergence_failure,
+    handle_oom
 )
-from utils.validation_utils import validate_physical_ranges
+from utils.memory_monitor import (
+    MemoryLimitExceededError,
+    run_with_memory_limit
+)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("logs/descriptor_generation.log", mode="a"),
-    ],
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-ZENODO_RECORD_ID = "1234567"  # Placeholder for actual Zenodo ID
-DFTB_INPUT_TEMPLATE = """
-[System]
-Coordinates = {xyz_file}
-[Hamiltonian]
-Method = DFTB
-[Driver]
-GeometricOptimization = Yes
-MaxCycles = 200
-"""
+# Constants
+DFTB_METHOD = "DFTB"
+DFT_METHOD = "Psi4"
+DFTB_OUTPUT_FILE = "output.log"
+PSI4_OUTPUT_FILE = "psi4_output.log"
+DFTB_INPUT_FILE = "gen.inp"
+PSI4_INPUT_FILE = "psi4.inp"
 
-def smiles_to_xyz(smiles: str, output_path: str) -> None:
-    """Convert SMILES to XYZ format using RDKit (simplified stub for context)."""
-    # In a real implementation, this would use RDKit to generate coordinates
-    # For now, we assume a placeholder or external conversion
-    logger.warning(f"SMILES to XYZ conversion stub called for {smiles}")
-    with open(output_path, "w") as f:
-        f.write("1\n")
-        f.write("Generated\n")
-        f.write("C 0.0 0.0 0.0\n")
+# Energy conversion: Hartree to eV (Psi4 outputs in Hartree)
+HARTREE_TO_EV = 27.2114
+# kcal/mol to eV
+KCAL_TO_EV = 0.0433641
 
-def create_dftb_input(xyz_file: str, input_dir: str) -> str:
-    """Create DFTB+ input file (gen.inp) from XYZ."""
-    os.makedirs(input_dir, exist_ok=True)
-    input_path = os.path.join(input_dir, "gen.inp")
-    with open(input_path, "w") as f:
-        f.write(DFTB_INPUT_TEMPLATE.format(xyz_file=os.path.basename(xyz_file)))
-    return input_path
+# Physical constraints for validation
+MIN_HOMO_EV = -50.0  # eV
+MAX_HOMO_EV = 0.0    # eV
+MIN_LUMO_EV = -50.0  # eV
+MAX_LUMO_EV = 50.0   # eV
+MAX_CHARGE_DEVIATION = 0.01  # Maximum deviation from expected net charge
 
-def run_dftb_work(input_dir: str, dftb_binary: str = "dftb+") -> Tuple[bool, str]:
+
+def smiles_to_xyz(smiles: str, work_dir: str) -> str:
     """
-    Run DFTB+ in the input directory.
-    Returns (success, message).
-    Logs timing and resource usage.
+    Convert SMILES string to XYZ geometry using RDKit.
+    
+    Args:
+        smiles: SMILES string representation of the molecule
+        work_dir: Directory to write the XYZ file
+        
+    Returns:
+        Path to the generated XYZ file
+        
+    Raises:
+        ValueError: If SMILES cannot be parsed or geometry generation fails
     """
-    logger.info(f"Starting DFTB+ invocation in {input_dir}")
-    start_time = time.time()
-
     try:
-        # Get initial memory usage (RSS)
-        rusage_start = resource.getrusage(resource.RUSAGE_CHILDREN)
-        initial_rss = rusage_start.ru_maxrss  # In KB on Linux
+        from rdkit import Chem
+        from rdkit.Chem import AllChem
+    except ImportError:
+        raise ImportError("RDKit is required for SMILES to XYZ conversion. Install with: pip install rdkit")
+    
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+    
+    # Add hydrogens
+    mol = Chem.AddHs(mol)
+    
+    # Generate 3D coordinates
+    try:
+        AllChem.EmbedMolecule(mol, AllChem.ETKDGv2())
+        AllChem.UFFOptimizeMolecule(mol)
+    except Exception as e:
+        raise ValueError(f"Failed to generate 3D geometry for {smiles}: {str(e)}")
+    
+    # Write XYZ file
+    xyz_file = os.path.join(work_dir, "initial.xyz")
+    with open(xyz_file, 'w') as f:
+        # Write atom count
+        f.write(f"{mol.GetNumAtoms()}\n")
+        f.write("Generated by RDKit\n")
+        
+        conf = mol.GetConformer()
+        for atom in mol.GetAtoms():
+            pos = conf.GetAtomPosition(atom.GetIdx())
+            symbol = atom.GetSymbol()
+            f.write(f"{symbol:2s} {pos.x:15.8f} {pos.y:15.8f} {pos.z:15.8f}\n")
+    
+    return xyz_file
 
-        proc = subprocess.run(
-            [dftb_binary],
-            cwd=input_dir,
+
+def create_dftb_input(xyz_file: str, work_dir: str) -> str:
+    """
+    Create DFTB+ input files for geometry optimization.
+    
+    Args:
+        xyz_file: Path to the XYZ coordinate file
+        work_dir: Directory to write DFTB+ input files
+        
+    Returns:
+        Path to the generated gen.inp file
+    """
+    dftb_inp = os.path.join(work_dir, DFTB_INPUT_FILE)
+    
+    with open(dftb_inp, 'w') as f:
+        f.write('''Geometry = GenFormat {
+        <<< "initial.xyz"
+        }
+        
+        Hamiltonian = DFTB {
+        NoPulay = Yes
+        NoDiag = Yes
+        MaxIter = 200
+        ChargeSpillage = 0.01
+        }
+        
+        Driver = GeometryOptimization {
+        Method = BFGS
+        MaxIter = 200
+        }
+        
+        Analyser = {
+        WriteDetailedXML = Yes
+        }
+        ''')
+    
+    # Copy XYZ file to work directory
+    shutil.copy(xyz_file, os.path.join(work_dir, "initial.xyz"))
+    
+    return dftb_inp
+
+
+def create_psi4_input(xyz_file: str, work_dir: str, method: str = "B3LYP", basis: str = "def2-SVP") -> str:
+    """
+    Create Psi4 input file for geometry optimization and property calculation.
+    
+    Args:
+        xyz_file: Path to the XYZ coordinate file
+        work_dir: Directory to write Psi4 input file
+        method: DFT method (default: B3LYP)
+        basis: Basis set (default: def2-SVP)
+        
+    Returns:
+        Path to the generated psi4.inp file
+    """
+    psi4_inp = os.path.join(work_dir, PSI4_INPUT_FILE)
+    
+    # Read XYZ file to extract molecule data
+    with open(xyz_file, 'r') as f:
+        lines = f.readlines()
+        natoms = int(lines[0].strip())
+        # Skip comment line
+        xyz_lines = lines[2:2+natoms]
+    
+    psi4_input = f'''memory 2 GB
+    set {{
+        basis {basis}
+        optking {{
+            freeze_center_of_mass = true
+        }}
+    }}
+    
+    molecule {{
+        units angstrom
+        {lines[1].strip()}
+        '''
+    
+    for line in xyz_lines:
+        psi4_input += line
+    
+    psi4_input += f'''
+        units angstrom
+    }}
+    
+    # Geometry optimization
+    energy('{method}/{basis}', optimization=True)
+    
+    # Compute properties
+    properties = energy('{method}/{basis}')
+    print(properties)
+    
+    # Output molecular orbitals
+    mo = properties['mo']
+    print("HOMO:", mo['epsilon'][mo['occupied']-1])
+    print("LUMO:", mo['epsilon'][mo['virtual']])
+    '''
+    
+    with open(psi4_inp, 'w') as f:
+        f.write(psi4_input)
+    
+    return psi4_inp
+
+
+def run_dftb_work(work_dir: str, timeout: int = 3600) -> Tuple[bool, str]:
+    """
+    Run DFTB+ calculation in the specified directory.
+    
+    Args:
+        work_dir: Directory containing DFTB+ input files
+        timeout: Maximum execution time in seconds
+        
+    Returns:
+        Tuple of (success, output_log_path)
+    """
+    dftb_cmd = ["dftb+", "--hdf5", "detailed.xml"]
+    
+    try:
+        result = subprocess.run(
+            dftb_cmd,
+            cwd=work_dir,
             capture_output=True,
             text=True,
-            timeout=3600,  # 1 hour timeout
+            timeout=timeout
         )
-
-        rusage_end = resource.getrusage(resource.RUSAGE_CHILDREN)
-        final_rss = rusage_end.ru_maxrss
-        elapsed_time = time.time() - start_time
-
-        logger.info(
-            f"DFTB+ finished in {elapsed_time:.2f}s. "
-            f"Peak RSS: {final_rss / 1024:.2f} MB"
-        )
-
-        if proc.returncode != 0:
-            log_content = proc.stderr if proc.stderr else proc.stdout
-            if check_oom_in_log(log_content):
-                logger.error("OOM detected in DFTB+ log.")
-                return False, "OOM"
-            if detect_convergence_failure(log_content):
-                logger.error("Convergence failure detected in DFTB+ log.")
-                return False, "Convergence"
-            logger.error(f"DFTB+ failed with code {proc.returncode}: {proc.stderr}")
-            return False, "RuntimeError"
-
-        return True, "Success"
-
+        
+        output_log = os.path.join(work_dir, DFTB_OUTPUT_FILE)
+        with open(output_log, 'w') as f:
+            f.write(result.stdout)
+            f.write(result.stderr)
+        
+        if result.returncode != 0:
+            logger.warning(f"DFTB+ returned non-zero exit code: {result.returncode}")
+            return False, output_log
+        
+        return True, output_log
+        
     except subprocess.TimeoutExpired:
-        logger.error(f"DFTB+ timed out after 3600s")
-        return False, "Timeout"
+        logger.error(f"DFTB+ timed out after {timeout} seconds")
+        return False, os.path.join(work_dir, DFTB_OUTPUT_FILE)
     except FileNotFoundError:
-        logger.error(f"DFTB+ binary not found: {dftb_binary}")
-        return False, "BinaryNotFound"
+        logger.error("DFTB+ executable not found. Please ensure DFTB+ is installed and in PATH.")
+        return False, os.path.join(work_dir, DFTB_OUTPUT_FILE)
     except Exception as e:
-        logger.error(f"Unexpected error running DFTB+: {e}")
-        return False, str(e)
+        logger.error(f"DFTB+ execution failed: {str(e)}")
+        return False, os.path.join(work_dir, DFTB_OUTPUT_FILE)
 
-def parse_dftb_output(input_dir: str) -> Optional[Dict[str, float]]:
-    """
-    Parse DFTB+ output (e.g., dftb.out) for HOMO, LUMO, charges.
-    Returns dict with descriptors or None if parsing fails.
-    """
-    output_file = os.path.join(input_dir, "dftb.out")
-    if not os.path.exists(output_file):
-        logger.error(f"Output file not found: {output_file}")
-        return None
 
-    descriptors = {}
+def run_psi4_work(work_dir: str, timeout: int = 7200) -> Tuple[bool, str]:
+    """
+    Run Psi4 calculation in the specified directory.
+    
+    Args:
+        work_dir: Directory containing Psi4 input file
+        timeout: Maximum execution time in seconds
+        
+    Returns:
+        Tuple of (success, output_log_path)
+    """
+    psi4_cmd = ["psi4", PSI4_INPUT_FILE, "-o", PSI4_OUTPUT_FILE]
+    
     try:
-        with open(output_file, "r") as f:
-            content = f.read()
-
-        # Regex patterns for DFTB+ output (example)
-        homo_match = re.search(r"HOMO.*?\s+([-+]?\d*\.\d+)", content)
-        lumo_match = re.search(r"LUMO.*?\s+([-+]?\d*\.\d+)", content)
-        charge_match = re.search(r"Total charge.*?\s+([-+]?\d*\.\d+)", content)
-
-        if homo_match:
-            descriptors["HOMO"] = float(homo_match.group(1))
-        if lumo_match:
-            descriptors["LUMO"] = float(lumo_match.group(1))
-        if charge_match:
-            descriptors["TotalCharge"] = float(charge_match.group(1))
-
-        if not descriptors:
-            logger.warning("No descriptors found in DFTB+ output.")
-            return None
-
-        return descriptors
-
+        result = subprocess.run(
+            psi4_cmd,
+            cwd=work_dir,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+        
+        output_log = os.path.join(work_dir, PSI4_OUTPUT_FILE)
+        with open(output_log, 'w') as f:
+            f.write(result.stdout)
+            f.write(result.stderr)
+        
+        if result.returncode != 0:
+            logger.warning(f"Psi4 returned non-zero exit code: {result.returncode}")
+            # Check for convergence failure
+            if detect_convergence_failure(output_log):
+                raise ConvergenceError(f"Psi4 convergence failure detected in {output_log}")
+            return False, output_log
+        
+        return True, output_log
+        
+    except subprocess.TimeoutExpired:
+        logger.error(f"Psi4 timed out after {timeout} seconds")
+        return False, os.path.join(work_dir, PSI4_OUTPUT_FILE)
+    except FileNotFoundError:
+        logger.error("Psi4 executable not found. Please ensure Psi4 is installed and in PATH.")
+        return False, os.path.join(work_dir, PSI4_OUTPUT_FILE)
     except Exception as e:
-        logger.error(f"Error parsing DFTB+ output: {e}")
+        logger.error(f"Psi4 execution failed: {str(e)}")
+        return False, os.path.join(work_dir, PSI4_OUTPUT_FILE)
+
+
+def parse_dftb_output(output_log: str) -> Optional[Dict[str, Any]]:
+    """
+    Parse DFTB+ output to extract descriptors.
+    
+    Args:
+        output_log: Path to DFTB+ output log file
+        
+    Returns:
+        Dictionary with HOMO, LUMO, Mayer charges, total energy or None if parsing fails
+    """
+    try:
+        with open(output_log, 'r') as f:
+            content = f.read()
+        
+        # Check for convergence
+        if detect_convergence_failure(output_log):
+            logger.error(f"Convergence failure detected in DFTB+ output: {output_log}")
+            return None
+        
+        # Parse total energy (in eV from DFTB+)
+        energy_match = re.search(r'Total energy\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)\s*eV', content)
+        if not energy_match:
+            # Try alternative format
+            energy_match = re.search(r'Total energy\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)', content)
+            if not energy_match:
+                logger.warning(f"Could not find total energy in DFTB+ output: {output_log}")
+                return None
+        
+        total_energy = float(energy_match.group(1))
+        
+        # Parse HOMO/LUMO (DFTB+ outputs in eV)
+        homo_match = re.search(r'HOMO\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)\s*eV', content)
+        lumo_match = re.search(r'LUMO\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)\s*eV', content)
+        
+        if not homo_match or not lumo_match:
+            logger.warning(f"Could not find HOMO/LUMO in DFTB+ output: {output_log}")
+            return None
+        
+        homo = float(homo_match.group(1))
+        lumo = float(lumo_match.group(1))
+        
+        # Parse Mayer charges (sum should equal net charge)
+        charges = []
+        charge_pattern = re.compile(r'Atom\s+(\d+)\s+Mayer\s+Charge\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)')
+        for match in charge_pattern.finditer(content):
+            charges.append(float(match.group(2)))
+        
+        charge_sum = sum(charges) if charges else 0.0
+        
+        return {
+            'homo': homo,
+            'lumo': lumo,
+            'total_energy': total_energy,
+            'mayer_charges': charges,
+            'charge_sum': charge_sum
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to parse DFTB+ output: {str(e)}")
         return None
+
+
+def parse_psi4_output(output_log: str) -> Optional[Dict[str, Any]]:
+    """
+    Parse Psi4 output to extract descriptors.
+    
+    Args:
+        output_log: Path to Psi4 output log file
+        
+    Returns:
+        Dictionary with HOMO, LUMO, charges, total energy or None if parsing fails
+    """
+    try:
+        with open(output_log, 'r') as f:
+            content = f.read()
+        
+        # Check for convergence
+        if detect_convergence_failure(output_log):
+            logger.error(f"Convergence failure detected in Psi4 output: {output_log}")
+            return None
+        
+        # Parse total energy (Psi4 outputs in Hartree)
+        energy_match = re.search(r'Final Energy\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)', content)
+        if not energy_match:
+            # Try alternative format
+            energy_match = re.search(r'Energy\s*=\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)', content)
+            if not energy_match:
+                logger.warning(f"Could not find total energy in Psi4 output: {output_log}")
+                return None
+        
+        total_energy_hartree = float(energy_match.group(1))
+        total_energy_ev = total_energy_hartree * HARTREE_TO_EV
+        
+        # Parse HOMO/LUMO (Psi4 outputs in Hartree)
+        homo_match = re.search(r'HOMO:\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)', content)
+        lumo_match = re.search(r'LUMO:\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)', content)
+        
+        if not homo_match or not lumo_match:
+            logger.warning(f"Could not find HOMO/LUMO in Psi4 output: {output_log}")
+            return None
+        
+        homo_hartree = float(homo_match.group(1))
+        lumo_hartree = float(lumo_match.group(1))
+        
+        homo_ev = homo_hartree * HARTREE_TO_EV
+        lumo_ev = lumo_hartree * HARTREE_TO_EV
+        
+        # Parse atomic charges (Mulliken or Löwdin from Psi4)
+        charges = []
+        # Look for Mulliken charges
+        charge_pattern = re.compile(r'Mulliken\s+Charges\s*:\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)')
+        for match in charge_pattern.finditer(content):
+            charges.append(float(match.group(1)))
+        
+        # If no Mulliken charges found, try Löwdin
+        if not charges:
+            charge_pattern = re.compile(r'Löwdin\s+Charges\s*:\s*([-+]?\d*\.\d+(?:[eE][-+]?\d+)?)')
+            for match in charge_pattern.finditer(content):
+                charges.append(float(match.group(1)))
+        
+        charge_sum = sum(charges) if charges else 0.0
+        
+        return {
+            'homo': homo_ev,
+            'lumo': lumo_ev,
+            'total_energy': total_energy_ev,
+            'mayer_charges': charges,
+            'charge_sum': charge_sum
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to parse Psi4 output: {str(e)}")
+        return None
+
 
 def process_molecule(
     smiles: str,
-    row_id: int,
-    data_dir: str,
-    dftb_binary: str = "dftb+",
-) -> Optional[Dict]:
+    molecule_id: str,
+    work_dir: str,
+    method: str = DFTB_METHOD,
+    use_oom_protection: bool = True,
+    memory_limit_gb: float = 6.5,
+    timeout: int = 3600
+) -> Optional[Dict[str, Any]]:
     """
-    Process a single molecule: convert, run DFTB+, parse, validate.
-    Includes logging for timing and resource usage (Task T017).
+    Process a single molecule: generate geometry, run quantum calculation, extract descriptors.
+    
+    Args:
+        smiles: SMILES string of the molecule
+        molecule_id: Unique identifier for the molecule
+        work_dir: Working directory for this molecule
+        method: Calculation method ('DFTB' or 'Psi4')
+        use_oom_protection: Whether to use OOM protection
+        memory_limit_gb: Memory limit in GB for OOM protection
+        timeout: Timeout in seconds for the calculation
+        
+    Returns:
+        Dictionary with descriptors or None if processing fails
     """
-    logger.info(f"Processing molecule {row_id}: {smiles}")
-    start_total = time.time()
-
-    work_dir = os.path.join(data_dir, f"mol_{row_id}")
     os.makedirs(work_dir, exist_ok=True)
-
-    xyz_file = os.path.join(work_dir, "input.xyz")
-    smiles_to_xyz(smiles, xyz_file)
-
-    create_dftb_input(xyz_file, work_dir)
-
-    success, msg = run_dftb_work(work_dir, dftb_binary)
-
-    if not success:
-        if msg == "Convergence":
-            handle_convergence_failure(row_id, smiles, logger)
-        elif msg == "OOM":
-            handle_oom(row_id, smiles, logger)
-        else:
-            logger.error(f"Skipping molecule {row_id} due to {msg}")
-        return None
-
-    descriptors = parse_dftb_output(work_dir)
-    if not descriptors:
-        logger.error(f"Failed to parse descriptors for molecule {row_id}")
-        return None
-
-    # Validate physical ranges
+    
     try:
-        validate_physical_ranges(descriptors, logger)
-    except Exception as e:
-        logger.warning(f"Validation failed for molecule {row_id}: {e}")
+        # Convert SMILES to XYZ
+        xyz_file = smiles_to_xyz(smiles, work_dir)
+        logger.info(f"Generated XYZ for {molecule_id}")
+        
+        if method == DFTB_METHOD:
+            # Create DFTB input
+            create_dftb_input(xyz_file, work_dir)
+            logger.info(f"Created DFTB+ input for {molecule_id}")
+            
+            if use_oom_protection:
+                success, output_log = run_with_oom_protection(
+                    lambda: run_dftb_work(work_dir, timeout),
+                    memory_limit_gb
+                )
+            else:
+                success, output_log = run_dftb_work(work_dir, timeout)
+            
+            if not success:
+                logger.error(f"DFTB+ calculation failed for {molecule_id}")
+                return None
+            
+            # Parse output
+            descriptors = parse_dftb_output(output_log)
+            
+        elif method == DFT_METHOD:
+            # Create Psi4 input
+            create_psi4_input(xyz_file, work_dir)
+            logger.info(f"Created Psi4 input for {molecule_id}")
+            
+            if use_oom_protection:
+                success, output_log = run_with_oom_protection(
+                    lambda: run_psi4_work(work_dir, timeout * 2),  # DFT takes longer
+                    memory_limit_gb
+                )
+            else:
+                success, output_log = run_psi4_work(work_dir, timeout * 2)
+            
+            if not success:
+                logger.error(f"Psi4 calculation failed for {molecule_id}")
+                return None
+            
+            # Parse output
+            descriptors = parse_psi4_output(output_log)
+        else:
+            raise ValueError(f"Unknown method: {method}")
+        
+        if descriptors is None:
+            logger.error(f"Failed to parse output for {molecule_id}")
+            return None
+        
+        # Add metadata
+        descriptors['molecule_id'] = molecule_id
+        descriptors['smiles'] = smiles
+        descriptors['method'] = method
+        
+        return descriptors
+        
+    except ConvergenceError as e:
+        logger.warning(f"Convergence failure for {molecule_id}: {str(e)}")
         return None
+    except OOMError as e:
+        logger.warning(f"OOM error for {molecule_id}: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error processing {molecule_id}: {str(e)}")
+        return None
+    finally:
+        # Cleanup temporary files (optional - keep for debugging)
+        # shutil.rmtree(work_dir, ignore_errors=True)
+        pass
 
-    elapsed_total = time.time() - start_total
-    logger.info(
-        f"Molecule {row_id} completed in {elapsed_total:.2f}s. "
-        f"Descriptors: {descriptors}"
-    )
 
-    result = {
-        "id": row_id,
-        "SMILES": smiles,
-        **descriptors,
-        "processing_time_s": elapsed_total,
-    }
-    return result
+def validate_descriptors(descriptors: Dict[str, Any]) -> bool:
+    """
+    Validate that descriptors are within physical ranges.
+    
+    Args:
+        descriptors: Dictionary of computed descriptors
+        
+    Returns:
+        True if valid, False otherwise
+    """
+    try:
+        homo = descriptors['homo']
+        lumo = descriptors['lumo']
+        charge_sum = descriptors['charge_sum']
+        
+        # Check HOMO/LUMO ranges
+        if not (MIN_HOMO_EV <= homo <= MAX_HOMO_EV):
+            logger.warning(f"HOMO out of range: {homo} eV")
+            return False
+        
+        if not (MIN_LUMO_EV <= lumo <= MAX_LUMO_EV):
+            logger.warning(f"LUMO out of range: {lumo} eV")
+            return False
+        
+        # Check HOMO < LUMO
+        if homo >= lumo:
+            logger.warning(f"HOMO >= LUMO: {homo} >= {lumo}")
+            return False
+        
+        # Check charge sum (should be close to integer net charge)
+        if abs(charge_sum - round(charge_sum)) > MAX_CHARGE_DEVIATION:
+            logger.warning(f"Charge sum deviates from integer: {charge_sum}")
+            return False
+        
+        return True
+        
+    except KeyError as e:
+        logger.error(f"Missing descriptor key: {e}")
+        return False
+
 
 def main():
-    """Main entry point to process dataset and generate descriptors."""
-    logger.info("Starting descriptor generation pipeline.")
-    data_dir = "data/processed"
-    os.makedirs(data_dir, exist_ok=True)
-
-    # Load input CSV (assumed to be downloaded by T004)
-    input_csv = "data/raw/experimental_barrier.csv"
-    if not os.path.exists(input_csv):
-        logger.error(f"Input CSV not found: {input_csv}")
-        sys.exit(1)
-
-    results = []
-    with open(input_csv, "r") as f:
+    """
+    Main entry point for descriptor generation.
+    
+    Reads molecules from a CSV file, processes them with specified method,
+    and writes results to an output CSV file.
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Generate molecular descriptors using quantum calculations')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file with SMILES and molecule_id')
+    parser.add_argument('--output', type=str, required=True, help='Output CSV file for descriptors')
+    parser.add_argument('--method', type=str, default=DFTB_METHOD, 
+                      choices=[DFTB_METHOD, DFT_METHOD],
+                      help='Calculation method (DFTB or Psi4)')
+    parser.add_argument('--subset-size', type=int, default=0,
+                      help='Number of molecules to process (0 = all)')
+    parser.add_argument('--work-dir', type=str, default='work',
+                      help='Base directory for working directories')
+    parser.add_argument('--no-oom-protection', action='store_true',
+                      help='Disable OOM protection')
+    parser.add_argument('--memory-limit', type=float, default=6.5,
+                      help='Memory limit in GB for OOM protection')
+    parser.add_argument('--timeout', type=int, default=3600,
+                      help='Timeout in seconds per molecule')
+    
+    args = parser.parse_args()
+    
+    # Setup work directory
+    base_work_dir = Path(args.work_dir)
+    base_work_dir.mkdir(exist_ok=True)
+    
+    # Read input CSV
+    molecules = []
+    with open(args.input, 'r', newline='') as f:
         reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            smiles = row["SMILES"]
-            result = process_molecule(smiles, i, data_dir)
-            if result:
-                results.append(result)
-
-    output_csv = "data/descriptors_semi.csv"
+        for row in reader:
+            molecules.append(row)
+    
+    logger.info(f"Loaded {len(molecules)} molecules from {args.input}")
+    
+    # Apply subset if specified
+    if args.subset_size > 0:
+        molecules = molecules[:args.subset_size]
+        logger.info(f"Processing subset of {len(molecules)} molecules")
+    
+    # Process molecules
+    results = []
+    failures = []
+    
+    for idx, mol in enumerate(molecules):
+        molecule_id = mol.get('molecule_id', f'mol_{idx}')
+        smiles = mol.get('SMILES', mol.get('smiles', ''))
+        
+        if not smiles:
+            logger.error(f"No SMILES found for {molecule_id}")
+            failures.append({'molecule_id': molecule_id, 'error': 'No SMILES'})
+            continue
+        
+        work_dir = base_work_dir / molecule_id
+        work_dir.mkdir(exist_ok=True)
+        
+        logger.info(f"Processing {molecule_id} ({idx+1}/{len(molecules)})")
+        
+        descriptors = process_molecule(
+            smiles=smiles,
+            molecule_id=molecule_id,
+            work_dir=str(work_dir),
+            method=args.method,
+            use_oom_protection=not args.no_oom_protection,
+            memory_limit_gb=args.memory_limit,
+            timeout=args.timeout
+        )
+        
+        if descriptors is None:
+            failures.append({'molecule_id': molecule_id, 'error': 'Processing failed'})
+            logger.warning(f"Failed to process {molecule_id}")
+        else:
+            # Validate descriptors
+            if validate_descriptors(descriptors):
+                results.append(descriptors)
+            else:
+                failures.append({'molecule_id': molecule_id, 'error': 'Validation failed'})
+                logger.warning(f"Descriptors validation failed for {molecule_id}")
+    
+    # Write results
     if results:
-        with open(output_csv, "w", newline="") as f:
-            fieldnames = list(results[0].keys())
+        fieldnames = ['molecule_id', 'SMILES', 'method', 'homo', 'lumo', 
+                    'total_energy', 'charge_sum', 'num_charges']
+        
+        with open(args.output, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(results)
-        logger.info(f"Successfully wrote {len(results)} descriptors to {output_csv}")
-    else:
-        logger.warning("No descriptors generated.")
+            
+            for desc in results:
+                row = {
+                    'molecule_id': desc['molecule_id'],
+                    'SMILES': desc['smiles'],
+                    'method': desc['method'],
+                    'homo': desc['homo'],
+                    'lumo': desc['lumo'],
+                    'total_energy': desc['total_energy'],
+                    'charge_sum': desc['charge_sum'],
+                    'num_charges': len(desc.get('mayer_charges', []))
+                }
+                writer.writerow(row)
+        
+        logger.info(f"Wrote {len(results)} successful results to {args.output}")
+    
+    # Write failures
+    if failures:
+        with open(args.output.replace('.csv', '_failures.csv'), 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['molecule_id', 'error'])
+            writer.writeheader()
+            writer.writerows(failures)
+        
+        logger.warning(f"Logged {len(failures)} failures to {args.output.replace('.csv', '_failures.csv')}")
+    
+    logger.info(f"Completed: {len(results)} succeeded, {len(failures)} failed")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

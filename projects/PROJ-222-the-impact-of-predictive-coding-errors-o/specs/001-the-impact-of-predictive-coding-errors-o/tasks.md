@@ -59,7 +59,7 @@
 - [ ] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (duration_estimate, stimulus_sequence, participant_id)
 - [ ] T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure
 - [X] T007 Setup environment configuration management for random seeds in `code/config.py`
-- [ ] T008 Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [X] T008 Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 2, column 1:
  I have implemented the chunked d...
  ^
@@ -90,12 +90,12 @@ expected <block end>, but found '-'
 
 - [X] T012 [US1] Implement `code/download.py` to fetch datasets from OpenML/HuggingFace using IDs from `data/README.md` (created in T009) (FR-001)
 - [X] T013 [US1] Implement Gate 0 logic in `code/download.py` to verify presence of `duration_estimate`, `stimulus_sequence`, and `participant_id`. If no valid dataset is found, halt execution and write `gate0_status.json` with status="blocked" and reason. (Plan: Gate 0, SC-001)
-- [~] T014 [US1] Implement filtering logic to exclude datasets lacking sequential stimuli or predictability manipulations (e.g., random noise, non-sequential) as per FR-002. Log exclusion reasons. (FR-002)
-- [ ] T015 [US1] Create `code/preprocess.py` with full implementation of Markov surprisal calculation logic (Shannon entropy of transition) and data loading functions. (FR-003, Assumption 1)
-- [ ] T016 [US1] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' (FR-003, Assumption 1)
+- [ ] T014 [US1] Implement filtering logic to exclude datasets lacking sequential stimuli or predictability manipulations (e.g., random noise, non-sequential) as per FR-002. Log exclusion reasons. (FR-002)
+- [X] T015 [US1] Create `code/preprocess.py` with full implementation of Markov surprisal calculation logic (Shannon entropy of transition) and data loading functions. (FR-003, Assumption 1)
+- [X] T016 [US1] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' (FR-003, Assumption 1)
 - [ ] T017 [US1] Generate standardized CSV output in `data/processed/standardized.csv` with checksums
 - [ ] T017b [US1] Save 'transition-probability tables' and 'Markov model state' as versioned artifacts in `data/processed/` (Constitution VI)
-- [ ] T018 [US1] Update `data/README.md` with exclusion logs and reasons for any dropped datasets
+- [X] T018 [US1] Update `data/README.md` with exclusion logs and reasons for any dropped datasets
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,14 +109,14 @@ expected <block end>, but found '-'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py` (Dep: T006)
-- [ ] T020 [P] [US2] Unit test for MDE calculation logic in `tests/unit/test_mde_calc.py`
+- [X] T019 [P] [US2] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py` (Dep: T006)
+- [X] T020 [P] [US2] Unit test for MDE calculation logic in `tests/unit/test_mde_calc.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] [Dep: T017] Implement `code/analysis.py` to fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)` (FR-004). Save model summary to `analysis/results.json` with keys: coef, pval, ci.
+- [X] T021 [US2] [Dep: T017] Implement `code/analysis.py` to fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)` (FR-004). Save model summary to `analysis/results.json` with keys: coef, pval, ci.
 - [ ] T022 [US2] Implement convergence check and fallback to random-intercept-only model if convergence fails (Edge Case)
-- [ ] T022b [US2] Define the 90% convergence threshold as a constant in `code/config.py`. Measure and report the convergence rate (SC-002). (Note: Do not invalidate results, only report).
+- [X] T022b [US2] Define the 90% convergence threshold as a constant in `code/config.py`. Measure and report the convergence rate (SC-002). (Note: Do not invalidate results, only report).
 - [ ] T023 [US2] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) for p-values. Include logic: only apply correction if `num_tests > 1`. (FR-005)
 - [ ] T023b [US2] Implement verification logic to ensure Family-Wise Error Rate is controlled at α≤0.05 and log `fwer_control_status` to `analysis/results.json`. (SC-003)
 - [ ] T024 [US2] Implement effect size calculation (Cohen's d) with 95% CI using `pingouin` (FR-006)

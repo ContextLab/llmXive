@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-546-predicting-molecular-properties-from-qua/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas, rdkit, requests)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas, rdkit, requests)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -36,10 +36,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/download_data.py` to fetch experimental barrier dataset from Zenodo (FR-001) with checksum verification
+- [X] T004 [P] Implement `code/download_data.py` to fetch experimental barrier dataset from Zenodo (FR-001) with checksum verification
 - [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases
 - [X] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
-- [ ] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
+- [X] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
 - [X] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -54,15 +54,15 @@
 
 ### Tests for User Story 1
 
-- [~] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py` <!-- ATOMIZE: requested -->
+- [ ] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
-- [~] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
-- [~] T015 [US1] Add logic to validate output CSV columns and physical ranges (HOMO < LUMO, charge sum)
-- [ ] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
-- [~] T017 [US1] Add logging for DFTB+ invocation, timing, and resource usage
+- [ ] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
+- [ ] T015 [US1] Add logic to validate output CSV columns and physical ranges (HOMO < LUMO, charge sum)
+- [X] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
+- [ ] T017 [US1] Add logging for DFTB+ invocation, timing, and resource usage
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -77,13 +77,13 @@
 ### Tests for User Story 2
 
 - [X] T018 [P] [US2] Contract test for `code/train_models.py` in `tests/test_models.py` (verifies RF training)
-- [ ] T019 [P] [US2] Integration test for comparative evaluation in `tests/test_evaluation.py`
+- [X] T019 [P] [US2] Integration test for comparative evaluation in `tests/test_evaluation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/generate_descriptors.py` (DFT branch) to invoke Psi4 for B3LYP/def2-SVP on subset (min 30 molecules) (FR-003), including unit normalization (eV for energies)
-- [ ] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using 5-fold CV (FR-004)
-- [ ] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE and run paired t-test (FR-005)
+- [X] T020 [US2] Implement `code/generate_descriptors.py` (DFT branch) to invoke Psi4 for B3LYP/def2-SVP on subset (min 30 molecules) (FR-003), including unit normalization (eV for energies)
+- [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using 5-fold CV (FR-004)
+- [X] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE and run paired t-test (FR-005)
 - [ ] T023 [US2] Add logic to flag if semi-MAE exceeds DFT-MAE by >20% (FR-008)
 - [ ] T024 [US2] Add verification that semi-MAE ≤ 2.0 kcal/mol (FR-010) and run one-sided t-test (SC-007)
 - [ ] T025 [US2] Implement runtime and memory logging for DFTB+ and Psi4 runs, calculate the speedup ratio (DFT time / Semi-empirical time), compare against the 10x threshold (SC-004), and flag failure if the threshold is not met

@@ -163,6 +163,10 @@
     "classified_at": "2026-07-22T01:08:09Z",
     "verdict": false
   },
+  "PROJ-1041-llmxive-follow-up-extending-vidu-s1-a-re::1.6.0": {
+    "classified_at": "2026-07-24T13:23:16Z",
+    "verdict": false
+  },
   "PROJ-1062-llmxive-follow-up-extending-weak-to-stro::1.6.0": {
     "classified_at": "2026-07-16T13:05:47Z",
     "verdict": false

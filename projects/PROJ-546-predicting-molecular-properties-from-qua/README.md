@@ -1,34 +1,29 @@
-# PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
+# Predicting Molecular Properties from Quantum Chemical Calculations
+
+**Project ID**: PROJ-546
+**Status**: Active
 
 ## Overview
-This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using semi-empirical (DFTB+) and high-level DFT (Psi4) quantum chemical calculations, followed by machine learning modeling.
+This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using descriptors derived from quantum chemical calculations. It compares semi-empirical methods (DFTB+) against high-level DFT baselines (Psi4) to evaluate computational trade-offs.
 
-## Project Structure
-- `code/`: Source code for data downloading, descriptor generation, model training, and evaluation.
-- `data/`: Raw and processed datasets, including downloaded CSVs and generated descriptors.
-- `tests/`: Unit and integration tests for the pipeline components.
+## Structure
+- `code/`: Python implementation scripts (data download, descriptor generation, model training, evaluation).
+- `data/`: Raw datasets, processed descriptors, and model artifacts.
+- `tests/`: Unit and integration tests.
 - `specs/`: Feature specifications and design documents.
-- `figures/`: Generated plots and visualizations.
+- `docs/`: Project documentation and reports.
 
 ## Prerequisites
 - Python 3.11+
 - DFTB+ (for semi-empirical calculations)
-- Psi4 (for high-level DFT calculations)
-- RDKit (for molecular handling)
+- Psi4 (for DFT calculations)
+- Required Python packages listed in `code/requirements.txt`
 
-## Setup
-1. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-2. Ensure DFTB+ and Psi4 are installed and accessible in your PATH.
-
-## Usage
-See `code/` scripts for individual pipeline steps:
-- `download_data.py`: Fetch experimental barrier dataset from Zenodo.
-- `generate_descriptors.py`: Compute HOMO/LUMO/Mayer descriptors.
-- `train_models.py`: Train Random Forest models.
-- `evaluate_models.py`: Compare model performance.
+## Quick Start
+1. Install dependencies: `pip install -r code/requirements.txt`
+2. Download data: `python code/download_data.py`
+3. Generate descriptors: `python code/generate_descriptors.py`
+4. Train models: `python code/train_models.py`
 
 ## License
-MIT License
+Academic Use Only

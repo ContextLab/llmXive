@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,28 +24,29 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual environments
+.venv/
 venv/
 ENV/
-env/
 
-# Data
-data/raw/*.csv
-data/raw/*.tar.gz
-data/processed/*.csv
-data/models/*.pkl
-data/models/*.joblib
-
-# Logs
-*.log
-logs/
-
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# OS
+# Data and logs
+data/raw/
+data/processed/
+data/cache/
+logs/
+*.log
+
+# Model artifacts
+models/
+*.pkl
+*.joblib
+
+# OS files
 .DS_Store
 Thumbs.db

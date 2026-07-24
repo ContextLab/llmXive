@@ -1,13 +1,26 @@
-"""
-Script to initialize the project directory structure for the llmXive project.
-Creates necessary folders for data, code, figures, analysis, and contracts.
-"""
 import os
 import sys
+from pathlib import Path
 
 def create_directories():
-    """Create the required project directory structure."""
-    # Define the directories to create relative to the project root
+    """
+    Creates the project directory structure as defined in the implementation plan.
+    
+    Required directories:
+    - data/raw
+    - data/processed
+    - code (already exists as parent, but ensures path)
+    - figures
+    - analysis
+    - contracts
+    
+    Returns:
+        bool: True if all directories were created or already exist.
+    """
+    # Define the project root (assuming this script is in code/ or project root)
+    # We use the current working directory as the project root for this task
+    project_root = Path.cwd()
+    
     directories = [
         "data/raw",
         "data/processed",
@@ -16,26 +29,28 @@ def create_directories():
         "analysis",
         "contracts"
     ]
-
-    created = []
-    failed = []
-
-    for dir_path in directories:
+    
+    created_count = 0
+    for dir_name in directories:
+        dir_path = project_root / dir_name
         try:
-            os.makedirs(dir_path, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        except OSError as e:
-            failed.append((dir_path, str(e)))
-            print(f"Failed to create directory {dir_path}: {e}")
-
-    if failed:
-        print(f"\n{len(created)} directories created successfully.")
-        print(f"{len(failed)} directories failed to create.")
-        sys.exit(1)
-    else:
-        print(f"\nAll {len(created)} directories created successfully.")
-        sys.exit(0)
+            dir_path.mkdir(parents=True, exist_ok=True)
+            if dir_path.is_dir():
+                print(f"Created or verified directory: {dir_path}")
+                created_count += 1
+            else:
+                print(f"ERROR: Failed to create directory: {dir_path}")
+                return False
+        except PermissionError:
+            print(f"ERROR: Permission denied creating directory: {dir_path}")
+            return False
+        except Exception as e:
+            print(f"ERROR: Failed to create directory {dir_path}: {e}")
+            return False
+    
+    print(f"Successfully created/verified {created_count}/{len(directories)} directories.")
+    return True
 
 if __name__ == "__main__":
-    create_directories()
+    success = create_directories()
+    sys.exit(0 if success else 1)

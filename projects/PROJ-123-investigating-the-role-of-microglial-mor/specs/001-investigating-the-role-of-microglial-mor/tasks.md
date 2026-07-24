@@ -174,13 +174,13 @@ required:
 
 - [X] T023 [Depends on T018a OR T018b] [US2] Implement Z-score normalization of cognitive scores per cohort in `code/analysis.py` (FR-009). **Logic**: Identify distinct study cohorts. Calculate mean and std per cohort. Transform raw scores to Z-scores. **Output**: `data/intermediates/normalized_cognitive_scores.csv`. **Constraint**: Must handle synthetic data (logic validation) and real data (statistical rigor) identically.
 
-- [ ] T024 [Depends on T018a OR T018b] [US2] Implement dynamic 'Early AD' classification logic in `code/analysis.py` (FR-010). **Logic**:
+- [X] T024 [Depends on T018a OR T018b] [US2] Implement dynamic 'Early AD' classification logic in `code/analysis.py` (FR-010). **Logic**:
  1. If 'Early AD' labels are missing, identify the 'control group' as subjects with `pathology_status` == 'Normal'.
  2. Check for `amyloid_beta_load`. If present, calculate the upper quantile of the control group and classify 'Early AD' if load exceeds this threshold.
  3. **Fallback**: If `amyloid_beta_load` is missing, check for `tau_markers`. If present, calculate a high percentile of the control group's tau distribution and classify 'Early AD' if tau exceeds this threshold.
  4. Log the specific threshold and marker used. If labels are present, use them directly.
 
-- [ ] T026 [Depends on T023] [US2] Implement VIF calculation and PCA application in `code/analysis.py` (FR-004, FR-011). **Logic**: Calculate VIF for all predictors (branch_points, total_length, soma_area, sholl_intersections). **Artifact**: Write `data/intermediates/vif_check.json` containing `vif_scores` (dict of feature: value), `max_vif` (float), and `trigger_pca` (boolean, true if max_vif > 5.0). **Action**:
+- [X] T026 [Depends on T023] [US2] Implement VIF calculation and PCA application in `code/analysis.py` (FR-004, FR-011). **Logic**: Calculate VIF for all predictors (branch_points, total_length, soma_area, sholl_intersections). **Artifact**: Write `data/intermediates/vif_check.json` containing `vif_scores` (dict of feature: value), `max_vif` (float), and `trigger_pca` (boolean, true if max_vif > 5.0). **Action**:
  - **If VIF > 5.0**: Apply PCA to generate orthogonal predictors. Save fitted PCA model to `data/intermediates/pca_model.pkl`.
  - **If VIF <= 5.0**: DO NOT apply PCA. Save an identity wrapper object to `data/intermediates/pca_model.pkl` with metadata `{"transform": "identity", "note": "NO_TRANSFORM_REQUIRED"}` to satisfy downstream loading requirements.
  **Critical Requirement**: **MUST ALWAYS save the PCA model object (or identity wrapper) to `data/intermediates/pca_model.pkl`** regardless of VIF result. This ensures T034 can always load a valid artifact. **Constraint**: If input is synthetic data, VIF check validates pipeline logic; if real data, VIF check enforces statistical rigor. **Note**: The resulting PCA model (components, mean, std) or identity wrapper is saved as a fixed artifact for use in T034.
@@ -352,7 +352,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All image processing and regression tasks MUST run on CPU-only (limited core count, constrained RAM). No GPU models or 8-bit quantization allowed.
 - **Review Note**: The implementation uses `scikit-image` to algorithmically replicate the logic of Fiji's Simple Neurite Tracer (skeletonization) and Microglial Morphometry plugins. This satisfies the Constitution's requirement for a standardized pipeline while ensuring CPU-tractability.
-- **Review Note (Scope)**: The 'fractal_dimension' metric has been removed from the implementation to ensure strict alignment with spec.md FR-003. The analysis focuses exclusively on branch points, total length, soma area, and Sholl intersections.
+- **Review Note (Scope)**: The 'fractal_dimension' metric has been removed from the implementation to ensure strict alignment with spec.md FR-003. The analysis focuses exclusively on branch points, total length, soma area, and Sholl intersections. [UNRESOLVED-CLAIM: c_f0202c5c — status=not_enough_info]
 - **Review Note (Scope)**: The 'complexity_index' metric has been removed from the implementation to eliminate unapproved scope creep. The analysis strictly adheres to the spec-defined metrics.
 - **Data Source Note**: T012a now defaults to REAL data fetch and FAILS LOUDLY if unavailable. Synthetic data is restricted to T012b (validation only).
 - **Turing Review Response**: IMPLEMENTED in T042 (docs/OPERATIONAL_DEFINITIONS.md). The operational definition of morphological complexity is now documented and enforced.

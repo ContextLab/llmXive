@@ -1,30 +1,28 @@
-"""
-Configuration management for the project.
-Handles random seeds and path definitions.
-"""
 import os
 from pathlib import Path
 
-# Random seed for reproducibility
-RANDOM_SEED = 42
+# Constants for convergence handling (T022b)
+CONVERGENCE_THRESHOLD = 0.90
 
 def get_config():
+    """Return configuration dictionary."""
     return {
-        "random_seed": RANDOM_SEED,
-        "data_dir": str(get_data_dir()),
-        "code_dir": "code",
-        "output_dir": "data/processed",
-        "figures_dir": "figures"
+        "convergence_threshold": CONVERGENCE_THRESHOLD,
+        "random_seed": 42
     }
 
-def get_data_dir() -> Path:
-    """Returns the project data directory."""
+def get_data_dir():
+    """Return the data directory path."""
     return Path("data")
 
-def set_seed(seed: int):
-    global RANDOM_SEED
-    RANDOM_SEED = seed
+def set_seed(seed: int = 42):
+    """Set random seed for reproducibility."""
     import random
     import numpy as np
+    try:
+        import torch
+        torch.manual_seed(seed)
+    except ImportError:
+        pass
     random.seed(seed)
     np.random.seed(seed)

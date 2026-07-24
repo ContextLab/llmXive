@@ -1,217 +1,265 @@
-"""
-Train Random Forest models for molecular property prediction.
-
-Implements FR-004: Train two Random Forests (semi vs DFT) using 5-fold CV.
-Compares MAE via paired t-test (FR-005).
-
-This module provides the implementation for T021.
-"""
 import os
 import sys
 import csv
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Tuple, List, Dict, Any
 import numpy as np
-import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import KFold
-from sklearn.metrics import mean_absolute_error, r2_score
-from scipy import stats
+from sklearn.model_selection import KFold, cross_validate
+from sklearn.metrics import make_scorer, mean_absolute_error
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/train_models.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_data(filepath: str) -> pd.DataFrame:
+REQUIRED_COLUMNS = [
+    'smiles', 'homo_semi', 'lumo_semi', 'mayer_order_semi',
+    'homo_dft', 'lumo_dft', 'mayer_order_dft',
+    'experimental_barrier'
+]
+
+SEMI_FEATURES = ['homo_semi', 'lumo_semi', 'mayer_order_semi']
+DFT_FEATURES = ['homo_dft', 'lumo_dft', 'mayer_order_dft']
+TARGET_COLUMN = 'experimental_barrier'
+
+def load_data(filepath: str) -> List[Dict[str, Any]]:
     """
-    Load molecular descriptors from a CSV file.
+    Load molecular descriptor data from a CSV file.
     
     Args:
-        filepath: Path to the CSV file.
+        filepath: Path to the CSV file containing descriptors.
         
     Returns:
-        DataFrame with descriptors and target.
-    """
-    logger.info(f"Loading data from {filepath}")
-    df = pd.read_csv(filepath)
-    
-    # Validate required columns
-    required_cols = ['homo', 'lumo', 'mayer_bond_order', 'charge', 'experimental_barrier']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        List of dictionaries, one per molecule.
         
-    return df
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Data file not found: {filepath}")
+    
+    data = []
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        
+        # Verify required columns exist
+        if reader.fieldnames is None:
+            raise ValueError("CSV file is empty or has no headers.")
+        
+        missing_cols = set(REQUIRED_COLUMNS) - set(reader.fieldnames)
+        if missing_cols:
+            raise ValueError(f"Missing required columns: {missing_cols}")
+        
+        for row_num, row in enumerate(reader, start=2):
+            try:
+                # Parse numeric fields
+                parsed_row = {
+                    'smiles': row['smiles'],
+                    'homo_semi': float(row['homo_semi']),
+                    'lumo_semi': float(row['lumo_semi']),
+                    'mayer_order_semi': float(row['mayer_order_semi']),
+                    'homo_dft': float(row['homo_dft']),
+                    'lumo_dft': float(row['lumo_dft']),
+                    'mayer_order_dft': float(row['mayer_order_dft']),
+                    'experimental_barrier': float(row['experimental_barrier'])
+                }
+                data.append(parsed_row)
+            except ValueError as e:
+                logger.warning(f"Skipping row {row_num} due to parsing error: {e}")
+    
+    if not data:
+        raise ValueError("No valid data rows found in the file.")
+        
+    logger.info(f"Loaded {len(data)} molecules from {filepath}")
+    return data
 
-def prepare_features_target(df: pd.DataFrame):
+def prepare_features_target(
+    data: List[Dict[str, Any]], 
+    feature_type: str
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Separate features and target from the dataframe.
+    Prepare feature matrix and target vector from data.
+    
+    Args:
+        data: List of molecule dictionaries.
+        feature_type: Either 'semi' or 'dft' to select feature set.
+        
+    Returns:
+        Tuple of (X, y) as numpy arrays.
+        
+    Raises:
+        ValueError: If feature_type is invalid.
     """
-    feature_cols = ['homo', 'lumo', 'mayer_bond_order', 'charge']
-    X = df[feature_cols].values
-    y = df['experimental_barrier'].values
+    if feature_type not in ('semi', 'dft'):
+        raise ValueError(f"Invalid feature_type: {feature_type}. Must be 'semi' or 'dft'.")
+    
+    features = SEMI_FEATURES if feature_type == 'semi' else DFT_FEATURES
+    
+    X = np.array([[mol[feat] for feat in features] for mol in data])
+    y = np.array([mol[TARGET_COLUMN] for mol in data])
+    
     return X, y
 
-def train_and_evaluate_fold(X: np.ndarray, y: np.ndarray, fold_idx: int, random_state: int = 42) -> Tuple[float, float, RandomForestRegressor]:
+def train_and_evaluate_fold(
+    X_train: np.ndarray, 
+    y_train: np.ndarray, 
+    X_test: np.ndarray, 
+    y_test: np.ndarray
+) -> Dict[str, float]:
     """
-    Train a Random Forest on a specific fold and return MAE, R2, and the model.
-    """
-    kf = KFold(n_splits=5, shuffle=True, random_state=random_state)
-    train_idx, test_idx = list(kf.split(X))[fold_idx]
-    
-    X_train, X_test = X[train_idx], X[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
-    
-    model = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=10,
-        random_state=random_state,
-        n_jobs=-1
-    )
-    model.fit(X_train, y_train)
-    
-    y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    
-    return mae, r2, model
-
-def train_models(semi_path: str, dft_path: str, output_path: str) -> Dict:
-    """
-    Main function to train models and compare performance.
+    Train a Random Forest model on a single fold and evaluate it.
     
     Args:
-        semi_path: Path to semi-empirical descriptors CSV.
-        dft_path: Path to DFT descriptors CSV.
-        output_path: Path to save the results CSV.
+        X_train: Training features.
+        y_train: Training targets.
+        X_test: Test features.
+        y_test: Test targets.
         
     Returns:
-        Dictionary containing metrics.
+        Dictionary containing 'mae' (Mean Absolute Error).
     """
-    logger.info("Starting model training pipeline")
+    # Create a pipeline with scaling and RF
+    model = Pipeline([
+        ('scaler', StandardScaler()),
+        ('rf', RandomForestRegressor(
+            n_estimators=100,
+            max_depth=None,
+            random_state=42,
+            n_jobs=-1
+        ))
+    ])
     
-    # Load data
-    try:
-        df_semi = load_data(semi_path)
-        df_dft = load_data(dft_path)
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        raise
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
     
-    # Ensure same number of samples for paired t-test (FR-005)
-    min_len = min(len(df_semi), len(df_dft))
-    if min_len < 30:
-        logger.warning(f"Dataset size ({min_len}) is smaller than recommended (30). Results may be unstable.")
+    mae = mean_absolute_error(y_test, y_pred)
     
-    # Align data (assuming rows correspond to same molecules in order)
-    df_semi = df_semi.head(min_len)
-    df_dft = df_dft.head(min_len)
+    logger.info(f"Fold MAE: {mae:.4f} kcal/mol")
     
-    X_semi, y_semi = prepare_features_target(df_semi)
-    X_dft, y_dft = prepare_features_target(df_dft)
+    return {'mae': mae}
+
+def train_models(
+    data: List[Dict[str, Any]],
+    n_splits: int = 5,
+    random_state: int = 42
+) -> Dict[str, Any]:
+    """
+    Train and evaluate Random Forest models for both semi-empirical and DFT descriptors.
     
-    logger.info(f"Training on {min_len} molecules")
+    This function performs 5-fold cross-validation for both feature sets and returns
+    the performance metrics.
     
-    # Train and evaluate using 5-fold CV
-    mae_semi_list = []
-    mae_dft_list = []
-    r2_semi_list = []
-    r2_dft_list = []
-    models_semi = []
-    models_dft = []
-    
-    kf = KFold(n_splits=5, shuffle=True, random_state=42)
-    
-    logger.info("Performing 5-fold cross-validation for Semi-Empirical model")
-    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X_semi)):
-        X_train, X_test = X_semi[train_idx], X_semi[test_idx]
-        y_train, y_test = y_semi[train_idx], y_semi[test_idx]
+    Args:
+        data: List of molecule dictionaries.
+        n_splits: Number of CV folds (default 5).
+        random_state: Random seed for reproducibility.
         
-        model = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+    Returns:
+        Dictionary containing results for both models:
+        {
+            'semi': {'mae_mean': float, 'mae_std': float, 'fold_maes': List[float]},
+            'dft': {'mae_mean': float, 'mae_std': float, 'fold_maes': List[float]}
+        }
+    """
+    results = {}
+    
+    for feature_type in ['semi', 'dft']:
+        logger.info(f"Training {feature_type.upper()} model with {n_splits}-fold CV...")
         
-        mae_semi_list.append(mean_absolute_error(y_test, y_pred))
-        r2_semi_list.append(r2_score(y_test, y_pred))
-        models_semi.append(model)
+        X, y = prepare_features_target(data, feature_type)
         
-    logger.info("Performing 5-fold cross-validation for DFT model")
-    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X_dft)):
-        X_train, X_test = X_dft[train_idx], X_dft[test_idx]
-        y_train, y_test = y_dft[train_idx], y_dft[test_idx]
+        # Setup KFold
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
         
-        model = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+        fold_maes = []
+        for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
+            X_train, X_test = X[train_idx], X[test_idx]
+            y_train, y_test = y[train_idx], y[test_idx]
+            
+            fold_result = train_and_evaluate_fold(X_train, y_train, X_test, y_test)
+            fold_maes.append(fold_result['mae'])
         
-        mae_dft_list.append(mean_absolute_error(y_test, y_pred))
-        r2_dft_list.append(r2_score(y_test, y_pred))
-        models_dft.append(model)
-    
-    # Calculate mean metrics
-    mean_mae_semi = np.mean(mae_semi_list)
-    mean_mae_dft = np.mean(mae_dft_list)
-    mean_r2_semi = np.mean(r2_semi_list)
-    mean_r2_dft = np.mean(r2_dft_list)
-    
-    # Paired t-test (FR-005)
-    # Compare the MAE of each fold between semi and dft
-    t_stat, p_value = stats.ttest_rel(mae_semi_list, mae_dft_list)
-    
-    logger.info(f"Results - Semi MAE: {mean_mae_semi:.4f}, DFT MAE: {mean_mae_dft:.4f}")
-    logger.info(f"Paired t-test p-value: {p_value:.4f}")
-    
-    # Prepare results
-    results = {
-        "mae_semi": mean_mae_semi,
-        "mae_dft": mean_mae_dft,
-        "r2_semi": mean_r2_semi,
-        "r2_dft": mean_r2_dft,
-        "p_value": p_value,
-        "n_folds": 5,
-        "n_samples": min_len
-    }
-    
-    # Save results to CSV
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["metric", "value"])
-        for key, value in results.items():
-            writer.writerow([key, value])
-    
-    logger.info(f"Results saved to {output_path}")
-    
-    # Save models (optional but good practice)
-    # We save the average model or the best fold? For now, we just return the metrics.
-    # If needed, we could pickle the models.
+        mae_mean = float(np.mean(fold_maes))
+        mae_std = float(np.std(fold_maes))
+        
+        results[feature_type] = {
+            'mae_mean': mae_mean,
+            'mae_std': mae_std,
+            'fold_maes': fold_maes
+        }
+        
+        logger.info(f"{feature_type.upper()} Model - Mean MAE: {mae_mean:.4f} ± {mae_std:.4f} kcal/mol")
     
     return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Random Forest models for molecular properties.")
-    parser.add_argument("--semi-data", required=True, help="Path to semi-empirical descriptors CSV")
-    parser.add_argument("--dft-data", required=True, help="Path to DFT descriptors CSV")
-    parser.add_argument("--output", required=True, help="Path to output metrics CSV")
+    """
+    Main entry point for training models.
+    
+    Usage:
+        python code/train_models.py --input data/descriptors_combined.csv --output data/model_results.json
+    """
+    parser = argparse.ArgumentParser(
+        description='Train Random Forest models on semi-empirical and DFT descriptors.'
+    )
+    parser.add_argument(
+        '--input', '-i',
+        type=str,
+        default='data/descriptors_combined.csv',
+        help='Path to input CSV file with descriptors (default: data/descriptors_combined.csv)'
+    )
+    parser.add_argument(
+        '--output', '-o',
+        type=str,
+        default='data/model_results.json',
+        help='Path to output JSON file for results (default: data/model_results.json)'
+    )
+    parser.add_argument(
+        '--splits', '-s',
+        type=int,
+        default=5,
+        help='Number of CV folds (default: 5)'
+    )
     
     args = parser.parse_args()
     
     try:
-        train_models(args.semi_data, args.dft_data, args.output)
+        # Load data
+        data = load_data(args.input)
+        
+        # Train models
+        results = train_models(data, n_splits=args.splits)
+        
+        # Save results to JSON
+        import json
+        with open(args.output, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2)
+        
+        logger.info(f"Results saved to {args.output}")
+        
+        # Print summary
+        print("\n=== Model Training Summary ===")
+        print(f"Semi-empirical MAE: {results['semi']['mae_mean']:.4f} ± {results['semi']['mae_std']:.4f} kcal/mol")
+        print(f"DFT MAE:            {results['dft']['mae_mean']:.4f} ± {results['dft']['mae_std']:.4f} kcal/mol")
+        print("==============================\n")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file error: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Training failed: {e}")
+        logger.exception(f"Unexpected error during training: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

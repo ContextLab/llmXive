@@ -566,3 +566,185 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T17:51:06Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: morphological complexity defined as vector branch_points total_length
+    soma_area sholl_intersections
+  claim_id: c_9043186b
+  context: 'Definition: Morphological complexity is strictly defined as the vector
+    [branch_points, total_length, soma_area, sholl_intersections].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Morphological_complexity_defined_as_vector_branch_points_tot
+  kind: entity_fact
+  raw_text: Morphological complexity is strictly defined as the vector [branch_points,
+    total_length, soma_area, sholl_intersections].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:16:27Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: analysis focuses on branch points total length soma area Sholl intersections
+  claim_id: c_f0202c5c
+  context: 'Review Note (Scope): The ''fractal_dimension'' metric has been removed
+    from the implementation to ensure strict alignment with spec.md FR-003. The analysis
+    focuses exclusively on branch points, total length, soma area, and Sholl intersections.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_focuses_on_branch_points_total_length_soma_area_Sho
+  kind: entity_fact
+  raw_text: The analysis focuses exclusively on branch points, total length, soma
+    area, and Sholl intersections.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:21Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: fractal_dimension metric removed from implementation
+  claim_id: c_5e8d415b
+  context: 'Review Note (Scope): The ''fractal_dimension'' metric has been removed
+    from the implementation to ensure strict alignment with spec.md FR-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fractal_dimension_metric_removed_from_implementation
+  kind: entity_fact
+  raw_text: The 'fractal_dimension' metric has been removed from the implementation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:29Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: complexity_index metric removed from implementation
+  claim_id: c_4d32a2dc
+  context: 'Review Note (Scope): The ''complexity_index'' metric has been removed
+    from the implementation to eliminate unapproved scope creep.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_index_metric_removed_from_implementation
+  kind: entity_fact
+  raw_text: The 'complexity_index' metric has been removed from the implementation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:37Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: morphological complexity operationally defined as vector branch_points
+    total_length soma_area sholl_intersections
+  claim_id: c_a339778f
+  context: 'Definition: Morphological complexity is operationally defined as the vector
+    [branch_points, total_length, soma_area, sholl_intersections].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Morphological_complexity_operationally_defined_as_vector_bra
+  kind: entity_fact
+  raw_text: Morphological complexity is operationally defined as the vector [branch_points,
+    total_length, soma_area, sholl_intersections].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:44Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis step set 2um 5um 10um
+  claim_id: c_1bbc4615
+  context: "Required Step Set: {2\xB5m, 5\xB5m, 10\xB5m}."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_step_set_2um_5um_10um
+  kind: entity_fact
+  raw_text: "The required step set for sensitivity analysis is {2\xB5m, 5\xB5m, 10\xB5\
+    m}."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:48Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis baseline step 5um
+  claim_id: c_579e1f86
+  context: "Baseline Step: 5\xB5m."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_baseline_step_5um
+  kind: entity_fact
+  raw_text: "The baseline step for sensitivity analysis is 5\xB5m."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:19:57Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: cross-validation k=5 folds
+  claim_id: c_fdd4943b
+  context: "Independent Test: Run CV (k=5) and sensitivity sweep; verify R\xB2 variation\
+    \ < 5% and p-value stability across radius steps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cross-validation uses k=5 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:20:03Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_739e7b5e
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:20:09Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor/tasks.md
+  attempts: 1
+  canonical: project dependencies scikit-learn statsmodels numpy pandas opencv-python-headless
+    scikit-image pyyaml
+  claim_id: c_d61f3037
+  context: Initialize Python 3.11 project with requirements.txt (scikit-learn, statsmodels,
+    numpy, pandas, opencv-python-headless, scikit-image, pyyaml)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_scikit-learn_statsmodels_numpy_pandas_o
+  kind: entity_fact
+  raw_text: The project uses scikit-learn, statsmodels, numpy, pandas, opencv-python-headless,
+    scikit-image, and pyyaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T13:20:13Z'
