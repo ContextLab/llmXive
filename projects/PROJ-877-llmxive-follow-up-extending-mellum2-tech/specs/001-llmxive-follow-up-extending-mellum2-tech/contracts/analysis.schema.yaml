@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis results including correlations and thresholds."
+type: object
+properties:
+  correlation_results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        correlation_coefficient:
+          type: number
+        p_value:
+          type: number
+        p_value_adjusted:
+          type: number
+        sample_size:
+          type: integer
+        method:
+          type: string
+          enum:
+            - pearson
+            - spearman
+      required:
+        - metric_name
+        - correlation_coefficient
+        - p_value
+  threshold_results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        threshold_value:
+          type: number
+        slope_before:
+          type: number
+        slope_after:
+          type: number
+        aic_score:
+          type: number
+        bics_score:
+          type: number
+        significance:
+          type: boolean
+        bootstrap_stability:
+          type: number
+        confidence_interval_width:
+          type: number
+      required:
+        - metric_name
+        - threshold_value
+        - significance
+  power_analysis:
+    type: object
+    properties:
+      effect_size:
+        type: number
+      sample_size_used:
+        type: integer
+      power:
+        type: number
+      limitation_noted:
+        type: boolean
+      description: "Whether the study is adequately powered."
+required:
+  - correlation_results
+  - threshold_results
+  - power_analysis

@@ -1,62 +1,92 @@
 # Quickstart: llmXive follow-up: extending "Mellum2 Technical Report"
 
-## 1. Prerequisites
+## Prerequisites
+- Python 3.11+
+- 8 GB RAM (minimum for CPU inference of Mistral-7B; 4 GB for TinyLlama fallback)
+- Access to HuggingFace Hub (for dataset and model download)
 
-- **OS**: Linux (Ubuntu 22.04 or similar).
-- **Python**: 3.11+.
-- **Dependencies**:
-  - `codeql` CLI (for static analysis).
-  - `tree-sitter` (for parsing).
-  - `git`, `make`.
-- **Hardware**: CPU-only (2+ cores, 7+ GB RAM). No GPU required.
+## Installation
 
-## 2. Installation
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
+    ```
 
+2.  **Create virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
+
+## Running the Pipeline
+
+**CRITICAL**: The pipeline is orchestrated to enforce strict dependencies. **Do not** run scripts individually unless you understand the data flow. Use `main.py` to ensure `ngram.py` (Phase 3) completes before `engine.py` (Phase 4).
+
+### 1. Full Pipeline Execution (Recommended)
+Runs all phases in the correct order: Power Analysis -> Download -> Static Analysis -> N-Gram Model -> Inference -> Analysis -> Validation Fallback.
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech
+python code/main.py --model mistral-7b --device cpu --timeout 60
+```
+*Note: If `mistral-7b` exceeds memory, the orchestrator will automatically switch to `tinyllama` and log a warning.*
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
+### 2. Manual Step Execution (Advanced)
+If running manually, you **MUST** follow this order:
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Install CodeQL (if not present)
-# Follow instructions at: https://codeql.github.com/docs/codeql-cli/getting-started-with-the-codeql-cli/
+#### Step 0: Power Analysis
+```bash
+python code/main.py --phase power-analysis
 ```
 
-## 3. Running the Pipeline
-
-The pipeline is executed via `code/main.py`. It handles downloading, analysis, inference, and reporting.
-
+#### Step 1: Data Download & Sampling
 ```bash
-# Run the full pipeline
-python code/main.py --sample-size 500 --languages python,java
-
-# Options:
-#   --sample-size: Number of repos to sample (default: 500)
-#   --languages: Comma-separated list of languages (default: python,java)
-#   --model: HuggingFace model ID (default: TinyLlama/TinyLlama-1.1B-Chat-v1.0)
-#   --skip-inference: Skip LLM step (for static analysis testing only)
+python code/data/download.py --lang python --lang java --sample-size 500
 ```
 
-## 4. Output
+#### Step 2: Static Analysis
+```bash
+python code/data/preprocess.py --input data/raw/sample.parquet --output data/processed/labeled.parquet
+```
 
-Upon successful completion, the following artifacts are generated in `data/results/`:
+#### Step 3: N-Gram Model (Producer)
+**MUST COMPLETE BEFORE STEP 4**.
+```bash
+python code/data/ngram.py --input data/processed/labeled.parquet --output data/models/ngram.arpa
+```
 
-- `correlation_report.json`: Correlation coefficients, p-values, and FDR corrections (based on Repository Aggregates).
-- `threshold_report.json`: Identified thresholds, slopes, and sensitivity analysis.
-- `plots/`:
-  - `correlation_scatter.png`: Scatter plot with regression lines (x=Repo Mean Complexity, y=Repo Mean Loss).
-  - `threshold_sensitivity.png`: Sensitivity analysis plot.
-- `pipeline_log.txt`: Detailed execution log including skipped files and errors.
+#### Step 4: LLM Inference (Consumer)
+**Requires `data/models/ngram.arpa` to exist.**
+```bash
+python code/inference/engine.py --model mistral-7b --input data/processed/labeled.parquet --output data/processed/inferred.parquet --device cpu --timeout 60
+```
 
-## 5. Troubleshooting
+#### Step 5: Analysis & Visualization
+```bash
+python code/analysis/correlation.py --input data/processed/inferred.parquet
+python code/analysis/thresholds.py --input data/processed/inferred.parquet
+python code/analysis/significance.py --input data/processed/inferred.parquet
+python code/viz/plots.py --input data/results/analysis_results.json
+```
 
-- **OOM Error**: Reduce `--sample-size` or ensure `codeql` file limits are enforced.
-- **CodeQL Failure**: Ensure `codeql` is in PATH and has sufficient memory.
-- **Dataset Download Timeout**: Check network connectivity; the script retries automatically.
-- **Model Not Found**: Ensure `TinyLlama-1.1B` is accessible via HuggingFace.
+### 3. Validation Fallback
+If no human-labeled benchmark is found, the pipeline automatically generates a limitation report in `data/results/validation_report.json`. No manual intervention is required.
+
+## Expected Output
+- `data/results/correlation_results.parquet`
+- `data/results/threshold_results.parquet`
+- `data/results/significance_report.json`
+- `data/results/validation_report.json` (if benchmark missing)
+- `data/figures/correlation_scatter.png`
+- `data/figures/threshold_sensitivity.png`
+
+## Troubleshooting
+- **OOM Error**: The pipeline automatically falls back to `tinyllama`. If that fails, reduce `--sample-size` in `download.py`.
+- **Timeout**: Increase `--timeout` or switch to a smaller model (e.g., `phi-2`).
+- **Parsing Errors**: The pipeline skips files that cannot be parsed; check `data/logs/parsing_errors.log`.
+- **Missing N-Gram Model**: Ensure `code/data/ngram.py` has run successfully before running `code/inference/engine.py`.

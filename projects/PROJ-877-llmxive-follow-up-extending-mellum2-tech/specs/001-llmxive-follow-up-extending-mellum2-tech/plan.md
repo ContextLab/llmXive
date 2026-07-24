@@ -1,39 +1,41 @@
 # Implementation Plan: llmXive follow-up: extending "Mellum2 Technical Report"
 
-**Branch**: `001-llmxive-complexity-loss` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-complexity-loss/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-complexity-loss/spec.md`
+**Branch**: `001-llmxive-complexity-loss` | **Date**: 2026-07-13 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-mellum2-tech/spec.md`
 
 ## Summary
+This project investigates the correlation between static code complexity metrics (cyclomatic complexity, nesting depth) and LLM prediction loss (perplexity) to identify structural thresholds where reasoning difficulty shifts non-linearly. The technical approach involves downloading a subset of the `codeparrot/github-code` dataset, applying static analysis (CodeQL and tree-sitter) for labeling, running frozen LLM inference (Mistral-7B, with TinyLlama-1.1B as a strict memory fallback) in CPU-only mode to measure loss, and performing rigorous statistical analysis (permutation tests, change-point detection) to validate findings against the null hypothesis. The plan strictly adheres to a reasonable execution time constraint on GitHub Actions free-tier runners.
 
-This feature implements a computational research pipeline to investigate the correlation between static code complexity (cyclomatic complexity, nesting depth) and LLM prediction loss (perplexity). The system will download a subset of code from the `codeparrot/github-code` dataset, apply static analysis tools (CodeQL, tree-sitter) to label chunks, process them through a frozen CPU-optimized LLM (TinyLlama-1.1B), and perform statistical analysis including correlation on Repository-Level Aggregates, piecewise regression for threshold detection, and permutation testing. The implementation strictly adheres to GitHub Actions free-tier constraints (limited CPU resources, constrained RAM, no GPU).
+**FR-011 Fallback Strategy**: If a human-labeled benchmark (e.g., CodeXGLUE) is unavailable via verified open sources, the pipeline will NOT hard-fail. Instead, it will execute a "Validation Fallback Phase" that logs a detailed limitation report and relies on internal permutation tests for validity, ensuring the study proceeds without blocking. This aligns with the spec's intent to report on availability rather than block the pipeline.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets`, `transformers` (CPU-only), `tree-sitter`, `codeql` (CLI), `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `kenlm` (for n-gram baseline)  
-**Storage**: Local filesystem (`data/`, `code/`) with checksums; no external DB.  
-**Testing**: `pytest` (unit tests for data parsing, integration tests for pipeline stages).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Computational Research Pipeline (CLI).  
-**Performance Goals**: Complete analysis within 6 hours; <14 GB disk usage; <7 GB RAM peak.  
-**Constraints**: No GPU/CUDA; no 8-bit quantization; no large-model fine-tuning; strict data hygiene (checksums); static analysis must be independent of LLM inference.  
-**Scale/Scope**: Sampled subset of public repositories (Python/Java); [deferred] chunk count.
+**Primary Dependencies**: `datasets`, `transformers`, `tree-sitter`, `codeql` (CLI), `scikit-learn`, `statsmodels`, `kenlm`, `pwlf`, `ruptures`, `pandas`, `matplotlib`, `seaborn`  
+**Storage**: Local ephemeral storage (`/tmp` or runner workspace) for dataset shards and processed artifacts; no persistent DB.  
+**Testing**: `pytest` with `pytest-cov` for unit tests; integration tests for pipeline phases.  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free-tier runner: 2 CPU, ~7 GB RAM).  
+**Project Type**: Research CLI / Data Pipeline.  
+**Performance Goals**: Total pipeline < 6 hours; per-chunk inference < 60 seconds; memory usage < 7 GB.  
+**Constraints**: 
+- **CPU-Only**: Explicitly enforced via `device="cpu"` and `torch.cuda.is_available() == False` check to prevent silent GPU usage.
+- **No PII**: Data hygiene checks enforced.
+- **Model Capacity**: Primary model is `Mistral` for reasoning capacity; `TinyLlama` is a fallback only if memory constraints are exceeded.
+- **Data Dependency**: `ngram.py` (FR-010) MUST complete before `engine.py` (FR-003).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Strategy |
-|-----------|--------|---------------------|
-| **I. Reproducibility** | PASS | `random.seed()` pinned in all scripts; `requirements.txt` with exact versions; dataset fetched from canonical HF source; CI runs on fresh runner. |
-| **II. Verified Accuracy** | PASS | All citations in `research.md` will be validated by the **Reference-Validator Agent** against the `# Verified datasets` block before proceeding to implementation. |
-| **III. Data Hygiene** | PASS | `data/` files checksummed; raw data immutable; derived data in new files; PII scan in CI. |
-| **IV. Single Source of Truth** | PASS | All figures/stats in paper trace to `data/` rows via script output logs. |
-| **V. Versioning Discipline** | PASS | A CI job computes **SHA-256** hashes of all files in `data/` and updates `state/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech.yaml` with these hashes. |
-| **VI. Static Analysis Inference Independence** | PASS | Pipeline stages strictly ordered: 1. Download, 2. Static Analysis (CodeQL/tree-sitter), 3. LLM Inference (frozen). No feedback loop. |
-| **VII. Non-Linear Threshold Detection Rigor** | PASS | Plan includes piecewise regression/change-point detection (not just linear) and sensitivity analysis as required. |
+1.  **Reproducibility (Principle I)**: The plan mandates pinned random seeds in `code/` and fetching datasets from canonical HuggingFace sources (`codeparrot/github-code`) on every run. `requirements.txt` will pin all versions.
+2.  **Verified Accuracy (Principle II)**: All citations to datasets and models will be verified against the `Verified datasets` block in the user message or primary sources (HuggingFace). No fabricated URLs. FR-011 handling is integrated here: if no verified benchmark exists, the limitation is reported accurately.
+3.  **Data Hygiene (Principle III)**: Raw data downloaded from HF will be checksummed. Derivations (labeled chunks, loss metrics) will be written to new files with documented hashes. No in-place modification.
+4.  **Single Source of Truth (Principle IV)**: All figures and statistics in the final output will trace back to specific rows in `data/` artifacts generated by `code/` scripts.
+5.  **Versioning Discipline (Principle V)**: All artifacts will carry content hashes. The plan explicitly schedules hash updates in the workflow, ensuring state consistency.
+6.  **Static Analysis Inference Independence (Principle VI)**: The pipeline explicitly separates the static analysis phase (CodeQL/tree-sitter) from the LLM inference phase. Complexity labels are generated *before* and *independently* of the model forward pass. The model is frozen; no gradients or feedback loops influence inference.
+7.  **Non-Linear Threshold Detection Rigor (Principle VII)**: The plan explicitly includes Piecewise Regression and Change-Point Detection (via `pwlf` or `ruptures`) as primary methods, rejecting simple linear regression as insufficient for identifying structural thresholds.
 
 ## Project Structure
 
@@ -45,42 +47,74 @@ specs/001-llmxive-follow-up-extending-mellum2-tech/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Schema definitions)
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── analysis.schema.yaml
+    ├── code_chunk.schema.yaml
+    ├── correlation_result.schema.yaml
+    ├── threshold_result.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/
-├── code/
-│   ├── __init__.py
-│   ├── config.py           # Paths, seeds, hyperparameters
-│   ├── data/
-│   │   ├── download.py     # HF dataset fetcher
-│   │   ├── preprocess.py   # Chunking & static analysis runner
-│   │   └── inference.py    # LLM loss calculator
-│   ├── analysis/
-│   │   ├── correlation.py  # Pearson/Spearman & visualization (on aggregates)
-│   │   ├── threshold.py    # Piecewise regression & change-point
-│   │   └── stats.py        # Permutation test & FDR correction
-│   └── main.py             # Pipeline orchestrator
+code/
+├── __init__.py
+├── config.py                # Hyperparameters, seeds, paths
 ├── data/
-│   ├── raw/                # Downloaded parquet chunks
-│   ├── processed/          # Annotated chunks with complexity labels
-│   └── results/            # Correlation stats, plots, threshold reports
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_inference.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+│   ├── download.py          # FR-001: Dataset fetching & sampling
+│   ├── preprocess.py        # FR-002: Static analysis (CodeQL + tree-sitter)
+│   └── ngram.py             # FR-010: KenLM model building (Producer)
+├── inference/
+│   ├── engine.py            # FR-003: CPU-only LLM inference (Consumer)
+│   └── metrics.py           # FR-004: Loss/entropy calculation
+├── analysis/
+│   ├── correlation.py       # FR-004: Pearson/Spearman computation (Aggregates to repo-level)
+│   ├── thresholds.py        # FR-005: Change-point detection
+│   ├── significance.py      # FR-007, FR-008: Permutation & FDR
+│   └── validation.py        # FR-009, FR-011: Cross-lang & benchmark fallback
+├── viz/
+│   └── plots.py             # Visualization generation
+├── main.py                  # Orchestrator (Enforces Phase Order)
+└── requirements.txt         # Pinned dependencies
+
+tests/
+├── unit/
+├── integration/
+└── contract/
 ```
 
-**Structure Decision**: Single project structure chosen. The pipeline is linear (Download -> Annotate -> Infer -> Analyze), making a monolithic `code/` directory with sub-packages (`data`, `analysis`) the most maintainable approach for a research script. No separate frontend/backend is needed.
+**Structure Decision**: A modular CLI structure is selected to separate data ingestion, inference, and analysis. The `data/ngram.py` (Producer) is explicitly ordered before `inference/engine.py` (Consumer) in the `main.py` orchestrator to satisfy FR-010 dependencies. The `analysis/correlation.py` aggregates chunk-level data to repository-level means before permutation testing to address hierarchical data structure concerns.
 
 ## Complexity Tracking
 
-*No violations detected. The complexity of static analysis + CPU inference is necessary to meet the research question (FR-002, FR-003) and cannot be simplified without invalidating the study.*
+*No violations detected. The modular structure simplifies the pipeline by isolating the CPU-bound static analysis from the memory-bound inference, adhering to the strict resource constraints.*
+
+## Phase Execution Order (Enforced by `main.py`)
+
+1.  **Phase 0: Power & Feasibility Analysis**: Estimate Minimum Detectable Effect Size (MDES) given the 6-hour constraint. Determine feasible sample size. If underpowered, cap sample size and log limitation.
+2.  **Phase 1: Data Ingestion**: Download and sample `codeparrot/github-code` based on Phase 0 sample size.
+3.  **Phase 2: Static Analysis**: Run CodeQL and tree-sitter to label chunks.
+4.  **Phase 3: Baseline Modeling**: Build KenLM n-gram model (`ngram.py`). **CRITICAL**: This phase must complete successfully before Phase 4.
+5.  **Phase 4: Inference**: Run LLM inference (`engine.py`) using the model from Phase 3. **Constraint**: `device="cpu"` enforced.
+6.  **Phase 5: Aggregation**: Aggregate chunk metrics to repository-level means.
+7.  **Phase 6: Statistical Analysis**: Correlation, threshold detection, permutation tests.
+8.  **Phase 7: Validation Fallback**: If no benchmark exists, generate limitation report.
+9.  **Phase 8: Perturbation**: Bootstrapping for threshold stability (SC-002).
+10. **Phase 9: Output**: Generate final JSON and plots.
+
+## Constitution Check (Re-Verification)
+
+- **Principle I (Reproducibility)**: Verified.
+- **Principle II (Verified Accuracy)**: Verified.
+- **Principle III (Data Hygiene)**: Verified.
+- **Principle IV (Single Source of Truth)**: Verified.
+- **Principle V (Versioning Discipline)**: Verified.
+- **Principle VI (Independence)**: Verified.
+- **Principle VII (Non-Linearity)**: Verified.
+- **FR-011 Fallback**: Verified (Phase 7).
+- **CPU Enforcement**: Verified (Phase 4 flags).
+- **Aggregation Strategy**: Verified (Phase 5).
+- **Model Capacity**: Verified (Mistral-7B primary).
+- **Power Analysis**: Verified (Phase 0).

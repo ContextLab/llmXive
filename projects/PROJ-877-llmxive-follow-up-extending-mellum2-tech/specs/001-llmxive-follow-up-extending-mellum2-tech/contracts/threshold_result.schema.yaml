@@ -35,6 +35,9 @@ properties:
   bootstrap_stability:
     type: "number"
     description: "Maximum shift in threshold value across bootstrap samples (SC-002)."
+  confidence_interval_width:
+    type: "number"
+    description: "Width of the 95% bootstrap confidence interval."
 required:
   - metric
   - language
@@ -45,4 +48,5 @@ required:
   - aic_difference
   - sensitivity_range
   - bootstrap_stability
+  - confidence_interval_width
 additionalProperties: false

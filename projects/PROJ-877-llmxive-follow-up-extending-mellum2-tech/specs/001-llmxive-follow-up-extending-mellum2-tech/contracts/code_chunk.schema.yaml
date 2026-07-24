@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CodeChunk"
-description: "Schema for a code chunk with static analysis and LLM inference metrics."
+description: "Schema for a code chunk with static analysis and LLM inference metrics. Note: ngram_probability is used for division-based normalization per FR-010, and as a covariate in robustness checks."
 type: "object"
 properties:
   id:
@@ -45,13 +45,18 @@ properties:
       prediction_entropy:
         type: "number"
         description: "Average prediction entropy."
-      normalized_loss:
+      ngram_probability:
         type: "number"
-        description: "Per-token loss normalized by 5-gram baseline."
+        description: "Probability of the token sequence estimated by KenLM. Used for division-based normalization per FR-010, and as a covariate in robustness checks."
+      token_count:
+        type: "integer"
+        minimum: 1
+        description: "Number of tokens in the chunk. Used as a mandatory confounder control."
     required:
       - per_token_loss
       - prediction_entropy
-      - normalized_loss
+      - ngram_probability
+      - token_count
   metadata:
     type: "object"
     properties:
