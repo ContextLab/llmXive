@@ -531,6 +531,10 @@
     "classified_at": "2026-06-24T14:37:54Z",
     "verdict": false
   },
+  "PROJ-474-neural-correlates-of-simulated-social-ex::1.6.0": {
+    "classified_at": "2026-07-24T21:11:32Z",
+    "verdict": false
+  },
   "PROJ-484-the-impact-of-visual-attention-on-recall::1.6.0": {
     "classified_at": "2026-07-11T12:32:06Z",
     "verdict": false

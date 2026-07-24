@@ -5,7 +5,7 @@ type: "object"
 properties:
   metric:
     type: "string"
-    description: "Name of the metric (e.g., 'mean_absolute_correlation')."
+    description: "Name of the metric (e.g., 'mean_signed_correlation')."
   condition_comparison:
     type: "string"
     description: "Comparison being made (e.g., 'inclusion vs exclusion')."
@@ -54,6 +54,12 @@ properties:
       required:
         - "threshold"
         - "p_value"
+  literature_effect_size:
+    type: "number"
+    description: "Effect size from literature for comparison."
+  literature_source:
+    type: "string"
+    description: "Citation for the literature effect size."
 required:
   - "metric"
   - "condition_comparison"

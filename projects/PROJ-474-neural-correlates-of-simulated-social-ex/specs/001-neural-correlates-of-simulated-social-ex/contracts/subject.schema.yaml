@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SubjectQC"
+description: "Schema for subject quality control and metadata."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique subject identifier."
+  motion_max:
+    type: number
+    description: "Maximum head motion displacement in mm."
+    minimum: 0
+  qc_status:
+    type: string
+    enum:
+      - "passed"
+      - "failed"
+    description: "QC status based on motion threshold."
+  conditions:
+    type: array
+    items:
+      type: string
+      enum:
+        - "Inclusion"
+        - "Exclusion"
+    description: "List of valid conditions for this subject."
+required:
+  - subject_id
+  - motion_max
+  - qc_status
+  - conditions

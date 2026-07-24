@@ -1,14 +1,17 @@
 status: none
-intent: download OpenNeuro ds000030 BIDS preprocessed fMRI dataset with motion parameters
-  python package dataset
+intent: download OpenNeuro ds000030 preprocessed BIDS fMRI dataset python package
+  dataset
 required_fields:
 - subject_id
-- run_id
-- time_series_PCC
-- time_series_mPFC
-- time_series_angular_gyrus
-- framewise_displacement
-- event_condition
-cache_key: c2f71e0b3d42816e8f7fcc7a03a15be7fe8ff65f7bd69f7668180094a349ac7b
-searched_at: '2026-07-19T06:41:28.657839+00:00'
+- session_id
+- run
+- task_name
+- condition_label (Inclusion/Exclusion)
+- bold_preprocessed_nifti_path
+- motion_parameters_confounds_tsv_path
+- events_tsv_path
+- tr_seconds
+- standard_space_atlas (e.g., MNI)
+cache_key: 292d0543afe2f1dd17d8fcb35bdcf01780e78bfdcb84290d8c28017a8ff3f491
+searched_at: '2026-07-24T20:56:29.547387+00:00'
 retry_count: 1

@@ -4,75 +4,76 @@
 
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or local environment with 7GB+ RAM.
+- Docker (required for fMRIPrep)
+- Access to OpenNeuro (or HuggingFace mirror if available)
+- Sufficient disk space (for data download and processing)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-474-neural-correlates-of-simulated-social-ex
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-org/neural-correlates-social-exclusion.git
+    cd neural-correlates-social-exclusion
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Data Setup
+
+1.  **Download the dataset**:
+    The pipeline attempts to download `ds000030` from OpenNeuro.
+    ```bash
+    python code/data_loader.py --dataset ds000030 --output data/raw
+    ```
+    *Note: If the dataset is not available in the verified HuggingFace mirrors, ensure you have network access to the OpenNeuro API. If no verified source is found, the pipeline will halt with `ERR_DATA_UNVERIFIED`.*
+
+2.  **Verify data integrity**:
+    ```bash
+    python code/data_loader.py --verify
+    ```
 
 ## Running the Pipeline
 
-### 1. Data Ingestion & QC
-Download and validate data, excluding subjects with >3mm motion.
-```bash
-python src/main.py --step download_qc
-```
-- **Output**: `data/derived/qc_report.json`
-- **Check**: Ensure `N_valid >= 10`. If not, the process halts.
+Execute the full analysis pipeline:
 
-### 2. ROI Extraction & Connectivity
-Extract time-series and compute connectivity matrices.
 ```bash
-python src/main.py --step extract_connectivity
+python code/main.py
 ```
-- **Output**: `data/derived/connectivity_matrices.pkl`
 
-### 3. Statistical Analysis
-Run permutation test and generate visualizations.
-```bash
-python src/main.py --step stats_viz
-```
-- **Output**: `data/derived/results.json`, `figures/null_distribution.png`, `figures/condition_comparison.png`
-
-### 4. Generate Report
-Compile findings into a markdown report.
-```bash
-python src/main.py --step report
-```
+This will:
+1.  Download and verify data.
+2.  Perform motion QC and exclude subjects (>3mm).
+3.  Extract BOLD time-series from DMN ROIs.
+4.  Compute connectivity strength for Inclusion and Exclusion.
+5.  Run the paired permutation test.
+6.  Generate figures and a summary report in `results/report.md`.
 
 ## Validation
 
-- **Unit Tests**:
-  ```bash
-  pytest tests/unit/ -v
-  ```
-- **Integration Tests**:
-  ```bash
-  pytest tests/integration/ -v
-  ```
-- **Contract Tests**:
-  ```bash
-  pytest tests/contract/ -v
-  ```
+To run unit tests:
+
+```bash
+pytest tests/
+```
+
+To validate data schemas:
+
+```bash
+python -m jsonschema validate data/processed/connectivity.parquet contracts/connectivity.schema.yaml
+```
 
 ## Troubleshooting
 
-- **Error: `ERR_N_INSUFFICIENT`**: The dataset has fewer than 10 valid subjects after motion QC. The pipeline cannot proceed.
-- **Error: `ERR_DATA_UNAVAILABLE`**: The OpenNeuro dataset is missing or the event markers are incomplete.
-- **Memory Error**: Reduce the batch size in `config.py` or ensure no other heavy processes are running.
+- **ERR_N_INSUFFICIENT**: The dataset has fewer than 10 subjects after QC. The pipeline halts.
+- **ERR_DATA_UNAVAILABLE**: The dataset could not be downloaded. Check network or verify the dataset ID.
+- **ERR_DATA_UNVERIFIED**: No verified Cyberball dataset source was found in the project's verified dataset block. The study is blocked until a verified source is added.
+- **Memory Error**: Ensure you are using the streaming mode in `data_loader.py` and not loading full NIfTI files into RAM.

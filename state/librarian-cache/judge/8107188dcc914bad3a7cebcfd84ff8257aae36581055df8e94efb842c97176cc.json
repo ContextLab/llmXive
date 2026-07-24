@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1511.02429",
+  "judged_at": "2026-07-24T21:11:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper is a mathematical model of social network evolution and social capital in sociology/economics, which is off-domain from the user's question regarding neural correlates (fMRI/brain dynamics) and the Default Mode Network in neuroscience. It shares only the homonym \"social\" and \"network\" but addresses a distinct construct with no measurable connection to the biological mechanism or empirical population specified.",
+  "relevant": false
+}

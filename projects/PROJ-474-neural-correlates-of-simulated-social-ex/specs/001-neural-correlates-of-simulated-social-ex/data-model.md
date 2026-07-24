@@ -1,63 +1,55 @@
 # Data Model: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
-## 1. Overview
+## Overview
 
-This document defines the data structures and schemas used throughout the pipeline. All data is derived from the raw OpenNeuro source and transformed through the QC and analysis stages. The pipeline uses memory-mapped loading for raw NIfTI data to respect RAM constraints.
+This document defines the data structures and schemas used to represent subjects, time-series, connectivity matrices, and statistical results. The model ensures traceability from raw data to final report, adhering to the "Single Source of Truth" principle. All metrics are computed from real data streams; no placeholder or simulated values are permitted.
 
-## 2. Entity Definitions
+## Entities
 
 ### Subject
-Represents a single participant.
-- `subject_id`: Unique string identifier.
-- `motion_displacement`: Float (mm), maximum displacement.
-- `qc_status`: Enum ["passed", "failed"].
-- `has_inclusion`: Boolean.
-- `has_exclusion`: Boolean.
-- `inclusion_time_series`: 2D Array (Time x Nodes) or `null`. (Stored in memory/intermediate file).
-- `exclusion_time_series`: 2D Array (Time x Nodes) or `null`. (Stored in memory/intermediate file).
-- `raw_nifti_path`: String (Path to memory-mapped source file).
+Represents a single participant in the study.
+- `subject_id`: Unique identifier (string).
+- `motion_max`: Maximum displacement in mm (float).
+- `qc_status`: "passed" or "failed".
+- `conditions`: List of available conditions (e.g., ["Inclusion", "Exclusion"]).
+
+### TimeSeries
+Represents the BOLD signal extracted from a specific ROI for a condition.
+- `subject_id`: Link to Subject.
+- `roi`: Region name (e.g., "PCC", "mPFC", "AngularGyrus").
+- `condition`: "Inclusion" or "Exclusion".
+- `data`: Array of BOLD signal values (list of floats).
+- `tr`: Repetition time (float).
 
 ### ConnectivityMatrix
-Represents the correlation matrix for a specific condition.
-- `subject_id`: String.
-- `condition`: Enum ["inclusion", "exclusion"].
-- `nodes`: List of strings ["PCC", "mPFC", "Angular"].
-- `matrix`: 2D Array (Nodes x Nodes) of correlation coefficients.
-- `mean_absolute_correlation`: Float.
+Represents the correlation matrix for a subject and condition.
+- `subject_id`: Link to Subject.
+- `condition`: "Inclusion" or "Exclusion".
+- `nodes`: List of ROI names (ordered).
+- `matrix`: 2D array of correlation coefficients.
+- `strength_signed`: Mean **signed** correlation across edges (float).
+- `strength_absolute`: Mean absolute correlation across edges (float, descriptive only).
+- `edges`: Dictionary of individual edge correlation values (e.g., `{"PCC-mPFC": 0.45, ...}).
 
 ### Result
-Aggregated statistical results.
-- `metric`: String (e.g., "mean_absolute_correlation").
-- `condition_comparison`: String ("inclusion vs exclusion").
+Represents the outcome of the statistical test.
+- `test_type`: "paired_permutation".
+- `metric`: "connectivity_strength_signed".
 - `p_value`: Float.
-- `effect_size`: Float (e.g., Cohen's d or permutation-based).
-- `confidence_interval`: Tuple (lower, upper).
-- `is_associational`: Boolean.
-- `edge_p_values`: Dict {edge_name: p_value}.
-- `edge_p_values_fdr`: Dict {edge_name: adjusted_p_value}.
-- `n_subjects`: Integer.
-- `motion_threshold`: Float (mm).
-- `sensitivity_curve`: List of {threshold: float, p_value: float} (Optional, for SC-005).
+- `effect_size`: Float (e.g., Cohen's d or mean difference).
+- `confidence_interval`: [lower, upper] (list of floats).
+- `framing`: "associational" or "causal".
+- `edge_p_values`: Dictionary of p-values for each edge.
+- `edge_p_values_fdr`: Dictionary of FDR-corrected p-values for each edge.
+- `sensitivity_curve`: List of {threshold, p_value} objects.
 
-## 3. File Formats
+## Data Flow
 
-### Input: Raw Data (BIDS)
-Source: OpenNeuro dataset.
-- Files: `sub-<id>/func/sub-<id>_task-cyberball_run-<id>_space-MNI_desc-preproc_bold.nii.gz`, `events.tsv`.
-- Format: NIfTI-1 (4D), JSON sidecars, TSV events.
+1.  **Raw**: NIfTI files (OpenNeuro) -> `data/raw/`.
+2.  **Processed**: Time-series matrices (Numpy/Parquet) -> `data/processed/timeseries.parquet`.
+3.  **Derived**: Connectivity matrices and strength metrics -> `data/processed/connectivity.parquet`.
+4.  **Results**: Statistical outputs (JSON/CSV) -> `results/stats.json`.
 
-### Intermediate: QC Report (JSON)
-- List of subjects with `qc_status` and `motion_displacement`.
+## Schema Definitions
 
-### Intermediate: Time-Series (NPY/PKL)
-- Memory-mapped or temporary files storing extracted 1D/2D arrays per subject.
-
-### Output: Results (JSON/YAML)
-- Final statistical findings, including p-values, effect sizes, and framing.
-
-## 4. Constraints
-
-- **Motion Threshold**: `motion_displacement` > 3.0 → `qc_status` = "failed".
-- **Condition Completeness**: Both `has_inclusion` and `has_exclusion` must be true for inclusion in paired analysis.
-- **Subject Count**: Valid subjects < 10 → Halt.
-- **Memory**: Raw 4D data is never fully loaded into RAM; only time-series (1D/2D) are held in memory.
+The following schemas are used for validation in the `contracts/` directory.

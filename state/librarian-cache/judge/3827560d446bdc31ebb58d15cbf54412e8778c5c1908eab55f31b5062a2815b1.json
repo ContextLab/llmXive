@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1303.5009",
+  "judged_at": "2026-07-24T21:11:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper focuses on the mathematical modeling of graph topology changes in social network data (e.g., online communities or organizational structures), which is a distinct construct from the user's question regarding the neural correlates (brain activity) of the psychological experience of social exclusion. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" where \"social network\" refers to graph theory rather than the neuroscience of social interaction.",
+  "relevant": false
+}

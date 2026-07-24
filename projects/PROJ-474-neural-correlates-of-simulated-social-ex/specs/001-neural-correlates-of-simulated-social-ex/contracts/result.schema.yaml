@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult"
+description: "Schema for final statistical test results."
+type: object
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test."
+  p_value:
+    type: number
+    description: "P-value from permutation test."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: number
+    description: "Effect size metric."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper]."
+  framing:
+    type: string
+    enum:
+      - "associational"
+      - "causal"
+    description: "Interpretation framing."
+required:
+  - test_type
+  - p_value
+  - effect_size
+  - confidence_interval
+  - framing
