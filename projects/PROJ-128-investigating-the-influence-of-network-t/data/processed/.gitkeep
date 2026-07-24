@@ -1,1 +1,2 @@
-# Processed metrics (CSVs, JSONs) will be stored here.
+# This directory holds processed CSVs and JSON metrics.
+# Output files: structural_metrics.csv, dynamic_metrics.csv, correlation_results.csv

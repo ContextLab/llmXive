@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure (`code/`, `data/`, `contracts/`, `tests/`) as per implementation plan.
-- [ ] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml).
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
+- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml).
+- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
 
 ---
 
@@ -57,7 +57,7 @@
 
 - [X] T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters (30 TR window, 20 TR sensitivity, k=5).
 - [X] T005 [P] Implement `code/config.py` hyperparameters section for density thresholds and statistical alpha levels.
-- [ ] T006 [P] Create `code/preprocess/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
+- [X] T006 [P] Create `code/preprocess/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
 - [X] T007 [P] Implement `code/preprocess/structural.py` skeleton with placeholder for graph metric calculation.
 - [X] T008 [P] Implement `code/preprocess/functional.py` skeleton for sliding-window and state extraction.
 - [X] T009 [P] Create `code/analysis/correlation.py` skeleton for statistical testing.
@@ -76,7 +76,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T012 [P] [US1] Unit test for `code/preprocess/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
+- [ ] T012 [P] [US1] Unit test for `code/preprocess/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
 - [X] T013 [P] [US1] Unit test for `code/preprocess/functional.py` k-means state extraction in `tests/unit/test_functional.py`.
 - [X] T014 [P] [US1] Integration test for single-subject pipeline in `tests/integration/test_single_subject.py`.
 
@@ -86,7 +86,7 @@
 - [X] T016 [US1] Implement sliding-window correlation in `code/preprocess/functional.py` with **strict parameters**: 30 TR window, 1 TR step, and **concatenating these windowed matrices across all subjects** before k-means clustering.
 - [X] T017 [US1] Implement **Leave-One-Out (LOO) K-Means (k=5)** clustering for dynamic states in `code/preprocess/functional.py`. **Algorithm**: For each subject `i`, centroids must be calculated by clustering the windowed matrices of **all subjects j != i** (excluding the target subject) to derive centroids, then assign subject `i`'s windows to these centroids. **Must run sequentially** to ensure strict subject isolation during centroid derivation and prevent circular correlation (Constitution Principle VI).
 - [X] T018 [US1] Implement per-subject dynamic metric calculation (number of visited states, mean dwell time) in `code/preprocess/functional.py`.
-- [~] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
+- [ ] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
 - [ ] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,7 +111,7 @@
 - [X] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
 - [X] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
 - [ ] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
-- [~] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
+- [ ] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,9 +131,9 @@
 ### Implementation for User Story 3
 
 - [X] T031 [US3] Implement sensitivity analysis for window length in `code/analysis/robustness.py`. This must explicitly compare the **30 TR baseline** against a **20 TR sensitivity check** as mandated by FR-006 and SC-002.
-- [ ] T032 [US3] Implement sensitivity analysis for structural threshold density (±5% variation) in `code/analysis/robustness.py`.
-- [ ] T033 [US3] Implement resource usage monitoring (peak RAM, runtime) in `code/main.py` to verify CPU-only constraints (GB/h).
-- [ ] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display the "absolute difference between 30 TR and 20 TR correlation coefficients" to satisfy SC-002.
+- [X] T032 [US3] Implement sensitivity analysis for structural threshold density (±5% variation) in `code/analysis/robustness.py`.
+- [X] T033 [US3] Implement resource usage monitoring (peak RAM, runtime) in `code/main.py` to verify CPU-only constraints (GB/h).
+- [X] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display the "absolute difference between 30 TR and 20 TR correlation coefficients" to satisfy SC-002.
 - [ ] T035 [US3] Validate report against `contracts/output.schema.yaml` to ensure all required fields (r, p, FDR, sensitivity, absolute difference) are present.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -145,9 +145,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T040 [P] Documentation updates in `docs/` and `README.md`.
-- [ ] T041 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
-- [ ] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility.
-- [ ] T043 Final review of all reports for "associational" language compliance.
+- [~] T041 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
+- [~] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility.
+- [~] T043 Final review of all reports for "associational" language compliance.
 
 ---
 

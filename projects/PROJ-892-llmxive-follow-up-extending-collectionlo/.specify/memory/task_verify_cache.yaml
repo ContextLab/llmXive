@@ -1,0 +1,49 @@
+T007b:
+  c: false
+  h: ac76050d356accfc56f863520acbf559bf3b41aff6c8ae4747ed751ff6a5a679
+  r: "The provided `code/data_loader.py` is truncated and does not show the logic\
+    \ that copies/renames the downloaded adapter to `data/models/adapter_fp16.safetensors`,\
+    \ computes its SHA\u2011256, and registers it. The expected file `data/models/adapter_fp16.safetensors`\
+    \ is absent, and `state/artifacts.yaml` remains empty, indicating the artifact\
+    \ was never recorded. The task requirements are therefore not met."
+T009:
+  c: false
+  h: c18d276c4c0db96e50dcb683d2ba4788f18d3088f6b1ead919db1f3cec146601
+  r: "The provided `code/data_loader.py` is truncated and never implements loading\
+    \ the adapter, extracting LoRA matrices, performing SVD, or writing `data/subspace_ranks.json`.\
+    \ Moreover, the required `data/models/adapter_fp16.safetensors` and the output\
+    \ `data/subspace_ranks.json` are absent. The task\u2019s core functionality and\
+    \ artifacts are missing."
+T010:
+  c: false
+  h: 3a5914e9a4ef8eec108a447283334515de32e0869ab552e727c3ab08cfc5e9ea
+  r: "The provided `code/data_loader.py` is truncated (e.g., `get_collection_lora_adapter`\
+    \ ends abruptly) and contains no function that actually loads the FP16 adapter\
+    \ or base model into CPU memory. Additionally, the required `data/models/adapter_fp16.safetensors`\
+    \ file is missing. Consequently, the implementation does not fulfill the task\u2019\
+    s requirement."
+T011:
+  c: false
+  h: a50853a102bc82c5034698dce7c4a7511961806fbf05b843a5c29a8947d21ae7
+  r: "The repository contains a `code/generator.py` file with image\u2011generation\
+    \ helpers, but it never reads a prompt list from `config.yaml`, and the required\
+    \ `config.yaml` file is absent. Consequently the implementation cannot fulfill\
+    \ the specification of using the fixed prompt list from that configuration. The\
+    \ missing configuration file and lack of code to load it make the task incomplete."
+T011b:
+  c: false
+  h: ddf12783c2fe7d08e2d0dbb4ce14f11c28e9b68f7f73ef52850e1b58346a1beb
+  r: The repository lacks the required `config.yaml` and the generated file `data/references/baseline_ref.png`.
+    Moreover, while `code/generator.py` defines `generate_reference_image`, it does
+    not read a seed from `config.yaml` nor automatically save to the exact `data/references/baseline_ref.png`
+    path as the task specifies. These missing pieces prevent the task from being genuinely
+    fulfilled.
+T013:
+  c: false
+  h: 8df6da0fc7d5a74f56319b23c3bebf3dfb41546d30a806997c77d8ea15d1580b
+  r: The provided `code/metrics.py` is only partially shown (the `compute_lpips_distance`
+    function is truncated) and thus does not contain a complete, runnable implementation.
+    Moreover, the required reference image `data/references/baseline_ref.png` is missing
+    from the repository, so the LPIPS computation cannot be performed even if the
+    code were complete. Both the functional code artifact and the necessary data file
+    are absent, so the task is not satisfied.

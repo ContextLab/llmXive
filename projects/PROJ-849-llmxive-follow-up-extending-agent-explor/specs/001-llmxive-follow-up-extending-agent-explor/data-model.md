@@ -1,57 +1,54 @@
-# Data Model: llmXive Follow-up: Semantic Divergence Diagnostic for Agentic Reasoning
+# Data Model: Semantic Divergence Diagnostic
 
-## 1. Entity Relationship Diagram (Conceptual)
+## Overview
 
-```mermaid
-erDiagram
-    ProblemInstance ||--o{ ToolMapping : "has"
-    ProblemInstance ||--o{ ToolDistribution : "retrieves"
-    ProblemInstance ||--o{ DivergenceMetric : "calculates"
-    ProblemInstance ||--o{ RLOutcome : "correlates_with"
-    DivergenceMetric ||--o{ Prediction : "predicts"
+This document defines the data structures used for input, processing, and output in the Semantic Divergence Diagnostic pipeline. All data is processed in-memory or streamed to disk, adhering to constrained RAM resources.
 
-    ProblemInstance {
-        string problem_id PK
-        string thinking_prefix
-        string[] ground_truth_tools
-        number difficulty "Normalized difficulty score (0‑1) from MathVista metadata."
-    }
-    ToolMapping {
-        string problem_id PK
-        string[] ground_truth_tools
-    }
-    ToolDistribution {
-        string[] retrieved_tool_ids
-        number[] bm25_scores
-        number[] centroid_embedding "DistilBERT 768‑dim vector."
-    }
-    DivergenceMetric {
-        number cosine_similarity "∈ [‑1, 1]"
-        number semantic_divergence_score "1 - cosine_similarity"
-    }
-    RLOutcome {
-        number failure_rate "∈ [0, 1]"
-        string success_failure "Derived: Failure if failure_rate ≥ 0.5"
-    }
-    Prediction {
-        string predicted_outcome "Success | Failure"
-        number prediction_probability "∈ [0, 1]"
-    }
-```
+## Core Entities
 
-## 2. Data Flow
+### 1. ProblemInstance
+Represents a single multimodal reasoning task from the MathVista dataset.
 
-1. **Ingestion**: `ProblemInstance` loaded from MathVista (Parquet).  
-2. **Tool Mapping**: `ToolMapping` CSV (checksum‑verified) supplies `ground_truth_tools`. **If missing**, a deterministic synthetic mapping based on `difficulty` is generated (see Research.md).  
-3. **Retrieval**: `ToolDistribution` generated via BM25 over `tool_descriptions.csv`. **If missing**, a synthetic tool corpus is generated (see Research.md).  
-4. **Embedding**: `thinking_prefix` and each retrieved tool description → DistilBERT vectors.  
-5. **Metric Calculation**: `DivergenceMetric` derived from vectors.  
-6. **Enrichment**: `RLOutcome` joined from external `rl_failure_rates.csv`. **If missing**, synthetic failure rates are generated independently from the tool mapping (see Research.md).  
-7. **Analysis**: Logistic regression → `Prediction`. (K‑Means clustering is used only for risk‑group labeling, not as a predictor.)
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `problem_id` | `str` | Unique identifier for the problem. | MathVista |
+| `thinking_prefix` | `str` | The agent's internal thought trace. | MathVista |
+| `simulated_failure` | `bool` | Ground truth outcome (True = Failure). | AXPO Simulation |
+| `divergence_score` | `float` | Calculated semantic divergence (1 - cosine_sim). | Derived |
+| `tool_count` | `int` | Number of tools retrieved by BM25. | Derived |
 
-All transformations produce new files; original raw files remain unchanged, satisfying Constitution Principle III.
+### 2. ToolDistribution
+Represents the set of tools retrieved for a specific problem.
 
-## 3. Schema Definitions (refer to contracts)
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `problem_id` | `str` | Foreign key to ProblemInstance. | Derived |
+| `retrieved_tool_descriptions` | `List[str]` | List of tool description strings. | BM25 Retrieval |
+| `centroid_embedding` | `List[float]` | Vector average of retrieved tool embeddings. | Derived |
 
-- `ProblemInstance` → `contracts/dataset.schema.yaml` (includes optional `difficulty`).  
-- `ToolDistribution`, `DivergenceMetric`, `RLOutcome`, `Prediction` → `contracts/output.schema.yaml`.
+### 3. DivergenceMetric
+The final calculated metric for a problem instance.
+
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `problem_id` | `str` | Foreign key. | Derived |
+| `cosine_similarity` | `float` | Similarity between thinking and tool centroid. | Derived |
+| `semantic_divergence_score` | `float` | `1 - cosine_similarity`. | Derived |
+
+## Data Flow
+
+1. **Input**: `MathVista` (Parquet) + `Tool Mapping` (JSON).
+2. **Processing**:
+   - Stream `MathVista` -> Filter -> Extract `thinking_prefix`.
+   - Load `Tool Mapping` -> Build BM25 Index.
+   - Retrieve tools -> Embed tools -> Calculate Centroid.
+   - Embed `thinking_prefix` -> Calculate Divergence.
+   - Simulate AXPO -> Assign `simulated_failure`.
+3. **Output**: `AnalysisResult` (JSON/Parquet) containing all entities.
+
+## Constraints & Validation
+
+- **Missing Data**: If `thinking_prefix` is missing, the record is skipped.
+- **Zero Retrieval**: If BM25 returns 0 tools, `centroid_embedding` is a zero vector, and `divergence_score` is 1.0.
+- **Sample Size**: Pipeline halts if final N < 30.
+- **Memory**: Streaming enabled for dataset loading; embeddings processed in batches.

@@ -1,0 +1,18 @@
+- artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/docs/README.md
+  attempts: 1
+  canonical: Pipeline uses HCP 1200 Subjects Release from Human Connectome Project
+    via OpenNeuro ds000031
+  claim_id: c_8448005f
+  context: This pipeline uses the **HCP 1200 Subjects Release** from the Human Connectome
+    Project, accessed via the OpenNeuro repository (ds000031).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This pipeline uses the HCP 1200 Subjects Release from the Human Connectome
+    Project, accessed via the OpenNeuro repository (ds000031).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T04:21:36Z'

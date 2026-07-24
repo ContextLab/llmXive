@@ -1,38 +1,45 @@
-version: "1.0"
-description: Schema for input dataset metadata from HCP OpenNeuro.
+# Schema for input dataset metadata and expected file structure
+# Used to validate downloaded HCP data before processing
+$schema: http://json-schema.org/draft-07/schema#
+title: HCP Dataset Schema
+description: Schema defining the expected structure of the HCP OpenNeuro dataset
 type: object
-properties:
-  source:
-    type: string
-    description: Data source identifier (e.g., "HCP_1200")
-  dataset_id:
-    type: string
-    description: Unique dataset identifier from the repository
-  subjects:
-    type: array
-    items:
-      type: object
-      properties:
-        subject_id:
-          type: string
-        session_id:
-          type: string
-        modality:
-          type: string
-          enum: [dmri, fmri]
-        file_path:
-          type: string
-          description: Relative path to the raw file
-        acquisition_params:
-          type: object
-          properties:
-            tr:
-              type: number
-            te:
-              type: number
-            resolution:
-              type: number
 required:
-  - source
-  - dataset_id
-  - subjects
+  - subject_id
+  - modality
+  - file_paths
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier (e.g., '100307')
+  modality:
+    type: string
+    enum:
+      - dMRI
+      - fMRI
+    description: Imaging modality
+  file_paths:
+    type: object
+    required:
+      - structural
+      - functional
+    properties:
+      structural:
+        type: string
+        description: Path to dMRI connectivity matrix or raw dMRI file
+      functional:
+        type: string
+        description: Path to fMRI time series file
+  metadata:
+    type: object
+    properties:
+      acquisition_date:
+        type: string
+        format: date-time
+      scanner:
+        type: string
+        default: "Connectome Scanner"
+      protocol:
+        type: string
+        default: "HCP-1200"
+additionalProperties: true

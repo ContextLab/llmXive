@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 10f0d50a0becbf4c95c03c4c7957bdfa1381fe984b907a0f90583c7efb82aae6
+  artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00002-6b81bd7f7e2065e6.parquet
+  kind: url
+  value: https://huggingface.co/datasets/AI4Math/MathVista/resolve/main/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652c26161a3250bbfe6b96d0/a4568a45e6b0a7cc1a85a5665418634e1588160c98a750bbe5372c47c84bb297?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00002-6b81bd7f7e2065e6.parquet%3B+filename%3D%22test-00000-of-00002-6b81bd7f7e2065e6.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1784873032&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyYzI2MTYxYTMyNTBiYmZlNmI5NmQwL2E0NTY4YTQ1ZTZiMGE3Y2MxYTg1YTU2NjU0MTg2MzRlMTU4ODE2MGM5OGE3NTBiYmU1MzcyYzQ3Yzg0YmIyOTdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMi02YjgxYmQ3ZjdlMjA2NWU2LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAyLTZiODFiZDdmN2UyMDY1ZTYucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg0ODczMDMyfX19XX0_&Signature=MEQCIByHG6Sg8oUxUBwilTIB6DTxOtkXx0zinyHNujz-QaHeAiBj39-6ku2Jnfw9dljFW4cRbBswsKld9KLih8KqElGHDQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-24T05:03:52.098452Z'
+- artifact_hash: 10f0d50a0becbf4c95c03c4c7957bdfa1381fe984b907a0f90583c7efb82aae6
+  artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/some-repo/axpo
+  verification_status: mismatch
+  verified_against_url: https://github.com/some-repo/axpo
+  verified_at: '2026-07-24T05:03:52.098452Z'

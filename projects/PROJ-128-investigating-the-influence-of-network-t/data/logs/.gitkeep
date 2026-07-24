@@ -1,1 +1,2 @@
-# Execution logs and exclusion logs will be stored here.
+# This directory holds execution logs and exclusion records.
+# Output files: exclusion_log.json, pipeline_run.log

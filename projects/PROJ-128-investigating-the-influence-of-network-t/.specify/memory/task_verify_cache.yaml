@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code/`, `data/`, `contracts/`,
+    `tests/`) actually exist or contain any files; the response contains only the
+    task description and specifications, not the claimed project structure. The implementer
+    must create and show these directories (with at least placeholder files) to satisfy
+    the requirement.
+T003:
+  c: true
+  h: 563e4d6952a6c6339af60e582e8e49bb4c38d0f3e84bbabbbf0759e380dba581
+  r: "The provided `pyproject.toml` (1258\u202Fbytes) contains concrete configuration\
+    \ sections for Black, Flake8, and Pylint, fulfilling the requirement to set up\
+    \ linting and formatting tools. The missing `.pre-commit-config.yaml` is optional\
+    \ since the configurations are already present in `pyproject.toml`."
+T012:
+  c: false
+  h: a44e9592df01e631797702866da865abd90a0669758e5d0a8a3d447ab99bf80b
+  r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
+    so no unit test for `code/preprocess/structural.py` is provided. The task remains
+    unfinished.
+T019:
+  c: false
+  h: 407b162a93c2a60689802ae7d57ce53a7be2d2f888dae5241f47fc06b281f013
+  r: "The repository lacks the required output files `data/processed/structural_metrics.csv`\
+    \ and `data/processed/dynamic_metrics.csv`, and the referenced schema `contracts/output.schema.yaml`\
+    \ is missing. Moreover, `code/main.py` is truncated and does not contain the batch\u2011\
+    processing logic needed to aggregate metrics and write those CSVs. The task\u2019\
+    s core requirements are therefore not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation artifact was provided showing that the pipeline
+    now checks for zero significant findings after FDR correction and adds an explicit
+    statement to the report. The required implementation and verification evidence
+    are missing.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of updated files in `docs/` or modifications to `README.md` was provided;
+    the claim lacks any actual documentation artifacts to verify.

@@ -1,0 +1,12 @@
+status: none
+intent: download MathVista multimodal reasoning dataset with chain of thought annotations
+  python package dataset
+required_fields:
+- id
+- question
+- thinking
+- answer
+- options
+cache_key: d680fdc542e054d517f828f5084d19f0698bff48c2aef52769a8e6d86323b0e8
+searched_at: '2026-07-24T04:48:50.900757+00:00'
+retry_count: 1

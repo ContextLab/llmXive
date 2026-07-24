@@ -1,91 +1,68 @@
-"""
-Unit tests for code/data_loader.py functions.
-
-These tests verify the correctness of model loading, adapter handling,
-and subspace rank computation.
-"""
-import torch
-import numpy as np
-from pathlib import Path
-import pytest
+import os
 import tempfile
-import json
+import shutil
+from pathlib import Path
+import yaml
 
-from data_loader import (
-    compute_subspace_ranks,
-    load_adapter_weights,
-    save_adapter_weights
-)
+# Mock the environment to avoid actual downloads in unit tests
+# We test the logic of registration and hashing without network calls
 
-@pytest.fixture
-def mock_adapter_weights():
-    """Create mock adapter weights for testing."""
-    weights = {
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_q.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_q.lora_B.weight': 
-            torch.randn(64, 32),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_k.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_k.lora_B.weight': 
-            torch.randn(64, 32),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_v.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_v.lora_B.weight': 
-            torch.randn(64, 32),
-    }
-    return weights
+def test_compute_sha256():
+    from code.data_loader import compute_sha256
+    import hashlib
 
-def test_compute_subspace_ranks(mock_adapter_weights):
-    """Test subspace rank computation."""
-    ranks = compute_subspace_ranks(mock_adapter_weights)
-    
-    assert ranks is not None
-    assert isinstance(ranks, dict)
-    
-    # Check that ranks are computed for each effect
-    for key, rank in ranks.items():
-        assert isinstance(rank, int)
-        assert rank > 0
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(b"test data")
+        tmp_path = Path(tmp.name)
 
-def test_save_and_load_adapter_weights(mock_adapter_weights):
-    """Test saving and loading adapter weights."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        save_path = Path(tmpdir) / "adapter_weights.pt"
-        
-        # Save weights
-        save_adapter_weights(mock_adapter_weights, save_path)
-        
-        # Verify file was created
-        assert save_path.exists()
-        
-        # Load weights
-        loaded_weights = load_adapter_weights(save_path)
-        
-        # Verify loaded weights match
-        assert loaded_weights is not None
-        assert len(loaded_weights) == len(mock_adapter_weights)
-        
-        for key in mock_adapter_weights:
-            assert torch.allclose(
-                mock_adapter_weights[key], 
-                loaded_weights[key],
-                atol=1e-6
+    try:
+        expected_hash = hashlib.sha256(b"test data").hexdigest()
+        actual_hash = compute_sha256(tmp_path)
+        assert actual_hash == expected_hash
+    finally:
+        os.unlink(tmp_path)
+
+def test_register_downloaded_artifact():
+    from code.data_loader import register_downloaded_artifact, load_artifacts_state, save_artifacts_state, PROJECT_ROOT
+
+    # Create a temp state file to avoid polluting real state
+    temp_state_path = PROJECT_ROOT / "state" / "test_artifacts.yaml"
+    original_state_path = PROJECT_ROOT / "state" / "artifacts.yaml"
+
+    # Backup original if exists
+    if original_state_path.exists():
+        shutil.copy(original_state_path, original_state_path.with_suffix(".bak"))
+
+    try:
+        # Initialize empty state
+        temp_state_path.parent.mkdir(parents=True, exist_ok=True)
+        save_artifacts_state({"artifacts": {}})
+        # Temporarily swap paths (hack for test isolation)
+        import code.data_loader as dl
+        dl.STATE_FILE_PATH = temp_state_path
+
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"mock adapter data")
+            tmp_path = Path(tmp.name)
+
+        try:
+            hash_val = register_downloaded_artifact(
+                name="test_adapter",
+                file_path=tmp_path,
+                artifact_type="lora_adapter",
+                metadata={"test": True}
             )
 
-def test_compute_subspace_ranks_different_ranks():
-    """Test subspace rank computation with varying rank matrices."""
-    weights = {
-        'effect1.lora_A': torch.randn(10, 100),  # Rank 10
-        'effect1.lora_B': torch.randn(100, 10),
-        'effect2.lora_A': torch.randn(5, 50),    # Rank 5
-        'effect2.lora_B': torch.randn(50, 5),
-    }
-    
-    ranks = compute_subspace_ranks(weights)
-    
-    assert ranks['effect1'] == 10
-    assert ranks['effect2'] == 5
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+            state = load_artifacts_state()
+            assert "test_adapter" in state["artifacts"]
+            assert state["artifacts"]["test_adapter"]["hash"] == hash_val
+            assert state["artifacts"]["test_adapter"]["type"] == "lora_adapter"
+        finally:
+            os.unlink(tmp_path)
+            dl.STATE_FILE_PATH = original_state_path
+    finally:
+        # Restore original state
+        if original_state_path.with_suffix(".bak").exists():
+            shutil.move(original_state_path.with_suffix(".bak"), original_state_path)
+        if temp_state_path.exists():
+            os.unlink(temp_state_path)

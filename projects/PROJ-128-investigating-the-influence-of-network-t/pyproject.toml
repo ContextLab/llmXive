@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-brain-topology"
 version = "0.1.0"
-description = "Investigating the influence of network topology on spontaneous brain activity patterns"
+description = "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns"
 requires-python = ">=3.9"
 dependencies = [
     "nilearn",
@@ -16,10 +16,6 @@ dependencies = [
     "statsmodels",
     "scipy",
     "pyyaml",
-    "black",
-    "flake8",
-    "pylint",
-    "pre-commit"
 ]
 
 [tool.black]
@@ -29,16 +25,21 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["analysis", "preprocess", "reports", "config", "main"]
 
 [tool.flake8]
 max-line-length = 88
@@ -48,26 +49,19 @@ exclude = [
     "__pycache__",
     "build",
     "dist",
-    ".venv"
+    ".eggs",
 ]
-per-file-ignores = []
-max-complexity = 15
+per-file-ignores = [
+    "__init__.py:F401",
+]
 
-[tool.pylint.'MESSAGES CONTROL']
-max-line-length = 88
+[tool.pylint.MASTER]
+ignore = ["tests", ".venv", "build", "dist"]
+load-plugins = ["pylint.extensions.docparams"]
+
+[tool.pylint.MESSAGES_CONTROL]
 disable = [
-    "C0114",  # missing-module-docstring
-    "C0115",  # missing-class-docstring
-    "C0116",  # missing-function-docstring
+    "C0111",  # missing-docstring (allow for brevity in scripts)
     "R0903",  # too-few-public-methods
-    "R0913",  # too-many-arguments
-    "R0914",  # too-many-locals
-    "W0511"   # fixme
+    "W0511",  # fixme
 ]
-
-[tool.pylint.FORMAT]
-max-line-length = 88
-
-[tool.pylint.DESIGN]
-max-args = 10
-max-locals = 20

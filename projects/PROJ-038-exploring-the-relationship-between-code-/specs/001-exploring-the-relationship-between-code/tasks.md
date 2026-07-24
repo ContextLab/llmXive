@@ -44,7 +44,7 @@
 - [X] T003 [P] Implement `code/src/config.py` to define environment variables for Defects4J path, fixed random seeds, and memory limits.
 - [X] T004 [P] Implement `code/src/ingest.py` logic to download Defects4J v2.0+ subset via CLI wrapper, validating size < 7GB, and including dynamic subset validation logic to iteratively select projects until the RAM limit is reached.
 - [X] T005 [P] Define metric extraction interface in `code/src/metrics.py`: Specify function signatures for calculating Cyclomatic Complexity (via PMD CLI), Halstead Volume (via custom JavaParser-based script), and LOC. The interface must support both tools.
-- [~] T006 [P] Define labeling interface in `code/src/labeling.py`: Specify function signatures for mapping Defects4J bug-introduction commits to file-level binary labels.
+- [ ] T006 [P] Define labeling interface in `code/src/labeling.py`: Specify function signatures for mapping Defects4J bug-introduction commits to file-level binary labels.
 - [X] T007 [P] Create `code/data/processed/features.csv` schema validator and checksum generator (`code/data/checksums.json`).
 - [X] T008 [P] Create skeleton `code/run_pipeline.sh` orchestration script to enforce execution order (Ingest -> Metrics -> Labeling -> Analysis), noting that Analysis scripts are not yet implemented.
 
@@ -62,21 +62,21 @@
 
 - [X] T013 [P] [US1] Implement `code/src/ingest.py` logic to clone a representative sample of projects, filter for `.java` files, and enforce a bounded RAM limit via dynamic subset validation.
 - [X] T014 [US1] Implement `code/src/metrics.py` logic to traverse AST and compute LOC for every Java file.
-- [~] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file.
+- [ ] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file.
 - [ ] T014c [US1] Implement Python wrapper script for the custom JavaParser-based script to calculate Halstead Volume for every Java file.
 - [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag.
-- [ ] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging.
-- [ ] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`.
-- [ ] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV.
+- [X] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging.
+- [X] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`.
+- [~] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to verify the logic
 
-- [ ] T010a [P] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input).
-- [ ] T010b [P] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input).
-- [ ] T011a [P] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping).
-- [ ] T012a [P] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content).
+- [X] T010a [P] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input).
+- [X] T010b [P] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input).
+- [X] T011a [P] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping).
+- [X] T012a [P] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,9 +90,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values.
-- [ ] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
-- [ ] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
+- [X] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values.
+- [X] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
+- [X] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
 - [ ] T023a [US2] Implement `code/src/modeling.py` to train a 'Full Metric Set' Random Forest model specifically for the comparison in FR-006, ensuring it uses the same folds as the 'Single Best' model.
 - [ ] T024 [US2] Implement aggregation logic to calculate mean ROC-AUC and F-score with standard deviation across 50 folds.
 - [ ] T025 [US2] Handle class imbalance: Detect zero-buggy-file projects and log warnings/skip gracefully.

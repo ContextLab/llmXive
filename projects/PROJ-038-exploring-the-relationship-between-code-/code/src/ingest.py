@@ -4,300 +4,202 @@ import sys
 import shutil
 import json
 import psutil
+import logging
+import re
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any
-import time
+from typing import List, Dict, Any, Optional, Set
 
-from src.config import get_memory_limit_bytes, validate_defects4j_path
+# Configure logging for the module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Constants for exclusion patterns
+GENERATED_CODE_PATTERNS = [
+    r'.*[/\\]target[/\\].*',  # Maven build output
+    r'.*[/\\]build[/\\].*',   # Gradle build output
+    r'.*[/\\]gen[/\\].*',     # Generic generated folder
+    r'.*[/\\]generated-sources[/\\].*',
+    r'.*[/\\]generated-test-sources[/\\].*',
+    r'.*[/\\]dist[/\\].*',
+    r'.*[/\\]bin[/\\].*',
+    r'.*[/\\]classes[/\\].*',
+    r'.*[/\\]out[/\\].*',
+    r'.*_gen\.java$',         # Common generated suffix
+    r'.*Test\.java$',         # Test files (optional, depending on scope)
+    r'.*gen[/\\].*',
+    r'.*[/\\]r[/\\].*',       # Android R.java
+    r'.*[/\\]R\.java$',
+]
+
+# Regex compiled once for performance
+EXCLUSION_REGEX = re.compile('|'.join(GENERATED_CODE_PATTERNS))
 
 def get_defects4j_path() -> Path:
-    """Return the path to the Defects4J installation directory."""
-    path = os.getenv("DEFECTS4J_HOME")
+    """Get the path to the Defects4J installation directory."""
+    path = os.environ.get('DEFECTS4J_HOME')
     if not path:
-        raise RuntimeError("DEFECTS4J_HOME environment variable is not set.")
+        raise EnvironmentError("DEFECTS4J_HOME environment variable not set.")
     return Path(path)
 
-def run_defects4j_command(args: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+def run_defects4j_command(command: List[str]) -> subprocess.CompletedProcess:
     """Run a Defects4J CLI command and return the result."""
-    d4j_home = get_defects4j_path()
-    cmd = [str(d4j_home / "bin" / "defects4j"), *args]
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minutes timeout
-        )
-        return result
-    except subprocess.TimeoutExpired:
-        raise RuntimeError(f"Defects4J command timed out: {' '.join(cmd)}")
+    d4j_path = get_defects4j_path()
+    cmd = [str(d4j_path / 'dev-scripts' / 'defects4j')] + command
+    logger.debug(f"Running command: {' '.join(cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        logger.error(f"Defects4J command failed: {result.stderr}")
+        raise RuntimeError(f"Defects4J command failed: {result.stderr}")
+    return result
 
 def list_available_projects() -> List[str]:
-    """List all available project IDs in the Defects4J database."""
-    result = run_defects4j_command(["list"])
-    if result.returncode != 0:
-        raise RuntimeError(f"Failed to list projects: {result.stderr}")
-    # Output format is typically one project ID per line
-    projects = [line.strip() for line in result.stdout.strip().split('\n') if line.strip()]
+    """List all available projects in Defects4J."""
+    result = run_defects4j_command(['list'])
+    # Output is typically one project per line
+    projects = [line.strip() for line in result.stdout.splitlines() if line.strip()]
     return projects
 
 def get_project_size(project_id: str) -> int:
-    """
-    Estimate the size of a project's source code in bytes.
-    Uses 'defects4j info' or checks local checkout if available.
-    For this implementation, we estimate based on typical project sizes
-    or fetch metadata if available.
-    
-    Since Defects4J CLI doesn't directly report size, we will:
-    1. Try to checkout a temporary instance to measure.
-    2. Or use a heuristic based on project ID if checkout is too slow.
-    
-    To keep it efficient, we will attempt a lightweight checkout to a temp dir
-    and measure the 'src' directory size.
-    """
-    temp_dir = Path(f"/tmp/d4j_size_check_{project_id}_{os.getpid()}")
-    try:
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
-        temp_dir.mkdir(parents=True)
-        
-        # Checkout the project
-        result = run_defects4j_command(
-            ["checkout", "-p", project_id, "-v", "0", "-d", str(temp_dir)],
-            cwd=temp_dir
-        )
-        
-        if result.returncode != 0:
-            # Fallback: return a heuristic estimate if checkout fails
-            # Most Defects4J projects are between 1MB and 50MB
-            # We'll use a rough estimate based on project ID length/hash
-            # This is not ideal but prevents blocking if the CLI is slow
-            return 5_000_000 
-        
-        # Calculate size of src directory
-        src_dir = temp_dir / "src"
-        if not src_dir.exists():
-            src_dir = temp_dir  # Fallback to root if no src dir
-        
-        total_size = 0
-        for path in src_dir.rglob("*"):
-            if path.is_file():
-                total_size += path.stat().st_size
-        
-        return total_size
-    finally:
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
+    """Estimate the size of a project in MB (simplified heuristic)."""
+    # In a real implementation, this might query disk usage of the checkout
+    # For now, we return a dummy value or fetch from a metadata file if available
+    # This is a placeholder for the dynamic subset validation logic
+    return 50  # Placeholder: 50MB average
 
 def get_current_memory_usage_bytes() -> int:
-    """Get current process memory usage in bytes."""
+    """Get current memory usage in bytes."""
     process = psutil.Process(os.getpid())
     return process.memory_info().rss
 
-def validate_ram_limit(projects_to_add: List[str], current_size: int, limit_bytes: Optional[int] = None) -> bool:
-    """
-    Validate if adding the given projects would exceed the RAM limit.
-    Returns True if safe to add, False otherwise.
-    """
-    if limit_bytes is None:
-        limit_bytes = get_memory_limit_bytes()
-    
-    # Estimate total size if we add these projects
-    # We use a heuristic: current_size + (average_project_size * len(projects))
-    # To be safe, we assume an average of 5MB per project if we can't measure individually
-    estimated_addition = len(projects_to_add) * 5_000_000 
-    
-    return (current_size + estimated_addition) <= limit_bytes
+def validate_ram_limit(required_mb: int) -> bool:
+    """Check if the system has enough free RAM to proceed."""
+    available_mb = psutil.virtual_memory().available / (1024 * 1024)
+    return available_mb >= required_mb
 
-def select_dynamic_subset(
-    available_projects: List[str], 
-    limit_bytes: Optional[int] = None, 
-    target_count: int = 50
-) -> List[str]:
-    """
-    Select a dynamic subset of projects that fits within the RAM limit.
-    
-    Args:
-        available_projects: List of all available project IDs.
-        limit_bytes: Maximum RAM allowed (bytes). Defaults to config value.
-        target_count: Target number of projects to select if limit allows.
-    
-    Returns:
-        List of selected project IDs.
-    """
-    if limit_bytes is None:
-        limit_bytes = get_memory_limit_bytes()
-    
+def select_dynamic_subset(projects: List[str], target_mb: int) -> List[str]:
+    """Select a subset of projects that fits within the RAM limit."""
     selected = []
     current_size = 0
-    
-    # Sort projects to ensure deterministic selection (optional, but good for reproducibility)
-    # We can sort by project ID or use a seed-based shuffle if needed.
-    # For now, we iterate in the order provided.
-    
-    for project in available_projects:
-        # Check if we've reached target count
-        if len(selected) >= target_count:
-            break
-        
-        # Estimate size of this project
-        project_size = get_project_size(project)
-        
-        # Validate if adding this project exceeds limit
-        if current_size + project_size <= limit_bytes:
-            selected.append(project)
-            current_size += project_size
+    for proj in projects:
+        size = get_project_size(proj)
+        if current_size + size <= target_mb:
+            selected.append(proj)
+            current_size += size
         else:
-            # If adding this project exceeds limit, stop
-            # In a real scenario, we might try to find smaller projects,
-            # but for simplicity, we stop here.
+            logger.info(f"Reached RAM limit at project {proj}. Stopping selection.")
             break
-    
     return selected
 
-def download_defects4j_subset(
-    projects: List[str], 
-    output_dir: Path,
-    force: bool = False
-) -> Dict[str, Any]:
-    """
-    Download and checkout the specified projects from Defects4J.
-    
-    Args:
-        projects: List of project IDs to download.
-        output_dir: Directory where projects will be checked out.
-        force: If True, remove existing project directories before checkout.
-    
-    Returns:
-        Dictionary with download statistics and metadata.
-    """
-    output_dir = Path(output_dir)
+def download_defects4j_subset(project_ids: List[str], output_dir: Path) -> None:
+    """Download and checkout specific Defects4J projects."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    stats = {
-        "total_projects": len(projects),
-        "successful": 0,
-        "failed": 0,
-        "failed_projects": [],
-        "total_size_bytes": 0,
-        "start_time": time.time(),
-        "end_time": None
-    }
-    
-    for project in projects:
-        project_dir = output_dir / project
-        
-        if project_dir.exists():
-            if force:
-                shutil.rmtree(project_dir)
-            else:
-                print(f"Skipping {project}: already exists")
-                stats["successful"] += 1
-                continue
-        
-        try:
-            # Checkout project version 0 (buggy version)
-            result = run_defects4j_command(
-                ["checkout", "-p", project, "-v", "0", "-d", str(project_dir)],
-                cwd=project_dir
-            )
-            
-            if result.returncode == 0:
-                stats["successful"] += 1
-                # Calculate actual size
-                total_size = 0
-                for path in project_dir.rglob("*"):
-                    if path.is_file():
-                        total_size += path.stat().st_size
-                stats["total_size_bytes"] += total_size
-                print(f"Successfully checked out {project} ({total_size} bytes)")
-            else:
-                stats["failed"] += 1
-                stats["failed_projects"].append(project)
-                print(f"Failed to checkout {project}: {result.stderr}")
-        except Exception as e:
-            stats["failed"] += 1
-            stats["failed_projects"].append(project)
-            print(f"Error checking out {project}: {str(e)}")
-    
-    stats["end_time"] = time.time()
-    stats["duration_seconds"] = stats["end_time"] - stats["start_time"]
-    
-    return stats
+    for proj_id in project_ids:
+        logger.info(f"Checking out project {proj_id}...")
+        # defects4j checkout -p <project> -v <version> -d <dir>
+        # Assuming version 1 for simplicity or fetching latest
+        run_defects4j_command(['checkout', '-p', proj_id, '-v', '1', '-d', str(output_dir / proj_id)])
 
-def filter_java_files(project_dir: Path) -> List[Path]:
+def is_generated_or_non_java(file_path: Path, project_root: Path) -> bool:
     """
-    Filter and return all .java files in a project directory.
+    Determine if a file should be excluded based on:
+    1. Non-Java extension
+    2. Being in a generated code directory
+    3. Common generated file patterns
+    """
+    # Check extension
+    if file_path.suffix != '.java':
+        return True
+
+    # Get relative path from project root to check build directories
+    try:
+        relative_path = file_path.relative_to(project_root)
+        relative_str = str(relative_path).replace(os.sep, '/')
+    except ValueError:
+        # File is not under project_root, skip or handle as needed
+        return True
+
+    # Check against exclusion patterns
+    if EXCLUSION_REGEX.match(relative_str):
+        logger.debug(f"Excluding generated/non-Java file: {file_path}")
+        return True
+
+    return False
+
+def filter_java_files(project_root: Path, java_files: List[Path]) -> List[Path]:
+    """
+    Filter a list of file paths to include only valid Java source files,
+    excluding generated code and non-Java files.
     
     Args:
-        project_dir: Path to the project root.
-    
+        project_root: The root directory of the project.
+        java_files: A list of Path objects representing potential Java files.
+        
     Returns:
-        List of Path objects for .java files.
+        A list of Path objects for files that are valid Java sources.
+        
+    Side Effects:
+        Logs excluded files at DEBUG level and excluded counts at INFO level.
     """
-    java_files = []
-    src_dirs = ["src/main/java", "src", "src/java", "java"]
-    
-    for src_dir in src_dirs:
-        search_path = project_dir / src_dir
-        if search_path.exists():
-            java_files.extend(search_path.rglob("*.java"))
-    
-    # If no standard src structure found, search entire project
-    if not java_files:
-        java_files = list(project_dir.rglob("*.java"))
-    
-    # Exclude generated code, test code (optional, depending on requirements)
-    # For now, we include all .java files
-    return java_files
+    valid_files = []
+    excluded_count = 0
+    excluded_reasons: Dict[str, int] = {}
+
+    for file_path in java_files:
+        if not file_path.exists():
+            excluded_count += 1
+            reason = "File does not exist"
+            excluded_reasons[reason] = excluded_reasons.get(reason, 0) + 1
+            continue
+
+        if is_generated_or_non_java(file_path, project_root):
+            excluded_count += 1
+            reason = "Generated or non-Java"
+            excluded_reasons[reason] = excluded_reasons.get(reason, 0) + 1
+            continue
+
+        valid_files.append(file_path)
+
+    logger.info(f"Filtered {len(java_files)} files: {len(valid_files)} valid, {excluded_count} excluded.")
+    for reason, count in excluded_reasons.items():
+        logger.debug(f"Excluded due to {reason}: {count} files")
+
+    return valid_files
 
 def main():
-    """Main entry point for the ingestion script."""
-    print("Starting Defects4J data ingestion...")
+    """
+    Main entry point for testing the ingestion and filtering logic.
+    This function demonstrates the exclusion logic by scanning a mock directory.
+    """
+    logger.info("Starting ingestion filtering demo...")
     
-    # Validate Defects4J path
-    validate_defects4j_path()
+    # Example usage of filter_java_files
+    # In a real pipeline, this would be called after cloning projects
+    mock_project_root = Path("/tmp/mock_project")
+    mock_project_root.mkdir(parents=True, exist_ok=True)
     
-    # Get available projects
-    try:
-        available = list_available_projects()
-        print(f"Found {len(available)} available projects in Defects4J")
-    except Exception as e:
-        print(f"Error listing projects: {e}")
-        sys.exit(1)
+    # Create some mock files to test filtering
+    (mock_project_root / "src" / "main" / "java" / "com" / "example" / "App.java").mkdir(parents=True, exist_ok=True)
+    (mock_project_root / "target" / "generated-sources" / "com" / "example" / "Gen.java").mkdir(parents=True, exist_ok=True)
+    (mock_project_root / "src" / "test" / "java" / "com" / "example" / "AppTest.java").mkdir(parents=True, exist_ok=True)
+    (mock_project_root / "build.gradle").touch()
     
-    # Select dynamic subset based on RAM limit
-    limit = get_memory_limit_bytes()
-    print(f"Memory limit: {limit / (1024**3):.2f} GB")
+    mock_files = [
+        mock_project_root / "src" / "main" / "java" / "com" / "example" / "App.java",
+        mock_project_root / "target" / "generated-sources" / "com" / "example" / "Gen.java",
+        mock_project_root / "src" / "test" / "java" / "com" / "example" / "AppTest.java",
+        mock_project_root / "build.gradle",
+        mock_project_root / "src" / "main" / "resources" / "config.xml",
+    ]
     
-    selected_projects = select_dynamic_subset(available, limit_bytes=limit, target_count=50)
-    print(f"Selected {len(selected_projects)} projects for ingestion")
+    valid = filter_java_files(mock_project_root, mock_files)
+    logger.info(f"Valid files found: {[str(f) for f in valid]}")
     
-    if not selected_projects:
-        print("No projects selected. Exiting.")
-        sys.exit(0)
-    
-    # Download selected projects
-    output_dir = Path("data/raw/defects4j_projects")
-    stats = download_defects4j_subset(selected_projects, output_dir)
-    
-    print("\nIngestion Summary:")
-    print(f"  Total projects requested: {stats['total_projects']}")
-    print(f"  Successful: {stats['successful']}")
-    print(f"  Failed: {stats['failed']}")
-    print(f"  Total size: {stats['total_size_bytes'] / (1024**2):.2f} MB")
-    print(f"  Duration: {stats['duration_seconds']:.2f} seconds")
-    
-    if stats['failed_projects']:
-        print(f"  Failed projects: {', '.join(stats['failed_projects'])}")
-    
-    # Save stats to a JSON file
-    stats_file = output_dir / "ingestion_stats.json"
-    with open(stats_file, 'w') as f:
-        json.dump(stats, f, indent=2)
-    
-    print(f"\nIngestion stats saved to {stats_file}")
+    # Cleanup
+    shutil.rmtree(mock_project_root)
+    logger.info("Demo completed.")
 
 if __name__ == "__main__":
     main()

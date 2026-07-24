@@ -60,9 +60,9 @@
 - [X] T003 [P] Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (must include: `torch`, `diffusers`, `transformers`, `clip`, `lpips`, `numpy`, `pandas`, `pymc`, `arviz`, `scikit-learn`)
 - [X] T004 [P] Create `code/config.yaml` containing a list of distinct effect prompts and seed values for deterministic generation.
 - [X] T006 [P] Implement `code/state_manager.py` to handle SHA-256 hashing of artifacts and `state/artifacts.yaml` updates (FR-013)
-- [ ] T007 [P] Create `code/data_loader.py` with logic to download base model (SD 1.5/2.1) and CollectionLoRA adapter from HuggingFace without GPU (FR-001)
+- [X] T007 [P] Create `code/data_loader.py` with logic to download base model (SD 1.5/2.1) and CollectionLoRA adapter from HuggingFace without GPU (FR-001)
 - [ ] T007b [P] Implement logic in `code/data_loader.py` (or `main.py` setup) to rename/copy the downloaded CollectionLoRA adapter to `data/models/adapter_fp16.safetensors` and immediately compute its SHA-256 hash, recording it in `state/artifacts.yaml` (FR-013, FR-010)
-- [ ] T008 [P] Implement `code/main.py` wrapper logic to catch in-process `MemoryError` exceptions and handle subprocess Exit Code 137 (SIGKILL) by logging "Quantization Failure" and gracefully skipping the affected quantization level (FR-008). **Note: This is the sole mechanism for OOM handling; no shell scripts are used.**
+- [X] T008 [P] Implement `code/main.py` wrapper logic to catch in-process `MemoryError` exceptions and handle subprocess Exit Code 137 (SIGKILL) by logging "Quantization Failure" and gracefully skipping the affected quantization level (FR-008). **Note: This is the sole mechanism for OOM handling; no shell scripts are used.**
 - [ ] T009 [P] Implement `code/data_loader.py` function to load `data/models/adapter_fp16.safetensors`, extract per-effect LoRA weight matrices, compute their Singular Value Decomposition (SVD) to determine effective subspace rank (tolerance threshold), and save results to `data/subspace_ranks.json` (FR-010, FR-007). **Dependencies: T007b**
 - [X] T009b [P] Create `code/metrics.py` stub with imports for CLIP, LPIPS, and NumPy
 
@@ -78,12 +78,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/data_loader.py` function to load FP16 CollectionLoRA adapter (`data/models/adapter_fp16.safetensors`) and base model into CPU memory. **Extends T007**: Utilizes the download logic from T007 to fetch the adapter if missing, then loads it into CPU memory (FR-001) <!-- ATOMIZE: requested -->
-- [~] T011 [US1] Implement `code/generator.py` function to generate images using the fixed prompt list from `config.yaml` with FP16 adapter (FR-003, FR-009) <!-- ATOMIZE: requested -->
-- [~] T011b [US1] Implement `code/generator.py` function to generate a single "known reference" image using a fixed seed (from `config.yaml`) and save it to `data/references/baseline_ref.png`. This image serves as the ground truth for LPIPS self-consistency checks in T013 (US-1, FR-005) <!-- FAILED: unspecified -->
+- [ ] T010 [US1] Implement `code/data_loader.py` function to load FP16 CollectionLoRA adapter (`data/models/adapter_fp16.safetensors`) and base model into CPU memory. **Extends T007**: Utilizes the download logic from T007 to fetch the adapter if missing, then loads it into CPU memory (FR-001) <!-- ATOMIZE: requested -->
+- [ ] T011 [US1] Implement `code/generator.py` function to generate images using the fixed prompt list from `config.yaml` with FP16 adapter (FR-003, FR-009) <!-- ATOMIZE: requested -->
+- [ ] T011b [US1] Implement `code/generator.py` function to generate a single "known reference" image using a fixed seed (from `config.yaml`) and save it to `data/references/baseline_ref.png`. This image serves as the ground truth for LPIPS self-consistency checks in T013 (US-1, FR-005) <!-- FAILED: unspecified -->
 - [X] T011c [US1] Implement `code/generator.py` function to generate and save a set of "FP16 ReferenceImages" for *all* effect prompts in `data/references/fp16_refs/`. These are required for CESR calculation in US2 (FR-011, US-2). **Dependencies: T011**
 - [X] T012 [US1] Implement `code/metrics.py` function to extract CLIP image embeddings and compute cosine similarity with prompt text embeddings (FR-004)
-- [~] T013 [US1] Implement `code/metrics.py` function to compute LPIPS distance between generated FP16 images and the reference image `data/references/baseline_ref.png` (produced by T011b) to verify pipeline functionality (US-1, FR-005). **Dependencies: T011b**
+- [ ] T013 [US1] Implement `code/metrics.py` function to compute LPIPS distance between generated FP16 images and the reference image `data/references/baseline_ref.png` (produced by T011b) to verify pipeline functionality (US-1, FR-005). **Dependencies: T011b**
 - [~] T014 [US1] Implement `code/main.py` logic to run FP16 generation, compute metrics, and save initial `data/results.csv` and `data/generated/` images
 - [X] T015 [US1] Add logging for baseline generation steps and verify SHA-256 hashes of generated images in `state/artifacts.yaml`
 
@@ -135,11 +135,11 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [X] T029 [P] Write unit tests for `code/metrics.py` functions (`cosine_similarity`, `lpips_distance`, `cesr_score`) in `tests/test_metrics.py`
-- [ ] T030 [P] Write unit tests for `code/data_loader.py` (quantization loading) in `tests/test_quantization.py`
-- [ ] T031 Run end-to-end validation on `ubuntu-latest` runner to verify total job duration ≤ 6 hours (SC-005)
-- [ ] T032 Update `docs/quickstart.md` with instructions for running the pipeline on CPU-only runners
-- [ ] T033 Final review of `state/artifacts.yaml` to ensure all model weights and data artifacts are checksummed
-- [ ] T034 Draft Constitution Amendment for Principle VII to replace "repeated-measures ANOVA" with "Bayesian Hierarchical Model" and update `plan.md` to reflect "PENDING AMENDMENT" status (FR-006, Constitution Check)
+- [X] T030 [P] Write unit tests for `code/data_loader.py` (quantization loading) in `tests/test_quantization.py`
+- [~] T031 Run end-to-end validation on `ubuntu-latest` runner to verify total job duration ≤ 6 hours (SC-005)
+- [X] T032 Update `docs/quickstart.md` with instructions for running the pipeline on CPU-only runners
+- [X] T033 Final review of `state/artifacts.yaml` to ensure all model weights and data artifacts are checksummed
+- [~] T034 Draft Constitution Amendment for Principle VII to replace "repeated-measures ANOVA" with "Bayesian Hierarchical Model" and update `plan.md` to reflect "PENDING AMENDMENT" status (FR-006, Constitution Check)
 
 ---
 

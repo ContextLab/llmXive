@@ -1,23 +1,8 @@
-"""
-Subspace Rank Analysis Module
-
-This module implements logic to load per-effect LoRA subspace ranks
-from data/subspace_ranks.json and prepare data for correlation analysis
-with concept bleeding metrics (US2/US3).
-
-It validates the input data structure and provides a utility function
-to retrieve ranks for specific effects, enabling downstream statistical
-analysis (T025).
-"""
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-
-# Import from existing API surface
-from data_loader import compute_subspace_ranks
-from state_manager import register_artifact, compute_sha256
 
 # Configure logging
 logging.basicConfig(
@@ -26,141 +11,147 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_subspace_ranks(ranks_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_subspace_ranks(filepath: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load per-effect LoRA subspace ranks from JSON file.
-
+    Load per-effect LoRA subspace ranks from the JSON file produced by T009.
+    
     Args:
-        ranks_path: Path to subspace_ranks.json. Defaults to data/subspace_ranks.json.
-
+        filepath: Path to the subspace ranks JSON file. Defaults to 'data/subspace_ranks.json'.
+        
     Returns:
-        Dictionary containing subspace rank data keyed by effect name.
-
+        A dictionary containing the subspace rank data.
+        
     Raises:
-        FileNotFoundError: If the ranks file does not exist.
+        FileNotFoundError: If the specified file does not exist.
         json.JSONDecodeError: If the file content is not valid JSON.
-        ValueError: If the data structure is invalid.
     """
-    if ranks_path is None:
-        ranks_path = Path("data/subspace_ranks.json")
+    if filepath is None:
+        filepath = "data/subspace_ranks.json"
+    
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"Subspace ranks file not found: {filepath}")
+    
+    logger.info(f"Loading subspace ranks from {filepath}")
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    logger.info(f"Loaded {len(data)} effect subspace ranks")
+    return data
 
-    if not ranks_path.exists():
-        logger.error(f"Subspace ranks file not found: {ranks_path}")
-        raise FileNotFoundError(f"Subspace ranks file not found: {ranks_path}")
-
-    try:
-        with open(ranks_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in subspace ranks file: {e}")
-        raise
-
-    # Validate structure: expect a dict with 'ranks' key or direct effect keys
-    if not isinstance(data, dict):
-        raise ValueError("Subspace ranks data must be a JSON object (dictionary).")
-
-    # If it has a 'ranks' key, use that; otherwise assume root is the ranks dict
-    ranks_data = data.get('ranks', data)
-
-    if not isinstance(ranks_data, dict):
-        raise ValueError("Subspace ranks data must contain a dictionary of effect -> rank.")
-
-    logger.info(f"Loaded subspace ranks for {len(ranks_data)} effects from {ranks_path}")
-    return ranks_data
-
-def prepare_correlation_data(ranks_data: Dict[str, Any], results_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def prepare_correlation_data(ranks_data: Dict[str, Any], results_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Prepare data for correlation analysis by merging subspace ranks with
-    concept bleeding metrics from results.csv.
-
+    Prepare data for correlation analysis by merging subspace ranks with quantization results.
+    
+    This function loads the main results CSV (data/results.csv) and merges it with
+    the subspace rank data to create a unified dataset for statistical analysis.
+    
     Args:
-        ranks_data: Loaded subspace ranks dictionary.
-        results_path: Path to results.csv. Defaults to data/results.csv.
-
+        ranks_data: The dictionary loaded from subspace_ranks.json.
+        results_path: Path to the results CSV file. Defaults to 'data/results.csv'.
+        
     Returns:
-        List of dictionaries containing merged data points for analysis.
-        Each dict contains: {'effect', 'subspace_rank', 'cesr_score', 'lpips_distance', ...}
+        A list of dictionaries, each containing effect name, subspace rank, and quantization metrics.
+        
+    Raises:
+        FileNotFoundError: If the results CSV file does not exist.
     """
     if results_path is None:
-        results_path = Path("data/results.csv")
-
-    if not results_path.exists():
-        logger.warning(f"Results file not found at {results_path}. Cannot merge data.")
-        # Return only subspace rank data if results are missing
-        return [
-            {'effect': effect, 'subspace_rank': rank, 'cesr_score': None, 'lpips_distance': None}
-            for effect, rank in ranks_data.items()
-        ]
-
+        results_path = "data/results.csv"
+    
+    results_file = Path(results_path)
+    if not results_file.exists():
+        raise FileNotFoundError(f"Results file not found: {results_path}")
+    
+    logger.info(f"Preparing correlation data from {results_path}")
+    
     import csv
+    results_data = []
+    with open(results_file, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            results_data.append(row)
+    
+    # Merge subspace ranks with results
+    # Expecting ranks_data to have structure: {"effects": [{"name": "...", "rank": ...}, ...]}
+    # or a flat dict: {"effect_name": rank_value, ...}
+    
     merged_data = []
-
-    try:
-        with open(results_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                effect = row.get('effect')
-                if effect and effect in ranks_data:
-                    merged_point = {
-                        'effect': effect,
-                        'subspace_rank': ranks_data[effect],
-                        'quantization_level': row.get('quantization_level'),
-                        'cesr_score': float(row.get('cesr_score', 0)) if row.get('cesr_score') else None,
-                        'lpips_distance': float(row.get('lpips_distance', 0)) if row.get('lpips_distance') else None,
-                        'cosine_similarity': float(row.get('cosine_similarity', 0)) if row.get('cosine_similarity') else None
-                    }
-                    merged_data.append(merged_point)
-    except Exception as e:
-        logger.error(f"Error reading results file: {e}")
-        # Return partial data
-        merged_data = [
-            {'effect': effect, 'subspace_rank': rank, 'cesr_score': None, 'lpips_distance': None}
-            for effect, rank in ranks_data.items()
-        ]
-
-    logger.info(f"Prepared {len(merged_data)} data points for correlation analysis.")
+    ranks_map = {}
+    
+    # Handle different possible structures of ranks_data
+    if "effects" in ranks_data:
+        # List of effects
+        for effect in ranks_data["effects"]:
+          if isinstance(effect, dict) and "name" in effect and "rank" in effect:
+              ranks_map[effect["name"]] = effect["rank"]
+          elif isinstance(effect, dict):
+              # Try to find name and rank keys with common variations
+              name_key = next((k for k in effect.keys() if k in ["name", "effect_name", "effect"]), None)
+              rank_key = next((k for k in effect.keys() if k in ["rank", "subspace_rank", "effective_rank"]), None)
+              if name_key and rank_key:
+                  ranks_map[effect[name_key]] = effect[rank_key]
+    elif isinstance(ranks_data, dict):
+        # Flat dictionary: {"effect_name": rank, ...}
+        ranks_map = ranks_data
+    
+    # Merge with results
+    for result in results_data:
+        effect_name = result.get("effect", result.get("effect_name", result.get("prompt", None)))
+        if effect_name is None:
+            logger.warning(f"Could not identify effect name in result: {result}")
+            continue
+            
+        if effect_name in ranks_map:
+            merged_entry = {
+                "effect": effect_name,
+                "subspace_rank": ranks_map[effect_name],
+                "quantization_level": result.get("quantization_level", "unknown"),
+                "cosine_similarity": float(result.get("cosine_similarity", 0)),
+                "cesr_score": float(result.get("cesr_score", 0)),
+                "lpips_distance": float(result.get("lpips_distance", 0)),
+                "delta_similarity": float(result.get("delta_similarity", 0))
+            }
+            merged_data.append(merged_entry)
+        else:
+            logger.warning(f"Effect '{effect_name}' not found in subspace ranks data")
+    
+    logger.info(f"Prepared {len(merged_data)} merged entries for correlation analysis")
     return merged_data
 
 def main():
     """
-    Main entry point for subspace rank analysis.
-    Loads ranks, validates structure, and prepares data for correlation.
+    Main entry point for subspace rank analysis and correlation data preparation.
+    
+    This script loads subspace ranks, merges them with quantization results,
+    and prepares the data for the Bayesian Hierarchical Model analysis in T025.
     """
-    logger.info("Starting subspace rank analysis (T021)...")
-
     try:
-        # 1. Load Subspace Ranks
-        ranks = load_subspace_ranks()
-        logger.info(f"Successfully loaded ranks: {list(ranks.keys())}")
-
-        # 2. Prepare for Correlation
-        data_points = prepare_correlation_data(ranks)
+        # Load subspace ranks
+        ranks_data = load_subspace_ranks()
         
-        # 3. Output summary to console and save a prepared JSON for downstream tasks
-        output_file = Path("data/subspace_rank_analysis_input.json")
-        output_file.parent.mkdir(parents=True, exist_ok=True)
+        # Prepare correlation data
+        correlation_data = prepare_correlation_data(ranks_data)
         
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(data_points, f, indent=2)
+        # Save prepared data for downstream analysis
+        output_path = "data/correlation_input.json"
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(correlation_data, f, indent=2)
         
-        logger.info(f"Prepared analysis data saved to {output_file}")
+        logger.info(f"Saved correlation input data to {output_path}")
+        logger.info(f"Sample of prepared data: {correlation_data[:3] if len(correlation_data) >= 3 else correlation_data}")
         
-        # Register the output artifact
-        artifact_hash = compute_sha256(output_file)
-        register_artifact(output_file, artifact_hash)
-        logger.info(f"Registered artifact: {output_file} (hash: {artifact_hash})")
-
+        return correlation_data
+        
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
         sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in subspace ranks file: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during analysis: {e}")
+        logger.error(f"Unexpected error during correlation data preparation: {e}")
         sys.exit(1)
-
-    logger.info("Subspace rank analysis completed successfully.")
 
 if __name__ == "__main__":
     main()

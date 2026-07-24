@@ -1,2 +1,2 @@
-# This directory is for generated data artifacts.
-# Do not commit large files here.
+# This directory is for raw data downloads.
+# HCP data will be fetched here by the loader scripts.

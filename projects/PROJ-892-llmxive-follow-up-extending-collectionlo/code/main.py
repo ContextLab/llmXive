@@ -3,22 +3,24 @@ import sys
 import json
 import csv
 import logging
+import subprocess
 from pathlib import Path
-import yaml
-import torch
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import existing public names from sibling modules
-from config import load_config
-from state_manager import register_artifact, compute_sha256, save_artifacts_state
+# Import from existing project modules based on API surface
 from data_loader import (
     ensure_download_dir,
+    compute_sha256,
+    load_artifacts_state,
+    save_artifacts_state,
+    register_downloaded_artifact,
     download_base_model,
     download_lora_adapter,
     get_collection_lora_adapter,
     load_adapter_weights,
     save_adapter_weights,
-    register_downloaded_artifact,
     get_model_info,
+    compute_subspace_ranks,
     apply_quantization,
     quantize_adapter_fp16_to_int8,
     quantize_adapter_fp16_to_int4
@@ -39,217 +41,203 @@ from metrics import (
     compute_cesr_score,
     compute_lpips_matrix
 )
+from state_manager import (
+    ensure_state_dir,
+    compute_sha256 as state_compute_sha256,
+    load_artifacts_state as state_load_artifacts_state,
+    save_artifacts_state as state_save_artifacts_state,
+    register_artifact,
+    verify_artifact,
+    get_artifact_hash
+)
 from statistical_analysis import (
     load_results_data,
-    load_subspace_ranks,
+    load_subspace_ranks as load_subspace_ranks_stats,
     prepare_correlation_data,
     run_bayesian_hierarchical_model
 )
+from config import load_config
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("state/pipeline.log"),
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('state/pipeline.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-def handle_oom(e: Exception, quantization_level: str) -> bool:
+def handle_oom(exception: Exception, quantization_level: str) -> bool:
     """
-    Handle MemoryError or SIGKILL (Exit Code 137) by logging and skipping.
-    Returns True if the error was handled (OOM), False otherwise.
+    Handle Out-Of-Memory (OOM) exceptions for a specific quantization level.
+    
+    This is the sole mechanism for OOM handling as per FR-008.
+    
+    Args:
+        exception: The exception that was raised (MemoryError or subprocess error)
+        quantization_level: The quantization level being processed (e.g., 'int8', 'int4')
+        
+    Returns:
+        bool: True if the error was handled and processing should continue, 
+              False if the error was critical and processing should stop.
     """
-    if isinstance(e, MemoryError) or (hasattr(e, 'code') and e.code == 137):
-        logger.warning(f"Quantization Failure: OOM detected at {quantization_level}. Skipping.")
+    if isinstance(exception, MemoryError):
+        logger.warning(f"Quantization Failure: MemoryError encountered at {quantization_level} level. "
+                     f"Skipping this level and continuing with the pipeline.")
         return True
+    
+    # Check for subprocess Exit Code 137 (SIGKILL)
+    if hasattr(exception, 'code') and exception.code == 137:
+        logger.warning(f"Quantization Failure: Subprocess terminated with Exit Code 137 (SIGKILL) "
+                     f"at {quantization_level} level. Skipping this level and continuing.")
+        return True
+    
+    # Check for subprocess.CalledProcessError with exit code 137
+    if isinstance(exception, subprocess.CalledProcessError) and exception.returncode == 137:
+        logger.warning(f"Quantization Failure: Subprocess terminated with Exit Code 137 (SIGKILL) "
+                     f"at {quantization_level} level. Skipping this level and continuing.")
+        return True
+    
+    # For any other exception, log and re-raise
+    logger.error(f"Unexpected error at {quantization_level} level: {str(exception)}")
     return False
 
-def run_fp16_generation(config: dict) -> Path:
+def run_fp16_generation(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Execute FP16 baseline generation, compute metrics, and save results.
+    Run FP16 baseline generation pipeline.
+    
+    Args:
+        config: Configuration dictionary loaded from config.yaml
+        
+    Returns:
+        List of result dictionaries containing generation metrics
     """
-    logger.info("Starting FP16 Baseline Generation...")
+    logger.info("Starting FP16 baseline generation...")
     
-    # Ensure data directories
-    data_dir = Path("data")
-    generated_dir = data_dir / "generated"
-    references_dir = data_dir / "references"
-    generated_dir.mkdir(parents=True, exist_ok=True)
-    (references_dir / "fp16_refs").mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    ensure_download_dir()
+    ensure_state_dir()
     
-    # Load model and adapter
-    base_model, adapter = get_collection_lora_adapter(config)
+    # Download base model and adapter if needed
+    try:
+        download_base_model()
+        download_lora_adapter()
+    except Exception as e:
+        logger.error(f"Failed to download models: {e}")
+        raise
     
-    # Generate reference images
-    logger.info("Generating FP16 Reference Images...")
-    ref_images = generate_fp16_reference_images(
-        base_model, adapter, config['prompts'], config['seed']
-    )
+    # Generate FP16 reference images
+    try:
+        generate_fp16_reference_images(config)
+    except Exception as e:
+        logger.error(f"Failed to generate FP16 reference images: {e}")
+        raise
     
-    # Save references
-    for prompt, img in ref_images.items():
-        path = references_dir / "fp16_refs" / f"{prompt.replace(' ', '_')}.png"
-        img.save(path)
-        register_artifact(str(path))
-    
-    # Generate main batch
-    logger.info("Generating FP16 Batch...")
+    # Generate images for all prompts
     results = []
     try:
-        generated_images = generate_images(
-            base_model, adapter, config['prompts'], config['seed']
-        )
-        
-        for prompt, img in generated_images.items():
-            # Save image
-            img_path = generated_dir / f"fp16_{prompt.replace(' ', '_')}.png"
-            img.save(img_path)
-            register_artifact(str(img_path))
-            
-            # Compute metrics
-            clip_sim = compute_image_text_similarity(img, prompt)
-            lpips_dist = compute_lpips_distance(img, references_dir / "fp16_refs" / f"{prompt.replace(' ', '_')}.png")
-            
-            results.append({
-                'prompt': prompt,
-                'quantization': 'FP16',
-                'clip_similarity': clip_sim,
-                'lpips_distance': lpips_dist,
-                'image_path': str(img_path)
-            })
-    except MemoryError as e:
-        if handle_oom(e, "FP16"):
-            return Path("data/results_fp16_partial.csv")
-        
-    # Save results
-    results_file = data_dir / "results.csv"
-    with open(results_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys())
-        writer.writeheader()
-        writer.writerows(results)
-        
-    register_artifact(str(results_file))
-    return results_file
+        results = generate_images_for_adapters(config, "fp16")
+    except Exception as e:
+        logger.error(f"Failed to generate FP16 images: {e}")
+        raise
+    
+    logger.info(f"FP16 generation complete. Generated {len(results)} images.")
+    return results
 
-def run_quantized_generation(config: dict, results_file: Path) -> Path:
+def run_quantized_generation(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Execute INT8 and INT4 quantization, generation, and metrics.
+    Run quantized generation pipeline with OOM handling.
+    
+    This function implements the core OOM handling logic per FR-008.
+    
+    Args:
+        config: Configuration dictionary loaded from config.yaml
+        
+    Returns:
+        List of result dictionaries containing generation metrics for successful quantization levels
     """
-    logger.info("Starting Quantized Generation...")
-    data_dir = Path("data")
-    quantized_dir = data_dir / "quantized"
-    quantized_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting quantized generation pipeline...")
     
-    # Load FP16 adapter
-    fp16_path = data_dir / "models" / "adapter_fp16.safetensors"
-    if not fp16_path.exists():
-        raise FileNotFoundError(f"FP16 adapter not found at {fp16_path}. Run T007b first.")
+    quantization_levels = [
+        ("int8", quantize_adapter_fp16_to_int8),
+        ("int4", quantize_adapter_fp16_to_int4)
+    ]
     
-    base_model, _ = get_collection_lora_adapter(config)
+    all_results = []
     
-    # Load existing results to append
-    existing_results = []
-    if results_file.exists():
-        with open(results_file, 'r') as f:
-            reader = csv.DictReader(f)
-            existing_results = list(reader)
-    
-    # Process INT8
-    for level, func in [("INT8", quantize_adapter_fp16_to_int8), ("INT4", quantize_adapter_fp16_to_int4)]:
-        logger.info(f"Processing {level} quantization...")
+    for level_name, quantization_func in quantization_levels:
+        logger.info(f"Processing quantization level: {level_name}")
+        
         try:
-            # Quantize
-            q_adapter_path = quantized_dir / f"adapter_{level.lower()}.safetensors"
-            quantize_adapter_weights = func(fp16_path, q_adapter_path)
-            register_artifact(str(q_adapter_path))
+            # Apply quantization
+            quantization_func()
             
-            # Generate
-            generated_images = generate_images(
-                base_model, quantize_adapter_weights, config['prompts'], config['seed']
-            )
+            # Generate images with quantized adapter
+            results = generate_images_for_adapters(config, level_name)
+            all_results.extend(results)
             
-            # Reference for comparison (FP16 refs)
-            ref_dir = data_dir / "references" / "fp16_refs"
+            logger.info(f"Successfully completed {level_name} quantization level.")
             
-            for prompt, img in generated_images.items():
-                img_path = data_dir / "generated" / f"{level}_{prompt.replace(' ', '_')}.png"
-                img.save(img_path)
-                register_artifact(str(img_path))
-                
-                # Compute metrics
-                clip_sim = compute_image_text_similarity(img, prompt)
-                lpips_dist = compute_lpips_distance(img, ref_dir / f"{prompt.replace(' ', '_')}.png")
-                
-                # CESR calculation
-                cesr = compute_cesr_score(img, ref_dir, target_prompt=prompt)
-                
-                existing_results.append({
-                    'prompt': prompt,
-                    'quantization': level,
-                    'clip_similarity': clip_sim,
-                    'lpips_distance': lpips_dist,
-                    'cesr_score': cesr,
-                    'image_path': str(img_path)
-                })
-                  
         except MemoryError as e:
-            if handle_oom(e, level):
-                logger.warning(f"Skipping {level} due to OOM.")
+            if handle_oom(e, level_name):
+                logger.warning(f"Skipped {level_name} level due to OOM. Continuing with next level.")
                 continue
+            else:
+                logger.error(f"Critical OOM error at {level_name} level. Aborting pipeline.")
+                raise
+                
+        except subprocess.CalledProcessError as e:
+            if handle_oom(e, level_name):
+                logger.warning(f"Skipped {level_name} level due to SIGKILL. Continuing with next level.")
+                continue
+            else:
+                logger.error(f"Critical subprocess error at {level_name} level. Aborting pipeline.")
+                raise
+                
+        except Exception as e:
+            logger.error(f"Unexpected error at {level_name} level: {str(e)}")
+            # For non-OOM errors, we should fail fast
             raise
-
-    # Save updated results
-    with open(results_file, 'w', newline='') as f:
-        fieldnames = ['prompt', 'quantization', 'clip_similarity', 'lpips_distance', 'cesr_score', 'image_path']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(existing_results)
-        
-    return results_file
-
-def run_statistical_analysis(config: dict) -> Path:
-    """
-    Execute Bayesian Hierarchical Model analysis and save results.
-    This implements T027: logic to execute analysis and save JSON.
-    """
-    logger.info("Starting Statistical Analysis (T027)...")
     
-    data_dir = Path("data")
-    results_file = data_dir / "results.csv"
-    subspace_file = data_dir / "subspace_ranks.json"
-    output_file = data_dir / "analysis_results.json"
-    
-    if not results_file.exists():
-        logger.error("results.csv not found. Run generation tasks first.")
-        raise FileNotFoundError("results.csv not found")
-        
-    if not subspace_file.exists():
-        logger.error("subspace_ranks.json not found. Run T009 first.")
-        raise FileNotFoundError("subspace_ranks.json not found")
+    logger.info(f"Quantized generation complete. Successfully processed {len(all_results)} images.")
+    return all_results
 
+def run_statistical_analysis(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Run Bayesian Hierarchical Model analysis.
+    
+    Args:
+        config: Configuration dictionary loaded from config.yaml
+        
+    Returns:
+        Dictionary containing analysis results
+    """
+    logger.info("Starting statistical analysis...")
+    
     try:
-        # Load data
-        results_df = load_results_data(str(results_file))
-        subspace_ranks = load_subspace_ranks(str(subspace_file))
+        # Load results data
+        results_data = load_results_data()
         
-        # Prepare correlation data
-        corr_data = prepare_correlation_data(results_df, subspace_ranks)
+        # Load subspace ranks if available
+        try:
+            subspace_ranks = load_subspace_ranks_stats()
+        except FileNotFoundError:
+            logger.warning("Subspace ranks file not found. Skipping correlation analysis.")
+            subspace_ranks = None
         
-        # Run BHM
-        logger.info("Running Bayesian Hierarchical Model...")
-        analysis_results = run_bayesian_hierarchical_model(results_df, corr_data)
+        # Prepare data for correlation analysis
+        if subspace_ranks:
+            correlation_data = prepare_correlation_data(results_data, subspace_ranks)
+        else:
+            correlation_data = None
         
-        # Save results
-        with open(output_file, 'w') as f:
-            json.dump(analysis_results, f, indent=2, default=str)
-            
-        register_artifact(str(output_file))
-        logger.info(f"Analysis results saved to {output_file}")
+        # Run Bayesian Hierarchical Model
+        bhm_results = run_bayesian_hierarchical_model(results_data, correlation_data)
         
-        return output_file
+        logger.info("Statistical analysis complete.")
+        return bhm_results
         
     except Exception as e:
         logger.error(f"Statistical analysis failed: {e}")
@@ -257,22 +245,71 @@ def run_statistical_analysis(config: dict) -> Path:
 
 def main():
     """
-    Main entry point for the pipeline.
-    Orchestrates: Setup -> FP16 Gen -> Quant Gen -> Analysis.
+    Main entry point for the quantization robustness pipeline.
+    
+    This function orchestrates the entire pipeline:
+    1. FP16 baseline generation
+    2. Quantized generation with OOM handling
+    3. Statistical analysis
+    
+    All OOM handling is performed by handle_oom() as per FR-008.
     """
-    config = load_config("code/config.yaml")
+    logger.info("=== Starting Quantization Robustness Pipeline ===")
     
-    # 1. FP16 Baseline
-    results_file = run_fp16_generation(config)
+    # Load configuration
+    try:
+        config = load_config()
+    except Exception as e:
+        logger.error(f"Failed to load configuration: {e}")
+        sys.exit(1)
     
-    # 2. Quantized Generation
-    results_file = run_quantized_generation(config, results_file)
+    # Phase 1: FP16 Baseline Generation
+    try:
+        fp16_results = run_fp16_generation(config)
+        logger.info(f"FP16 generation produced {len(fp16_results)} results.")
+    except Exception as e:
+        logger.error(f"FP16 generation failed: {e}")
+        sys.exit(1)
     
-    # 3. Statistical Analysis (T027)
-    analysis_file = run_statistical_analysis(config)
+    # Phase 2: Quantized Generation with OOM Handling
+    try:
+        quantized_results = run_quantized_generation(config)
+        logger.info(f"Quantized generation produced {len(quantized_results)} results.")
+    except Exception as e:
+        logger.error(f"Quantized generation failed: {e}")
+        sys.exit(1)
     
-    logger.info("Pipeline completed successfully.")
-    return analysis_file
+    # Combine all results
+    all_results = fp16_results + quantized_results
+    
+    # Save results to CSV
+    try:
+        results_path = Path("data/results.csv")
+        with open(results_path, 'w', newline='') as csvfile:
+            fieldnames = all_results[0].keys() if all_results else []
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(all_results)
+        
+        logger.info(f"Results saved to {results_path}")
+    except Exception as e:
+        logger.error(f"Failed to save results: {e}")
+    
+    # Phase 3: Statistical Analysis
+    try:
+        analysis_results = run_statistical_analysis(config)
+        
+        # Save analysis results
+        analysis_path = Path("data/analysis_results.json")
+        with open(analysis_path, 'w') as jsonfile:
+            json.dump(analysis_results, jsonfile, indent=2, default=str)
+        
+        logger.info(f"Analysis results saved to {analysis_path}")
+    except Exception as e:
+        logger.error(f"Statistical analysis failed: {e}")
+        # Don't exit here - pipeline can continue without analysis
+    
+    logger.info("=== Pipeline Complete ===")
 
 if __name__ == "__main__":
     main()
