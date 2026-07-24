@@ -2,336 +2,214 @@ import csv
 import json
 import logging
 import os
+import pickle
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict, Any
-import pickle
-import numpy as np
+from scipy.stats import spearmanr
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-DATA_DIR = Path("data/processed")
-ENTROPY_RESULTS_PATH = DATA_DIR / "entropy_results.csv"
-CONVERGENCE_RESULTS_PATH = DATA_DIR / "convergence_results.csv"
-ROUTER_MODEL_PATH = DATA_DIR / "router_model.pkl"
-ROUTER_METRICS_PATH = DATA_DIR / "router_metrics.json"
-
-def load_entropy_results() -> List[Dict[str, Any]]:
+def load_entropy_results(path: str) -> List[Dict[str, Any]]:
     """Load entropy results from CSV."""
-    if not ENTROPY_RESULTS_PATH.exists():
-        raise FileNotFoundError(f"Entropy results not found at {ENTROPY_RESULTS_PATH}")
-    
     results = []
-    with open(ENTROPY_RESULTS_PATH, 'r', encoding='utf-8') as f:
+    if not os.path.exists(path):
+        logger.error(f"Entropy results file not found: {path}")
+        return results
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             results.append({
                 'task_id': row['task_id'],
                 'entropy': float(row['entropy']),
-                'cluster_count': int(row['cluster_count']),
-                'difficulty': row.get('difficulty', 'unknown')
+                'cluster_count': int(row['cluster_count'])
             })
     return results
 
-def load_convergence_results() -> List[Dict[str, Any]]:
+def load_convergence_results(path: str) -> List[Dict[str, Any]]:
     """Load convergence results from CSV."""
-    if not CONVERGENCE_RESULTS_PATH.exists():
-        raise FileNotFoundError(f"Convergence results not found at {CONVERGENCE_RESULTS_PATH}")
-    
     results = []
-    with open(CONVERGENCE_RESULTS_PATH, 'r', encoding='utf-8') as f:
+    if not os.path.exists(path):
+        logger.error(f"Convergence results file not found: {path}")
+        return results
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            k_val = row['k_correct']
+            k_correct = int(k_val) if k_val != 'None' and k_val != '' else None
             results.append({
                 'task_id': row['task_id'],
-                'convergence_step': int(row['convergence_step']),
-                'max_steps': int(row['max_steps']),
-                'success': row['success'].lower() == 'true',
-                'difficulty': row.get('difficulty', 'unknown')
+                'k_correct': k_correct,
+                'trajectory_status': row['trajectory_status']
             })
     return results
 
-def compute_spearman_correlation(entropy_results: List[Dict], convergence_results: List[Dict]) -> Tuple[float, float]:
+def compute_spearman_correlation(entropy_df: List[Dict], conv_df: List[Dict]) -> Tuple[Optional[float], Optional[float]]:
     """Compute Spearman correlation between entropy and convergence step."""
-    # Merge data by task_id
-    entropy_dict = {r['task_id']: r['entropy'] for r in entropy_results}
-    convergence_dict = {r['task_id']: r['convergence_step'] for r in convergence_results}
-    
-    common_ids = set(entropy_dict.keys()) & set(convergence_dict.keys())
+    # Align data by task_id
+    entropy_map = {item['task_id']: item['entropy'] for item in entropy_df}
+    conv_map = {item['task_id']: item['k_correct'] for item in conv_df if item['k_correct'] is not None}
+
+    common_ids = list(set(entropy_map.keys()) & set(conv_map.keys()))
     if len(common_ids) < 2:
-        logger.warning("Not enough common data points for correlation")
-        return 0.0, 1.0
-    
-    entropy_vals = [entropy_dict[tid] for tid in common_ids]
-    convergence_vals = [convergence_dict[tid] for tid in common_ids]
-    
-    # Compute Spearman correlation manually to avoid scipy dependency if needed
-    # Using scipy.stats if available, otherwise fallback to manual calculation
+        logger.warning("Not enough common data points to compute correlation.")
+        return None, None
+
+    entropies = [entropy_map[tid] for tid in common_ids]
+    convergences = [conv_map[tid] for tid in common_ids]
+
     try:
-        from scipy.stats import spearmanr
-        corr, p_value = spearmanr(entropy_vals, convergence_vals)
-        return float(corr), float(p_value)
-    except ImportError:
-        # Fallback manual calculation
-        n = len(common_ids)
-        rank_entropy = sorted(range(n), key=lambda i: sorted(entropy_vals).index(entropy_vals[i]))
-        rank_conv = sorted(range(n), key=lambda i: sorted(convergence_vals).index(convergence_vals[i]))
-        
-        d_squared_sum = sum((r1 - r2) ** 2 for r1, r2 in zip(rank_entropy, rank_conv))
-        corr = 1 - (6 * d_squared_sum) / (n * (n ** 2 - 1))
-        
-        # Approximate p-value (not exact without scipy)
-        p_value = 0.05 if abs(corr) > 0.5 else 0.5
-        return float(corr), float(p_value)
+        rho, p_value = spearmanr(entropies, convergences)
+        return rho, p_value
+    except Exception as e:
+        logger.error(f"Error computing correlation: {e}")
+        return None, None
 
-def save_correlation_results(corr: float, p_value: float, output_path: Path):
+def save_correlation_results(rho: float, p_value: float, path: str):
     """Save correlation results to JSON."""
-    results = {
-        'correlation_coefficient': corr,
+    data = {
+        'spearman_rho': rho,
         'p_value': p_value,
-        'interpretation': 'Positive' if corr > 0 else 'Negative' if corr < 0 else 'None',
-        'significance': 'Significant' if p_value < 0.05 else 'Not significant'
+        'is_significant': generate_significance_flag(p_value)
     }
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Correlation results saved to {output_path}")
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Correlation results saved to {path}")
 
-def train_logistic_router(entropy_results: List[Dict], convergence_results: List[Dict]) -> Tuple[Any, Dict[str, Any]]:
+def generate_significance_flag(p_value: Optional[float]) -> bool:
+    """
+    Generate a significance flag based on p-value.
+    Returns True if p < 0.05, else False.
+    If p_value is None, returns False.
+    """
+    if p_value is None:
+        return False
+    return p_value < 0.05
+
+def train_logistic_router(entropy_df: List[Dict], conv_df: List[Dict]) -> Any:
     """
     Train a logistic regression router to predict optimal loop count.
     
-    Features: entropy, cluster_count, difficulty (encoded)
-    Target: optimal loop count (discrete levels based on convergence_step)
+    Target: optimal loop count (minimum k where solution is correct).
+    Features: entropy, cluster_count.
     
     Returns:
-        model: Trained LogisticRegression model
-        metrics: Dictionary of training metrics
+        trained_model: The fitted LogisticRegression model.
+        metrics: Dictionary containing accuracy and other metrics.
     """
     # Merge data by task_id
-    entropy_dict = {r['task_id']: r for r in entropy_results}
-    convergence_dict = {r['task_id']: r for r in convergence_results}
-    
-    common_ids = list(set(entropy_dict.keys()) & set(convergence_dict.keys()))
+    entropy_map = {item['task_id']: item for item in entropy_df}
+    conv_map = {item['task_id']: item for item in conv_df if item['k_correct'] is not None}
+
+    common_ids = list(set(entropy_map.keys()) & set(conv_map.keys()))
     if len(common_ids) < 10:
-        raise ValueError("Insufficient data for training router. Need at least 10 samples.")
-    
-    # Prepare features and target
+        logger.error("Insufficient data to train router (need at least 10 samples).")
+        return None, {}
+
+    # Prepare features and labels
     X = []
     y = []
-    
-    # Difficulty mapping
-    difficulty_map = {'easy': 0, 'medium': 1, 'hard': 2, 'unknown': 3}
+    valid_ids = []
     
     for tid in common_ids:
-        e_data = entropy_dict[tid]
-        c_data = convergence_dict[tid]
+        ent_data = entropy_map[tid]
+        conv_data = conv_map[tid]
         
-        features = [
-            e_data['entropy'],
-            e_data['cluster_count'],
-            difficulty_map.get(e_data.get('difficulty', 'unknown'), 3)
-        ]
+        # Features: entropy and cluster_count
+        features = [ent_data['entropy'], ent_data['cluster_count']]
+        label = conv_data['k_correct']
+        
         X.append(features)
-        
-        # Target: optimal loop count based on convergence step
-        # Map convergence_step to discrete levels: 1, 2, 3, 4
-        # If convergence_step is 0 (no convergence), assign max loop count (e.g., 4)
-        max_steps = c_data['max_steps']
-        conv_step = c_data['convergence_step']
-        
-        if conv_step == 0:
-            optimal_k = 4  # Max loops for non-converging
-        elif conv_step <= 1:
-            optimal_k = 1
-        elif conv_step <= 2:
-            optimal_k = 2
-        elif conv_step <= 3:
-            optimal_k = 3
-        else:
-            optimal_k = 4
-        
-        y.append(optimal_k)
-    
-    X = np.array(X)
-    y = np.array(y)
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-    
-    # Scale features
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-    
-    # Train model with sparse categorical cross-entropy equivalent (LogisticRegression uses log loss)
+        y.append(label)
+        valid_ids.append(tid)
+
+    if len(set(y)) < 2:
+        logger.error("Insufficient class diversity in labels for multi-class classification.")
+        return None, {}
+
+    # Split data for training and validation
+    try:
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+    except Exception as e:
+        logger.warning(f"Stratified split failed, using random split: {e}")
+        X_train, X_val, y_train, y_val = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+
+    # Train Logistic Regression with multinomial loss
+    # multi_class='multinomial' uses cross-entropy loss by default for multinomial
     model = LogisticRegression(
         multi_class='multinomial',
         solver='lbfgs',
         max_iter=1000,
         random_state=42
     )
-    model.fit(X_train_scaled, y_train)
     
-    # Evaluate
-    y_train_pred = model.predict(X_train_scaled)
-    y_test_pred = model.predict(X_test_scaled)
-    
-    train_acc = accuracy_score(y_train, y_train_pred)
-    test_acc = accuracy_score(y_test, y_test_pred)
-    
-    # Classification report
-    report = classification_report(y_test, y_test_pred, output_dict=True)
-    conf_matrix = confusion_matrix(y_test, y_test_pred)
+    try:
+        model.fit(X_train, y_train)
+    except Exception as e:
+        logger.error(f"Failed to train logistic regression model: {e}")
+        return None, {}
+
+    # Evaluate on validation set
+    y_pred = model.predict(X_val)
+    accuracy = accuracy_score(y_val, y_pred)
     
     metrics = {
-        'train_accuracy': float(train_acc),
-        'test_accuracy': float(test_acc),
-        'n_samples': len(common_ids),
-        'n_train': len(X_train),
-        'n_test': len(X_test),
-        'classes': list(model.classes_.astype(int)),
-        'classification_report': report,
-        'confusion_matrix': conf_matrix.tolist(),
-        'feature_names': ['entropy', 'cluster_count', 'difficulty_encoded'],
-        'scaler_mean': scaler.mean_.tolist(),
-        'scaler_scale': scaler.scale_.tolist()
+        'train_size': len(X_train),
+        'val_size': len(X_val),
+        'accuracy': accuracy,
+        'unique_classes': sorted(list(set(y))),
+        'feature_names': ['entropy', 'cluster_count']
     }
-    
+
+    logger.info(f"Router trained. Validation Accuracy: {accuracy:.4f}")
+    logger.info(f"Classification report:\n{classification_report(y_val, y_pred)}")
+
     return model, metrics
 
-def save_router_model(model: Any, scaler: StandardScaler, metrics: Dict[str, Any]):
-    """Save the trained router model and metrics."""
-    # Save model and scaler together
-    model_data = {
-        'model': model,
-        'scaler': scaler
-    }
-    with open(ROUTER_MODEL_PATH, 'wb') as f:
-        pickle.dump(model_data, f)
-    
+def save_router_model(model, metrics: Dict, path_model: str, path_metrics: str):
+    """Save the trained router model and metrics to disk."""
+    # Save model
+    with open(path_model, 'wb') as f:
+        pickle.dump(model, f)
+    logger.info(f"Router model saved to {path_model}")
+
     # Save metrics
-    with open(ROUTER_METRICS_PATH, 'w', encoding='utf-8') as f:
+    with open(path_metrics, 'w', encoding='utf-8') as f:
         json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Router model saved to {ROUTER_MODEL_PATH}")
-    logger.info(f"Router metrics saved to {ROUTER_METRICS_PATH}")
+    logger.info(f"Router metrics saved to {path_metrics}")
 
-def run_analysis():
-    """Main function to run the router training analysis."""
-    logger.info("Starting router training analysis...")
-    
-    # Load data
-    entropy_results = load_entropy_results()
-    convergence_results = load_convergence_results()
-    
-    logger.info(f"Loaded {len(entropy_results)} entropy results and {len(convergence_results)} convergence results")
-    
-    # Train router
-    model, metrics = train_logistic_router(entropy_results, convergence_results)
-    
-    # Save results
-    # Note: We need to save the scaler separately or with the model
-    # For simplicity, we'll save the scaler as part of the model pickle
-    # But we need to extract it for the save function
-    # Let's modify the approach to return scaler as well
-    
-    # Re-run to get scaler
-    entropy_dict = {r['task_id']: r for r in entropy_results}
-    convergence_dict = {r['task_id']: r for r in convergence_results}
-    common_ids = list(set(entropy_dict.keys()) & set(convergence_dict.keys()))
-    
-    X = []
-    y = []
-    difficulty_map = {'easy': 0, 'medium': 1, 'hard': 2, 'unknown': 3}
-    
-    for tid in common_ids:
-        e_data = entropy_dict[tid]
-        c_data = convergence_dict[tid]
-        features = [
-            e_data['entropy'],
-            e_data['cluster_count'],
-            difficulty_map.get(e_data.get('difficulty', 'unknown'), 3)
-        ]
-        X.append(features)
-        max_steps = c_data['max_steps']
-        conv_step = c_data['convergence_step']
-        if conv_step == 0:
-            optimal_k = 4
-        elif conv_step <= 1:
-            optimal_k = 1
-        elif conv_step <= 2:
-            optimal_k = 2
-        elif conv_step <= 3:
-            optimal_k = 3
-        else:
-            optimal_k = 4
-        y.append(optimal_k)
-    
-    X = np.array(X)
-    y = np.array(y)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-    
-    model = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=1000, random_state=42)
-    model.fit(X_train_scaled, y_train)
-    
-    y_train_pred = model.predict(X_train_scaled)
-    y_test_pred = model.predict(X_test_scaled)
-    train_acc = accuracy_score(y_train, y_train_pred)
-    test_acc = accuracy_score(y_test, y_test_pred)
-    report = classification_report(y_test, y_test_pred, output_dict=True)
-    conf_matrix = confusion_matrix(y_test, y_test_pred)
-    
-    metrics = {
-        'train_accuracy': float(train_acc),
-        'test_accuracy': float(test_acc),
-        'n_samples': len(common_ids),
-        'n_train': len(X_train),
-        'n_test': len(X_test),
-        'classes': list(model.classes_.astype(int)),
-        'classification_report': report,
-        'confusion_matrix': conf_matrix.tolist(),
-        'feature_names': ['entropy', 'cluster_count', 'difficulty_encoded'],
-        'scaler_mean': scaler.mean_.tolist(),
-        'scaler_scale': scaler.scale_.tolist()
-    }
-    
-    # Save model and metrics
-    model_data = {'model': model, 'scaler': scaler}
-    with open(ROUTER_MODEL_PATH, 'wb') as f:
-        pickle.dump(model_data, f)
-    
-    with open(ROUTER_METRICS_PATH, 'w', encoding='utf-8') as f:
-        json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Router training complete. Test accuracy: {test_acc:.4f}")
-    logger.info(f"Model saved to {ROUTER_MODEL_PATH}")
-    logger.info(f"Metrics saved to {ROUTER_METRICS_PATH}")
-    
-    return model, metrics
+def run_analysis(entropy_path: str, conv_path: str, output_path: str):
+    """Run full analysis pipeline."""
+    entropy_df = load_entropy_results(entropy_path)
+    conv_df = load_convergence_results(conv_path)
+
+    if not entropy_df or not conv_df:
+        logger.error("Failed to load data for analysis.")
+        return
+
+    rho, p_value = compute_spearman_correlation(entropy_df, conv_df)
+
+    if rho is not None:
+        save_correlation_results(rho, p_value, output_path)
+        logger.info(f"Analysis complete. Spearman rho: {rho}, p-value: {p_value}")
+    else:
+        logger.error("Correlation computation failed.")
 
 def main():
-    """Entry point for the analysis script."""
-    try:
-        model, metrics = run_analysis()
-        print(f"Router training completed successfully.")
-        print(f"Test Accuracy: {metrics['test_accuracy']:.4f}")
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
+    """Main entry point for analysis script."""
+    base_dir = Path(__file__).parent.parent.parent
+    entropy_path = base_dir / "data" / "processed" / "entropy_results.csv"
+    conv_path = base_dir / "data" / "processed" / "convergence_results.csv"
+    output_path = base_dir / "data" / "processed" / "analysis_summary.json"
+
+    run_analysis(str(entropy_path), str(conv_path), str(output_path))
 
 if __name__ == "__main__":
     main()

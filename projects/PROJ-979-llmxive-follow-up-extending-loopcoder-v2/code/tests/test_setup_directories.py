@@ -1,6 +1,3 @@
-"""
-Tests for the setup_directories module to ensure the directory structure is created correctly.
-"""
 import os
 import tempfile
 import shutil
@@ -8,72 +5,49 @@ from pathlib import Path
 import pytest
 import sys
 
-# Add the parent directory to the path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code/src to path for imports if needed, though we test via script execution
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from setup_directories import main
+from scripts.run_setup import create_directory_structure, verify_directory_structure
 
 @pytest.fixture
 def temp_dir():
     """Create a temporary directory for testing."""
-    temp_path = tempfile.mkdtemp()
-    yield temp_path
-    # Cleanup
-    shutil.rmtree(temp_path)
+    tmp = tempfile.mkdtemp()
+    yield Path(tmp)
+    shutil.rmtree(tmp)
 
 def test_directory_structure_creation(temp_dir):
     """Test that all required directories are created."""
-    # Change to the temp directory to simulate the project root
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    
-    try:
-        # Run the main function
-        result = main()
-        
-        # Verify the function returned success
-        assert result == 0, "main() should return 0 on success"
-        
-        # Define expected directories
-        expected_dirs = [
-            "data/raw",
-            "data/processed",
-            "code/src",
-            "code/tests",
-            "code/notebooks",
-            "paper",
-            "state",
-            "contracts"
-        ]
-        
-        # Check each directory exists
-        for dir_name in expected_dirs:
-            full_path = Path(temp_dir) / dir_name
-            assert full_path.exists(), f"Directory {dir_name} was not created"
-            assert full_path.is_dir(), f"Path {dir_name} exists but is not a directory"
-            
-    finally:
-        # Restore original working directory
-        os.chdir(original_cwd)
+    # Create structure
+    create_directory_structure(temp_dir)
+
+    # Verify
+    assert verify_directory_structure(temp_dir) is True
+
+    # Check specific directories exist
+    assert (temp_dir / "data" / "raw").exists()
+    assert (temp_dir / "data" / "processed").exists()
+    assert (temp_dir / "code" / "src").exists()
+    assert (temp_dir / "code" / "tests").exists()
+    assert (temp_dir / "code" / "notebooks").exists()
+    assert (temp_dir / "code" / "scripts").exists()
+    assert (temp_dir / "code" / "config").exists()
+    assert (temp_dir / "paper").exists()
+    assert (temp_dir / "state").exists()
+    assert (temp_dir / "contracts").exists()
 
 def test_no_overwrite_existing_files(temp_dir):
-    """Test that the script handles existing directories gracefully."""
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    
-    try:
-        # Pre-create one of the required directories
-        pre_created = Path(temp_dir) / "paper"
-        pre_created.mkdir(parents=True, exist_ok=True)
-        
-        # Run main
-        result = main()
-        
-        # Should still succeed
-        assert result == 0
-        
-        # Verify the directory is still a directory (not a file)
-        assert pre_created.is_dir()
-        
-    finally:
-        os.chdir(original_cwd)
+    """Test that existing directories are not removed/overwritten."""
+    # Create a dummy file in one of the target directories
+    data_raw = temp_dir / "data" / "raw"
+    data_raw.mkdir(parents=True)
+    dummy_file = data_raw / "test.txt"
+    dummy_file.write_text("test content")
+
+    # Run creation again
+    create_directory_structure(temp_dir)
+
+    # Verify dummy file still exists
+    assert dummy_file.exists()
+    assert dummy_file.read_text() == "test content"

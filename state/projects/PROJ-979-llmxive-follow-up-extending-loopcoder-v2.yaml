@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-979-llmxive-follow-up-extending-loopcoder-v2
-last_run_id: 5c25afc8-2955-4d78-9ec9-1a3976e713ae
+last_run_id: 25d8f023-217b-45ca-adc1-654da12152c6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2
 title: 'llmXive follow-up: extending "LoopCoder-v2: Only Loop Once for Efficient Test-Time
   Computation Scali"'
-updated_at: '2026-07-20T18:34:38.282784Z'
+updated_at: '2026-07-24T07:47:08.395059Z'
