@@ -1,1 +1,1 @@
-# Training package
+# Training package initialization

@@ -1,0 +1,33 @@
+T006b:
+  c: false
+  h: 02e99d0f59fb8288351d75bb516e1c0909bb55d07ab0a2b2fd9705ffaf598005
+  r: "The `code/data_loader.py` file defines a generic `record_checksum` function,\
+    \ but it never calls this function for `data/defects4j_v1.0.parquet`, and the\
+    \ required parquet file is absent from the repository, so no SHA\u2011256 hash\
+    \ could actually be computed and stored in the project state. The task\u2019s\
+    \ core requirement\u2014recording the checksum of that specific dataset file\u2014\
+    is therefore not satisfied."
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.py` file or any orchestration code is present, and there is no implementation\
+    \ that monitors cumulative execution time and enforces a hard stop when a predefined\
+    \ threshold is exceeded. The provided project specification concerns LLM test\
+    \ generation, coverage measurement, and statistical analysis, which does not address\
+    \ the required hard\u2011stop logic. The missing artifact is a functional `main.py`\
+    \ implementing the time\u2011threshold enforcement."
+T011b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file (or any code) implementing the orchestration logic for a hard
+    stop when the sample count reaches the configured limit is present. The provided
+    artifacts relate only to LLM test generation and coverage reporting, not to the
+    required `main.py` functionality. The missing implementation must be added and
+    verified.
+T025:
+  c: false
+  h: 97c314e664d7f824317716b23a1727d7d06539cf436860479188c1e431864583
+  r: The repository lacks the required `data/changed_lines.json` output file, and
+    the provided `code/data_loader.py` excerpt does not contain an implemented `extract_changed_lines`
+    function (the file is truncated before any such definition). Both the implementation
+    and the generated JSON artifact are missing, so the task is not satisfied.

@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding
+- [X] T005 Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding
 - [X] T006 [P] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers)
 - [X] T007a [P] Implement `src/models/microcircuit.py` layer definitions for L2/3, L4, L5, L6 as separate `nn.Module` sub-layers.
 - [X] T007b [P] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce L4->L2/3 excitatory and other laminar connections.
@@ -84,10 +84,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/training/trainer.py` with CPU-optimized loop, gradient clipping (max norm), resource monitoring (psutil), and logic to calculate Mean Absolute Error (MAE). (Uses `pytest-timeout` for enforcement).
+- [X] T013 [US1] Implement `src/training/trainer.py` with CPU-optimized loop, gradient clipping (max norm), resource monitoring (psutil), and logic to calculate Mean Absolute Error (MAE). (Uses `pytest-timeout` for enforcement).
 - [X] T014 [US1] Create `scripts/run_baseline.sh` to orchestrate baseline training on Lorenz (train) and Polynomials (test), explicitly invoking `/usr/bin/time -v` to verify -hour time limit and GB RAM threshold as per FR-004.
 - [ ] T015 [US1] Create `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
-- [ ] T016 [US1] Create `tests/integration/test_baseline_validation.py::test_baseline_degradation_measurement` that asserts the system records the MAE on the independent test set and calculates the degradation percentage relative to the training set, storing these metrics in `data/results/baseline_metrics.json` for cost curve generation (no hard pass/fail threshold on degradation).
+- [X] T016 [US1] Create `tests/integration/test_baseline_validation.py::test_baseline_degradation_measurement` that asserts the system records the MAE on the independent test set and calculates the degradation percentage relative to the training set, storing these metrics in `data/results/baseline_metrics.json` for cost curve generation (no hard pass/fail threshold on degradation).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +101,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for connectivity matrix in `tests/unit/test_microcircuit.py` (verify L4->L2/3 excitatory, etc.)
-- [ ] T018 [P] [US2] Unit test for E/I ratio enforcement in `tests/unit/test_microcircuit.py` (verify a forward/backward ratio during forward/backward)
+- [X] T017 [P] [US2] Unit test for connectivity matrix in `tests/unit/test_microcircuit.py` (verify L4->L2/3 excitatory, etc.)
+- [X] T018 [P] [US2] Unit test for E/I ratio enforcement in `tests/unit/test_microcircuit.py` (verify a forward/backward ratio during forward/backward)
 
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement homeostatic scaling logic in `src/training/homeostasis.py` to dynamically maintain a balanced E/I ratio.
 - [ ] T020 [US2] Create `src/models/hybrid_network.py` to replace standard MLP layers with `MicrocircuitModule` while maintaining parameter count parity (±1%).
-- [ ] T021 [US2] Add weight clipping logic in `src/models/microcircuit.py` to enforce a normalized range during initialization.
-- [ ] T022 [US2] Implement `src/experiments/microcircuit_runner.py` to train hybrid model on same synthetic tasks as baseline.
-- [ ] T023 [US2] Create `tests/unit/test_hybrid_network.py::test_forward_pass_cpu` that instantiates the model and asserts no shape mismatches.
+- [X] T021 [US2] Add weight clipping logic in `src/models/microcircuit.py` to enforce a normalized range during initialization.
+- [X] T022 [US2] Implement `src/experiments/microcircuit_runner.py` to train hybrid model on same synthetic tasks as baseline.
+- [X] T023 [US2] Create `tests/unit/test_hybrid_network.py::test_forward_pass_cpu` that instantiates the model and asserts no shape mismatches.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,8 +124,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Statistical test for ablation impact in `tests/integration/test_ablation_stats.py` (t-test for p < 0.05)
-- [ ] T025 [P] [US3] Scaling law regression test in `tests/integration/test_scaling_laws.py`
+- [X] T024 [P] [US3] Statistical test for ablation impact in `tests/integration/test_ablation_stats.py` (t-test for p < 0.05)
+- [X] T025 [P] [US3] Scaling law regression test in `tests/integration/test_scaling_laws.py`
 
 ### Implementation for User Story 3
 

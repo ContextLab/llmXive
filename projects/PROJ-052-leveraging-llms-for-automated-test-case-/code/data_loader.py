@@ -2,7 +2,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any, Set
+from typing import Optional, Dict, Any, Set, List
 import pandas as pd
 from config import get_data_dir, get_output_dir, ensure_directories
 
@@ -134,3 +134,49 @@ def extract_changed_lines(df: pd.DataFrame) -> Set[int]:
     """
     # This will be implemented in T025
     return set()
+
+def extract_bug_fix_description(df: pd.DataFrame, row_idx: int) -> str:
+    """
+    Extracts the bug fix description from a specific row in the Defects4J DataFrame
+    and formats it as a prompt string per FR-001.
+    
+    FR-001 Requirement: The prompt must include the bug ID, project name, and a
+    concise description of the defect to guide the LLM.
+    
+    Args:
+        df: The Defects4J DataFrame containing metadata.
+        row_idx: The integer index of the row to process.
+    
+    Returns:
+        A formatted prompt string ready for LLM input.
+    
+    Raises:
+        IndexError: If row_idx is out of bounds.
+        KeyError: If expected columns are missing from the DataFrame.
+    """
+    if row_idx < 0 or row_idx >= len(df):
+        raise IndexError(f"Row index {row_idx} is out of bounds for DataFrame of length {len(df)}")
+    
+    row = df.iloc[row_idx]
+    
+    # Identify expected columns based on Defects4J schema
+    # Common columns: 'project', 'bug_id', 'description', 'commit_msg'
+    # We prioritize 'description' or 'commit_msg' if 'description' is empty
+    
+    project = str(row.get('project', 'UnknownProject'))
+    bug_id = str(row.get('bug_id', 'UnknownID'))
+    
+    # Prefer 'description', fallback to 'commit_msg' if description is NaN/empty
+    description = row.get('description', None)
+    if pd.isna(description) or not description or str(description).strip() == "":
+        description = row.get('commit_msg', None)
+    
+    if pd.isna(description) or not description:
+        description = "No description available for this bug fix."
+    
+    description = str(description).strip()
+    
+    # Format per FR-001: "Bug ID: {id} | Project: {project} | Description: {desc}"
+    prompt = f"Bug ID: {bug_id} | Project: {project} | Description: {description}"
+    
+    return prompt

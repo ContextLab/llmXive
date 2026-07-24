@@ -1,10 +1,3 @@
-T007b:
-  c: false
-  h: 7170441494499bbaf6e689be98875f90bec2c33ab9186127579b46366a5734fc
-  r: "The repository contains `code/annotation_extractor.py`, but the required output\
-    \ file `data/raw/ground_truth_annotations.csv` is absent, so the extraction and\
-    \ CSV generation have not been demonstrated. Without the CSV (with the specified\
-    \ columns), the task\u2019s requirement is not satisfied."
 T023:
   c: false
   h: 882bb003344b96dbe2e11e8457192682aa149f02342da9508a0dd8ae5146df93
@@ -13,3 +6,26 @@ T023:
     \ actually invoke the Lite and Baseline pipelines or write log entries. Moreover,\
     \ the required output file `data/results/exploration_logs.jsonl` is missing entirely.\
     \ The task\u2019s core requirements are therefore not satisfied."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content from `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`
+    was provided; thus we cannot verify that installation instructions, usage examples,
+    and contribution guidelines were added. The required artifact is missing.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, or documentation artifacts showing any cleanup or refactoring\
+    \ were provided; the only material present is a feature specification unrelated\
+    \ to the claimed \u201Ccode cleanup and refactoring\u201D task. Consequently the\
+    \ requirement is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No scripts, CSV files, JSON logs, or analysis results are present to demonstrate\
+    \ that repositories were scored for structural regularity, split into \u201CRegular\u201D\
+    \ and \u201CIrregular\u201D sets, or that the FastContext\u2011Lite pipeline was\
+    \ executed and metrics collected. Without these concrete artifacts, the task requirements\
+    \ are not satisfied. The next implementer must provide the static\u2011analysis\
+    \ script, the resulting split CSV, and example FastContext\u2011Lite execution\
+    \ logs containing the required metrics."

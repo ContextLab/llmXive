@@ -1,1 +1,1 @@
-# Data package
+# Data package initialization

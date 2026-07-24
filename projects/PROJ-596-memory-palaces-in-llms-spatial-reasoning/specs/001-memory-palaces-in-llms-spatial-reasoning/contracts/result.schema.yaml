@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Result Schema"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run"
+  dataset:
+    type: "string"
+  seed:
+    type: "integer"
+  variant:
+    type: "string"
+  accuracy:
+    type: "number"
+    description: "Exact-match recall accuracy"
+  interference_distance:
+    type: "number"
+    description: "Drop in recall under interference"
+  slot_occupancy:
+    type: "object"
+    description: "Distribution of slot usage"
+  timestamp:
+    type: "string"
+    format: "date-time"
+required:
+  - run_id
+  - dataset
+  - seed
+  - variant
+  - accuracy
+  - timestamp

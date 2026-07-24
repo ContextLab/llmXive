@@ -1,8 +1,12 @@
 """
 Baseline Runner for Cortical Column LLMs Project.
 
-Manages experiment configuration, logging, and orchestration for the baseline
-Transformer training runs as specified in User Story 1 (US1).
+Manages experiment configuration, execution, and logging for the baseline
+Transformer model on synthetic datasets (Lorenz, Fourier, Polynomials).
+
+This module orchestrates the training and evaluation pipeline defined in
+src/training/trainer.py, ensuring reproducible runs with deterministic seeding
+and structured logging of metrics.
 """
 
 import json
@@ -11,273 +15,301 @@ import os
 import sys
 import time
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from typing import Optional, Dict, Any, List
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 import torch
-import psutil
+import numpy as np
 
-# Import from existing project modules as per API surface
-from src.training.trainer import run_training, TrainingConfig, TrainingMetrics
-from src.data.benchmarks import generate_synthetic_dataset, SyntheticTaskType
+# Import from project modules (API surface)
+from src.models.baseline_transformer import BaselineTransformer
+from src.training.trainer import TrainingConfig, run_training, get_resource_usage
+from src.data.benchmarks import generate_synthetic_dataset, SyntheticDatasetConfig
+from src.training.homeostasis import HomeostasisConfig
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/baseline_runner.log', mode='a')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ExperimentConfig:
     """Configuration for a single baseline experiment run."""
-    experiment_id: str
-    task_type: SyntheticTaskType
+    name: str
+    dataset_type: str  # 'lorenz', 'fourier', 'polynomial'
     seed: int = 42
-    max_epochs: int = 10
+    epochs: int = 10
     batch_size: int = 32
-    learning_rate: float = 1e-4
+    learning_rate: float = 1e-3
     hidden_dim: int = 128
-    num_layers: int = 3
+    num_layers: int = 4
     num_heads: int = 4
     dropout: float = 0.1
+    max_tokens: int = 512
+    train_size: int = 1000
+    val_size: int = 200
+    test_size: int = 200
     output_dir: str = "data/results"
-    log_level: str = "INFO"
+    log_dir: str = "logs"
+    device: str = "cpu"
+    gradient_clip_norm: float = 1.0
+    use_homeostasis: bool = False
+    homeostasis_config: Optional[HomeostasisConfig] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+    def __post_init__(self):
+        """Validate and initialize paths."""
+        self.output_path = Path(self.output_dir)
+        self.log_path = Path(self.log_dir)
+        self.output_path.mkdir(parents=True, exist_ok=True)
+        self.log_path.mkdir(parents=True, exist_ok=True)
+
+        # Set deterministic seeds
+        torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(self.seed)
 
 
 @dataclass
 class ExperimentResult:
-    """Stores the outcome of a baseline experiment run."""
-    experiment_id: str
-    task_type: str
+    """Container for experiment results and metrics."""
+    config_name: str
+    dataset_type: str
     seed: int
-    start_time: str
-    end_time: str
+    start_time: float
+    end_time: float
     duration_seconds: float
-    metrics: Dict[str, float]
-    resource_usage: Dict[str, float]
-    config_snapshot: Dict[str, Any]
-    status: str  # 'success', 'failed', 'timeout'
+    train_metrics: Dict[str, Any]
+    val_metrics: Dict[str, Any]
+    test_metrics: Dict[str, Any]
+    resource_usage: Dict[str, Any]
+    model_path: str
+    config_path: str
+    success: bool
     error_message: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
         return asdict(self)
+
+    def save_json(self, path: Path) -> None:
+        """Save result to JSON file."""
+        with open(path, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
 
 
 class BaselineRunner:
     """
     Orchestrates baseline Transformer experiments.
 
-    Handles:
-    - Configuration management
-    - Logging setup (file and console)
-    - Dataset generation
-    - Training execution
-    - Result aggregation and storage
+    Handles dataset generation, model initialization, training execution,
+    and result logging for the baseline control model.
     """
 
     def __init__(self, config: ExperimentConfig):
         self.config = config
-        self.experiment_id = config.experiment_id
-        self.output_dir = Path(config.output_dir)
-        self.results_file = self.output_dir / f"baseline_{self.experiment_id}.json"
-        self.log_file = self.output_dir / f"baseline_{self.experiment_id}.log"
+        self.logger = logging.getLogger(f"BaselineRunner.{config.name}")
+        self.device = torch.device(config.device)
 
-        # Ensure output directories exist
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+    def _setup_dataset(self) -> tuple:
+        """Generate synthetic datasets based on configuration."""
+        self.logger.info(f"Generating {self.config.dataset_type} dataset...")
 
-        # Setup logging
-        self._setup_logging()
-
-        self.logger = logging.getLogger(f"BaselineRunner.{self.experiment_id}")
-
-    def _setup_logging(self) -> None:
-        """Configure logging for the experiment."""
-        log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
-
-        # Clear existing handlers to avoid duplicates in repeated runs
-        logger = logging.getLogger(f"BaselineRunner.{self.experiment_id}")
-        logger.handlers.clear()
-        logger.setLevel(log_level)
-
-        # File handler
-        fh = logging.FileHandler(self.log_file)
-        fh.setLevel(log_level)
-        fh.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(fh)
-
-        # Console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(log_level)
-        ch.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-        logger.addHandler(ch)
-
-    def _get_resource_usage(self) -> Dict[str, float]:
-        """Capture current system resource usage."""
-        process = psutil.Process(os.getpid())
-        memory_info = process.memory_info()
-
-        return {
-            "rss_mb": memory_info.rss / (1024 * 1024),
-            "vms_mb": memory_info.vms / (1024 * 1024),
-            "cpu_percent": psutil.cpu_percent(interval=0.1),
-            "num_threads": process.num_threads()
-        }
-
-    def _generate_dataset(self, split: str) -> Dict[str, torch.Tensor]:
-        """
-        Generate synthetic dataset for the configured task type.
-
-        Args:
-            split: One of 'train', 'val', 'test'
-
-        Returns:
-            Dictionary with 'inputs' and 'targets' tensors.
-        """
-        self.logger.info(f"Generating {split} dataset for task: {self.config.task_type}")
-
-        # Determine dataset size based on split
-        if split == 'train':
-            n_samples = 5000
-        elif split == 'val':
-            n_samples = 1000
+        # Map dataset type to generator
+        if self.config.dataset_type == 'lorenz':
+            dataset_config = SyntheticDatasetConfig(
+                type='lorenz',
+                train_size=self.config.train_size,
+                val_size=self.config.val_size,
+                test_size=self.config.test_size,
+                max_tokens=self.config.max_tokens,
+                seed=self.config.seed
+            )
+        elif self.config.dataset_type == 'fourier':
+            dataset_config = SyntheticDatasetConfig(
+                type='fourier',
+                train_size=self.config.train_size,
+                val_size=self.config.val_size,
+                test_size=self.config.test_size,
+                max_tokens=self.config.max_tokens,
+                seed=self.config.seed
+            )
+        elif self.config.dataset_type == 'polynomial':
+            dataset_config = SyntheticDatasetConfig(
+                type='polynomial',
+                train_size=self.config.train_size,
+                val_size=self.config.val_size,
+                test_size=self.config.test_size,
+                max_tokens=self.config.max_tokens,
+                seed=self.config.seed
+            )
         else:
-            n_samples = 1000
+            raise ValueError(f"Unknown dataset type: {self.config.dataset_type}")
 
-        # Generate with deterministic seeding
-        dataset = generate_synthetic_dataset(
-            task_type=self.config.task_type,
-            n_samples=n_samples,
-            seed=self.config.seed + (1000 if split == 'val' else 2000 if split == 'test' else 0)
+        try:
+            train_data, val_data, test_data = generate_synthetic_dataset(dataset_config)
+            self.logger.info(f"Dataset generated: Train={len(train_data)}, Val={len(val_data)}, Test={len(test_data)}")
+            return train_data, val_data, test_data
+        except Exception as e:
+            self.logger.error(f"Failed to generate dataset: {e}")
+            raise
+
+    def _setup_model(self) -> BaselineTransformer:
+        """Initialize the baseline Transformer model."""
+        self.logger.info(f"Initializing BaselineTransformer (hidden={self.config.hidden_dim}, layers={self.config.num_layers})")
+
+        model = BaselineTransformer(
+            input_dim=10,  # Assumed input dimension for synthetic data
+            hidden_dim=self.config.hidden_dim,
+            num_layers=self.config.num_layers,
+            num_heads=self.config.num_heads,
+            dropout=self.config.dropout,
+            device=self.device
         )
 
-        return dataset
+        # Move to device
+        model = model.to(self.device)
+        param_count = sum(p.numel() for p in model.parameters())
+        self.logger.info(f"Model initialized with {param_count:,} parameters")
+
+        return model
 
     def run(self) -> ExperimentResult:
         """
         Execute the full experiment pipeline.
 
         Returns:
-            ExperimentResult containing metrics and status.
+            ExperimentResult: Object containing all metrics and paths.
         """
-        start_time_str = datetime.now().isoformat()
         start_time = time.time()
-
-        self.logger.info(f"Starting experiment: {self.experiment_id}")
-        self.logger.info(f"Configuration: {json.dumps(self.config.to_dict(), indent=2)}")
+        self.logger.info(f"Starting experiment: {self.config.name}")
 
         try:
-            # Generate datasets
-            train_data = self._generate_dataset('train')
-            val_data = self._generate_dataset('val')
-            test_data = self._generate_dataset('test')
+            # Setup
+            train_data, val_data, test_data = self._setup_dataset()
+            model = self._setup_model()
 
-            self.logger.info(f"Dataset sizes - Train: {len(train_data['inputs'])}, "
-                             f"Val: {len(val_data['inputs'])}, Test: {len(test_data['inputs'])}")
-
-            # Setup training configuration
-            training_config = TrainingConfig(
-                seed=self.config.seed,
-                max_epochs=self.config.max_epochs,
+            # Training config
+            train_config = TrainingConfig(
+                epochs=self.config.epochs,
                 batch_size=self.config.batch_size,
                 learning_rate=self.config.learning_rate,
-                hidden_dim=self.config.hidden_dim,
-                num_layers=self.config.num_layers,
-                num_heads=self.config.num_heads,
-                dropout=self.config.dropout,
-                device='cpu',  # Enforce CPU as per project constraints
-                log_interval=10
+                gradient_clip_norm=self.config.gradient_clip_norm,
+                device=self.device,
+                seed=self.config.seed,
+                use_homeostasis=self.config.use_homeostasis,
+                homeostasis_config=self.config.config.homeostasis_config if self.config.use_homeostasis else None
             )
 
             # Run training
             self.logger.info("Starting training loop...")
-            metrics = run_training(
-                model_type='baseline_transformer',
+            train_metrics, val_metrics, test_metrics = run_training(
+                model=model,
                 train_data=train_data,
                 val_data=val_data,
                 test_data=test_data,
-                config=training_config
+                config=train_config,
+                logger=self.logger
             )
 
-            # Capture final resource usage
-            resource_usage = self._get_resource_usage()
+            # Resource usage
+            resource_usage = get_resource_usage()
+
+            # Save model
+            model_path = self.config.output_path / f"model_{self.config.name}.pt"
+            torch.save(model.state_dict(), model_path)
+
+            # Save config
+            config_path = self.config.output_path / f"config_{self.config.name}.json"
+            with open(config_path, 'w') as f:
+                json.dump(asdict(self.config), f, indent=2)
 
             end_time = time.time()
-            end_time_str = datetime.now().isoformat()
+            duration = end_time - start_time
 
             result = ExperimentResult(
-                experiment_id=self.experiment_id,
-                task_type=self.config.task_type,
+                config_name=self.config.name,
+                dataset_type=self.config.dataset_type,
                 seed=self.config.seed,
-                start_time=start_time_str,
-                end_time=end_time_str,
-                duration_seconds=end_time - start_time,
-                metrics=metrics,
+                start_time=start_time,
+                end_time=end_time,
+                duration_seconds=duration,
+                train_metrics=train_metrics,
+                val_metrics=val_metrics,
+                test_metrics=test_metrics,
                 resource_usage=resource_usage,
-                config_snapshot=self.config.to_dict(),
-                status='success'
+                model_path=str(model_path),
+                config_path=str(config_path),
+                success=True
             )
 
-            self.logger.info(f"Experiment completed successfully. "
-                             f"Duration: {result.duration_seconds:.2f}s, "
-                             f"Test MAE: {metrics.get('test_mae', 'N/A')}")
+            # Save result
+            result_path = self.config.output_path / f"result_{self.config.name}.json"
+            result.save_json(result_path)
 
-            # Save results
-            self._save_result(result)
+            self.logger.info(f"Experiment completed successfully in {duration:.2f}s")
+            self.logger.info(f"Test MAE: {test_metrics.get('mae', 'N/A'):.4f}")
 
             return result
 
         except Exception as e:
             end_time = time.time()
-            self.logger.error(f"Experiment failed with error: {str(e)}", exc_info=True)
+            self.logger.error(f"Experiment failed: {e}", exc_info=True)
 
             return ExperimentResult(
-                experiment_id=self.experiment_id,
-                task_type=self.config.task_type,
+                config_name=self.config.name,
+                dataset_type=self.config.dataset_type,
                 seed=self.config.seed,
-                start_time=start_time_str,
-                end_time=datetime.now().isoformat(),
+                start_time=start_time,
+                end_time=end_time,
                 duration_seconds=end_time - start_time,
-                metrics={},
-                resource_usage=self._get_resource_usage(),
-                config_snapshot=self.config.to_dict(),
-                status='failed',
+                train_metrics={},
+                val_metrics={},
+                test_metrics={},
+                resource_usage={},
+                model_path="",
+                config_path="",
+                success=False,
                 error_message=str(e)
             )
 
-    def _save_result(self, result: ExperimentResult) -> None:
-        """Save experiment result to JSON file."""
-        result_dict = result.to_dict()
-
-        with open(self.results_file, 'w') as f:
-            json.dump(result_dict, f, indent=2, default=str)
-
-        self.logger.info(f"Results saved to: {self.results_file}")
-
 
 def main():
-    """Entry point for running a baseline experiment."""
-    # Default configuration for a standard run
+    """Entry point for running baseline experiments."""
+    # Default configuration for testing
     config = ExperimentConfig(
-        experiment_id="lorenz_baseline_001",
-        task_type="lorenz_attractor",
+        name="baseline_lorenz_test",
+        dataset_type="lorenz",
         seed=42,
-        max_epochs=15,
-        batch_size=32,
+        epochs=5,
+        batch_size=16,
         learning_rate=1e-3,
-        hidden_dim=256,
-        num_layers=4,
-        num_heads=8,
+        hidden_dim=64,
+        num_layers=2,
+        num_heads=2,
         dropout=0.1,
-        output_dir="data/results",
-        log_level="INFO"
+        max_tokens=128,
+        train_size=200,
+        val_size=50,
+        test_size=50
     )
 
     runner = BaselineRunner(config)
     result = runner.run()
 
-    # Exit with non-zero code if experiment failed
-    if result.status == 'failed':
+    if result.success:
+        print(f"Experiment '{result.config_name}' completed successfully.")
+        print(f"Test MAE: {result.test_metrics.get('mae', 0):.4f}")
+        print(f"Duration: {result.duration_seconds:.2f}s")
+    else:
+        print(f"Experiment '{result.config_name}' failed: {result.error_message}")
         sys.exit(1)
 
 

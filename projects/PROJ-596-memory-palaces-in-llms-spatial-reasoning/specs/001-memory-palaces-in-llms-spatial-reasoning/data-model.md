@@ -1,63 +1,94 @@
 # Data Model: Memory Palaces in LLMs
 
-## 1. Core Entities
+## Overview
 
-### 1.1 MemorySlot
+This document defines the data structures, schemas, and flows for the Memory Palaces project. It ensures that all data is consistent, traceable, and compliant with the project's constitution.
+
+## Core Entities
+
+### MemorySlot
 Represents a discrete location in the 2-D grid.
-- **Coordinates**: `(x, y)` where `x, y ∈ [0, 7]`.
-- **Embedding**: Vector `v ∈ ℝ^d` (d = hidden size of DistilGPT2, e.g., 768).
-- **Metadata**: `last_accessed` (timestamp), `eviction_count` (integer).
+- `x`: Integer (0-7)
+- `y`: Integer (0-7)
+- `embedding`: Float32 tensor (vector of size 768)
+- `content`: String (episodic chunk text)
+- `timestamp`: Float (order of assignment)
 
-### 1.2 EpisodicChunk
+### EpisodicChunk
 A text unit assigned to a memory slot.
-- **Text**: The raw string.
-- **Slot_ID**: The assigned `(x, y)` coordinate.
-- **Temporal_Order**: Integer index in the sequence.
-- **Content_Hash**: SHA-256 of the text (for reproducibility).
+- `id`: String (unique identifier)
+- `text`: String
+- `slot_coords`: Tuple (x, y)
+- `temporal_order`: Integer
 
-### 1.3 RecallAccuracy
-The primary outcome metric.
-- **Dataset**: Name (e.g., "babi_task3").
-- **Seed**: Random seed used.
-- **Model_Type**: "spatial", "baseline", or "ablation".
-- **Accuracy**: Float (0.0 to 1.0).
-- **Timestamp**: When the metric was computed.
+### RecallAccuracy
+Metric computed per sample.
+- `dataset`: String (e.g., "babi", "lambada")
+- `seed`: Integer (0-4)
+- `variant`: String ("spatial", "baseline")
+- `accuracy`: Float (0.0-1.0)
+- `interference_distance`: Float (optional)
 
-### 1.4 InterferenceDistance
-The structural metric.
-- **Dataset**: Name.
-- **Seed**: Random seed.
-- **Model_Type**: "spatial" or "baseline".
-- **Baseline_Accuracy**: Accuracy without interference.
-- **Interference_Accuracy**: Accuracy with noise injection (adjacent for spatial, random for baseline).
-- **Drop**: `Baseline_Accuracy - Interference_Accuracy`.
+## Data Flow
 
-### 1.5 CoordinateVariance
-The spatial distribution metric (FR-009).
-- **Dataset**: Name.
-- **Epoch**: Integer epoch index.
-- **Model_Type**: "spatial".
-- **Variance_X**: Variance of x-coordinates across all slots used in the epoch.
-- **Variance_Y**: Variance of y-coordinates across all slots used in the epoch.
-- **Total_Variance**: `Variance_X + Variance_Y`.
+1. **Download**: Datasets are fetched from Hugging Face via `datasets.load_dataset(streaming=True)`.
+2. **Preprocess**: Text is chunked into `EpisodicChunk` objects. Coordinates are assigned via hashing.
+3. **Train**: Models are trained on chunks. Memory slots are updated.
+4. **Evaluate**: Exact-match recall is computed. Interference distance is measured.
+5. **Analyze**: Metrics are aggregated. Statistical tests are performed.
+6. **Log**: Results are written to `data/results/` in JSON format.
 
-## 2. Data Flow
+## Schema Definitions
 
-1. **Input**: Raw datasets (bAbI, LAMBADA, Story Cloze) downloaded to `data/raw/`.
-2. **Processing**:
-   - Chunking: Split text into `EpisodicChunk`s.
-   - Assignment: Assign `MemorySlot` coordinates (e.g., round-robin or hash-based).
- - Subsampling: If dataset size > 20% of original (triggered by RAM > 6GB at batch size 4), keep top [deferred] by length.
-3. **Training**:
-   - Model loads chunks.
-   - Updates `MemorySlot` embeddings.
-   - Records `RecallAccuracy` per sample.
-   - Logs `CoordinateVariance` per epoch.
-4. **Evaluation**:
-   - Compute `InterferenceDistance` by injecting noise (adjacent for spatial, random for baseline).
-   - Aggregate metrics across seeds.
-5. **Output**: JSON/CSV files in `artifacts/results/`.
+### Dataset Schema
+```yaml
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., 'babi', 'lambada')"
+  split:
+    type: string
+    description: "Data split (e.g., 'train', 'test')"
+  num_samples:
+    type: integer
+    description: "Number of samples in the split"
+  features:
+    type: array
+    items:
+      type: string
+    description: "List of feature names (e.g., 'text', 'label')"
+```
 
-## 3. Schema Definitions
+### Result Schema
+```yaml
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run"
+  dataset:
+    type: string
+  seed:
+    type: integer
+  variant:
+    type: string
+  accuracy:
+    type: number
+    description: "Exact-match recall accuracy"
+  interference_distance:
+    type: number
+    description: "Drop in recall under interference"
+  slot_occupancy:
+    type: object
+    description: "Distribution of slot usage"
+  timestamp:
+    type: string
+    format: date-time
+```
 
-See `contracts/` for detailed YAML schemas.
+## Data Hygiene
+
+- **Checksums**: All downloaded datasets are checksummed and recorded in `state/`.
+- **Immutability**: Raw data is never modified. Derivations are written to new files.
+- **PII**: No personally identifying information is stored.

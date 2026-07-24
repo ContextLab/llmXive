@@ -1,14 +1,9 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`src/models`, `src/data`, `src/training`,
-    `src/experiments`, `tests`) is provided; the implementer did not supply any artifact
-    showing the project structure exists.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml` entries, pre\u2011commit hooks, or related\
-    \ scripts) are present in the provided evidence, so the requirement to configure\
-    \ Ruff and Black is not satisfied. The implementer must add the appropriate configuration\
-    \ files and ensure they are non\u2011empty and correctly set up."
+T016:
+  c: true
+  h: d721ea955f2fe6008a2b9ec19724c74dfc2544de15aef0677d53b65cef8b05ae
+  r: "The repository contains the full integration test file `tests/integration/test_baseline_validation.py`\
+    \ with a `test_baseline_degradation_measurement` function that generates synthetic\
+    \ data, runs the baseline training, computes MAE, calculates degradation, and\
+    \ checks that `data/results/baseline_metrics.json` is created with the correct\
+    \ schema. The missing JSON file is expected to be produced at test runtime, not\
+    \ as a pre\u2011existing artifact."

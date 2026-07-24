@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Add the code directory to the path to allow relative imports if running as script
-# but rely on the project structure where this file lives in `code/`
 code_dir = Path(__file__).parent
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
@@ -50,6 +49,8 @@ def extract_ground_truth_annotations(
     ensure_directories([output_path])
 
     # Ensure dataset is downloaded (T007 dependency)
+    # The download_dataset function is expected to return the dataset object
+    # if it was already downloaded, or download it if not.
     try:
         dataset = download_dataset(dataset_name, split=split)
     except Exception as e:
@@ -61,7 +62,9 @@ def extract_ground_truth_annotations(
     annotations = []
 
     # Iterate through the dataset rows
-    # SWE-bench Lite structure: Each row has 'problem_statement', 'repo', 'instance_id', 'test_patch', 'base_commit', 'hints', 'FAIL_TO_PASS', 'PASS_TO_PASS', 'environment_setup_commit', 'ground_truth' (sometimes)
+    # SWE-bench Lite structure: Each row has 'problem_statement', 'repo', 'instance_id', 
+    # 'test_patch', 'base_commit', 'hints', 'FAIL_TO_PASS', 'PASS_TO_PASS', 
+    # 'environment_setup_commit', 'ground_truth' (sometimes)
     # The 'ground_truth' field often contains a list of files or a string representation.
     # We need to extract 'repo', 'instance_id' (as issue_id), and the 'ground_truth' files.
     

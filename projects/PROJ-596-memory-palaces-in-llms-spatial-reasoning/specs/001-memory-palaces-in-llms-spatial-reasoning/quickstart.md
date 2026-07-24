@@ -1,57 +1,64 @@
 # Quickstart: Memory Palaces in LLMs
 
-## 1. Prerequisites
+## Prerequisites
 
 - Python 3.11+
-- Sufficient RAM (recommended for smooth operation, though a lower threshold is the hard limit for the code).
-- Internet access (for dataset download).
+- 6 GB RAM available
+- 14 GB disk space
+- Git
 
-## 2. Environment Setup
+## Installation
 
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-org/PROJ-596-memory-palaces-in-llms-spatial-reasoning.git
+   cd PROJ-596-memory-palaces-in-llms-spatial-reasoning
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/code/requirements.txt
+   ```
+
+## Running the Experiment
+
+### 1. Download Datasets
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/data/loaders.py --download
 ```
+This script downloads bAbI, LAMBADA, and Story Cloze datasets to `data/raw/`.
 
-## 3. Data Download
-
-The `code/main.py` script will automatically download datasets from verified HuggingFace sources:
-- bAbI Task 3
-- LAMBADA
-- Story Cloze
-
-Datasets are cached in `data/raw/`. Checksums are recorded in `state.yaml`.
-
-## 4. Running the Experiment
-
+### 2. Train Models
 ```bash
-# Run the full pipeline (train, evaluate, report)
-python code/main.py
-
-# Optional: Run a single seed for debugging
-python code/main.py --seed 0 --dataset babi_task3
+python code/main.py --config config/train.yaml
 ```
+This runs training for both spatial and baseline variants across 5 seeds.
 
-## 5. Expected Outputs
+### 3. Evaluate Models
+```bash
+python code/main.py --eval --config config/eval.yaml
+```
+This computes exact-match recall and interference distance.
 
-- `artifacts/results/recall_accuracy.csv`: Accuracy per seed, dataset, and model.
-- `artifacts/results/interference_distance.csv`: Interference metrics.
-- `artifacts/results/coordinate_variance.csv`: Spatial distribution metrics.
-- `artifacts/results/statistical_tests.json`: P-values, CIs, effect sizes, power analysis.
-- `logs/training.log`: Detailed training progress and memory usage.
+### 4. Analyze Results
+```bash
+python code/analysis/stats.py --input data/results/
+```
+This performs statistical tests and generates summary reports.
 
-## 6. Troubleshooting
+## Expected Output
 
-- **OOM Error**: The script automatically reduces batch size to a minimal level. If it still fails, it will subsample the dataset (top [deferred] by length). Check `logs/training.log` for the "Memory Constraint" message.
-- **Dataset Missing**: Ensure internet access. The script will retry a limited number of times before failing.
-- **Statistical Test Failure**: If normality assumptions are violated, the script switches to Wilcoxon signed-rank test. This is logged.
+- `data/results/run_summary.json`: Aggregated metrics for all runs.
+- `data/results/statistical_analysis.csv`: P-values, effect sizes, confidence intervals.
+- `artifacts/results/figure_recall.png`: Plot of recall accuracy by variant and dataset.
 
-## 7. Reproducibility
+## Troubleshooting
 
-- Random seeds are pinned (-4).
-- Datasets are fetched from canonical HuggingFace sources.
-- Code is deterministic (no random operations without seeding).
+- **OOM Errors**: If you encounter OOM errors, the script automatically reduces batch size to 4. If memory usage still exceeds 6 GB, the dataset is capped to [deferred] of its original size.
+- **Dataset Download Failures**: If a dataset fails to download, the script logs the error and skips that dataset.

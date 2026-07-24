@@ -13,7 +13,7 @@ The system implements a spatial-memory transformer variant and compares its reca
 
 **Why this priority**: This is the primary research question. Without implementing both variants and measuring recall accuracy, no comparison is possible. All downstream analysis depends on this foundational work.
 
-**Independent Test**: Can be fully tested by fine-tuning both models on bAbI task 3 and measuring exact-match recall accuracy across 5 random seeds.
+**Independent Test**: Can be fully tested by fine-tuning both models on bAbI task 3 and measuring exact-match recall accuracy across multiple random seeds.
 
 **Acceptance Scenarios**:
 
@@ -71,7 +71,7 @@ The system measures and reports structural correlates of spatial organization to
 - **FR-004**: System MUST record exact-match recall accuracy for each random seed (0-4) on each dataset (See US-1)
 - **FR-005**: System MUST perform paired two-tailed t-tests comparing baseline vs spatial-memory scores across 5 seeds (See US-2)
 - **FR-006**: System MUST apply family-wise error correction (Bonferroni or Holm-Bonferroni) when >1 hypothesis test is run (See US-2)
-- **FR-007**: System MUST compute Cohen's d effect size with 95% confidence intervals for all comparisons (See US-2)
+- **FR-007**: System MUST compute Cohen's d effect size with confidence intervals for all comparisons (See US-2)
 - **FR-008**: System MUST compute and log slot occupancy distribution for every epoch (See US-3)
 - **FR-009**: System MUST compute and log coordinate variance for every epoch (See US-3)
 - **FR-010**: System MUST implement automatic batch size reduction to 4 if peak RSS of the Python process exceeds 6 GB RAM; if memory usage still exceeds 6 GB at batch size 4, the system MUST cap the dataset to [deferred] of the original size (See Assumption A-003)
@@ -97,7 +97,7 @@ The system measures and reports structural correlates of spatial organization to
 - **SC-004**: Statistical significance is measured against α = 0.05 threshold with multiple comparison correction (See US-2)
 - **SC-005**: Effect size is measured against Cohen's d conventions (small ≥ 0.2, medium ≥ 0.5, large ≥ 0.8) (See US-2)
 - **SC-006**: Interference distance is measured against the baseline non-spatial variant; the spatial variant is considered successful if it demonstrates a statistically significant reduction in interference (See US-3)
-- **SC-007**: Total runtime is measured against 5-hour GitHub Actions free-tier limit (See Assumption A-003)
+- **SC-007**: Total runtime is measured against the GitHub Actions free-tier limit. (See Assumption A-003)
 - **SC-008**: Memory usage is measured against a constrained RAM environment on a free-tier runner. (See Assumption A-003)
 
 ## Assumptions

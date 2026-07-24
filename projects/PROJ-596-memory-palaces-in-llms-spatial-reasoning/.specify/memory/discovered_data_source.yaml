@@ -1,0 +1,10 @@
+status: none
+intent: download bAbI task 3 dataset python package dataset
+required_fields:
+- story
+- question
+- answer
+- supporting_facts
+cache_key: 9e3b5e3203c8424fdb22e7d6b693800a5891f60f9384403990a087b543e4a6a5
+searched_at: '2026-07-24T16:11:55.625180+00:00'
+retry_count: 1

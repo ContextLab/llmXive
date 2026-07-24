@@ -1,0 +1,52 @@
+- Task T006 mandates that `load_gpt2_medium()` MUST raise an OOM exception and MUST NOT silently fallback. However, Task T012 (US1) requires the orchestrator to 'catch the exception' and 'fallback to DistilGPT2'. While T012 claims to handle the fallback, the strict prohibition in T006 ('MUST NOT silently fallback') creates a semantic conflict where the utility function is forbidden from performing the exact recovery logic the system requires. This risks a design where the system cannot recover from OOM without violating the utility's contract, effectively weakening the system's ability to meet the 'attempt' logic of FR-003.
+- Task T041 requires measuring 'Recall Stability under Decay' by injecting noise but fails to define the noise magnitude, injection frequency, or baseline comparison method. FR-011 and SC-006 require measurable, testable structural correlates. A task that defines a metric without defining its parameters (noise level, time steps) cannot satisfy the acceptance criteria of the spec, as the 'done' state is subjective and untestable.
+- Task T036 is marked as rejected/missing in the 'Analyze Report' yet remains unchecked in the task list. Task T030 creates a `docs/contracts/spatial_mapping.md` to address the same 'John von Neumann' concern. The task list fails to reflect the rejection of T036 and the dependency of T042 on the artifact T036 was supposed to produce. This leaves a gap where a required formal mapping (FR-001/SC-001 context) is promised by T030 but the specific contract document referenced by T042 is not guaranteed to exist or be valid, violating the constraint of traceable deliverables.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T036** — No documentation artifact was supplied showing a formal mapping between spatial “rooms” and transformer components, nor any file or text that addresses the John von Neumann concern. The required updated documentation is missing.
+- **T039** — No evidence of new unit test files under `tests/unit/` addressing dataset‑mismatch or OOM‑recovery edge cases is present; the required artifacts are missing.
+- **T040** — The `scripts/validate_quickstart.sh` script is present, but the required output file `artifacts/results/run_summary.json` does not exist, indicating the validation pipeline was not successfully executed or did not produce the expected artifact. The task’s core requirement—producing the run summary JSON within the time limit—is therefore unmet.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `rosalind-franklin-simulated__2026-05-30__research.md`
+
+---
+action_items: []
+artifact_hash: c2c5d664cbcab2a46818810bc85bd38c4730e7315e0aeb64f04e5939c0ab7935
+artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/idea/memory-palaces-in-llms-spatial-reasoning.md
+backend: dartmouth
+feedback: "The proposal invokes 'spatial reasoning for enhanced episodic recall' using\
+  \ memory palace architectures. I must ask: what is the measurable structural correlate?\
+  \ In my work on DNA fibre patterns, I learned quickly that a compelling narrative\
+  \ means nothing without quantitative support from the diffraction pattern.\n\nSection\
+  \ 2 claims the model 'organizes information spatially in latent space.' This is\
+  \ not a claim \u2014 it is an assertion. Where is the evidence? What metric distinguishes\
+  \ spatial organiz"
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-05-30T09:17:11.209651Z'
+reviewer_kind: llm
+reviewer_name: rosalind-franklin-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+The proposal invokes 'spatial reasoning for enhanced episodic recall' using memory palace architectures. I must ask: what is the measurable structural correlate? In my work on DNA fibre patterns, I learned quickly that a compelling narrative means nothing without quantitative support from the diffraction pattern.
+
+Section 2 claims the model 'organizes information spatially in latent space.' This is not a claim — it is an assertion. Where is the evidence? What metric distinguish
+
+*[truncated]*
+
+## `john-von-neumann-simulated__2026-07-03__research.md`
+
+---
+action_items: []
+artifact_hash: 1846e270a753ef82d01a06538bc0754b1ab0623084cdfcf56b431dc1a7d33106
+artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md

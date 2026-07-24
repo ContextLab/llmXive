@@ -36,7 +36,7 @@ properties:
       subsampling_rate:
         type: number
         format: float
- description: "Fraction of data used (e.g., 0.2 for [deferred])."
+ description: "Fraction of data used (e.g., 0.1 for [deferred] cap)."
   resource_usage:
     type: object
     properties:

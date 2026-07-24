@@ -79,7 +79,7 @@ EOF`
  (FR-001)
 - [X] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
 - [X] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
-- [ ] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
+- [X] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@ EOF`
 - [X] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
 - [X] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
 - [X] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
-- [ ] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
+- [X] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,9 +124,9 @@ EOF`
 ### Implementation for User Story 3
 
 - [X] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) and select between paired t-test and Wilcoxon signed-rank test based on sample size. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. (FR-005)
-- [ ] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta for the "Regular" set (FR-005) (Requires T023 completion)
-- [ ] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) (FR-006, SC-004)
-- [ ] T030 [US3] Implement `code/analysis.py` to perform regression analysis correlating `regularity_score` with performance delta (Redundant with T028b for Regular set, but covers Irregular set trend if needed)
+- [X] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta for the "Regular" set (FR-005) (Requires T023 completion)
+- [X] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) (FR-006, SC-004)
+- [X] T030 [US3] Implement `code/analysis.py` to perform regression analysis correlating `regularity_score` with performance delta (Redundant with T028b for Regular set, but covers Irregular set trend if needed)
 - [ ] T031 [US3] Implement output generation to write `data/results/statistical_summary.json` with exact schema: `{ "p_value": float, "effect_size": { "cohen_d": float }, "degradation_percent": float, "boundary_threshold": float, "regression_slope": float, "r_squared": float }` (FR-005, FR-006)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -138,8 +138,8 @@ EOF`
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T032a [P] Update `README.md` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` with installation instructions, usage examples, and contribution guidelines (FR-001)
-- [ ] T032b [P] Update `docs/` with API documentation for `code/static_analysis.py`, `code/fastcontext_lite.py`, and `code/analysis.py` (FR-001)
-- [ ] T033 Code cleanup and refactoring
+- [X] T032b [P] Update `docs/` with API documentation for `code/static_analysis.py`, `code/fastcontext_lite.py`, and `code/analysis.py` (FR-001)
+- [ ] T033 Code cleanup and refactoring <!-- ATOMIZE: requested -->
 - [ ] T034 Performance optimization for TF-IDF indexing on large repos
 - [ ] T035 [P] Additional unit tests for edge cases in `tests/unit/`
 - [ ] T036 Run quickstart.md validation and end-to-end pipeline check

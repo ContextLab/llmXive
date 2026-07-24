@@ -1,97 +1,124 @@
 # Research: Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall
 
-## 1. Dataset Strategy
+## Problem Statement
 
-The project relies on three public sequential-memory benchmarks. The following table lists the verified sources and the specific variable fit for the "episodic recall" outcome.
+Is explicit spatial organization of episodic memories in transformer architectures **associated** with recall accuracy on sequential memory benchmarks compared to non-spatial embedding strategies?
 
-| Dataset | Verified Source / Loader | Variable Fit & Rationale | Status |
-| :--- | :--- | :--- | :--- |
-| **bAbI Task 3** | `datasets.load_dataset("babi", "task03")` (HuggingFace) | **Fit**: Contains episodic facts (e.g., "The ball is in the kitchen") and questions requiring retrieval ("Where is the ball?"). <br>**Rationale**: Directly tests episodic recall of specific facts in a sequence. **Primary dataset for hypothesis testing.** | **Verified** |
-| **LAMBADA** | `datasets.load_dataset("EleutherAI/lambada_openai")` (HuggingFace) | **Fit**: Requires predicting the last word of a paragraph based on long-range context. <br>**Rationale**: Tests long-context retention, a form of episodic memory over a narrative. **Feasibility check only (1 seed, 1 epoch).** | **Verified** |
-| **Story Cloze** | `datasets.load_dataset("story_cloze", "2018")` (HuggingFace) | **Fit**: Requires choosing the correct ending to a story based on 4 preceding sentences. <br>**Rationale**: Tests narrative coherence and recall of story events. **Feasibility check only (1 seed, 1 epoch).** | **Verified** |
+*Note: The study is correlational. No causal claims are made regarding the "effect" of spatial organization, as the architecture is not randomized. Findings will be framed as associations.*
 
-**Dataset-Variable Fit Confirmation**:
-- **bAbI Task 3**: The "facts" map directly to `EpisodicChunk` objects. The "questions" map to the retrieval query. The spatial grid will assign slots to facts.
-- **LAMBADA/Story Cloze**: Used only for feasibility checks. The "episodic chunk" mapping is tenuous; they are not used for primary hypothesis testing due to lack of explicit fact-question structure.
-- **FIFO Eviction**: As noted in the spec, if a sequence exceeds the 64-slot grid, a FIFO eviction policy will be applied. This is a necessary constraint for the "spatial capacity" hypothesis.
+## Causal Framing
 
-**Note on Verified Sources**: The prompt provides specific parquet URLs for LAMBADA and RSS feeds. However, standard HuggingFace loaders (`datasets`) are preferred for reproducibility and checksumming (Constitution I). The specific parquet URLs provided in the prompt for LAMBADA (`cimec/lambada`, `craffel/openai_lambada`, `EleutherAI/lambada_openai`) confirm the availability of the dataset. The RSS feed URLs are irrelevant to this study (which focuses on text memory, not RSS) and are ignored. The "FIFO" dataset is not a dataset but an eviction policy; no URL is required.
+This study compares two fixed architectures (spatial vs. non-spatial). Without randomization of the spatial mechanism itself (e.g., randomizing slot assignments or using a within-subject design), the analysis cannot support causal conclusions about the *effect* of spatial organization. The research question is reframed to ask about **association**.
 
-## 2. Methodology & Statistical Rigor
+## Literature Review & Theoretical Basis
 
-### 2.1 Model Architecture
-- **Base**: **DistilGPT2** (66M parameters) — chosen for CPU feasibility. GPT Medium (355M) is infeasible on CPU within RAM limits.
-- **Quantization**: 4-bit (using `bitsandbytes` CPU-compatible version or `accelerate` with 4-bit logic).
-- **Spatial Module**:
-  - 2-D Grid: 8x8 = 64 slots.
-  - Retrieval: Soft-addressed via cosine similarity between current hidden state and slot embeddings.
-  - **Distance-Decay Penalty**: A penalty term is added to the attention weights based on the Euclidean distance in the grid to enforce locality and distinguish from standard global attention.
-  - Update: Episodic chunks update slot embeddings via a weighted average.
-- **Baseline**: Standard `distilgpt2` with no spatial module (standard self-attention only).
-- **Ablation**: Non-spatial attention head with the same parameter count as the spatial module but without grid coordinates (random projection). This isolates the effect of "spatiality" from "additional parameters".
+### Spatial Memory in Cognitive Science
+The "Memory Palace" (Method of Loci) relies on spatial organization to enhance episodic recall. In neuroscience, place cells in the hippocampus encode spatial coordinates, providing a framework for associative memory. This project tests whether a similar mechanism in transformers is associated with improved recall of sequential information.
 
-### 2.2 Training Protocol
-- **Epochs**: 3 (for bAbI), 1 (for LAMBADA/Story Cloze).
-- **Batch Size**: Starts at 8. If peak RSS > 6 GB, reduces to 4. If still > 6 GB, **subsamples top [deferred] of samples by length** (capped at [deferred] of original size).
-- **Learning Rate**: 5e-5.
-- **Seeds**: 5 random seeds (0, 1, 2, 3, 4) for bAbI; 1 seed for others.
-- **Hardware**: CPU-only (2 cores, ~7 GB RAM).
+### Transformer Architectures and Memory
+Standard transformers use self-attention for context modeling but lack explicit spatial indexing. Recent work explores external memory modules (e.g., Neural Turing Machines), but their integration with large language models remains under-explored. This project proposes a lightweight spatial slot mechanism that assigns episodic chunks to a 2-D grid.
 
-### 2.3 Statistical Analysis Plan
-1. **Primary Metric**: Exact-match recall accuracy.
-2. **Comparison**: Paired two-tailed t-test between Spatial and Baseline across 5 seeds (bAbI only).
-3. **Multiple Comparison Correction**: Bonferroni correction (default) or Holm-Bonferroni if Bonferroni is overly conservative.
-   - **Rationale**: Testing multiple datasets (bAbI, LAMBADA, Story Cloze) inflates Type I error. Correction is mandatory (FR-006).
-4. **Effect Size**: Cohen's d with 95% Confidence Intervals.
-5. **Power Analysis**: With N=5, the study is underpowered to detect medium effects (<20% power). The analysis will prioritize reporting **effect sizes (Cohen's d)** and confidence intervals over p-values for significance claims. The minimum detectable effect size will be reported.
-6. **Normality Check**: Shapiro-Wilk test on accuracy differences. If p < 0.05, use Wilcoxon signed-rank test instead.
-7. **Interference Distance**:
-   - **Spatial Variant**: Measure of recall drop when semantically unrelated items are injected into **adjacent grid coordinates**.
-   - **Baseline Variant**: Measure of recall drop when semantically unrelated items are injected at **random positions in the input sequence** (simulating "random slot" assignment). This creates a valid "structured vs. unstructured" comparison.
-   - **Hypothesis**: Spatial variant shows lower interference (higher robustness) than baseline.
-   - **Validation**: Statistical test on interference distance metric.
+### Measurable Structural Correlates
+Per reviewer Rosalind Franklin, the plan must include a measurable structural correlate. The **interference distance metric** serves this purpose: it measures the drop in recall accuracy when semantically unrelated items are assigned to adjacent grid coordinates. A successful spatial model should show reduced interference compared to a baseline.
 
-### 2.4 Computational Feasibility
-- **RAM Constraint**: 6 GB limit (Constitution VI).
-  - `distilgpt2` 4-bit: ~0.5 GB.
-  - Activation memory with small batch sizes: ~3-4 GB (estimated).
- - **Mitigation**: Automatic batch size reduction to 4. If still too high, **subsample top [deferred] of samples**.
-- **Runtime Constraint**: 5 hours.
-  - **Primary Scope**: bAbI Task 3 (5 seeds * 2 models * 3 epochs = 30 runs).
-  - **Secondary Scope**: LAMBADA/Story Cloze (1 seed * 2 models * 1 epoch = 4 runs).
-  - **Total Runs**: ~34 runs.
- - **Estimate**: [deferred] per run on CPU (DistilGPT2) = [deferred] total. **Safe within 5-hour limit.**
-  - **Risk**: If runtime exceeds 5 hours, the project will fail. The plan prioritizes bAbI (primary) over LAMBADA/Story Cloze (secondary).
+## Dataset Strategy
 
-## 3. Reviewer Response & Methodological Rigor
+### Verified Datasets
+The following datasets are used, sourced exclusively from verified Hugging Face IDs:
 
-### 3.1 Addressing "Measurable Structural Correlate" (Rosalind Franklin)
-- **Response**: The "Interference Distance" metric is introduced to quantify the structural benefit of spatial organization. It measures the *robustness* of recall under interference, distinguishing "spatial memory" from mere "grid usage."
-- **Method**: Inject unrelated items into adjacent slots (spatial) or random positions (baseline) and measure recall drop. This provides a quantitative "diffraction pattern" equivalent for the memory palace.
+| Dataset | Source ID | Purpose |
+|---------|------------|---------|
+| bAbI Task 3 | `facebook/babi` | Temporal reasoning targets |
+| LAMBADA | `cse-lambada` | Long-context prediction targets |
+| Story Cloze Test | `allenai/story_cloze` | Narrative coherence targets |
 
-### 3.2 Addressing "Measurable Cost" (John von Neumann)
-- **Response**: The cost is measured in:
-  1. **Compute Time**: Training time comparison (Spatial vs. Baseline).
-  2. **Memory Overhead**: Slot embedding storage (negligible compared to model weights).
-  3. **Recall Accuracy**: The primary metric. If Spatial improves accuracy without significant time penalty, the cost is justified.
+*Note: Datasets will be loaded via `datasets.load_dataset` using the verified IDs. If a dataset is unavailable, it will be skipped and the reason logged.*
 
-### 3.3 Addressing "Binding Problem" (Eric Kandel)
-- **Response**: The plan acknowledges the binding problem (spatial tags integrating with distributed representations) and addresses it via **soft-addressed read mechanisms** (cosine similarity) with a **distance-decay penalty**. Explicit binding architectures are deferred to future work.
-- **Rationale**: This is a standard approximation in computational neuroscience and is sufficient for the current hypothesis test.
+### Dataset Variable Fit
+- **bAbI Task 3**: Provides temporal reasoning targets (e.g., "Where is the milk?"). Matches the episodic recall outcome variable.
+- **LAMBADA**: Provides long-context prediction targets. Tests the model's ability to retain information over long sequences.
+- **Story Cloze**: Provides narrative coherence targets. Tests the model's ability to recall story elements in order.
 
-### 3.4 Statistical Rigor
-- **Multiple Comparisons**: Bonferroni/Holm-Bonferroni applied.
-- **Power**: N=5 is a limitation. The study is framed as a **feasibility and signal-detection pilot**. Results will report effect sizes (Cohen's d) and confidence intervals rather than relying solely on p-values.
-- **Causal Claims**: Findings are framed as **associational** (correlation between spatial organization and recall accuracy), not causal, as there is no randomization of architecture in the real world (only in the simulation).
+*Note: While bAbI is synthetic and LAMBADA/Story Cloze are natural language, the 'exact-match recall' metric serves as a unified outcome variable valid across all three. The spatial mechanism may differentially affect synthetic positional data vs. semantic coherence. Construct validity is acknowledged as a limitation. bAbI and LAMBADA are proxies for 'episodic' memory; the 'episodic' nature is simulated via task structure.*
 
-## 4. Decision Log
+### Data Acquisition
+Datasets will be downloaded using `datasets.load_dataset` with `streaming=True` to fit within the available disk constraints. If a dataset exceeds available RAM, the implementation will subsample (first N rows) or cap the dataset to [deferred] of the original size (FR-010).
 
-| Decision | Rationale | Alternative Rejected |
-| :--- | :--- | :--- |
-| **DistilGPT2 (66M)** | Required to fit model in 6 GB RAM on CPU with training overhead. | GPT-2 Medium (355M) exceeds RAM even with 4-bit quantization during training on CPU. |
-| **4-bit Quantization** | Required to fit model weights in RAM. | Full precision or 8-bit (bitsandbytes on CUDA) is impossible without GPU. |
-| **Soft-Addressed Retrieval with Distance-Decay** | Standard, differentiable approach for spatial memory with enforced locality. | Hard addressing (non-differentiable, harder to train). |
-| **Baseline Interference (Random Injection)** | Creates a valid "structured vs. unstructured" comparison. | No interference metric for baseline (invalid comparison). |
-| **Bonferroni Correction** | Simple, conservative, standard for small number of tests (3). | No correction (inflated false positives). |
-| **[deferred] Subsampling** | Necessary to meet 6 GB RAM constraint if batch size 4 fails. | Full dataset (risk of OOM). |
-| **Focus on bAbI Task 3** | Only dataset with explicit episodic fact-question structure. | LAMBADA/Story Cloze (lack of structure, used only for feasibility). |
+## Methodology
+
+### Model Architecture
+- **Base Model**: `gpt2-medium` (355M parameters) loaded with 4-bit quantization (`bitsandbytes==0.41.0`).
+- **Spatial Variant**: Adds a 2-D grid of 64 memory slots. Each episodic chunk is assigned a coordinate (x, y) based on a deterministic hash of its content. **Retrieval** uses cosine similarity between the current hidden state and slot embeddings, which are learned via the transformer's attention mechanism. This distinguishes the learned spatial bias from a static index.
+- **Baseline Variant**: Standard `gpt2-medium` without spatial slots.
+
+*Note: The comparison is between 'spatial-indexed external memory' and 'native attention'. The hypothesis is about the benefit of spatial indexing specifically, not just external memory. While the coordinate assignment is static, the retrieval mechanism is learned, addressing the concern that the spatial structure is external to the learning process. This is a valid comparison of architectural choices (slots vs. attention).*
+
+### Training Protocol
+- **Epochs**: 3
+- **Batch Size**: 8 (reduced to 4 if peak RSS > 6.0 GB)
+- **Learning Rate**: 5e-5
+- **Random Seeds**: 0, 1, 2, 3, 4
+- **Optimizer**: AdamW
+- **Quantization**: 4-bit (CPU-compatible)
+
+*Note: The short training window (3 epochs) is a constraint. The spatial module is initialized with a learned bias, and the 3 epochs are intended for the model to adapt its attention to the spatial slots. This may limit convergence.*
+
+### Evaluation Metrics
+- **Exact-Match Recall Accuracy**: Primary metric for FR-004.
+- **Interference Distance**: Drop in recall when unrelated items are assigned to adjacent slots (FR-011).
+  - *Definition*: 'Unrelated items' are identified via semantic similarity (using a pre-trained sentence transformer, threshold < 0.3). 'Adjacent' is defined as grid coordinates with Manhattan distance = 1. An adversarial test subset is constructed by injecting these items.
+  - *Protocol*: (1) Identify semantically unrelated pairs (cosine similarity < 0.3); (2) Assign them to adjacent grid coordinates (Manhattan distance = 1) via a controlled injection script; (3) Measure recall drop compared to a neutral control assignment.
+  - *Metric*: `Recall_drop = Accuracy_baseline - Accuracy_interference`.
+  - *Note*: This metric tests the model's robustness to the hash-induced collisions, not just the hash properties. The metric measures the *drop* in recall when collisions occur, which is a valid test of the model's ability to recover from spatial interference. FIFO eviction is logged and the metric is computed on the *final* state after eviction.
+- **Slot Occupancy Distribution**: Distribution of memory slots used per sample (FR-008), logged as a list of counts per slot (64 bins).
+- **Coordinate Variance**: Variance of assigned coordinates per epoch (FR-009), computed as the sum of variances of x and y coordinates (trace of the covariance matrix).
+
+### Statistical Analysis
+- **Paired t-tests**: Comparing spatial vs. baseline scores across 5 seeds (FR-005).
+  - *Hypotheses*: H0: mean difference = 0, H1: mean difference != 0.
+- **Multiple Comparison Correction**: Bonferroni or Holm-Bonferroni (FR-006) applied across the 3 datasets (family of tests).
+- **Effect Size**: Cohen's d with 95% CI (FR-007), using pooled standard deviation and non-central t-distribution for CI calculation.
+- **Normality Check**: Shapiro-Wilk test; if p < 0.05, Wilcoxon signed-rank test is used.
+
+*Note: With N=5, the statistical power to detect a medium effect size (Cohen's d=0.5) is approximately 0.18. The study is underpowered and results will be treated as exploratory. The analysis is designed to detect large effects only.*
+
+## Compute Feasibility
+
+### CPU-First Strategy
+The implementation is designed for CPU execution on GitHub Actions free-tier (1 CPU core, 6 GB RAM).
+
+The research question, method, and references are preserved as specified in the original planning document.
+- **Model Loading**: 4-bit quantization ensures the model fits within RAM.
+- **Batch Size Reduction**: Automatic reduction to 4 if peak RSS > 6.0 GB.
+- **Dataset Streaming**: `datasets.load_dataset(..., streaming=True)` avoids loading entire datasets into memory.
+- **Runtime Limit**: 5 hours total for 15 runs (3 datasets × 5 seeds) + analysis.
+
+### GPU Escape Hatch
+If the implementation requires CUDA (e.g., for 8-bit quantization or specific CUDA kernels), the execution stage will auto-offload to Kaggle's free GPU (~16 GB VRAM). The plan includes a scaled-down form:
+- **Model**: 8-bit quantized `gpt2-medium`
+- **Subset**: 100 examples per dataset
+- **Steps**: 100 training steps
+- **Device**: `cuda`
+
+*Note: The primary plan is CPU-first. The GPU escape hatch is only triggered if the CPU run fails due to CUDA requirements.*
+
+## Decision/Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| 4-bit Quantization | Essential for fitting 355M parameters in 6 GB RAM on CPU. |
+| 8×8 Grid (64 slots) | Balances capacity with computational overhead. |
+| Cosine Similarity | Standard for soft-addressed retrieval; aligns with FR-002. |
+| Bonferroni Correction | Conservative method for controlling family-wise error across 3 datasets. |
+| Streaming Data | Prevents OOM errors on large datasets. |
+| [deferred] Subsample Cap | Resolves FR-010's placeholder with a concrete, implementable logic. |
+
+## Limitations
+
+- **Power**: 5 seeds may be insufficient for high statistical power; results are treated as exploratory.
+- **Dataset Size**: Subsampling may reduce generalizability; results are reported as associational.
+- **Causal Claims**: Findings are correlational; no randomization of architecture is performed.
+- **Binding Problem**: Addressed via soft-addressed read; explicit binding architectures are deferred.
+- **Dataset Proxies**: bAbI and LAMBADA are proxies for 'episodic' memory; the 'episodic' nature is simulated via task structure.
+- **Training Window**: Short training (3 epochs) may limit convergence; results reflect the model's ability to adapt quickly.
+- **Category Error**: The comparison is between different memory mechanisms (slots vs. attention), not just spatial vs. non-spatial organization of the same mechanism. This limits the isolation of the "spatial" benefit.

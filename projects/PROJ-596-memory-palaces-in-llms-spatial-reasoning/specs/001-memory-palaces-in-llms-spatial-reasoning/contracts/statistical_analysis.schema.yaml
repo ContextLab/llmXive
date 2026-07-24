@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Schema"
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    description: "Name of the statistical test (e.g., 'paired_t_test')"
+  dataset:
+    type: "string"
+  p_value:
+    type: "number"
+    description: "P-value from the test"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    description: "95% confidence interval [lower, upper]"
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size"
+  correction_method:
+    type: "string"
+    description: "Multiple comparison correction method (e.g., 'bonferroni')"
+  adjusted_p_value:
+    type: "number"
+    description: "Adjusted p-value after correction"
+required:
+  - test_name
+  - dataset
+  - p_value
+  - confidence_interval
+  - effect_size
+  - correction_method
+  - adjusted_p_value

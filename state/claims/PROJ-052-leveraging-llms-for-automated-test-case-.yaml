@@ -348,3 +348,414 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T02:06:07Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: fetch Defects4J parquet data from HuggingFace URL defects4j/defects4j-parquet
+    file v1.0.parquet
+  claim_id: c_3352100d
+  context: T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data
+    from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet`
+    and cache to `data/defects4j_v1.0.parquet`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_loader.py` to fetch Defects4J parquet data from verified
+    HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:38:45Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: verify Q4_K_M quantization format and 7GB RAM constraint logic in code/llm_generator.py
+  claim_id: c_9e429f11
+  context: T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in `code/llm_generator.py` loading phase to satisfy FR-002.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Q4_K_M_quantization_format_and_7GB_RAM_constraint_log
+  kind: entity_fact
+  raw_text: Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in `code/llm_generator.py` loading phase
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:39:08Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: imports scipy.stats Shapiro-Wilk Wilcoxon t-test and power analysis utilities
+    in code/analyzer.py
+  claim_id: c_edc45c3c
+  context: T009 Implement `code/analyzer.py` skeleton with imports for `scipy.stats`
+    (Shapiro-Wilk, Wilcoxon, t-test) and power analysis utilities
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Imports_scipy.stats_Shapiro-Wilk_Wilcoxon_t-test_and_power_a
+  kind: entity_fact
+  raw_text: Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk,
+    Wilcoxon, t-test) and power analysis utilities
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:39:32Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: use Phi-2 with seed 42 and temp 0 for generate_test_code
+  claim_id: c_a93030a8
+  context: T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` using
+    Phi-2 with deterministic settings (seed=42, temp=0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `generate_test_code` in `code/llm_generator.py` using Phi-2
+    with deterministic settings (seed=42, temp=0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:39:51Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: load default template if prompt length is less than 20 characters
+  claim_id: c_7e983347
+  context: 'T018 [US1] Implement error handling for ambiguous inputs: If prompt length
+    < 20 chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`)
+    and return it as a syntactic fallback, acknowledging it may result in low coverage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Load_default_template_if_prompt_length_is_less_than_20_chara
+  kind: magnitude
+  raw_text: If prompt length < 20 chars, load `data/templates/default_test.java` (class
+    `DefaultBugFixTest`) and return it as a syntactic fallback
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:40:31Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: execute compilation/execution up to 3 attempts before marking as failed
+  claim_id: c_b11acd77
+  context: T023b [US2] Implement retry loop logic in `code/test_executor.py` to execute
+    compilation/execution up to 3 attempts before marking as failed, satisfying FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry loop logic in `code/test_executor.py` to execute compilation/execution
+    up to 3 attempts before marking as failed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:40:47Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: compute 95% confidence intervals for the mean ratio
+  claim_id: c_decafa64
+  context: T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py`
+    to compute 95% confidence intervals for the mean ratio, as required by the Plan's
+    'Statistical Interpretation Note'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `calculate_confidence_intervals` in `code/analyzer.py` to compute
+    95% confidence intervals for the mean ratio
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:40:47Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: run on CPU-only free-tier CI with 6h max runtime
+  claim_id: c_2f93cfe9
+  context: '**Critical Constraint**: All tasks must run on CPU-only free-tier CI with
+    limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit quantization
+    requiring CUDA, no large model training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_on_CPU-only_free-tier_CI_with_6h_max_runtime
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only free-tier CI with limited cores, constrained
+    RAM, and a 6h max runtime
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:41:13Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Defects4J parquet data fetched from defects4j/defects4j-parquet v1.0.parquet
+    on HuggingFace
+  claim_id: c_f088e48c
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 [P] Implement `code/data_loader.py`
+    to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet`
+    file `v1.0.parquet` and cache to `data/defects4j_v1.0.parquet`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_loader.py` to fetch Defects4J parquet data from verified
+    HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to
+    `data/defects4j_v1.0.parquet`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:43:17Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Code analyzer imports scipy.stats for Shapiro-Wilk, Wilcoxon, and t-test
+  claim_id: c_95a83352
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009 Implement `code/analyzer.py`
+    skeleton with imports for `scipy.stats` (Shapiro-Wilk, Wilcoxon, t-test) and power
+    analysis utilities'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_analyzer_imports_scipy.stats_for_Shapiro-Wilk,_Wilcoxon
+  kind: entity_fact
+  raw_text: Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk,
+    Wilcoxon, t-test) and power analysis utilities
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:43:18Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Test code generation uses Phi-2 model with seed 42 and temperature 0
+  claim_id: c_b82351bb
+  context: 'Phase 3: User Story 1 - LLM Test Generation Pipeline (Priority: P1) -
+    T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` using Phi-2
+    with deterministic settings (seed=42, temp=0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `generate_test_code` in `code/llm_generator.py` using Phi-2
+    with deterministic settings (seed=42, temp=0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:43:18Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Default test template used when prompt length is less than 20 characters
+  claim_id: c_ac1e62cc
+  context: 'Phase 3: User Story 1 - LLM Test Generation Pipeline (Priority: P1) -
+    T018 [US1] Implement error handling for ambiguous inputs: If prompt length < 20
+    chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`) and
+    return it as a syntactic fallback, acknowledging it may result in low coverage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Default_test_template_used_when_prompt_length_is_less_than_2
+  kind: magnitude
+  raw_text: If prompt length < 20 chars, load `data/templates/default_test.java` (class
+    `DefaultBugFixTest`) and return it as a syntactic fallback
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:43:20Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Confidence intervals computed at 95% level for mean ratio
+  claim_id: c_47699317
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority:
+    P3) - T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py`
+    to compute 95% confidence intervals for the mean ratio, as required by the Plan''s
+    ''Statistical Interpretation Note''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `calculate_confidence_intervals` in `code/analyzer.py` to compute
+    95% confidence intervals for the mean ratio
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:43:20Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Warning issued if sample size is less than 30
+  claim_id: c_a42e94f8
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority:
+    P3) - T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend
+    the report with a warning block: "WARNING: Sample size (N={N}) < 30. Results are
+    exploratory.", satisfying FR-010/US-3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_issued_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: 'If N < 30, prepend the report with a warning block: "WARNING: Sample
+    size (N={N}) < 30. Results are exploratory."'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:44:07Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: CI runtime limit is 6 hours on CPU-only free-tier infrastructure
+  claim_id: c_296932bc
+  context: 'Notes - Critical Constraint: All tasks must run on CPU-only free-tier
+    CI with limited cores, constrained RAM, and a 6h max runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only free-tier CI with limited cores, constrained
+    RAM, and a 6h max runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:44:07Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Fetch Defects4J parquet data from HuggingFace URL defects4j/defects4j-parquet
+    file v1.0.parquet
+  claim_id: c_328b42c9
+  context: '- [X] T006 [P] Implement code/data_loader.py to fetch Defects4J parquet
+    data from verified HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet
+    and cache to data/defects4j_v1.0.parquet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_loader.py to fetch Defects4J parquet data from verified
+    HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:46:54Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Use Phi-2 model with seed 42 and temperature 0 for test generation
+  claim_id: c_81f9167a
+  context: '- [X] T016 [US1] Implement generate_test_code in code/llm_generator.py
+    using Phi-2 with deterministic settings (seed=42, temp=0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/llm_generator.py using Phi-2 with deterministic settings
+    (seed=42, temp=0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:47:11Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Retry compilation and execution logic up to 3 attempts before failure
+  claim_id: c_1696aa2e
+  context: '- [ ] T023b [US2] Implement retry loop logic in code/test_executor.py
+    to execute compilation/execution up to 3 attempts before marking as failed, satisfying
+    FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/test_executor.py to execute compilation/execution up to
+    3 attempts before marking as failed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:47:30Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Apply Shapiro-Wilk test to coverage differences for normality check
+  claim_id: c_f873b252
+  context: '- [ ] T033 [US3] Implement check_normality in code/analyzer.py using Shapiro-Wilk
+    test on coverage differences.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Shapiro-Wilk_test_to_coverage_differences_for_normalit
+  kind: entity_fact
+  raw_text: Run Shapiro-Wilk test on coverage differences
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:47:45Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Calculate 95% confidence intervals for mean ratio
+  claim_id: c_edebc2d8
+  context: '- [ ] T037a [US3] Implement calculate_confidence_intervals in code/analyzer.py
+    to compute 95% confidence intervals for the mean ratio, as required by the Plan''s
+    ''Statistical Interpretation Note''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for the mean ratio
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:47:45Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Issue warning when sample size is less than 30
+  claim_id: c_eebec3ae
+  context: '- [ ] T038 [US3] Implement logic to handle small sample sizes: If N <
+    30, prepend the report with a warning block: ''WARNING: Sample size (N={N}) <
+    30. Results are exploratory.'', satisfying FR-010/US-3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Issue_warning_when_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: Prepend warning if sample size N < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:48:22Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Run tasks on CPU-only free-tier CI with 6 hour maximum runtime
+  claim_id: c_43d059f4
+  context: '- **Critical Constraint**: All tasks must run on CPU-only free-tier CI
+    with limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit quantization
+    requiring CUDA, no large model training.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only free-tier CI with a 6h max runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T15:48:34Z'
