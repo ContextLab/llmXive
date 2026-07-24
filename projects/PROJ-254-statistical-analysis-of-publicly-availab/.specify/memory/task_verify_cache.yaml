@@ -26,3 +26,11 @@ T052:
   r: No `plan_waiver_log.md` file in `specs/001-genre-evolution/` was presented; the
     claim lacks any artifact or content showing the waiver documentation, so the required
     deliverable is missing.
+T082:
+  c: false
+  h: a30edfee415f3186983b9efc1e1ff761a3b07d07aecce3a56d69ec25592dadd9
+  r: "The `src/code/ingest.py` file does not contain a per\u2011request `timeout=10`\
+    \ (it defines `MB_TIMEOUT = 30` and uses the `musicbrainzngs` library, not `requests`),\
+    \ nor does it implement a global 300\u2011second batch timeout, log a \u201CTIMEOUT_EXCEEDED\u201D\
+    \ warning, write `partial_metadata_mpd.parquet`, or exit with code\u202F1. Additionally,\
+    \ the required `data/derived/partial_metadata_mpd.parquet` file is missing."

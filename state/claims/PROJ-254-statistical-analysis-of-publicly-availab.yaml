@@ -316,3 +316,476 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T00:34:40Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MPD dataset contains 30 years of data with 1000 tracks per year
+  claim_id: c_3fea8182
+  context: 'Logic: Check that the dataset contains at least 30 years of data with
+    >1000 tracks per year. If insufficient, raise a GovernanceError and prevent T061
+    from completing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MPD_dataset_contains_30_years_of_data_with_1000_tracks_per_y
+  kind: magnitude
+  raw_text: The dataset contains at least 30 years of data with >1000 tracks per year.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:28:38Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if coverage is less than 80%
+  claim_id: c_3dee9a11
+  context: 'Validation: Must immediately calculate coverage (Tracks with Genre Tags
+    / Total MPD Tracks). Action: If coverage < 80%, ABORT IMMEDIATELY with exit code
+    1 and log CRITICAL: Coverage < 80% (X%). Aborting pipeline.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_coverage_is_less_than_80%25
+  kind: magnitude
+  raw_text: If coverage < 80%, ABORT IMMEDIATELY with exit code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:29:19Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec model dimension is 100
+  claim_id: c_c3cbe638
+  context: 'Requirement: Must use gensim with algorithm=''skip-gram'', dim=100, window=10,
+    epochs=5 as default parameters, but these MUST be configurable via a config file
+    named config/embeddings.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Word2Vec model uses dim=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:29:50Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec model window size is 10
+  claim_id: c_e58327f0
+  context: 'Requirement: Must use gensim with algorithm=''skip-gram'', dim=100, window=10,
+    epochs=5 as default parameters, but these MUST be configurable via a config file
+    named config/embeddings.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Word2Vec model uses window=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:30:26Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec model epoch count is 5
+  claim_id: c_98c526f4
+  context: 'Requirement: Must use gensim with algorithm=''skip-gram'', dim=100, window=10,
+    epochs=5 as default parameters, but these MUST be configurable via a config file
+    named config/embeddings.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Word2Vec model uses epochs=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:30:51Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Years with less than 100 unique tracks are flagged
+  claim_id: c_48c97881
+  context: 'Logic: Identify years with < 100 unique tracks. Action: DO NOT EXCLUDE
+    these years. Instead, flag them and return the list of flagged years as a Python
+    list.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Years_with_less_than_100_unique_tracks_are_flagged
+  kind: magnitude
+  raw_text: Years with < 100 unique tracks are flagged but not excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:32:45Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cook's Distance threshold is 4 divided by n
+  claim_id: c_d833d53b
+  context: 'Logic: calculate Cook''s Distance for each point, identify points exceeding
+    the threshold Di > 4/n (where n is the number of observations), and generate data/derived/cooks_distance_report.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cook's_Distance_threshold_is_4_divided_by_n
+  kind: entity_fact
+  raw_text: Cook's Distance threshold is defined as Di > 4/n.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:33:12Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Regression robustness p-value threshold is 0.05
+  claim_id: c_26285fa9
+  context: 'Logic: If p-value < 0.05, mark the trend as Robust; otherwise Not Robust.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression p-value threshold for robustness is < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:33:12Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MusicBrainz API request timeout is 10 seconds
+  claim_id: c_1936ada7
+  context: 'Logic: Implement a timeout mechanism in src/code/ingest.py for the MusicBrainz
+    API calls using requests with a timeout=10 parameter per request and a global
+    timeout=300 for the entire batch operation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MusicBrainz API timeout is 10 seconds per request.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:33:48Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MusicBrainz API batch operation timeout is 300 seconds
+  claim_id: c_f32128e4
+  context: 'Logic: Implement a timeout mechanism in src/code/ingest.py for the MusicBrainz
+    API calls using requests with a timeout=10 parameter per request and a global
+    timeout=300 for the entire batch operation (defined as the processing of a single
+    playlist).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global batch operation timeout is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:34:27Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec training worker count is 2
+  claim_id: c_0fe29d64
+  context: 'Logic: Refactor src/code/embeddings.py train_global_word2vec to explicitly
+    set workers=2 and min_count=5 via config/embeddings.yaml to reduce memory footprint
+    and training time on the free runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Word2Vec training uses workers=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:35:06Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec training min_count is 5
+  claim_id: c_2a0f7391
+  context: 'Logic: Refactor src/code/embeddings.py train_global_word2vec to explicitly
+    set workers=2 and min_count=5 via config/embeddings.yaml to reduce memory footprint
+    and training time on the free runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Word2Vec training uses min_count=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:35:31Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: HAC correction fallback triggers if observations are less than 10
+  claim_id: c_ddc5c4a1
+  context: 'Logic: If n < 10, log a HAC_FAILED_INSUFFICIENT_DATA warning, fall back
+    to standard OLS standard errors, and append a methodology_note field to regression_results.json
+    stating the fallback was used.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HAC_correction_fallback_triggers_if_observations_are_less_th
+  kind: magnitude
+  raw_text: HAC correction fallback occurs if n < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:36:37Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Spotify Million Playlist dataset train split is used
+  claim_id: c_7b017e54
+  context: 'Logic: Update the module docstring in src/code/ingest.py to explicitly
+    state the exact streaming rule used: datasets.load_dataset("spotify_million_playlist",
+    streaming=True), iterating over the full train split, and the specific chunking
+    strategy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spotify_Million_Playlist_dataset_train_split_is_used
+  kind: entity_fact
+  raw_text: The pipeline uses the 'train' split of the Spotify Million Playlist dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:37:02Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Dataset contains 30 years of data with over 1000 tracks per year
+  claim_id: c_3b26df6b
+  context: 'Logic: Check that the dataset contains at least 30 years of data with
+    >1000 tracks per year. Constraint: If insufficient, raise a GovernanceError and
+    prevent T061 from completing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_30_years_of_data_with_over_1000_tracks_per
+  kind: magnitude
+  raw_text: The dataset contains at least 30 years of data with >1000 tracks per year.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:43:00Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Track count file contains integer count of unique tracks with release
+    years 1950 to 2024
+  claim_id: c_1ae03a4d
+  context: 'Format: track_count.txt MUST contain a single integer representing the
+    count of unique tracks with valid release years (1950-2024).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The track_count.txt file MUST contain a single integer representing the
+    count of unique tracks with valid release years (1950-2024).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:43:38Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts with exit code 1 if coverage is less than 80 percent
+  claim_id: c_8e498f9c
+  context: 'Action: If coverage < 80%, ABORT IMMEDIATELY with exit code 1 and log
+    CRITICAL: Coverage < 80% (X%). Aborting pipeline. to pipeline_log.txt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_with_exit_code_1_if_coverage_is_less_than_80
+  kind: magnitude
+  raw_text: The pipeline must abort immediately with exit code 1 if coverage is less
+    than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:44:13Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec default parameters are skip-gram, dim 100, window 10, epochs
+    5
+  claim_id: c_9cfd8232
+  context: 'Requirement: Must use gensim with algorithm=''skip-gram'', dim=100, window=10,
+    epochs=5 as default parameters, but these MUST be configurable via a config file
+    named config/embeddings.yaml (YAML format) or CLI arguments (flag: --embeddings-config).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Word2Vec model uses default parameters algorithm='skip-gram', dim=100,
+    window=10, and epochs=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:44:41Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Years with fewer than 100 unique tracks are flagged instead of excluded
+  claim_id: c_0178a183
+  context: 'Logic: Identify years with < 100 unique tracks. Action: DO NOT EXCLUDE
+    these years. Instead, flag them and return the list of flagged years as a Python
+    list.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Years_with_fewer_than_100_unique_tracks_are_flagged_instead
+  kind: magnitude
+  raw_text: The pipeline identifies years with fewer than 100 unique tracks and flags
+    them rather than excluding them.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:45:30Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Fuzzy matching threshold is 0.85
+  claim_id: c_76591c67
+  context: 'Logic: Use musicbrainzngs for ID lookup. If ID missing, delegate to match_fuzzy_tracks
+    (internal helper function within this task) with threshold=0.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fuzzy matching threshold is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:45:30Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cook's Distance threshold is 4 divided by n
+  claim_id: c_edc482ed
+  context: 'Logic: Do NOT exclude years based on track count or arbitrary thresholds;
+    only statistical outliers identified by this threshold are removed in the robustness
+    check. Constraint: Must derive n from the actual number of data points in filtered_similarity.csv
+    before any outlier filtering, ensuring independence from metadata quality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cook's_Distance_threshold_is_4_divided_by_n
+  kind: entity_fact
+  raw_text: The Cook's Distance threshold is defined as Di > 4/n where n is the number
+    of observations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:46:08Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Trend marked robust if p-value is less than 0.05
+  claim_id: c_91470c93
+  context: 'Logic: If p-value < 0.05, mark the trend as Robust; otherwise Not Robust.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_marked_robust_if_p-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: The robustness validation marks a trend as 'Robust' if the p-value is
+    less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:47:20Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Global batch operation timeout is 300 seconds
+  claim_id: c_1017c257
+  context: Implement a timeout mechanism in src/code/ingest.py for the MusicBrainz
+    API calls using requests with a timeout=10 parameter per request and a global
+    timeout=300 for the entire batch operation (defined as the processing of a single
+    playlist).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global timeout for the entire batch operation is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:47:52Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Word2Vec workers set to 2 and min_count set to 5
+  claim_id: c_d5ed33ee
+  context: Refactor src/code/embeddings.py train_global_word2vec to explicitly set
+    workers=2 and min_count=5 via config/embeddings.yaml to reduce memory footprint
+    and training time on the free runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Word2Vec training is configured with workers=2 and min_count=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:48:10Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: HAC correction falls back to OLS if n is less than 10
+  claim_id: c_9c15df64
+  context: 'Implement a fallback check in src/code/regression.py fit_linear_regression
+    to detect if the Newey-West HAC correction fails due to insufficient data points
+    (n < 10). Logic: If n < 10, log a HAC_FAILED_INSUFFICIENT_DATA warning, fall back
+    to standard OLS standard errors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HAC_correction_falls_back_to_OLS_if_n_is_less_than_10
+  kind: magnitude
+  raw_text: The HAC correction falls back to standard OLS standard errors if the number
+    of data points is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:49:07Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Streaming loader batch size is 1000
+  claim_id: c_872249fc
+  context: 'Update README.md and update the module docstring in src/code/ingest.py
+    to explicitly state the exact streaming rule used: datasets.load_dataset(''spotify_million_playlist'',
+    streaming=True), iterating over the full train split, and the specific chunking
+    strategy (e.g., batch_size=1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming loader uses batch_size=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T03:49:41Z'

@@ -1,5 +1,10 @@
 """
-Embeddings module for training Word2Vec and aggregating yearly genre vectors.
+Embeddings module for training Word2Vec models and aggregating yearly genre embeddings.
+
+This module handles the generation of track sequences, training of the global Word2Vec model,
+aggregation of embeddings by year and genre, and saving of the resulting vectors.
+
+It is designed to work with streaming data to handle large datasets efficiently.
 """
 import os
 import gc
@@ -7,215 +12,427 @@ import logging
 from pathlib import Path
 from typing import List, Iterator, Optional, Dict, Any
 import json
+import yaml
 import numpy as np
 import pandas as pd
+from gensim.models import Word2Vec
+from gensim.models.word2vec import LineSentence
 
+# Import from utils
 from utils import setup_logging, get_logger, set_deterministic_seed
-from memory_utils import check_memory_thresholds, trigger_garbage_collection, get_memory_usage_gb
+from memory_utils import check_memory_checkpoint, trigger_garbage_collection
 
-logger = setup_logging()
+# Setup logging
+logger = get_logger(__name__)
 
-DATA_DERIVED_DIR = Path(__file__).resolve().parent.parent / "data" / "derived"
-YEARLY_EMBEDDINGS_DIR = DATA_DERIVED_DIR.parent / "yearly_embeddings"
-
-def setup_embeddings_environment():
+def setup_embeddings_environment(config_path: str = "config/embeddings.yaml") -> Dict[str, Any]:
     """
-    Setup environment for embeddings.
-
-    Raises:
-        RuntimeError: If gensim is not installed.
-    """
-    try:
-        from gensim.models import Word2Vec
-    except ImportError:
-        raise RuntimeError("gensim is required for embeddings.")
-    
-    YEARLY_EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info("Embeddings environment ready.")
-
-def load_metadata_batches() -> Iterator[pd.DataFrame]:
-    """
-    Load metadata batches from parquet files.
-
-    Yields:
-        Iterator[pd.DataFrame]: Chunks of the metadata DataFrame.
-
-    Raises:
-        FileNotFoundError: If the metadata file is not found.
-    """
-    path = DATA_DERIVED_DIR / "metadata_mpd.parquet"
-    if not path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {path}")
-    
-    # Read in chunks to simulate streaming/batching
-    for chunk in pd.read_parquet(path, chunksize=10000):
-        yield chunk
-
-def generate_track_sequences(df: pd.DataFrame) -> Iterator[List[str]]:
-    """
-    Generate sequences of genres per playlist for Word2Vec training.
+    Setup the embeddings environment by loading configuration and initializing logging.
 
     Args:
-        df (pd.DataFrame): DataFrame containing playlist and genre data.
-
-    Yields:
-        Iterator[List[str]]: Sequences of genres.
-    """
-    # Group by playlist_id and sort by year or index
-    # For this demo, we assume a 'playlist_id' and 'genre' column
-    if 'playlist_id' not in df.columns or 'genre' not in df.columns:
-        logger.warning("Missing required columns for sequence generation.")
-        return
-    
-    grouped = df.groupby('playlist_id')
-    for _, group in grouped:
-        genres = group['genre'].dropna().tolist()
-        if len(genres) > 1:
-            yield genres
-
-def train_global_word2vec(sequence_iterator: Iterator[List[str]], dim: int = 100, window: int = 10, epochs: int = 5):
-    """
-    Train a global Word2Vec model on the sequence iterator.
-
-    Args:
-        sequence_iterator (Iterator[List[str]]): Iterator of genre sequences.
-        dim (int): Dimensionality of the word vectors.
-        window (int): Maximum distance between current and predicted word.
-        epochs (int): Number of epochs to train.
+        config_path: Path to the YAML configuration file.
 
     Returns:
-        Word2Vec: Trained Word2Vec model.
+        Dictionary containing the loaded configuration.
+    """
+    setup_logging()
+    logger.info("Setting up embeddings environment...")
+
+    if not os.path.exists(config_path):
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        config = {
+            'word2vec': {
+                'algorithm': 'skip-gram',
+                'dimensions': 100,
+                'window': 10,
+                'epochs': 5,
+                'min_count': 5,
+                'workers': 2,
+                'vector_size': 100,
+                'sg': 1,
+                'hs': 0,
+                'negative': 5,
+                'sample': 0.001,
+                'alpha': 0.025,
+                'min_alpha': 0.0001,
+                'epochs_passes': 5
+            },
+            'paths': {
+                'metadata_file': 'data/derived/metadata_mpd.parquet',
+                'output_dir': 'yearly_embeddings',
+                'temp_embeddings': 'data/derived/temp_embeddings.npz',
+                'flagged_years_file': 'data/derived/flagged_low_coverage_years.json'
+            },
+            'logging': {
+                'level': 'INFO',
+                'file': 'pipeline_log.txt'
+            }
+        }
+    else:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+
+    # Ensure output directory exists
+    output_dir = Path(config['paths']['output_dir'])
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Set deterministic seed
+    set_deterministic_seed(42)
+
+    logger.info(f"Embeddings environment setup complete. Config: {config['word2vec']}")
+    return config
+
+def load_metadata_batches(metadata_path: str, batch_size: int = 1000) -> Iterator[pd.DataFrame]:
+    """
+    Load metadata in batches from a Parquet file to manage memory.
+
+    Args:
+        metadata_path: Path to the metadata Parquet file.
+        batch_size: Number of rows to load per batch.
+
+    Yields:
+        DataFrame containing a batch of metadata.
+    """
+    logger.info(f"Loading metadata from {metadata_path} in batches of {batch_size}...")
+    
+    if not os.path.exists(metadata_path):
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+
+    # Read in chunks
+    for chunk in pd.read_parquet(metadata_path, engine='pyarrow', chunksize=batch_size):
+        check_memory_checkpoint(threshold_gb=6.0)
+        yield chunk
+        
+        # Force garbage collection if memory is high
+        if check_memory_checkpoint(threshold_gb=6.0, verbose=False):
+            trigger_garbage_collection()
+
+def generate_track_sequences(metadata_path: str, batch_size: int = 1000) -> Iterator[List[List[str]]]:
+    """
+    Generate track sequences (lists of track IDs) from metadata, ready for Word2Vec.
+
+    This function yields sequences of track IDs grouped by playlist, in playlist order.
+    It processes the metadata in batches to handle large datasets.
+
+    Args:
+        metadata_path: Path to the metadata Parquet file.
+        batch_size: Number of rows to load per batch.
+
+    Yields:
+        Iterator of lists of track IDs (sequences).
+    """
+    logger.info("Generating track sequences from metadata...")
+    
+    current_playlist = None
+    current_sequence = []
+    sequences_buffer = []
+    buffer_threshold = 1000  # Yield after collecting this many sequences
+
+    for batch in load_metadata_batches(metadata_path, batch_size):
+        # Sort by playlist_id and track_index to ensure correct order
+        batch = batch.sort_values(['playlist_id', 'track_index'])
+        
+        for _, row in batch.iterrows():
+            playlist_id = row['playlist_id']
+            track_id = str(row['track_id'])
+            
+            if current_playlist is None:
+                current_playlist = playlist_id
+                current_sequence = [track_id]
+            elif playlist_id == current_playlist:
+                current_sequence.append(track_id)
+            else:
+                # New playlist, yield the old one
+                if len(current_sequence) > 1:
+                    sequences_buffer.append(current_sequence)
+                    if len(sequences_buffer) >= buffer_threshold:
+                        yield sequences_buffer
+                        sequences_buffer = []
+                current_playlist = playlist_id
+                current_sequence = [track_id]
+        
+        # Yield any remaining sequences in the buffer
+        if sequences_buffer:
+            yield sequences_buffer
+            sequences_buffer = []
+
+    # Yield the last sequence if it exists
+    if current_sequence and len(current_sequence) > 1:
+        sequences_buffer.append(current_sequence)
+        if sequences_buffer:
+            yield sequences_buffer
+
+    logger.info("Track sequence generation complete.")
+
+def train_global_word2vec(config: Dict[str, Any], sequences_iterator: Iterator[Any]) -> Word2Vec:
+    """
+    Train a global Word2Vec model on track sequences.
+
+    This function trains a Word2Vec model using the skip-gram algorithm with parameters
+    loaded from the configuration file. It is optimized for memory efficiency on CI runners.
+
+    Args:
+        config: Configuration dictionary containing Word2Vec parameters.
+        sequences_iterator: Iterator yielding lists of track IDs (sequences).
+
+    Returns:
+        Trained Word2Vec model.
 
     Raises:
-        RuntimeError: If training fails.
+        RuntimeError: If training fails or data is insufficient.
     """
-    from gensim.models import Word2Vec
-    
     logger.info("Starting Word2Vec training...")
-    logger.info(f"Parameters: dimensions={dim}, window={window}, epochs={epochs}")
     
-    # Convert iterator to a list to allow multiple passes (required by gensim)
-    # In a real streaming scenario, we might need to cache or re-stream
-    try:
-        sequences = list(sequence_iterator)
-    except Exception as e:
-        logger.error(f"Failed to materialize sequence iterator: {e}")
-        raise
+    # Extract parameters from config
+    w2v_config = config['word2vec']
+    dimensions = w2v_config.get('dimensions', 100)
+    window = w2v_config.get('window', 10)
+    epochs = w2v_config.get('epochs', 5)
+    min_count = w2v_config.get('min_count', 5)
+    workers = w2v_config.get('workers', 2)  # Optimized for 2-core runners
+    vector_size = w2v_config.get('vector_size', dimensions)
+    sg = w2v_config.get('sg', 1)
+    hs = w2v_config.get('hs', 0)
+    negative = w2v_config.get('negative', 5)
+    sample = w2v_config.get('sample', 0.001)
+    alpha = w2v_config.get('alpha', 0.025)
+    min_alpha = w2v_config.get('min_alpha', 0.0001)
     
-    model = Word2Vec(
-        vector_size=dim,
-        window=window,
-        min_count=1,
-        workers=4,
-        epochs=epochs
-    )
-    
-    # Build vocabulary
-    model.build_vocab(sequences)
-    
-    # Train
-    model.train(sequences, total_examples=model.corpus_count, epochs=model.epochs)
-    
-    logger.info("Word2Vec training complete.")
-    return model
+    logger.info(f"Parameters: dimensions={dimensions}, window={window}, epochs={epochs}, "
+               f"workers={workers}, min_count={min_count}")
 
-def aggregate_yearly_embeddings(model, df: pd.DataFrame) -> Dict[int, np.ndarray]:
+    # Convert iterator to a re-iterable list for multiple passes
+    # Word2Vec requires multiple passes over the data, so we cannot use a generator directly
+    logger.info("Loading sequences into memory for multiple passes (optimized for 2 workers)...")
+    all_sequences = []
+    total_seqs = 0
+    total_tokens = 0
+    
+    for batch in sequences_iterator:
+        all_sequences.extend(batch)
+        total_seqs += len(batch)
+        total_tokens += sum(len(seq) for seq in batch)
+        
+        # Log progress
+        if total_seqs % 10000 == 0:
+            logger.info(f"Loaded {total_seqs} sequences ({total_tokens} tokens so far)...")
+            check_memory_checkpoint(threshold_gb=6.0)
+    
+    logger.info(f"Total sequences loaded: {total_seqs}, total tokens: {total_tokens}")
+    
+    if total_seqs == 0:
+        raise RuntimeError("No sequences found for training. Check input data.")
+
+    # Train the model
+    logger.info("Training Word2Vec model...")
+    try:
+        model = Word2Vec(
+            sentences=all_sequences,
+            vector_size=vector_size,
+            window=window,
+            min_count=min_count,
+            workers=workers,  # Optimized for 2-core runner
+            sg=sg,
+            hs=hs,
+            negative=negative,
+            sample=sample,
+            alpha=alpha,
+            min_alpha=min_alpha,
+            epochs=epochs,
+            compute_loss=True,
+            seed=42
+        )
+        
+        # Explicitly call train to ensure all passes are done
+        model.train(
+            all_sequences,
+            total_examples=len(all_sequences),
+            epochs=epochs
+        )
+        
+        logger.info("Word2Vec training complete.")
+        return model
+        
+    except Exception as e:
+        logger.error(f"Error during training: {str(e)}")
+        raise RuntimeError(f"Failed to train Word2Vec model: {str(e)}")
+
+def aggregate_yearly_embeddings(
+    model: Word2Vec,
+    metadata_path: str,
+    output_path: str,
+    config: Dict[str, Any]
+) -> List[int]:
     """
-    Aggregate base track vectors by genre and year.
+    Aggregate track embeddings by genre and year.
+
+    This function computes the mean embedding for each genre in each year
+    by averaging the embeddings of all tracks belonging to that genre-year pair.
 
     Args:
         model: Trained Word2Vec model.
-        df (pd.DataFrame): DataFrame with 'year' and 'genre' columns.
+        metadata_path: Path to the metadata Parquet file.
+        output_path: Path to save the temporary aggregated embeddings.
+        config: Configuration dictionary.
 
     Returns:
-        Dict[int, np.ndarray]: Dictionary mapping years to aggregated vectors.
-
-    Raises:
-        ValueError: If required columns are missing.
+        List of years flagged for low coverage (< 100 unique tracks).
     """
-    if 'year' not in df.columns or 'genre' not in df.columns:
-        raise ValueError("DataFrame must contain 'year' and 'genre' columns.")
+    logger.info("Aggregating yearly embeddings by genre...")
     
-    # Get model vectors
-    vectors = model.wv
+    # Load metadata
+    logger.info(f"Loading metadata from {metadata_path}...")
+    df = pd.read_parquet(metadata_path, engine='pyarrow')
     
-    year_genre_vectors = {}
+    # Filter tracks with valid years and genre tags
+    df = df[df['release_year'].notna()]
+    df = df[df['genre_tag'].notna()]
+    df = df[df['genre_tag'] != '']
+    
+    logger.info(f"Processing {len(df)} tracks with valid years and genres...")
+    
+    # Group by year and genre
+    yearly_genre_embeddings = {}
     low_coverage_years = []
     
-    # Group by year
-    for year, group in df.groupby('year'):
-        year = int(year)
-        year_vectors = []
-        
-        for genre in group['genre'].dropna().unique():
-            if genre in vectors:
-                year_vectors.append(vectors[genre])
-        
-        if len(year_vectors) == 0:
-            logger.warning(f"No vectors found for year {year}")
-            continue
-        
-        # Check low coverage
-        if len(year_vectors) < 1000: # Threshold from spec
-            low_coverage_years.append(year)
-            logger.warning(f"Year {year} has low coverage ({len(year_vectors)} tracks).")
-        
-        # Average vector for the year
-        avg_vector = np.mean(year_vectors, axis=0)
-        year_genre_vectors[year] = avg_vector
+    # Get unique years
+    unique_years = sorted(df['release_year'].unique())
+    logger.info(f"Found {len(unique_years)} unique years: {unique_years[:10]}...")
     
-    # Save low coverage years
-    if low_coverage_years:
-        with open(DATA_DERIVED_DIR / "low_coverage_years.json", 'w') as f:
-            json.dump(low_coverage_years, f)
-        logger.info(f"Saved low coverage years to {DATA_DERIVED_DIR / 'low_coverage_years.json'}")
+    for year in unique_years:
+        year_df = df[df['release_year'] == year]
+        unique_tracks = year_df['track_id'].nunique()
+        
+        if unique_tracks < 100:
+            low_coverage_years.append(int(year))
+            logger.warning(f"Year {year} has low coverage: {unique_tracks} tracks (< 100). Flagged.")
+        
+        # Group by genre within the year
+        for genre, genre_df in year_df.groupby('genre_tag'):
+            # Get track IDs for this genre-year
+            track_ids = genre_df['track_id'].unique()
+            
+            # Get embeddings for these tracks
+            embeddings = []
+            for track_id in track_ids:
+                try:
+                    track_str = str(track_id)
+                    if track_str in model.wv:
+                        embeddings.append(model.wv[track_str])
+                except Exception as e:
+                    # Track not in vocabulary
+                    pass
+            
+            if embeddings:
+                # Mean embedding for this genre-year
+                mean_embedding = np.mean(embeddings, axis=0)
+                key = (int(year), genre)
+                yearly_genre_embeddings[key] = mean_embedding
     
-    # Save temp embeddings
-    temp_path = DATA_DERIVED_DIR / "temp_embeddings.npz"
-    np.savez(temp_path, **{str(k): v for k, v in year_genre_vectors.items()})
-    logger.info(f"Saved temporary embeddings to {temp_path}")
+    # Save aggregated embeddings
+    logger.info(f"Saving aggregated embeddings to {output_path}...")
+    np.savez(output_path, embeddings=yearly_genre_embeddings)
     
-    return year_genre_vectors
+    logger.info(f"Aggregation complete. Flagged {len(low_coverage_years)} low-coverage years.")
+    return low_coverage_years
 
-def save_yearly_embeddings(year_genre_vectors: Dict[int, np.ndarray]):
+def save_yearly_embeddings(
+    config: Dict[str, Any],
+    flagged_years: Optional[List[int]] = None
+) -> None:
     """
-    Save aggregated vectors to individual yearly files.
+    Save yearly genre embeddings to individual NumPy files.
+
+    This function loads the aggregated embeddings and saves each year's
+    genre embeddings to a separate .npy file in the output directory.
 
     Args:
-        year_genre_vectors (Dict[int, np.ndarray]): Dictionary of year to vector.
+        config: Configuration dictionary.
+        flagged_years: Optional list of flagged low-coverage years.
     """
-    for year, vector in year_genre_vectors.items():
-        path = YEARLY_EMBEDDINGS_DIR / f"{year}.npy"
-        np.save(path, vector)
-        logger.info(f"Saved embedding for year {year} to {path}")
+    logger.info("Saving yearly embeddings...")
+    
+    temp_path = config['paths']['temp_embeddings']
+    output_dir = Path(config['paths']['output_dir'])
+    flagged_years_file = config['paths']['flagged_years_file']
+    
+    if not os.path.exists(temp_path):
+        raise FileNotFoundError(f"Temp embeddings file not found: {temp_path}")
+    
+    # Load aggregated embeddings
+    data = np.load(temp_path, allow_pickle=True)
+    embeddings_dict = data['embeddings'].item()
+    
+    # Group by year
+    yearly_embeddings = {}
+    for (year, genre), embedding in embeddings_dict.items():
+        if year not in yearly_embeddings:
+            yearly_embeddings[year] = {}
+        yearly_embeddings[year][genre] = embedding
+    
+    # Save each year's embeddings
+    for year, genre_embeddings in yearly_embeddings.items():
+        output_path = output_dir / f"{year}.npy"
+        
+        # Convert to numpy array
+        # Structure: array of (genre_name, embedding_vector) tuples
+        # Or a dictionary saved as object array
+        embedding_array = np.array(
+            [(genre, emb) for genre, emb in genre_embeddings.items()],
+            dtype=object
+        )
+        
+        np.save(output_path, embedding_array)
+        logger.debug(f"Saved embeddings for year {year} to {output_path}")
+    
+    # Save flagged years if provided
+    if flagged_years is not None:
+        with open(flagged_years_file, 'w') as f:
+            json.dump(flagged_years, f)
+        logger.info(f"Saved flagged years to {flagged_years_file}")
+    
+    logger.info("Yearly embeddings saved successfully.")
 
-def main():
+def main() -> None:
     """
-    Main entry point for embeddings.
+    Main entry point for the embeddings pipeline.
+
+    This function orchestrates the full embeddings workflow:
+    1. Setup environment and load configuration
+    2. Generate track sequences from metadata
+    3. Train Word2Vec model
+    4. Aggregate embeddings by year and genre
+    5. Save yearly embeddings
     """
-    set_deterministic_seed(42)
-    setup_embeddings_environment()
+    logger.info("Starting embeddings pipeline...")
     
     try:
-        # Load data
-        df = pd.read_parquet(DATA_DERIVED_DIR / "metadata_mpd.parquet")
+        # Setup environment
+        config = setup_embeddings_environment()
         
-        # Generate sequences
-        sequences = generate_track_sequences(df)
+        # Generate track sequences
+        sequences_iterator = generate_track_sequences(
+            config['paths']['metadata_file']
+        )
         
-        # Train model
-        model = train_global_word2vec(sequences)
+        # Train Word2Vec model
+        model = train_global_word2vec(config, sequences_iterator)
         
-        # Aggregate
-        year_genre_vectors = aggregate_yearly_embeddings(model, df)
+        # Aggregate embeddings
+        flagged_years = aggregate_yearly_embeddings(
+            model,
+            config['paths']['metadata_file'],
+            config['paths']['temp_embeddings'],
+            config
+        )
         
-        # Save
-        save_yearly_embeddings(year_genre_vectors)
+        # Save yearly embeddings
+        save_yearly_embeddings(config, flagged_years)
         
-        logger.info("Embeddings pipeline complete.")
+        logger.info("Embeddings pipeline completed successfully.")
         
     except Exception as e:
-        logger.error(f"Embeddings pipeline failed: {e}")
+        logger.error(f"Pipeline failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

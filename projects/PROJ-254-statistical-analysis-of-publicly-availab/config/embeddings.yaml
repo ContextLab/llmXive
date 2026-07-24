@@ -1,0 +1,25 @@
+# Configuration for Word2Vec embedding training
+# Optimized for CI runner constraints (2 cores, ~7GB RAM)
+word2vec:
+  algorithm: skip-gram
+  dimensions: 100
+  window: 10
+  epochs: 5
+  min_count: 5
+  workers: 2
+  vector_size: 100
+  sg: 1  # 1 for skip-gram, 0 for CBOW
+  hs: 0  # Hierarchical softmax (0)
+  negative: 5
+  sample: 0.001
+  alpha: 0.025
+  min_alpha: 0.0001
+  epochs_passes: 5
+paths:
+  metadata_file: "data/derived/metadata_mpd.parquet"
+  output_dir: "yearly_embeddings"
+  temp_embeddings: "data/derived/temp_embeddings.npz"
+  flagged_years_file: "data/derived/flagged_low_coverage_years.json"
+logging:
+  level: INFO
+  file: "pipeline_log.txt"
