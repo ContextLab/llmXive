@@ -3,23 +3,20 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-memory-impact"
+name = "llmXive-proj-395"
 version = "0.1.0"
-description = "Evaluating the impact of LLM-generated code on memory usage"
+description = "Evaluating the Impact of LLM-Generated Code on Memory Usage"
 requires-python = ">=3.11"
 dependencies = [
-    "transformers==4.40.0",
-    "datasets==2.19.0",
-    "memory-profiler==0.61.0",
-    "psutil==5.9.8",
-    "scikit-learn==1.4.2",
-    "statsmodels==0.14.2",
-    "lifelines==0.29.0",
-    "pandas==2.2.2",
-    "numpy==1.26.4",
-    "networkx==3.3",
-    "black==24.4.2",
-    "ruff==0.4.4",
+    "transformers>=4.40.0",
+    "datasets>=2.18.0",
+    "memory-profiler>=0.61.0",
+    "scikit-learn>=1.4.0",
+    "statsmodels>=0.14.1",
+    "lifelines>=0.29.0",
+    "networkx>=3.2.1",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
 ]
 
 [tool.black]
@@ -28,29 +25,29 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-line-length = 88
 target-version = "py311"
+line-length = 88
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
@@ -58,10 +55,9 @@ ignore = [
     "C901", # too complex
 ]
 
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"] # assert allowed in tests
+
 [tool.ruff.isort]
 known-first-party = ["code", "tests"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+force-sort-within-sections = true

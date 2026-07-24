@@ -1,31 +1,45 @@
-"""
-Configuration management for the pipeline.
-"""
 import os
 import random
-from typing import Optional
+import numpy as np
+import torch
 
-# Default limits
+# Resource limits
 MAX_CPU_CORES = int(os.getenv("MAX_CPU_CORES", "2"))
 MAX_MEMORY_GB = int(os.getenv("MAX_MEMORY_GB", "7"))
-RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
+TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", "3600"))
 
-def set_seed(seed: Optional[int] = None):
-    """Set random seed for reproducibility."""
-    if seed is None:
-        seed = RANDOM_SEED
+# Random seeds for reproducibility
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+
+if torch.cuda.is_available():
+    torch.manual_seed(RANDOM_SEED)
+    torch.cuda.manual_seed_all(RANDOM_SEED)
+
+def set_seed(seed: int = RANDOM_SEED) -> None:
+    """Set random seeds for reproducibility."""
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    # Note: numpy and torch seeding would go here if imported
+    np.random.seed(seed)
+    if torch.cuda.is_available():
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
-def validate_resource_limits():
-    """
-    Validate that the current environment respects the defined limits.
-    This is a basic check; the watchdog handles runtime enforcement.
-    """
-    # We assume the environment is configured correctly before execution starts.
-    # This function logs the limits.
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Resource Limits Configured: CPU={MAX_CPU_CORES}, RAM={MAX_MEMORY_GB}GB")
+def validate_resource_limits() -> bool:
+    """Validate that resource limits are set correctly."""
+    if MAX_CPU_CORES < 1:
+        raise ValueError("MAX_CPU_CORES must be at least 1")
+    if MAX_MEMORY_GB < 1:
+        raise ValueError("MAX_MEMORY_GB must be at least 1")
+    if TIMEOUT_SECONDS < 60:
+        raise ValueError("TIMEOUT_SECONDS must be at least 60")
     return True
+
+def get_resource_limits() -> dict:
+    """Get current resource limits configuration."""
+    return {
+        "max_cpu_cores": MAX_CPU_CORES,
+        "max_memory_gb": MAX_MEMORY_GB,
+        "timeout_seconds": TIMEOUT_SECONDS,
+        "random_seed": RANDOM_SEED
+    }

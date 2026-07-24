@@ -1,1 +1,1 @@
-"""Root code package for llmXive."""
+# llmXive Automated Science Pipeline - Code Package

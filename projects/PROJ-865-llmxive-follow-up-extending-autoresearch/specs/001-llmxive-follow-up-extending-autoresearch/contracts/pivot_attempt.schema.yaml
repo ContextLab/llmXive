@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Pivot Attempt Schema
-description: Schema for recording pivot attempt metrics including method, timing, success status, and failure type.
+description: Schema for recording pivot attempt metrics and outcomes in the rule engine execution.
 type: object
 required:
   - task_id
@@ -12,26 +12,23 @@ properties:
   task_id:
     type: string
     description: Unique identifier for the task being attempted.
-    minLength: 1
   method:
     type: string
-    description: The method used for the pivot attempt (e.g., 'rule_engine', 'baseline').
-    minLength: 1
+    description: The method or rule used to attempt the pivot.
   time_to_pivot:
     type: number
-    description: Time in seconds taken to execute the pivot.
-    minimum: 0
+    format: float
+    description: Time in seconds taken to reach the pivot point.
   success:
     type: boolean
     description: Whether the pivot attempt was successful.
   failure_type:
     type: string
-    description: The type of failure encountered if the pivot was unsuccessful.
+    description: The type of failure if the pivot was unsuccessful.
     enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
-      - "Missing Context"
-      - "Unstructured"
-    minLength: 1
+      - Syntactic Error
+      - Logical Loop
+      - Semantic Ambiguity
+      - Missing Context
+      - Unstructured
 additionalProperties: false

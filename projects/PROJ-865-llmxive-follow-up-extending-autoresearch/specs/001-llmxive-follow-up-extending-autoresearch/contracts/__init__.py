@@ -1,3 +1,1 @@
-"""
-Contracts package initialization.
-"""
+# Contracts Directory

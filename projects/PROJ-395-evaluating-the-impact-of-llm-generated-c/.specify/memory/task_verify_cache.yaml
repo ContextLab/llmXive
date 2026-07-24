@@ -1,0 +1,40 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains only the task description and specifications but provides
+    no evidence (e.g., a directory listing, screenshots, or file paths) that the `projects/PROJ-395-evaluating-the-impact-of-llm-generated-c/`
+    directory and its `data/`, `code/`, `tests/`, `state/` subdirectories actually
+    exist. Without such artifacts, we cannot confirm the required structure was created.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a created Python\u202F3.11 virtual environment, a `requirements.txt`/`pyproject.toml`,\
+    \ or installation logs was provided. Without any evidence of the environment being\
+    \ initialized or dependencies installed, the task requirement is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml\
+    \ with black settings) are present, and the only evidence supplied relates to\
+    \ memory\u2011profiling user stories, not to configuring ruff/flake8/black. The\
+    \ required artifacts are missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`data/raw/`, `data/processed/`, `state/`, `code/`) is
+    presented in the provided artifacts; without visible evidence of these folders
+    being created, the task requirement is not satisfied. The implementer must add
+    the directory tree (even if empty) to the repository.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only a feature specification for memory\u2011\
+    profiling and statistical analysis; there is no `state/` directory, no code implementing\
+    \ versioning logic, and no functionality that computes or records SHA\u2011256\
+    \ hashes for artifacts. Consequently, the required artifact is missing."
+T010:
+  c: false
+  h: e3ab9945132df816685250a0d8564696080cd1f794047aa3065aafd511fc59ef
+  r: "The required `code/download.py` file does not exist, and consequently no unit\
+    \ test for it can be present. The missing module means the task\u2019s core artifact\
+    \ is absent, so the requirement is not satisfied."

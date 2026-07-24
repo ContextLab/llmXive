@@ -1,7 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
-$py.class
+*$py.class
 *.so
 .Python
 build/
@@ -14,33 +14,45 @@ lib/
 lib64/
 parts/
 sdist/
-venv/
+var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Data artifacts (Raw, Derived, Artifacts) - Do not commit generated data
-data/raw/
-data/derived/
-data/artifacts/
-results/
+# Virtual Environments
+venv/
+ENV/
+env/
 
-# State (auto-generated hashes)
-state/
-
-# IDE and OS
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Project Specific Data (Exclude raw, derived, and artifacts, but keep .gitkeep)
+data/raw/*
+!data/raw/.gitkeep
+data/derived/*
+!data/derived/.gitkeep
+data/artifacts/*
+!data/artifacts/.gitkeep
 
 # Logs
 *.log
-logs/
+data/artifacts/*.log
 
 # Temporary files
-tmp/
-temp/
+*.tmp
+.tmp/
+
+# Configuration (if sensitive)
+.env
+.secret
+.env.*

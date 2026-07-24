@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or `.gitkeep` files were presented as evidence; the required project structure (`code/`, `data/`, `data/raw/`, `data/derived/`, `data/artifacts/`, `specs/001-llmxive-followup/contracts/`, `code/01_data_ingestion/`, `code/02_annotation_distillation/`, `code/03_execution/`, `code/04_analysis/`, `code/utils/`, `tests/`) with a `.gitkeep` in each is missing from the provided artifacts. The implementer must create and show this structure.",
+      "first_seen": "2026-07-24T22:13:17.142445+00:00",
+      "last_seen": "2026-07-24T22:13:17.142445+00:00"
+    },
+    {
+      "task_key": "T015b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-07-24T22:13:22.624711+00:00",
+      "last_seen": "2026-07-24T22:13:22.624711+00:00"
+    }
+  ],
+  "updated_at": "2026-07-24T22:13:22.624711+00:00"
+}

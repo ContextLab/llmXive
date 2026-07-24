@@ -1,61 +1,54 @@
 """
-Setup script to create required project directories.
-This script creates the data/raw, data/processed, state, and code directories
-as required by task T004.
+Directory setup utility for the llmXive project.
+Creates the required directory structure for data, code, state, and tests.
 """
 import os
 import sys
 from pathlib import Path
 
-def main():
-    # Define the project root relative to this script's location
-    # The script is in code/, so root is parent of code/
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-
-    # Directories to create relative to project root
-    directories = [
-        "data/raw",
-        "data/processed",
-        "state",
-        "code"
+def main() -> None:
+    """
+    Creates the required directory structure for the project.
+    Specifically creates:
+    - data/raw/
+    - data/processed/
+    - state/
+    - code/ (if not already present at root, though typically code/ is the root for modules)
+    
+    This script is idempotent; it will not fail if directories already exist.
+    """
+    # Determine the project root. 
+    # Based on tasks.md and standard structure, we assume this script is run from the project root.
+    # The task requires: data/raw/, data/processed/, state/, and code/ directories.
+    
+    project_root = Path.cwd()
+    
+    required_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "state",
+        # code/ is usually where this script lives, but we ensure it exists relative to root if needed.
+        # However, the task specifically asks for "Setup ... directories". 
+        # If this script is in code/, creating code/ at root might be redundant or create a nested code/code.
+        # Assuming the project root is the parent of 'code', we create 'code' at root if missing.
+        # But typically, for a script in code/, the 'code' directory is the current directory.
+        # Let's create it relative to cwd to be safe, assuming cwd is the project root.
+        project_root / "code",
     ]
-
+    
     created_count = 0
-    existing_count = 0
-
-    print(f"Project root: {project_root}")
-    print("Setting up directories...")
-
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"[SKIP] {dir_path} already exists")
-            existing_count += 1
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"[CREATE] {dir_path}")
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
-
-    print(f"\nSetup complete: {created_count} created, {existing_count} existing")
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    # Verify all directories exist
-    all_exist = all((project_root / d).exists() for d in directories)
-    if not all_exist:
-        print("ERROR: Some directories were not created successfully")
-        sys.exit(1)
-    
-    # List contents of project root for verification
-    print("\nProject structure:")
-    for item in sorted(project_root.iterdir()):
-        if item.is_dir():
-            print(f"  {item.name}/")
-            for subitem in sorted(item.iterdir()):
-                if subitem.is_dir():
-                    print(f"    {subitem.name}/")
-
-    return 0
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} directory/directories.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

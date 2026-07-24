@@ -43,7 +43,7 @@
 
 **Purpose**: Mandatory validation steps required by the Project Constitution before any development begins.
 
-- [ ] T002 [Setup] **Reference-Validator Execution**: Implement and execute the `Reference-Validator Agent` as a blocking gate against `research.md`. **Action**: Run the validator script. **Gate**: If any citation is `unreachable` or `mismatch`, the pipeline MUST fail and block all subsequent tasks. **Output**: `data/artifacts/citation_validation_report.json` with status `PASS` or `FAIL`. **Dependency**: None (runs first).
+- [ ] T002 [Setup] **Reference-Validator Execution**: Implement and execute the `Reference-Validator Agent` as a blocking gate against `research.md`. **Action**: Run the validator script. **Gate**: If any citation is `unreachable` or `mismatch`, the pipeline MUST fail and block all subsequent tasks. **Output**: `data/artifacts/citation_validation_report.json` with status `PASS` or `FAIL`. **Dependency**: None (runs first). <!-- FAILED: unspecified -->
 
 ---
 
@@ -53,9 +53,9 @@
 
 - [ ] T001 [Setup] Initialize Project Structure: Create the full directory tree (`code/`, `data/`, `data/raw/`, `data/derived/`, `data/artifacts/`, `specs/001-llmxive-followup/contracts/`, `code/01_data_ingestion/`, `code/02_annotation_distillation/`, `code/03_execution/`, `code/04_analysis/`, `code/utils/`, `tests/`) and place a `.gitkeep` file in each to ensure they are committed and verifiable. **Note**: Uses `code/` at root per `plan.md` structure, not `src/`. **Dependency**: T002.
 
-- [ ] T003 [Setup] Create `requirements.txt` at repository root with pinned versions (pandas, numpy, scikit-learn, statsmodels, pydantic, datasets, torch-cpu, transformers, psutil, scipy)
+- [X] T003 [Setup] Create `requirements.txt` at repository root with pinned versions (pandas, numpy, scikit-learn, statsmodels, pydantic, datasets, torch-cpu, transformers, psutil, scipy)
 
-- [ ] T004 [P] [Setup] **Configure Linting and Formatting**: Create `pyproject.toml` at repository root with explicit `[tool.ruff]` and `[tool.black]` sections. **Action**: Write the following content to `pyproject.toml`:
+- [X] T004 [P] [Setup] **Configure Linting and Formatting**: Create `pyproject.toml` at repository root with explicit `[tool.ruff]` and `[tool.black]` sections. **Action**: Write the following content to `pyproject.toml`:
 ```toml
 [tool.ruff]
 line-length = 88
@@ -68,7 +68,7 @@ target-version = ['py310']
 ```
 **Artifact**: `pyproject.toml`. **Dependency**: T002.
 
-- [ ] T005 [P] [Setup] **Create .gitignore**: Create or update the root `.gitignore` file to explicitly include rules for `data/raw/`, `data/derived/`, and `data/artifacts/`. **Action**: Append the following lines to `.gitignore`:
+- [ ] T005 [P] [Setup] **Create.gitignore**: Create or update the root `.gitignore` file to explicitly include rules for `data/raw/`, `data/derived/`, and `data/artifacts/`. **Action**: Append the following lines to `.gitignore`:
 ```text
 data/raw/*
 !data/raw/.gitkeep
@@ -93,11 +93,11 @@ data/artifacts/*
 
 - [ ] T006c [Setup] **Create Schema**: Create `specs/001-llmxive-followup/contracts/pivot_attempt.schema.yaml` with explicit JSON schema definition: keys `task_id` (string), `method` (string), `time_to_pivot` (float), `success` (boolean), `failure_type` (string).
 
-- [ ] T007 [Setup] Implement `code/utils/config.py` with environment variables, random seeds, and explicit resource limits: `MAX_CPU_CORES=2`, `MAX_MEMORY_GB=7`, `TIMEOUT_SECONDS=3600`.
+- [X] T007 [Setup] Implement `code/utils/config.py` with environment variables, random seeds, and explicit resource limits: `MAX_CPU_CORES=2`, `MAX_MEMORY_GB=7`, `TIMEOUT_SECONDS=3600`.
 
-- [ ] T007c [Setup] Implement `code/utils/resource_watchdog.py` to actively monitor CPU and RAM usage at runtime. **IPC Mechanism**: If RAM > 7GB, the watchdog MUST raise a `ResourceLimitExceeded` exception and exit with code 1 (failure). **Constraint**: The distillation script (T013) and rule engine (T017) must be invoked via a wrapper that catches this exception and fails the task; NO fallback to regex or other methods is permitted. **Dependency**: T007.
+- [X] T007c [Setup] Implement `code/utils/resource_watchdog.py` to actively monitor CPU and RAM usage at runtime. **IPC Mechanism**: If RAM > 7GB, the watchdog MUST raise a `ResourceLimitExceeded` exception and exit with code 1 (failure). **Constraint**: The distillation script (T013) and rule engine (T017) must be invoked via a wrapper that catches this exception and fails the task; NO fallback to regex or other methods is permitted. **Dependency**: T007.
 
-- [ ] T008 [Setup] Implement `code/utils/logging.py` for structured logging of pipeline stages
+- [X] T008 [Setup] Implement `code/utils/logging.py` for structured logging of pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -111,9 +111,9 @@ data/artifacts/*
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/01_data_ingestion/download_arc_bench.py` to fetch the ARC-Bench topic subset via HuggingFace `datasets`.
+- [X] T009 [US1] Implement `code/01_data_ingestion/download_arc_bench.py` to fetch the ARC-Bench topic subset via HuggingFace `datasets`.
 
-- [ ] T010 [US1] Implement `code/01_data_ingestion/parse_reasoning_traces.py` to extract raw error logs and ground-truth resolutions from traces
+- [X] T010 [US1] Implement `code/01_data_ingestion/parse_reasoning_traces.py` to extract raw error logs and ground-truth resolutions from traces
 
 - [ ] T011b [US1] [FR-001] **Artifact Generation**: Implement `code/02_annotation_distillation/annotate_failures.py` to read `data/derived/parsed_traces.json` (from T010), annotate each case with exactly one structural feature, and write the labeled dataset to `data/derived/failure_cases.json`. **Schema**: The JSON MUST be an array of objects with keys: `task_id` (string), `raw_error_log` (string), `ground_truth_resolution` (string), `annotated_structural_feature` (enum: "Syntactic Error", "Logical Loop", "Semantic Ambiguity", "Missing Context", "Unstructured"). **Data Splitting**: Implement logic within this script to split `failure_cases.json` into `failure_cases_train.json`, `failure_cases_val.json`, AND `failure_cases_test.json` using the fixed random seed from `config.py`. **Schema Validation**: Validate output against `specs/001-llmxive-followup/contracts/failure_case.schema.yaml` (T006a) before writing; if validation fails, raise an explicit error and stop. **Output**: Save all three files to `data/derived/`. **Dependency**: T006a, T010.
 
@@ -139,9 +139,9 @@ data/artifacts/*
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/03_execution/rule_engine.py` to parse error logs and execute pivot actions without LLM invocation. **This task must be executed wrapped by the ResourceWatchdog from T007c.**
+- [X] T017 [US2] Implement `code/03_execution/rule_engine.py` to parse error logs and execute pivot actions without LLM invocation. **This task must be executed wrapped by the ResourceWatchdog from T007c.**
 
-- [ ] T018 [US2] Implement logic in `rule_engine.py` to handle "Unstructured" cases: If no rule matches, default to a probabilistic retrieval action using `code/01_data_ingestion/download_arc_bench.py` with `fallback_mode=True` and log the action as `Unstructured`. **Dependency**: T017.
+- [X] T018 [US2] Implement logic in `rule_engine.py` to handle "Unstructured" cases: If no rule matches, default to a probabilistic retrieval action using `code/01_data_ingestion/download_arc_bench.py` with `fallback_mode=True` and log the action as `Unstructured`. **Dependency**: T017.
 
 - [ ] T019a [US2] **CRITICAL**: Implement `code/03_execution/generate_manifest.py` to create `data/derived/experiment_manifest.csv`. **Depends on T011b completion.**
  - **Source**: `data/derived/failure_cases_test.json` (from T011b).
@@ -155,7 +155,7 @@ data/artifacts/*
 
 - [ ] T020 [US2] Ensure `run_experiments.py` records "Time-to-Pivot" (seconds), "Success Rate of First Pivot" (binary), and `failure_type` for every task, appending rows to `data/derived/results_rule_engine.csv` with columns: task_id, method, time_to_pivot, success, failure_type. **Stratification**: Metrics MUST be recorded and tagged by `failure_type`. **Dependency**: T006c.
 
-- [ ] T021c [US2] **Instrument Baseline Resource Metrics (Local Mode Only)**: Implement `code/03_execution/instrument_baseline.py` to wrap the baseline agent execution and capture resource metrics. **Logic**: 
+- [ ] T021c [US2] **Instrument Baseline Resource Metrics (Local Mode Only)**: Implement `code/03_execution/instrument_baseline.py` to wrap the baseline agent execution and capture resource metrics. **Logic**:
  1. Accept `data/derived/experiment_manifest.csv` as input.
  2. **Local Mode Only**: Monitor process `CPU` and `RAM` via `psutil` and log to `data/derived/baseline_resource_metrics.json`.
  3. **Output**: `data/derived/baseline_resource_metrics.json` with schema `{ task_id, peak_memory_mb, cpu_time_seconds }`. **Dependency**: T019a.

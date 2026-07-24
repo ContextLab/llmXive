@@ -1659,6 +1659,10 @@
     "classified_at": "2026-07-23T07:34:28Z",
     "verdict": false
   },
+  "PROJ-983-llmxive-follow-up-extending-scaling-the::1.6.0": {
+    "classified_at": "2026-07-24T22:01:50Z",
+    "verdict": false
+  },
   "PROJ-985-llmxive-follow-up-extending-full-attenti::1.6.0": {
     "classified_at": "2026-07-09T10:39:02Z",
     "verdict": false

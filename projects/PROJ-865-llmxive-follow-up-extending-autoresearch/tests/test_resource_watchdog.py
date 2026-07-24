@@ -3,83 +3,156 @@ Tests for the Resource Watchdog module.
 """
 import os
 import sys
+import threading
 import time
 import unittest
 from unittest.mock import patch, MagicMock
-import threading
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.resource_watchdog import (
-    start_watchdog, 
-    stop_watchdog, 
-    check_resources_now, 
-    _kill_process,
-    RAM_LIMIT_BYTES,
-    CPU_LIMIT_CORES
+from code.utils.resource_watchdog import (
+    ResourceLimitExceeded,
+    _check_resources,
+    start_watchdog,
+    stop_watchdog,
+    run_with_watchdog,
+    check_and_kill_if_needed,
+    _watchdog_active,
+    _watchdog_thread
 )
-from utils.config import MAX_MEMORY_GB, MAX_CPU_CORES
+from code.utils.config import MAX_CPU_CORES, MAX_MEMORY_GB
 
 
 class TestResourceWatchdog(unittest.TestCase):
-    
+
     def setUp(self):
-        # Ensure we are not running a real watchdog during setup
-        from utils.resource_watchdog import _watchdog_active
-        if _watchdog_active:
-            stop_watchdog()
-        
-        # Reset global state if necessary
-        from utils.resource_watchdog import _on_violation_callback
-        self._original_callback = _on_violation_callback
+        """Reset watchdog state before each test."""
+        global _watchdog_active, _watchdog_thread
+        _watchdog_active = False
+        _watchdog_thread = None
 
     def tearDown(self):
+        """Ensure watchdog is stopped after each test."""
         stop_watchdog()
-        # Restore original callback
-        from utils.resource_watchdog import _on_violation_callback
-        # This is a bit hacky due to module reloading, but sufficient for unit tests
+        # Force a small sleep to ensure thread cleanup
+        time.sleep(0.1)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_check_resources_cpu_ok(self, mock_psutil):
+        """Test that check_resources returns False when CPU is under limit."""
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024  # 1GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 50.0  # 50% usage, limit is 200% (2 cores)
+
+        result = _check_resources()
+        self.assertFalse(result)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_check_resources_cpu_exceeded(self, mock_psutil):
+        """Test that check_resources returns True when CPU exceeds limit."""
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024  # 1GB
+        mock_psutil.Process.return_value = mock_process
+        # Limit is 2 cores -> 200%. Set usage to 250%.
+        mock_psutil.cpu_percent.return_value = 250.0
+
+        result = _check_resources()
+        self.assertTrue(result)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_check_resources_ram_ok(self, mock_psutil):
+        """Test that check_resources returns False when RAM is under limit."""
+        # Limit is 7GB. Set usage to 1GB.
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024  # 1GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 50.0
+
+        result = _check_resources()
+        self.assertFalse(result)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_check_resources_ram_exceeded(self, mock_psutil):
+        """Test that check_resources returns True when RAM exceeds limit."""
+        # Limit is 7GB. Set usage to 8GB.
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 8 * (1024 ** 3)  # 8GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 50.0
+
+        result = _check_resources()
+        self.assertTrue(result)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_run_with_watchdog_success(self, mock_psutil):
+        """Test that run_with_watchdog executes function successfully if limits not exceeded."""
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024  # 1GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 50.0
+
+        executed = False
+        def dummy_func():
+            nonlocal executed
+            executed = True
+
+        run_with_watchdog(dummy_func)
         
-    def test_start_and_stop_watchdog(self):
-        """Test that the watchdog thread can be started and stopped cleanly."""
-        start_watchdog(interval=0.1)
-        self.assertTrue(True, "Watchdog started without error")
-        stop_watchdog()
-        # If we reach here, it didn't hang
-        self.assertTrue(True)
+        self.assertTrue(executed)
+        self.assertFalse(_watchdog_active)
 
-    def test_check_resources_now_normal(self):
-        """Test that check_resources_now does not crash under normal load."""
-        # This should not raise an exception
-        try:
-            check_resources_now()
-        except SystemExit:
-            self.fail("check_resources_now exited under normal load")
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_run_with_watchdog_raises_on_ram_exceeded(self, mock_psutil):
+        """Test that run_with_watchdog raises ResourceLimitExceeded if RAM exceeds limit."""
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 8 * (1024 ** 3)  # 8GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 50.0
 
-    def test_kill_process(self):
-        """Test that _kill_process raises SystemExit."""
-        # We mock os._exit to prevent actual termination in test
-        with patch('utils.resource_watchdog.os._exit') as mock_exit:
-            with self.assertRaises(SystemExit) if False else self.assertLogs() as log:
-                # Actually, os._exit raises SystemExit? No, it calls exit.
-                # We expect the function to call os._exit(1)
-                try:
-                    _kill_process("Test violation")
-                except SystemExit:
-                    pass # Expected
-                
-                # Verify os._exit was called
-                # Note: In the real function, os._exit(1) is called.
-                # Since we can't easily mock os._exit globally without side effects in this simple test,
-                # we rely on the fact that the function calls it.
-                # Let's verify the print output instead or just ensure it doesn't hang.
-                pass
+        def dummy_func():
+            pass
 
-    def test_limits_loaded_from_config(self):
-        """Verify that limits match the config values."""
-        expected_ram = MAX_MEMORY_GB * 1024 * 1024 * 1024
-        self.assertEqual(RAM_LIMIT_BYTES, expected_ram)
-        self.assertEqual(CPU_LIMIT_CORES, MAX_CPU_CORES)
+        with self.assertRaises(ResourceLimitExceeded):
+            run_with_watchdog(dummy_func)
+
+    @patch('code.utils.resource_watchdog.psutil')
+    def test_run_with_watchdog_raises_on_cpu_exceeded(self, mock_psutil):
+        """Test that run_with_watchdog raises ResourceLimitExceeded if CPU exceeds limit."""
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024  # 1GB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.cpu_percent.return_value = 250.0  # 250% > 200% limit
+
+        def dummy_func():
+            pass
+
+        with self.assertRaises(ResourceLimitExceeded):
+            run_with_watchdog(dummy_func)
+
+    def test_check_and_kill_if_needed_ok(self):
+        """Test check_and_kill_if_needed returns False when resources are ok."""
+        with patch('code.utils.resource_watchdog.psutil') as mock_psutil:
+            mock_process = MagicMock()
+            mock_process.memory_info.return_value.rss = 1024 * 1024 * 1024
+            mock_psutil.Process.return_value = mock_process
+            mock_psutil.cpu_percent.return_value = 50.0
+
+            result = check_and_kill_if_needed()
+            self.assertFalse(result)
+
+    def test_check_and_kill_if_needed_raises(self):
+        """Test check_and_kill_if_needed raises when resources exceeded."""
+        with patch('code.utils.resource_watchdog.psutil') as mock_psutil:
+            mock_process = MagicMock()
+            mock_process.memory_info.return_value.rss = 8 * (1024 ** 3)
+            mock_psutil.Process.return_value = mock_process
+            mock_psutil.cpu_percent.return_value = 50.0
+
+            with self.assertRaises(ResourceLimitExceeded):
+                check_and_kill_if_needed()
 
 
 if __name__ == '__main__':

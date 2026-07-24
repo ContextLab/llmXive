@@ -23,8 +23,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-799-statistical-properties-of-integer-partit/` with subdirs `code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`, `tests/`, `tests/data/`, `docs/`, `state/projects/`
-- [ ] T001b [P] Create placeholder files: `README.md`, `.gitignore`, `requirements.txt` (empty initially), `state/projects/PROJ-799.yaml` (empty initially)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn, statsmodels, matplotlib, pandas, pygam)
+- [X] T001b [P] Create placeholder files: `README.md`, `.gitignore`, `requirements.txt` (empty initially), `state/projects/PROJ-799.yaml` (empty initially)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn, statsmodels, matplotlib, pandas, pygam)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools scoped specifically to `projects/PROJ-799-statistical-properties-of-integer-partit/code/`
 
 ---
@@ -35,8 +35,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes (memory optimized)
-- [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based strictly on the **distinct-partition variant** of Meinardus' theorem (verified Roth & Szekeres 1954 expansion), using **leading-order term only**. Generating function: $\prod (1+q^p)$. [UNRESOLVED-CLAIM: c_dfbfb274 — status=not_enough_info] Explicitly document the leading-order formula used.
+- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes [UNRESOLVED-CLAIM: c_1f077500 — status=not_enough_info] (memory optimized)
+- [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based strictly on the **distinct-partition variant** of Meinardus' theorem (verified Roth & Szekeres 1954 expansion), using **leading-order term only**. Generating function: $\prod (1+q^p)$. Explicitly document the leading-order formula used.
 - [ ] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`
 - [ ] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`)
 - [ ] T008 [P] Generate reference data: Create `tests/data/reference_values.csv` containing exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** to serve as ground truth for T009 and T011.
@@ -64,7 +64,7 @@
  - Iterate primes only (skip composites) to enforce distinct prime constraint.
  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
  - Calculate $Q_{as}(n)$ using the verified Roth & Szekeres formula (distinct parts, leading order). **Explicit Formula**: $Q_{as}(n) \approx \frac{1}{2\sqrt{3} n^{3/4}} \exp\left(\pi \sqrt{\frac{2n}{3} \sum_{p} \frac{1}{p^2}}\right)$ (leading order for distinct primes).
- - Clamp $Q_{as}(n)$ to min $10^{-10}$ to prevent log(0). [UNRESOLVED-CLAIM: c_f6a35ffc — status=not_enough_info]
+ - Clamp $Q_{as}(n)$ to min $10^{-10}$ to prevent log(0).
  - **Load `tests/data/reference_values.csv` and assert exact integer match for all n in [1, 100] (SC-003).**
  - **Requires T008 to complete.**
 - [ ] T012 [US1] Implement `code/generate_partitions.py` data export:
@@ -93,10 +93,10 @@
 
 - [ ] T016a [US2] Implement `code/feature_engineering.py`:
  - Load `data/raw/partitions_raw.csv`.
- - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$. [UNRESOLVED-CLAIM: c_53699e55 — status=not_enough_info]
+ - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$.
  - Generate features: $\pi(n)$ (via precomputed sieve), $1/\ln(n)$.
  - Calculate 'distance to nearest prime' as the **absolute difference to the closest prime (either smaller or larger than n)**. If equidistant, the distance value is unique.
- - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies. [UNRESOLVED-CLAIM: c_6a84ed19 — status=not_enough_info]
+ - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies.
  - Save `data/processed/features.csv`.
  - **Requires T012 completion.**
 - [ ] T016b [P] [US2] Validate `data/processed/features.csv`: Verify 'distance to nearest prime' and oscillatory terms are present and non-null before regression.
@@ -120,13 +120,13 @@
 
 **Goal**: {{claim:c_cc435133}} (Wikipedia: Cross-validation (statistics), https://en.wikipedia.org/wiki/Cross-validation_(statistics)). and generate visualizations to confirm generalizability.
 
-**Independent Test**: Verify CV MSE is reported and plot is generated. [UNRESOLVED-CLAIM: c_104d09fb — status=not_enough_info]
+**Independent Test**: Verify CV MSE is reported and plot is generated.
 
 ### Tests for User Story 3
 
-- [ ] T022 [P] [US3] Contract test: Verify that k-fold cross-validation returns k MSE values and a mean, as described in standard validation frameworks (Bishop; Arlot & Celisse). [UNRESOLVED-CLAIM: c_1d05d6c2 — status=not_enough_info] in `tests/test_visualize_results.py`
+- [ ] T022 [P] [US3] Contract test: Verify that k-fold cross-validation returns k MSE values and a mean, as described in standard validation frameworks (Bishop; Arlot & Celisse). in `tests/test_visualize_results.py`
 - [ ] T023a [P] [US3] Integration test: Verify plot generation produces a valid PNG/PDF file in `tests/test_visualize_results.py`
-- [ ] T023b [P] [US3] Time-budget test: Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004).
+- [ ] T023b [P] [US3] Time-budget test: Verify total Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004).
 
 ### Implementation for User Story 3
 
@@ -238,8 +238,8 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Critical Constraint**: Ensure `generate_partitions.py` uses 1D array and iterates only primes to respect the "distinct prime" constraint and memory limits.
-- **Critical Constraint**: The asymptotic baseline $Q_{as}(n)$ MUST use the distinct-partition generating function $\prod (1+q^p)$ as per the spec, not the unrestricted partition formula.
-- **Critical Constraint**: The entire pipeline must complete within 6 hours (SC-004). Monitor time budgets in T010b and T023b.
+- **Critical Constraint**: The asymptotic baseline $Q_{as}(n)$ MUST use the {{claim:c_b3d1e4d3}} (OEIS A000041, https://oeis.org/A000041) as per the spec, not the unrestricted partition formula.
+- **Critical Constraint**: The entire pipeline must complete within 6 hours [UNRESOLVED-CLAIM: c_83a0f651 — status=not_enough_info] (SC-004). Monitor time budgets in T010b and T023b.
 - **Critical Constraint**: P-value correction (Benjamini-Hochberg, alpha=0.05) is mandatory (SC-005).
 - **Critical Constraint**: US2 and US3 must be executed sequentially after US1 due to strict data dependencies.
 - **Revision Constraint**: Tasks referencing non-existent reviews (T013b, T013c, T017d, T026b) have been removed to ensure all work is grounded in verified spec requirements.

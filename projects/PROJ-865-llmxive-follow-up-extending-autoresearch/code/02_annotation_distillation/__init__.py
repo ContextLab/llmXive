@@ -1,3 +1,1 @@
-"""
-Annotation Distillation package initialization.
-"""
+# Annotation and Distillation Module

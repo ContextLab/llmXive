@@ -4,365 +4,408 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from scipy import stats
+
 import numpy as np
+from scipy import stats
 
-from config import CI_MEMORY_LIMIT_GB, EXECUTION_TIMEOUT_SECONDS
-from utils import calculate_total_resource_cost
+# Import from utils for data loading if needed, though we implement locally for clarity
+# Assuming utils.py has read_memory_measurements_csv
+try:
+    from utils import read_memory_measurements_csv
+except ImportError:
+    read_memory_measurements_csv = None
 
-def load_memory_data(filepath: str) -> List[Dict[str, Any]]:
-    """Load memory measurements from a CSV file."""
+def load_memory_data(input_path: str) -> List[Dict[str, Any]]:
+    """
+    Load memory measurements from a CSV file.
+    
+    Args:
+        input_path: Path to the CSV file containing memory measurements.
+        
+    Returns:
+        List of dictionaries containing measurement data.
+    """
+    if read_memory_measurements_csv:
+        return read_memory_measurements_csv(input_path)
+    
+    # Fallback implementation if utils import fails
     data = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            row_dict = {
-                'problem_id': row['problem_id'],
-                'source_type': row['source_type'],
-                'status': row['status'],
-            }
-            # Parse numeric fields, handling potential empty strings or errors
-            for field in ['peak_memory', 'steady_state', 'total_resource_cost']:
-                try:
-                    val = row.get(field, '')
-                    row_dict[field] = float(val) if val else None
-                except ValueError:
-                    row_dict[field] = None
-            data.append(row_dict)
+            data.append(row)
     return data
 
 def extract_paired_data(
-    data: List[Dict[str, Any]],
-    problem_ids: Optional[List[str]] = None
-) -> Tuple[List[float], List[float]]:
+    measurements: List[Dict[str, Any]]
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Extract paired memory measurements (LLM vs Human) for valid problems.
-    Returns two lists: llm_memories and human_memories.
-    Only includes problems where BOTH LLM and Human have valid, non-timeout/non-OOM status.
-    """
-    if problem_ids:
-        filtered_data = [d for d in data if d['problem_id'] in problem_ids]
-    else:
-        filtered_data = data
-
-    # Group by problem_id
-    grouped: Dict[str, Dict[str, Dict[str, Any]]] = {}
-    for row in filtered_data:
-        pid = row['problem_id']
-        src = row['source_type']
-        if pid not in grouped:
-            grouped[pid] = {}
-        grouped[pid][src] = row
-
-    llm_memories = []
-    human_memories = []
-
-    for pid, sources in grouped.items():
-        llm_row = sources.get('llm')
-        human_row = sources.get('human')
-
-        # Skip if either is missing
-        if not llm_row or not human_row:
-            continue
-
-        # Skip if either has a failure status (timeout, OOM, syntax error)
-        # Status 'success' or 'N/A' (for syntax errors in code gen, but usually we want successful runs)
-        # Based on T015/T016, status can be 'timeout', 'oom', 'N/A' (syntax), or 'success'
-        # We only want successful memory measurements for the paired test on efficiency
-        if llm_row['status'] not in ['success'] or human_row['status'] not in ['success']:
-            continue
-
-        llm_mem = llm_row.get('peak_memory')
-        human_mem = human_row.get('peak_memory')
-
-        if llm_mem is not None and human_mem is not None:
-            llm_memories.append(llm_mem)
-            human_memories.append(human_mem)
-
-    return llm_memories, human_memories
-
-def wilcoxon_signed_rank_test(
-    llm_memories: List[float],
-    human_memories: List[float]
-) -> Dict[str, Any]:
-    """
-    Perform Wilcoxon signed-rank test on the uncensored subset (excluding zero-differences).
+    Extract paired memory measurements for LLM and Human solutions.
+    
+    Groups measurements by problem_id and source_type, then pairs them.
+    Excludes pairs where either measurement is missing or marked as failed (N/A/timeout).
     
     Args:
-        llm_memories: List of peak memory values for LLM solutions (bytes).
-        human_memories: List of peak memory values for Human solutions (bytes).
-    
+        measurements: List of measurement dictionaries.
+        
     Returns:
-        Dictionary containing:
-            - 'statistic': The Wilcoxon test statistic (W).
-            - 'pvalue': The p-value of the test.
-            - 'n_pairs': Number of pairs used.
-            - 'n_zero_diff': Number of pairs with zero difference (excluded).
-            - 'method': 'wilcoxon_signed_rank'.
+        Tuple of (llm_memories, human_memories) as numpy arrays.
     """
-    if len(llm_memories) != len(human_memories):
-        raise ValueError("LLM and Human memory lists must be of equal length.")
+    # Group by problem_id
+    problem_groups: Dict[str, Dict[str, Any]] = {}
     
-    if len(llm_memories) < 2:
-        return {
-            'statistic': 0.0,
-            'pvalue': 1.0,
-            'n_pairs': len(llm_memories),
-            'n_zero_diff': 0,
-            'method': 'wilcoxon_signed_rank',
-            'error': 'Insufficient data for statistical test'
-        }
+    for row in measurements:
+        problem_id = row.get('problem_id')
+        source_type = row.get('source_type')
+        status = row.get('status')
+        
+        # Skip failed measurements
+        if status in ['N/A', 'timeout', 'OOM', 'error']:
+            continue
+        
+        if problem_id not in problem_groups:
+            problem_groups[problem_id] = {}
+        
+        if source_type in ['LLM', 'Human']:
+            # Convert peak_memory to float if it's a string
+            try:
+                memory_val = float(row.get('peak_memory', 0))
+            except (ValueError, TypeError):
+                continue
+            
+            problem_groups[problem_id][source_type] = memory_val
+    
+    llm_memories = []
+    human_memories = []
+    
+    for problem_id, sources in problem_groups.items():
+        if 'LLM' in sources and 'Human' in sources:
+            llm_memories.append(sources['LLM'])
+            human_memories.append(sources['Human'])
+    
+    return np.array(llm_memories), np.array(human_memories)
 
-    # Calculate differences
-    differences = np.array(llm_memories) - np.array(human_memories)
+def wilcoxon_signed_rank_test(
+    llm_memories: np.ndarray,
+    human_memories: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Perform Wilcoxon signed-rank test on paired memory measurements.
     
-    # Filter out zero differences as per task requirement
-    zero_mask = differences == 0
-    n_zero_diff = int(np.sum(zero_mask))
-    non_zero_diffs = differences[~zero_mask]
+    Args:
+        llm_memories: Array of LLM memory measurements.
+        human_memories: Array of Human memory measurements.
+        
+    Returns:
+        Tuple of (statistic, p-value).
+    """
+    if len(llm_memories) != len(human_memories) or len(llm_memories) < 2:
+        raise ValueError("Need at least 2 paired observations for Wilcoxon test")
     
-    n_pairs_used = len(non_zero_diffs)
+    # Remove zero differences
+    diff = llm_memories - human_memories
+    mask = diff != 0
+    if np.sum(mask) < 2:
+        raise ValueError("Insufficient non-zero differences for Wilcoxon test")
     
-    if n_pairs_used < 2:
-        return {
-            'statistic': 0.0,
-            'pvalue': 1.0,
-            'n_pairs': len(llm_memories),
-            'n_zero_diff': n_zero_diff,
-            'method': 'wilcoxon_signed_rank',
-            'note': 'Too few non-zero differences for test'
-        }
-
-    # Perform Wilcoxon signed-rank test
-    # scipy.stats.wilcoxon returns (statistic, pvalue)
-    # statistic is the sum of ranks of differences less than 0 (by default) or min of sum of positive/negative ranks
-    try:
-        stat, pval = stats.wilcoxon(non_zero_diffs)
-    except Exception as e:
-        return {
-            'statistic': 0.0,
-            'pvalue': 1.0,
-            'n_pairs': len(llm_memories),
-            'n_zero_diff': n_zero_diff,
-            'method': 'wilcoxon_signed_rank',
-            'error': f'Test failed: {str(e)}'
-        }
-
-    return {
-        'statistic': float(stat),
-        'pvalue': float(pval),
-        'n_pairs': len(llm_memories),
-        'n_zero_diff': n_zero_diff,
-        'method': 'wilcoxon_signed_rank'
-    }
+    stat, pval = stats.wilcoxon(
+        llm_memories[mask],
+        human_memories[mask],
+        zero_method='pratt',
+        alternative='two-sided'
+    )
+    
+    return float(stat), float(pval)
 
 def calculate_effect_size(
-    llm_memories: List[float],
-    human_memories: List[float],
+    llm_memories: np.ndarray,
+    human_memories: np.ndarray,
     method: str = 'rank_biserial'
-) -> Dict[str, Any]:
+) -> float:
     """
     Calculate effect size for the paired comparison.
     
     Args:
-        llm_memories: List of LLM memory values.
-        human_memories: List of Human memory values.
-        method: 'rank_biserial' (for Wilcoxon) or 'cohens_d' (for t-test).
-    
+        llm_memories: Array of LLM memory measurements.
+        human_memories: Array of Human memory measurements.
+        method: Effect size method to use. Options:
+            - 'rank_biserial': Rank-biserial correlation (for Wilcoxon)
+            - 'cohen_d': Cohen's d (for normal distributions)
+            
     Returns:
-        Dictionary with effect size value and interpretation.
+        Effect size value.
     """
-    if len(llm_memories) != len(human_memories) or len(llm_memories) == 0:
-        return {'value': 0.0, 'interpretation': 'Insufficient data', 'method': method}
-
-    differences = np.array(llm_memories) - np.array(human_memories)
+    if len(llm_memories) != len(human_memories) or len(llm_memories) < 2:
+        raise ValueError("Need at least 2 paired observations for effect size")
     
     if method == 'rank_biserial':
         # Rank-biserial correlation for Wilcoxon signed-rank test
-        # r = 1 - (2 * W) / (n * (n + 1)) ? No, that's for Mann-Whitney.
-        # For Wilcoxon: r = Z / sqrt(N) where Z is the standardized test statistic.
-        # Or simpler: r = 1 - (2 * sum_of_ranks_positive) / (n * (n+1)) ?
-        # Standard formula: r = 1 - (2 * |W|) / (n * (n + 1)) is not quite right for signed rank.
-        # Let's use the Z-score approximation if available, or the simple correlation.
-        # A common approach for Wilcoxon effect size is r = Z / sqrt(N).
-        # We can get Z from scipy.stats.wilcoxon if we run it again with 'alternative'
-        # Or calculate manually.
+        # Formula: r = 1 - (2 * |W|) / (n * (n + 1))
+        # Where W is the Wilcoxon statistic and n is the number of pairs
+        stat, _ = wilcoxon_signed_rank_test(llm_memories, human_memories)
+        n = len(llm_memories)
         
-        # Calculate ranks of absolute differences
-        abs_diffs = np.abs(differences)
-        ranks = stats.rankdata(abs_diffs)
+        # Calculate sum of positive and negative ranks
+        diff = llm_memories - human_memories
+        non_zero_mask = diff != 0
+        if np.sum(non_zero_mask) == 0:
+            return 0.0
+        
+        # Use scipy's rankdata to get ranks
+        from scipy.stats import rankdata
+        abs_diff = np.abs(diff[non_zero_mask])
+        ranks = rankdata(abs_diff)
         
         # Sum of ranks for positive differences
-        sum_ranks_pos = np.sum(ranks[differences > 0])
-        n = len(differences)
+        pos_ranks = np.sum(ranks[diff[non_zero_mask] > 0])
+        neg_ranks = np.sum(ranks[diff[non_zero_mask] < 0])
         
-        if n == 0:
-            return {'value': 0.0, 'interpretation': 'No data', 'method': method}
+        # W is typically the smaller of the two sums
+        w = min(pos_ranks, neg_ranks)
+        n_pairs = np.sum(non_zero_mask)
         
-        # Rank-biserial correlation: r = 1 - (2 * sum_ranks_pos) / (n * (n + 1)) ?
-        # Actually, for signed rank: r = 1 - (2 * W) / (n * (n+1)) where W is the statistic?
-        # Let's use the Z-score method which is more standard for effect size in Wilcoxon
-        try:
-            _, pval = stats.wilcoxon(differences)
-            # Approximate Z from p-value (two-tailed)
-            # This is an approximation. Better to get Z directly if possible.
-            # scipy doesn't return Z directly in standard call.
-            # Let's use the formula: Z = (W - n*(n+1)/4) / sqrt(n*(n+1)*(2n+1)/24)
-            # W is the sum of signed ranks? No, W is sum of positive ranks.
-            W = sum_ranks_pos
-            expected_W = n * (n + 1) / 4
-            std_W = np.sqrt(n * (n + 1) * (2 * n + 1) / 24)
-            Z = (W - expected_W) / std_W
-            
-            r = Z / np.sqrt(n)
-        except:
-            r = 0.0
+        # Rank-biserial correlation
+        r = 1 - (2 * w) / (n_pairs * (n_pairs + 1))
+        return float(r)
         
-        interpretation = "Small"
-        if abs(r) > 0.1: interpretation = "Small"
-        if abs(r) > 0.3: interpretation = "Medium"
-        if abs(r) > 0.5: interpretation = "Large"
+    elif method == 'cohen_d':
+        # Cohen's d for paired samples
+        # Formula: d = mean(diff) / std(diff)
+        diff = llm_memories - human_memories
+        mean_diff = np.mean(diff)
+        std_diff = np.std(diff, ddof=1)
         
-        return {
-            'value': float(r),
-            'interpretation': interpretation,
-            'method': 'rank_biserial'
-        }
-        
-    elif method == 'cohens_d':
-        # Paired Cohen's d
-        mean_diff = np.mean(differences)
-        std_diff = np.std(differences, ddof=1)
         if std_diff == 0:
-            d = 0.0
-        else:
-            d = mean_diff / std_diff
+            return 0.0
         
-        interpretation = "Small"
-        if abs(d) > 0.2: interpretation = "Small"
-        if abs(d) > 0.5: interpretation = "Medium"
-        if abs(d) > 0.8: interpretation = "Large"
-        
-        return {
-            'value': float(d),
-            'interpretation': interpretation,
-            'method': 'cohens_d'
-        }
+        return float(mean_diff / std_diff)
     
-    return {'value': 0.0, 'interpretation': 'Unknown method', 'method': method}
+    else:
+        raise ValueError(f"Unknown effect size method: {method}")
 
-def holm_bonferroni_correction(p_values: List[float]) -> List[float]:
+def holm_bonferroni_correction(
+    p_values: List[float],
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Apply Holm-Bonferroni correction to a list of p-values.
+    Apply Holm-Bonferroni correction to multiple p-values.
     
     Args:
-        p_values: List of raw p-values.
-    
+        p_values: List of p-values to correct.
+        alpha: Significance level.
+        
     Returns:
-        List of corrected p-values.
+        Dictionary with corrected p-values and significance decisions.
     """
-    if not p_values:
-        return []
-    
     n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
+    if n == 0:
+        return {'corrected_p_values': [], 'significant': []}
     
-    corrected_p = np.zeros(n)
-    for i in range(n):
-        # Holm's step-down procedure: p_i * (n - i)
-        # Ensure it doesn't exceed 1.0
-        val = sorted_p[i] * (n - i)
-        corrected_p[i] = min(val, 1.0)
+    # Sort p-values with original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p_values = [p_values[i] for i in sorted_indices]
+    
+    corrected_p_values = []
+    significant = []
+    
+    for i, p in enumerate(sorted_p_values):
+        # Holm-Bonferroni: p_corrected = p * (n - i)
+        # But ensure it doesn't exceed 1.0
+        corrected_p = min(p * (n - i), 1.0)
+        corrected_p_values.append(corrected_p)
+        significant.append(corrected_p < alpha)
     
     # Reorder to original indices
-    final_corrected = np.zeros(n)
-    final_corrected[sorted_indices] = corrected_p
+    final_corrected = [0.0] * n
+    final_significant = [False] * n
+    for i, idx in enumerate(sorted_indices):
+        final_corrected[idx] = corrected_p_values[i]
+        final_significant[idx] = significant[i]
     
-    return final_corrected.tolist()
+    return {
+        'corrected_p_values': final_corrected,
+        'significant': final_significant,
+        'alpha': alpha
+    }
 
 def generate_analysis_report(
-    wilcoxon_result: Dict[str, Any],
-    effect_size_result: Dict[str, Any],
-    corrected_p_values: Optional[List[float]] = None,
+    llm_memories: np.ndarray,
+    human_memories: np.ndarray,
+    wilcoxon_stat: float,
+    wilcoxon_pval: float,
+    effect_size: float,
+    effect_size_method: str,
+    corrected_p_values: List[float],
+    significant: List[bool],
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
     Generate a comprehensive analysis report.
+    
+    Args:
+        llm_memories: Array of LLM memory measurements.
+        human_memories: Array of Human memory measurements.
+        wilcoxon_stat: Wilcoxon test statistic.
+        wilcoxon_pval: Wilcoxon test p-value.
+        effect_size: Calculated effect size.
+        effect_size_method: Method used for effect size.
+        corrected_p_values: Holm-Bonferroni corrected p-values.
+        significant: List of significance decisions.
+        alpha: Significance level.
+        
+    Returns:
+        Dictionary containing the full analysis report.
     """
-    report = {
-        'wilcoxon_test': wilcoxon_result,
-        'effect_size': effect_size_result,
-        'significance_level': alpha,
-        'significant': wilcoxon_result.get('pvalue', 1.0) < alpha,
+    n_pairs = len(llm_memories)
+    mean_llm = float(np.mean(llm_memories))
+    mean_human = float(np.mean(human_memories))
+    std_llm = float(np.std(llm_memories, ddof=1))
+    std_human = float(np.std(human_memories, ddof=1))
+    
+    diff = llm_memories - human_memories
+    mean_diff = float(np.mean(diff))
+    std_diff = float(np.std(diff, ddof=1))
+    
+    return {
+        'summary': {
+            'n_pairs': n_pairs,
+            'mean_llm_memory': mean_llm,
+            'mean_human_memory': mean_human,
+            'std_llm_memory': std_llm,
+            'std_human_memory': std_human,
+            'mean_difference': mean_diff,
+            'std_difference': std_diff
+        },
+        'wilcoxon_test': {
+            'statistic': wilcoxon_stat,
+            'p_value': wilcoxon_pval,
+            'significant': wilcoxon_pval < alpha
+        },
+        'effect_size': {
+            'value': effect_size,
+            'method': effect_size_method,
+            'interpretation': interpret_effect_size(effect_size, effect_size_method)
+        },
+        'multiple_comparison_correction': {
+            'method': 'holm_bonferroni',
+            'alpha': alpha,
+            'corrected_p_values': corrected_p_values,
+            'significant': significant,
+            'any_significant': any(significant)
+        }
     }
+
+def interpret_effect_size(effect_size: float, method: str) -> str:
+    """
+    Provide a qualitative interpretation of the effect size.
     
-    if corrected_p_values:
-        report['holm_bonferroni_corrected_pvalues'] = corrected_p_values
-        # Determine significance after correction
-        raw_p = wilcoxon_result.get('pvalue', 1.0)
-        # Find the corresponding corrected p-value (assuming this is the first test if only one)
-        # In a multi-test scenario, we'd map indices. Here we assume single test for T022.
-        report['significant_after_correction'] = corrected_p_values[0] < alpha if corrected_p_values else False
-    
-    return report
+    Args:
+        effect_size: The calculated effect size value.
+        method: The method used ('cohen_d' or 'rank_biserial').
+        
+    Returns:
+        String interpretation of the effect size.
+    """
+    if method == 'cohen_d':
+        abs_es = abs(effect_size)
+        if abs_es < 0.2:
+            return "negligible"
+        elif abs_es < 0.5:
+            return "small"
+        elif abs_es < 0.8:
+            return "medium"
+        else:
+            return "large"
+    elif method == 'rank_biserial':
+        abs_es = abs(effect_size)
+        if abs_es < 0.1:
+            return "negligible"
+        elif abs_es < 0.3:
+            return "small"
+        elif abs_es < 0.5:
+            return "medium"
+        else:
+            return "large"
+    else:
+        return "unknown"
 
 def main():
-    """
-    Main entry point for running the statistical analysis.
-    Loads data, performs Wilcoxon test, calculates effect size, and generates report.
-    """
-    # Define paths
-    base_dir = Path(__file__).parent.parent
-    data_file = base_dir / 'data' / 'processed' / 'memory_measurements.csv'
-    output_dir = base_dir / 'data' / 'processed'
-    output_file = output_dir / 'statistical_analysis_report.json'
+    """Main entry point for the analysis script."""
+    import argparse
     
-    if not data_file.exists():
-        print(f"Error: Data file not found at {data_file}")
+    parser = argparse.ArgumentParser(description='Analyze memory usage differences')
+    parser.add_argument('--input', '-i', type=str, required=True,
+                      help='Path to input CSV file with memory measurements')
+    parser.add_argument('--output', '-o', type=str, required=True,
+                      help='Path to output JSON report file')
+    parser.add_argument('--effect-size-method', '-m', type=str, default='rank_biserial',
+                      choices=['rank_biserial', 'cohen_d'],
+                      help='Effect size calculation method')
+    parser.add_argument('--alpha', '-a', type=float, default=0.05,
+                      help='Significance level for corrections')
+    
+    args = parser.parse_args()
+    
+    # Load data
+    print(f"Loading data from {args.input}...")
+    measurements = load_memory_data(args.input)
+    print(f"Loaded {len(measurements)} measurements")
+    
+    # Extract paired data
+    print("Extracting paired data...")
+    llm_memories, human_memories = extract_paired_data(measurements)
+    print(f"Found {len(llm_memories)} valid pairs")
+    
+    if len(llm_memories) < 2:
+        print("Error: Insufficient data for statistical analysis")
         sys.exit(1)
     
-    print(f"Loading data from {data_file}...")
-    data = load_memory_data(str(data_file))
-    print(f"Loaded {len(data)} records.")
+    # Perform Wilcoxon test
+    print("Performing Wilcoxon signed-rank test...")
+    try:
+        wilcoxon_stat, wilcoxon_pval = wilcoxon_signed_rank_test(llm_memories, human_memories)
+        print(f"Wilcoxon statistic: {wilcoxon_stat:.4f}, p-value: {wilcoxon_pval:.4f}")
+    except ValueError as e:
+        print(f"Wilcoxon test failed: {e}")
+        sys.exit(1)
     
-    print("Extracting paired data (LLM vs Human)...")
-    llm_mems, human_mems = extract_paired_data(data)
-    print(f"Found {len(llm_mems)} valid pairs.")
+    # Calculate effect size
+    print(f"Calculating effect size ({args.effect_size_method})...")
+    effect_size = calculate_effect_size(
+        llm_memories, 
+        human_memories, 
+        method=args.effect_size_method
+    )
+    print(f"Effect size: {effect_size:.4f}")
     
-    if len(llm_mems) < 2:
-        print("Insufficient data for paired analysis.")
-        report = {
-            'error': 'Insufficient valid pairs for statistical analysis',
-            'n_pairs': len(llm_mems)
-        }
-    else:
-        print(f"Performing Wilcoxon signed-rank test on {len(llm_mems)} pairs (excluding zero differences)...")
-        wilcoxon_res = wilcoxon_signed_rank_test(llm_mems, human_mems)
-        print(f"Wilcoxon statistic: {wilcoxon_res['statistic']}, p-value: {wilcoxon_res['pvalue']}")
-        
-        print("Calculating effect size...")
-        effect_res = calculate_effect_size(llm_mems, human_mems, method='rank_biserial')
-        print(f"Effect size (r): {effect_res['value']} ({effect_res['interpretation']})")
-        
-        # If we had multiple tests, we would correct here. For T022, we assume single test.
-        # But to be robust, we can still apply correction if we pretend it's part of a set.
-        # For now, just pass the single p-value.
-        corrected_ps = holm_bonferroni_correction([wilcoxon_res['pvalue']])
-        
-        report = generate_analysis_report(
-            wilcoxon_result=wilcoxon_res,
-            effect_size_result=effect_res,
-            corrected_p_values=corrected_ps
-        )
+    # Apply Holm-Bonferroni correction (for this task, we only have one test,
+    # but the function is designed to handle multiple)
+    print("Applying Holm-Bonferroni correction...")
+    correction_result = holm_bonferroni_correction([wilcoxon_pval], alpha=args.alpha)
+    
+    # Generate report
+    print("Generating analysis report...")
+    report = generate_analysis_report(
+        llm_memories=llm_memories,
+        human_memories=human_memories,
+        wilcoxon_stat=wilcoxon_stat,
+        wilcoxon_pval=wilcoxon_pval,
+        effect_size=effect_size,
+        effect_size_method=args.effect_size_method,
+        corrected_p_values=correction_result['corrected_p_values'],
+        significant=correction_result['significant'],
+        alpha=args.alpha
+    )
     
     # Write report
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
+    print(f"Writing report to {args.output}...")
+    with open(args.output, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     
-    print(f"Analysis report written to {output_file}")
-    return report
+    print("Analysis complete!")
+    print(f"  - P-value: {wilcoxon_pval:.4f}")
+    print(f"  - Effect size: {effect_size:.4f} ({interpret_effect_size(effect_size, args.effect_size_method)})")
+    print(f"  - Significant at alpha={args.alpha}: {wilcoxon_pval < args.alpha}")
 
 if __name__ == '__main__':
     main()

@@ -1,12 +1,11 @@
-T001:
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or `.gitkeep` files were presented as evidence; the required
-    project structure (`code/`, `data/`, `data/raw/`, `data/derived/`, `data/artifacts/`,
-    `specs/001-llmxive-followup/contracts/`, `code/01_data_ingestion/`, `code/02_annotation_distillation/`,
-    `code/03_execution/`, `code/04_analysis/`, `code/utils/`, `tests/`) with a `.gitkeep`
-    in each is missing from the provided artifacts. The implementer must create and
-    show this structure.
+  r: "The implementer did not provide any `.gitignore` file or show that the required\
+    \ lines for `data/raw/`, `data/derived/`, and `data/artifacts/` were added. No\
+    \ artifact was presented, so the task\u2019s requirement is unmet. The next implementer\
+    \ should create or update the root `.gitignore` to include those three directory\
+    \ rules."
 T007:
   c: false
   h: 60f28228e2ddcb6ffd1aacf550eeb70eb6b75b8faae27f36cbb4329ccb56746c
@@ -15,21 +14,38 @@ T007:
     \ does it automatically run after each major phase. Moreover, the required state\
     \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
     \ is missing, so the hashes and timestamp cannot be recorded."
+T011b:
+  c: false
+  h: 0387167b8b9ea663eb2ff5a0b272a6fdbcb3cc7bcde42b9e58dcbfecaf893b5c
+  r: The repository lacks the required input file `data/derived/parsed_traces.json`,
+    the output files `failure_cases.json`, `failure_cases_train.json`, `failure_cases_val.json`,
+    and `failure_cases_test.json`, and the schema file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`.
+    Moreover, `annotate_failures.py` is truncated and does not contain the full implementation
+    (e.g., the annotation loop, schema validation call, data splitting, and file writing).
+    These missing pieces prevent the task from being considered complete.
 T013:
   c: false
-  h: 798f324a874af85c756153d35546c2a4ac3bd17a6c08537e8db13b3ae89c9c99
-  r: "The `distill_rules.py` file exists but the visible portion shows only schema\
-    \ loading and utility functions; there is no evidence of the required small\u2011\
-    model invocation, RAM\u2011limit check that raises an error, retry logic with\
-    \ specific n\u2011gram and quantization settings, or writing of `data/derived/fallback_status.json`.\
-    \ Moreover, the `fallback_status.json` file is absent. The task\u2019s core functional\
-    \ and compliance requirements are not demonstrably satisfied."
+  h: ad04abf85e2a130d71e2d81ffb539810caca7b6c7c2c05afa078f404a0d0d070
+  r: "The repository lacks the required `data/derived/failure_cases_val.json` input\
+    \ and the generated `data/derived/rules_library.json` output. Moreover, the provided\
+    \ `distill_rules.py` is truncated and does not contain the model\u2011selection,\
+    \ RAM\u2011monitoring, coverage\u2011checking, or LLM\u2011based rule generation\
+    \ logic mandated by the task. These essential components are missing, so the implementation\
+    \ is not complete."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `rule_engine.py` file or code changes were provided, so there is no evidence\
     \ that logic handling \u201CUnstructured\u201D cases and defaulting to the baseline\
     \ retrieval method was implemented. The required artifact is missing."
+T019a:
+  c: false
+  h: 7158615777270d49316fbc39477cc655bb14c9cf175bc85ce9478f33421fb845
+  r: "The script `code/03_execution/generate_manifest.py` is present but appears truncated\
+    \ and does not contain a complete implementation (e.g., the `write_manifest` function\
+    \ ends abruptly with an unfinished `raise ValueError`). Moreover, the required\
+    \ output file `data/derived/experiment_manifest.csv` does not exist. The task\u2019\
+    s core requirement\u2014to generate that manifest CSV\u2014is therefore not satisfied."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
