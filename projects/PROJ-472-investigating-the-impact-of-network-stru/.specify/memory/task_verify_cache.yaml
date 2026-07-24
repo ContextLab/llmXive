@@ -5,6 +5,15 @@ T004:
     \ constants: `HCP_MMP_FILE_PATH`, `HCP_MMP_URL`, `HCP_MMP_HASH` (placeholder as\
     \ specified), `SENSITIVITY_THRESHOLDS`, and `N_MIN`. The definitions match the\
     \ specification, and no required artifact is missing."
+T010:
+  c: false
+  h: b5f878dd6ab48758b07418b770cfb7dd4466bedc4f27e60a63dede6c0c80fdb5
+  r: "The repository lacks the required `data/raw/HCP_MMP1.0_Glasser2016.zip` file,\
+    \ so the script cannot verify its presence. Moreover, the provided `preprocess_dMRI.py`\
+    \ only contains download/verification utilities and does not implement the conversion\
+    \ of `.tck` tractography files to HCP\u2011MMP adjacency matrices with MRtrix3\u2019\
+    s `tck2connectome`. Both the essential data file and the core processing logic\
+    \ are missing."
 T029c:
   c: false
   h: 4eef444f4d472665c65a0a3ff4e795b617456bea5e94e60a8fae4fc359eff815

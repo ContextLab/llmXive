@@ -1,1 +1,11 @@
-[]
+- artifact_hash: d7517dc349051dc641b8996924d25c7079fe3f61ea12dcc94f550a86f272b4bd
+  artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip
+  verified_at: '2026-07-24T02:17:16.272519Z'

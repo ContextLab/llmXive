@@ -1356,3 +1356,596 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T15:43:19Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds004230 contains HCP_MMP1.0_Glasser2016 parcellation file
+  claim_id: c_9576bab9
+  context: 'HCP_MMP_URL: Set to https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip
+    (Verified OpenNeuro source).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds004230_contains_HCP_MMP1.0_Glasser2016_parcellat
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ds004230 contains the HCP_MMP1.0_Glasser2016 parcellation
+    file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:59:29Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds004231 contains resting-state EEG data
+  claim_id: c_4eab5d91
+  context: Fetch resting-state EEG data from OpenNeuro ds004231.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds004231_contains_resting-state_EEG_data
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ds004231 contains resting-state EEG data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T01:59:49Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Matched dMRI and EEG data unavailable in OpenNeuro ds004230 and ds004231
+  claim_id: c_2ef20e29
+  context: 'Note: Per Plan assumptions, matched dMRI+EEG data is unavailable; this
+    fetch is expected to fail or yield no matched subjects.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Matched_dMRI_and_EEG_data_unavailable_in_OpenNeuro_ds004230
+  kind: entity_fact
+  raw_text: Matched dMRI and EEG data is unavailable in the OpenNeuro datasets ds004230
+    and ds004231.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:00:05Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Minimum sample size N_MIN is 10
+  claim_id: c_1257f8d7
+  context: 'N_MIN: Default a moderate baseline (e.g., 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum sample size N_MIN is set to a default baseline of 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:00:29Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: EEG signals downsampled to 250 Hz
+  claim_id: c_bde74497
+  context: Preprocess (MNE band-pass within a low-frequency range up to 40Hz, downsample
+    to 250Hz, ICA).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: EEG signals are downsampled to 250 Hz during preprocessing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:02:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: EEG band-pass filter up to 40 Hz
+  claim_id: c_ea18d6a9
+  context: Preprocess (MNE band-pass within a low-frequency range up to 40Hz, downsample
+    to 250Hz, ICA).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The EEG band-pass filter range extends up to 40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:02:27Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Avalanche detection threshold is 75th percentile of raw signal
+  claim_id: c_be846863
+  context: Calculate the 75th percentile amplitude from the RAW signal distribution
+    (per-participant) BEFORE z-scoring.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avalanche_detection_threshold_is_75th_percentile_of_raw_sign
+  kind: entity_fact
+  raw_text: Neural avalanche detection thresholds are set at the 75th percentile of
+    the raw signal amplitude.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:02:49Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Participants with >30% channels removed excluded
+  claim_id: c_f78a574f
+  context: 'Real Data: Exclude participants with >30% channels removed after ICA.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_with_%3E30%25_channels_removed_excluded
+  kind: magnitude
+  raw_text: Participants with more than 30% of channels removed after ICA are excluded
+    from the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:03:08Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 4 workers
+  claim_id: c_8eb131ff
+  context: "Profile code/analysis/stats.py and optimize the permutation loop using\
+    \ multiprocessing with 4 workers and chunked processing to ensure total runtime\
+    \ \u2264 6 hours on CPU-only runner for N=len(participants) (SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test optimization uses 4 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:06:50Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation loop runtime limit is 6 hours
+  claim_id: c_74e8b109
+  context: "optimize the permutation loop using multiprocessing with 4 workers and\
+    \ chunked processing to ensure total runtime \u2264 6 hours on CPU-only runner\
+    \ for N=len(participants) (SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum allowed runtime for the permutation loop on a CPU-only runner
+    is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:06:54Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Datasets >100 MB are streamed
+  claim_id: c_1220e293
+  context: Stream if size > 100MB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Datasets larger than 100 MB are streamed during download.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:07:06Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Power-law compared to exponential and log-normal
+  claim_id: c_0107e4bc
+  context: Implement power-law model fitting in code/analysis/fitting.py using powerlaw
+    package with model comparison (power-law vs. exponential vs. log-normal) per FR-011.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power-law_compared_to_exponential_and_log-normal
+  kind: entity_fact
+  raw_text: The power-law model is compared against exponential and log-normal distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:07:19Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: High collinearity flagged if VIF >= 5
+  claim_id: c_972a5174
+  context: "Implement collinearity diagnostics (VIF) in code/analysis/stats.py with\
+    \ flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_collinearity_flagged_if_VIF_%3E=_5
+  kind: magnitude
+  raw_text: High collinearity is flagged if the Variance Inflation Factor (VIF) is
+    greater than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:07:42Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: HCP-MMP file URL is https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip
+  claim_id: c_d20b567f
+  context: 'HCP_MMP_URL: Set to https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip
+    (Verified OpenNeuro source).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The HCP-MMP parcellation file is located at https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:13:36Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Matched dMRI plus EEG data unavailable for OpenNeuro ds004230 and ds004231
+  claim_id: c_4ddbca40
+  context: 'Note: Per Plan assumptions, matched dMRI+EEG data is unavailable; this
+    fetch is expected to fail or yield no matched subjects.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Matched_dMRI_plus_EEG_data_unavailable_for_OpenNeuro_ds00423
+  kind: entity_fact
+  raw_text: Matched dMRI and EEG data is unavailable for the OpenNeuro datasets ds004230
+    and ds004231.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:13:39Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 2
+  canonical: Sensitivity thresholds are 0.70, 0.75, and 0.80
+  claim_id: c_cdd93ab4
+  context: 'SENSITIVITY_THRESHOLDS: Hardcoded list {0.70, 0.75, 0.80} per Spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity thresholds used in the study are 0.70, 0.75, and 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:13:39Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Real EEG data downsampled to 250 Hz
+  claim_id: c_d979a0d4
+  context: Preprocess (MNE band-pass within a low-frequency range up to 40Hz, downsample
+    to 250Hz, ICA).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Real EEG data preprocessing includes downsample to 250Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:13:42Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Real EEG data band-pass filtered up to 40 Hz
+  claim_id: c_135864b1
+  context: Preprocess (MNE band-pass within a low-frequency range up to 40Hz, downsample
+    to 250Hz, ICA).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Real EEG data preprocessing includes band-pass filtering up to 40Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:13:45Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Avalanche threshold set to 75th percentile of raw signal amplitude
+  claim_id: c_97b843fc
+  context: Calculate the 75th percentile amplitude from the RAW signal distribution
+    (per-participant) BEFORE z-scoring. Apply z-score normalization... Threshold the
+    z-scored signal at the value calculated from the RAW signal (75th percentile).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avalanche_threshold_set_to_75th_percentile_of_raw_signal_amp
+  kind: entity_fact
+  raw_text: Neural avalanche detection thresholds the z-scored signal at the 75th
+    percentile amplitude of the raw signal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:14:22Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Participants with greater than 30 percent channels removed excluded
+  claim_id: c_2d05f15b
+  context: 'Real Data: Exclude participants with >30% channels removed after ICA.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_with_greater_than_30_percent_channels_removed_e
+  kind: magnitude
+  raw_text: Participants with more than 30% channels removed after ICA are excluded
+    in quality control.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:16:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: High collinearity flagged if VIF greater than or equal to 5
+  claim_id: c_5e61bd29
+  context: "Implement collinearity diagnostics (VIF) in code/analysis/stats.py with\
+    \ flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_collinearity_flagged_if_VIF_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: Collinearity is flagged as high if the Variance Inflation Factor (VIF)
+    is greater than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:16:16Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 4 workers
+  claim_id: c_26b48b94
+  context: Profile code/analysis/stats.py and optimize the permutation loop using
+    multiprocessing with 4 workers and chunked processing...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test optimization uses 4 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:16:17Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation test runtime less than or equal to 6 hours
+  claim_id: c_6d9035df
+  context: "...to ensure total runtime \u2264 6 hours on CPU-only runner for N=len(participants)\
+    \ (SC-006)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: The permutation test runtime must be less than or equal to 6 hours on
+    a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:16:21Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Datasets larger than 100 MB streamed
+  claim_id: c_80d2df4d
+  context: Stream if size > 100MB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Datasets larger than 100MB are streamed during download.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:16:23Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: HCP_MMP1.0_Glasser2016.zip URL on OpenNeuro ds004230
+  claim_id: c_2aa36ee9
+  context: 'T004 Configure linting and formatting tools. MUST define HCP_MMP_URL:
+    Set to https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip
+    (Verified OpenNeuro source).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The HCP_MMP_URL is set to https://openneuro.org/datasets/ds004230/versions/1.0.0/file_display/ds004230/parcellations/HCP_MMP1.0_Glasser2016.zip.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:19:55Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds hardcoded as 0.70, 0.75, 0.80
+  claim_id: c_1f02ca22
+  context: 'T004 ... SENSITIVITY_THRESHOLDS: Hardcoded list {0.70, 0.75, 0.80} per
+    Spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SENSITIVITY_THRESHOLDS are hardcoded as {0.70, 0.75, 0.80}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:20:07Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Streaming required for datasets larger than 100MB
+  claim_id: c_3e3f887d
+  context: T009 ... Stream if size > 100MB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_required_for_datasets_larger_than_100MB
+  kind: entity_fact
+  raw_text: The download task must stream datasets larger than 100MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:20:19Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 'EEG preprocessing: band-pass up to 40Hz, downsample to 250Hz'
+  claim_id: c_d1301b3a
+  context: T011b ... Preprocess (MNE band-pass within a low-frequency range up to
+    40Hz, downsample to 250Hz, ICA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EEG_preprocessing:_band-pass_up_to_40Hz,_downsample_to_250Hz
+  kind: entity_fact
+  raw_text: Real EEG preprocessing involves a band-pass filter up to 40Hz and downsampling
+    to 250Hz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:20:36Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Avalanche threshold at 75th percentile of raw signal amplitude
+  claim_id: c_ddfecc54
+  context: T015 ... Calculate the 75th percentile amplitude from the RAW signal distribution
+    (per-participant) BEFORE z-scoring. ... Threshold the z-scored signal at the value
+    calculated from the RAW signal (75th percentile).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Avalanche_threshold_at_75th_percentile_of_raw_signal_amplitu
+  kind: entity_fact
+  raw_text: Avalanche detection thresholds the z-scored signal at the 75th percentile
+    amplitude of the raw signal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:20:52Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Exclude participants with >30% channels removed after ICA
+  claim_id: c_69e0ab07
+  context: 'T012 ... Real Data: Exclude participants with >30% channels removed after
+    ICA.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_%3E30%25_channels_removed_after_ICA
+  kind: magnitude
+  raw_text: Participants with more than 30% channels removed after ICA are excluded
+    from real data analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:22:41Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Sample size gate requires N >= N_MIN for correlation analysis
+  claim_id: c_0503aa7a
+  context: 'T029c ... If N >= N_MIN: CONTINUE to correlation analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_size_gate_requires_N_%3E=_N_MIN_for_correlation_analysi
+  kind: entity_fact
+  raw_text: The sample size gate requires N >= N_MIN to proceed to correlation analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:23:03Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: High collinearity flagged if VIF >= 5
+  claim_id: c_9d2d6d6a
+  context: "T021 ... Implement collinearity diagnostics (VIF) in code/analysis/stats.py\
+    \ with flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Collinearity diagnostics flag high collinearity if VIF >= 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:23:09Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation loop runtime < 6 hours for N=50 on CPU
+  claim_id: c_f059bf28
+  context: "T027a ... ensure total runtime \u2264 6 hours on CPU-only runner for N=len(participants)\
+    \ (SC-006). ... Verify runtime < 6h for N=50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_loop_runtime_%3C_6_hours_for_N=50_on_CPU
+  kind: magnitude
+  raw_text: The permutation loop optimization targets a runtime of less than 6 hours
+    for N=50 on CPU-only runners.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:23:13Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation loop uses 4 workers
+  claim_id: c_5aafc629
+  context: T027a ... optimize the permutation loop using multiprocessing with 4 workers
+    and chunked processing...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation loop optimization uses 4 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T02:23:29Z'
