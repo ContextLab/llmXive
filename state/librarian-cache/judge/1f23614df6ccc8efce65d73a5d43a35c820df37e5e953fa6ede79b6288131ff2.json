@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.14224",
+  "judged_at": "2026-07-24T18:54:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "The paper focuses on adaptive convolution for speech enhancement (signal processing) and does not address the user's specific question regarding causal modeling, autoregressive drafting, or linguistic analysis in the context of LLMs. While both involve \"causal\" concepts, the paper's mechanism (frame-wise dynamic convolution for audio) is distinct from the user's target mechanism (decoupling causal modeling from autoregressive drafting in language generation), failing the \"distinct construct\" and",
+  "relevant": false
+}

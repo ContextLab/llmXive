@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.29707",
+  "judged_at": "2026-07-24T18:54:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "The candidate paper is the foundational methods paper for the \"Domino\" framework explicitly named in the user's research question, satisfying acceptance criterion (d) as the canonical reference for the technique being extended. Additionally, it directly addresses the core mechanism of \"decoupling causal modeling from autoregressive drafting\" mentioned in the user's query, satisfying criterion (a).",
+  "relevant": true
+}

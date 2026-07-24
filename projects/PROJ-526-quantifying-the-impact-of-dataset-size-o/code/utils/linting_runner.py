@@ -1,144 +1,122 @@
 """
-Runner script to execute linting and formatting checks.
-
-This module provides a unified entry point to run flake8 and black
-checks against the codebase. It can be used in CI/CD pipelines or
-locally to verify code quality.
+Utility to run linting and formatting checks programmatically.
+Used by CI/CD or local validation scripts to enforce code quality.
 """
-
+import subprocess
 import sys
 from pathlib import Path
-from code.linting_config import (
-    get_black_config,
-    get_flake8_config,
-    FLAKE8_EXCLUDE,
-)
+from typing import Tuple, Optional
 
-try:
-    import black
-    import flake8
-    from flake8.api import legacy as flake8_api
-except ImportError:
-    print("Error: linting dependencies not installed.", file=sys.stderr)
-    print("Please run: pip install black flake8", file=sys.stderr)
-    sys.exit(1)
+from code.linting_config import get_black_config, get_flake8_config
 
-def run_black_check(target_dir: Path, dry_run: bool = True) -> bool:
+def run_black_check(target_dir: Optional[Path] = None) -> Tuple[bool, str]:
     """
-    Run black formatting check on the target directory.
+    Runs Black formatter in 'check' mode on the target directory.
     
     Args:
-        target_dir: The directory to check.
-        dry_run: If True, only check without fixing.
-    
+        target_dir: Directory to check. Defaults to project root.
+        
     Returns:
-        True if all files are correctly formatted, False otherwise.
+        Tuple of (success: bool, message: str)
     """
+    if target_dir is None:
+        target_dir = Path(__file__).resolve().parent.parent.parent
+        
     config = get_black_config()
-    mode = black.Mode(
-        line_length=config["line_length"],
-        skip_string_normalization=config["skip_string_normalization"],
-    )
+    cmd = [
+        sys.executable, "-m", "black",
+        "--check",
+        f"--line-length={config['line_length']}",
+        "--diff"
+    ]
     
-    python_files = []
-    for path in target_dir.rglob("*.py"):
-        # Skip excluded directories
-        is_excluded = any(excluded in path.parts for excluded in FLAKE8_EXCLUDE)
-        if not is_excluded:
-            python_files.append(str(path))
-    
-    if not python_files:
-        print("No Python files found to check.")
-        return True
-    
-    if dry_run:
-        try:
-            changed = black.check_files(python_files, mode=mode, quiet=False)
-            if changed:
-                print("\n❌ Black check failed: Some files need formatting.")
-                print("Run: black code/")
-                return False
-            else:
-                print("✅ Black check passed: All files are correctly formatted.")
-                return True
-        except Exception as e:
-            print(f"❌ Black check error: {e}")
-            return False
-    else:
-        try:
-            black.format_files(python_files, mode=mode)
-            print("✅ Black formatting applied.")
-            return True
-        except Exception as e:
-            print(f"❌ Black formatting error: {e}")
-            return False
+    # Add exclude patterns if needed, though pyproject.toml is preferred
+    try:
+        result = subprocess.run(
+            cmd + [str(target_dir)],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode == 0:
+            return True, "Black check passed."
+        else:
+            msg = f"Black check failed:\n{result.stdout}\n{result.stderr}"
+            return False, msg
+    except FileNotFoundError:
+        return False, "Black not installed. Run: pip install black"
 
-def run_flake8_check(target_dir: Path) -> bool:
+def run_flake8_check(target_dir: Optional[Path] = None) -> Tuple[bool, str]:
     """
-    Run flake8 linting check on the target directory.
+    Runs Flake8 linter on the target directory.
     
     Args:
-        target_dir: The directory to check.
-    
+        target_dir: Directory to check. Defaults to project root.
+        
     Returns:
-        True if no linting errors found, False otherwise.
+        Tuple of (success: bool, message: str)
     """
+    if target_dir is None:
+        target_dir = Path(__file__).resolve().parent.parent.parent
+        
     config = get_flake8_config()
+    ignore_str = ",".join(config["ignore"])
     
-    # Build exclude pattern string
-    exclude_str = ",".join(config["exclude"])
-    
-    # Create flake8 application
-    app = flake8_api.get_application(
-        ignore=config["ignore"],
-        max_line_length=config["max_line_length"],
-        max_complexity=config["max_complexity"],
-        exclude=exclude_str,
-        show_source=True,
-        count=True,
-        statistics=True,
-    )
+    cmd = [
+        sys.executable, "-m", "flake8",
+        f"--max-line-length={config['max_line_length']}",
+        f"--ignore={ignore_str}",
+        "--exclude", ",".join(config["exclude"]),
+        str(target_dir)
+    ]
     
     try:
-        app.run_checks(str(target_dir))
-        app.report()
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
         
-        if app.get_file_results():
-            error_count = sum(
-                len(r.results) for r in app.get_file_results()
-            )
-            if error_count > 0:
-                print(f"\n❌ Flake8 found {error_count} issue(s).")
-                return False
-        
-        print("✅ Flake8 check passed: No linting errors found.")
-        return True
-    except Exception as e:
-        print(f"❌ Flake8 check error: {e}")
-        return False
+        if result.returncode == 0:
+            return True, "Flake8 check passed."
+        else:
+            msg = f"Flake8 check failed:\n{result.stdout}\n{result.stderr}"
+            return False, msg
+    except FileNotFoundError:
+        return False, "Flake8 not installed. Run: pip install flake8"
 
-def main():
-    """Main entry point for the linting runner."""
-    project_root = Path(__file__).parent.parent.parent
-    code_dir = project_root / "code"
+def main() -> int:
+    """
+    Main entry point for running all linting checks.
+    Returns 0 if all pass, 1 otherwise.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    all_passed = True
     
-    print("=" * 60)
-    print("Running Code Quality Checks")
-    print("=" * 60)
-    
-    # Run Black check (dry run by default)
-    black_ok = run_black_check(code_dir, dry_run=True)
-    
-    # Run Flake8 check
-    flake8_ok = run_flake8_check(code_dir)
-    
-    print("=" * 60)
-    if black_ok and flake8_ok:
-        print("🎉 All checks passed!")
-        sys.exit(0)
+    print("Running Black check...")
+    success, msg = run_black_check(project_root)
+    if not success:
+        print(f"❌ {msg}")
+        all_passed = False
     else:
-        print("⚠️ Some checks failed. Please fix the issues above.")
-        sys.exit(1)
+        print(f"✅ {msg}")
+        
+    print("\nRunning Flake8 check...")
+    success, msg = run_flake8_check(project_root)
+    if not success:
+        print(f"❌ {msg}")
+        all_passed = False
+    else:
+        print(f"✅ {msg}")
+        
+    if all_passed:
+        print("\n🎉 All linting checks passed!")
+        return 0
+    else:
+        print("\n⚠️ Some linting checks failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

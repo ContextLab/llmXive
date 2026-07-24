@@ -1,0 +1,14 @@
+status: none
+intent: download permeability dataset NIST PubChem MTR molecular transport python
+  package dataset
+required_fields:
+- smiles
+- permeability_coefficient
+- molecular_weight
+- logP
+- topological_polar_surface_area
+- rotatable_bond_count
+- compound_id
+cache_key: 5f8fbb6519a6070942742e441764a8d742db347049048846d9e2d3bb3e489ef4
+searched_at: '2026-07-24T19:12:14.841473+00:00'
+retry_count: 1

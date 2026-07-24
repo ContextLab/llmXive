@@ -1,43 +1,43 @@
 import os
 from pathlib import Path
+from typing import List
 
-def create_directories():
+def create_directories(base_path: Path, directories: List[str]) -> None:
     """
-    Creates the required directory structure for the project.
-    Ensures existence of data/raw, data/processed, state, and other standard folders.
+    Create a list of directories relative to base_path.
+    Raises FileNotFoundError if a directory cannot be created.
     """
-    # Define the project root relative to this file's location or the current working directory
-    # Assuming the script is run from the project root or code/ directory, we resolve relative to cwd
-    project_root = Path.cwd()
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            if not dir_path.is_dir():
+                raise FileNotFoundError(f"Failed to create directory: {dir_path}")
+        except OSError as e:
+            raise FileNotFoundError(f"Error creating directory {dir_path}: {e}")
 
-    # Define the directory structure to create
-    directories = [
+def main() -> None:
+    """
+    Main entry point for setting up the project directory structure.
+    Creates the required directories under the project root.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define required directory structure relative to project root
+    required_dirs = [
+        "data",
         "data/raw",
         "data/processed",
         "state",
-        "docs",
+        "tests",
         "tests/contract",
         "tests/unit",
         "tests/integration",
+        "docs",
+        "code",
+        "code/utils"
     ]
-
-    created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-        # Ensure permissions are correct (optional, but good practice)
-        # os.chmod(full_path, 0o755)
-
-    return created_count
-
-def main():
-    """Entry point for directory creation."""
-    print("Creating project directory structure...")
-    count = create_directories()
-    print(f"Successfully created {count} new directories.")
-    print("Directory structure ready.")
-
-if __name__ == "__main__":
-    main()
+    
+    print(f"Creating directories in {project_root}...")
+    create_directories(project_root, required_dirs)
+    print("Directory structure created successfully.")

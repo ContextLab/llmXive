@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.22203",
+  "judged_at": "2026-07-24T18:54:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "The paper focuses on automatic speech recognition (ASR) performance and feature fusion for naturalistic speech corpora, which is an off-domain application compared to the user's question about extending a specific causal modeling framework (\"Domino\") for LLM drafting in the context of linguistics. It does not measure the same causal mechanism, address the specific variables of autoregressive drafting efficiency, or provide a foundational reference for the \"Domino\" methodology.",
+  "relevant": false
+}

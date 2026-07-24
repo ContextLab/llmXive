@@ -1,13 +1,17 @@
 """
 Error handling framework for the plant defense compound prediction pipeline.
-Implements error codes (E-DATASET, E-PAIRING, E-TIMEOUT, E-POWER) and
-provides utility functions for error management and timeout monitoring.
+
+Implements error codes E-DATASET, E-PAIRING, E-TIMEOUT, and E-POWER.
+Provides utilities for timeout management, error logging, and graceful failure.
 """
 import sys
 import time
 import logging
 from typing import Optional, Dict, Any, Callable
 from pathlib import Path
+from functools import wraps
+import signal
+
 from exceptions import (
     PipelineError,
     E_DATASET,
@@ -16,148 +20,208 @@ from exceptions import (
     E_POWER
 )
 
-
-# Configure logger
+# Configure logging
 logger = logging.getLogger(__name__)
 
+# Global timeout limit (in seconds) - default 4 hours
+GLOBAL_TIMEOUT_LIMIT = 4 * 60 * 60  # 14400 seconds
+_timeout_start_time: Optional[float] = None
+_timeout_limit: float = GLOBAL_TIMEOUT_LIMIT
 
-# Global timeout limit (seconds) - default 4 hours as per FR-008
-_TIMEOUT_LIMIT_SECONDS = 14400
-_start_time: Optional[float] = None
 
-
-def set_timeout_limit(seconds: int) -> None:
+def set_timeout_limit(seconds: float) -> None:
     """
     Set the global timeout limit for the pipeline.
     
     Args:
-        seconds: Maximum allowed CPU time in seconds (default: 14400 for 4 hours)
+        seconds: Timeout limit in seconds
     """
-    global _TIMEOUT_LIMIT_SECONDS
-    _TIMEOUT_LIMIT_SECONDS = seconds
-    logger.info(f"Timeout limit set to {_TIMEOUT_LIMIT_SECONDS} seconds")
+    global _timeout_limit
+    _timeout_limit = seconds
+    logger.info(f"Timeout limit set to {seconds} seconds ({seconds/3600:.2f} hours)")
 
 
 def start_timeout_monitor() -> None:
     """
     Start the timeout monitoring timer.
-    Should be called at the beginning of the pipeline execution.
+    
+    Must be called at the beginning of the pipeline execution.
     """
-    global _start_time
-    _start_time = time.time()
+    global _timeout_start_time
+    _timeout_start_time = time.time()
     logger.info("Timeout monitor started")
 
-
-def check_timeout() -> bool:
+def check_timeout() -> None:
     """
-    Check if the elapsed time exceeds the timeout limit.
+    Check if the timeout limit has been exceeded.
     
-    Returns:
-        True if timeout has been exceeded, False otherwise.
+    Raises:
+        E_TIMEOUT: If elapsed time exceeds the limit
     """
-    if _start_time is None:
-        return False
+    if _timeout_start_time is None:
+        return
     
-    elapsed = time.time() - _start_time
-    if elapsed > _TIMEOUT_LIMIT_SECONDS:
-        logger.error(f"Timeout exceeded: {elapsed:.2f}s > {_TIMEOUT_LIMIT_SECONDS}s")
-        return True
-    return False
+    elapsed = time.time() - _timeout_start_time
+    if elapsed > _timeout_limit:
+        error = E_TIMEOUT(
+            f"Pipeline execution exceeded time limit of {_timeout_limit} seconds",
+            details={
+                "elapsed_seconds": elapsed,
+                "limit_seconds": _timeout_limit,
+                "elapsed_hours": elapsed / 3600
+            }
+        )
+        logger.error(f"TIMEOUT: {error}")
+        raise error
 
 
-def handle_error(error: PipelineError) -> None:
+def wrap_with_timeout(timeout_seconds: Optional[float] = None):
     """
-    Handle a pipeline error by logging and exiting.
+    Decorator to enforce timeout on a function.
     
     Args:
-        error: The PipelineError instance to handle.
+        timeout_seconds: Optional timeout override for this function
+        
+    Returns:
+        Decorated function that raises E_TIMEOUT if exceeded
     """
-    logger.error(f"Pipeline error occurred: {error.error_code} - {error.message}")
-    if error.details:
-        logger.error(f"Error details: {error.details}")
-    
-    # Log to stderr for visibility
-    print(f"ERROR: {error.error_code} - {error.message}", file=sys.stderr)
-    
-    # Exit with non-zero status
-    sys.exit(1)
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            func_start = time.time()
+            limit = timeout_seconds if timeout_seconds is not None else _timeout_limit
+            
+            def timeout_handler(signum, frame):
+                raise E_TIMEOUT(
+                    f"Function {func.__name__} exceeded timeout of {limit} seconds",
+                    details={
+                        "function": func.__name__,
+                        "limit_seconds": limit
+                    }
+                )
+            
+            # Set signal handler (Unix only)
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(int(limit))
+            
+            try:
+                result = func(*args, **kwargs)
+                return result
+            finally:
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, old_handler)
+        return wrapper
+    return decorator
 
+
+def handle_error(error: PipelineError, exit_on_error: bool = True) -> None:
+    """
+    Handle a pipeline error with logging and optional exit.
+    
+    Args:
+        error: The PipelineError instance to handle
+        exit_on_error: If True, exit the program after logging
+    """
+    logger.critical(f"ERROR [{error.code}]: {error.message}")
+    if error.details:
+        logger.critical(f"Error details: {error.details}")
+    
+    if exit_on_error:
+        logger.critical(f"Pipeline aborted due to {error.code}")
+        sys.exit(1)
 
 def raise_dataset_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Raise an E_DATASET error for dataset-related failures.
+    Raise an E_DATASET error.
     
     Args:
-        message: Description of the dataset failure.
-        details: Optional dictionary with additional error context.
+        message: Error message
+        details: Optional dictionary of error details
+        
+    Raises:
+        E_DATASET: Always
     """
     error = E_DATASET(message, details)
-    logger.critical(f"Dataset error: {message}")
-    if details:
-        logger.critical(f"Details: {details}")
+    logger.error(f"Dataset error: {error}")
     raise error
-
 
 def raise_pairing_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Raise an E_PAIRING error for sample pairing failures.
+    Raise an E_PAIRING error.
     
     Args:
-        message: Description of the pairing failure.
-        details: Optional dictionary with additional error context.
+        message: Error message
+        details: Optional dictionary of error details
+        
+    Raises:
+        E_PAIRING: Always
     """
     error = E_PAIRING(message, details)
-    logger.critical(f"Pairing error: {message}")
-    if details:
-        logger.critical(f"Details: {details}")
+    logger.error(f"Pairing error: {error}")
     raise error
-
 
 def raise_timeout_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Raise an E_TIMEOUT error when computational budget is exceeded.
+    Raise an E_TIMEOUT error.
     
     Args:
-        message: Description of the timeout condition.
-        details: Optional dictionary with additional error context.
+        message: Error message
+        details: Optional dictionary of error details
+        
+    Raises:
+        E_TIMEOUT: Always
     """
     error = E_TIMEOUT(message, details)
-    logger.critical(f"Timeout error: {message}")
-    if details:
-        logger.critical(f"Details: {details}")
+    logger.error(f"Timeout error: {error}")
     raise error
-
 
 def raise_power_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Raise an E_POWER error when power analysis fails (n < 28).
+    Raise an E_POWER error.
     
     Args:
-        message: Description of the power analysis failure.
-        details: Optional dictionary with additional error context.
+        message: Error message
+        details: Optional dictionary of error details
+        
+    Raises:
+        E_POWER: Always
     """
     error = E_POWER(message, details)
-    logger.critical(f"Power analysis error: {message}")
-    if details:
-        logger.critical(f"Details: {details}")
+    logger.error(f"Power analysis error: {error}")
     raise error
 
 
-def wrap_with_timeout(func: Callable) -> Callable:
+def validate_pairing_rate(rate: float, threshold: float = 0.95, min_samples: int = 28) -> None:
     """
-    Decorator to wrap a function with timeout monitoring.
+    Validate pairing rate and sample size, raising E_PAIRING if requirements not met.
     
     Args:
-        func: The function to wrap.
+        rate: Pairing rate (0.0 to 1.0)
+        threshold: Minimum required pairing rate (default 0.95)
+        min_samples: Minimum required sample size (default 28)
         
-    Returns:
-        Wrapped function that checks timeout before execution.
+    Raises:
+        E_PAIRING: If rate < threshold or samples < min_samples
     """
-    def wrapper(*args, **kwargs):
-        if check_timeout():
-            raise_timeout_error(
-                "Pipeline execution exceeded time limit",
-                {"limit_seconds": _TIMEOUT_LIMIT_SECONDS}
-            )
-        return func(*args, **kwargs)
-    return wrapper
+    if rate < threshold:
+        raise_pairing_error(
+            f"Pairing rate {rate:.2%} is below required threshold {threshold:.2%}",
+            details={"pairing_rate": rate, "threshold": threshold}
+        )
+
+def validate_sample_size(n: int, min_required: int = 28) -> None:
+    """
+    Validate sample size, raising E_POWER if insufficient.
+    
+    Args:
+        n: Available sample size
+        min_required: Minimum required sample size (default 28)
+        
+    Raises:
+        E_POWER: If n < min_required
+    """
+    if n < min_required:
+        raise_power_error(
+            f"Sample size {n} is below minimum required {min_required} for statistical power",
+            details={"available_n": n, "required_n": min_required}
+        )

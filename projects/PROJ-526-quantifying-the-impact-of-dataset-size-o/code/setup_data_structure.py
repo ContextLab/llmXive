@@ -2,24 +2,21 @@ import os
 from pathlib import Path
 from setup_directories import create_directories
 
-def main():
+def main() -> None:
     """
-    Orchestrates the setup of the entire data and state directory structure.
-    This script is the entry point for Task T004.
+    Wrapper to ensure data and state directory structure is created.
+    This script is specifically targeted for Task T004.
     """
-    print("Initializing data and state directory structure for PROJ-526...")
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Delegate to the core directory creation logic
-    created_count = create_directories()
+    # Specific directories for T004: data (raw, processed) and state
+    data_dirs = [
+        "data",
+        "data/raw",
+        "data/processed",
+        "state"
+    ]
     
-    print(f"Setup complete. {created_count} directories created/verified.")
-    print("Paths ready:")
-    print(f"  - data/raw/")
-    print(f"  - data/processed/")
-    print(f"  - state/")
-    
-    return 0
-
-if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    print(f"Ensuring data and state structure in {project_root}...")
+    create_directories(project_root, data_dirs)
+    print("Data and state directories ready.")

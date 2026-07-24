@@ -5,29 +5,77 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe"
 
-## Summary of the prior work
-The paper introduces Domino, a speculative decoding framework that decouples the modeling of causal dependencies from the execution of token drafting by using a parallel backbone for initial distributions and a lightweight head for causal refinement. It employs a base-anchored training curriculum to stabilize the learning of prefix-dependent causal information, achieving significant end-to-end speedups on Qwen3 models. The core innovation lies in breaking the sequential bottleneck of autoregressive drafters while preserving the accuracy benefits of causal modeling.
+**Field**: Linguistics (Computational Linguistics / NLP Systems)
 
-## Proposed extension
-**Research Question:** Can the "base-anchored" training curriculum and causal refinement mechanism of Domino be adapted to function effectively in a strictly CPU-bound environment using low-precision (8-bit or 4-bit) integer arithmetic, without relying on GPU-specific tensor parallelism? This matters because most edge devices and serverless CPU instances lack the memory bandwidth and tensor cores required for current speculative decoding optimizations, and proving Domino's efficacy in this constrained setting would democratize high-speed LLM inference for low-resource deployments.
+## Research question
+
+Does the parallel drafting mechanism of the Domino framework maintain its speedup advantages over standard autoregressive decoding when deployed on strictly CPU-bound hardware using low-precision (4-bit) integer arithmetic, and how does the quantization-induced noise affect the acceptance rate of the causal refinement head?
+
+## Motivation
+
+Current speculative decoding optimizations like Domino rely heavily on GPU tensor parallelism and high-bandwidth memory to achieve significant speedups, leaving edge devices and serverless CPU instances underserved. Understanding whether the "base-anchored" training curriculum can stabilize learning under the noise constraints of 4-bit integer arithmetic on CPUs is critical for democratizing high-speed LLM inference in low-resource environments where GPU access is unavailable.
+
+## Related work
+
+- [DominoTree: Conditional Tree-Structured Drafting with Domino for Speculative Decoding (2026)](https://arxiv.org/abs/2607.08642) — This work extends the Domino framework by introducing tree-structured drafting to further parallelize token generation, though it primarily targets GPU-accelerated environments and does not address CPU-specific quantization constraints.
+- [Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding (2026)](https://arxiv.org/abs/2605.29707) — The foundational paper establishing the decoupling of causal modeling from drafting, demonstrating significant speedups on Qwen3 models using GPU hardware, but leaving the performance characteristics of integer-only inference unexplored.
+
+## Expected results
+
+We expect the modified Domino approach to achieve a measurable 1.5x–2.0x speedup over standard autoregressive decoding on CPU hardware, even with 4-bit quantization, by effectively masking the sequential overhead of the verification step. However, we anticipate a moderate drop in acceptance rate (5–10%) compared to the 16-bit GPU baseline due to the accumulation of quantization errors in the parallel draft backbone, which the causal refinement head may only partially correct.
 
 ## Methodology sketch
-**Data:** Utilize the Qwen3-8B model quantized to 4-bit (INT4) and a subset of the C4 or Alpaca dataset for text generation tasks.
-**Procedure:** Implement a CPU-only inference backend (e.g., using `llama.cpp` or `ONNX Runtime`) that replaces the GPU-based parallel draft backbone with a simplified, quantized version and re-trains the Domino head using a modified curriculum that penalizes floating-point operations. Measure the acceptance rate and wall-clock latency of the speculative decoding loop on a standard multi-core CPU (e.g., Intel Xeon or Apple M-series) against a baseline autoregressive decoder and a standard speculative decoding approach (like EAGLE) adapted for CPU.
-**Expected Result:** The modified Domino approach will demonstrate a 1.5x–2.5x speedup over standard autoregressive decoding on CPU hardware by leveraging its parallel drafting capability to minimize the sequential overhead that is most detrimental in CPU-bound scenarios, while maintaining comparable perplexity to the GPU-trained baseline.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the Qwen3-8B model weights in INT4 format (via Hugging Face `Qwen/Qwen3-8B-INT4` or similar quantized repository) and the first 10,000 samples of the C4 dataset (via `datasets.load_dataset("c4", "en", split="train", streaming=True)`).
+- **Environment Setup**: Deploy the inference pipeline on a GitHub Actions free-tier runner (2 CPU cores, 7GB RAM) using `llama.cpp` or `ONNX Runtime` configured strictly for CPU execution with no CUDA support.
+- **Baseline Implementation**: Implement a standard autoregressive decoding loop and a baseline speculative decoding loop (using EAGLE-style drafting adapted for CPU) to serve as control groups.
+- **Domino Adaptation**: Implement the Domino parallel drafting backbone using 4-bit integer arithmetic, replacing the floating-point operations with quantized equivalents, and integrate the base-anchored training curriculum for the causal refinement head.
+- **Training Protocol**: Train the refinement head on a subset of the C4 data using a modified loss function that penalizes high-frequency floating-point operations and optimizes for integer-compatible gradient updates.
+- **Evaluation Metric**: Measure wall-clock latency (time-to-first-token and time-per-token) and token acceptance rates over 500 generated sequences of length 128.
+- **Statistical Analysis**: Apply a paired t-test to compare the latency distributions of the modified Domino approach against the baseline autoregressive decoder across the 500 sequences to determine statistical significance (p < 0.05).
+- **Robustness Check**: Analyze the correlation between the magnitude of quantization noise (measured as the difference between 4-bit and 16-bit logits) and the failure rate of the causal refinement head to validate the stability of the training curriculum.
 
-- **Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding** — Jianuo Huang, Yaojie Zhang, Qituan Zhang, Hao Lin, Hanlin Xu, Linfeng Zhang. https://arxiv.org/abs/2605.29707.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_29707,
-  title = {Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding},
-  author = {Jianuo Huang and Yaojie Zhang and Qituan Zhang and Hao Lin and Hanlin Xu and Linfeng Zhang},
-  year = {2026},
-  eprint = {2605.29707},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.29707},
-  url = {https://arxiv.org/abs/2605.29707}
-}
-```
+- Reviewed existing ideas: "DominoTree extension", "CPU-based speculative decoding", "Quantized LLM inference".
+- Closest match: "CPU-based speculative decoding" (similarity sketch: both address CPU constraints, but this proposal specifically targets the Domino architecture's causal refinement mechanism under 4-bit quantization, whereas the generic idea lacks the specific architectural focus).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-24T18:54:17Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe" linguistics
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Spe" linguistics | 0 |
+| 1 | Decoupling causal modeling from autoregressive drafting | 1 |
+| 2 | Non-autoregressive speech generation models | 5 |
+| 3 | Speculative decoding for speech synthesis | 0 |
+| 4 | Parallel token generation in language models | 0 |
+| 5 | Draft-and-verify mechanisms for LLM inference | 0 |
+| 6 | Causal language modeling without autoregression | 0 |
+| 7 | Accelerated text-to-speech generation with LLMs | 0 |
+| 8 | Multi-token prediction in generative models | 0 |
+| 9 | Independent token prediction for speech tasks | 0 |
+| 10 | Latent variable models for autoregressive speech | 0 |
+| 11 | Efficient inference strategies for large language models | 0 |
+| 12 | Parallel sampling methods for natural language generation | 0 |
+| 13 | Decoupled attention mechanisms in speech transformers | 0 |
+| 14 | Reducing sequential dependencies in language modeling | 0 |
+| 15 | Hybrid autoregressive and non-autoregressive speech systems | 0 |
+| 16 | Low-latency speech generation using draft models | 0 |
+| 17 | Context-free token prediction in LLMs | 0 |
+| 18 | Batched generation techniques for speech synthesis | 0 |
+| 19 | Speculative execution in transformer-based speech models | 0 |
+| 20 | Alternative decoding algorithms for causal language models | 0 |
+
+### Verified citations
+
+1. **DominoTree: Conditional Tree-Structured Drafting with Domino for Speculative Decoding** (2026). Saw S. Lin, Jyh-Shing Roger Jang. arXiv. [2607.08642](https://arxiv.org/abs/2607.08642). PDF-sampled: No.
+2. **Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding** (2026). Jianuo Huang, Yaojie Zhang, Qituan Zhang, Hao Lin, Hanlin Xu, et al.. arXiv. [2605.29707](https://arxiv.org/abs/2605.29707). PDF-sampled: No.

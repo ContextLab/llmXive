@@ -1,3 +1,6 @@
+"""
+ModelArtifact class for storing trained model information and metrics.
+"""
 import pickle
 import json
 from typing import Optional, Dict, Any, List
@@ -7,114 +10,94 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class ModelArtifact:
     """
-    Represents a serialized predictive model and its evaluation metrics.
+    Represents a serialized model artifact including coefficients, metrics, and metadata.
     
     Attributes:
-        model: The trained scikit-learn model (e.g., RidgeRegression).
-        metrics: Dictionary of evaluation metrics (RMSE, Pearson r, p-value, etc.).
-        feature_ids: List of feature IDs used during training.
-        target_id: The metabolite this model predicts.
-        metadata: Additional metadata (species, cross-validation folds, etc.).
+        model (Any): The trained model object (e.g., Ridge regression).
+        coefficients (np.ndarray): Model coefficients.
+        metrics (Dict[str, Any]): Evaluation metrics (RMSE, Pearson r, p-values).
+        metadata (Dict[str, Any]): Additional metadata (e.g., training parameters).
     """
     
-    def __init__(
-        self,
-        model: Optional[Any] = None,
-        metrics: Optional[Dict[str, float]] = None,
-        feature_ids: Optional[List[str]] = None,
-        target_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, model: Optional[Any] = None, coefficients: Optional[np.ndarray] = None, 
+                 metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, Any]] = None):
         self.model = model
+        self.coefficients = coefficients
         self.metrics = metrics if metrics is not None else {}
-        self.feature_ids = feature_ids if feature_ids is not None else []
-        self.target_id = target_id
         self.metadata = metadata if metadata is not None else {}
-    
-    def get_feature_importance(self) -> Optional[Dict[str, float]]:
-        """Extract feature coefficients if available."""
-        if self.model is None:
-            return None
+
+    def add_metric(self, key: str, value: Any):
+        """Add or update an evaluation metric."""
+        self.metrics[key] = value
+        logger.debug(f"Added metric: {key} = {value}")
+
+    def add_metadata(self, key: str, value: Any):
+        """Add or update a metadata field."""
+        self.metadata[key] = value
+        logger.debug(f"Added metadata: {key} = {value}")
+
+    def save(self, path: str):
+        """
+        Save the model artifact to disk.
         
-        if hasattr(self.model, 'coef_'):
-            coef = self.model.coef_
-            if len(coef) != len(self.feature_ids):
-                logger.warning("Coefficient length does not match feature count.")
-                return None
-            return dict(zip(self.feature_ids, coef.tolist()))
+        Args:
+            path: Directory path where the artifact will be saved.
         
-        return None
-    
-    def get_rmse(self) -> Optional[float]:
-        """Get RMSE from metrics."""
-        return self.metrics.get("rmse")
-    
-    def get_pearson_r(self) -> Optional[float]:
-        """Get Pearson r from metrics."""
-        return self.metrics.get("pearson_r")
-    
-    def get_p_value(self) -> Optional[float]:
-        """Get permutation test p-value from metrics."""
-        return self.metrics.get("p_value")
-    
-    def save_pickle(self, filepath: Path) -> None:
-        """Save the model artifact to a pickle file."""
-        filepath = Path(filepath)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
+        The model object is pickled, while coefficients, metrics, and metadata are saved as JSON.
+        """
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
         
-        with open(filepath, 'wb') as f:
-            pickle.dump(self, f)
+        # Save pickled model
+        model_path = Path(path) / "model.pkl"
+        with open(model_path, 'wb') as f:
+            pickle.dump(self.model, f)
         
-        logger.info(f"ModelArtifact saved to {filepath}")
-    
-    @classmethod
-    def load_pickle(cls, filepath: Path) -> 'ModelArtifact':
-        """Load a ModelArtifact from a pickle file."""
-        filepath = Path(filepath)
-        if not filepath.exists():
-            raise FileNotFoundError(f"ModelArtifact file not found: {filepath}")
-        
-        with open(filepath, 'rb') as f:
-            return pickle.load(f)
-    
-    def save_json_metadata(self, filepath: Path) -> None:
-        """Save the metrics and metadata to a JSON file (without the model object)."""
-        filepath = Path(filepath)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        metadata_dict = {
+        # Save JSON components
+        json_data = {
+            "coefficients": self.coefficients.tolist() if self.coefficients is not None else None,
             "metrics": self.metrics,
-            "feature_ids": self.feature_ids,
-            "target_id": self.target_id,
             "metadata": self.metadata
         }
+        json_path = Path(path) / "model_artifact.json"
+        with open(json_path, 'w') as f:
+            json.dump(json_data, f, indent=2)
         
-        with open(filepath, 'w') as f:
-            json.dump(metadata_dict, f, indent=2)
-        
-        logger.info(f"ModelArtifact metadata saved to {filepath}")
-    
+        logger.info(f"Saved model artifact to {path}")
+
     @classmethod
-    def load_json_metadata(cls, filepath: Path) -> Dict[str, Any]:
-        """Load model metadata from a JSON file."""
-        filepath = Path(filepath)
-        if not filepath.exists():
-            raise FileNotFoundError(f"Model metadata file not found: {filepath}")
+    def load(cls, path: str) -> "ModelArtifact":
+        """
+        Load a model artifact from disk.
         
-        with open(filepath, 'r') as f:
-            return json.load(f)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the artifact to a dictionary (excluding the model object)."""
-        return {
-            "metrics": self.metrics,
-            "feature_ids": self.feature_ids,
-            "target_id": self.target_id,
-            "metadata": self.metadata
-        }
-    
-    def __repr__(self) -> str:
-        return f"ModelArtifact(target={self.target_id}, metrics={len(self.metrics)})"
+        Args:
+            path: Directory path where the artifact is stored.
+        
+        Returns:
+            Loaded ModelArtifact instance.
+        """
+        path = Path(path)
+        model_path = path / "model.pkl"
+        json_path = path / "model_artifact.json"
+        
+        if not model_path.exists() or not json_path.exists():
+            raise FileNotFoundError(f"Model artifact files not found in {path}")
+        
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
+        
+        with open(json_path, 'r') as f:
+            json_data = json.load(f)
+        
+        coefficients = np.array(json_data["coefficients"]) if json_data["coefficients"] is not None else None
+        
+        return cls(
+            model=model,
+            coefficients=coefficients,
+            metrics=json_data["metrics"],
+            metadata=json_data["metadata"]
+        )
+
+    def __repr__(self):
+        return f"ModelArtifact(metrics={list(self.metrics.keys())}, metadata_keys={list(self.metadata.keys())})"

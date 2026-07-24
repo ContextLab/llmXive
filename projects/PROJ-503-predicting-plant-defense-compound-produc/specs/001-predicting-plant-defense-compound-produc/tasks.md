@@ -112,11 +112,11 @@
 
 - [X] T021 [P] [US1] Implement GEO expression matrix downloader in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-001) <!-- FAILED: unspecified -->
 - [X] T022 [P] [US1] Implement Metabolomics Workbench metabolite retriever in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-002)
-- [~] T023 [US1] Implement sample-level pairing logic using biological sample identifiers (not condition IDs alone) (FR-002)
-- [~] T027 [US1] Implement validation to halt with E-PAIRING if <95% samples have matched pairs (FR-009, SC-005). **MUST precede T024/T025. If T016b fallback was triggered, this task validates the aggregated pairing rate.**
-- [~] T024 [US1] Create expression CSV with normalized TPM/FPKM values for each sample. Rule: Prefer TPM; if missing, calculate from raw counts using standard formula. If neither available, log error and skip sample (US-1 acceptance scenario 1). **Conditional on T027 passing.**
-- [~] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Conditional on T027 passing.**
-- [~] T026 [US1] Log mismatches to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json` with fields {sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"} (edge case handling)
+- [ ] T023 [US1] Implement sample-level pairing logic using biological sample identifiers (not condition IDs alone) (FR-002)
+- [ ] T027 [US1] Implement validation to halt with E-PAIRING if <95% samples have matched pairs (FR-009, SC-005). **MUST precede T024/T025. If T016b fallback was triggered, this task validates the aggregated pairing rate.**
+- [ ] T024 [US1] Create expression CSV with normalized TPM/FPKM values for each sample. Rule: Prefer TPM; if missing, calculate from raw counts using standard formula. If neither available, log error and skip sample (US-1 acceptance scenario 1). **Conditional on T027 passing.**
+- [ ] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Conditional on T027 passing.**
+- [ ] T026 [US1] Log mismatches to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json` with fields {sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"} (edge case handling)
 - [~] T028 [US1] Verify downloaded files match expected SHA-256 checksums for ≥99% of requested IDs (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

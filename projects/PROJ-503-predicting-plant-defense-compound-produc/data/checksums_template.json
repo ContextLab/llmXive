@@ -1,0 +1,17 @@
+{
+  "description": "SHA-256 checksums for data integrity verification (SC-004)",
+  "generated_at": "PLACEHOLDER_TIMESTAMP",
+  "files": {
+    "data/raw/arabidopsis_expression.csv": "PLACEHOLDER_HASH",
+    "data/raw/solanum_expression.csv": "PLACEHOLDER_HASH",
+    "data/raw/metabolite_data.csv": "PLACEHOLDER_HASH",
+    "data/processed/paired_expression_matrix.csv": "PLACEHOLDER_HASH",
+    "data/processed/paired_metabolite_matrix.csv": "PLACEHOLDER_HASH"
+  },
+  "notes": [
+    "This file is generated automatically by code/checksum_utils.py",
+    "Run: python code/checksum_utils.py generate <files> --output data/checksums.json",
+    "Run: python code/checksum_utils.py validate data/checksums.json",
+    "All hashes must be 64-character hexadecimal SHA-256 strings"
+  ]
+}

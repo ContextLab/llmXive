@@ -1,43 +1,45 @@
 """
-Linting configuration constants for the project.
-
-This module centralizes flake8 and black configuration to ensure
-consistent code style across the project.
+Configuration helpers for linting and formatting tools.
+Provides programmatic access to black and flake8 settings used by the runner.
 """
+from pathlib import Path
+from typing import Dict, Any, List
 
-# Black formatting settings
-BLACK_LINE_LENGTH = 100
-BLACK_SKIP_STRING_NORMALIZATION = False
-
-# Flake8 settings
-FLAKE8_MAX_LINE_LENGTH = 100
-FLAKE8_IGNORE = [
-    "E501",  # Line too long (handled by black)
-    "W503",  # Line break before binary operator (black preference)
-]
-FLAKE8_MAX_COMPLEXITY = 15
-FLAKE8_EXCLUDE = [
-    "__pycache__",
-    ".git",
-    ".venv",
-    "venv",
-    "data",
-    "state",
-    "docs",
-]
-
-def get_black_config():
-    """Return a dictionary of black configuration options."""
+def get_black_config() -> Dict[str, Any]:
+    """
+    Returns the effective Black configuration used by the project.
+    Matches settings in pyproject.toml.
+    """
     return {
-        "line_length": BLACK_LINE_LENGTH,
-        "skip_string_normalization": BLACK_SKIP_STRING_NORMALIZATION,
+        "line_length": 120,
+        "target_version": ["py310"],
+        "exclude": [
+            ".git",
+            "__pycache__",
+            "data",
+            "build",
+            "dist",
+            ".eggs",
+        ],
     }
 
-def get_flake8_config():
-    """Return a dictionary of flake8 configuration options."""
+def get_flake8_config() -> Dict[str, Any]:
+    """
+    Returns the effective Flake8 configuration used by the project.
+    Matches settings in .flake8.
+    """
     return {
-        "max_line_length": FLAKE8_MAX_LINE_LENGTH,
-        "ignore": FLAKE8_IGNORE,
-        "max_complexity": FLAKE8_MAX_COMPLEXITY,
-        "exclude": FLAKE8_EXCLUDE,
+        "max_line_length": 120,
+        "exclude": [
+            ".git",
+            "__pycache__",
+            "data",
+            "build",
+            "dist",
+            ".eggs",
+        ],
+        "ignore": ["E203", "E266", "W503"],
+        "per_file_ignores": {
+            "tests/*": ["S101"],
+        },
     }

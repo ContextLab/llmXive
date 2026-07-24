@@ -21,6 +21,7 @@ wheels/
 *.egg
 
 # Virtual Environments
+.venv/
 venv/
 ENV/
 env/
@@ -30,20 +31,45 @@ env/
 .vscode/
 *.swp
 *.swo
+*~
+
+# Data Artifacts (Raw and Processed)
+# Raw data is large and should not be committed
+data/raw/
+# Processed data (Parquet/CSV) can be large
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.h5
+# Keep the directory structure but ignore the heavy files
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# State and Checksums
+state/*.json
+state/*.log
+!state/.gitkeep
+!state/amendments.md
+
+# Logs
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Data Artifacts (Raw and Processed)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
+# Project specific
+projects/
+state/checksums.json
 
-# State and Logs
-state/*
-!state/.gitkeep
-*.log
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
 
-# Note: .gitkeep files are created to ensure directories are tracked by git
+# Secrets
+.env
+.env.local
+*.pem
+*.key

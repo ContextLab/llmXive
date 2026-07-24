@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-503-predicting-plant-defense"
+name = "llmxive-plant-defense-pipeline"
 version = "0.1.0"
-description = "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data"
+description = "Automated science pipeline for predicting plant defense compound production"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -19,9 +20,6 @@ dependencies = [
     "pytest",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
 [tool.black]
 line-length = 88
 target-version = ["py311"]
@@ -29,53 +27,33 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | \.eggs
-    | \.cache
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | \.eggs
+  | \.egg-info
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["models", "exceptions", "data_download", "data_search", "pairing_logic", "logging_utils", "power_analysis", "error_handler", "checksum_utils", "create_expression_matrix", "data_aggregation", "fallback_pairing", "validate_pairing", "main", "setup_project", "power_analysis_runner", "run_geo_arabidopsis_search", "run_geo_solanum_search", "run_pairing_feasibility", "run_power_analysis", "utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --strict-markers"
-markers = [
-    "contract: Contract tests",
-    "integration: Integration tests",
-    "unit: Unit tests",
-    "slow: Slow running tests",
-]
+addopts = "-v --tb=short"
 
-[tool.coverage.run]
-source = ["code"]
-omit = [
-    "*/tests/*",
-    "*/__pycache__/*",
-    "*/venv/*",
-]
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code", "tests"]
 
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
-]
-precision = 2
-show_missing = true
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

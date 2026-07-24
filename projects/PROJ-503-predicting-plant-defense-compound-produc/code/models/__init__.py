@@ -1,5 +1,5 @@
 """
-Data model classes for the plant defense compound prediction pipeline.
+Base data model classes for the plant defense compound prediction pipeline.
 """
 from .expression_matrix import ExpressionMatrix
 from .metabolite_matrix import MetaboliteMatrix
