@@ -2,79 +2,67 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used in the `llmXive` follow-up research project. The data model supports the generation of **synthetic attention trajectories**, the training of a static prior model, and the simulation of long-horizon autoregressive generation with dynamic error accumulation.
+This document defines the core data entities used in the synthetic data generation, model training, and simulation phases. All entities are serializable to JSON/CSV for reproducibility and checksumming.
 
-## Key Entities
+## Entities
 
-### 1. AttentionTrajectory
-Represents a single sequence of attention matrices and their derived statistics over time.
-- **SequenceID**: Unique identifier (UUID).
-- **Dimensions**: Fixed at 128x128.
-- **Properties**:
-  - `drift_parameters`: Object containing parameters used to generate the trajectory (e.g., noise variance, skewness target).
-  - `regime_type`: Enum { "Standard", "HighOrderMoments", "Sparse" }.
-- **Steps**: List of `AttentionStep` objects ([deferred] entries).
+### 1. AttentionMatrix
 
-### 2. AttentionStep
-Represents a single step $t$ in an `AttentionTrajectory`.
-- **StepIndex**: Integer (0 to 999).
-- **Properties**:
-  - `mean`: Float, mean of the matrix elements.
-  - `variance`: Float, variance of the matrix elements.
-  - `skewness`: Float, skewness of the matrix elements.
-  - `kurtosis`: Float, kurtosis of the matrix elements.
-  - `sparsity`: Float, proportion of zero elements.
-  - `epsilon_applied`: Float, the epsilon floor used for normalization.
-- **Derived**:
-  - `scaling_factor_gt`: Float, ground truth scaling factor from **Sequential Sinkhorn** (accounts for cumulative error).
-  - `scaling_factor_pred`: Float (optional), predicted by MLP.
-  - `sinkhorn_converged`: Boolean.
-  - `cumulative_error_state`: Float, the accumulated quantization error from steps 0..t-1.
+Represents a single synthetic attention matrix and its derived statistics.
 
-### 3. ScalingFactor
-A scalar value representing the optimal variance-normalization factor.
-- **Value**: Float.
-- **Source**: Either "SequentialSinkhorn" (ground truth), "MLP" (prediction), or "ClosedForm" (baseline).
-- **Context**: Linked to a specific `AttentionStep`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | string | Unique identifier (UUID). |
+| `dimensions` | object | `{"rows":, "cols": 128}`. |
+| sparsity_level | float | Ratio of zero elements (ranging from minimal to maximal sparsity). |
+| `outlier_magnitude` | float | Scaling factor for outlier values. |
+| `mean` | float | Arithmetic mean of non-zero elements. |
+| `variance` | float | Variance of non-zero elements. |
+| `raw_data` | string | Base64 encoded flattened array (optional, for debugging). |
 
-### 4. SimulationRun
-An instance of the autoregressive generation simulation.
-- **RunID**: Unique identifier.
-- **Method**: Enum { "KVarN", "StaticPrior", "ClosedForm" }.
-- **Steps**: Integer, number of steps (e.g., [deferred]).
-- **Metrics**:
-  - `accumulated_kl_divergence`: Float, sum of KL-divergence over all steps.
-  - `per_token_latency`: Float, average wall-clock time per token.
-  - `final_error`: Float, error at the last step.
-  - `theoretical_lower_bound`: Float, analytical noise floor (FR-008).
-- **Parameters**:
-  - `epsilon_floor`: Float used in the run.
-  - `seed`: Integer random seed.
-  - `regime_type`: Enum { "Standard", "HighOrderMoments", "RealWorldProxy" }.
+### 2. ScalingFactor
 
-### 5. ModelError
-Record of prediction error for a specific attention step.
-- **StepID**: Reference to `AttentionStep`.
-- **Predicted**: Float.
-- **GroundTruth**: Float.
-- **MSE**: Float, squared difference.
-- **BaselineMSE**: Float, squared difference against closed-form baseline.
+Represents the ground-truth optimal scaling factor derived from the Sinkhorn solver.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `matrix_id` | string | Reference to the source `AttentionMatrix`. |
+| `optimal_value` | float | The scaling factor $s^*$ computed by Sinkhorn. |
+| `convergence_status` | string | `converged` or `failed`. |
+| `iterations` | int | Number of iterations taken to converge. |
+| `computation_time_ms` | float | Wall-clock time for the solver. |
+
+### 3. SimulationRun
+
+Represents a single instance of the long-horizon autoregressive simulation.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `run_id` | string | Unique identifier. |
+| `seed` | int | Random seed used for reproducibility. |
+| `method` | string | `static_prior` or `kvarn_baseline`. |
+| `steps` | int | Total steps (a predetermined number). |
+| `accumulated_kl_divergence` | float | Sum of KL-divergence over all steps. |
+| `avg_latency_per_token_ms` | float | Average wall-clock time per token. |
+| `kl_history` | array | List of KL values per step (for plotting). |
+| `fallback_count` | int | Number of times the system fell back to KVarN. |
+
+### 4. ModelError
+
+Records the prediction error for a specific matrix during evaluation.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `matrix_id` | string | Reference to `AttentionMatrix`. |
+| `predicted_value` | float | MLP prediction. |
+| `ground_truth_value` | float | Sinkhorn result. |
+| `mse` | float | Squared error for this instance. |
+| `baseline_error` | float | Error of the $1/\sigma^2$ baseline. |
 
 ## Data Flow
 
-1. **Generation**: `synthetic_attention.py` creates `AttentionTrajectory` instances and computes `ScalingFactor` (Ground Truth) using the Sequential Sinkhorn solver. Output: `data/raw/synthetic_attention_trajectories.parquet`.
-2. **Training**: `train.py` reads the trajectories, trains the MLP, and outputs `ModelError` records. Output: `data/processed/model_predictions.json`.
-3. **Simulation**: `autoregressive_loop.py` uses the trained model to simulate generation, maintaining cumulative error state. Output: `data/processed/simulation_results.csv` (containing `SimulationRun` metrics).
-4. **Analysis**: `stats.py` aggregates `SimulationRun` metrics, performs t-tests, and generates `ModelError` aggregates. Output: `data/final/statistical_summary.json`.
-
-## File Formats
-
-- **Input/Output**: Parquet (for large trajectory datasets to save space), CSV (for tabular metrics), JSON (for nested structures like model weights or complex simulation logs).
-- **Checkpoints**: Model weights saved as `.pt` (PyTorch) or `.npz` (NumPy).
-
-## Constraints
-
-- **Numerical Stability**: All variance calculations must include a small positive epsilon floor to ensure numerical stability.
-- **Uniqueness**: Every `RunID`, `SequenceID`, and `StepIndex` must be unique within their respective datasets.
-- **Immutability**: Raw data files (`data/raw/`) must never be modified. Derivations go to `data/processed/`.
-- **Dynamic Consistency**: The `cumulative_error_state` in `AttentionStep` must be consistent with the error accumulation model used in the simulation.
+1. **Generation**: `synthetic_matrix_generator.py` creates `AttentionMatrix` instances.
+2. **Labeling**: `sinkhorn_solver.py` computes `ScalingFactor` for each matrix.
+3. **Training**: `train_and_eval.py` reads matrices and labels, outputs `ModelError` records.
+4. **Simulation**: `autoregressive_loop.py` generates `SimulationRun` records.
+5. **Analysis**: `statistical_tests.py` aggregates `SimulationRun` data for t-tests.

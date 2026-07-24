@@ -2,10 +2,9 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher.
-- A POSIX-compliant environment (Linux, macOS, or WSL).
-- At least 8 GB of available RAM (project requires ~6 GB peak).
-- No GPU required (CPU-only execution).
+- Python 3.11+
+- pip
+- Git
 
 ## Installation
 
@@ -19,59 +18,51 @@
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: Ensure `torch` is installed for CPU only. If using `pip`, use the CPU wheel: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.*
 
 ## Running the Pipeline
 
-The project is designed to run as a single pipeline, but individual stages can be executed separately.
+The pipeline consists of four sequential phases. Run them in order:
 
-### 1. Generate Synthetic Data (FR-001)
+### Phase 1: Data Generation
 Generates a large set of synthetic attention matrices and computes ground-truth scaling factors.
 ```bash
-python code/main.py --stage generate
-```
-- **Output**: `data/raw/synthetic_attention_dataset.csv`
-- **Time**: ~10-30 minutes (depending on Sinkhorn solver speed).
+python code/data_generation/synthetic_matrix_generator.py The specific value to remove/generalize: a large-scale sample size
 
-### 2. Train the Static Prior Model (FR-002)
-Trains a multi-layer perceptron with multiple hidden layers to predict scaling factors.
-```bash
-python code/main.py --stage train
+Rewritten passage:
+The research question remains: [Insert Research Question]. The method will be: [Insert Method]. References: [Insert References]. This study will employ a large-scale sample size to ensure statistical power and generalizability, without predetermining the exact count at this planning stage. --output data/raw/synthetic_attention.json
+python code/data_generation/sinkhorn_solver.py --input data/raw/synthetic_attention.json --output data/processed/labels.json
 ```
-- **Input**: `data/raw/synthetic_attention_dataset.csv`
-- **Output**: `code/models/static_prior.pt`, `data/processed/model_predictions.json`
-- **Time**: ~1-5 minutes.
 
-### 3. Run Simulation (FR-003)
-Simulates the autoregressive loop with KVarN, Static Prior, and Closed-form baselines.
+### Phase 2: Model Training
+Trains the multi-layer perceptron and evaluates against the baseline.
 ```bash
-python code/main.py --stage simulate --runs 30 --steps 1000
+python code/model_training/train_and_eval.py --train_data data/processed/labels.json --epochs sufficient for convergence --output data/analysis/model_metrics.json
 ```
-- **Input**: `code/models/static_prior.pt`
-- **Output**: `data/processed/simulation_results.csv`
-- **Time**: ~2-4 hours (depending on CPU speed and number of runs).
 
-### 4. Analyze Results (FR-006, FR-007)
-Performs statistical analysis (t-tests, sensitivity analysis) and generates summary reports.
+### Phase 3: Simulation
+Runs multiple independent autoregressive simulations of sufficient length to ensure convergence.
 ```bash
-python code/main.py --stage analyze
+python code/simulation/autoregressive_loop.py --runs 30 --steps a sufficient number to ensure convergence --output data/simulation/accumulated_kl_divergence.csv
 ```
-- **Input**: `data/processed/simulation_results.csv`
-- **Output**: `data/final/statistical_summary.json`, `data/final/visualizations/`
+
+### Phase 4: Analysis
+Performs statistical tests, sensitivity analysis, and theoretical bound computation.
+```bash
+python code/analysis/statistical_tests.py --input data/simulation/accumulated_kl_divergence.csv --output data/analysis/final_report.json
+```
 
 ## Verification
 
-To verify the installation and data generation:
-```bash
-python code/main.py --stage verify
-```
-This runs a quick check on the generated dataset to ensure:
-- Dimensions are correct (128x128).
-- Sinkhorn solver converges.
-- Scaling factors are within expected ranges.
+To verify the setup:
+1. Run the unit tests:
+   ```bash
+   pytest code/tests/ -v
+   ```
+2. Check that the output files exist in the `data/` directory.
+3. Verify the `final_report.json` contains a p-value < 0.05 (if the hypothesis holds).
 
 ## Troubleshooting
 
-- **OOM (Out of Memory)**: If you encounter memory errors, reduce the number of simulation runs (`--runs`) or steps (`--steps`). The default is designed for standard RAM configurations.
-- **Sinkhorn Timeout**: If the Sinkhorn solver takes too long, check the `MAX_ITERATIONS` parameter in `code/data_generation/synthetic_attention.py`.
-- **CUDA Error**: Ensure you installed the CPU version of PyTorch. If you see CUDA errors, reinstall with `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+- **Numerical Instability**: If you encounter `NaN` values, check the `epsilon` floor setting in `sinkhorn_solver.py`.
+- **OOM Errors**: The synthetic dataset is small, but if you increase the count, consider reducing the matrix size or enabling streaming.
+- **Convergence Failures**: The Sinkhorn solver may fail on extreme outliers. These are flagged in the logs and excluded from training.

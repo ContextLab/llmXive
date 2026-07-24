@@ -1,0 +1,16 @@
+status: none
+intent: synthetic attention matrix dataset with sinkhorn scaling factors python package
+required_fields:
+- matrix_id
+- attention_matrix
+- matrix_dimensions
+- sparsity_level
+- outlier_magnitude
+- mean
+- variance
+- skewness
+- kurtosis
+- scaling_factors
+cache_key: 22ddac08c998172eb7774ae4455c00d0556c6e84c672854109c65bda7dc9a6a6
+searched_at: '2026-07-24T03:22:57.042144+00:00'
+retry_count: 1

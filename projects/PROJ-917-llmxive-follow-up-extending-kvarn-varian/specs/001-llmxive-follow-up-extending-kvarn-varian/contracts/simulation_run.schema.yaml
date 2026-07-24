@@ -1,66 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SimulationRun"
-description: "Schema for a single instance of the autoregressive generation simulation."
+description: "Schema for a single instance of the 1,000-step autoregressive simulation."
 type: "object"
+required:
+  - "run_id"
+  - "seed"
+  - "method"
+  - "steps"
+  - "accumulated_kl_divergence"
+  - "avg_latency_per_token_ms"
+  - "kl_history"
+  - "fallback_count"
 properties:
   run_id:
     type: "string"
-    description: "Unique identifier for the simulation run."
+    description: "Unique identifier."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
   method:
     type: "string"
     enum:
-      - "KVarN"
-      - "StaticPrior"
-      - "ClosedForm"
-    description: "The quantization method used."
+      - "static_prior"
+      - "kvarn_baseline"
+    description: "Method used for scaling factor prediction."
   steps:
     type: "integer"
-    minimum: 1
-    description: "Number of autoregressive steps simulated."
-  metrics:
-    type: "object"
-    properties:
-      accumulated_kl_divergence:
-        type: "number"
-        description: "Sum of KL-divergence over all steps."
-      per_token_latency:
-        type: "number"
-        description: "Average wall-clock time per token."
-      final_error:
-        type: "number"
-        description: "Error at the last step."
-      theoretical_lower_bound:
-        type: "number"
-        description: "Analytical noise floor (independent ground truth)."
-    required:
-      - accumulated_kl_divergence
-      - per_token_latency
-      - final_error
-      - theoretical_lower_bound
-  parameters:
-    type: "object"
-    properties:
-      epsilon_floor:
-        type: "number"
-        description: "Epsilon floor used in the run."
-      seed:
-        type: "integer"
-        description: "Random seed for reproducibility."
-      regime_type:
-        type: "string"
-        enum:
-          - "Standard"
-          - "HighOrderMoments"
-          - "RealWorldProxy"
-        description: "The type of attention distribution used."
-    required:
-      - epsilon_floor
-      - seed
-      - regime_type
-required:
-  - run_id
-  - method
-  - steps
-  - metrics
-  - parameters
-additionalProperties: false
+    const: 1000
+    description: "Total steps in the simulation."
+  accumulated_kl_divergence:
+    type: "number"
+    description: "Sum of KL-divergence over all steps."
+  avg_latency_per_token_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Average wall-clock time per token."
+  kl_history:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 1000
+    maxItems: 1000
+    description: "List of KL values per step."
+  fallback_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of times the system fell back to KVarN."
