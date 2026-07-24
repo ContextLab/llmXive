@@ -1,74 +1,107 @@
 # Data Model: Exploring the Correlation Between Musical Preference and Personality Traits
 
-## 1. Entity Definitions
+## 1. Entity Relationship Diagram (Conceptual)
 
-### 1.1 UserRecord
-Represents a single participant in the study.
-*   `user_id`: Unique identifier (hashed string).
-*   `openness`: Float (0-100 or 1-5 scale, standardized).
-*   `conscientiousness`: Float.
-*   `extraversion`: Float.
-*   `agreeableness`: Float.
-*   `neuroticism`: Float.
-*   `age`: Integer (years).
-*   `gender`: Categorical (Male, Female, Other, Unknown).
-*   `country`: String (ISO code or Region).
+```mermaid
+erDiagram
+    USER_RECORD ||--|{ GENRE_PREFERENCE : "has"
+    USER_RECORD {
+        string user_id (hashed)
+        float openness_score
+        float conscientiousness_score
+        float extraversion_score
+        float agreeableness_score
+        float neuroticism_score
+        int age
+        string gender
+        string country_region
+    }
+    GENRE_PREFERENCE {
+        string user_id (hashed)
+        string genre_name
+        float listening_minutes
+        float genre_score (normalized)
+    }
+    ANALYSIS_RESULT {
+        string trait
+        string genre
+        float correlation_rho
+        float p_value
+        float adjusted_p_value
+        boolean is_significant
+        float effect_size_rho
+        float ci_lower_rho
+        float ci_upper_rho
+        float effect_size_r_log
+        float fisher_z_log
+        float ci_lower_r_log
+        float ci_upper_r_log
+        float beta_baseline
+        float beta_full
+        float delta
+        float cohens_d
+        float vif
+    }
+```
 
-### 1.2 GenrePreference
-Aggregated listening data for a user per genre.
-*   `user_id`: Foreign key to UserRecord.
-*   `genre`: Categorical (Rock, Pop, Hip-Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other).
-*   `listening_minutes`: Integer (Total minutes).
-*   `log_minutes`: Float (log1p of listening_minutes).
-*   `genre_score`: Float (Normalized score, e.g., z-score within user).
+## 2. Data Dictionary
 
-### 1.3 AnalysisResult
-Output of the statistical tests.
-*   `trait`: String (Name of Big Five trait).
-*   `genre`: String (Name of genre).
-*   `correlation_rho`: Float (Spearman coefficient).
-*   `p_value`: Float (Raw p-value).
-*   `adjusted_p_value`: Float (BH-corrected p-value).
-*   `is_significant`: Boolean (True if adjusted_p < 0.05).
-*   `effect_size_r`: Float (Pearson r equivalent).
-*   `ci_lower_bootstrap`: Float (95% CI lower bound).
-*   `ci_upper_bootstrap`: Float (95% CI upper bound).
-*   `beta`: Float (Regression coefficient).
-*   `std_error`: Float.
-*   `t_stat`: Float.
-*   `vif`: Float (Variance Inflation Factor).
-*   `beta_baseline`: Float (Beta coefficient in baseline model).
-*   `beta_full`: Float (Beta coefficient in full model).
-*   `delta`: Float (Change in beta).
-*   `percent_change`: Float (Percent change in beta).
-*   `effect_size_threshold_met`: Boolean (True if |effect_size_r| > 0.3).
+### 2.1 Raw Data (Incoming)
+*   **BFI-2 Source**: Expected columns: `user_id`, `openness`, `conscientiousness`, `extraversion`, `agreeableness`, `neuroticism`, `age`, `gender`, `country`.
+*   **Last.fm Source**: Expected columns: `user_id`, `artist`, `genre`, `minutes_listened`.
 
-### 1.4 RegressionCoefficient
-Output of the regression models (subset of AnalysisResult for clarity).
-*   `trait`: String.
-*   `genre`: String.
-*   `beta`: Float (Coefficient).
-*   `std_error`: Float.
-*   `t_stat`: Float.
-*   `p_value`: Float.
-*   `vif`: Float (Variance Inflation Factor).
+### 2.2 Processed Data (`data/processed/merged_data.csv`)
+| Column | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `user_id` | string | Hashed user identifier | Unique, non-null |
+| `openness` | float | BFI-2 Openness score | [1.0, 5.0] |
+| `conscientiousness` | float | BFI-2 Conscientiousness score | [1.0, 5.0] |
+| `extraversion` | float | BFI-2 Extraversion score | [1.0, 5.0] |
+| `agreeableness` | float | BFI-2 Agreeableness score | [1.0, 5.0] |
+| `neuroticism` | float | BFI-2 Neuroticism score | [1.0, 5.0] |
+| `age` | int | Age in years | > 0 |
+| `gender` | string | Categorical | {Male, Female, Other, Unknown} |
+| `country_region` | string | Grouped country | {North America, Europe, Asia, South America, Africa, Oceania, Other} |
+| `genre` | string | Standardized genre | {Rock, Pop, Hip-Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other} |
+| `minutes_listened` | float | Log-transformed minutes | >= 0 |
 
-## 2. Data Flow & Transformation
+### 2.3 Analysis Results (`data/processed/analysis_results.csv`)
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `trait` | string | One of the 5 Big Five traits |
+| `genre` | string | One of the 10 standardized genres |
+| `correlation_rho` | float | Spearman correlation coefficient |
+| `p_value` | float | Raw p-value |
+| `adjusted_p_value` | float | Benjamini-Hochberg corrected p-value |
+| `is_significant` | boolean | True if `adjusted_p_value` < 0.05 |
+| `effect_size_rho` | float | Spearman's rho (primary effect size) |
+| `ci_lower_rho` | float | 95% CI lower bound (bootstrapped) |
+| `ci_upper_rho` | float | 95% CI upper bound (bootstrapped) |
+| `effect_size_r_log` | float | Pearson's r on log-transformed data (secondary) |
+| `fisher_z_log` | float | Fisher's z for log-data (secondary) |
+| `ci_lower_r_log` | float | 95% CI lower bound for log-data (secondary) |
+| `ci_upper_r_log` | float | 95% CI upper bound for log-data (secondary) |
+| `beta_baseline` | float | Beta coefficient from baseline model (Trait only) |
+| `beta_full` | float | Beta coefficient from full model (Trait + Covariates) |
+| `delta` | float | Change in beta (beta_full - beta_baseline) |
+| `cohens_d` | float | Cohen's d for the coefficient delta |
+| `vif` | float | Variance Inflation Factor |
 
-1.  **Ingestion**: Raw CSVs -> `data/raw/`.
-2.  **Cleaning**:
-    *   Remove rows with missing `user_id`, `trait` scores, or `listening_minutes`.
-    *   Impute missing `age` (median), `gender` (mode), `country` (mode) OR drop if >10% missing.
-    *   Map raw genre tags to standardized 10 categories.
-    *   Hash `user_id`.
-3.  **Merging**: Join Personality and Music data on `user_id`.
-4.  **Aggregation**: If multiple entries per user/genre, sum `listening_minutes`.
-5.  **Analysis**: Compute correlations and regressions.
-6.  **Output**: Save `analysis_results.csv`, `coefficient_deltas.csv`, `results_report.csv`.
+## 3. Transformation Logic
 
-## 3. Constraints & Validations
-
-*   **Uniqueness**: `user_id` must be unique in the merged dataset.
-*   **Range**: Personality scores must be within the valid range of the instrument (e.g., 1-5).
-*   **Non-Negative**: `listening_minutes` must be >= 0.
-*   **Completeness**: No null values allowed in the final `analysis_results.csv` for `correlation_rho`, `p_value`, or `adjusted_p_value`.
+1.  **Genre Standardization**:
+    *   Input: Raw tag (e.g., "alt", "rock", "alternative rock").
+    *   Logic: Lookup table mapping. If no match, assign "Other".
+    *   Output: One of the 10 standard genres.
+2.  **Demographic Grouping**:
+    *   Input: Country code (e.g., "US", "GB", "DE").
+    *   Logic: Map to continent/region. If country is rare (< 1% of sample), assign "Other".
+    *   Output: Region string.
+3.  **Log Transformation**:
+    *   Input: `minutes_listened` (raw).
+    *   Logic: `log(minutes + 1)` to handle zeros and skew.
+    *   Output: `minutes_listened` (transformed).
+4.  **Coefficient Delta**:
+    *   Input: Regression results from baseline and full models.
+    *   Logic: Calculate $\Delta\beta = \beta_{full} - \beta_{baseline}$ and Cohen's $d$.
+    *   Output: `delta`, `cohens_d`.

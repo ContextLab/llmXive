@@ -1,11 +1,1 @@
-- artifact_hash: 02ddd9be85c4a9d433e703169967cab2e3e1a1193bda1625ff4a0c83af0f41b5
-  artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/music_personality_2020
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/music_personality_2020/datasets
-  verified_at: '2026-07-20T17:44:31.339780Z'
+[]

@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Report Schema"
+description: "Schema for results/results_report.csv"
+type: "object"
+properties:
+  trait:
+    type: "string"
+    description: "Big Five trait name"
+  genre:
+    type: "string"
+    description: "Standardized genre name"
+  correlation_rho:
+    type: "number"
+    description: "Spearman correlation coefficient"
+  p_value:
+    type: "number"
+    description: "Raw p-value"
+  adjusted_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value"
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted p-value < 0.05"
+  effect_size_rho:
+    type: "number"
+    description: "Spearman's rho (primary effect size)"
+  ci_lower_rho:
+    type: "number"
+    description: "95% CI lower bound (bootstrapped)"
+  ci_upper_rho:
+    type: "number"
+    description: "95% CI upper bound (bootstrapped)"
+  effect_size_r_log:
+    type: "number"
+    description: "Pearson's r on log-transformed data (secondary)"
+  fisher_z_log:
+    type: "number"
+    description: "Fisher's z transformation for log-data (secondary)"
+  ci_lower_r_log:
+    type: "number"
+    description: "95% CI lower bound for log-data (secondary)"
+  ci_upper_r_log:
+    type: "number"
+    description: "95% CI upper bound for log-data (secondary)"
+  status_label:
+    type: "string"
+    description: "Human-readable status label (e.g., 'Non-significant (adjusted p ≥ 0.05)')"
+required:
+  - trait
+  - genre
+  - correlation_rho
+  - p_value
+  - adjusted_p_value
+  - is_significant
+  - effect_size_rho
+  - ci_lower_rho
+  - ci_upper_rho
+  - effect_size_r_log
+  - fisher_z_log
+  - ci_lower_r_log
+  - ci_upper_r_log
+  - status_label
+additionalProperties: false

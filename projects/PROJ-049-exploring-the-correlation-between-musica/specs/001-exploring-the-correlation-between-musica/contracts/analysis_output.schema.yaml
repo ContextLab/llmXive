@@ -21,24 +21,46 @@ properties:
   is_significant:
     type: "boolean"
     description: "True if adjusted_p_value < 0.05."
-  effect_size_r:
+  effect_size_rho:
     type: "number"
-    description: "Pearson's r effect size."
-  effect_size_fisher_z:
+    description: "Spearman's rho (primary effect size)."
+  ci_lower_rho:
     type: "number"
-    description: "Fisher's z transformation of the effect size."
-  ci_low:
+    description: "Lower bound of 95% CI for rho (bootstrapped)."
+  ci_upper_rho:
     type: "number"
-    description: "Lower bound of the 95% confidence interval."
-  ci_high:
+    description: "Upper bound of 95% CI for rho (bootstrapped)."
+  effect_size_r_log:
     type: "number"
-    description: "Upper bound of the 95% confidence interval."
+    description: "Pearson's r on log-transformed data (secondary)."
+  fisher_z_log:
+    type: "number"
+    description: "Fisher's z transformation for log-data (secondary)."
+  ci_lower_r_log:
+    type: "number"
+    description: "Lower bound of 95% CI for log-data (secondary)."
+  ci_upper_r_log:
+    type: "number"
+    description: "Upper bound of 95% CI for log-data (secondary)."
   effect_size_threshold_met:
     type: "boolean"
-    description: "True if |effect_size_r| > 0.3, as per SC-001."
-  beta_delta:
+    description: "True if |effect_size_rho| > 0.3, as per SC-001."
+  beta_baseline:
     type: "number"
-    description: "Change in regression coefficient when covariates are added, as per SC-003."
+    description: "Beta coefficient from baseline model (Trait only)."
+  beta_full:
+    type: "number"
+    description: "Beta coefficient from full model (Trait + Covariates)."
+  delta:
+    type: "number"
+    description: "Change in beta (beta_full - beta_baseline)."
+  cohens_d:
+    type: "number"
+    description: "Cohen's d for the coefficient delta."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for collinearity check."
+    minimum: 1
 required:
   - trait
   - genre
@@ -46,10 +68,17 @@ required:
   - p_value
   - adjusted_p_value
   - is_significant
-  - effect_size_r
-  - effect_size_fisher_z
-  - ci_low
-  - ci_high
+  - effect_size_rho
+  - ci_lower_rho
+  - ci_upper_rho
+  - effect_size_r_log
+  - fisher_z_log
+  - ci_lower_r_log
+  - ci_upper_r_log
   - effect_size_threshold_met
-  - beta_delta
+  - beta_baseline
+  - beta_full
+  - delta
+  - cohens_d
+  - vif
 additionalProperties: false

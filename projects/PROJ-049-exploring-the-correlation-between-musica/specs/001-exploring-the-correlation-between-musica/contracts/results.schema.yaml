@@ -42,43 +42,46 @@ properties:
   is_significant:
     type: boolean
     description: "True if adjusted_p_value < 0.05."
-  effect_size_r:
+  effect_size_rho:
     type: number
-    description: "Pearson's r effect size (derived for interpretation)."
-  ci_lower_bootstrap:
+    description: "Spearman's rho (primary effect size)."
+  ci_lower_rho:
     type: number
-    description: "Lower bound of 95% CI via bootstrapping."
-  ci_upper_bootstrap:
+    description: "Lower bound of 95% CI for rho (bootstrapped)."
+  ci_upper_rho:
     type: number
-    description: "Upper bound of 95% CI via bootstrapping."
-  beta:
+    description: "Upper bound of 95% CI for rho (bootstrapped)."
+  effect_size_r_log:
     type: number
-    description: "Regression coefficient (beta) for the trait in the full model."
-  std_error:
+    description: "Pearson's r on log-transformed data (secondary)."
+  fisher_z_log:
     type: number
-    description: "Standard error of the beta coefficient."
-  t_stat:
+    description: "Fisher's z transformation for log-data (secondary)."
+  ci_lower_r_log:
     type: number
-    description: "T-statistic for the regression."
+    description: "Lower bound of 95% CI for log-data (secondary)."
+  ci_upper_r_log:
+    type: number
+    description: "Upper bound of 95% CI for log-data (secondary)."
+  beta_baseline:
+    type: number
+    description: "Beta coefficient from baseline model (Trait only)."
+  beta_full:
+    type: number
+    description: "Beta coefficient from full model (Trait + Covariates)."
+  delta:
+    type: number
+    description: "Change in beta (beta_full - beta_baseline)."
+  cohens_d:
+    type: number
+    description: "Cohen's d for the coefficient delta."
   vif:
     type: number
     description: "Variance Inflation Factor for collinearity check."
     minimum: 1
-  beta_baseline:
-    type: number
-    description: "Beta coefficient for the trait in the baseline model (if applicable, else null)."
-  beta_full:
-    type: number
-    description: "Beta coefficient for the trait in the full model."
-  delta:
-    type: number
-    description: "Change in beta (beta_full - beta_baseline)."
-  percent_change:
-    type: number
-    description: "Percent change in beta ((delta / beta_baseline) * 100)."
   effect_size_threshold_met:
     type: boolean
-    description: "True if |effect_size_r| > 0.3, as per SC-001."
+    description: "True if |effect_size_rho| > 0.3, as per SC-001."
 required:
   - trait
   - genre
@@ -86,15 +89,17 @@ required:
   - p_value
   - adjusted_p_value
   - is_significant
-  - effect_size_r
-  - ci_lower_bootstrap
-  - ci_upper_bootstrap
-  - beta
-  - std_error
-  - t_stat
-  - vif
+  - effect_size_rho
+  - ci_lower_rho
+  - ci_upper_rho
+  - effect_size_r_log
+  - fisher_z_log
+  - ci_lower_r_log
+  - ci_upper_r_log
+  - beta_baseline
   - beta_full
   - delta
-  - percent_change
+  - cohens_d
+  - vif
   - effect_size_threshold_met
 additionalProperties: false

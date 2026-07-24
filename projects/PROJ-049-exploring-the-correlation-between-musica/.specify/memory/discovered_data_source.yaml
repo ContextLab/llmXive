@@ -1,6 +1,5 @@
 status: none
-intent: download OpenML BFI-2 dataset and Last.fm listening history dataset python
-  package dataset
+intent: download BFI-2 OpenML dataset and Last.fm listening data python package dataset
 required_fields:
 - user_id
 - openness
@@ -8,11 +7,10 @@ required_fields:
 - extraversion
 - agreeableness
 - neuroticism
+- standardized_genre
 - age
 - gender
-- standardized_genre
-- listening_time
-- raw_genre_tags
-cache_key: c04fd4464d22a9357044ba5b1fa07b14ee69a98c6ca3c692d77b0d6bc45747dd
-searched_at: '2026-07-20T17:24:35.573789+00:00'
+- other_demographic_fields
+cache_key: dea696705121462c553fea1c520e1f7ddb08c936f25139863bd182893baf40ee
+searched_at: '2026-07-24T04:24:01.887082+00:00'
 retry_count: 1
