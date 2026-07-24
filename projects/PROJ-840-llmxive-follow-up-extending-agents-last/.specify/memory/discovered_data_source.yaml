@@ -1,16 +1,16 @@
 status: none
-intent: download agent execution trace logs with failure mode labels python package
-  dataset
+intent: Arcade Learning Environment (ALE) execution trace logs failure annotations
+  OpenAI Gym Atari python package dataset
 required_fields:
 - trace_id
-- step_number
-- raw_log
-- environment_state_snapshot
-- agent_action
+- step_index
+- action
+- observation_state
+- environment_snapshot
 - claimed_context
-- failure_type_label
+- normalized_observation
+- failure_mode_label
 - timestamp
-- normalized_state_representation
-cache_key: 8f66f2fbfcb086853829568ffe60a6521af09d906f4e55132b227f1891e89c01
-searched_at: '2026-07-21T13:00:21.179880+00:00'
+cache_key: 704d0cb2c5bee58ad24c789225873228a41a89d56a8e6823a01c0f4b375ce835
+searched_at: '2026-07-24T18:17:01.722480+00:00'
 retry_count: 1

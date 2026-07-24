@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from dataclasses import dataclass, field
 import logging
+import sys
 
 @dataclass
 class ModelConfig:
@@ -40,6 +41,12 @@ class StatsConfig:
 class RunnerConfig:
     timeout_seconds: int = 21600
     memory_limit_mb: int = 7000
+    checkpoint_interval: int = 0  # Added to satisfy runner.py contract
+
+    def __init__(self, timeout_seconds: int = 21600, memory_limit_mb: int = 7000, checkpoint_interval: int = 0):
+        self.timeout_seconds = timeout_seconds
+        self.memory_limit_mb = memory_limit_mb
+        self.checkpoint_interval = checkpoint_interval
 
 @dataclass
 class PipelineConfig:
@@ -49,7 +56,7 @@ class PipelineConfig:
     data_paths: DataPathsConfig = field(default_factory=DataPathsConfig)
     normalization: NormalizationConfig = field(default_factory=NormalizationConfig)
     stats: StatsConfig = field(default_factory=StatsConfig)
-    runner: RunnerConfig = field(default_factory=RunnerConfig)
+    runner: RunnerConfig = field(default_factory=lambda: RunnerConfig())
 
 class PipelineConfigWrapper:
     def __init__(self, config_dict: Dict[str, Any]):
@@ -61,9 +68,10 @@ class PipelineConfigWrapper:
             if hasattr(self.config, key):
                 attr = getattr(self.config, key)
                 if hasattr(attr, '__dataclass_fields__'):
-                    for sub_key, sub_value in value.items():
-                        if hasattr(attr, sub_key):
-                            setattr(attr, sub_key, sub_value)
+                    if isinstance(value, dict):
+                        for sub_key, sub_value in value.items():
+                            if hasattr(attr, sub_key):
+                                setattr(attr, sub_key, sub_value)
                 else:
                     setattr(self.config, key, value)
 
@@ -79,7 +87,10 @@ def validate_config(config: PipelineConfigWrapper) -> bool:
     """
     Validates the configuration.
     """
-    # Placeholder validation
+    if not config.config.model.path:
+        return False
+    if config.config.runner.memory_limit_mb <= 0:
+        return False
     return True
 
 def main():
@@ -99,6 +110,7 @@ def main():
     print(f"Config loaded successfully:")
     print(f"  Model path: {config.config.model.path}")
     print(f"  Checkpoint interval: {config.config.checkpoint.interval}")
+    print(f"  Runner memory limit: {config.config.runner.memory_limit_mb} MB")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,22 @@
 [
   {
+    "data_file": "data/processed/baseline_results.json",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/classified_traces.json",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/stats_report.json",
+    "required": []
+  },
+  {
     "data_file": "data/raw/golden_subset.json",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/synthetic_ale.json",
     "required": []
   }
 ]
