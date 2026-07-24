@@ -11,231 +11,164 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/filter_responses.log', mode='a')
+        logging.FileHandler('data/intermediate/filter_responses.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
 MIN_LATENCY_MS = 30000  # 30 seconds in milliseconds
-MAX_MISSING_RATIO = 0.80  # 80% missing threshold
+MAX_MISSING_RATIO = 0.80  # 80%
+TOTAL_QUESTIONS = 3
 
-def load_responses(input_path: str) -> List[Dict[str, Any]]:
-    """
-    Load responses from a CSV file.
-    
-    Args:
-        input_path: Path to the input CSV file.
-        
-    Returns:
-        List of dictionaries representing each response row.
-    """
+def load_responses(file_path: str) -> List[Dict[str, Any]]:
+    """Load responses from a CSV file."""
     responses = []
-    path = Path(input_path)
-    
-    if not path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        return responses
-    
     try:
-        with open(path, 'r', newline='', encoding='utf-8') as f:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 # Convert numeric fields
-                try:
-                    row['latency_ms'] = int(row.get('latency_ms', 0))
-                except (ValueError, TypeError):
-                    row['latency_ms'] = 0
-                
-                try:
-                    row['missing_count'] = int(row.get('missing_count', 0))
-                except (ValueError, TypeError):
-                    row['missing_count'] = 0
-                
-                # Determine total questions if not present (default 3 for this study)
-                if 'total_questions' not in row:
-                    row['total_questions'] = 3
-                
+                if 'latency_ms' in row:
+                    row['latency_ms'] = int(row['latency_ms'])
+                if 'answer' in row:
+                    row['answer'] = row['answer'].lower() == 'true'
+                if 'missing_count' in row:
+                    row['missing_count'] = int(row['missing_count'])
                 responses.append(row)
-        
-        logger.info(f"Loaded {len(responses)} responses from {input_path}")
+        logger.info(f"Loaded {len(responses)} responses from {file_path}")
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
     except Exception as e:
         logger.error(f"Error loading responses: {e}")
         raise
-    
     return responses
 
 def calculate_missing_count(row: Dict[str, Any]) -> int:
     """
-    Calculate missing count for a response row.
-    Note: This task assumes missing_count is already present in the row 
-    (from T022b), but provides this function for completeness.
-    
-    Args:
-        row: A response dictionary.
-        
-    Returns:
-        The missing count integer.
+    Calculate missing count for a participant.
+    'Missing' is defined as unanswered questions.
+    Denominator is total_questions = 3 per participant.
     """
-    return int(row.get('missing_count', 0))
+    # If missing_count is already in the row, return it
+    if 'missing_count' in row and row['missing_count'] is not None:
+        return row['missing_count']
+    
+    # Otherwise, count missing fields based on expected columns
+    # Expected answer columns: answer_1, answer_2, answer_3 (or similar)
+    # For now, we assume the row has a 'missing_count' field from T022b
+    # If not, we estimate based on available fields
+    missing = 0
+    for i in range(1, TOTAL_QUESTIONS + 1):
+        key = f'answer_{i}'
+        if key not in row or row[key] == '' or row[key] is None:
+            missing += 1
+    return missing
 
-def is_valid_participant(row: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def is_valid_participant(row: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Determine if a participant is valid based on filtering criteria.
+    Check if a participant is valid based on:
+    - Total time >= 30 seconds (latency_ms >= 30000)
+    - Missing count < 80% of total questions (missing_count < 0.8 * 3 = 2.4, so <= 2)
     
-    Criteria:
-    - Total time (latency_ms) must be >= 30000ms (30 seconds)
-    - Missing count must be <= 80% of total questions
-    
-    Args:
-        row: A response dictionary.
-        
-    Returns:
-        Tuple of (is_valid, list_of_reasons_if_invalid)
+    Returns (is_valid, reason)
     """
-    reasons = []
-    
+    # Check latency
     latency = row.get('latency_ms', 0)
     if latency < MIN_LATENCY_MS:
-        reasons.append(f"latency < {MIN_LATENCY_MS}ms ({latency}ms)")
+        return False, f"Latency too low: {latency}ms < {MIN_LATENCY_MS}ms"
     
+    # Check missing count
     missing_count = calculate_missing_count(row)
-    total_questions = row.get('total_questions', 3)
-    max_allowed_missing = int(MAX_MISSING_RATIO * total_questions)
-    
+    max_allowed_missing = int(MAX_MISSING_RATIO * TOTAL_QUESTIONS)
     if missing_count > max_allowed_missing:
-        reasons.append(f"missing_count > {max_allowed_missing} ({missing_count})")
+        return False, f"Too many missing: {missing_count} > {max_allowed_missing}"
     
-    return len(reasons) == 0, reasons
+    return True, "Valid"
 
 def filter_responses(responses: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Filter responses to remove invalid participants.
-    
-    Args:
-        responses: List of response dictionaries.
-        
-    Returns:
-        Tuple of (valid_responses, excluded_responses)
+    Returns (valid_responses, excluded_responses)
     """
     valid = []
     excluded = []
     
     for row in responses:
-        is_valid, reasons = is_valid_participant(row)
+        is_valid, reason = is_valid_participant(row)
         if is_valid:
             valid.append(row)
         else:
-            row['_exclusion_reasons'] = reasons
-            excluded.append(row)
+            excluded.append({'row': row, 'reason': reason})
+            logger.warning(f"Excluding participant {row.get('participant_id', 'unknown')}: {reason}")
     
-    logger.info(f"Filtering complete: {len(valid)} valid, {len(excluded)} excluded")
+    logger.info(f"Filtered responses: {len(valid)} valid, {len(excluded)} excluded")
     return valid, excluded
 
 def save_filtered_responses(responses: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save filtered responses to a CSV file.
-    
-    Args:
-        responses: List of valid response dictionaries.
-        output_path: Path to the output CSV file.
-    """
+    """Save filtered responses to a CSV file."""
     if not responses:
-        logger.warning("No responses to save.")
+        logger.warning("No responses to save")
         return
     
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     fieldnames = list(responses[0].keys())
-    # Remove internal exclusion reasons from output
-    if '_exclusion_reasons' in fieldnames:
-        fieldnames.remove('_exclusion_reasons')
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(responses)
     
-    try:
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in responses:
-                # Clean up internal fields before writing
-                clean_row = {k: v for k, v in row.items() if not k.startswith('_')}
-                writer.writerow(clean_row)
-        
-        logger.info(f"Saved {len(responses)} valid responses to {output_path}")
-    except Exception as e:
-        logger.error(f"Error saving filtered responses: {e}")
-        raise
+    logger.info(f"Saved {len(responses)} filtered responses to {output_path}")
 
 def save_exclusion_log(excluded: List[Dict[str, Any]], log_path: str) -> None:
-    """
-    Save exclusion details to a JSON log file.
+    """Save exclusion log to a JSON file."""
+    # Ensure output directory exists
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        excluded: List of excluded response dictionaries.
-        log_path: Path to the exclusion log JSON file.
-    """
-    if not excluded:
-        logger.info("No exclusions to log.")
-        return
+    with open(log_path, 'w', encoding='utf-8') as f:
+        json.dump(excluded, f, indent=2, default=str)
     
-    path = Path(log_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Prepare log data
-    log_data = []
-    for row in excluded:
-        entry = {
-            'participant_id': row.get('participant_id', 'unknown'),
-            'condition': row.get('condition', 'unknown'),
-            'snippet_id': row.get('snippet_id', 'unknown'),
-            'latency_ms': row.get('latency_ms', 0),
-            'missing_count': row.get('missing_count', 0),
-            'exclusion_reasons': row.get('_exclusion_reasons', [])
-        }
-        log_data.append(entry)
-    
-    try:
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(log_data, f, indent=2)
-        
-        logger.info(f"Saved exclusion log with {len(excluded)} entries to {log_path}")
-    except Exception as e:
-        logger.error(f"Error saving exclusion log: {e}")
-        raise
+    logger.info(f"Saved exclusion log with {len(excluded)} entries to {log_path}")
 
 def main():
-    """
-    Main entry point for filtering responses.
-    """
-    # Define paths
-    base_dir = Path(__file__).resolve().parent.parent
-    input_path = base_dir / 'data' / 'intermediate' / 'responses.csv'
-    output_path = base_dir / 'data' / 'intermediate' / 'responses_filtered.csv'
-    exclusion_log_path = base_dir / 'data' / 'intermediate' / 'exclusion_log.json'
+    """Main function to filter responses."""
+    # Input and output paths
+    input_path = 'data/intermediate/responses.csv'
+    output_path = 'data/intermediate/responses_filtered.csv'
+    exclusion_log_path = 'data/intermediate/exclusion_log.json'
     
-    logger.info(f"Starting response filtering. Input: {input_path}")
-    
-    # Load responses
-    responses = load_responses(str(input_path))
-    if not responses:
-        logger.warning("No responses loaded. Exiting.")
-        return
-    
-    # Filter responses
-    valid_responses, excluded_responses = filter_responses(responses)
-    
-    # Save outputs
-    save_filtered_responses(valid_responses, str(output_path))
-    save_exclusion_log(excluded_responses, str(exclusion_log_path))
-    
-    # Log summary
-    total = len(responses)
-    valid_count = len(valid_responses)
-    excluded_count = len(excluded_responses)
-    logger.info(f"Summary: {total} total, {valid_count} valid ({valid_count/total:.1%}), {excluded_count} excluded ({excluded_count/total:.1%})")
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluded {excluded_count} participants. See {exclusion_log_path} for details.")
+    try:
+        # Load responses
+        logger.info(f"Loading responses from {input_path}")
+        responses = load_responses(input_path)
+        
+        # Filter responses
+        valid_responses, excluded_responses = filter_responses(responses)
+        
+        # Save filtered responses
+        save_filtered_responses(valid_responses, output_path)
+        
+        # Save exclusion log
+        save_exclusion_log(excluded_responses, exclusion_log_path)
+        
+        # Log summary
+        logger.info(f"Total participants: {len(responses)}")
+        logger.info(f"Valid participants: {len(valid_responses)}")
+        logger.info(f"Excluded participants: {len(excluded_responses)}")
+        
+        if excluded_responses:
+            logger.info("Exclusion reasons:")
+            for exc in excluded_responses:
+                logger.info(f"  - {exc['row'].get('participant_id', 'unknown')}: {exc['reason']}")
+        
+        logger.info("Filtering completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error during filtering: {e}")
+        raise
 
 if __name__ == '__main__':
     main()

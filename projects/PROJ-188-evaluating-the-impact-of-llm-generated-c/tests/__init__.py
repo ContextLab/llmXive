@@ -1,1 +1,2 @@
-# llmXive research-implementer pipeline: tests package
+# llmXive Project: Evaluating the Impact of LLM-Generated Code Explanations
+# Package initialization for test modules.

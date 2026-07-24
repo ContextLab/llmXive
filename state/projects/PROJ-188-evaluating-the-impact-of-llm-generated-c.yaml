@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T08:42:44.948824Z'
-current_stage: tasked
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-188-evaluating-the-impact-of-llm-generated-c
-last_run_id: 73df72da-506d-4c66-b8a8-d6025327dc86
+last_run_id: 5e01d8a0-807b-4680-8837-96373b5cab7d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c
 title: Evaluating the Impact of LLM-Generated Code Explanations on Comprehension
-updated_at: '2026-07-21T18:01:52.491214Z'
+updated_at: '2026-07-24T02:41:17.838320Z'

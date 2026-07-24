@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/meta-llama/CodeLlama-7b-Instruct-hf
   verified_at: '2026-07-13T18:54:28.577882Z'
-- artifact_hash: 49066ee4e7cb294f27241c89d571f799e3ff29c90ec21e0f340eab60b940026d
+- artifact_hash: 850a25163c76c915e46892e220f7dd43def17c61b86ba3df50d4bda721834140
   artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-21T18:01:51.739139Z'
+  verified_at: '2026-07-24T02:17:22.081735Z'

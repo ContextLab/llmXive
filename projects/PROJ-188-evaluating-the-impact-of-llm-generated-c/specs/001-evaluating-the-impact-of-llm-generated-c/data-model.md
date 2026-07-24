@@ -2,32 +2,35 @@
 
 ## Entities
 
-### CodeSnippet
+### Snippet
 Represents a Python function from the corpus.
 - `snippet_id`: Unique identifier (string).
-- `source_code`: Raw Python code (string).
+- `code`: Raw Python code (string).
 - `complexity_label`: Enum {low, medium, high}.
 - `official_docstring`: String (may be null).
-- `complexity_score`: Integer (cyclomatic complexity).
+- `complexity_score`: Float (cyclomatic complexity raw score).
+- `source`: String (dataset source identifier).
 
-### Explanation
-Represents the LLM-generated text.
-- `explanation_id`: Unique identifier (string).
-- `snippet_id`: Foreign key to CodeSnippet.
-- `text`: Generated explanation (string).
-- `token_count`: Integer.
-- `generation_timestamp`: ISO8601 string.
-- `status`: Enum {success, failed, skipped}.
-
-### ParticipantResponse
+### Response
 Represents a single trial from a participant.
 - `response_id`: Unique identifier (string).
 - `participant_id`: Anonymized ID (string).
-- `snippet_id`: Foreign key to CodeSnippet.
+- `snippet_id`: Foreign key to Snippet.
 - `condition`: Enum {code_only, code_llm, code_docstring}.
 - `answer`: Boolean (1=correct, 0=incorrect).
 - `latency_ms`: Integer (time from load to submit).
-- `is_valid`: Boolean (passed quality filters).
+- `timestamp`: ISO8601 string.
+- `missing_count`: Integer, default=0 (number of unanswered questions for this participant).
+
+### Explanation
+Represents the LLM-generated text associated with a snippet.
+- `explanation_id`: Unique identifier (string).
+- `snippet_id`: Foreign key to Snippet.
+- `text`: Generated explanation (string).
+- `token_count`: Integer.
+- `generation_timestamp`: ISO8601 string.
+- `model_used`: String (e.g., "CodeLlama-7B", "TinyLlama").
+- `status`: Enum {success, failed, skipped}.
 
 ### AnalysisResult
 Aggregated statistical output.
@@ -40,8 +43,8 @@ Aggregated statistical output.
 
 ## Data Flow
 
-1.  **Ingestion**: `CodeSearchNet` parquet -> `CodeSnippet` table (raw).
-2.  **Generation**: `CodeSnippet` + `CodeLlama` -> `Explanation` table (intermediate).
-3.  **Survey**: `CodeSnippet` + `Explanation` + `Condition` -> `ParticipantResponse` (raw logs).
-4.  **Cleaning**: `ParticipantResponse` (filter <30s, >80% missing) -> `ParticipantResponse` (clean).
-5.  **Analysis**: `Clean` + `Explanation` (BLEU) -> `AnalysisResult`.
+1. **Ingestion**: `CodeSearchNet` parquet -> `Snippet` table (raw).
+2. **Generation**: `Snippet` + `CodeLlama` -> `Explanation` table (intermediate).
+3. **Survey**: `Snippet` + `Explanation` + `Condition` -> `Response` (raw logs).
+4. **Cleaning**: `Response` (filter <30s, >80% missing) -> `Response` (clean).
+5. **Analysis**: `Clean` + `Explanation` (BLEU) -> `AnalysisResult`.

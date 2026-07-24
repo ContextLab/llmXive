@@ -7,4 +7,6 @@ datasets==2.14.0
 pandas==2.1.0
 numpy==1.24.0
 pyyaml==6.0.1
-python-dotenv==1.0.0
+psutil==5.9.0
+accelerate==0.25.0
+bitsandbytes==0.41.0

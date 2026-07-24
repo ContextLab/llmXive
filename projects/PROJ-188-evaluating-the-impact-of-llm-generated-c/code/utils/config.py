@@ -1,27 +1,29 @@
 import os
+import random
+import numpy as np
 from pathlib import Path
-from typing import Final
+from typing import Final, Dict, Any
 
-# Configuration constants
-SEED: Final[int] = 42
+# Constants
 MAX_TOKENS: Final[int] = 200
 TIMEOUT_SECONDS: Final[int] = 300
-MAX_MEMORY_GB: Final[int] = 7
+SEED: Final[int] = 42
+RAM_THRESHOLD_GB: Final[float] = 7.0
 
-# Paths
-PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent.parent
-DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
-RAW_DIR: Final[Path] = DATA_DIR / "raw"
-INTERMEDIATE_DIR: Final[Path] = DATA_DIR / "intermediate"
-PROCESSED_DIR: Final[Path] = DATA_DIR / "processed"
-CODE_DIR: Final[Path] = PROJECT_ROOT / "code"
-TESTS_DIR: Final[Path] = PROJECT_ROOT / "tests"
+def set_seed(seed: int = SEED):
+    """Set random seeds for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-# Ensure directories exist
-def ensure_dirs_exist() -> None:
-    """Create data directories if they don't exist."""
-    for dir_path in [DATA_DIR, RAW_DIR, INTERMEDIATE_DIR, PROCESSED_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-# Initialize directories
-ensure_dirs_exist()
+def ensure_dirs_exist():
+    """Ensure required directories exist."""
+    dirs = [
+        "data",
+        "data/raw",
+        "data/intermediate",
+        "data/processed",
+        "figures"
+    ]
+    for d in dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)

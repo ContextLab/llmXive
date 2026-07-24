@@ -1,35 +1,22 @@
-T001a:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that a directory named `projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/`
-    exists at the repository root; the claim cannot be verified. The required directory
-    is missing from the artifacts.
-T001b:
+  r: No formal decision document or amendment text for Constitution Principle VII
+    is present; the implementer provided no artifact, placeholder, or evidence of
+    the required decision. The task remains unfulfilled.
+T000b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the `code/` and `tests/` directories actually exist
-    in the project repository; without visible artifacts, the requirement cannot be
-    confirmed as satisfied. The implementer must create those subdirectories (and
-    optionally add placeholder files) and show their presence.
-T001c:
+  r: No amended `constitution.md` file or excerpt showing Principle VII updated to
+    authorize CodeLlama-7B with TinyLlama fallback is provided; the required governance
+    amendment artifact is missing.
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the required `data/` directory and its subdirectories\
-    \ `raw/`, `intermediate/`, and `processed/` actually exist; the artifact list\
-    \ is empty, so the task\u2019s requirement is not satisfied."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that `code/__init__.py` and `tests/__init__.py`
-    actually exist, nor that they are empty. The implementer must provide the two
-    empty `__init__.py` files in the specified directories.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation for ruff or black are present
-    in the provided evidence, so there is no proof that linting and formatting tools
-    have been set up. The implementer must add the appropriate config (e.g., `pyproject.toml`
-    or `ruff.toml` with ruff settings and black settings) and any setup instructions.
+  r: No code, script, or configuration file was provided that sets up loading of HuggingFace
+    token and model path environment variables, nor any documentation showing this
+    has been implemented. The required artifact (e.g., a Python module or settings
+    file that reads `HF_TOKEN` and model path variables) is missing.
 T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,6 +24,32 @@ T013c:
     \ label maps correctly to the `complexity_score` ranges before saving. The required\
     \ artifact (a script implementing this validation logic) is missing, so the task\u2019\
     s requirement is not satisfied."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a file at `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md`
+    was provided, nor any displayed schema definitions for Snippet and Response. The
+    required artifact is missing or not shown.
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md`
+    file or its contents was provided, and there is no indication that the Response
+    schema was updated to include a `missing_count` field. The required artifact is
+    missing, so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script or any code file was presented; the claim lacks any artifact\
+    \ showing checks for nulls, label validity, token count limits, or N\u202F\u2265\
+    \u202F20. The required script is missing entirely."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation or configuration files were provided, and there is
+    no evidence (e.g., code changes, log excerpts, test results) showing that skipped
+    snippets or fallback triggers are now being logged. The required artifact is missing,
+    so the task is not satisfied.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,26 +57,30 @@ T019:
     (survey UI, random assignment to the three conditions, display of code/explanations,
     and logging of answers with timestamps) were provided. The required artifact is
     missing, so the task is not satisfied.
-T020b:
-  c: false
-  h: d7847bf33eeab3f7b71c3fd8eeda839decd0c897ca844f84ff3ef1613aab0a57
-  r: "The repository contains `code/02_survey_logic.py`, but the shown code does not\
-    \ include any logic that simulates 10 participants, generates latencies\u202F\
-    >\u202F30\u202Fs, or writes a `data/intermediate/mock_responses.csv` file. Moreover,\
-    \ the `mock_responses.csv` file is absent from the project. Consequently, the\
-    \ required mock survey runner and its output are not present."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration file implementing the required filtering logic\
-    \ (excluding participants with total time\u202F<\u202F30\u202Fs or >\u202F80\u202F\
-    % missing responses) and logging the counts of exclusions is present. The evidence\
-    \ provided contains no artifact to verify that this functionality exists or works."
 T022b:
   c: false
-  h: 95c072efb1bf99e55527965c4fbb033fc46052c88b1db2dcf3f5916894d9ed28
-  r: "The repository lacks the required `data/intermediate/responses.csv` file, and\
-    \ the provided `code/02_survey_logic.py` does not contain any implementation that\
-    \ computes a `missing_count` per participant or appends it to the response records.\
-    \ Both the output file and the missing\u2011count logic are absent, so the task\
-    \ is not fulfilled."
+  h: d24d7facd3770e70c37b6567648e0edf1c56276da618e9324dc475a069458d6f
+  r: The repository lacks the required `data/intermediate/responses.csv` file, and
+    the shown portion of `code/02_survey_logic.py` does not contain any logic that
+    computes a `missing_count` and appends it to the response records. Both the output
+    file and the implementation are missing.
+T026c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `plan.md` file or excerpt was provided; without the actual document\
+    \ we cannot verify that the \u201CComplexity Tracking\u201D section was edited\
+    \ to remove the GLMM rationale and note LMM as the spec\u2011compliant choice.\
+    \ The required artifact is missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation implementing a post\u2011hoc Tukey\
+    \ HSD test (or showing adjusted p\u2011values for pairwise condition comparisons)\
+    \ was provided. The evidence consists only of the task description; there is no\
+    \ artifact to verify that the required statistical analysis was actually implemented."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, analysis script, data, or report showing a BLEU sensitivity sweep was
+    provided; the implementer supplied no artifact to demonstrate that the required
+    BLEU sensitivity analysis was performed.

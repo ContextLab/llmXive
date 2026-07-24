@@ -6,248 +6,253 @@ from pathlib import Path
 from typing import List, Dict, Any
 import pandas as pd
 import statsmodels.formula.api as smf
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
-import numpy as np
+from statsmodels.stats.multitest import multipletests
+from utils.metrics import calculate_bleu
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/intermediate/analysis.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATA_DIR = Path("data")
-INTERMEDIATE_DIR = DATA_DIR / "intermediate"
-PROCESSED_DIR = DATA_DIR / "processed"
-
-def load_data() -> pd.DataFrame:
-    """
-    Load and merge response data with snippet metadata.
-    Expects:
-      - data/intermediate/responses.csv (from T022/T022b)
-      - data/intermediate/explanations.json (from T014)
-    Returns a merged DataFrame ready for analysis.
-    """
-    responses_path = INTERMEDIATE_DIR / "responses.csv"
-    explanations_path = INTERMEDIATE_DIR / "explanations.json"
-
+def load_data() -> Dict[str, Any]:
+    """Load responses and explanations data."""
+    logger.info("Loading data...")
+    
+    # Load responses
+    responses_path = Path("data/intermediate/responses.csv")
     if not responses_path.exists():
         raise FileNotFoundError(f"Responses file not found: {responses_path}")
+    
+    df_responses = pd.read_csv(responses_path)
+    logger.info(f"Loaded {len(df_responses)} response records")
+    
+    # Load explanations
+    explanations_path = Path("data/intermediate/explanations.json")
     if not explanations_path.exists():
         raise FileNotFoundError(f"Explanations file not found: {explanations_path}")
-
-    # Load responses
-    df_responses = pd.read_csv(responses_path)
-    logger.info(f"Loaded {len(df_responses)} response records.")
-
-    # Load explanations to get complexity labels
+    
     with open(explanations_path, 'r') as f:
         explanations = json.load(f)
+    
+    logger.info(f"Loaded {len(explanations)} explanation records")
+    return {
+        'responses': df_responses,
+        'explanations': explanations
+    }
 
-    # Create a mapping from snippet_id to complexity
-    snippet_complexity = {}
-    for item in explanations:
-        if 'snippet_id' in item and 'complexity' in item:
-            snippet_complexity[item['snippet_id']] = item['complexity']
-
-    # Merge complexity into responses
-    df_responses['complexity'] = df_responses['snippet_id'].map(snippet_complexity)
-
-    # Validate merge
-    null_complexity = df_responses['complexity'].isna().sum()
-    if null_complexity > 0:
-        logger.warning(f"Found {null_complexity} responses with missing complexity labels.")
-
-    return df_responses
-
-def filter_invalid(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Filter invalid participants based on quality criteria:
-      - latency > 30000 ms (30s)
-      - missing_count < 0.8 * total_questions (assuming 3 questions)
-    """
-    if df.empty:
-        return df
-
-    # Ensure numeric types
-    df['latency_ms'] = pd.to_numeric(df['latency_ms'], errors='coerce')
-    df['missing_count'] = pd.to_numeric(df['missing_count'], errors='coerce')
-
-    total_questions = 3
-    max_missing = 0.8 * total_questions
-
-    # Filter
-    valid_df = df[
-        (df['latency_ms'] > 30000) &
-        (df['missing_count'] < max_missing)
+def filter_invalid(data: Dict[str, Any]) -> pd.DataFrame:
+    """Filter invalid participants based on quality criteria."""
+    df = data['responses']
+    
+    # Filter: latency > 30s AND missing_count < 0.8 * total_questions (3)
+    # total_questions = 3 per participant
+    df_filtered = df[
+        (df['latency_ms'] > 30000) & 
+        (df['missing_count'] < 0.8 * 3)
     ].copy()
-
-    excluded_count = len(df) - len(valid_df)
-    logger.info(f"Filtered {excluded_count} invalid participants. Remaining: {len(valid_df)}")
-
-    return valid_df
+    
+    logger.info(f"Filtered from {len(df)} to {len(df_filtered)} valid records")
+    return df_filtered
 
 def run_lmm(df: pd.DataFrame) -> Any:
-    """
-    Implement Linear Mixed Model (LMM) analysis.
-    Fixed effects: condition, complexity, condition:complexity
-    Random intercepts: participant_id (ONLY)
-    Family: Gaussian
-    Formula: answer ~ condition * complexity + (1|participant_id)
+    """Run Linear Mixed Model analysis."""
+    logger.info("Running Linear Mixed Model...")
     
-    ⚠️ DESIGN DECISION: Explicitly rejects GLMM in favor of Spec FR-005 LMM mandate.
-    """
-    if df.empty:
-        raise ValueError("Cannot run LMM on empty DataFrame.")
-
-    # Ensure categorical types for fixed effects
-    df['condition'] = df['condition'].astype('category')
-    df['complexity'] = df['complexity'].astype('category')
-    df['participant_id'] = df['participant_id'].astype(str)
-
-    # Check if 'answer' is numeric (0/1) or boolean
-    if df['answer'].dtype == 'bool':
-        df['answer'] = df['answer'].astype(int)
-
-    formula = "answer ~ condition * complexity + (1 | participant_id)"
+    # Formula: answer ~ condition * complexity + (1|participant_id)
+    formula = "answer ~ condition * complexity + (1|participant_id)"
     
-    logger.info(f"Fitting LMM with formula: {formula}")
-    logger.info(f"Data shape: {df.shape}")
-    logger.info(f"Unique participants: {df['participant_id'].nunique()}")
-
-    try:
-        # statsmodels MixedLM uses 'groups' for random effects syntax in formula interface
-        # We use the formula API which handles the (1|group) syntax via patsy
-        # However, statsmodels MixedLM formula interface is slightly different than lme4
-        # Correct formula for statsmodels: "answer ~ condition * complexity", groups="participant_id"
-        # But the task asks for formula string style. Let's use the explicit API for clarity.
-        
-        # Using the formula API for statsmodels MixedLM:
-        # model = smf.mixedlm("answer ~ condition * complexity", df, groups=df["participant_id"])
-        model = smf.mixedlm("answer ~ condition * complexity", df, groups=df["participant_id"])
-        result = model.fit()
-        
-        logger.info("LMM fitting completed successfully.")
-        logger.info(result.summary())
-        
-        return result
-    except Exception as e:
-        logger.error(f"Failed to fit LMM: {e}")
-        raise
+    # Fit LMM
+    model = smf.mixedlm(formula, df, groups=df["participant_id"])
+    result = model.fit()
+    
+    logger.info(f"LMM F-statistic: {result.f_statistic}")
+    logger.info(f"LMM p-values: {result.pvalues}")
+    
+    return result
 
 def run_tukey_hsd(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Implement post-hoc Tukey HSD test for pairwise condition comparisons.
-    """
-    if df.empty:
-        return {}
+    """Run Tukey HSD post-hoc test."""
+    logger.info("Running Tukey HSD post-hoc test...")
+    
+    from statsmodels.stats.multicomp import pairwise_tukeyhsd
+    
+    tukey = pairwise_tukeyhsd(endog=df['answer'], 
+                              groups=df['condition'], 
+                              alpha=0.05)
+    
+    # Extract results
+    results = {
+        'groups': tukey.groups,
+        'meandiffs': tukey.meandiffs,
+        'pvalues': tukey.pvalues,
+        'reject': tukey.reject
+    }
+    
+    logger.info(f"Tukey HSD completed: {len(results['pvalues'])} comparisons")
+    return results
 
-    try:
-        tukey = pairwise_tukeyhsd(
-            endog=df['answer'],
-            groups=df['condition'],
-            alpha=0.05
-        )
+def calculate_bleu_sensitivity(data: Dict[str, Any], df_filtered: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate BLEU scores for LLM explanations vs official docstrings.
+    Run analysis on subsets where BLEU scores meet varying high-quality thresholds.
+    """
+    logger.info("Starting BLEU sensitivity sweep...")
+    
+    explanations = data['explanations']
+    explanations_df = pd.DataFrame(explanations)
+    
+    # Merge with responses to get answer/latency data
+    merged_df = df_filtered.merge(
+        explanations_df[['snippet_id', 'explanation']], 
+        left_on='snippet_id', 
+        right_on='snippet_id', 
+        how='inner'
+    )
+    
+    if merged_df.empty:
+        logger.warning("No merged data found for BLEU calculation")
+        return pd.DataFrame(columns=['threshold', 'accuracy_mean', 'latency_mean', 'p_value_interaction'])
+    
+    # Calculate BLEU scores for each explanation vs docstring
+    bleu_scores = []
+    for _, row in merged_df.iterrows():
+        # Use explanation as candidate, docstring as reference
+        # Note: In real data, docstrings should be in the explanations data
+        # For now, we assume 'explanation' field contains the LLM explanation
+        # and we need a reference (docstring). If not available, we skip.
         
-        # Extract results
-        results = {
-            "groups": list(tukey.groups),
-            "data": []
-        }
+        # Check if we have a reference (docstring)
+        if 'docstring' in row and pd.notna(row['docstring']):
+            candidate = row['explanation'] if pd.notna(row['explanation']) else ""
+            reference = row['docstring']
+            
+            bleu = calculate_bleu(candidate, reference)
+            bleu_scores.append(bleu)
+        else:
+            # If no docstring available, use a placeholder or skip
+            # For sensitivity analysis, we need real BLEU scores
+            logger.warning(f"Missing docstring for snippet {row.get('snippet_id')}, skipping BLEU calculation")
+            bleu_scores.append(None)
+    
+    merged_df['bleu_score'] = bleu_scores
+    
+    # Define thresholds for sensitivity sweep
+    thresholds = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    
+    results = []
+    
+    for threshold in thresholds:
+        # Filter to samples with BLEU >= threshold
+        subset = merged_df[merged_df['bleu_score'] >= threshold]
         
-        # Iterate through comparisons
-        for row in tukey.summary().data[1:]:
-            # row format: [group1, group2, meandiff, p-adj, lower, upper, reject]
-            results["data"].append({
-                "group1": row[0],
-                "group2": row[1],
-                "mean_diff": float(row[2]),
-                "p_adj": float(row[3]),
-                "lower": float(row[4]),
-                "upper": float(row[5]),
-                "reject": bool(row[6])
+        if len(subset) < 5:  # Minimum sample size for meaningful analysis
+            logger.info(f"Threshold {threshold}: Only {len(subset)} samples, skipping analysis")
+            results.append({
+                'threshold': threshold,
+                'accuracy_mean': None,
+                'latency_mean': None,
+                'p_value_interaction': None
             })
+            continue
         
-        logger.info("Tukey HSD completed.")
-        return results
-    except Exception as e:
-        logger.error(f"Tukey HSD failed: {e}")
-        return {"error": str(e)}
+        logger.info(f"Threshold {threshold}: {len(subset)} samples")
+        
+        # Calculate accuracy mean (answer column is boolean)
+        accuracy_mean = subset['answer'].mean()
+        
+        # Calculate latency mean
+        latency_mean = subset['latency_ms'].mean()
+        
+        # Run LMM on this subset to get interaction p-value
+        try:
+            # Check if we have enough variation in condition and complexity
+            if subset['condition'].nunique() < 2 or subset['complexity'].nunique() < 2:
+                logger.warning(f"Threshold {threshold}: Insufficient variation in condition or complexity")
+                results.append({
+                    'threshold': threshold,
+                    'accuracy_mean': accuracy_mean,
+                    'latency_mean': latency_mean,
+                    'p_value_interaction': None
+                })
+                continue
+            
+            model = smf.mixedlm(
+                "answer ~ condition * complexity + (1|participant_id)", 
+                subset, 
+                groups=subset["participant_id"]
+            )
+            result = model.fit()
+            
+            # Extract interaction p-value
+            # The interaction term is 'condition:complexity'
+            interaction_p = None
+            for key, p_val in result.pvalues.items():
+                if 'condition' in key and 'complexity' in key:
+                    interaction_p = p_val
+                    break
+            
+            results.append({
+                'threshold': threshold,
+                'accuracy_mean': accuracy_mean,
+                'latency_mean': latency_mean,
+                'p_value_interaction': interaction_p
+            })
+            
+        except Exception as e:
+            logger.error(f"Error running LMM for threshold {threshold}: {e}")
+            results.append({
+                'threshold': threshold,
+                'accuracy_mean': accuracy_mean,
+                'latency_mean': latency_mean,
+                'p_value_interaction': None
+            })
+    
+    return pd.DataFrame(results)
 
-def calculate_bleu_sensitivity(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Placeholder for BLEU sensitivity sweep logic.
-    This task (T026) focuses on the LMM implementation.
-    The actual sweep (T028) will depend on BLEU scores which are not yet computed.
-    We return an empty list here to satisfy the function signature for T026.
-    """
-    logger.info("BLEU sensitivity sweep is scheduled for T028. Skipping in T026.")
-    return []
-
-def save_sensitivity_report(report_data: List[Dict[str, Any]]) -> None:
-    """
-    Placeholder for saving sensitivity report.
-    """
-    logger.info("Saving sensitivity report is scheduled for T028.")
+def save_sensitivity_report(df_sensitivity: pd.DataFrame, output_path: str):
+    """Save sensitivity report to CSV."""
+    logger.info(f"Saving sensitivity report to {output_path}")
+    df_sensitivity.to_csv(output_path, index=False)
+    logger.info("Sensitivity report saved successfully")
 
 def main():
-    """
-    Main entry point for T026: LMM Implementation.
-    """
-    logger.info("Starting T026: Linear Mixed Model Analysis")
+    """Main function to run BLEU sensitivity sweep."""
+    logger.info("Starting BLEU sensitivity sweep (Task T028)...")
     
     try:
-        # 1. Load Data
-        df = load_data()
+        # Load data
+        data = load_data()
         
-        # 2. Filter Invalid Participants
-        df_valid = filter_invalid(df)
+        # Filter invalid participants
+        df_filtered = filter_invalid(data)
         
-        if df_valid.empty:
-            logger.error("No valid participants remaining after filtering. Aborting analysis.")
-            sys.exit(1)
+        if df_filtered.empty:
+            logger.error("No valid participants after filtering. Cannot run sensitivity analysis.")
+            # Create empty report with headers
+            empty_report = pd.DataFrame(columns=['threshold', 'accuracy_mean', 'latency_mean', 'p_value_interaction'])
+            save_sensitivity_report(empty_report, 'data/processed/sensitivity_report.csv')
+            return 1
         
-        # 3. Run LMM
-        lmm_result = run_lmm(df_valid)
+        # Calculate BLEU sensitivity
+        df_sensitivity = calculate_bleu_sensitivity(data, df_filtered)
         
-        # 4. Run Tukey HSD
-        tukey_results = run_tukey_hsd(df_valid)
+        # Save report
+        save_sensitivity_report(df_sensitivity, 'data/processed/sensitivity_report.csv')
         
-        # 5. Save Results (Basic JSON for now, full report in T029)
-        output_dir = PROCESSED_DIR
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        results_file = output_dir / "lmm_results.json"
-        
-        # Convert statsmodels result to serializable dict (limited)
-        serializable_result = {
-            "formula": "answer ~ condition * complexity + (1|participant_id)",
-            "n_obs": int(df_valid.shape[0]),
-            "n_groups": int(df_valid['participant_id'].nunique()),
-            "fixed_effects": {
-                "condition": lmm_result.params.get('condition[T.Code+LLM]', None),
-                "complexity": lmm_result.params.get('complexity[T.medium]', None),
-                "interaction": lmm_result.params.get('condition[T.Code+LLM]:complexity[T.medium]', None)
-            },
-            "p_values": {
-                "condition": lmm_result.pvalues.get('condition[T.Code+LLM]', None),
-                "complexity": lmm_result.pvalues.get('complexity[T.medium]', None),
-                "interaction": lmm_result.pvalues.get('condition[T.Code+LLM]:complexity[T.medium]', None)
-            },
-            "tukey_hsd": tukey_results
-        }
-        
-        with open(results_file, 'w') as f:
-            json.dump(serializable_result, f, indent=2, default=str)
-        
-        logger.info(f"Results saved to {results_file}")
-        logger.info("T026 completed successfully.")
+        logger.info("BLEU sensitivity sweep completed successfully")
+        return 0
         
     except Exception as e:
-        logger.critical(f"T026 failed: {e}")
-        sys.exit(1)
+        logger.error(f"Error in BLEU sensitivity sweep: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,1 +1,3 @@
-# Placeholder to ensure directory creation in version control
+# This directory exists to satisfy Task T001a:
+# Create directory `projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/` at the repository root.
+# This file is a placeholder to ensure the directory is tracked by version control.

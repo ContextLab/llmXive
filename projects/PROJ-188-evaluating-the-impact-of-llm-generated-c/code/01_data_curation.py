@@ -5,7 +5,14 @@ import re
 import time
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List, Optional, Tuple
+
+# Import utilities from sibling modules as per API surface
+from utils.config import set_seed, ensure_dirs_exist
+from utils.env_loader import load_env_vars
+from utils.metrics import parse_latency_to_ms
+import curation_utils
+from datasets import load_dataset
 
 # Configure logging
 logging.basicConfig(
@@ -13,7 +20,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path('logs/01_data_curation.log'))
+        logging.FileHandler('data/intermediate/curation.log')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -21,150 +28,137 @@ logger = logging.getLogger(__name__)
 # Constants
 MAX_TOKENS = 200
 TIMEOUT_SECONDS = 300
-MAX_MEMORY_GB = 7
-COMPLEXITY_THRESHOLDS = {
-    'low': (0, 5),
-    'medium': (5, 10),
-    'high': (10, float('inf'))
-}
+MEMORY_THRESHOLD_GB = 7.0
 
-def fetch_code_search_net() -> List[Dict[str, Any]]:
-    """Fetch Python subset from CodeSearchNet dataset."""
+def ensure_dirs():
+    """Ensure required directories exist."""
+    ensure_dirs_exist()
+
+def get_memory_usage_gb():
+    """Get current memory usage in GB."""
     try:
-        from datasets import load_dataset
-        logger.info("Fetching CodeSearchNet Python subset...")
-        dataset = load_dataset("codeparrot/code-search-net", "python", split="train", streaming=True)
-        snippets = []
-        count = 0
-        for item in dataset:
-            if count >= 100:  # Limit for demonstration
-                break
-            snippets.append({
-                'snippet_id': f"csnet_{count}",
-                'code': item['code'],
-                'language': item['language']
-            })
-            count += 1
-        logger.info(f"Fetched {count} snippets from CodeSearchNet")
-        return snippets
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 ** 3)
+    except ImportError:
+        logger.warning("psutil not installed, skipping memory check")
+        return 0.0
+
+def fetch_code_search_net():
+    """Fetch Python subset from CodeSearchNet dataset with streaming."""
+    logger.info("Fetching CodeSearchNet Python subset...")
+    try:
+        dataset = load_dataset(
+            "codeparrot/code-search-net",
+            split="train",
+            streaming=True,
+            trust_remote_code=True
+        )
+        # Filter for Python code
+        python_dataset = dataset.filter(lambda x: x["language"] == "python")
+        logger.info("Successfully loaded CodeSearchNet Python subset")
+        return python_dataset
     except Exception as e:
-        logger.error(f"Failed to fetch CodeSearchNet: {e}")
+        logger.error(f"Failed to load CodeSearchNet: {e}")
         raise
 
-def calculate_cyclomatic_complexity(code: str) -> float:
-    """Calculate raw cyclomatic complexity score for a code snippet."""
-    try:
-        # Simple heuristic: count decision points
-        patterns = [
-            r'\bif\b', r'\belif\b', r'\bfor\b', r'\bwhile\b',
-            r'\band\b', r'\bor\b', r'\bexcept\b', r'\bassert\b',
-            r'\bcase\b'  # Python 3.10+
-        ]
-        complexity = 1  # Base complexity
-        for pattern in patterns:
-            matches = re.findall(pattern, code)
-            complexity += len(matches)
-        logger.debug(f"Cyclomatic complexity calculated: {complexity}")
-        return float(complexity)
-    except Exception as e:
-        logger.error(f"Error calculating complexity for code: {e}")
-        return 1.0
+def calculate_cyclomatic_complexity_wrapper(code: str) -> float:
+    """Wrapper for cyclomatic complexity calculation."""
+    return curation_utils.calculate_cyclomatic_complexity(code)
 
-def label_complexity(raw_score: float) -> str:
-    """Label complexity based on raw score ranges."""
-    if raw_score <= COMPLEXITY_THRESHOLDS['low'][1]:
-        return 'low'
-    elif raw_score <= COMPLEXITY_THRESHOLDS['medium'][1]:
-        return 'medium'
-    else:
-        return 'high'
+def label_complexity_wrapper(score: float) -> str:
+    """Wrapper for complexity labeling."""
+    return curation_utils.label_complexity(score)
 
-def process_complexity(snippets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Process snippets to add complexity scores and labels."""
-    processed = []
-    for snippet in snippets:
-        raw_score = calculate_cyclomatic_complexity(snippet['code'])
-        label = label_complexity(raw_score)
-        processed.append({
-            **snippet,
-            'complexity_score': raw_score,
-            'complexity': label
-        })
-        logger.debug(f"Processed snippet {snippet['snippet_id']}: score={raw_score}, label={label}")
-    return processed
+def process_complexity(snippet: Dict[str, Any]) -> Dict[str, Any]:
+    """Process a single snippet to calculate complexity metrics."""
+    code = snippet.get("code", "")
+    if not code:
+        return None
+
+    raw_score = calculate_cyclomatic_complexity_wrapper(code)
+    label = label_complexity_wrapper(raw_score)
+
+    return {
+        "snippet_id": snippet.get("repo", "") + "/" + snippet.get("path", ""),
+        "code": code,
+        "complexity": label,
+        "complexity_score": raw_score
+    }
 
 def save_snippets(snippets: List[Dict[str, Any]], output_path: str):
     """Save processed snippets to JSON file."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(snippets, f, indent=2)
     logger.info(f"Saved {len(snippets)} snippets to {output_path}")
 
-def generate_explanation(code: str, complexity: str, model_name: str = "CodeLlama-7B") -> Dict[str, Any]:
-    """Generate LLM explanation for code snippet with fallback logic."""
-    start_time = time.time()
-    model_loaded = False
-    fallback_triggered = False
-    model_used = model_name
-    explanation_text = ""
-    token_count = 0
-    status = "success"
-
+def generate_explanation(code: str, complexity: str, model_name: str = "codellama") -> Tuple[Optional[str], int, str]:
+    """
+    Generate LLM explanation for code snippet.
+    
+    Returns:
+        Tuple of (explanation_text, token_count, model_used)
+    """
+    logger.info(f"Generating explanation for {complexity} complexity code using {model_name}")
+    
     try:
-        # Attempt to load CodeLlama-7B (4-bit quantized)
-        try:
-            logger.info(f"Attempting to load {model_name}...")
-            from transformers import AutoTokenizer, AutoModelForCausalLM
-            import torch
-
-            tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-Instruct-hf")
-            
-            # Check memory availability before loading
-            if torch.cuda.is_available():
-                device_map = "auto"
-            else:
-                # CPU fallback with 4-bit quantization
-                try:
-                    from transformers import BitsAndBytesConfig
-                    bnb_config = BitsAndBytesConfig(
-                        load_in_4bit=True,
-                        bnb_4bit_use_double_quant=True,
-                        bnb_4bit_quant_type="nf4",
-                        bnb_4bit_compute_dtype=torch.float16
-                    )
-                    model = AutoModelForCausalLM.from_pretrained(
-                        "codellama/CodeLlama-7b-Instruct-hf",
-                        quantization_config=bnb_config,
-                        device_map="cpu"
-                    )
-                    model_loaded = True
-                    logger.info("CodeLlama-7B loaded successfully on CPU with 4-bit quantization")
-                except Exception as e:
-                    logger.warning(f"CodeLlama-7B failed to load on CPU: {e}")
-                    raise
-        except Exception as e:
-            logger.warning(f"CodeLlama-7B loading failed: {e}")
-            # Fallback to TinyLlama
-            fallback_triggered = True
-            logger.info("Switching to TinyLlama fallback model...")
-            
-            from transformers import AutoTokenizer, AutoModelForCausalLM
-            tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-            model = AutoModelForCausalLM.from_pretrained(
-                "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-                device_map="cpu"
-            )
-            model_loaded = True
-            model_used = "TinyLlama-1.1B-Chat-v1.0"
-            logger.info("TinyLlama fallback model loaded successfully")
-
-        if not model_loaded:
-            raise Exception("No model could be loaded")
-
-        # Generate explanation
-        prompt = f"Explain the following {complexity} complexity code snippet in simple terms. Keep it under {MAX_TOKENS} tokens:\n\n{code}"
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+        import torch
         
+        # Configure quantization for 4-bit loading
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16
+        )
+        
+        # Try to load CodeLlama-7B first
+        if model_name == "codellama":
+            model_id = "codellama/CodeLlama-7b-hf"
+            logger.info(f"Attempting to load {model_id}...")
+            
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model_id)
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    quantization_config=bnb_config,
+                    device_map="auto",
+                    torch_dtype=torch.float16,
+                    trust_remote_code=True
+                )
+                logger.info("Successfully loaded CodeLlama-7B")
+            except (OutOfMemoryError, RuntimeError) as e:
+                logger.warning(f"CodeLlama-7B failed: {e}. Falling back to TinyLlama.")
+                model_name = "tinyllama"
+            except Exception as e:
+                logger.warning(f"CodeLlama-7B failed unexpectedly: {e}. Falling back to TinyLlama.")
+                model_name = "tinyllama"
+        
+        # Fallback to TinyLlama
+        if model_name == "tinyllama":
+            model_id = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+            logger.info(f"Loading fallback model: {model_id}")
+            
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model_id)
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_id,
+                    device_map="auto",
+                    torch_dtype=torch.float16,
+                    trust_remote_code=True
+                )
+                logger.info("Successfully loaded TinyLlama")
+            except Exception as e:
+                logger.error(f"Failed to load TinyLlama: {e}")
+                return None, 0, "failed"
+        
+        # Prepare prompt
+        prompt = f"Explain the following Python code snippet concisely (max {MAX_TOKENS} tokens):\n\n{code}"
+        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+        
+        # Generate with token limit
+        start_time = time.time()
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
@@ -174,85 +168,128 @@ def generate_explanation(code: str, complexity: str, model_name: str = "CodeLlam
                 pad_token_id=tokenizer.eos_token_id
             )
         
-        explanation_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        token_count = len(outputs[0])
+        elapsed = time.time() - start_time
+        if elapsed > TIMEOUT_SECONDS:
+            logger.warning(f"Generation timeout ({elapsed}s > {TIMEOUT_SECONDS}s)")
+            return None, 0, model_name
         
-        elapsed_time = time.time() - start_time
-        if elapsed_time > TIMEOUT_SECONDS:
-            logger.warning(f"Generation exceeded timeout ({elapsed_time}s > {TIMEOUT_SECONDS}s)")
-            status = "skipped"
+        # Decode and clean
+        generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        explanation = generated.split(prompt)[-1].strip()
         
-        logger.info(f"Generated explanation using {model_used}: {token_count} tokens, {elapsed_time:.2f}s")
+        # Count tokens
+        token_count = len(tokenizer.encode(explanation))
+        
+        if token_count > MAX_TOKENS:
+            logger.warning(f"Explanation exceeded token limit: {token_count} > {MAX_TOKENS}")
+            # Truncate to MAX_TOKENS
+            truncated_tokens = tokenizer.encode(explanation)[:MAX_TOKENS]
+            explanation = tokenizer.decode(truncated_tokens)
+            token_count = len(truncated_tokens)
+        
+        logger.info(f"Generated explanation with {token_count} tokens using {model_name}")
+        return explanation, token_count, model_name
         
     except Exception as e:
         logger.error(f"Explanation generation failed: {e}")
-        status = "skipped"
-        explanation_text = ""
-        token_count = 0
-        model_used = model_name if not fallback_triggered else "TinyLlama-1.1B-Chat-v1.0"
-
-    # Log skipped snippets and fallback triggers
-    if status == "skipped":
-        logger.warning(f"SKIPPED: Snippet explanation generation failed. Reason: {str(e)}")
-    if fallback_triggered:
-        logger.info(f"FALLBACK TRIGGERED: Switched to TinyLlama for snippet generation due to CodeLlama failure")
-
-    return {
-        'explanation': explanation_text,
-        'token_count': token_count,
-        'model_used': model_used,
-        'status': status,
-        'fallback_triggered': fallback_triggered
-    }
+        return None, 0, "failed"
 
 def main():
-    """Main function to run data curation and explanation generation."""
-    logger.info("Starting data curation and explanation generation pipeline...")
+    """Main entry point for data curation pipeline."""
+    logger.info("Starting data curation pipeline...")
     
-    # Fetch and process data
-    snippets = fetch_code_search_net()
-    processed_snippets = process_complexity(snippets)
+    # Setup
+    set_seed(42)
+    ensure_dirs()
+    load_env_vars()
     
-    # Save processed snippets
-    save_path = "data/intermediate/snippets_processed.json"
-    save_snippets(processed_snippets, save_path)
+    # Fetch dataset
+    dataset = fetch_code_search_net()
     
-    # Generate explanations
-    explanations = []
-    for snippet in processed_snippets:
-        result = generate_explanation(
-            code=snippet['code'],
-            complexity=snippet['complexity'],
-            model_name="CodeLlama-7B"
+    # Process snippets
+    snippets = []
+    explanations_data = []
+    skipped_count = 0
+    fallback_count = 0
+    failed_count = 0
+    
+    logger.info("Processing snippets...")
+    for idx, snippet in enumerate(dataset):
+        if idx >= 100:  # Limit for demo purposes
+            break
+            
+        processed = process_complexity(snippet)
+        if not processed:
+            skipped_count += 1
+            logger.debug(f"Skipped snippet {idx}: invalid code")
+            continue
+        
+        # Generate explanation
+        explanation, token_count, model_used = generate_explanation(
+            processed["code"], 
+            processed["complexity"],
+            "codellama"
         )
-        explanations.append({
-            'snippet_id': snippet['snippet_id'],
-            'code': snippet['code'],
-            'complexity': snippet['complexity'],
-            'complexity_score': snippet['complexity_score'],
-            'explanation': result['explanation'],
-            'token_count': result['token_count'],
-            'model_used': result['model_used'],
-            'status': result['status'],
-            'fallback_triggered': result['fallback_triggered']
-        })
         
-        # Log skipped snippets
-        if result['status'] == 'skipped':
-            logger.warning(f"SKIPPED: Snippet {snippet['snippet_id']} - Explanation generation failed")
+        if explanation is None:
+            failed_count += 1
+            logger.warning(f"Failed to generate explanation for snippet {idx}")
+            continue
         
-        # Log fallback triggers
-        if result['fallback_triggered']:
-            logger.info(f"FALLBACK: Snippet {snippet['snippet_id']} used TinyLlama due to CodeLlama failure")
+        # Track fallback usage
+        if model_used == "tinyllama":
+            fallback_count += 1
+            logger.info(f"Fallback to TinyLlama triggered for snippet {idx}")
+        
+        # Add to explanations data
+        explanation_record = {
+            "snippet_id": processed["snippet_id"],
+            "code": processed["code"],
+            "complexity": processed["complexity"],
+            "complexity_score": processed["complexity_score"],
+            "explanation": explanation,
+            "token_count": token_count,
+            "model_used": model_used,
+            "status": "success"
+        }
+        explanations_data.append(explanation_record)
+        
+        snippets.append(processed)
+        
+        if idx % 10 == 0:
+            logger.info(f"Processed {idx} snippets...")
     
-    # Save explanations
-    explanations_path = "data/intermediate/explanations.json"
-    save_snippets(explanations, explanations_path)
+    # Save outputs
+    save_snippets(snippets, "data/intermediate/snippets.json")
     
-    logger.info(f"Pipeline completed. Generated {len(explanations)} explanations.")
-    logger.info(f"Output saved to {explanations_path}")
+    with open("data/intermediate/explanations.json", "w", encoding="utf-8") as f:
+        json.dump(explanations_data, f, indent=2)
     
-    return explanations
+    # Log summary statistics including skipped and fallback counts
+    logger.info("=" * 50)
+    logger.info("CURATION PIPELINE SUMMARY")
+    logger.info("=" * 50)
+    logger.info(f"Total snippets processed: {len(snippets)}")
+    logger.info(f"Skipped snippets (invalid code): {skipped_count}")
+    logger.info(f"Failed explanations: {failed_count}")
+    logger.info(f"Fallback triggers (TinyLlama): {fallback_count}")
+    logger.info(f"Success rate: {len(snippets) / (len(snippets) + skipped_count + failed_count) * 100:.2f}%")
+    logger.info("=" * 50)
+    
+    # Write skipped/fallback log
+    with open("data/intermediate/skipped_fallback_log.txt", "w", encoding="utf-8") as f:
+        f.write("Skipped Snippets Log\n")
+        f.write("=" * 40 + "\n")
+        f.write(f"Total skipped: {skipped_count}\n")
+        f.write(f"Total fallbacks: {fallback_count}\n")
+        f.write(f"Total failures: {failed_count}\n")
+        f.write("\nFallback Triggers:\n")
+        for i, exp in enumerate(explanations_data):
+            if exp["model_used"] == "tinyllama":
+                f.write(f"  Snippet {i}: {exp['snippet_id']} -> TinyLlama\n")
+    
+    logger.info("Data curation pipeline completed successfully")
+    return explanations_data
 
 if __name__ == "__main__":
     main()

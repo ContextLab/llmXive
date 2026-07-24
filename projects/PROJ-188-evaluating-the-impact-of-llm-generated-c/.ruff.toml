@@ -1,4 +1,3 @@
-# Extend the pyproject.toml configuration for specific overrides if needed,
-# or use this as the primary config. Here we mirror pyproject.toml for clarity
-# in case the tooling prefers a dedicated file.
+# Ruff configuration for llmXive project
+# Extends pyproject.toml if needed, but mostly redundant for explicit CLI usage
 extend = "pyproject.toml"
