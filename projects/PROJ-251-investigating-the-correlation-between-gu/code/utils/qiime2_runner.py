@@ -1,258 +1,258 @@
+"""
+QIIME2 Runner Module
+
+Provides utilities for running QIIME2 pipelines, specifically DADA2 denoising
+for 16S rRNA amplicon data processing.
+
+This module handles:
+- Importing raw FASTQ data into QIIME2 format
+- Running DADA2 denoising with configurable parameters
+- Exporting results from QIIME2 artifacts
+"""
 import os
 import sys
 import logging
 import subprocess
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
-from utils.logging_config import get_logger
-from utils.config import get_raw_path, get_processed_path, get_random_seed
+from utils.logging_config import get_logger, log_error_context
+from utils.sra_downloader import DataUnavailableError
 
 logger = get_logger(__name__)
 
-# Constants for QIIME2 execution
-DOCKER_IMAGE = "qiime2/2023.7"
-TRUNC_LEN = 240
-CHIMERA_METHOD = "pooled"
-RANDOM_SEED = 42
-
 def run_dada2_denoising(
-    forward_fastq_files: List[Path],
-    reverse_fastq_files: Optional[List[Path]] = None,
-    output_dir: Optional[Path] = None
-) -> Path:
+    fastq_files: List[Path],
+    output_dir: Path,
+    trunc_len: int = 240,
+    chimera_method: str = "pooled",
+    random_seed: int = 42
+) -> Tuple[Path, Path]:
     """
-    Runs the DADA2 denoising pipeline using QIIME2 Docker container on raw FASTQ files.
+    Run DADA2 denoising on paired-end or single-end FASTQ files.
     
-    This implements Strategy B for T011c: processing raw FASTQ to generate an OTU table.
+    This function assumes the input files are already demultiplexed or
+    handles single-end data. For paired-end data, files should be provided
+    in order (R1, R2, R1, R2, ...).
     
     Args:
-        forward_fastq_files: List of paths to forward read FASTQ files (R1).
-        reverse_fastq_files: Optional list of paths to reverse read FASTQ files (R2).
-        output_dir: Directory to store QIIME2 artifacts. Defaults to data/processed.
-    
+        fastq_files: List of paths to FASTQ files (single-end or interleaved paired)
+        output_dir: Directory to write QIIME2 artifacts
+        trunc_len: Truncation length for reads (default 240)
+        chimera_method: Chimeric sequence removal method ("pooled", "per_sample", "none")
+        random_seed: Random seed for reproducibility
+        
     Returns:
-        Path to the generated feature table artifact (feature-table.qza).
-    
-    Raises:
-        RuntimeError: If the QIIME2 Docker container fails to execute.
-        FileNotFoundError: If input FASTQ files do not exist.
+        Tuple of (feature_table_path, representative_sequences_path)
     """
-    if not forward_fastq_files:
-        raise ValueError("At least one forward FASTQ file is required.")
-    
-    for f in forward_fastq_files:
-        if not f.exists():
-            raise FileNotFoundError(f"Forward FASTQ file not found: {f}")
-    
-    if reverse_fastq_files:
-        for f in reverse_fastq_files:
-            if not f.exists():
-                raise FileNotFoundError(f"Reverse FASTQ file not found: {f}")
-
-    if output_dir is None:
-        output_dir = get_processed_path()
-    
-    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Prepare output paths
-    denoised_stats = output_dir / "denoising-stats.qza"
-    feature_table = output_dir / "feature-table.qza"
-    representative_seqs = output_dir / "representative-seqs.qza"
-    chimera_removed_table = output_dir / "feature-table-chimera-removed.qza"
-    
-    # Build command arguments
-    # We mount the local data directory to /data in the container
-    raw_path = get_raw_path()
-    mount_cmd = f"-v {raw_path}:/data/raw -v {output_dir}:/data/processed"
-    
-    # Determine if paired-end or single-end
-    is_paired = reverse_fastq_files is not None and len(reverse_fastq_files) > 0
-    
-    # Construct the QIIME2 command
-    # We use the 'qiime dada2 denoise-paired' or 'denoise-single' command
-    # Since we are running raw FASTQ, we need to import them first or pass them directly
-    # QIIME2 typically requires .qza imports first, but we can use the 'import' action
-    # However, for a direct script, it's often easier to run the full pipeline in one go
-    # if we have the raw files. But QIIME2 requires specific import formats.
-    # Strategy: Import FASTQ -> Denoise -> Remove Chimeras -> Export to CSV
-    
-    # Step 1: Import FASTQ files
-    logger.info(f"Importing FASTQ files from {raw_path}")
-    
-    # We will create a temporary manifest file for the import
-    # This is a robust way to handle multiple files in QIIME2
-    manifest_path = output_dir / "manifest.csv"
+    # Determine if we have paired-end data (even number of files)
+    is_paired = len(fastq_files) > 1 and len(fastq_files) % 2 == 0
     
     if is_paired:
-        # Paired end
-        with open(manifest_path, 'w') as f:
-            f.write("sample-id,forward-absolute-filepath,reverse-absolute-filepath\n")
-            for i, (fwd, rev) in enumerate(zip(forward_fastq_files, reverse_fastq_files)):
-                # We need to map the sample ID from the filename or use a counter
-                # Assuming filenames contain sample IDs or we derive them
-                sample_id = f"sample_{i:04d}"
-                # Map to relative paths inside the container mount
-                fwd_rel = f"/data/raw/{fwd.name}"
-                rev_rel = f"/data/raw/{rev.name}"
-                f.write(f"{sample_id},{fwd_rel},{rev_rel}\n")
-        
-        import_cmd = [
-            "docker", "run", "--rm", "-it",
-            mount_cmd,
-            DOCKER_IMAGE,
-            "qiime", "import",
-            "--type", "SampleData[PairedEndSequencesWithQuality]",
-            "--input-format", "PairedEndFastqManifestPhred33V2",
-            "--input-path", "/data/processed/manifest.csv",
-            "--output-path", "/data/processed/paired-end-demux.qza"
-        ]
+        logger.info(f"Processing {len(fastq_files)//2} paired-end samples")
+        return _run_dada2_paired(fastq_files, output_dir, trunc_len, chimera_method, random_seed)
     else:
-        # Single end
-        with open(manifest_path, 'w') as f:
-            f.write("sample-id,absolute-filepath\n")
-            for i, fwd in enumerate(forward_fastq_files):
-                sample_id = f"sample_{i:04d}"
-                fwd_rel = f"/data/raw/{fwd.name}"
-                f.write(f"{sample_id},{fwd_rel}\n")
-        
-        import_cmd = [
-            "docker", "run", "--rm", "-it",
-            mount_cmd,
-            DOCKER_IMAGE,
-            "qiime", "import",
-            "--type", "SampleData[SequencesWithQuality]",
-            "--input-format", "SingleEndFastqManifestPhred33V2",
-            "--input-path", "/data/processed/manifest.csv",
-            "--output-path", "/data/processed/single-end-demux.qza"
-        ]
-    
-    logger.info("Running QIIME2 Import...")
-    try:
-        subprocess.run(import_cmd, check=True, capture_output=True, text=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"QIIME2 Import failed: {e.stderr}")
-        raise RuntimeError(f"Failed to import FASTQ files: {e.stderr}")
+        logger.info(f"Processing {len(fastq_files)} single-end samples")
+        return _run_dada2_single(fastq_files, output_dir, trunc_len, chimera_method, random_seed)
 
-    # Step 2: Run DADA2 Denoising
-    if is_paired:
-        denoise_cmd = [
-            "docker", "run", "--rm", "-it",
-            mount_cmd,
-            DOCKER_IMAGE,
-            "qiime", "dada2", "denoise-paired",
-            "--i-demultiplexed-seqs", "/data/processed/paired-end-demux.qza",
-            "--p-trunc-len-f", str(TRUNC_LEN),
-            "--p-trunc-len-r", str(TRUNC_LEN),
-            "--p-chimera-method", CHIMERA_METHOD,
-            "--p-n-threads", "4", # Use 4 threads for speed
-            "--o-table", "/data/processed/feature-table-chimera-removed.qza",
-            "--o-representative-sequences", "/data/processed/representative-seqs.qza",
-            "--o-denoising-stats", "/data/processed/denoising-stats.qza"
-        ]
-    else:
-        denoise_cmd = [
-            "docker", "run", "--rm", "-it",
-            mount_cmd,
-            DOCKER_IMAGE,
-            "qiime", "dada2", "denoise-single",
-            "--i-demultiplexed-seqs", "/data/processed/single-end-demux.qza",
-            "--p-trunc-len", str(TRUNC_LEN),
-            "--p-chimera-method", CHIMERA_METHOD,
-            "--p-n-threads", "4",
-            "--o-table", "/data/processed/feature-table-chimera-removed.qza",
-            "--o-representative-sequences", "/data/processed/representative-seqs.qza",
-            "--o-denoising-stats", "/data/processed/denoising-stats.qza"
-        ]
+def _run_dada2_single(
+    fastq_files: List[Path],
+    output_dir: Path,
+    trunc_len: int,
+    chimera_method: str,
+    random_seed: int
+) -> Tuple[Path, Path]:
+    """Run DADA2 on single-end data."""
+    # Create manifest file for single-end data
+    manifest_path = output_dir / "single-end-manifest.tsv"
+    with open(manifest_path, 'w') as f:
+        f.write("sample-id,absolute-filepath,direction\n")
+        for i, fq in enumerate(fastq_files):
+            sample_id = f"sample_{i}"
+            f.write(f"{sample_id},{fq.absolute()},forward\n")
     
-    logger.info(f"Running QIIME2 DADA2 (truncLen={TRUNC_LEN}, chimera={CHIMERA_METHOD})...")
-    try:
-        subprocess.run(denoise_cmd, check=True, capture_output=True, text=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"QIIME2 DADA2 failed: {e.stderr}")
-        raise RuntimeError(f"Failed to run DADA2 denoising: {e.stderr}")
+    logger.info(f"Created manifest: {manifest_path}")
     
-    # Step 3: Export Feature Table to BIOM and then to CSV
-    # QIIME2 feature tables are .qza (ZIP of HDF5/JSON). We need to export to BIOM first.
-    export_table_cmd = [
-        "docker", "run", "--rm", "-it",
-        mount_cmd,
-        DOCKER_IMAGE,
-        "qiime", "tools", "export",
-        "--input-path", "/data/processed/feature-table-chimera-removed.qza",
-        "--output-path", "/data/processed/exported"
+    # Import single-end data
+    import_cmd = [
+        "qiime", "import",
+        "--type", "SampleData[SequencesWithQuality]",
+        "--input-format", "CasavaOneEightSingleLanePerSampleDirFmt",
+        "--input-path", str(output_dir),
+        "--output-path", str(output_dir / "demux.qza"),
+        "--m-manifest-file", str(manifest_path)
     ]
     
-    logger.info("Exporting feature table to BIOM format...")
+    # Actually, let's use a simpler approach with direct file import
+    # First, organize files into a Casava-like structure
+    casava_dir = output_dir / "casava_import"
+    casava_dir.mkdir(exist_ok=True)
+    
+    for i, fq in enumerate(fastq_files):
+        sample_id = f"sample_{i}"
+        sample_dir = casava_dir / sample_id
+        sample_dir.mkdir(exist_ok=True)
+        # Copy or symlink the file
+        import shutil
+        dest = sample_dir / f"{sample_id}_L001_R1_001.fastq.gz"
+        if fq.exists():
+            shutil.copy(fq, dest)
+        else:
+            raise DataUnavailableError(f"FASTQ file not found: {fq}")
+    
+    import_cmd = [
+        "qiime", "import",
+        "--type", "SampleData[SequencesWithQuality]",
+        "--input-format", "CasavaOneEightSingleLanePerSampleDirFmt",
+        "--input-path", str(casava_dir),
+        "--output-path", str(output_dir / "demux.qza")
+    ]
+    
+    logger.info(f"Running import command: {' '.join(import_cmd)}")
     try:
-        subprocess.run(export_table_cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(import_cmd, capture_output=True, text=True, check=True)
+        logger.debug(f"Import stdout: {result.stdout}")
     except subprocess.CalledProcessError as e:
-        logger.error(f"QIIME2 Export failed: {e.stderr}")
-        raise RuntimeError(f"Failed to export feature table: {e.stderr}")
+        logger.error(f"Import failed: {e.stderr}")
+        log_error_context("qiime2_import_failure", str(e.stderr))
+        raise
     
-    # The export creates feature-table.biom
-    biom_path = output_dir / "exported" / "feature-table.biom"
-    if not biom_path.exists():
-        raise FileNotFoundError(f"Exported BIOM file not found at {biom_path}")
+    # Run DADA2 denoise-single
+    denoise_cmd = [
+        "qiime", "dada2", "denoise-single",
+        "--i-demultiplexed-seqs", str(output_dir / "demux.qza"),
+        "--p-trunc-len", str(trunc_len),
+        "--p-chimera-method", chimera_method,
+        "--p-n-threads", "4",
+        "--o-table", str(output_dir / "table.qza"),
+        "--o-representative-sequences", str(output_dir / "rep-seqs.qza"),
+        "--o-denoising-stats", str(output_dir / "stats.qza")
+    ]
     
-    # Convert BIOM to TSV/CSV using biom-format python API
-    # We assume biom-format is installed in the host environment or we run another docker
-    # Since the project requirements include biom-format, we assume it's available on host
-    # or we can use a simple docker command to convert if needed.
-    # Let's use the host python environment to convert, as it's more robust for CSV generation
-    # if the docker environment is isolated.
-    
-    # However, to keep it self-contained and avoid host dependency issues if biom isn't installed:
-    # We can use `qiime tools export` again or `biom convert` if available.
-    # The safest bet in a pipeline is to use `biom convert` if the tool is in path, 
-    # or use the python library if available.
-    
-    csv_output_path = output_dir / "otutable_raw.csv"
-    
-    # Try using biom convert command if available
+    logger.info(f"Running DADA2 denoise-single: {' '.join(denoise_cmd)}")
     try:
-        convert_cmd = [
-            "biom", "convert",
-            "-i", str(biom_path),
-            "-o", str(csv_output_path),
-            "--to-tsv"
-        ]
-        subprocess.run(convert_cmd, check=True, capture_output=True, text=True)
-        logger.info(f"Feature table exported to {csv_output_path}")
-    except FileNotFoundError:
-        logger.warning("biom command not found. Attempting to use Python biom library...")
-        try:
-            import biom
-            table = biom.load_table(str(biom_path))
-            df = table.to_dataframe()
-            # Reset index to make sample_id a column
-            df_reset = df.reset_index()
-            df_reset.to_csv(csv_output_path, index=False)
-            logger.info(f"Feature table exported to {csv_output_path} using Python biom library")
-        except ImportError:
-            raise RuntimeError(
-                "Failed to export BIOM to CSV: 'biom' CLI not found and 'biom' Python library not installed. "
-                "Please install biom-format package."
-            )
+        result = subprocess.run(denoise_cmd, capture_output=True, text=True, check=True)
+        logger.debug(f"DADA2 stdout: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"DADA2 denoise-single failed: {e.stderr}")
+        log_error_context("dada2_denoise_failure", str(e.stderr))
+        raise
     
-    return csv_output_path
+    return output_dir / "table.qza", output_dir / "rep-seqs.qza"
+
+def _run_dada2_paired(
+    fastq_files: List[Path],
+    output_dir: Path,
+    trunc_len: int,
+    chimera_method: str,
+    random_seed: int
+) -> Tuple[Path, Path]:
+    """Run DADA2 on paired-end data."""
+    # Organize into Casava structure for paired-end
+    casava_dir = output_dir / "casava_import_pe"
+    casava_dir.mkdir(exist_ok=True)
+    
+    num_samples = len(fastq_files) // 2
+    for i in range(num_samples):
+        sample_id = f"sample_{i}"
+        sample_dir = casava_dir / sample_id
+        sample_dir.mkdir(exist_ok=True)
+        
+        r1_path = fastq_files[i * 2]
+        r2_path = fastq_files[i * 2 + 1]
+        
+        dest_r1 = sample_dir / f"{sample_id}_L001_R1_001.fastq.gz"
+        dest_r2 = sample_dir / f"{sample_id}_L001_R2_001.fastq.gz"
+        
+        import shutil
+        if r1_path.exists():
+            shutil.copy(r1_path, dest_r1)
+        else:
+            raise DataUnavailableError(f"R1 FASTQ file not found: {r1_path}")
+            
+        if r2_path.exists():
+            shutil.copy(r2_path, dest_r2)
+        else:
+            raise DataUnavailableError(f"R2 FASTQ file not found: {r2_path}")
+    
+    # Import paired-end data
+    import_cmd = [
+        "qiime", "import",
+        "--type", "SampleData[PairedEndSequencesWithQuality]",
+        "--input-format", "CasavaOneEightSingleLanePerSampleDirFmt",
+        "--input-path", str(casava_dir),
+        "--output-path", str(output_dir / "demux-paired.qza")
+    ]
+    
+    logger.info(f"Running import command: {' '.join(import_cmd)}")
+    try:
+        result = subprocess.run(import_cmd, capture_output=True, text=True, check=True)
+        logger.debug(f"Import stdout: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Import failed: {e.stderr}")
+        log_error_context("qiime2_import_failure", str(e.stderr))
+        raise
+    
+    # Run DADA2 denoise-paired
+    denoise_cmd = [
+        "qiime", "dada2", "denoise-paired",
+        "--i-demultiplexed-seqs", str(output_dir / "demux-paired.qza"),
+        "--p-trunc-len", str(trunc_len),
+        "--p-trunc-len-r", str(trunc_len),
+        "--p-chimera-method", chimera_method,
+        "--p-n-threads", "4",
+        "--o-table", str(output_dir / "table.qza"),
+        "--o-representative-sequences", str(output_dir / "rep-seqs.qza"),
+        "--o-denoising-stats", str(output_dir / "stats.qza")
+    ]
+    
+    logger.info(f"Running DADA2 denoise-paired: {' '.join(denoise_cmd)}")
+    try:
+        result = subprocess.run(denoise_cmd, capture_output=True, text=True, check=True)
+        logger.debug(f"DADA2 stdout: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"DADA2 denoise-paired failed: {e.stderr}")
+        log_error_context("dada2_denoise_failure", str(e.stderr))
+        raise
+    
+    return output_dir / "table.qza", output_dir / "rep-seqs.qza"
 
 def run_strategy_b_qiime2(
-    forward_fastq_files: List[Path],
-    reverse_fastq_files: Optional[List[Path]] = None
-) -> Path:
+    fastq_files: List[Path],
+    output_dir: Path,
+    trunc_len: int = 240,
+    chimera_method: str = "pooled",
+    random_seed: int = 42
+) -> Tuple[Path, Path]:
     """
-    Orchestrates the full Strategy B pipeline for T011c.
+    Main entry point for running the Strategy B QIIME2 pipeline.
+    
+    This is a wrapper that ensures proper error handling and logging
+    for the full DADA2 workflow.
     
     Args:
-        forward_fastq_files: List of paths to forward FASTQ files.
-        reverse_fastq_files: Optional list of paths to reverse FASTQ files.
-    
+        fastq_files: List of FASTQ file paths
+        output_dir: Output directory for QIIME2 artifacts
+        trunc_len: Truncation length
+        chimera_method: Chimeric sequence removal method
+        random_seed: Random seed
+        
     Returns:
-        Path to the generated OTU table CSV.
+        Tuple of (feature_table.qza, rep-seqs.qza) paths
     """
-    logger.info("Starting QIIME2 DADA2 pipeline (Strategy B)...")
-    otu_table_path = run_dada2_denoising(forward_fastq_files, reverse_fastq_files)
-    logger.info(f"Strategy B complete. OTU table generated at: {otu_table_path}")
-    return otu_table_path
+    logger.info(f"Starting QIIME2 DADA2 pipeline with {len(fastq_files)} files")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Parameters: trunc_len={trunc_len}, chimera_method={chimera_method}")
+    
+    try:
+        feature_table, rep_seqs = run_dada2_denoising(
+            fastq_files, output_dir, trunc_len, chimera_method, random_seed
+        )
+        logger.info("DADA2 pipeline completed successfully")
+        return feature_table, rep_seqs
+    except Exception as e:
+        logger.error(f"QIIME2 pipeline failed: {e}")
+        log_error_context("qiime2_pipeline_failure", str(e))
+        raise

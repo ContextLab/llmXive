@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-251-investigating-the-correlation-between-gu
-last_run_id: b55ff9ef-de91-4928-b05c-7a7a9b3f8d56
+last_run_id: ba5941c3-870d-4050-a9fa-a6b692ee5ead
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Immune
   Response to Influenza Vaccination
-updated_at: '2026-07-23T19:44:26.380623Z'
+updated_at: '2026-07-24T12:45:02.310363Z'

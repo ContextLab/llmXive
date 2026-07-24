@@ -1,119 +1,104 @@
-"""
-Tests for SRA Downloader Module (Strategy B).
-
-These tests verify the logic of the SRA download process without actually
-downloading large files (mocking external API calls and subprocesses).
-"""
 import os
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock, mock_open, call
 from pathlib import Path
-import pandas as pd
+import subprocess
 
+# Import the module to test
 from code.utils.sra_downloader import (
-    _check_sra_toolkit,
-    _get_run_ids_for_accession,
-    _download_run,
-    download_sra_data,
-    generate_sra_manifest
+    get_sra_run_ids,
+    prefetch_sra_run,
+    fasterq_dump,
+    download_fastq_for_study,
+    run_strategy_b,
+    DataUnavailableError
 )
+from code.utils.config import get_raw_path
 
 class TestSRADownloader(unittest.TestCase):
 
-    @patch('code.utils.sra_downloader.subprocess.run')
-    def test_check_sra_toolkit_success(self, mock_run):
-        """Test that toolkit check passes when tools are available."""
-        mock_run.side_effect = [
-            MagicMock(returncode=0), # prefetch --version
-            MagicMock(returncode=0)  # fasterq-dump --version
-        ]
-        result = _check_sra_toolkit()
-        self.assertTrue(result)
+    @patch('code.utils.sra_downloader.subprocess.Popen')
+    def test_get_sra_run_ids_success(self, mock_popen):
+        """Test successful extraction of Run IDs."""
+        # Mock the chain of processes
+        mock_p1 = MagicMock()
+        mock_p1.communicate.return_value = (b"<eSearchResult><Count>1</Count>...</eSearchResult>", b"")
+        mock_p1.returncode = 0
+
+        mock_p2 = MagicMock()
+        mock_p2.communicate.return_value = (b"Run\nSRR123456\nSRR789012", b"")
+        mock_p2.returncode = 0
+
+        mock_p3 = MagicMock()
+        mock_p3.communicate.return_value = (b"SRR123456\nSRR789012\n", b"")
+        mock_p3.returncode = 0
+
+        # Setup the sequence of calls
+        mock_popen.side_effect = [mock_p1, mock_p2, mock_p3]
+
+        run_ids = get_sra_run_ids("SRP053178")
+
+        self.assertEqual(run_ids, ["SRR123456", "SRR789012"])
+        self.assertEqual(mock_popen.call_count, 3)
+
+    @patch('code.utils.sra_downloader.subprocess.Popen')
+    def test_get_sra_run_ids_empty_result(self, mock_popen):
+        """Test handling of empty search results."""
+        mock_p1 = MagicMock()
+        mock_p1.communicate.return_value = (b"<eSearchResult><Count>0</Count></eSearchResult>", b"")
+        mock_p1.returncode = 0
+
+        mock_popen.side_effect = [mock_p1]
+
+        with self.assertRaises(DataUnavailableError):
+            get_sra_run_ids("SRP999999")
 
     @patch('code.utils.sra_downloader.subprocess.run')
-    def test_check_sra_toolkit_failure(self, mock_run):
-        """Test that toolkit check fails when tools are missing."""
-        mock_run.side_effect = FileNotFoundError("Command not found")
-        result = _check_sra_toolkit()
-        self.assertFalse(result)
-
-    @patch('code.utils.sra_downloader.Entrez')
-    def test_get_run_ids_success(self, mock_entrez):
-        """Test successful retrieval of run IDs."""
-        # Mock esearch
-        mock_handle = MagicMock()
-        mock_entrez.esearch.return_value = mock_handle
-        mock_entrez.read.return_value = {"IdList": ["12345"]}
+    def test_prefetch_sra_run_success(self, mock_run):
+        """Test successful prefetch."""
+        mock_run.return_value = MagicMock(returncode=0)
         
-        # Mock elink
-        mock_link_handle = MagicMock()
-        mock_entrez.elink.return_value = mock_link_handle
-        mock_entrez.read.return_value = {
-            "LinkSet": [
-                {
-                    "LinkSetDb": [
-                        {
-                            "Link": [{"Id": "SRR001"}, {"Id": "SRR002"}]
-                        }
-                    ]
-                }
-            ]
-        }
-
-        run_ids = _get_run_ids_for_accession("SRP053178")
-        self.assertEqual(len(run_ids), 2)
-        self.assertIn("SRR001", run_ids)
+        # Mock Path.exists to return True
+        with patch('code.utils.sra_downloader.Path.exists', return_value=True):
+            success, msg = prefetch_sra_run("SRR123", Path("/tmp"))
+            self.assertTrue(success)
+            self.assertIn("Successfully prefetched", msg)
 
     @patch('code.utils.sra_downloader.subprocess.run')
-    @patch('code.utils.sra_downloader.Path.exists', return_value=False)
-    def test_download_run_success(self, mock_exists, mock_run):
-        """Test successful download and conversion of a run."""
-        mock_run.side_effect = [
-            MagicMock(returncode=0), # prefetch
-            MagicMock(returncode=0)  # fasterq-dump
-        ]
+    def test_fasterq_dump_success(self, mock_run):
+        """Test successful conversion to FASTQ."""
+        mock_run.return_value = MagicMock(returncode=0)
         
-        # Mock Path.mkdir
-        with patch('pathlib.Path.mkdir'):
-            result = _download_run("SRR001", Path("/tmp/test"))
-            self.assertTrue(result)
-            # Check that prefetch and fasterq-dump were called
-            self.assertEqual(mock_run.call_count, 2)
+        # Mock glob to find files
+        with patch('pathlib.Path.glob', return_value=[Path("/tmp/SRR123_1.fastq")]):
+            success, msg = fasterq_dump("SRR123", Path("/tmp/sra"), Path("/tmp/out"))
+            self.assertTrue(success)
+            self.assertIn("Successfully converted", msg)
 
-    @patch('code.utils.sra_downloader._check_sra_toolkit', return_value=True)
-    @patch('code.utils.sra_downloader._get_run_ids_for_accession', return_value=["SRR001"])
-    @patch('code.utils.sra_downloader._download_run', return_value=True)
-    @patch('code.utils.sra_downloader.get_raw_path', return_value=Path("/tmp/raw"))
-    @patch('pathlib.Path.mkdir')
-    def test_download_sra_data_full_flow(self, mock_mkdir, mock_path, mock_download, mock_get_ids, mock_check):
-        """Test the full download flow."""
-        result = download_sra_data("SRP053178")
-        self.assertEqual(result, Path("/tmp/raw"))
-        mock_download.assert_called_once_with("SRR001", Path("/tmp/raw"))
-
-    @patch('code.utils.sra_downloader._get_run_ids_for_accession', return_value=["SRR001"])
-    @patch('code.utils.sra_downloader.get_raw_path', return_value=Path("/tmp/raw"))
-    @patch('code.utils.sra_downloader.Path.glob', return_value=[Path("/tmp/raw/SRR001.fastq")])
-    @patch('code.utils.sra_downloader.Entrez')
-    def test_generate_sra_manifest(self, mock_entrez, mock_glob, mock_path, mock_get_ids):
-        """Test manifest generation."""
-        # Mock esummary
-        mock_handle = MagicMock()
-        mock_entrez.esummary.return_value = mock_handle
-        mock_entrez.read.return_value = [
-            {
-                "Accession": "SRR001",
-                "SampleAccession": "SAM001",
-                "Title": "Sample 1"
-            }
-        ]
-
-        output_path = Path("/tmp/manifest.csv")
-        result = generate_sra_manifest("SRP053178", output_path)
+    @patch('code.utils.sra_downloader.get_sra_run_ids')
+    @patch('code.utils.sra_downloader.prefetch_sra_run')
+    @patch('code.utils.sra_downloader.fasterq_dump')
+    @patch('code.utils.sra_downloader.get_raw_path')
+    def test_run_strategy_b_integration(self, mock_get_raw, mock_fasterq, mock_prefetch, mock_get_ids):
+        """Integration test for the full strategy B flow."""
+        mock_get_raw.return_value = Path("/tmp/raw")
+        mock_get_ids.return_value = ["SRR001"]
+        mock_prefetch.return_value = (True, "OK")
+        mock_fasterq.return_value = (True, "OK")
         
-        self.assertEqual(result, output_path)
-        # Verify file was created
-        self.assertTrue(output_path.exists() or True) # In mock, we don't actually write, but logic is tested
+        # Mock Path.glob to return a file
+        with patch('pathlib.Path.glob', return_value=[Path("/tmp/raw/fastq_files/SRR001_1.fastq")]):
+            files = run_strategy_b("SRP053178")
+            self.assertEqual(len(files), 1)
+            self.assertEqual(files[0].name, "SRR001_1.fastq")
 
-if __name__ == "__main__":
+    @patch('code.utils.sra_downloader.get_sra_run_ids')
+    def test_run_strategy_b_no_runs(self, mock_get_ids):
+        """Test failure when no runs are found."""
+        mock_get_ids.side_effect = DataUnavailableError("No runs found")
+        
+        with self.assertRaises(DataUnavailableError):
+            run_strategy_b("SRP999")
+
+if __name__ == '__main__':
     unittest.main()

@@ -3,47 +3,35 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Adjust import path to match project structure
-# Assuming this test is run from project root or code/tests
-try:
-    from code.setup_directories import create_directories
-except ImportError:
-    # Fallback for direct execution
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from setup_directories import create_directories
-    import sys
+# We need to import the module under test
+# Since setup_directories.py is in code/, we need to adjust sys.path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
+from setup_directories import create_directories
+
 
 class TestSetupDirectories(unittest.TestCase):
-    
     def setUp(self):
         """Create a temporary directory to simulate project root."""
-        self.test_root = tempfile.mkdtemp()
-        # Save original cwd
+        self.test_dir = tempfile.mkdtemp()
         self.original_cwd = os.getcwd()
-        # Change to test root to simulate project environment
-        os.chdir(self.test_root)
-        
-        # Create a dummy code/ directory structure to make setup_directories.py importable
-        # if the script relies on its own location relative to the root
-        os.makedirs(os.path.join(self.test_root, "code"), exist_ok=True)
-        # Copy the script to the test location if needed, or rely on sys.path
-        
+        os.chdir(self.test_dir)
+
     def tearDown(self):
         """Clean up temporary directory."""
         os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_root, ignore_errors=True)
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_creates_all_required_directories(self):
-        """Verify that all required directories are created."""
-        # Run the function
+        """Test that all required directories are created."""
         result = create_directories()
         
-        self.assertTrue(result["success"], f"Errors occurred: {result['errors']}")
-        self.assertIn("code", result["created"][0]) # Check first one exists
+        self.assertTrue(result)
         
-        # Verify specific paths exist on disk
-        expected_dirs = [
+        required_dirs = [
             "code",
             "data/raw",
             "data/processed",
@@ -51,31 +39,43 @@ class TestSetupDirectories(unittest.TestCase):
             "specs/001-investigating-the-correlation-between-gu/contracts"
         ]
         
-        for rel_dir in expected_dirs:
-            full_path = Path(self.test_root) / rel_dir
-            self.assertTrue(full_path.exists(), f"Directory {full_path} was not created.")
-            self.assertTrue(full_path.is_dir(), f"{full_path} is not a directory.")
+        for dir_name in required_dirs:
+            full_path = Path(self.test_dir) / dir_name
+            self.assertTrue(full_path.exists(), f"Directory {dir_name} was not created")
+            self.assertTrue(full_path.is_dir(), f"{dir_name} exists but is not a directory")
 
-    def test_handles_existing_directories(self):
-        """Verify function handles pre-existing directories gracefully."""
-        # Pre-create one directory
-        pre_existing = Path(self.test_root) / "data" / "raw"
-        pre_existing.mkdir(parents=True, exist_ok=True)
+    def test_handles_existing_directories_gracefully(self):
+        """Test that the function doesn't fail if directories already exist."""
+        # Pre-create some directories
+        Path(self.test_dir, "code").mkdir()
+        Path(self.test_dir, "data").mkdir()
+        Path(self.test_dir, "data", "raw").mkdir()
         
-        # Run the function
+        # Should not raise an exception
         result = create_directories()
         
-        self.assertTrue(result["success"])
-        # Should report success even if some already existed
+        self.assertTrue(result)
 
-    def test_nested_contract_directory(self):
-        """Verify deep nested directory creation for specs."""
-        result = create_directories()
-        self.assertTrue(result["success"])
+    def test_fails_on_file_collision(self):
+        """Test that the function raises an error if a path exists but is not a directory."""
+        # Create a file where a directory is expected
+        code_path = Path(self.test_dir, "code")
+        code_path.touch()  # Create a file instead of directory
         
-        contract_path = Path(self.test_root) / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
-        self.assertTrue(contract_path.exists())
-        self.assertTrue(contract_path.is_dir())
+        with self.assertRaises(FileExistsError):
+            create_directories()
+
+    def test_creates_nested_directories(self):
+        """Test that nested directories (like specs/.../contracts) are created."""
+        result = create_directories()
+        
+        self.assertTrue(result)
+        
+        # Check the deepest nested directory
+        contracts_path = Path(self.test_dir) / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
+        self.assertTrue(contracts_path.exists())
+        self.assertTrue(contracts_path.is_dir())
+
 
 if __name__ == "__main__":
     unittest.main()

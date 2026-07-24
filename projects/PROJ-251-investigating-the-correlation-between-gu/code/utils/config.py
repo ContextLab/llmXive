@@ -5,7 +5,7 @@ Handles paths, seeds, thresholds, and environment variable retrieval.
 import os
 import secrets
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import yaml
 
 # Project root is assumed to be the parent of the 'code' directory
@@ -80,6 +80,34 @@ def get_impute_lod() -> bool:
     """Check if LOD imputation is enabled."""
     val = os.getenv("IMPUTE_LOD", "false").lower()
     return val in ("true", "1", "yes")
+
+# LOD Handling Configuration
+def get_lod_exclude_threshold() -> float:
+    """
+    Get the threshold value for LOD exclusion.
+    If a titer is below this value, it is considered below LOD.
+    Defaults to 0.0 if not explicitly set, assuming 0 represents missing/LOD in some contexts,
+    or a specific small float if defined in env.
+    """
+    try:
+        return float(os.getenv("LOD_EXCLUDE_THRESHOLD", 0.0))
+    except ValueError:
+        return 0.0
+
+def get_lod_handling_methods() -> List[str]:
+    """
+    Get the list of allowed LOD handling methods.
+    Expected values: "exclude", "impute".
+    """
+    methods_str = os.getenv("LOD_HANDLING_METHODS", "exclude,impute")
+    # Split by comma and strip whitespace
+    methods = [m.strip() for m in methods_str.split(",")]
+    # Validate against allowed set
+    allowed = {"exclude", "impute"}
+    valid_methods = [m for m in methods if m in allowed]
+    if not valid_methods:
+        return ["exclude"] # Default fallback
+    return valid_methods
 
 # Initialize directories on import
 ensure_directories()

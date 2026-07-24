@@ -1,250 +1,278 @@
+"""
+SRA Downloader Module
+
+Utilities for downloading data from NCBI SRA (Sequence Read Archive).
+Supports both programmatic access via esearch/efetch and the fasterq-dump tool.
+"""
 import os
 import sys
 import logging
 import subprocess
 from pathlib import Path
 from typing import List, Tuple, Optional
-import time
 
-# Import config for paths and API keys
-from code.utils.config import get_ncbi_api_key, get_raw_path, ensure_directories
-from code.utils.logging_config import get_logger, log_error_context
+from utils.logging_config import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
-def get_sra_run_ids(accession: str) -> List[str]:
+class DataUnavailableError(Exception):
+    """Raised when required data cannot be retrieved from SRA."""
+    pass
+
+def get_sra_run_ids(study_accession: str) -> List[str]:
     """
-    Fetches the list of SRA run IDs associated with a Study Accession (SRP)
-    using the NCBI E-utilities (ESearch) API.
+    Fetch SRA run IDs associated with a study accession using esearch.
     
     Args:
-        accession: The SRA Study Accession (e.g., 'SRP053178').
+        study_accession: SRA study accession (e.g., SRP053178)
         
     Returns:
-        A list of SRA Run IDs (e.g., ['SRR123456', ...]).
+        List of run IDs (e.g., SRR123456)
         
     Raises:
-        RuntimeError: If the API call fails or returns no results.
+        DataUnavailableError: If no runs are found or esearch fails
     """
-    api_key = get_ncbi_api_key()
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-    
-    params = {
-        "db": "sra",
-        "term": f"{accession}[ACCN]",
-        "retmode": "json",
-        "retmax": 10000,
-        "usehistory": "y"
-    }
-    
-    if api_key:
-        params["api_key"] = api_key
-
-    logger.info(f"Fetching run IDs for study {accession} from NCBI E-utilities...")
+    logger.info(f"Fetching run IDs for study: {study_accession}")
     
     try:
-        # Using urllib for standard library compliance without extra deps
-        import urllib.request
-        import urllib.parse
-        import json
+        # Search for runs in the study
+        esearch_cmd = f'esearch -db sra -query "{study_accession}"'
+        efetch_cmd = 'efetch -format runinfo'
+        cut_cmd = 'cut -d, -f1'
+        
+        # Run the pipeline
+        search_proc = subprocess.run(
+            esearch_cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=60
+        )
+        
+        fetch_proc = subprocess.run(
+            efetch_cmd,
+            shell=True,
+            input=search_proc.stdout,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=120
+        )
+        
+        cut_proc = subprocess.run(
+            cut_cmd,
+            shell=True,
+            input=fetch_proc.stdout,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        # Parse run IDs (skip header)
+        run_ids = [
+            line.strip() for line in cut_proc.stdout.strip().split('\n')
+            if line.strip() and line.strip() != 'Run'
+        ]
+        
+        if not run_ids:
+            raise DataUnavailableError(
+                f"No run IDs found for study {study_accession}. "
+                "The study may not exist or may be private."
+            )
+        
+        logger.info(f"Found {len(run_ids)} run IDs for {study_accession}")
+        for rid in run_ids[:5]:
+            logger.debug(f"  - {rid}")
+        if len(run_ids) > 5:
+            logger.debug(f"  ... and {len(run_ids) - 5} more")
+        
+        return run_ids
+        
+    except subprocess.TimeoutExpired:
+        raise DataUnavailableError(f"Timeout fetching run IDs for {study_accession}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to fetch run IDs: {e.stderr}")
+        log_error_context("sra_esearch_failure", str(e.stderr))
+        raise DataUnavailableError(
+            f"Failed to fetch run IDs for {study_accession}: {e.stderr}"
+        )
 
-        url = f"{base_url}?{urllib.parse.urlencode(params)}"
-        
-        with urllib.request.urlopen(url, timeout=60) as response:
-            data = json.loads(response.read().decode('utf-8'))
-            
-        if "esearchresult" not in data:
-            raise RuntimeError("Invalid response structure from NCBI E-utilities.")
-            
-        id_list = data["esearchresult"].get("idlist", [])
-        
-        if not id_list:
-            raise RuntimeError(f"No run IDs found for study {accession}.")
-            
-        logger.info(f"Found {len(id_list)} run IDs for {accession}.")
-        return id_list
-        
-    except Exception as e:
-        log_error_context("Failed to fetch SRA run IDs", error=e)
-        raise RuntimeError(f"Failed to fetch run IDs for {accession}: {str(e)}")
-
-def prefetch_sra_run(run_id: str, output_dir: Path) -> bool:
+def prefetch_sra_run(run_id: str, output_dir: Path) -> Path:
     """
-    Downloads the SRA dataset for a specific run ID using 'prefetch'.
-    This downloads the .sra file to the local cache.
+    Prefetch a single SRA run using prefetch command.
     
     Args:
-        run_id: The SRA Run ID (e.g., 'SRR123456').
-        output_dir: Directory to store the .sra file.
+        run_id: SRA run ID (e.g., SRR123456)
+        output_dir: Directory to store downloaded data
         
     Returns:
-        True if successful, False otherwise.
+        Path to the downloaded .sra file
     """
-    logger.info(f"Prefetching {run_id}...")
-    
-    # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    cmd = [
-        "prefetch",
-        "--option-file", "https://sra-download.bioncb.nih.gov/sra-kits/sra-toolkit.cfg",
-        "-O", str(output_dir),
-        run_id
-    ]
+    cmd = ["prefetch", run_id, "-O", str(output_dir)]
     
+    logger.info(f"Prefetching {run_id}...")
     try:
-        # Run with timeout to prevent hanging
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=3600  # 1 hour timeout per file
+            check=True,
+            timeout=3600
         )
+        logger.debug(f"Prefetch stdout: {result.stdout}")
         
-        if result.returncode == 0:
-            logger.info(f"Successfully prefetched {run_id}.")
-            return True
+        # Find the downloaded .sra file
+        sra_files = list(output_dir.glob(f"{run_id}/*.sra"))
+        if not sra_files:
+            # Try direct location
+            sra_files = list(output_dir.glob(f"{run_id}.sra"))
+        
+        if sra_files:
+            return sra_files[0]
         else:
-            logger.error(f"prefetch failed for {run_id}: {result.stderr}")
-            return False
+            raise RuntimeError(f"Prefetch completed but no .sra file found for {run_id}")
             
     except subprocess.TimeoutExpired:
-        logger.error(f"Timeout while prefetching {run_id}.")
-        return False
-    except FileNotFoundError:
-        logger.error("sra-tools (prefetch) not found. Please install sra-tools.")
-        raise RuntimeError("sra-tools not found. Install via 'conda install -c bioconda sra-tools' or 'pip install sra-tools'.")
+        raise DataUnavailableError(f"Timeout prefetching {run_id}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Prefetch failed for {run_id}: {e.stderr}")
+        log_error_context("sra_prefetch_failure", str(e.stderr))
+        raise DataUnavailableError(f"Failed to prefetch {run_id}: {e.stderr}")
 
-def fasterq_dump(run_id: str, sra_dir: Path, output_dir: Path) -> Optional[Path]:
+def fasterq_dump(sra_path: Path, output_dir: Path) -> List[Path]:
     """
-    Converts a prefetched .sra file to FASTQ using 'fasterq-dump'.
+    Convert SRA file to FASTQ using fasterq-dump.
     
     Args:
-        run_id: The SRA Run ID.
-        sra_dir: Directory containing the .sra file.
-        output_dir: Directory to write the .fastq files.
+        sra_path: Path to the .sra file
+        output_dir: Directory for FASTQ output
         
     Returns:
-        Path to the generated .fastq file, or None if failed.
+        List of paths to generated FASTQ files
     """
-    logger.info(f"Converting {run_id} to FASTQ...")
-    
-    sra_file = sra_dir / f"{run_id}.sra"
-    if not sra_file.exists():
-        logger.error(f"Source .sra file not found: {sra_file}")
-        return None
-        
     output_dir.mkdir(parents=True, exist_ok=True)
     
     cmd = [
         "fasterq-dump",
-        "--split-files", # Handles paired-end if present
         "--outdir", str(output_dir),
-        str(sra_file)
+        "--split-files",  # Split paired-end reads
+        "--skip-technical",
+        "--readids",
+        "--progress",
+        str(sra_path)
     ]
     
+    logger.info(f"Converting {sra_path.name} to FASTQ...")
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=7200 # 2 hour timeout per file
+            check=True,
+            timeout=7200
         )
+        logger.debug(f"fasterq-dump stdout: {result.stdout}")
         
-        if result.returncode == 0:
-            # fasterq-dump usually creates .fastq files in the output dir
-            # Find the most recently modified .fastq file in the dir
-            fastq_files = list(output_dir.glob(f"{run_id}_*.fastq"))
-            if not fastq_files:
-                # Fallback for single end
-                fastq_files = list(output_dir.glob(f"{run_id}.fastq"))
-            
-            if fastq_files:
-                logger.info(f"Generated FASTQ: {fastq_files[0]}")
-                return fastq_files[0]
-            else:
-                logger.warning(f"fasterq-dump returned 0 but no FASTQ found in {output_dir}")
-                return None
+        # Find generated FASTQ files
+        fastq_files = sorted(output_dir.glob("*.fastq"))
+        if not fastq_files:
+            fastq_files = sorted(output_dir.glob("*.fastq.gz"))
+        
+        if fastq_files:
+            logger.info(f"Generated {len(fastq_files)} FASTQ files")
+            return fastq_files
         else:
-            logger.error(f"fasterq-dump failed for {run_id}: {result.stderr}")
-            return False
+            raise RuntimeError(f"fasterq-dump completed but no FASTQ files found")
             
     except subprocess.TimeoutExpired:
-        logger.error(f"Timeout while converting {run_id}.")
-        return None
-    except FileNotFoundError:
-        logger.error("sra-tools (fasterq-dump) not found.")
-        raise RuntimeError("sra-tools not found.")
+        raise DataUnavailableError(f"Timeout converting {sra_path.name}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"fasterq-dump failed: {e.stderr}")
+        log_error_context("fasterq_dump_failure", str(e.stderr))
+        raise DataUnavailableError(f"Failed to convert {sra_path.name}: {e.stderr}")
 
-def download_fastq_for_study(accession: str) -> List[Path]:
+def download_fastq_for_study(
+    study_accession: str,
+    output_dir: Path,
+    max_workers: int = 4
+) -> List[Path]:
     """
-    Orchestrates the download of all FASTQ files for a given study accession.
-    1. Fetches run IDs.
-    2. Prefetches .sra files.
-    3. Converts to FASTQ.
+    Download and convert all FASTQ files for a study.
     
     Args:
-        accession: The SRA Study Accession.
+        study_accession: SRA study accession
+        output_dir: Output directory for FASTQ files
+        max_workers: Maximum parallel downloads
         
     Returns:
-        List of paths to the generated FASTQ files.
-        
-    Raises:
-        RuntimeError: If the process fails completely.
+        List of paths to downloaded FASTQ files
     """
-    raw_path = get_raw_path()
-    ensure_directories()
+    logger.info(f"Starting download for study {study_accession}")
     
-    sra_cache = raw_path / "sra_cache"
-    sra_cache.mkdir(parents=True, exist_ok=True)
+    # Get run IDs
+    run_ids = get_sra_run_ids(study_accession)
     
-    fastq_output = raw_path / "fastq"
-    fastq_output.mkdir(parents=True, exist_ok=True)
+    if not run_ids:
+        raise DataUnavailableError(f"No runs found for {study_accession}")
     
-    run_ids = get_sra_run_ids(accession)
-    logger.info(f"Starting download process for {len(run_ids)} runs.")
-    
-    downloaded_fastqs = []
-    failed_runs = []
+    all_fastq_files = []
+    sra_cache_dir = output_dir / "sra_cache"
+    sra_cache_dir.mkdir(parents=True, exist_ok=True)
     
     for i, run_id in enumerate(run_ids):
-        logger.info(f"Processing [{i+1}/{len(run_ids)}]: {run_id}")
+        logger.info(f"Processing {i+1}/{len(run_ids)}: {run_id}")
         
-        # Step 1: Prefetch
-        if not prefetch_sra_run(run_id, sra_cache):
-            failed_runs.append(run_id)
+        try:
+            # Prefetch
+            sra_file = prefetch_sra_run(run_id, sra_cache_dir)
+            
+            # Convert to FASTQ
+            fastq_dir = output_dir / "fastq_files"
+            fastq_files = fasterq_dump(sra_file, fastq_dir)
+            
+            all_fastq_files.extend(fastq_files)
+            
+        except DataUnavailableError as e:
+            logger.warning(f"Skipping {run_id} due to error: {e}")
             continue
-            
-        # Step 2: Convert
-        fastq_path = fasterq_dump(run_id, sra_cache, fastq_output)
-        
-        if fastq_path and fastq_path.exists():
-            downloaded_fastqs.append(fastq_path)
-        else:
-            failed_runs.append(run_id)
-            
-    if failed_runs:
-        logger.warning(f"Failed to process {len(failed_runs)} runs: {failed_runs}")
-        
-    if not downloaded_fastqs:
-        raise RuntimeError("Strategy B Failed: No FASTQ files were successfully downloaded.")
-        
-    logger.info(f"Successfully downloaded {len(downloaded_fastqs)} FASTQ files.")
-    return downloaded_fastqs
+        except Exception as e:
+            logger.error(f"Unexpected error processing {run_id}: {e}")
+            continue
+    
+    if not all_fastq_files:
+        raise DataUnavailableError(
+            f"No FASTQ files were successfully downloaded for {study_accession}"
+        )
+    
+    logger.info(f"Successfully downloaded {len(all_fastq_files)} FASTQ files")
+    return all_fastq_files
 
-def run_strategy_b(accession: str = "SRP053178") -> List[Path]:
+def run_strategy_b(study_accession: str, output_dir: Path) -> List[Path]:
     """
-    Entry point for Strategy B: Download raw FASTQ files.
+    Execute Strategy B: Download raw FASTQ files from NCBI SRA.
+    
+    This is the main entry point for Strategy B data acquisition.
     
     Args:
-        accession: The study accession to process.
+        study_accession: SRA study accession (e.g., SRP053178)
+        output_dir: Directory to store downloaded FASTQ files
         
     Returns:
-        List of paths to downloaded FASTQ files.
+        List of paths to downloaded FASTQ files
+        
+    Raises:
+        DataUnavailableError: If data cannot be retrieved
     """
-    logger.info(f"Executing Strategy B for accession: {accession}")
+    logger.info(f"Executing Strategy B for study: {study_accession}")
+    
     try:
-        return download_fastq_for_study(accession)
-    except Exception as e:
-        logger.error(f"Strategy B failed: {str(e)}")
+        return download_fastq_for_study(study_accession, output_dir)
+    except DataUnavailableError:
         raise
+    except Exception as e:
+        logger.error(f"Strategy B failed: {e}")
+        log_error_context("strategy_b_failure", str(e))
+        raise DataUnavailableError(f"Strategy B failed: {e}")

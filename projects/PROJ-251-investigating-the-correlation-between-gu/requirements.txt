@@ -1,15 +1,35 @@
+# Core data processing
 pandas>=2.0.0
 numpy>=1.24.0
 scipy>=1.11.0
 scikit-learn>=1.3.0
-pyyaml>=6.0.0
-requests>=2.31.0
-biom-format>=2.1.16
-sra-tools>=3.0.0
-# QIIME2 is run via Docker, so no python package needed here, but we need docker
-# docker>=7.0.0 # Optional if using python docker SDK, but we use subprocess
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Configuration and logging
+pyyaml>=6.0
 python-dotenv>=1.0.0
+
+# Data validation
+jsonschema>=4.17.0
+
+# SRA/QIIME2 dependencies (system packages required)
+# Note: qiime2, dada2, sra-tools, biom-format should be installed via conda
+# or system package manager as they have complex dependencies
+# qiime2>=2023.7.0
+# dada2>=1.28.0
+# biom-format>=2.1.14
+
+# Network and utilities
+requests>=2.31.0
 psutil>=5.9.0
+
+# Testing
 pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Linting and formatting (dev)
 ruff>=0.1.0
 black>=23.0.0
