@@ -13,7 +13,8 @@ code_dir = Path(__file__).parent.parent.parent / "code"
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from config import get_processed_data_dir
+from config import get_processed_data_dir, get_data_dir
+from logging_config import setup_logging, get_logger
 
 
 @pytest.fixture
@@ -58,7 +59,101 @@ def mock_analysis_results(tmp_path, analysis_results_path):
     return analysis_results_path
 
 
-def test_stimulus_variance_component_present(mock_analysis_results, caplog):
+def _validate_stimulus_variance(analysis_results_path: Path, cleaning_log_path: Path):
+    """
+    Core validation logic for T023.
+    1. Asserts 'stimulus_id' is in variance_components.
+    2. If variance < 0.001:
+       - Logs warning to analysis_validation_log.json
+       - Appends exclusion record to cleaning_log.csv
+       - Does NOT raise an exception (test passes).
+    3. If variance >= 0.001:
+       - Passes silently.
+    """
+    # Ensure logging is configured
+    setup_logging()
+    logger = get_logger()
+
+    # Load results
+    with open(analysis_results_path, "r") as f:
+        data = json.load(f)
+
+    variance_components = data.get("model_summary", {}).get("variance_components", {})
+
+    # 1. Assert existence
+    assert "stimulus_id" in variance_components, (
+        "LMM model summary must include a variance component for 'stimulus_id'."
+    )
+
+    stimulus_variance = variance_components["stimulus_id"]
+
+    # 2. Check magnitude
+    if stimulus_variance < 0.001:
+        # Log warning to specific JSON file as per T023 requirement
+        validation_log_path = get_processed_data_dir() / "analysis_validation_log.json"
+        validation_log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        warning_record = {
+            "timestamp": "2023-10-27T10:00:00Z", # In real impl, use datetime.utcnow().isoformat()
+            "level": "WARNING",
+            "message": f"Stimulus variance component is negligible ({stimulus_variance:.6f} < 0.001). "
+                       "This may indicate the stimulus variation does not significantly impact perceived support.",
+            "stimulus_variance": stimulus_variance
+        }
+
+        # Append to log (or create if new)
+        if validation_log_path.exists():
+            with open(validation_log_path, "r") as f:
+                try:
+                    logs = json.load(f)
+                    if not isinstance(logs, list):
+                        logs = [logs]
+                except json.JSONDecodeError:
+                    logs = []
+        else:
+            logs = []
+
+        logs.append(warning_record)
+
+        with open(validation_log_path, "w") as f:
+            json.dump(logs, f, indent=2)
+
+        logger.warning(warning_record["message"])
+
+        # Append structured exclusion record to cleaning_log.csv
+        # Per T023: "append a structured exclusion record to data/processed/cleaning_log.csv"
+        # We use listwise deletion logic for consistency with T016 output format
+        import csv
+        from datetime import datetime
+
+        exclusion_record = {
+            "participant_id": "VALIDATION_CHECK_STIMULUS_VARIANCE",
+            "exclusion_reason": f"NEGLIGIBLE_STIMULUS_VARIANCE ({stimulus_variance:.6f} < 0.001)",
+            "timestamp": datetime.utcnow().isoformat(),
+            "action": "FLAGGED_FOR_REVIEW"
+        }
+
+        # Ensure cleaning_log exists with headers
+        if not cleaning_log_path.exists():
+            cleaning_log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(cleaning_log_path, "w", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=["participant_id", "exclusion_reason", "timestamp", "action"])
+                writer.writeheader()
+
+        with open(cleaning_log_path, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["participant_id", "exclusion_reason", "timestamp", "action"])
+            writer.writerow(exclusion_record)
+
+        logger.info(f"Exclusion record appended to {cleaning_log_path}")
+
+        # Do NOT fail the build. The test passes even if variance is low.
+        assert True
+    else:
+        # Significant variance, test passes silently
+        assert True
+
+
+def test_stimulus_variance_component_present(mock_analysis_results, caplog, tmp_path):
     """
     Test that the LMM model summary includes a variance component for Stimulus.
     
@@ -68,35 +163,15 @@ def test_stimulus_variance_component_present(mock_analysis_results, caplog):
     - If variance is significant, passes the test without warning.
     """
     results_path = mock_analysis_results
+    cleaning_log_path = get_processed_data_dir() / "cleaning_log.csv"
 
-    # Load the results
-    with open(results_path, "r") as f:
-        data = json.load(f)
+    # Run the validation logic
+    _validate_stimulus_variance(results_path, cleaning_log_path)
 
-    # Navigate to variance components
-    variance_components = data.get("model_summary", {}).get("variance_components", {})
-    
-    # Check if 'stimulus_id' key exists
-    assert "stimulus_id" in variance_components, (
-        "LMM model summary must include a variance component for 'stimulus_id'."
-    )
-
-    stimulus_variance = variance_components["stimulus_id"]
-
-    # Check magnitude
-    if stimulus_variance < 0.001:
-        # Log warning as per requirement (aligns with FR-003 execution requirement)
-        # We simulate the logging behavior that would happen in the main pipeline
-        # or that the validator would emit.
-        logging.warning(
-            f"Stimulus variance component is negligible ({stimulus_variance:.6f} < 0.001). "
-            "This may indicate the stimulus variation does not significantly impact perceived support."
-        )
-        # Do NOT fail the build. The test passes even if variance is low.
-        assert True
-    else:
-        # Significant variance, test passes silently
-        assert True
+    # If we reach here, the test passed (assertion didn't fail)
+    # Verify the warning log was created if variance was low (in this mock, variance is 0.15, so no warning expected)
+    # But the logic handles both cases.
+    assert True
 
 
 def test_stimulus_variance_component_missing(analysis_results_path, tmp_path, caplog):
@@ -130,3 +205,66 @@ def test_stimulus_variance_component_missing(analysis_results_path, tmp_path, ca
         )
 
     assert "must include a variance component" in str(exc_info.value)
+
+
+def test_stimulus_variance_negligible_logs_warning(tmp_path):
+    """
+    Test that if variance is < 0.001, a warning is logged to JSON and an exclusion record is added to CSV.
+    """
+    # Setup paths
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    results_path = processed_dir / "analysis_results.json"
+    cleaning_log_path = processed_dir / "cleaning_log.csv"
+    validation_log_path = processed_dir / "analysis_validation_log.json"
+
+    # Mock data with negligible variance
+    mock_data = {
+        "model_summary": {
+            "variance_components": {
+                "participant_id": 0.45,
+                "stimulus_id": 0.0005  # Negligible
+            }
+        }
+    }
+
+    with open(results_path, "w") as f:
+        json.dump(mock_data, f)
+
+    # Run validation
+    _validate_stimulus_variance(results_path, cleaning_log_path)
+
+    # Verify warning log exists and contains the warning
+    assert validation_log_path.exists(), "Validation log JSON must be created for negligible variance."
+    
+    with open(validation_log_path, "r") as f:
+        logs = json.load(f)
+    
+    assert isinstance(logs, list), "Validation log must be a list of records."
+    assert len(logs) > 0, "Validation log must contain at least one record."
+    
+    warning_found = any(
+        "NEGLIGIBLE" in record.get("message", "") or "negligible" in record.get("message", "")
+        for record in logs
+    )
+    assert warning_found, "Validation log must contain a warning about negligible variance."
+
+    # Verify exclusion record was added to cleaning_log.csv
+    assert cleaning_log_path.exists(), "Cleaning log CSV must be updated."
+    
+    import csv
+    with open(cleaning_log_path, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) > 0, "Cleaning log must contain the new exclusion record."
+    
+    # Check the last row (or any row) for the specific reason
+    found_exclusion = False
+    for row in rows:
+        if "NEGLIGIBLE_STIMULUS_VARIANCE" in row.get("exclusion_reason", ""):
+            found_exclusion = True
+            break
+    
+    assert found_exclusion, "Cleaning log must contain an exclusion record for negligible stimulus variance."

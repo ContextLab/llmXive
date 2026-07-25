@@ -1,94 +1,77 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Result Schema
-description: >-
-  Defines the structure for the output of the Linear Mixed-Effects Model (LMM)
-  analysis, including fixed effects, variance components, and post-hoc tests.
+description: Schema for validating the LMM analysis results output by T025.
 type: object
 required:
-  - analysis_id
-  - model_formula
+  - model_summary
   - fixed_effects
-  - variance_components
-  - model_fit
+  - random_effects
+  - interaction_significant
   - post_hoc_results
-  - generated_at
+  - metadata
 properties:
-  analysis_id:
-    type: string
-    description: Unique identifier for this analysis run
-    pattern: "^ANALYSIS_\\d{4}$"
-  model_formula:
-    type: string
-    description: The R-style formula used for the LMM (e.g., "score ~ cue * context + (1|participant)")
-  fixed_effects:
+  model_summary:
     type: object
-    description: Estimates for fixed effects
-    required:
-      - estimates
-      - std_errors
-      - t_values
-      - p_values
+    description: Summary statistics of the fitted model.
     properties:
-      estimates:
-        type: object
-        additionalProperties:
-          type: number
-        description: Coefficient estimates for each term
-      std_errors:
-        type: object
-        additionalProperties:
-          type: number
-        description: Standard errors for each term
-      t_values:
-        type: object
-        additionalProperties:
-          type: number
-        description: T-statistics for each term
-      p_values:
-        type: object
-        additionalProperties:
-          type: number
-        description: P-values for each term
-  variance_components:
-    type: object
-    description: Random effect variance components
-    required:
-      - participant
-      - stimulus
-    properties:
-      participant:
+      log_likelihood:
         type: number
-        minimum: 0
-        description: Variance attributed to participant random intercept
-      stimulus:
-        type: number
-        minimum: 0
-        description: Variance attributed to stimulus random intercept
-      residual:
-        type: number
-        minimum: 0
-        description: Residual variance
-  model_fit:
-    type: object
-    description: Model fit statistics
-    required:
-      - aic
-      - bic
-      - log_likelihood
-      - num_observations
-    properties:
       aic:
         type: number
       bic:
         type: number
-      log_likelihood:
+    required:
+      - log_likelihood
+      - aic
+      - bic
+  fixed_effects:
+    type: array
+    description: List of fixed effect estimates with statistics.
+    items:
+      type: object
+      required:
+        - term
+        - estimate
+        - std_err
+        - t_statistic
+        - p_value
+        - dof
+      properties:
+        term:
+          type: string
+        estimate:
+          type: number
+        std_err:
+          type: number
+        t_statistic:
+          type: number
+        p_value:
+          type: number
+        dof:
+          type: number
+  random_effects:
+    type: object
+    description: Variance components for random effects.
+    properties:
+      participant:
         type: number
-      num_observations:
-        type: integer
-        minimum: 1
+        description: Variance of the random intercept for participants.
+      stimulus:
+        type: number
+        description: Variance of the random intercept for stimuli.
+      residual:
+        type: number
+        description: Residual variance.
+    required:
+      - participant
+      - stimulus
+      - residual
+  interaction_significant:
+    type: boolean
+    description: Whether the interaction term was statistically significant (p < 0.05).
   post_hoc_results:
     type: array
-    description: Tukey-corrected pairwise comparisons
+    description: Tukey-corrected pairwise comparisons (empty if interaction not significant).
     items:
       type: object
       required:
@@ -96,18 +79,33 @@ properties:
         - estimate
         - p_value
         - adjusted_p_value
+        - significant
       properties:
         comparison:
           type: string
-          description: String representation of the pair (e.g., "High vs Low")
         estimate:
           type: number
         p_value:
           type: number
         adjusted_p_value:
           type: number
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of analysis generation
+        significant:
+          type: boolean
+  metadata:
+    type: object
+    description: Metadata about the analysis run.
+    properties:
+      n_participants:
+        type: integer
+      n_stimuli:
+        type: integer
+      n_observations:
+        type: integer
+      seed:
+        type: integer
+    required:
+      - n_participants
+      - n_stimuli
+      - n_observations
+      - seed
 additionalProperties: false

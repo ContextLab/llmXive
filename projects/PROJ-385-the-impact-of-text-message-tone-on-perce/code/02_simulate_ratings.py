@@ -91,7 +91,12 @@ def save_ratings(ratings: List[Dict[str, Any]], output_path: Path) -> None:
     logger.info(f"Saved {len(ratings)} ratings to {output_path}")
 
 def generate_mock_consent_log(participant_ids: List[str], output_path: Path) -> None:
-    """Generate a mock consent log for simulated participants."""
+    """Generate a mock consent log for simulated participants.
+    
+    Note: Per Constitution Principle VI, mock data (simulation) does NOT require
+    real consent records. This function generates a placeholder log for simulation
+    tracking purposes only, NOT as a substitute for real human subject consent.
+    """
     if not output_path.parent.exists():
         output_path.parent.mkdir(parents=True)
     
@@ -146,7 +151,7 @@ def main():
     # Generate participant list for consent log
     participant_ids = list(set(r['participant_id'] for r in ratings))
     
-    # Generate mock consent log
+    # Generate mock consent log (simulation only, no real consent required)
     consent_path = get_consent_dir() / "mock_consent_log.csv"
     generate_mock_consent_log(participant_ids, consent_path)
     
