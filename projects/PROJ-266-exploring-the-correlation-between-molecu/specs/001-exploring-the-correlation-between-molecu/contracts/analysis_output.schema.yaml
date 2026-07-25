@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Molecular Flexibility Analysis Output Schema
-description: |
-  Schema for the output of the molecular flexibility descriptor calculation
-  and correlation analysis. Includes variance metrics, outlier flags,
-  and correlation results.
+title: Analysis Output Schema
+description: >
+  Schema for the output of the molecular flexibility analysis pipeline.
+  Includes computed variance metrics, outlier flags, and correlation results.
+  Used by T025 (contract tests) and T015 (analysis).
 type: object
 required:
   - smiles
@@ -11,47 +11,67 @@ required:
   - angle_variance
   - dihedral_variance
   - is_outlier
+  - logPapp
+  - confounders
 properties:
   smiles:
     type: string
     description: Canonical SMILES string of the molecule.
   bond_variance:
     type: number
-    description: Variance of bond lengths across conformer ensemble (Å²).
-    minimum: 0
+    description: Variance of bond lengths across the conformer ensemble (rad² or Å²).
+    minimum: 0.0
   angle_variance:
     type: number
-    description: Variance of bond angles across conformer ensemble (rad²).
-    minimum: 0
+    description: Variance of bond angles across the conformer ensemble (rad²).
+    minimum: 0.0
   dihedral_variance:
     type: number
-    description: Variance of dihedral angles across conformer ensemble (rad²).
-    minimum: 0
+    description: Variance of dihedral angles across the conformer ensemble (rad²).
+    minimum: 0.0
   is_outlier:
     type: boolean
-    description: Flag indicating if the molecule is an outlier based on IQR method.
+    description: Flag indicating if the molecule is an outlier based on IQR method (T014b).
   logPapp:
-    type: ["number", "null"]
-    description: Permeability coefficient linked from the source dataset.
-  molecule_chembl_id:
-    type: ["string", "null"]
-    description: ChEMBL Molecule ID linked from the source dataset.
-  conformer_count:
-    type: integer
-    description: Number of conformers generated for this molecule.
-    minimum: 1
-  processing_status:
-    type: string
-    enum: [success, failed]
-    description: Status of the conformer generation and variance calculation.
-additionalProperties: false
-# Note: Correlation results (Pearson/Spearman coefficients, p-values)
-# are typically stored in a separate analysis_results.yaml or CSV,
-# but if included here as a nested object:
-# correlation_results:
-#   type: object
-#   properties:
-#     pearson_bond: { type: number }
-#     p_value_bond: { type: number }
-#     ...
-#   required: [pearson_bond, p_value_bond, ...]
+    type: number
+    description: Apparent permeability coefficient (log Papp) from the processed dataset.
+  confounders:
+    type: object
+    description: Dictionary of physicochemical confounders.
+    required:
+      - logP
+      - mw
+      - psa
+    properties:
+      logP:
+        type: number
+        description: Partition coefficient (XLogP).
+      mw:
+        type: number
+        description: Molecular weight (g/mol).
+      psa:
+        type: number
+        description: Polar Surface Area (Å²).
+  correlation_results:
+    type: ["object", "null"]
+    description: Optional dictionary containing correlation statistics (pearson, spearman, p-values).
+    properties:
+      pearson_bond:
+        type: number
+      pearson_angle:
+        type: number
+      pearson_dihedral:
+        type: number
+      spearman_bond:
+        type: number
+      spearman_angle:
+        type: number
+      spearman_dihedral:
+        type: number
+      p_value_bond:
+        type: number
+      p_value_angle:
+        type: number
+      p_value_dihedral:
+        type: number
+additionalProperties: true

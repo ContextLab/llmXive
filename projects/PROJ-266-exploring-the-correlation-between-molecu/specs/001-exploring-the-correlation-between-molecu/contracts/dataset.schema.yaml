@@ -1,49 +1,88 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Caco-2 Permeability Dataset Schema
-description: >
-  Schema for the processed Caco-2 permeability dataset derived from ChEMBL.
-  This schema enforces data integrity for downstream flexibility and correlation analysis.
-  Matches the output of code/data/preprocessing.py.
+description: |
+  Schema for the raw and processed Caco-2 permeability dataset.
+  Defines the expected structure, data types, and constraints for
+  records retrieved from ChEMBL and preprocessed for analysis.
 type: object
-required:
-  - smiles
-  - logPapp
-  - assay_chembl_id
-  - target_chembl_id
-  - standard_value
-  - standard_units
-  - standard_type
 properties:
-  smiles:
-    type: string
-    description: Canonical SMILES string of the compound.
-    minLength: 1
-    pattern: "^[A-Za-z0-9@\\+\\-\\[\\]\\(\\)\\\\/=#%~]+$"
-  logPapp:
-    type: number
-    description: >
-      Log10 of the apparent permeability coefficient (Papp in cm/s).
-      Derived from standard_value and standard_units.
-      Must be a valid float.
-  assay_chembl_id:
-    type: string
-    description: ChEMBL ID for the assay (e.g., CHEMBL1000000).
-    pattern: "^CHEMBL\\d+$"
-  target_chembl_id:
-    type: string
-    description: ChEMBL ID for the target (e.g., CHEMBL25).
-    pattern: "^CHEMBL\\d+$"
-  standard_value:
-    type: number
-    description: The raw numerical value of the measurement.
-  standard_units:
-    type: string
-    description: Units of the measurement (e.g., "cm/s", "10^-6 cm/s").
-  standard_type:
-    type: string
-    description: Type of standard (e.g., "MEASUREMENT", "CALCULATED").
-    enum:
-      - MEASUREMENT
-      - CALCULATED
-      - ESTIMATE
+  meta:
+    type: object
+    properties:
+      source:
+        type: string
+        description: Origin of the data (e.g., ChEMBL REST API)
+      version:
+        type: string
+        description: Schema version
+      generated_at:
+        type: string
+        format: date-time
+        description: Timestamp of generation
+      record_count:
+        type: integer
+        minimum: 0
+        description: Total number of records in the dataset
+      checksum:
+        type: string
+        description: SHA-256 checksum of the file content
+    required:
+      - source
+      - version
+      - generated_at
+      - record_count
+  records:
+    type: array
+    items:
+      type: object
+      properties:
+        assay_id:
+          type: string
+          description: Unique ChEMBL assay identifier
+        molecule_chembl_id:
+          type: string
+          description: Unique ChEMBL molecule identifier
+        smiles:
+          type: string
+          description: Canonical SMILES string of the molecule
+        logpapp:
+          type: number
+          description: Logarithm of apparent permeability coefficient
+        unit:
+          type: string
+          description: Unit of measurement for logpapp
+        standard_type:
+          type: string
+          description: Type of standard used (e.g., MEASUREMENT)
+        assay_type:
+          type: string
+          description: Type of assay (e.g., Caco-2)
+        relation:
+          type: string
+          description: Relation type (e.g., =)
+        confidence_score:
+          type: integer
+          minimum: 0
+          maximum: 9
+          description: Assay confidence score
+        doc_id:
+          type: string
+          description: Document identifier
+        published_date:
+          type: string
+          format: date
+          description: Publication date
+      required:
+        - assay_id
+        - molecule_chembl_id
+        - smiles
+        - logpapp
+        - unit
+        - standard_type
+        - assay_type
+        - relation
+      additionalProperties: false
+required:
+  - meta
+  - records
 additionalProperties: false

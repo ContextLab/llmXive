@@ -1,3 +1,3 @@
 """
-Data retrieval, preprocessing, and analysis modules.
+Data retrieval, processing, and analysis modules.
 """

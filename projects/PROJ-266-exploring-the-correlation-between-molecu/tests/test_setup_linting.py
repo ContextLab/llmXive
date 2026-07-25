@@ -1,190 +1,133 @@
 """
-Tests for the setup_linting module.
-
-These tests verify that the linting and formatting configuration files
-are created correctly and contain the expected settings.
+Tests for the linting configuration setup script.
 """
 import os
-import sys
 import tempfile
 from pathlib import Path
 import pytest
+import sys
 
-# Add the project root to the path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from setup_linting import check_config_files, main
+from setup_linting import (
+    check_config_files,
+    create_flake8_config,
+    create_black_config,
+    get_project_root
+)
 
+class TestLintingSetup:
+    """Test cases for linting configuration setup."""
 
-class TestSetupLinting:
-    """Test suite for setup_linting functionality."""
+    def test_create_flake8_config(self, tmp_path):
+        """Test that .flake8 config file is created correctly."""
+        # Create a temporary directory to act as project root
+        original_root = get_project_root()
+        
+        # Mock get_project_root to return our temp directory
+        import setup_linting
+        original_get_project_root = setup_linting.get_project_root
+        setup_linting.get_project_root = lambda: tmp_path
+        
+        try:
+            create_flake8_config(tmp_path)
+            
+            flake8_path = tmp_path / ".flake8"
+            assert flake8_path.exists(), ".flake8 file should be created"
+            
+            with open(flake8_path, "r") as f:
+                content = f.read()
+            
+            # Check for required configuration
+            assert "[flake8]" in content, "Should contain [flake8] section"
+            assert "max-line-length = 88" in content, "Should set max-line-length"
+            assert "ignore = E501, W503, E203" in content, "Should ignore black-incompatible errors"
+            assert "max-complexity = 10" in content, "Should set max-complexity"
+        finally:
+            # Restore original function
+            setup_linting.get_project_root = original_get_project_root
+
+    def test_create_black_config_new_file(self, tmp_path):
+        """Test that pyproject.toml is created with black config when it doesn't exist."""
+        import setup_linting
+        original_get_project_root = setup_linting.get_project_root
+        setup_linting.get_project_root = lambda: tmp_path
+        
+        try:
+            create_black_config(tmp_path)
+            
+            pyproject_path = tmp_path / "pyproject.toml"
+            assert pyproject_path.exists(), "pyproject.toml should be created"
+            
+            with open(pyproject_path, "r") as f:
+                content = f.read()
+            
+            assert "[tool.black]" in content, "Should contain [tool.black] section"
+            assert "line-length = 88" in content, "Should set line-length"
+            assert "target-version" in content, "Should set target-version"
+        finally:
+            setup_linting.get_project_root = original_get_project_root
+
+    def test_create_black_config_existing_file(self, tmp_path):
+        """Test that black config is appended to existing pyproject.toml."""
+        # Create a pyproject.toml without black config
+        pyproject_path = tmp_path / "pyproject.toml"
+        with open(pyproject_path, "w") as f:
+            f.write("[tool.something]\nkey = \"value\"\n")
+        
+        import setup_linting
+        original_get_project_root = setup_linting.get_project_root
+        setup_linting.get_project_root = lambda: tmp_path
+        
+        try:
+            create_black_config(tmp_path)
+            
+            with open(pyproject_path, "r") as f:
+                content = f.read()
+            
+            assert "[tool.black]" in content, "Should append [tool.black] section"
+            assert "[tool.something]" in content, "Should preserve existing content"
+        finally:
+            setup_linting.get_project_root = original_get_project_root
+
+    def test_create_black_config_existing_black_section(self, tmp_path):
+        """Test that black config is not duplicated if [tool.black] already exists."""
+        # Create a pyproject.toml with existing black config
+        pyproject_path = tmp_path / "pyproject.toml"
+        with open(pyproject_path, "w") as f:
+            f.write("[tool.black]\nline-length = 88\n")
+        
+        import setup_linting
+        original_get_project_root = setup_linting.get_project_root
+        setup_linting.get_project_root = lambda: tmp_path
+        
+        try:
+            create_black_config(tmp_path)
+            
+            with open(pyproject_path, "r") as f:
+                content = f.read()
+            
+            # Count occurrences of [tool.black]
+            count = content.count("[tool.black]")
+            assert count == 1, "Should not duplicate [tool.black] section"
+        finally:
+            setup_linting.get_project_root = original_get_project_root
 
     def test_check_config_files_missing(self, tmp_path):
-        """Test that check_config_files returns False when files are missing."""
-        # Create a temporary directory structure that mimics the project
-        temp_project = tmp_path / "test_project"
-        temp_project.mkdir()
-        
-        # Change to the temp directory to simulate missing files
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project)
-            
-            # Create a fake setup_linting.py in the temp directory
-            setup_linting_path = temp_project / "setup_linting.py"
-            setup_linting_path.write_text("""
-import os
-import sys
-from pathlib import Path
-
-def check_config_files() -> bool:
-    project_root = Path(__file__).resolve().parent
-    config_files = [
-  project_root / "setup.cfg",
-  project_root / ".flake8",
-  project_root / "pyproject.toml",
-    ]
-    
-    missing = [f for f in config_files if not f.exists()]
-    
-    if missing:
-  return False
-    
-    return True
-
-def main() -> int:
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
-""")
-            
-            # Import the function from the temp file
-            spec_loader = importlib.util.spec_from_file_location(
-                "setup_linting", setup_linting_path
-            )
-            module = importlib.util.module_from_spec(spec_loader)
-            spec_loader.exec_module(module)
-            
-            result = module.check_config_files()
-            assert result is False, "Expected False when config files are missing"
-        finally:
-            os.chdir(original_cwd)
+        """Test check_config_files when files are missing."""
+        all_exist, missing = check_config_files(tmp_path)
+        assert all_exist is False, "Should report files are missing"
+        assert len(missing) == 2, "Should report both files are missing"
+        assert str(tmp_path / ".flake8") in missing
+        assert str(tmp_path / "pyproject.toml") in missing
 
     def test_check_config_files_present(self, tmp_path):
-        """Test that check_config_files returns True when files exist."""
-        temp_project = tmp_path / "test_project"
-        temp_project.mkdir()
+        """Test check_config_files when files exist."""
+        # Create both config files
+        (tmp_path / ".flake8").touch()
+        (tmp_path / "pyproject.toml").touch()
         
-        # Create the required config files
-        (temp_project / "setup.cfg").write_text("[flake8]\nmax-line-length = 88\n")
-        (temp_project / ".flake8").write_text("[flake8]\nmax-line-length = 88\n")
-        (temp_project / "pyproject.toml").write_text("[tool.black]\nline-length = 88\n")
-        
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project)
-            
-            # Create a fake setup_linting.py in the temp directory
-            setup_linting_path = temp_project / "setup_linting.py"
-            setup_linting_path.write_text("""
-import os
-import sys
-from pathlib import Path
-
-def check_config_files() -> bool:
-    project_root = Path(__file__).resolve().parent
-    config_files = [
-  project_root / "setup.cfg",
-  project_root / ".flake8",
-  project_root / "pyproject.toml",
-    ]
-    
-    missing = [f for f in config_files if not f.exists()]
-    
-    if missing:
-  return False
-    
-    return True
-
-def main() -> int:
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
-""")
-            
-            # Import the function from the temp file
-            spec_loader = importlib.util.spec_from_file_location(
-                "setup_linting", setup_linting_path
-            )
-            module = importlib.util.module_from_spec(spec_loader)
-            spec_loader.exec_module(module)
-            
-            result = module.check_config_files()
-            assert result is True, "Expected True when config files exist"
-        finally:
-            os.chdir(original_cwd)
-
-    def test_main_creates_files(self, tmp_path):
-        """Test that main() creates the required configuration files."""
-        original_cwd = os.getcwd()
-        original_argv = sys.argv
-        
-        try:
-            os.chdir(tmp_path)
-            sys.argv = ["setup_linting"]
-            
-            # Create a temporary setup_linting.py that mimics the real one
-            setup_linting_content = """
-import os
-import sys
-from pathlib import Path
-
-def main() -> int:
-    project_root = Path(__file__).resolve().parent
-    
-    # Create setup.cfg
-    setup_cfg_path = project_root / "setup.cfg"
-    with open(setup_cfg_path, "w") as f:
-  f.write("[flake8]\\nmax-line-length = 88\\n")
-    
-    # Create .flake8
-    flake8_path = project_root / ".flake8"
-    with open(flake8_path, "w") as f:
-  f.write("[flake8]\\nmax-line-length = 88\\n")
-    
-    # Create pyproject.toml
-    pyproject_path = project_root / "pyproject.toml"
-    with open(pyproject_path, "w") as f:
-  f.write("[tool.black]\\nline-length = 88\\n")
-    
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
-"""
-            setup_linting_path = tmp_path / "setup_linting.py"
-            setup_linting_path.write_text(setup_linting_content)
-            
-            # Import and run main
-            spec_loader = importlib.util.spec_from_file_location(
-                "setup_linting", setup_linting_path
-            )
-            module = importlib.util.module_from_spec(spec_loader)
-            spec_loader.exec_module(module)
-            
-            result = module.main()
-            
-            assert result == 0, "Expected main() to return 0"
-            assert (tmp_path / "setup.cfg").exists(), "setup.cfg should be created"
-            assert (tmp_path / ".flake8").exists(), ".flake8 should be created"
-            assert (tmp_path / "pyproject.toml").exists(), "pyproject.toml should be created"
-        finally:
-            os.chdir(original_cwd)
-            sys.argv = original_argv
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        all_exist, missing = check_config_files(tmp_path)
+        assert all_exist is True, "Should report files exist"
+        assert len(missing) == 0, "Should not report any missing files"

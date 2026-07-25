@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Code Module
+llmXive research pipeline code package.
 """

@@ -1,102 +1,71 @@
 """
-Project Structure Initialization Script.
-
-This script creates the foundational directory structure required for the
-llmXive automated science pipeline. It ensures that all necessary directories
-for code, tests, data (raw/processed), figures, and state management exist.
+Setup project structure for llmXive automated science pipeline.
+Creates the required directory hierarchy: code/, tests/, data/, data/raw/, data/processed/, figures/, state/.
 """
 import os
 import sys
 from pathlib import Path
 from typing import List
 
-# Add parent directory to path to allow imports if run as module
-# though this script is designed to be run directly from project root
-# or code directory.
-
 def get_project_root() -> Path:
-    """Determine the project root directory."""
-    # If run as main, assume current working directory is project root
-    # If run as module, try to find the root based on known structure
-    current = Path.cwd()
-    
-    # Check if we are already in the root (look for 'code' and 'data' adjacent)
-    if (current / "code").exists() and (current / "data").exists():
-        return current
-    
-    # Check if we are inside 'code'
-    if current.name == "code" and (current.parent / "data").exists():
-        return current.parent
-    
-    # Default to current
-    return current
-
-def create_directory_structure(root: Path) -> List[Path]:
     """
-    Create the standard project directory structure.
-    
-    Args:
-        root: The project root directory path.
-        
-    Returns:
-        A list of created directory paths.
+    Returns the project root directory (parent of the 'code' directory).
+    Assumes this script is located at code/setup_project_structure.py.
+    """
+    current_file = Path(__file__).resolve()
+    # Go up two levels: code/setup_project_structure.py -> code -> root
+    return current_file.parent.parent
+
+def create_directory_structure(root: Path) -> List[str]:
+    """
+    Creates the standard directory structure for the project.
+    Returns a list of created directory paths as strings.
     """
     directories = [
-        # Core infrastructure
-        root / "code",
-        root / "code" / "data",
-        root / "code" / "utils",
-        root / "code" / "setup",
-        
-        # Testing
-        root / "tests",
-        root / "tests" / "contract",
-        
-        # Data management
-        root / "data",
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "external", # For downloaded external data if needed
-        
-        # Outputs
-        root / "figures",
-        
-        # State and Specs
-        root / "state",
-        root / "state" / "projects",
-        root / "specs",
-        root / "specs" / "001-molecular-flexibility-permeability",
-        root / "specs" / "001-molecular-flexibility-permeability" / "contracts",
-        
-        # Logs
-        root / "logs",
+        "code",
+        "tests",
+        "data",
+        "data/raw",
+        "data/processed",
+        "figures",
+        "state",
+        "state/projects",
+        "specs",
+        "docs",
     ]
-    
+
     created = []
-    for dir_path in directories:
+    for dir_name in directories:
+        dir_path = root / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory exists: {dir_path}")
-            
+            created.append(str(dir_path))
+        elif not dir_path.is_dir():
+            raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
+    
     return created
 
 def main():
-    """Main entry point for the script."""
-    print("Initializing project structure...")
+    """
+    Main entry point to create the project structure.
+    """
     root = get_project_root()
-    print(f"Project root detected at: {root}")
+    print(f"Project root identified at: {root}")
     
-    created_dirs = create_directory_structure(root)
-    
-    if created_dirs:
-        print(f"\nSuccessfully created {len(created_dirs)} directories.")
-    else:
-        print("\nNo new directories created. Structure already exists.")
+    try:
+        created_dirs = create_directory_structure(root)
+        if created_dirs:
+            print(f"Successfully created {len(created_dirs)} directories:")
+            for d in created_dirs:
+                print(f"  - {d}")
+        else:
+            print("All required directories already exist.")
         
-    return 0
+        print("Project structure setup complete.")
+        return 0
+    except Exception as e:
+        print(f"Error setting up project structure: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
