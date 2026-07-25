@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Featurized Alloy Dataset Schema"
+description: "Schema for the feature-engineered alloy dataset used in model training."
+type: "object"
+properties:
+  composition:
+    type: "string"
+    description: "Alloy composition string (e.g., Zr50Cu30Ni20)"
+  element_a:
+    type: "string"
+    description: "First element symbol"
+  element_b:
+    type: "string"
+    description: "Second element symbol"
+  element_c:
+    type: "string"
+    description: "Third element symbol"
+  fraction_a:
+    type: "number"
+    description: "Atomic fraction of element A (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  fraction_b:
+    type: "number"
+    description: "Atomic fraction of element B (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  fraction_c:
+    type: "number"
+    description: "Atomic fraction of element C (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  critical_cooling_rate:
+    type: "number"
+    description: "Target variable: Critical cooling rate in K/s"
+    exclusiveMinimum: 0
+  mixing_enthalpy:
+    type: "number"
+    description: "Mixing enthalpy in kJ/mol"
+  atomic_size_mismatch:
+    type: "number"
+    description: "Atomic size mismatch (dimensionless)"
+  electronegativity_variance:
+    type: "number"
+    description: "Electronegativity variance (dimensionless)"
+  source_label:
+    type: "string"
+    description: "Source identifier for the data point"
+required:
+  - composition
+  - element_a
+  - element_b
+  - element_c
+  - fraction_a
+  - fraction_b
+  - fraction_c
+  - critical_cooling_rate
+  - mixing_enthalpy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - source_label
+additionalProperties: false

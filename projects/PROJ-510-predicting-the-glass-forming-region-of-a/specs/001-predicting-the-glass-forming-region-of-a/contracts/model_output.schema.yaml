@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model metrics and sensitivity report outputs."
+type: "object"
+properties:
+  fold_scores:
+    type: "array"
+    description: "RMSE scores for each of the 5 CV folds"
+    items:
+      type: "number"
+    minItems: 5
+    maxItems: 5
+  mean_rmse:
+    type: "number"
+    description: "Mean RMSE across folds"
+  test_rmse:
+    type: "number"
+    description: "RMSE on the held-out test set"
+  feature_importance_ranking:
+    type: "array"
+    description: "List of (feature_name, importance_score) tuples"
+    items:
+      type: "array"
+      items:
+        - type: "string"
+        - type: "number"
+  null_model_rmse:
+    type: "number"
+    description: "RMSE of the dummy regressor (predicting mean)"
+  p_value_null:
+    type: "number"
+    description: "P-value from permutation test comparing model to null model"
+  threshold_values:
+    type: "array"
+    description: "Swept critical cooling rate thresholds"
+    items:
+      type: "number"
+  rmse_variance:
+    type: "number"
+    description: "Variance of RMSE across thresholds"
+  collinearity_flags:
+    type: "array"
+    description: "List of (feature1, feature2, correlation) for |r| > 0.8"
+    items:
+      type: "array"
+      items:
+        - type: "string"
+        - type: "string"
+        - type: "number"
+  stability_check:
+    type: "boolean"
+    description: "True if model re-run excluding collinear features yields similar RMSE"
+required:
+  - fold_scores
+  - mean_rmse
+  - test_rmse
+  - feature_importance_ranking
+  - null_model_rmse
+  - p_value_null
+  - threshold_values
+  - rmse_variance
+  - collinearity_flags
+  - stability_check
+additionalProperties: false

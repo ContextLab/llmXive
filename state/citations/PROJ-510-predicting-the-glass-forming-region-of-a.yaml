@@ -1,0 +1,11 @@
+- artifact_hash: 211e8ce9c2f08be629264c7bdeff91fad6c55e60fa2abd6ee914d0af438d85e8
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/matsci/glass-forming-ability`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/matsci/glass-forming-ability
+  verified_at: '2026-07-25T16:36:14.506345Z'
