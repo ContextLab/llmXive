@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-07-25T21:33:20.464030+00:00"
+    "audited_at": "2026-07-25T22:03:15.297987+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-691-role-agent-bootstrapping-llm-agents-via",
-  "updated_at": "2026-07-25T21:33:20.464043+00:00"
+  "updated_at": "2026-07-25T22:03:15.297999+00:00"
 }
