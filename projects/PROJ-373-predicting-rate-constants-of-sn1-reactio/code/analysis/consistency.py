@@ -4,278 +4,357 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-import pandas as pd
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
+import pandas as pd
 from scipy.stats import kendalltau
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
 
-# Project imports
+# Local imports matching the provided API surface
 from config import TrainingConfig, DataConfig, AnalysisConfig, ensure_dirs
 from models.mpnn import MPNN, create_mpnn_from_config, MPNNConfig
-from models.train import load_processed_data, prepare_features, create_dataloaders, evaluate_model, train_epoch
 from utils.logger import setup_logging, get_logger
+from data.descriptors import compute_gasteiger_charges, compute_topological_indices
+from utils.checksum import compute_file_checksum
 
-# SHAP import (lazy to avoid heavy load if not needed, but required for logic)
+# SHAP dependency
 try:
     import shap
     SHAP_AVAILABLE = True
 except ImportError:
     SHAP_AVAILABLE = False
+    logging.warning("SHAP not installed. Install with 'pip install shap' for consistency analysis.")
 
-SEEDS_TO_TEST = [42, 123, 456]
-SUBSET_SIZE = 1000
-LAYERS_FOR_CONSISTENCY = 2
-OUTPUT_DIR = Path("artifacts")
-REPORT_FILE = OUTPUT_DIR / "shap_consistency_report.md"
+# Constants
+SEEDS = [42, 123, 456]
+TOP_N_FEATURES = 5
+MIN_KENDALL_TAU = 0.7
+ARTIFACTS_DIR = Path("artifacts")
+DATA_DIR = Path("data")
+PROCESSED_DIR = DATA_DIR / "processed"
+CLEANED_DATA_PATH = PROCESSED_DIR / "cleaned_sn1.csv"
+HYPERPARAM_PATH = ARTIFACTS_DIR / "hyperparameter_search.csv"
+REPORT_PATH = ARTIFACTS_DIR / "shap_consistency_report.md"
 
 def load_model_config() -> Dict[str, Any]:
-    """Load base configuration from config.py and override for consistency test."""
-    # We construct a config manually based on the task requirements
-    # to ensure reproducibility without relying on external state.
-    return {
-        "hidden_dim": 64,
-        "dropout": 0.1,
-        "layers": LAYERS_FOR_CONSISTENCY,
-        "learning_rate": 0.01,
-        "epochs": 20,
-        "batch_size": 32
+    """Load the best hyperparameters from T023."""
+    if not HYPERPARAM_PATH.exists():
+        raise FileNotFoundError(f"Hyperparameter search results not found at {HYPERPARAM_PATH}. "
+                                "Run T023 first.")
+    
+    df = pd.read_csv(HYPERPARAM_PATH)
+    # Sort by R2_val descending and take the top row
+    best_row = df.sort_values(by='r2_val', ascending=False).iloc[0]
+    
+    config = {
+        'learning_rate': float(best_row['learning_rate']),
+        'hidden_dim': int(best_row['hidden_dim']),
+        'dropout': float(best_row['dropout']),
+        'num_layers': int(best_row.get('num_layers', 2)), # Default to 2 if not present
     }
+    return config
 
-def run_training_for_seed(seed: int, config: Dict[str, Any], logger: logging.Logger) -> Tuple[MPNN, Dict[str, float]]:
-    """Train an MPNN model from scratch with a specific seed."""
-    logger.info(f"Training model for seed {seed}...")
+def load_processed_data() -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+    """Load cleaned data and prepare features/targets."""
+    if not CLEANED_DATA_PATH.exists():
+        raise FileNotFoundError(f"Cleaned dataset not found at {CLEANED_DATA_PATH}. "
+                                "Run T016 first.")
+    
+    df = pd.read_csv(CLEANED_DATA_PATH)
+    
+    # Extract features: Gasteiger charges and topological indices
+    # Assuming columns exist based on T013 implementation
+    feature_cols = [col for col in df.columns if col.startswith('gasteiger') or col.startswith('topo')]
+    if not feature_cols:
+        raise ValueError("No descriptor columns found in dataset. Run T013 first.")
+    
+    X = df[feature_cols].values.astype(np.float32)
+    y = df['rate_constant'].values.astype(np.float32)
+    
+    return df, X, y
+
+def prepare_mpnn_data(X: np.ndarray, y: np.ndarray, seed: int) -> Tuple[DataLoader, DataLoader]:
+    """Prepare DataLoader for training."""
     torch.manual_seed(seed)
     np.random.seed(seed)
-    random.seed(seed)
+    
+    # Simple split for validation within the full set for this specific task
+    # In a real scenario, we might use the split from T014, but T035 says "full cleaned dataset"
+    # We will use a simple train/val split for the training loop to work
+    n = len(X)
+    indices = np.random.permutation(n)
+    train_size = int(0.8 * n)
+    
+    train_idx = indices[:train_size]
+    val_idx = indices[train_size:]
+    
+    X_train, y_train = X[train_idx], y[train_idx]
+    X_val, y_val = X[val_idx], y[val_idx]
+    
+    train_dataset = TensorDataset(torch.tensor(X_train), torch.tensor(y_train).unsqueeze(1))
+    val_dataset = TensorDataset(torch.tensor(X_val), torch.tensor(y_val).unsqueeze(1))
+    
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+    
+    return train_loader, val_loader
 
-    # Load data (using the processed dataset from T016/T014)
-    data_path = Path("data/processed/cleaned_sn1.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Required dataset not found at {data_path}. Run T016 first.")
+def train_model(config: Dict[str, Any], seed: int, train_loader: DataLoader, val_loader: DataLoader) -> Tuple[MPNN, float]:
+    """Train a shallow MPNN model."""
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     
-    df = pd.read_csv(data_path)
-    
-    # Take a subset for speed as per task constraints
-    if len(df) > SUBSET_SIZE:
-        df = df.sample(n=SUBSET_SIZE, random_state=seed).reset_index(drop=True)
-        logger.info(f"Using subset of {SUBSET_SIZE} rows for speed.")
-
-    # Prepare features (simplified for consistency check - using tabular descriptors if available)
-    # The task says "Load data... Re-train MPNN". We assume the cleaned CSV has the necessary features.
-    # If the CSV has SMILES, we might need to re-compute graph features, but T013/T012 outputs are usually tabular.
-    # Assuming the CSV has columns: smiles, rate_constant, and computed descriptors.
-    # For the MPNN, we need graph inputs. If the CSV only has tabular data, we might need a fallback.
-    # However, T016 produces `cleaned_sn1.csv`. Let's assume it has the necessary columns for the model.
-    # If the model expects graph inputs (adj, x), we need to parse SMILES again or use a pre-processed graph file.
-    # Given T013 computes descriptors, let's assume the CSV has the tabular representation used for the MPNN's tabular input
-    # OR we need to re-parse SMILES.
-    # To be safe and robust: if 'smiles' is in the CSV, we assume the model can handle it or we need a graph loader.
-    # Since T019/T020 are done, there must be a way to load data.
-    # We will attempt to use the standard training pipeline but with a small subset.
-    
-    # Fallback: If the CSV is tabular, we might need to adapt. 
-    # However, the task says "Re-train the MPNN".
-    # Let's assume the `prepare_features` from `models.train` can handle the CSV.
-    # We will use the `models.train` logic but inject our seed and config.
-    
-    # NOTE: Since we cannot import the full training loop without potentially heavy dependencies or complex state,
-    # we will implement a minimal training loop here that mirrors `models.train` logic but is self-contained enough.
-    # This is risky if `models.train` has complex external deps.
-    # Alternative: Call `models.train`'s logic? No, we need to control the seed strictly.
-    
-    # Let's assume the CSV has columns: 'smiles', 'rate_constant', and derived features.
-    # If the MPNN requires graph inputs, we must parse SMILES.
-    # We will use RDKit to parse SMILES and create a simple graph representation if needed.
-    # But `models.train` likely handles this.
-    # To avoid code duplication, we will try to use the existing `train_model` logic if possible,
-    # but we need to override the seed.
-    
-    # Given the constraints, we will implement a minimal training loop that uses the MPNN class.
-    # We need to convert the CSV to the format expected by MPNN.
-    # Assuming the CSV has 'smiles' and we can use RDKit to create graphs.
-    
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem
-    except ImportError:
-        raise RuntimeError("RDKit is required for graph generation.")
-
-    # Prepare data for MPNN
-    # We need: edge_index, x (node features), y (target)
-    # This is complex to replicate perfectly without the exact `models.train` internals.
-    # Instead, we will use the `models.train` module's `load_processed_data` and `prepare_features`
-    # IF they are designed to be re-usable.
-    # The API surface says `models.train` has `load_processed_data` and `prepare_features`.
-    
-    X, y = prepare_features(df, target_col='rate_constant') # Hypothetical signature based on context
-    # If prepare_features expects a path or specific format, we adapt.
-    # Let's assume it returns tensors.
-    
-    # Create dataloaders
-    train_loader, val_loader, test_loader = create_dataloaders(X, y, batch_size=config['batch_size'])
-    
-    # Initialize model
-    mpnn = create_mpnn_from_config(MPNNConfig(
+    # Create MPNN config
+    mpnn_config = MPNNConfig(
+        input_dim=train_loader.dataset.tensors[0].shape[1],
         hidden_dim=config['hidden_dim'],
+        num_layers=min(max(config['num_layers'], 1), 4), # Enforce 1-4 bound
         dropout=config['dropout'],
-        num_layers=config['layers']
-    ))
+        output_dim=1
+    )
     
-    # Training loop
+    model = create_mpnn_from_config(mpnn_config)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
+    criterion = nn.MSELoss()
+    
     best_val_r2 = -np.inf
     best_state = None
+    epochs = 50 # Shallow training for speed in consistency check
     
-    optimizer = torch.optim.Adam(mpnn.parameters(), lr=config['learning_rate'])
-    
-    for epoch in range(config['epochs']):
-        train_loss = train_epoch(mpnn, train_loader, optimizer)
-        val_metrics = evaluate_model(mpnn, val_loader)
+    for epoch in range(epochs):
+        model.train()
+        for batch_x, batch_y in train_loader:
+            optimizer.zero_grad()
+            outputs = model(batch_x)
+            loss = criterion(outputs, batch_y)
+            loss.backward()
+            optimizer.step()
         
-        if val_metrics['r2'] > best_val_r2:
-            best_val_r2 = val_metrics['r2']
-            best_state = mpnn.state_dict()
+        # Validation
+        model.eval()
+        val_preds = []
+        val_true = []
+        with torch.no_grad():
+            for batch_x, batch_y in val_loader:
+                preds = model(batch_x)
+                val_preds.extend(preds.numpy().flatten())
+                val_true.extend(batch_y.numpy().flatten())
+        
+        val_preds = np.array(val_preds)
+        val_true = np.array(val_true)
+        
+        # Calculate R2
+        ss_res = np.sum((val_true - val_preds) ** 2)
+        ss_tot = np.sum((val_true - np.mean(val_true)) ** 2)
+        r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        
+        if r2 > best_val_r2:
+            best_val_r2 = r2
+            best_state = model.state_dict().copy()
     
     if best_state:
-        mpnn.load_state_dict(best_state)
+        model.load_state_dict(best_state)
     
-    return mpnn, {'r2': best_val_r2}
+    return model, best_val_r2
 
-def get_shap_rankings(model: MPNN, test_loader: Any, logger: logging.Logger) -> List[str]:
-    """Compute SHAP values and return ranked feature names."""
+def get_shap_rankings(model: MPNN, X: np.ndarray, seed: int) -> List[Tuple[str, float]]:
+    """
+    Run SHAP analysis to extract feature rankings.
+    Since MPNN takes graph inputs, we approximate SHAP on the tabular feature vector
+    by treating the model as a black box over the input features X.
+    """
     if not SHAP_AVAILABLE:
-        raise RuntimeError("SHAP library not installed. Install with: pip install shap")
+        raise RuntimeError("SHAP library is required for this analysis.")
     
-    logger.info("Computing SHAP values...")
-    # Extract test data
-    # This depends heavily on how the model expects input.
-    # If the model is a graph model, SHAP is complex.
-    # However, the task mentions "feature rankings".
-    # If we are using tabular descriptors (from T013), we can use KernelSHAP or similar.
-    # If we are using graph inputs, we might need GraphSHAP.
-    # Given the complexity, we assume the model uses the tabular features derived from T013
-    # for the consistency check, or we use a simplified approach.
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     
-    # To make this runnable and robust, we will assume the "features" are the tabular descriptors
-    # computed in T013 (e.g., Gasteiger charges, topological indices).
-    # If the model is a graph model, we might need to aggregate node features to graph level.
-    # For this implementation, we will assume the model takes a fixed-size vector of descriptors.
+    model.eval()
+    X_tensor = torch.tensor(X, dtype=torch.float32)
     
-    # Since we cannot fully replicate the graph SHAP without deep model introspection,
-    # we will use a simplified approach:
-    # 1. Get predictions on test set.
-    # 2. Use a surrogate model or permutation importance if SHAP is too complex for graphs.
-    # BUT the task says "run SHAP analysis".
+    # Define a wrapper function for SHAP
+    def model_wrapper(x):
+        # x is numpy, convert to tensor
+        with torch.no_grad():
+            out = model(torch.tensor(x, dtype=torch.float32))
+        return out.numpy().flatten()
     
-    # Let's assume the model has a way to access feature importance or we use a tabular approximation.
-    # Given the constraints of a single file implementation, we will simulate the ranking
-    # based on the model's internal weights if possible, or use a simplified SHAP on the input vector.
+    # Use KernelExplainer as it works with any model and input type
+    # Use a subset for background data to save time
+    background_size = min(100, len(X))
+    background_indices = np.random.choice(len(X), background_size, replace=False)
+    background_data = X[background_indices]
     
-    # Placeholder for actual SHAP logic which would depend on the exact model architecture.
-    # We will return a dummy ranking based on input feature indices if we can't do real SHAP.
-    # However, to be "real", we need to actually compute it.
-    # Let's assume the input X is a tensor of shape (N, num_features).
-    # We will use `shap.KernelExplainer` on the model's forward pass.
+    explainer = shap.KernelExplainer(model_wrapper, background_data)
     
-    # This is a simplified version. Real graph SHAP is much harder.
-    # We assume the model is trained on a vector of descriptors (e.g. from T013).
-    # If the model is a true GNN, this might fail.
-    # But T013 produces descriptors, so maybe the model uses them.
+    # Calculate SHAP values for the whole dataset (or a sample if too large)
+    # For consistency check, we might need to sample to keep it fast
+    sample_size = min(500, len(X))
+    sample_indices = np.random.choice(len(X), sample_size, replace=False)
+    X_sample = X[sample_indices]
     
-    # Fallback: If we can't do graph SHAP, we assume the model is using the tabular descriptors.
-    # We will extract the input features from the test loader.
-    # This is a best-effort implementation.
+    shap_values = explainer.shap_values(X_sample, nsamples=100) # nsamples for speed
     
-    # Get a sample of the test data
-    # ... (implementation details omitted for brevity in this thought block, will be in code)
-    # We will return a list of feature names sorted by absolute SHAP value.
-    # Since we don't have the real feature names easily, we'll generate generic ones.
-    return [f"feature_{i}" for i in range(10)] # Placeholder - real implementation would compute this
+    # Aggregate to global feature importance (mean absolute SHAP)
+    # shap_values shape: (n_samples, n_features)
+    if isinstance(shap_values, list):
+        shap_values = shap_values[0] # Handle case where explainer returns list
+        
+    mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
+    
+    # Get feature names (assuming order matches columns in X)
+    # We need to map indices to actual column names if we had them, 
+    # but here we just return indices or generic names for ranking
+    feature_names = [f"feature_{i}" for i in range(len(mean_abs_shap))]
+    
+    rankings = list(zip(feature_names, mean_abs_shap))
+    rankings.sort(key=lambda x: x[1], reverse=True)
+    
+    return rankings
 
-def compute_kendall_tau_consistency(rankings_list: List[List[str]]) -> Dict[str, float]:
+def compute_kendall_tau_consistency(rankings_list: List[List[Tuple[str, float]]]) -> Tuple[float, Dict[str, float]]:
     """Compute Kendall's Tau correlation between rankings."""
     if len(rankings_list) < 2:
-        return {}
+        return 0.0, {}
     
-    # Convert rankings to indices for correlation
-    # We assume the same set of features across runs.
-    # If not, we need to align them.
-    # For simplicity, we assume the feature set is fixed.
+    # Extract top N features for comparison
+    top_features = set()
+    for r in rankings_list:
+        for feat, _ in r[:TOP_N_FEATURES]:
+            top_features.add(feat)
+    
+    # We need to align rankings. Since features might differ slightly due to randomness in SHAP sampling,
+    # we compare the rank order of the union of top features.
+    # However, for a robust consistency check, we usually compare the rank of the *same* features.
+    # Let's assume the feature space is fixed (X columns).
+    # We compare the full ranking vectors.
+    
+    # Flatten rankings to rank vectors
+    # Create a map from feature name to rank for each seed
+    all_features = [f"feature_{i}" for i in range(len(rankings_list[0]))] # Assuming same length
+    
+    rank_vectors = []
+    for r in rankings_list:
+        feat_to_rank = {name: i for i, (name, _) in enumerate(r)}
+        rank_vec = [feat_to_rank.get(f, len(all_features)) for f in all_features]
+        rank_vectors.append(rank_vec)
     
     correlations = {}
-    for i in range(len(rankings_list)):
-        for j in range(i + 1, len(rankings_list)):
-            tau, p_value = kendalltau(rankings_list[i], rankings_list[j])
-            key = f"seed_{SEEDS_TO_TEST[i]}_vs_seed_{SEEDS_TO_TEST[j]}"
+    for i in range(len(rank_vectors)):
+        for j in range(i + 1, len(rank_vectors)):
+            tau, pval = kendalltau(rank_vectors[i], rank_vectors[j])
+            key = f"seed_{SEEDS[i]}_vs_seed_{SEEDS[j]}"
             correlations[key] = tau
     
-    return correlations
-
-def generate_consistency_report(correlations: Dict[str, float], logger: logging.Logger) -> None:
-    """Generate the markdown report."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Average correlation
+    avg_tau = np.mean(list(correlations.values()))
     
-    with open(REPORT_FILE, 'w') as f:
-        f.write("# SHAP Consistency Report\n\n")
-        f.write("This report verifies the consistency of SHAP feature rankings across different random seeds.\n\n")
-        f.write("## Methodology\n")
-        f.write("- **Seeds**: 42, 123, 456\n")
-        f.write("- **Model**: MPNN (2 layers)\n")
-        f.write("- **Dataset**: Subset of 1000 rows from `data/processed/cleaned_sn1.csv`\n")
-        f.write("- **Metric**: Kendall's Tau correlation of feature rankings\n\n")
-        
-        f.write("## Results\n\n")
-        if not correlations:
-            f.write("No correlations computed (insufficient data or error).\n")
-        else:
-            for key, value in correlations.items():
-                f.write(f"- **{key}**: {value:.4f}\n")
-        
-        f.write("\n## Conclusion\n")
-        avg_tau = np.mean(list(correlations.values())) if correlations else 0.0
-        if avg_tau > 0.5:
-            f.write(f"Average Kendall's Tau: {avg_tau:.4f}. The model shows **high consistency** in feature importance across seeds.\n")
-        else:
-            f.write(f"Average Kendall's Tau: {avg_tau:.4f}. The model shows **low consistency** in feature importance across seeds.\n")
+    return avg_tau, correlations
 
-def run_consistency_analysis(logger: logging.Logger) -> None:
-    """Main function to run the consistency analysis."""
+def generate_consistency_report(avg_tau: float, correlations: Dict[str, float], 
+                                rankings_list: List[List[Tuple[str, float]]], 
+                                r2_scores: List[float]) -> str:
+    """Generate a markdown report."""
+    report_lines = [
+        "# SHAP Consistency Analysis Report (SC-004)",
+        "",
+        f"**Objective**: Verify stability of feature importance rankings across random seeds.",
+        f"**Seeds Tested**: {SEEDS}",
+        f"**Top N Features Analyzed**: {TOP_N_FEATURES}",
+        f"**Consistency Threshold**: Kendall's Tau > {MIN_KENDALL_TAU}",
+        "",
+        "## Summary",
+        f"- **Average Kendall's Tau**: {avg_tau:.4f}",
+        f"- **Consistency Passed**: {'Yes' if avg_tau > MIN_KENDALL_TAU else 'No'}",
+        "",
+        "## Pairwise Correlations",
+    ]
+    
+    for key, val in correlations.items():
+        report_lines.append(f"- {key}: {val:.4f}")
+    
+    report_lines.append("")
+    report_lines.append("## Model Performance (Validation R²)")
+    for i, r2 in enumerate(r2_scores):
+        report_lines.append(f"- Seed {SEEDS[i]}: {r2:.4f}")
+        
+    report_lines.append("")
+    report_lines.append("## Top Feature Rankings by Seed")
+    for i, rankings in enumerate(rankings_list):
+        report_lines.append(f"### Seed {SEEDS[i]}")
+        report_lines.append("| Rank | Feature | Importance |")
+        report_lines.append("|---|---|---|")
+        for rank, (feat, imp) in enumerate(rankings[:TOP_N_FEATURES], 1):
+            report_lines.append(f"| {rank} | {feat} | {imp:.4f} |")
+        report_lines.append("")
+    
+    return "\n".join(report_lines)
+
+def run_consistency_analysis():
+    """Main orchestration for T035."""
+    logger = get_logger("consistency_analysis")
+    logger.info("Starting SHAP Consistency Analysis (T035)...")
+    
+    ensure_dirs()
+    ARTIFACTS_DIR.mkdir(exist_ok=True)
+    
+    # 1. Load Config and Data
+    logger.info("Loading best model configuration...")
     config = load_model_config()
-    rankings_list = []
+    logger.info(f"Loaded config: {config}")
     
-    for seed in SEEDS_TO_TEST:
+    logger.info("Loading cleaned dataset...")
+    df, X, y = load_processed_data()
+    logger.info(f"Dataset shape: {X.shape}")
+    
+    # 2. Train Models and Get Rankings
+    rankings_list = []
+    r2_scores = []
+    
+    for seed in SEEDS:
+        logger.info(f"--- Processing Seed {seed} ---")
+        train_loader, val_loader = prepare_mpnn_data(X, y, seed)
+        
+        logger.info(f"Training model for seed {seed}...")
+        model, r2 = train_model(config, seed, train_loader, val_loader)
+        r2_scores.append(r2)
+        logger.info(f"Seed {seed} Validation R²: {r2:.4f}")
+        
+        logger.info(f"Calculating SHAP rankings for seed {seed}...")
         try:
-            model, metrics = run_training_for_seed(seed, config, logger)
-            # We need to get test loader for SHAP
-            # Re-load data for SHAP
-            data_path = Path("data/processed/cleaned_sn1.csv")
-            df = pd.read_csv(data_path)
-            if len(df) > SUBSET_SIZE:
-                df = df.sample(n=SUBSET_SIZE, random_state=seed).reset_index(drop=True)
-            
-            # Prepare features again
-            X, y = prepare_features(df, target_col='rate_constant')
-            _, _, test_loader = create_dataloaders(X, y, batch_size=config['batch_size'])
-            
-            rankings = get_shap_rankings(model, test_loader, logger)
+            rankings = get_shap_rankings(model, X, seed)
             rankings_list.append(rankings)
-            logger.info(f"Seed {seed} completed. Rankings: {rankings[:5]}...")
-            
+            logger.info(f"Seed {seed} SHAP calculation complete.")
         except Exception as e:
-            logger.error(f"Failed for seed {seed}: {e}")
+            logger.error(f"SHAP calculation failed for seed {seed}: {e}")
             raise
     
-    correlations = compute_kendall_tau_consistency(rankings_list)
-    generate_consistency_report(correlations, logger)
-    logger.info(f"Consistency report saved to {REPORT_FILE}")
+    # 3. Compute Consistency
+    logger.info("Computing Kendall's Tau consistency...")
+    avg_tau, correlations = compute_kendall_tau_consistency(rankings_list)
+    logger.info(f"Average Kendall's Tau: {avg_tau:.4f}")
+    
+    # 4. Generate Report
+    logger.info("Generating report...")
+    report_content = generate_consistency_report(avg_tau, correlations, rankings_list, r2_scores)
+    
+    with open(REPORT_PATH, 'w') as f:
+        f.write(report_content)
+    
+    logger.info(f"Report saved to {REPORT_PATH}")
+    
+    if avg_tau <= MIN_KENDALL_TAU:
+        logger.warning(f"Consistency check FAILED (Tau={avg_tau:.4f} <= {MIN_KENDALL_TAU}).")
+        # Do not exit with error, as this is an analysis result, but log the warning
+    else:
+        logger.info(f"Consistency check PASSED (Tau={avg_tau:.4f} > {MIN_KENDALL_TAU}).")
 
 def main():
-    setup_logging(level=logging.INFO)
-    logger = get_logger(__name__)
-    try:
-        run_consistency_analysis(logger)
-    except Exception as e:
-        logger.error(f"Consistency analysis failed: {e}")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Verify SHAP consistency across random seeds.")
+    parser.parse_args()
+    run_consistency_analysis()
 
 if __name__ == "__main__":
     main()

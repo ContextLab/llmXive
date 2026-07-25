@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T18:44:56.305502Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-373-predicting-rate-constants-of-sn1-reactio
-last_run_id: 175f512a-b004-4682-955d-c4511dc11f6e
+last_run_id: 0b3bb7a2-eab2-47ac-ab99-a0bb367e40d9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio
 title: Predicting Rate Constants of SN1 Reactions from Molecular Structure
-updated_at: '2026-07-23T21:21:40.962144Z'
+updated_at: '2026-07-25T09:26:13.521722Z'

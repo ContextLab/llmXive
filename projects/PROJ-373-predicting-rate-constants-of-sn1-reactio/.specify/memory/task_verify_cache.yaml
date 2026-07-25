@@ -1,15 +1,23 @@
-T034:
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no artifact (e.g., validation report, execution logs,
-    or diff) showing that `quickstart.md` was checked against the actual execution
-    evidence from T033C or the fallback from T031B. Consequently, there is no concrete
-    evidence that the quickstart guide was validated as required.
-T035#1:
+  r: "No `artifacts/hyperparameter_search.csv` file was presented, and no content\
+    \ showing the required columns or top\u201110 configurations was provided. The\
+    \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
+    \ the specified fields is missing."
+T028:
+  c: false
+  h: aaa22e7340952f7beeec7b5ad0c6bfdf6d62c30b000697f213ea58b3c69f57ce
+  r: "The required input dataset `data/processed/cleaned_sn1.csv` is absent, and there\
+    \ is no `artifacts/collinearity_report.md` file. Moreover, the provided `collinearity.py`\
+    \ is truncated and does not contain logic for generating the descriptive joint\
+    \ analysis report, adding chemical relationship descriptions, or performing PCA\
+    \ when VIF\u202F>\u202F10. These missing artifacts and incomplete implementation\
+    \ mean the task is not genuinely fulfilled."
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, processed CSV, training scripts, model artifacts, or evaluation
-    results were supplied. Without these concrete artifacts, we cannot confirm that
-    the ingestion pipeline, dataset preprocessing, MPNN training, or performance evaluation
-    were actually performed as required. The implementer must provide the relevant
-    scripts, output files, and metric reports.
+  r: "No evidence of the required files (`artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`,\
+    \ `artifacts/perturbation_results.csv`, `artifacts/collinearity_report.md`) is\
+    \ provided, nor any content showing they exist, are non\u2011empty, or meet the\
+    \ specified schemas. The task therefore remains unverified."
