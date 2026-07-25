@@ -1,14 +1,15 @@
 status: none
-intent: UCI Online Retail transaction dataset download python package dataset
+intent: UCI Online Retail transaction data python package from UCI Machine Learning
+  Repository python package dataset
 required_fields:
-- cluster_id
-- outcome
-- treatment
-- session_id
-- transaction_id
-- product_id
-- quantity
-- price
-cache_key: 55dd1aaecc916c3754d19e5dd7aeb707a09ea48606746e5086976b8380bd188f
-searched_at: '2026-07-17T21:51:22.707507+00:00'
+- InvoiceNo
+- StockCode
+- Description
+- Quantity
+- InvoiceDate
+- UnitPrice
+- CustomerID
+- Country
+cache_key: b5217454b5eda76ef30fc0fa504a54f25a678705335b5a09943719bda2faf4ad
+searched_at: '2026-07-25T19:01:29.484083+00:00'
 retry_count: 1

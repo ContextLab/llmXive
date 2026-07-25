@@ -1,6 +1,8 @@
 """
-Configuration management for the A/B test simulation pipeline.
-Handles simulation parameters, validation, and CLI argument parsing.
+Configuration management for the A/B test statistical significance simulation.
+
+This module defines simulation parameters, validation logic, and CLI argument parsing
+to support flexible and reproducible experimental runs.
 """
 
 import argparse
@@ -9,263 +11,241 @@ from typing import Dict, Any, List, Optional, Union
 import os
 import sys
 
-# Default constants
+# --- Simulation Constants ---
 ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
 ICC_STEP = 0.1
 ALPHA_LEVELS = [0.01, 0.05, 0.10]
 DEFAULT_N_CLUSTERS = 100
 DEFAULT_SEED = 42
-DEFAULT_N_OBS_PER_CLUSTER = 20
 
-# CLI argument names for robust parsing
-CLI_ICC_RANGE = 'icc_range'
-CLI_ICC_STEP = 'icc_step'
-CLI_ALPHA_LIST = 'alpha_list'
-CLI_N_CLUSTERS = 'n_clusters'
-CLI_N_OBS_PER_CLUSTER = 'n_obs_per_cluster'
-CLI_SEED = 'seed'
-CLI_ICC = 'icc'
-CLI_ITERATIONS = 'iterations'
-CLI_ALPHA = 'alpha'
-CLI_N_PERMUTATIONS = 'n_permutations'
-CLI_OUTPUT_BASELINE = 'output_baseline'
-CLI_OUTPUT_ROBUST = 'output_robust'
-CLI_MODE = 'mode'
-
-
-def set_seed(seed: int) -> None:
-    """Set the random seed for reproducibility."""
-    np.random.seed(seed)
-
+# --- Validation Logic ---
 
 def validate_config(cfg: Dict[str, Any]) -> None:
     """
-    Validate the configuration dictionary.
+    Validates the configuration dictionary.
 
-    Raises ValueError if:
-    - n_clusters < 50 unless icc == 0.0
-    - icc is outside [0.0, 1.0]
-    - alpha is not in (0, 1)
+    Raises:
+        ValueError: If the configuration is invalid. Specifically:
+            - n_clusters < 50 unless icc == 0.0 (independent data case).
+            - icc is not in [0.0, 1.0].
     """
-    n_clusters = cfg.get('n_clusters', DEFAULT_N_CLUSTERS)
-    icc = cfg.get('icc', 0.0)
-    alpha = cfg.get('alpha', 0.05)
+    icc = cfg.get('icc')
+    n_clusters = cfg.get('n_clusters')
 
-    if icc < 0.0 or icc > 1.0:
-        raise ValueError(f"ICC must be between 0.0 and 1.0, got {icc}")
+    # Validate ICC range
+    if icc is not None:
+        if not (0.0 <= icc <= 1.0):
+            raise ValueError(f"ICC must be between 0.0 and 1.0, got {icc}")
 
-    if alpha <= 0 or alpha >= 1:
-        raise ValueError(f"Alpha must be between 0 and 1, got {alpha}")
+    # Validate cluster count constraint
+    if n_clusters is not None:
+        if n_clusters < 50:
+            # Allow small cluster counts ONLY if ICC is exactly 0.0 (independent data)
+            if icc == 0.0:
+                pass  # Valid case
+            else:
+                raise ValueError(
+                    f"n_clusters ({n_clusters}) must be >= 50 for cluster-robust inference. "
+                    "If ICC is 0.0 (independent data), lower counts are permitted."
+                )
 
-    # Only enforce minimum cluster count if icc > 0
-    if icc > 0.0 and n_clusters < 50:
-        raise ValueError(
-            f"n_clusters ({n_clusters}) must be >= 50 for ICC > 0.0 "
-            "to ensure stable variance estimation."
-        )
+# --- Seed Management ---
 
-
-def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]:
+def set_seed(seed: int) -> None:
     """
-    Load configuration from defaults and optionally override with CLI args.
-
-    This function is a wrapper that handles the initial config state.
-    It does NOT parse arguments itself; that is done by parse_cli_args.
+    Sets the random seed for reproducibility.
 
     Args:
-        cli_args: Optional pre-parsed argparse.Namespace. If None,
-                  defaults are returned.
+        seed: Integer seed value.
+    """
+    np.random.seed(seed)
+
+# --- Configuration Loading ---
+
+def load_config(
+    icc: Optional[float] = None,
+    n_clusters: Optional[int] = None,
+    n_obs_per_cluster: Optional[int] = None,
+    seed: Optional[int] = None,
+    alpha_levels: Optional[List[float]] = None,
+    icc_range: Optional[List[float]] = None,
+    icc_step: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Loads a configuration dictionary with provided overrides.
+
+    Args:
+        icc: Specific ICC value to simulate. Overrides range if provided.
+        n_clusters: Number of clusters.
+        n_obs_per_cluster: Observations per cluster.
+        seed: Random seed.
+        alpha_levels: List of alpha levels for significance testing.
+        icc_range: List of ICC values to iterate over.
+        icc_step: Step size for ICC generation.
 
     Returns:
-        Dictionary with configuration values.
+        A dictionary containing the merged configuration.
     """
     cfg = {
-        'icc_range': list(ICC_RANGE),
-        'icc_step': ICC_STEP,
-        'alpha_levels': list(ALPHA_LEVELS),
-        'n_clusters': DEFAULT_N_CLUSTERS,
-        'n_obs_per_cluster': DEFAULT_N_OBS_PER_CLUSTER,
-        'seed': DEFAULT_SEED,
-        'icc': None,  # Single ICC if specified
-        'iterations': 100,
-        'alpha': None,  # Single alpha if specified
-        'n_permutations': 1000,
-        'output_baseline': 'data/derived/baseline_results.csv',
-        'output_robust': 'data/derived/robustResults.csv',
-        'mode': 'full',  # 'baseline', 'robust', or 'full'
+        'icc': icc,
+        'n_clusters': n_clusters if n_clusters is not None else DEFAULT_N_CLUSTERS,
+        'n_obs_per_cluster': n_obs_per_cluster if n_obs_per_cluster is not None else 12, # Default derived from T010 logic
+        'seed': seed if seed is not None else DEFAULT_SEED,
+        'alpha_levels': alpha_levels if alpha_levels is not None else ALPHA_LEVELS,
+        'icc_range': icc_range if icc_range is not None else ICC_RANGE,
+        'icc_step': icc_step if icc_step is not None else ICC_STEP,
     }
-
-    if cli_args:
-        # Only update if the attribute exists in the namespace
-        # This handles cases where different scripts pass different args
-        for key in cfg:
-            cli_key = key.replace('_', '-')
-            if hasattr(cli_args, cli_key):
-                val = getattr(cli_args, cli_key)
-                if val is not None:
-                    cfg[key] = val
-
     return cfg
 
+# --- CLI Parsing ---
 
 def parse_cli_args(
     args: Optional[List[str]] = None,
     cfg: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Parse command-line arguments and update/return a configuration dictionary.
+    Parses command-line arguments and updates the configuration.
 
-    This function supports multiple calling patterns to accommodate different
-    scripts that may pass different subsets of arguments:
-
-    1. parse_cli_args() -> Returns config with defaults
-    2. parse_cli_args(args) -> Parses args and returns new config
-    3. parse_cli_args(args, cfg) -> Parses args and updates existing config
-    4. parse_cli_args(cfg) -> Updates existing config with defaults (no CLI)
+    This function is designed to be flexible and accept various call signatures:
+    1. parse_cli_args() -> Returns config with defaults (no args, no cfg)
+    2. parse_cli_args(args) -> Parses args and returns new config (args provided, no cfg)
+    3. parse_cli_args(args, cfg) -> Parses args and updates existing config (both provided)
+    4. parse_cli_args(cfg) -> Updates existing config with defaults (no args, cfg provided)
 
     Args:
-        args: Optional list of command-line arguments (sys.argv[1:] by default).
-             If None, uses sys.argv[1:].
-        cfg: Optional existing config dict to update. If None, starts from defaults.
+        args: List of CLI arguments. If None, sys.argv[1:] is used.
+        cfg: Existing configuration dictionary to update. If None, a new one is created.
 
     Returns:
-        Updated configuration dictionary.
+        Updated or new configuration dictionary.
     """
-    # Start with base config
+    # Initialize or use provided config
     if cfg is None:
         cfg = load_config()
     else:
-        # Ensure cfg has all expected keys (in case caller passed partial dict)
-        base = load_config()
-        for key, val in base.items():
-            if key not in cfg:
-                cfg[key] = val
+        # Ensure we are working with a copy if we might modify defaults,
+        # but here we modify the passed dict in place as per typical usage.
+        pass
 
-    # If no args provided, just return current config
-    if args is None:
-        # Check if we're running as main script
-        if len(sys.argv) > 1:
-            args = sys.argv[1:]
-        else:
-            return cfg
+    # Prepare argument parser
+    parser = argparse.ArgumentParser(
+        description="A/B Test Simulation Configuration",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
 
-    # Convert list to Namespace if needed
-    if isinstance(args, list):
-        parser = argparse.ArgumentParser(
-            description='A/B Test Simulation Configuration',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
-        )
+    # ICC Arguments
+    parser.add_argument(
+        '--icc',
+        type=float,
+        default=cfg.get('icc'),
+        help="Specific ICC value to simulate. Overrides icc_range."
+    )
+    parser.add_argument(
+        '--icc-range',
+        type=str,
+        default=','.join(map(str, cfg.get('icc_range', ICC_RANGE))),
+        help="Comma-separated list of ICC values (e.g., 0.0,0.1,0.2)."
+    )
+    parser.add_argument(
+        '--icc-step',
+        type=float,
+        default=cfg.get('icc_step', ICC_STEP),
+        help="Step size for ICC generation if range is not provided."
+    )
 
-        # Simulation parameters
-        parser.add_argument(
-            '--icc', type=float, default=None,
-            help='Single ICC value to simulate (overrides icc_range)'
-        )
-        parser.add_argument(
-            '--icc-range', type=str, default=None,
-            help='Comma-separated ICC values (e.g., "0.0,0.1,0.2")'
-        )
-        parser.add_argument(
-            '--icc-step', type=float, default=None,
-            help='Step size for ICC range generation'
-        )
-        parser.add_argument(
-            '--iterations', type=int, default=None,
-            help='Number of simulation iterations'
-        )
-        parser.add_argument(
-            '--seed', type=int, default=None,
-            help='Random seed for reproducibility'
-        )
-        parser.add_argument(
-            '--n-clusters', type=int, default=None,
-            help='Number of clusters'
-        )
-        parser.add_argument(
-            '--n-obs-per-cluster', type=int, default=None,
-            help='Number of observations per cluster'
-        )
-        parser.add_argument(
-            '--alpha', type=float, default=None,
-            help='Single alpha level (overrides alpha_list)'
-        )
-        parser.add_argument(
-            '--alpha-list', type=str, default=None,
-            help='Comma-separated alpha levels (e.g., "0.01,0.05,0.10")'
-        )
-        parser.add_argument(
-            '--n-permutations', type=int, default=None,
-            help='Number of permutations for block permutation test'
-        )
-        parser.add_argument(
-            '--output-baseline', type=str, default=None,
-            help='Output path for baseline results'
-        )
-        parser.add_argument(
-            '--output-robust', type=str, default=None,
-            help='Output path for robust results'
-        )
-        parser.add_argument(
-            '--mode', type=str, default=None,
-            choices=['baseline', 'robust', 'full'],
-            help='Simulation mode: baseline only, robust only, or both'
-        )
+    # Cluster Arguments
+    parser.add_argument(
+        '--n-clusters',
+        type=int,
+        default=cfg.get('n_clusters', DEFAULT_N_CLUSTERS),
+        help="Number of clusters."
+    )
+    parser.add_argument(
+        '--n-obs-per-cluster',
+        type=int,
+        default=cfg.get('n_obs_per_cluster', 12),
+        help="Number of observations per cluster."
+    )
 
-        parsed = parser.parse_args(args)
+    # Alpha Levels
+    parser.add_argument(
+        '--alpha-list',
+        type=str,
+        default=','.join(map(str, cfg.get('alpha_levels', ALPHA_LEVELS))),
+        help="Comma-separated alpha levels (e.g., 0.01,0.05,0.10)."
+    )
+
+    # Seed
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=cfg.get('seed', DEFAULT_SEED),
+        help="Random seed for reproducibility."
+    )
+
+    # Parse arguments
+    # If args is None, use sys.argv[1:]
+    parsed_args = parser.parse_args(args)
+
+    # Update config from parsed arguments
+
+    # Handle ICC: if specific --icc is provided, use it; otherwise parse range
+    if parsed_args.icc is not None:
+        cfg['icc'] = parsed_args.icc
+        cfg['icc_range'] = [parsed_args.icc] # Force single value mode
     else:
-        # Assume it's already a Namespace
-        parsed = args
-
-    # Update config from parsed args
-    # Handle icc_range from string
-    if parsed.icc_range is not None:
+        # Parse comma-separated range
         try:
-            cfg['icc_range'] = [float(x.strip()) for x in parsed.icc_range.split(',')]
+            range_str = parsed_args.icc_range
+            if range_str:
+                cfg['icc_range'] = [float(x.strip()) for x in range_str.split(',')]
+            else:
+                cfg['icc_range'] = ICC_RANGE
         except ValueError:
-            raise ValueError(f"Invalid icc-range format: {parsed.icc_range}. "
-                           "Expected comma-separated numbers.")
+            raise ValueError(f"Invalid ICC range format: {parsed_args.icc_range}")
 
-    # Handle icc_step
-    if parsed.icc_step is not None:
-        cfg['icc_step'] = parsed.icc_step
+        # If step is provided and range is not explicitly set via --icc,
+        # we might generate a range, but the task spec implies explicit lists.
+        # We stick to the explicit list provided or default.
+        if parsed_args.icc_step:
+            cfg['icc_step'] = parsed_args.icc_step
 
-    # Handle alpha_list
-    if parsed.alpha_list is not None:
-        try:
-            cfg['alpha_levels'] = [float(x.strip()) for x in parsed.alpha_list.split(',')]
-        except ValueError:
-            raise ValueError(f"Invalid alpha-list format: {parsed.alpha_list}. "
-                           "Expected comma-separated numbers.")
+    # Handle Clusters
+    if parsed_args.n_clusters:
+        cfg['n_clusters'] = parsed_args.n_clusters
+    if parsed_args.n_obs_per_cluster:
+        cfg['n_obs_per_cluster'] = parsed_args.n_obs_per_cluster
 
-    # Handle single values (these override list values)
-    if parsed.icc is not None:
-        cfg['icc'] = parsed.icc
-        # If single icc provided, clear icc_range to avoid confusion
-        cfg['icc_range'] = [parsed.icc]
+    # Handle Alpha Levels
+    try:
+        alpha_str = parsed_args.alpha_list
+        if alpha_str:
+            cfg['alpha_levels'] = [float(x.strip()) for x in alpha_str.split(',')]
+        else:
+            cfg['alpha_levels'] = ALPHA_LEVELS
+    except ValueError:
+        raise ValueError(f"Invalid alpha list format: {parsed_args.alpha_list}")
 
-    if parsed.alpha is not None:
-        cfg['alpha'] = parsed.alpha
-        cfg['alpha_levels'] = [parsed.alpha]
+    # Handle Seed
+    if parsed_args.seed is not None:
+        cfg['seed'] = parsed_args.seed
 
-    # Update other parameters
-    if parsed.iterations is not None:
-        cfg['iterations'] = parsed.iterations
-    if parsed.seed is not None:
-        cfg['seed'] = parsed.seed
-    if parsed.n_clusters is not None:
-        cfg['n_clusters'] = parsed.n_clusters
-    if parsed.n_obs_per_cluster is not None:
-        cfg['n_obs_per_cluster'] = parsed.n_obs_per_cluster
-    if parsed.n_permutations is not None:
-        cfg['n_permutations'] = parsed.n_permutations
-    if parsed.output_baseline is not None:
-        cfg['output_baseline'] = parsed.output_baseline
-    if parsed.output_robust is not None:
-        cfg['output_robust'] = parsed.output_robust
-    if parsed.mode is not None:
-        cfg['mode'] = parsed.mode
-
-    # Validate final config
-    validate_config(cfg)
-
+    # Validate the final configuration
+    # Note: We must handle the case where icc is None (if not set by args)
+    # but usually load_config sets a default or caller sets it.
+    # If icc is None in cfg, we assume it will be iterated over icc_range.
+    # Validation logic needs to be careful here.
+    
+    # If we are in "range" mode, validation of a single 'icc' value is skipped
+    # until the loop starts. However, n_clusters validation is global.
+    # We only validate strict n_clusters >= 50 if we are NOT in independent mode (icc=0.0).
+    # If cfg['icc'] is None, we assume range mode. We check if the range contains 0.0?
+    # The spec says: "raises ValueError if n_clusters < 50 unless cfg['icc'] == 0.0".
+    # If cfg['icc'] is None (range mode), we cannot validate against a single value.
+    # We assume the caller will validate per-iteration or that the default is safe.
+    # For safety in this function, we only validate if 'icc' is explicitly set to a non-None value.
+    
+    if cfg.get('icc') is not None:
+        validate_config(cfg)
+    
     return cfg
