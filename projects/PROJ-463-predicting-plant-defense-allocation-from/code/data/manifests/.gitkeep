@@ -1,1 +1,2 @@
-# This file ensures the data/manifests directory exists in version control.
+# This directory stores JSON manifests for data provenance.
+# Do not commit large binary files; use .gitkeep to preserve directory structure.

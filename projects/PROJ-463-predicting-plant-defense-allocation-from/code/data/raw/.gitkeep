@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory exists in version control.
-# WARNING: Only unaltered files fetched from NCBI GEO/SRA should be placed here.
+# This directory stores raw FASTQ files fetched from NCBI GEO/SRA.
+# Do not commit large binary files; use .gitkeep to preserve directory structure.

@@ -1,11 +1,10 @@
-T003a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `black.toml`, or a `pre-commit` hook) are present in the provided artifacts,\
-    \ and the only evidence relates to a completely different feature (plant\u2011\
-    defense data pipeline). Consequently the task of configuring ruff and black has\
-    \ not been delivered."
+  r: No evidence of the required `src/`, `tests/`, or `data/` directories (or any
+    project skeleton) is provided; the claim lacks any tangible artifact showing the
+    project structure was created. The implementer must add the specified directories
+    (with at least placeholder files) to satisfy the task.
 T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,11 +12,3 @@ T003b:
     any logs or commands showing they were run and that the binaries are now in the
     system PATH. The required artifacts (script files and execution evidence) are
     missing.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw`, `data/processed`, `data/traits`,
-    `data/manifests`, `data/synthetic`) being created is present; the provided artifacts
-    contain only task description and specifications, with no filesystem listing or
-    files showing the directory structure. The implementer must add the requested
-    folder hierarchy to the repository.

@@ -2,31 +2,49 @@ import subprocess
 import sys
 from pathlib import Path
 import pytest
+import tomli
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+@pytest.fixture
+def project_root():
+    # Assuming tests are run from code/ or root, adjust if necessary
+    # The task artifacts are in code/, so we look for pyproject.toml relative to this file
+    return Path(__file__).parent.parent
 
-def test_black_config_valid():
-    """Verify that Black configuration is valid and can parse pyproject.toml."""
-    result = subprocess.run(
-        [sys.executable, "-m", "black", "--check", "--diff", str(PROJECT_ROOT)],
-        capture_output=True,
-        text=True,
-        cwd=PROJECT_ROOT
-    )
-    # We expect exit code 1 if files are not formatted, but we want to ensure
-    # the config is valid (no syntax errors in pyproject.toml parsing).
-    # If config is invalid, black usually exits with code 2 or raises an error.
-    # We just check that it ran without crashing due to config errors.
-    assert "Error parsing" not in result.stderr, f"Black config error: {result.stderr}"
+def test_black_config_valid(project_root):
+    """Verify that black configuration in pyproject.toml is valid and targets Python 3.11."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
 
-def test_ruff_config_valid():
-    """Verify that Ruff configuration is valid."""
-    result = subprocess.run(
-        [sys.executable, "-m", "ruff", "check", "--isolated", str(PROJECT_ROOT)],
-        capture_output=True,
-        text=True,
-        cwd=PROJECT_ROOT
-    )
-    # Ruff might find errors (exit 1), but it should not crash due to config issues.
-    # Config errors usually manifest as stderr messages about parsing.
-    assert "Failed to parse" not in result.stderr, f"Ruff config error: {result.stderr}"
+    with open(pyproject_path, "rb") as f:
+        config = tomli.load(f)
+
+    assert "tool" in config
+    assert "black" in config["tool"]
+    black_config = config["tool"]["black"]
+
+    assert black_config.get("line-length") == 88
+    assert "py311" in black_config.get("target-version", [])
+
+def test_ruff_config_valid(project_root):
+    """Verify that ruff configuration in pyproject.toml is valid and targets Python 3.11."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
+
+    with open(pyproject_path, "rb") as f:
+        config = tomli.load(f)
+
+    assert "tool" in config
+    assert "ruff" in config["tool"]
+    ruff_config = config["tool"]["ruff"]
+
+    assert ruff_config.get("line-length") == 88
+    assert ruff_config.get("target-version") == "py311"
+
+    # Check linting section exists
+    assert "lint" in ruff_config
+    assert "select" in ruff_config["lint"]
+    # Ensure E, F, I are selected (common standards)
+    selected = ruff_config["lint"]["select"]
+    assert "E" in selected
+    assert "F" in selected
+    assert "I" in selected

@@ -1,0 +1,44 @@
+{
+  "entries": [
+    {
+      "file_name": "synthetic_tpm_matrix.csv",
+      "checksum": "placeholder_checksum_until_generation",
+      "source_type": "synthetic",
+      "provenance": {
+        "generated_at": "placeholder_timestamp",
+        "tool_versions": {
+          "python": "3.11",
+          "numpy": "placeholder",
+          "pandas": "placeholder",
+          "project": "llmXive-plant-defense"
+        },
+        "source_type": "synthetic",
+        "generation_params": {
+          "n_genes": 20000,
+          "n_samples": 50,
+          "seed": 42
+        }
+      }
+    },
+    {
+      "file_name": "synthetic_metadata.json",
+      "checksum": "placeholder_checksum_until_generation",
+      "source_type": "synthetic",
+      "provenance": {
+        "generated_at": "placeholder_timestamp",
+        "tool_versions": {
+          "python": "3.11",
+          "numpy": "placeholder",
+          "pandas": "placeholder",
+          "project": "llmXive-plant-defense"
+        },
+        "source_type": "synthetic",
+        "generation_params": {
+          "type": "metadata"
+        }
+      }
+    }
+  ],
+  "created_at": "placeholder_timestamp",
+  "version": "1.0"
+}

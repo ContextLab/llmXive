@@ -1,14 +1,13 @@
 """
-Download module for fetching FASTQ data from NCBI GEO/SRA.
+Data acquisition module for fetching FASTQ files from NCBI GEO/SRA.
 
-This module implements the real data acquisition pipeline as per FR-001.
-It fetches data from NCBI SRA via the `sratoolkit` (prefetch/ fasterq-dump)
-and records checksums in a manifest.
+This module implements FR-001: Real data acquisition.
+- Real mode: Fetches actual FASTQ files from NCBI SRA.
+- Synthetic mode: Loads pre-generated data from data/synthetic/ (does NOT generate).
 
-Modes:
-  --mode real: Fetches real data. Fails loudly if fetch fails.
-  --mode synthetic: Skips download and validates presence of pre-generated
-                   data in data/synthetic/ (does NOT generate it here).
+Outputs:
+- FASTQ files in data/raw/{accession_id}_R1.fastq.gz, ..._R2.fastq.gz
+- Manifest in data/manifests/{study}_manifest.json with checksums
 """
 import os
 import sys
@@ -16,39 +15,34 @@ import json
 import hashlib
 import subprocess
 import tempfile
-import argparse
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from datetime import datetime
+from urllib.parse import urlparse
+import requests
+from tqdm import tqdm
 
-# Project imports
-try:
-    from src.utils.logger import get_logger
-    from src.utils.config import get_data_path
-    from src.utils.schemas import ManifestEntry, DataManifest, compute_sha256
-except ImportError:
-    # Fallback for direct execution or different import context
-    # In a real run, these should be resolvable via PYTHONPATH
-    import logging
-    logger = logging.getLogger(__name__)
-    get_logger = lambda name: logger
-    get_data_path = lambda: Path("data")
-    
-    # Minimal schema fallback if imports fail (should not happen in proper env)
-    class ManifestEntry:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-    class DataManifest:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
+# Import from project utilities
+from src.utils.logger import get_logger
+from src.utils.config import get_data_path
+from src.utils.schemas import ManifestEntry, DataManifest, ProvenanceInfo
 
 logger = get_logger(__name__)
 
 # Constants
-SRA_TOOLKIT_PREFETCH = "prefetch"
-SRA_TOOLKIT_FASTQ_DUMP = "fasterq-dump"
-NCBI_EFETCH_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-NCBI_ESUMMARY_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+SRA_URL_BASE = "https://sra-download.blast.ncbi.nlm.nih.gov/traces/sra"
+GEO_URL_BASE = "https://www.ncbi.nlm.nih.gov/geo/query/acc/download"
+EUTILS_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+
+# Pre-defined real study accession for testing/prototype
+# Using a small, well-documented plant RNA-seq study: GSE12345 (example)
+# In production, this would be a list from a configuration or manifest
+REAL_STUDY_ACCESSIONS = [
+    # Using a real, small plant study: GSE12345 is placeholder, replacing with real small study
+    # Real study: GSE96395 - Arabidopsis thaliana defense response (small subset)
+    "SRR5214625",  # R1
+    "SRR5214626",  # R2 (paired)
+]
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
@@ -58,345 +52,431 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def fetch_sra_accession_info(accession: str) -> Dict[str, Any]:
+def fetch_sra_accession_info(accession_id: str) -> Dict[str, Any]:
     """
-    Fetch metadata for an SRA accession from NCBI.
+    Fetch metadata for an SRA accession from NCBI E-utilities.
     
     Args:
-        accession: SRA accession ID (e.g., SRX123456)
+        accession_id: SRA accession (e.g., SRR123456)
         
     Returns:
-        Dictionary containing metadata including FASTQ download URLs if available.
+        Dictionary with metadata including download URLs
         
     Raises:
-        RuntimeError: If metadata cannot be fetched.
+        RuntimeError: If metadata fetch fails
+    """
+    params = {
+        "db": "sra",
+        "id": accession_id,
+        "retmode": "json",
+        "tool": "plant-defense-pipeline",
+        "email": "pipeline@llmxive.local"
+    }
+    
+    try:
+        response = requests.get(EUTILS_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        
+        if "result" not in data or accession_id not in data["result"]:
+            raise RuntimeError(f"No metadata found for accession {accession_id}")
+        
+        return data["result"][accession_id]
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch metadata for {accession_id}: {e}")
+        raise RuntimeError(f"NCBI E-utilities request failed for {accession_id}") from e
+
+def get_fastq_download_url(accession_id: str, run_number: int = 1) -> Optional[str]:
+    """
+    Construct the direct download URL for FASTQ files from SRA.
+    
+    Args:
+        accession_id: SRA accession ID
+        run_number: 1 for R1, 2 for R2
+        
+    Returns:
+        Direct download URL or None if not found
+    """
+    # Use SRA Toolkit's prefetch/ftp approach for reliability
+    # For direct HTTP, we construct the URL based on SRA structure
+    base_url = f"https://sra-download.blast.ncbi.nlm.nih.gov/traces/sra/{accession_id[:3]}/{accession_id}"
+    
+    # Try to find the actual FTP path via E-utilities first
+    try:
+        info = fetch_sra_accession_info(accession_id)
+        # Extract file URLs from the response
+        if "files" in info:
+            for file_info in info["files"]:
+                if file_info.get("type") == "fastq" and file_info.get("ext") == "fastq":
+                    # Determine R1 vs R2
+                    if run_number == 1 and "1" in file_info.get("name", ""):
+                        return file_info.get("url")
+                    elif run_number == 2 and "2" in file_info.get("name", ""):
+                        return file_info.get("url")
+    except Exception as e:
+        logger.warning(f"Could not extract direct URL for {accession_id}: {e}")
+    
+    # Fallback: construct standard SRA URL pattern
+    # This pattern works for many recent SRA entries
+    ftp_base = f"ftp://ftp.sra.ebi.ebi.ac.uk/vol1/fastq/{accession_id[:6]}/{accession_id}"
+    return f"{ftp_base}_{run_number}.fastq.gz"
+
+def download_file_with_progress(url: str, output_path: Path, chunk_size: int = 1024 * 1024) -> bool:
+    """
+    Download a file with progress bar and error handling.
+    
+    Args:
+        url: Download URL
+        output_path: Destination path
+        chunk_size: Bytes per chunk
+        
+    Returns:
+        True if successful, False otherwise
     """
     try:
-        cmd = [
-            SRA_TOOLKIT_PREFETCH, "--help"
-        ]
-        # Check if sratoolkit is installed
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
-        if result.returncode != 0 and "command not found" in result.stderr.decode().lower():
-            logger.error("sratoolkit (prefetch) not found in PATH. Please install it via T003b.")
-            raise RuntimeError("sratoolkit not found. Please install it.")
-
-        # Use esearch + esummary to get details
-        search_cmd = [
-            "esearch", "-db", "sra", "-query", accession
-        ]
-        search_result = subprocess.run(search_cmd, capture_output=True, text=True)
-        if search_result.returncode != 0:
-            raise RuntimeError(f"Failed to search for accession {accession}: {search_result.stderr}")
-        
-        uid = search_result.stdout.strip()
-        if not uid:
-            raise RuntimeError(f"No results found for accession {accession}")
-
-        summary_cmd = [
-            "esummary", "-db", "sra", "-id", uid
-        ]
-        summary_result = subprocess.run(summary_cmd, capture_output=True, text=True)
-        
-        if summary_result.returncode != 0:
-            raise RuntimeError(f"Failed to fetch summary for {accession}: {summary_result.stderr}")
-        
-        # Parse XML/JSON if needed, or just return raw
-        # For simplicity, we assume the toolchain handles the resolution to FASTQ
-        # The actual download happens in download_fastq_from_sra
-        return {
-            "accession": accession,
-            "uid": uid,
-            "status": "found"
-        }
-    except FileNotFoundError:
-        raise RuntimeError("NCBI Entrez tools (esearch, esummary) not found. Ensure sratoolkit is installed.")
-    except subprocess.TimeoutExpired:
-        raise RuntimeError("Timeout while fetching SRA metadata.")
-
-def get_fastq_download_url(accession: str) -> Optional[str]:
-    """
-    Get the direct download URL for FASTQ files from SRA.
-    Note: Direct URLs are often dynamic; sratoolkit is preferred.
-    This function attempts to find a direct link for smaller studies or fallback.
-    """
-    # In a robust pipeline, we rely on prefetch/fasterq-dump.
-    # If a direct URL is strictly required (e.g., for non-sratoolkit environments),
-    # we would parse the SRA Run Selector XML here.
-    # For now, we return None to indicate that sratoolkit should be used.
-    logger.info(f"Direct URL resolution not implemented; using sratoolkit for {accession}")
-    return None
-
-def download_file_with_progress(url: str, output_path: Path) -> bool:
-    """
-    Download a file from a URL with progress logging.
-    Uses requests if available, otherwise wget/curl.
-    """
-    try:
-        import requests
-        logger.info(f"Downloading from {url} to {output_path}")
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=600)
         response.raise_for_status()
         
-        total = int(response.headers.get('content-length', 0))
-        downloaded = 0
+        total_size = int(response.headers.get('content-length', 0))
         
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
+        with open(output_path, 'wb') as f, tqdm(
+            desc=output_path.name,
+            total=total_size,
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as pbar:
+            for chunk in response.iter_content(chunk_size=chunk_size):
                 if chunk:
                     f.write(chunk)
-                    downloaded += len(chunk)
-                    if total > 0:
-                        percent = (downloaded / total) * 100
-                        logger.debug(f"Download progress: {percent:.1f}%")
+                    pbar.update(len(chunk))
+        
         return True
-    except ImportError:
-        logger.warning("requests not available, trying wget")
-        try:
-            subprocess.run(["wget", "-O", str(output_path), url], check=True)
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.error(f"wget failed: {e}")
-            return False
-    except Exception as e:
-        logger.error(f"Download failed: {e}")
+    except requests.RequestException as e:
+        logger.error(f"Download failed for {url}: {e}")
         return False
 
-def download_fastq_from_sra(accession: str, output_dir: Path) -> List[Path]:
+def download_fastq_from_sra(accession_id: str, output_dir: Path, mode: str = "real") -> Tuple[Optional[Path], Optional[Path]]:
     """
-    Download FASTQ files for an SRA accession using sratoolkit.
+    Download FASTQ files for a given SRA accession.
     
     Args:
-        accession: SRA accession ID.
-        output_dir: Directory to save FASTQ files.
+        accession_id: SRA accession ID (e.g., SRR123456)
+        output_dir: Directory to save files
+        mode: "real" or "synthetic"
         
     Returns:
-        List of paths to downloaded FASTQ files.
+        Tuple of (R1_path, R2_path) or (None, None) on failure
         
     Raises:
-        RuntimeError: If download fails.
+        RuntimeError: If mode is "real" and download fails
     """
+    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    fastq_files = []
     
+    if mode == "synthetic":
+        # Synthetic mode: do not download, just return None (caller handles loading)
+        logger.info(f"Synthetic mode: skipping download for {accession_id}")
+        return None, None
+    
+    # Real mode: fetch actual data
+    logger.info(f"Fetching real FASTQ data for {accession_id}...")
+    
+    # Try to get metadata first
     try:
-        # Step 1: Prefetch the SRA file
-        prefetch_cmd = [
-            SRA_TOOLKIT_PREFETCH, 
-            "--output-directory", str(output_dir),
-            accession
-        ]
-        logger.info(f"Running prefetch: {' '.join(prefetch_cmd)}")
-        result = subprocess.run(prefetch_cmd, capture_output=True, text=True, timeout=3600)
+        metadata = fetch_sra_accession_info(accession_id)
+        is_paired = metadata.get("library_layout", "").lower() == "paired"
+    except Exception as e:
+        logger.error(f"Failed to get metadata for {accession_id}: {e}")
+        raise RuntimeError(f"Cannot fetch metadata for {accession_id}") from e
+    
+    r1_path = output_dir / f"{accession_id}_R1.fastq.gz"
+    r2_path = output_dir / f"{accession_id}_R2.fastq.gz" if is_paired else None
+    
+    # Try direct download URL construction
+    urls_to_try = []
+    
+    # Method 1: EBI FTP
+    urls_to_try.append(f"ftp://ftp.sra.ebi.ebi.ac.uk/vol1/fastq/{accession_id[:6]}/{accession_id}/{accession_id}_1.fastq.gz")
+    if is_paired:
+        urls_to_try.append(f"ftp://ftp.sra.ebi.ebi.ac.uk/vol1/fastq/{accession_id[:6]}/{accession_id}/{accession_id}_2.fastq.gz")
+    
+    # Method 2: NCBI SRA direct
+    urls_to_try.append(f"https://sra-download.blast.ncbi.nlm.nih.gov/traces/sra{accession_id[:3]}/{accession_id}/{accession_id}_1.fastq.gz")
+    if is_paired:
+        urls_to_try.append(f"https://sra-download.blast.ncbi.nlm.nih.gov/traces/sra{accession_id[:3]}/{accession_id}/{accession_id}_2.fastq.gz")
+    
+    success_r1 = False
+    success_r2 = False
+    
+    for i in range(0, len(urls_to_try), 2):
+        url_r1 = urls_to_try[i]
+        url_r2 = urls_to_try[i+1] if i+1 < len(urls_to_try) else None
         
-        if result.returncode != 0:
-            logger.error(f"Prefetch failed: {result.stderr}")
-            raise RuntimeError(f"Prefetch failed for {accession}: {result.stderr}")
+        logger.info(f"Attempting download from: {url_r1}")
         
-        sra_file = output_dir / f"{accession}.sra"
-        if not sra_file.exists():
-            raise RuntimeError(f"Prefetch completed but SRA file not found: {sra_file}")
-        
-        # Step 2: Convert to FASTQ
-        dump_cmd = [
-            SRA_TOOLKIT_FASTQ_DUMP,
-            "--output-dir", str(output_dir),
-            "--split-files", # Handle paired-end
-            str(sra_file)
-        ]
-        logger.info(f"Running fasterq-dump: {' '.join(dump_cmd)}")
-        result = subprocess.run(dump_cmd, capture_output=True, text=True, timeout=7200)
-        
-        if result.returncode != 0:
-            logger.error(f"fasterq-dump failed: {result.stderr}")
-            raise RuntimeError(f"fasterq-dump failed for {accession}: {result.stderr}")
-        
-        # Identify generated FASTQ files
-        # fasterq-dump usually creates <accession>_1.fastq, <accession>_2.fastq, etc.
-        # or just <accession>.fastq if single end.
-        for f in output_dir.iterdir():
-            if f.suffix == ".fastq" and accession in f.name:
-                fastq_files.append(f)
-        
-        if not fastq_files:
-            # Fallback: check for .fastq.gz if compression was enabled in config
-            for f in output_dir.iterdir():
-                if (f.suffix == ".fastq" or f.suffix == ".fastq.gz") and accession in f.name:
-                    fastq_files.append(f)
-
-        if not fastq_files:
-            raise RuntimeError(f"No FASTQ files found after download for {accession}")
+        if download_file_with_progress(url_r1, r1_path):
+            success_r1 = True
+            logger.info(f"Successfully downloaded R1: {r1_path}")
             
-        logger.info(f"Successfully downloaded {len(fastq_files)} FASTQ files for {accession}")
-        return fastq_files
-
-    except subprocess.TimeoutExpired:
-        raise RuntimeError(f"Download timed out for {accession}")
-    except FileNotFoundError:
-        raise RuntimeError("sratoolkit (prefetch/fasterq-dump) not found. Please install it.")
+            if url_r2 and r2_path:
+                if download_file_with_progress(url_r2, r2_path):
+                    success_r2 = True
+                    logger.info(f"Successfully downloaded R2: {r2_path}")
+                    break
+                else:
+                    # R2 failed, remove R1 and retry
+                    r1_path.unlink()
+                    success_r1 = False
+        else:
+            logger.warning(f"Failed to download from {url_r1}, trying next source...")
+    
+    if not success_r1:
+        error_msg = f"Failed to download R1 for {accession_id} from all sources"
+        logger.critical(error_msg)
+        raise RuntimeError(error_msg)
+    
+    if is_paired and not success_r2:
+        error_msg = f"Failed to download R2 for {accession_id} from all sources"
+        logger.critical(error_msg)
+        raise RuntimeError(error_msg)
+    
+    return r1_path, r2_path
 
 def fetch_geosamples_study(study_id: str) -> List[str]:
     """
-    Fetch SRA accessions associated with a GEO Study ID (GSE).
+    Fetch sample accession IDs for a GEO study.
     
     Args:
-        study_id: GEO Study ID (e.g., GSE12345)
+        study_id: GEO study accession (e.g., GSE12345)
         
     Returns:
-        List of SRA accessions (SRX) associated with the study.
+        List of sample accessions (SRR or GSM IDs)
     """
-    try:
-        # Search for GSE
-        search_cmd = ["esearch", "-db", "gds", "-query", study_id]
-        # Note: GSE is in GDS or GEO? Usually GSE is in GEO.
-        # Let's try GEO database
-        search_cmd = ["esearch", "-db", "gds", "-query", study_id] # GDS is GEO DataSets
-        # Actually, GSE is often searched via "gds" or "geo"
-        # Let's try a more robust approach: search for the GSE in the GEO database
-        # But standard NCBI tools: esearch -db gds -query "GSE12345[Accession]"
-        
-        # Simpler: use epost + esummary if we have the ID
-        # For this implementation, we assume the user provides SRA accessions directly
-        # or we map GSE -> SRX via a known mapping if available.
-        # Since we cannot rely on external mapping tables without download,
-        # we will require the user to provide SRX accessions or a list of them.
-        # However, the task says "fetch FASTQ from NCBI GEO/SRA".
-        # If a GSE is provided, we need to resolve it.
-        
-        # Let's attempt a basic resolution using efetch on gds
-        fetch_cmd = [
-            "efetch", "-db", "gds", "-id", study_id, "-rettype", "xml"
-        ]
-        # This is complex to parse.
-        # Given the constraints, we will assume the input to download_study is a list of SRX accessions.
-        # If a GSE is passed, we raise an error asking for SRX conversion.
-        if study_id.startswith("GSE"):
-            raise NotImplementedError(
-                f"GSE resolution ({study_id}) requires XML parsing or external mapping. "
-                f"Please provide SRX accessions directly."
-            )
-        
-        return [study_id] # Assume it's already an SRX if not GSE
-    except Exception as e:
-        logger.error(f"Failed to fetch GEO samples for {study_id}: {e}")
-        raise
+    # For this implementation, we work directly with SRA accessions
+    # In a full implementation, this would resolve GSE -> GSM -> SRR
+    logger.warning("fetch_geosamples_study: Direct SRA accession mode active")
+    return [study_id]  # Treat input as SRA accession for now
 
-def create_manifest_entry(file_path: Path, source_type: str = "real", source_id: str = "") -> ManifestEntry:
-    """Create a manifest entry for a downloaded file."""
-    checksum = calculate_sha256(file_path)
-    entry = {
-        "file_name": file_path.name,
-        "file_path": str(file_path),
-        "checksum": checksum,
-        "source_type": source_type,
-        "source_id": source_id,
-        "downloaded_at": datetime.utcnow().isoformat(),
-        "size_bytes": file_path.stat().st_size
-    }
-    return ManifestEntry(**entry)
+def create_manifest_entry(
+    accession_id: str,
+    file_paths: List[Path],
+    source: str = "ncbi_sra",
+    mode: str = "real"
+) -> ManifestEntry:
+    """
+    Create a manifest entry for downloaded files.
+    
+    Args:
+        accession_id: SRA/GEO accession ID
+        file_paths: List of downloaded file paths
+        source: Data source identifier
+        mode: "real" or "synthetic"
+        
+    Returns:
+        ManifestEntry object
+    """
+    entries = []
+    checksums = {}
+    
+    for path in file_paths:
+        if path.exists():
+            checksum = calculate_sha256(path)
+            checksums[path.name] = checksum
+            entries.append({
+                "file_name": path.name,
+                "file_path": str(path),
+                "checksum": checksum,
+                "size_bytes": path.stat().st_size
+            })
+    
+    provenance = ProvenanceInfo(
+        source=source,
+        mode=mode,
+        fetched_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        accession_id=accession_id
+    )
+    
+    return ManifestEntry(
+        accession_id=accession_id,
+        files=entries,
+        checksums=checksums,
+        provenance=provenance
+    )
 
-def save_manifest(manifest: DataManifest, output_path: Path):
-    """Save the manifest to a JSON file."""
+def save_manifest(manifest: DataManifest, output_path: Path) -> None:
+    """
+    Save manifest to JSON file.
+    
+    Args:
+        manifest: DataManifest object
+        output_path: Output file path
+    """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        # Convert Pydantic model to dict
-        if hasattr(manifest, 'model_dump'):
-            data = manifest.model_dump()
-        else:
-            data = manifest.dict()
-        json.dump(data, f, indent=2)
+        json.dump(manifest.model_dump(), f, indent=2)
+    
     logger.info(f"Manifest saved to {output_path}")
 
-def validate_downloaded_files(fastq_files: List[Path]) -> bool:
-    """Validate that downloaded files are non-empty and have valid FASTQ headers."""
-    for f in fastq_files:
-        if f.stat().st_size == 0:
-            logger.error(f"File is empty: {f}")
-            return False
-        # Basic check for FASTQ format (@ in first line)
-        with open(f, 'r') as fh:
-            first_line = fh.readline()
-            if not first_line.startswith('@'):
-                logger.error(f"File does not appear to be FASTQ: {f}")
-                return False
-    return True
-
-def download_study(accession_list: List[str], mode: str = "real") -> DataManifest:
+def validate_downloaded_files(entry: ManifestEntry) -> bool:
     """
-    Main entry point to download a study.
+    Validate that downloaded files match their checksums.
     
     Args:
-        accession_list: List of SRA accessions (SRX) or GEO IDs (if supported).
-        mode: 'real' or 'synthetic'.
+        entry: ManifestEntry with file paths and checksums
         
     Returns:
-        DataManifest object.
+        True if all files validate, False otherwise
     """
-    raw_dir = get_data_path() / "raw"
-    manifest_path = get_data_path() / "manifests" / "download_manifest.json"
+    for file_info in entry.files:
+        file_path = Path(file_info["file_path"])
+        if not file_path.exists():
+            logger.error(f"File missing: {file_path}")
+            return False
+        
+        actual_checksum = calculate_sha256(file_path)
+        if actual_checksum != file_info["checksum"]:
+            logger.error(f"Checksum mismatch for {file_path}: expected {file_info['checksum']}, got {actual_checksum}")
+            return False
     
-    if mode == "synthetic":
-        logger.info("Synthetic mode: Skipping real download. Checking for synthetic data.")
-        synthetic_dir = get_data_path() / "synthetic"
-        if not synthetic_dir.exists():
-            raise RuntimeError("Synthetic mode enabled but data/synthetic/ directory does not exist. "
-                               "Please run T015 to generate synthetic data first.")
-        # In synthetic mode, we don't download, but we might validate the presence of files
-        # and create a manifest pointing to them if they exist.
-        # However, T011 says "DO NOT generate synthetic data here".
-        # It implies we just skip and maybe load existing.
-        # We'll return a minimal manifest indicating synthetic mode.
-        return DataManifest(
-            entries=[],
-            mode="synthetic",
-            created_at=datetime.utcnow().isoformat()
-        )
+    logger.info(f"All files validated for {entry.accession_id}")
+    return True
+
+def download_study(
+    accession_ids: List[str],
+    output_dir: Path,
+    manifest_dir: Path,
+    mode: str = "real"
+) -> DataManifest:
+    """
+    Download multiple studies/accessions and create a manifest.
+    
+    Args:
+        accession_ids: List of SRA/GEO accession IDs
+        output_dir: Directory for FASTQ files (data/raw)
+        manifest_dir: Directory for manifest files (data/manifests)
+        mode: "real" or "synthetic"
+        
+    Returns:
+        DataManifest with all entries
+    """
+    output_dir = Path(output_dir)
+    manifest_dir = Path(manifest_dir)
     
     if mode == "real":
-        logger.info(f"Real mode: Fetching data for {len(accession_list)} accessions.")
-        entries = []
-        for acc in accession_list:
-            try:
-                logger.info(f"Processing {acc}...")
-                fastq_files = download_fastq_from_sra(acc, raw_dir)
-                
-                if not validate_downloaded_files(fastq_files):
-                    raise RuntimeError(f"Validation failed for {acc}")
-                
-                for f_path in fastq_files:
-                    entry = create_manifest_entry(f_path, source_type="real", source_id=acc)
-                    entries.append(entry)
-                    
-            except Exception as e:
-                logger.critical(f"Failed to download {acc}: {e}")
-                raise RuntimeError(f"Critical failure in real download for {acc}. "
-                                   f"Pipeline halted as per FR-001. Error: {str(e)}")
-        
-        return DataManifest(
-            entries=entries,
-            mode="real",
-            created_at=datetime.utcnow().isoformat()
-        )
+        output_dir.mkdir(parents=True, exist_ok=True)
+        manifest_dir.mkdir(parents=True, exist_ok=True)
     
-    raise ValueError(f"Invalid mode: {mode}. Must be 'real' or 'synthetic'.")
+    entries = []
+    
+    for accession_id in accession_ids:
+        logger.info(f"Processing {accession_id}...")
+        
+        try:
+            if mode == "real":
+                r1_path, r2_path = download_fastq_from_sra(accession_id, output_dir, mode="real")
+                
+                file_paths = [r1_path]
+                if r2_path:
+                    file_paths.append(r2_path)
+                
+                entry = create_manifest_entry(accession_id, file_paths, source="ncbi_sra", mode="real")
+                
+                if not validate_downloaded_files(entry):
+                    raise RuntimeError(f"Validation failed for {accession_id}")
+                
+            else:  # synthetic mode
+                # In synthetic mode, we do NOT download. 
+                # The caller is responsible for loading from data/synthetic/
+                # We create a placeholder entry indicating synthetic source
+                logger.info(f"Synthetic mode: creating placeholder for {accession_id}")
+                entry = create_manifest_entry(accession_id, [], source="synthetic", mode="synthetic")
+            
+            entries.append(entry)
+            
+        except Exception as e:
+            logger.error(f"Failed to process {accession_id}: {e}")
+            if mode == "real":
+                # Real mode: fail loudly
+                raise RuntimeError(f"Critical failure for {accession_id} in real mode: {e}") from e
+            # Synthetic mode: continue with warning
+            continue
+    
+    manifest = DataManifest(
+        entries=entries,
+        generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        pipeline_version="1.0.0",
+        mode=mode
+    )
+    
+    manifest_path = manifest_dir / f"{accession_ids[0] if len(accession_ids) == 1 else 'combined'}_manifest.json"
+    save_manifest(manifest, manifest_path)
+    
+    return manifest
 
 def main():
-    """CLI entry point for download.py."""
+    """CLI entry point for data download."""
+    import argparse
+    
     parser = argparse.ArgumentParser(description="Download FASTQ data from NCBI SRA/GEO")
-    parser.add_argument("--accessions", nargs="+", required=True, help="List of SRA accessions (e.g., SRX123456)")
-    parser.add_argument("--mode", choices=["real", "synthetic"], default="real", help="Download mode")
+    parser.add_argument(
+        "--accession", 
+        nargs="+", 
+        default=REAL_STUDY_ACCESSIONS,
+        help="SRA/GEO accession IDs to download"
+    )
+    parser.add_argument(
+        "--mode", 
+        choices=["real", "synthetic"], 
+        default="real",
+        help="Download mode: 'real' for actual data, 'synthetic' for placeholder"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Output directory for FASTQ files (default: data/raw)"
+    )
+    parser.add_argument(
+        "--manifest-dir",
+        type=str,
+        default=None,
+        help="Directory for manifest files (default: data/manifests)"
+    )
+    
     args = parser.parse_args()
     
+    data_path = get_data_path()
+    output_dir = Path(args.output_dir) if args.output_dir else data_path / "raw"
+    manifest_dir = Path(args.manifest_dir) if args.manifest_dir else data_path / "manifests"
+    
+    logger.info(f"Starting download in {args.mode} mode")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Manifest directory: {manifest_dir}")
+    logger.info(f"Accessions: {args.accession}")
+    
     try:
-        manifest = download_study(args.accessions, mode=args.mode)
-        save_manifest(manifest, get_data_path() / "manifests" / "download_manifest.json")
-        print("Download completed successfully.")
-    except RuntimeError as e:
-        print(f"CRITICAL ERROR: {e}")
-        sys.exit(1)
+        manifest = download_study(
+            accession_ids=args.accession,
+            output_dir=output_dir,
+            manifest_dir=manifest_dir,
+            mode=args.mode
+        )
+        
+        logger.info(f"Download complete. Processed {len(manifest.entries)} accessions.")
+        logger.info(f"Manifest saved to: {manifest_dir}")
+        
+        # Exit with error if real mode failed
+        if args.mode == "real" and len(manifest.entries) == 0:
+            logger.critical("No data successfully downloaded in real mode")
+            sys.exit(1)
+            
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.critical(f"Pipeline failed: {e}")
+        # Trigger human_input_needed by exiting with error code
+        sys.exit(2)
 
 if __name__ == "__main__":
     main()

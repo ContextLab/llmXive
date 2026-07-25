@@ -1,3 +1,3 @@
 """
-Test suite for the plant defense allocation pipeline.
+Test suite package.
 """

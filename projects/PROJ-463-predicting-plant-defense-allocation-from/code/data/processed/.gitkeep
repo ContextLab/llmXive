@@ -1,1 +1,2 @@
-# This file ensures the data/processed directory exists in version control.
+# This directory stores intermediate processed data (trimmed FASTQ, BAM, TPM matrices).
+# Do not commit large binary files; use .gitkeep to preserve directory structure.

@@ -113,7 +113,7 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 
 - Public RNA‑seq studies in GEO/SRA contain ≥2 biological replicates per herbivore treatment condition for at least 15 plant species with both chewing and piercing‑sucking herbivore data
 - The TRY plant trait database or supplementary tables of the RNA‑seq studies contain standardized chemical defense (e.g., glucosinolates, alkaloids, phenolics) and physical defense (e.g., trichome density, leaf tensile strength) metrics for ≥70% of the species in the transcriptomic dataset
-- All required data (FASTQ files, reference genomes, trait databases) fit within 16GB RAM and 50GB disk on a GitHub Actions free‑tier runner; larger datasets will be sampled to 15 species before processing
+- All required data (FASTQ files, reference genomes, trait databases) fit within 16GB RAM and 50GB disk on a GitHub Actions free‑tier runner; larger datasets will be sampled to a representative subset of species before processing
 - The analysis will complete within 24 hours of CPU time on a 4-core runner without GPU acceleration
 - Tissue metadata in GEO/SRA submissions are sufficiently accurate to distinguish leaf, stem, and root samples for tissue‑specific analysis
 - Herbivore treatment annotations (chewing vs piercing‑sucking) in the original studies are correctly labeled and do not require manual curation beyond automated keyword matching

@@ -4,8 +4,3 @@
   source_id: '1410.4274'
   url: https://arxiv.org/abs/1410.4274
   value: '0.05'
-'|permutation testing':
-  quote: '0.05'
-  source_id: Permutation test
-  url: https://en.wikipedia.org/wiki/Permutation_test
-  value: '0.05'

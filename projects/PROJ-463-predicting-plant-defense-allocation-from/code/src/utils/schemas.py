@@ -1,6 +1,6 @@
 """
 Data schemas for the plant defense allocation pipeline.
-Derived from data-model.md and aligned with project requirements.
+Derived from data-model.md specifications.
 """
 from datetime import datetime
 from typing import List, Dict, Optional, Any, Literal
@@ -8,194 +8,176 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 import hashlib
 import json
 import os
-from pathlib import Path
 
 
 class ProvenanceInfo(BaseModel):
-    """Provenance metadata for data artifacts."""
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
-    tool_versions: Dict[str, str] = Field(default_factory=dict)
-    source_type: Literal["real", "synthetic"]
-    source_id: Optional[str] = None  # e.g., SRA accession, DOI
-    pipeline_version: Optional[str] = None
-    config_hash: Optional[str] = None
+    """Provenance metadata for any artifact."""
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    tool_name: str
+    tool_version: str
+    input_files: List[str] = Field(default_factory=list)
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+    checksum: Optional[str] = None
+    git_commit: Optional[str] = None
 
 
 class ManifestEntry(BaseModel):
     """Entry in a data manifest file."""
     file_name: str
-    file_path: str  # Relative to project root
-    checksum: str  # SHA256
-    source_type: Literal["real", "synthetic"]
-    source_id: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    file_size_bytes: int
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-
-class DataManifest(BaseModel):
-    """Manifest for a collection of data files."""
-    manifest_version: str = "1.0"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    entries: List[ManifestEntry] = []
-    summary: Dict[str, Any] = Field(default_factory=dict)
-
-    def add_entry(self, entry: ManifestEntry) -> None:
-        """Add an entry to the manifest."""
-        self.entries.append(entry)
-        self.updated_at = datetime.utcnow()
-
-    def to_json(self, path: str) -> None:
-        """Serialize manifest to JSON file."""
-        with open(path, 'w') as f:
-            json.dump(self.model_dump(mode='json', exclude_none=True), f, indent=2)
-
-    @classmethod
-    def from_json(cls, path: str) -> "DataManifest":
-        """Load manifest from JSON file."""
-        with open(path, 'r') as f:
-            data = json.load(f)
-        return cls(**data)
-
-
-class ExpressionMatrixMetadata(BaseModel):
-    """Metadata for an expression matrix."""
-    matrix_type: Literal["counts", "tpm", "fpkm", "normalized"]
-    organism: str
+    file_path: str
+    checksum: str
+    source_type: Literal["real", "synthetic", "derived"]
+    accession_id: Optional[str] = None
+    species: Optional[str] = None
     tissue: Optional[str] = None
-    condition: Optional[str] = None
-    study_id: Optional[str] = None
-    gene_count: int
-    sample_count: int
-    normalization_method: Optional[str] = None
-    batch_info: Optional[Dict[str, Any]] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    provenance: Optional[ProvenanceInfo] = None
 
-
-class ExpressionMatrix(BaseModel):
-    """Container for expression matrix data and metadata."""
-    matrix_id: str
-    metadata: ExpressionMatrixMetadata
-    data_path: str  # Path to the actual matrix file (e.g., CSV, Parquet)
-    provenance: ProvenanceInfo
-
-    @field_validator('data_path')
+    @field_validator("checksum")
     @classmethod
-    def validate_path_exists(cls, v: str) -> str:
-        if not os.path.exists(v):
-            raise ValueError(f"Data file does not exist: {v}")
+    def validate_checksum_format(cls, v: str) -> str:
+        if not v or len(v) != 64:
+            raise ValueError("Checksum must be a valid SHA256 hex string (64 chars)")
         return v
 
 
+class DataManifest(BaseModel):
+    """Complete manifest for a dataset."""
+    manifest_version: str = "1.0"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    description: str
+    entries: List[ManifestEntry]
+    total_files: int = Field(default=0)
+
+    @model_validator(mode="after")
+    def set_total_files(self) -> "DataManifest":
+        self.total_files = len(self.entries)
+        return self
+
+
+class ExpressionMatrixMetadata(BaseModel):
+    """Metadata for an expression matrix file."""
+    accession_id: str
+    species: str
+    tissue: str
+    herbivore_type: Optional[str] = None
+    replicates: int
+    platform: str
+    normalization_method: str = "TPM"
+    batch_id: Optional[str] = None
+    processed_at: datetime = Field(default_factory=datetime.utcnow)
+    housekeeping_genes_cv: Optional[float] = None
+    batch_corrected: bool = False
+
+
+class ExpressionMatrix(BaseModel):
+    """
+    Expression matrix structure.
+    genes: List[str] (row identifiers)
+    samples: List[str] (column identifiers)
+    values: List[List[float]] (gene x sample matrix)
+    metadata: ExpressionMatrixMetadata
+    """
+    genes: List[str]
+    samples: List[str]
+    values: List[List[float]]
+    metadata: ExpressionMatrixMetadata
+
+    @model_validator(mode="after")
+    def validate_dimensions(self) -> "ExpressionMatrix":
+        if len(self.values) != len(self.genes):
+            raise ValueError("Number of rows in values must match number of genes")
+        if any(len(row) != len(self.samples) for row in self.values):
+            raise ValueError("All rows in values must have same length as number of samples")
+        return self
+
+
 class DefenseTrait(BaseModel):
-    """Individual defense trait measurement."""
+    """Individual defense trait record."""
     species_name: str
     trait_name: str
     trait_value: float
     unit: str
-    source_id: str  # e.g., TRY accession, Phenoscape ID
+    source_id: str  # e.g., TRY ID, Phenoscape ID
     source_type: Literal["TRY", "Phenoscape", "GBIF", "Literature"]
-    trait_category: Literal["chemical", "physical", "behavioral"]
-    measured_at: Optional[datetime] = None
+    citation: Optional[str] = None
     notes: Optional[str] = None
 
 
 class TraitDataset(BaseModel):
-    """Collection of defense traits for multiple species."""
-    dataset_id: str
-    species_list: List[str]
+    """Collection of defense traits for a species or set of species."""
+    species_name: str
     traits: List[DefenseTrait]
-    source_summary: Dict[str, int]  # source_type -> count
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    provenance: ProvenanceInfo
-
-    @property
-    def chemical_traits(self) -> List[DefenseTrait]:
-        return [t for t in self.traits if t.trait_category == "chemical"]
-
-    @property
-    def physical_traits(self) -> List[DefenseTrait]:
-        return [t for t in self.traits if t.trait_category == "physical"]
+    data_sources: List[str]
+    compiled_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class DEGResult(BaseModel):
     """Differential expression result for a single gene."""
     gene_id: str
-    gene_name: Optional[str] = None
     log2_fold_change: float
     p_value: float
-    adjusted_p_value: float
+    adj_p_value: float  # FDR adjusted
     base_mean: float
-    significant: bool = False
-
-    @field_validator('significant')
-    @classmethod
-    def compute_significance(cls, v: bool, info) -> bool:
-        # Default threshold: adjusted p-value < 0.05 and |log2FC| > 1
-        if 'adjusted_p_value' in info.data and 'log2_fold_change' in info.data:
-            adj_p = info.data['adjusted_p_value']
-            log2fc = info.data['log2_fold_change']
-            return adj_p < 0.05 and abs(log2fc) > 1
-        return v
+    status: Literal["up", "down", "ns"]  # ns = not significant
 
 
 class DEGAnalysisResult(BaseModel):
-    """Result of a differential expression analysis."""
-    analysis_id: str
+    """Results of a differential expression analysis for a species-tissue pair."""
+    accession_ids: List[str]
     species: str
-    tissue: Optional[str] = None
-    condition_comparison: str  # e.g., "herbivore_vs_control"
+    tissue: str
+    treatment_condition: str
+    control_condition: str
     results: List[DEGResult]
-    total_genes_tested: int
-    significant_genes_count: int
-    analysis_method: str = "DESeq2"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    provenance: ProvenanceInfo
+    analysis_params: Dict[str, Any]
+    run_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ModelTrainingConfig(BaseModel):
     """Configuration for model training."""
-    model_type: Literal["ElasticNet", "RandomForest", "SVR", "PGLS"]
+    model_type: Literal["ElasticNet", "RandomForest", "SVM", "XGBoost"]
     hyperparameters: Dict[str, Any]
-    feature_selection_method: Optional[str] = None
-    cross_validation_type: Literal["LOSO", "KFold", "StratifiedKFold"]
     cv_folds: int = 5
     random_seed: int = 42
-    target_variable: str = "defense_allocation_index"
+    feature_selection_method: Optional[str] = None
+    feature_selection_params: Optional[Dict[str, Any]] = None
 
 
 class ModelTrainingResult(BaseModel):
-    """Result of model training and validation."""
-    training_id: str
+    """Results from model training."""
+    model_type: str
     config: ModelTrainingConfig
-    metrics: Dict[str, float]  # e.g., {"r2": 0.75, "rmse": 0.12}
+    metrics: Dict[str, float]  # e.g., {"r2": 0.85, "rmse": 0.12}
     feature_importance: Optional[Dict[str, float]] = None
     best_params: Optional[Dict[str, Any]] = None
-    cv_results: Optional[List[Dict[str, float]]] = None  # Per-fold metrics
-    training_data_path: Optional[str] = None
-    test_data_path: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    provenance: ProvenanceInfo
+    trained_at: datetime = Field(default_factory=datetime.utcnow)
+    cross_validation_scores: Optional[List[float]] = None
 
 
 class PathwayMapping(BaseModel):
     """Mapping from genes to pathways."""
-    pathway_id: str
-    pathway_name: str
-    pathway_source: Literal["KEGG", "GO", "Reactome"]
-    gene_ids: List[str]
-    description: Optional[str] = None
+    gene_id: str
+    pathway_ids: List[str]
+    pathway_names: Optional[List[str]] = None
+    source: str = "KEGG"  # or "GO"
 
 
 class AggregatedFeatures(BaseModel):
     """Pathway-aggregated feature matrix."""
-    matrix_id: str
-    species_list: List[str]
-    pathway_ids: List[str]
-    feature_matrix_path: str  # Path to the aggregated matrix file
-    aggregation_method: str  # e.g., "mean", "max", "first_pcs"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    provenance: ProvenanceInfo
+    samples: List[str]
+    pathways: List[str]
+    values: List[List[float]]  # samples x pathways
+    aggregation_method: str = "mean"  # or "max", "median"
+    metadata: Optional[Dict[str, Any]] = None
+
+    @model_validator(mode="after")
+    def validate_dimensions(self) -> "AggregatedFeatures":
+        if len(self.values) != len(self.samples):
+            raise ValueError("Number of rows in values must match number of samples")
+        if any(len(row) != len(self.pathways) for row in self.values):
+            raise ValueError("All rows in values must have same length as number of pathways")
+        return self
 
 
 def compute_sha256(file_path: str) -> str:
@@ -209,50 +191,32 @@ def compute_sha256(file_path: str) -> str:
 
 def create_manifest_entry(
     file_path: str,
-    source_type: Literal["real", "synthetic"],
-    source_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    source_type: Literal["real", "synthetic", "derived"],
+    accession_id: Optional[str] = None,
+    species: Optional[str] = None,
+    tissue: Optional[str] = None,
+    provenance: Optional[ProvenanceInfo] = None
 ) -> ManifestEntry:
     """Create a manifest entry for a file."""
-    file_path_obj = Path(file_path)
-    if not file_path_obj.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
     checksum = compute_sha256(file_path)
-    file_size = file_path_obj.stat().st_size
-
     return ManifestEntry(
-        file_name=file_path_obj.name,
-        file_path=str(file_path_obj),
+        file_name=os.path.basename(file_path),
+        file_path=file_path,
         checksum=checksum,
         source_type=source_type,
-        source_id=source_id,
-        file_size_bytes=file_size,
-        metadata=metadata or {}
+        accession_id=accession_id,
+        species=species,
+        tissue=tissue,
+        provenance=provenance
     )
 
 
-def validate_data_manifest(manifest: DataManifest) -> List[str]:
-    """Validate a data manifest. Returns list of error messages."""
-    errors = []
-
-    # Check for duplicate file names
-    seen_names = set()
-    for entry in manifest.entries:
-        if entry.file_name in seen_names:
-            errors.append(f"Duplicate file name in manifest: {entry.file_name}")
-        seen_names.add(entry.file_name)
-
-    # Verify all files exist and checksums match
-    for entry in manifest.entries:
-        if not os.path.exists(entry.file_path):
-            errors.append(f"File not found: {entry.file_path}")
-        else:
-            actual_checksum = compute_sha256(entry.file_path)
-            if actual_checksum != entry.checksum:
-                errors.append(
-                    f"Checksum mismatch for {entry.file_path}: "
-                    f"expected {entry.checksum}, got {actual_checksum}"
-                )
-
-    return errors
+def validate_data_manifest(manifest_path: str) -> bool:
+    """Validate a data manifest file."""
+    try:
+        with open(manifest_path, "r") as f:
+            data = json.load(f)
+        manifest = DataManifest(**data)
+        return True
+    except Exception as e:
+        raise ValueError(f"Invalid manifest: {e}")
