@@ -20,3 +20,58 @@
   verification_status: pending
   verified_against_url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
   verified_at: '2026-07-16T06:41:33.989737Z'
+- artifact_hash: 98f02adf48d3f168d1e8fb91f849d87770dc07b0c038c50ef38a2231c359773a
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/contributing.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-username/llmxive-follow-up.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-username/llmxive-follow-up
+  verified_at: '2026-07-25T13:58:07.635216Z'
+- artifact_hash: 3dd09649ae995e10e08d5f432057ad566bfcc6f70cc91fe9962ca40cece4a4c0
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/CHANGELOG.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-07-25T13:58:11.066141Z'
+- artifact_hash: 3dd09649ae995e10e08d5f432057ad566bfcc6f70cc91fe9962ca40cece4a4c0
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/CHANGELOG.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-07-25T13:58:11.066141Z'
+- artifact_hash: 3dd09649ae995e10e08d5f432057ad566bfcc6f70cc91fe9962ca40cece4a4c0
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/CHANGELOG.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-follow-up/compare/v0.1.0...HEAD
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up/compare/v0.1.0...HEAD
+  verified_at: '2026-07-25T13:58:11.066141Z'
+- artifact_hash: 3dd09649ae995e10e08d5f432057ad566bfcc6f70cc91fe9962ca40cece4a4c0
+  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/CHANGELOG.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-follow-up/releases/tag/v0.1.0
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up/releases/tag/v0.1.0
+  verified_at: '2026-07-25T13:58:11.066141Z'

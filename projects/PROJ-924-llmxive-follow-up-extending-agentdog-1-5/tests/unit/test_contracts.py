@@ -26,7 +26,14 @@ def test_drift_score_schema_matches_drift_result_yaml():
         os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     )
     
-    schema_path = os.path.join(project_root, "contracts", "drift_result.schema.yaml")
+    # Construct the path to the schema file within the project's specs directory
+    schema_path = os.path.join(
+        project_root, 
+        "specs", 
+        "001-llmxive-drift-detection", 
+        "contracts", 
+        "drift_result.schema.yaml"
+    )
     
     # 1. Verify schema file exists
     assert os.path.exists(schema_path), f"Schema file missing at {schema_path}"

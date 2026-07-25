@@ -4,306 +4,270 @@ import tracemalloc
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
 import pandas as pd
+import numpy as np
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
-from config import get_path, ensure_directories, get_max_memory_gb, get_batch_size
-from utils import load_json_file, save_csv_file
+from config import get_path, get_config, get_batch_size, get_max_memory_gb
+from utils import save_csv_file, load_json_file, save_json_file
+from data_loader import LoudFailureError
 
-# Constants
-MAX_MEMORY_GB = get_max_memory_gb()
-MAX_MEMORY_BYTES = MAX_MEMORY_GB * (1024 ** 3)
-BATCH_SIZE = get_batch_size()
-CENTROID_MODEL_NAME = "all-MiniLM-L6-v2"
-
-def load_centroids(centroid_path: Optional[str] = None) -> np.ndarray:
+def load_centroids(centroid_path: Optional[str] = None) -> Dict[str, np.ndarray]:
     """
-    Load pre-computed centroid embeddings from a JSON file.
-    
-    Args:
-        centroid_path: Path to the centroids JSON file. If None, uses default config path.
-        
-    Returns:
-        np.ndarray: Array of centroid embeddings (shape: n_centroids x embedding_dim).
-        
-    Raises:
-        FileNotFoundError: If the centroid file does not exist.
-        ValueError: If the file format is invalid.
+    Load taxonomy centroids from the processed JSON file.
+    Returns a dictionary mapping category names to their L2-normalized embedding vectors.
     """
     if centroid_path is None:
-        centroid_path = get_path("centroids_file")
+        centroid_path = str(get_path("data", "processed", "taxonomy_centroids.json"))
     
-    path_obj = Path(centroid_path)
-    if not path_obj.exists():
-        raise FileNotFoundError(f"Centroid file not found at {centroid_path}")
+    if not os.path.exists(centroid_path):
+        raise LoudFailureError(f"Centroid file not found: {centroid_path}")
     
-    data = load_json_file(path_obj)
+    data = load_json_file(centroid_path)
+    centroids = {}
+    for category, embedding in data["centroids"].items():
+        # Ensure L2 normalization
+        vec = np.array(embedding)
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec = vec / norm
+        centroids[category] = vec
     
-    if not isinstance(data, list) or len(data) == 0:
-        raise ValueError(f"Centroid file {centroid_path} must contain a non-empty list of centroids.")
-    
-    # Extract embeddings (assuming structure: [{"category": "...", "embedding": [...]}, ...])
-    embeddings = [item["embedding"] for item in data]
-    
-    if not embeddings:
-        raise ValueError("No embeddings found in the centroid file.")
-        
-    return np.array(embeddings, dtype=np.float32)
+    return centroids
 
-def compute_cosine_distance(
-    log_embeddings: np.ndarray, 
-    centroids: np.ndarray
-) -> np.ndarray:
+def compute_cosine_distance(embeddings: np.ndarray, centroids: Dict[str, np.ndarray]) -> np.ndarray:
     """
-    Calculate the minimum cosine distance from each log embedding to any centroid.
-    
-    Cosine distance = 1 - cosine_similarity.
-    The minimum distance indicates how close the log is to the nearest known category.
-    
-    Args:
-        log_embeddings: Array of log embeddings (shape: n_logs x embedding_dim).
-        centroids: Array of centroid embeddings (shape: n_centroids x embedding_dim).
-        
-    Returns:
-        np.ndarray: Array of minimum cosine distances (shape: n_logs,).
+    Compute the minimum cosine distance from each log embedding to any taxonomy centroid.
+    Formula: 1 - cosine_similarity(L2_normalized_vectors)
+    Returns an array of shape (n_logs,) containing the minimum distance for each log.
     """
-    if log_embeddings.shape[0] == 0:
-        return np.array([], dtype=np.float32)
-
-    # Normalize vectors for cosine similarity
-    log_norm = np.linalg.norm(log_embeddings, axis=1, keepdims=True)
-    # Avoid division by zero
-    log_norm[log_norm == 0] = 1e-9
-    log_normalized = log_embeddings / log_norm
-
-    cent_norm = np.linalg.norm(centroids, axis=1, keepdims=True)
-    cent_norm[cent_norm == 0] = 1e-9
-    centroids_normalized = centroids / cent_norm
-
-    # Cosine similarity matrix: (n_logs, n_centroids)
-    similarity = np.dot(log_normalized, centroids_normalized.T)
+    if embeddings.size == 0:
+        return np.array([])
     
-    # Cosine distance = 1 - similarity
-    distance = 1.0 - similarity
+    # Ensure embeddings are L2 normalized
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    # Avoid division by zero for zero vectors (though they should be handled separately)
+    norms = np.where(norms == 0, 1, norms)
+    embeddings_normalized = embeddings / norms
     
-    # Minimum distance to any centroid
-    min_distances = np.min(distance, axis=1)
+    # Stack centroids into a matrix
+    centroid_names = list(centroids.keys())
+    centroid_matrix = np.array([centroids[name] for name in centroid_names])
+    
+    # Compute cosine similarity (all embeddings x all centroids)
+    # cosine_similarity returns values in [-1, 1], where 1 is identical
+    similarities = cosine_similarity(embeddings_normalized, centroid_matrix)
+    
+    # Minimum distance = 1 - maximum similarity
+    # max_sim shape: (n_logs,)
+    max_sim = np.max(similarities, axis=1)
+    min_distances = 1.0 - max_sim
     
     return min_distances
 
-def _embed_logs_batched(
-    texts: List[str], 
-    model: SentenceTransformer
-) -> np.ndarray:
-    """
-    Embed a list of texts using the model, processing in batches to manage memory.
-    
-    Args:
-        texts: List of log texts.
-        model: The SentenceTransformer model instance.
-        
-    Returns:
-        np.ndarray: Array of embeddings (shape: n_logs x embedding_dim).
-    """
-    if not texts:
-        return np.array([])
-        
-    embeddings = []
-    
-    for i in range(0, len(texts), BATCH_SIZE):
-        batch_texts = texts[i : i + BATCH_SIZE]
-        batch_embeddings = model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
-        embeddings.append(batch_embeddings)
-        
-        # Check memory usage periodically
-        current_mem = tracemalloc.get_traced_memory()[1]
-        if current_mem > MAX_MEMORY_BYTES:
-            raise MemoryError(
-                f"Memory limit exceeded: {current_mem / (1024**3):.2f}GB > {MAX_MEMORY_GB}GB"
-            )
-            
-    return np.vstack(embeddings)
-
 def batch_process_logs(
-    logs: List[Dict[str, Any]], 
-    centroids: np.ndarray
+    logs: List[Dict[str, Any]],
+    centroids: Dict[str, np.ndarray],
+    model_name: str = "all-MiniLM-L6-v2",
+    batch_size: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
-    Process a batch of logs to compute drift scores.
+    Process a list of logs in batches to compute drift scores.
+    Handles memory constraints by processing in batches and monitoring RAM usage.
     
     Args:
-        logs: List of log dictionaries, each containing 'log_id' and 'text'.
-        centroids: Pre-loaded centroid embeddings.
-        
+        logs: List of log dictionaries with 'log_id' and 'text' keys
+        centroids: Dictionary of category centroids
+        model_name: SentenceTransformer model name
+        batch_size: Number of logs to process at once (defaults to config)
+    
     Returns:
-        List[Dict[str, Any]]: List of results with 'log_id', 'drift_score', and 'review_flag'.
+        List of dictionaries with log_id, drift_score, and review_flag
     """
-    if not logs:
-        return []
-
-    # Start memory tracing
+    if batch_size is None:
+        batch_size = get_batch_size()
+    
+    max_memory_gb = get_max_memory_gb()
+    max_memory_bytes = max_memory_gb * 1024 * 1024 * 1024
+    
+    # Track memory
     tracemalloc.start()
     
+    # Initialize model
+    model = SentenceTransformer(model_name)
+    
+    results = []
+    n_logs = len(logs)
+    
     try:
-        model = SentenceTransformer(CENTROID_MODEL_NAME, device="cpu")
-        
-        # Filter and process logs
-        processed_logs = []
-        texts_to_embed = []
-        valid_indices = []
-        
-        for idx, log in enumerate(logs):
-            text = log.get("text", "")
-            if not text or not text.strip():
-                # Handle empty logs per T014
-                processed_logs.append({
-                    "log_id": log.get("log_id", f"unknown_{idx}"),
-                    "drift_score": 2.0, # Max theoretical distance
-                    "review_flag": True
-                })
-            else:
-                texts_to_embed.append(text)
-                valid_indices.append(idx)
-                processed_logs.append(None) # Placeholder for valid logs
-        
-        if texts_to_embed:
-            log_embeddings = _embed_logs_batched(texts_to_embed, model)
-            distances = compute_cosine_distance(log_embeddings, centroids)
+        for i in range(0, n_logs, batch_size):
+            batch = logs[i:i + batch_size]
             
-            # Assign results back
-            for i, (idx, dist) in enumerate(zip(valid_indices, distances)):
-                # Threshold for review flag (e.g., > 0.5 indicates potential drift)
-                # Using a heuristic threshold; can be made configurable
-                review_flag = dist > 0.5 
-                processed_logs[idx] = {
-                    "log_id": logs[idx].get("log_id", f"unknown_{idx}"),
-                    "drift_score": float(dist),
-                    "review_flag": review_flag
-                }
+            # Check memory before processing batch
+            current, peak = tracemalloc.get_traced_memory()
+            if peak > max_memory_bytes:
+                raise LoudFailureError(
+                    f"Memory limit exceeded: {peak / (1024**3):.2f}GB > {max_memory_gb}GB"
+                )
+            
+            # Process batch
+            texts = [log.get("text", "") for log in batch]
+            log_ids = [log.get("log_id", f"unknown_{i}") for log in batch]
+            
+            # Handle empty/whitespace logs
+            empty_mask = [not text or not text.strip() for text in texts]
+            non_empty_texts = [text for text, is_empty in zip(texts, empty_mask) if not is_empty]
+            non_empty_indices = [idx for idx, is_empty in enumerate(empty_mask) if not is_empty]
+            
+            batch_results = []
+            
+            if non_empty_texts:
+                # Encode non-empty texts
+                embeddings = model.encode(non_empty_texts, convert_to_numpy=True, show_progress_bar=False)
+                distances = compute_cosine_distance(embeddings, centroids)
                 
-        return processed_logs
-        
+                for idx, dist in zip(non_empty_indices, distances):
+                    batch_results.append({
+                        "log_id": log_ids[idx],
+                        "drift_score": float(dist),
+                        "review_flag": False
+                    })
+            
+            # Handle empty logs
+            for idx, is_empty in enumerate(empty_mask):
+                if is_empty:
+                    batch_results.append({
+                        "log_id": log_ids[idx],
+                        "drift_score": 2.0,  # Maximum deviation for empty logs
+                        "review_flag": True
+                    })
+            
+            results.extend(batch_results)
+            
     finally:
-        current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
-        print(f"[Memory] Peak: {peak / (1024**3):.2f}GB")
+    
+    return results
 
 def export_results(
-    results: List[Dict[str, Any]], 
+    results: List[Dict[str, Any]],
     output_path: Optional[str] = None
 ) -> str:
     """
     Export drift scoring results to a CSV file.
     
     Args:
-        results: List of result dictionaries containing 'log_id', 'drift_score', 'review_flag'.
-        output_path: Path to the output CSV. If None, uses default config path.
-        
+        results: List of result dictionaries with log_id, drift_score, review_flag
+        output_path: Path for output CSV (defaults to data/processed/drift_scores.csv)
+    
     Returns:
-        str: The path to the generated CSV file.
-        
+        Path to the generated CSV file
+    
     Raises:
-        ValueError: If results are empty or missing required fields.
-        IOError: If the file cannot be written.
+        LoudFailureError: If output path is invalid or file cannot be written
     """
     if output_path is None:
-        output_path = get_path("drift_scores_output")
-        
-    # Ensure directory exists
-    ensure_directories()
+        output_path = str(get_path("data", "processed", "drift_scores.csv"))
     
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Validate results
     if not results:
-        raise ValueError("Cannot export empty results list.")
+        raise LoudFailureError("No results to export")
     
-    # Validate fields
-    required_fields = {"log_id", "drift_score", "review_flag"}
-    if not all(required_fields.issubset(set(r.keys())) for r in results):
-        missing = required_fields - set(results[0].keys())
-        raise ValueError(f"Results missing required fields: {missing}")
+    # Check required columns
+    required_columns = {"log_id", "drift_score", "review_flag"}
+    if not required_columns.issubset(set(results[0].keys())):
+        raise LoudFailureError(
+            f"Results missing required columns. Expected: {required_columns}, "
+            f"Got: {set(results[0].keys())}"
+        )
     
     # Create DataFrame
     df = pd.DataFrame(results)
     
-    # Ensure column order
+    # Ensure correct column order
     df = df[["log_id", "drift_score", "review_flag"]]
     
-    # Write to CSV
-    save_csv_file(df, output_path)
+    # Verify data types
+    df["log_id"] = df["log_id"].astype(str)
+    df["drift_score"] = df["drift_score"].astype(float)
+    df["review_flag"] = df["review_flag"].astype(bool)
     
-    # Verify file generation
+    # Save to CSV
+    try:
+        df.to_csv(output_path, index=False)
+    except Exception as e:
+        raise LoudFailureError(f"Failed to write CSV file: {str(e)}")
+    
+    # Verify file was created and has content
     if not os.path.exists(output_path):
-        raise IOError(f"Failed to generate output file at {output_path}")
-        
-    # Verify columns
-    df_check = pd.read_csv(output_path)
-    if not set(df_check.columns).issuperset(required_fields):
-        raise ValueError(f"Output CSV missing columns. Expected: {required_fields}, Got: {set(df_check.columns)}")
-        
+        raise LoudFailureError(f"Output file was not created: {output_path}")
+    
+    file_size = os.path.getsize(output_path)
+    if file_size == 0:
+        raise LoudFailureError(f"Output file is empty: {output_path}")
+    
+    # Verify columns in saved file
+    saved_df = pd.read_csv(output_path)
+    saved_columns = set(saved_df.columns)
+    if not required_columns.issubset(saved_columns):
+        raise LoudFailureError(
+            f"Saved CSV missing required columns. Expected: {required_columns}, "
+            f"Got: {saved_columns}"
+        )
+    
     return output_path
 
 def main():
     """
-    Main entry point for drift scoring and export.
-    Loads centroids, processes logs (from a pre-existing source or passed in),
-    and exports results.
+    Main entry point for drift scoring pipeline.
+    Loads centroids, processes logs, and exports results.
     """
-    print("Starting Drift Scoring Pipeline...")
+    print("Starting drift scoring pipeline...")
     
-    # 1. Load Centroids
-    try:
-        centroids = load_centroids()
-        print(f"Loaded {centroids.shape[0]} centroids.")
-    except Exception as e:
-        print(f"Error loading centroids: {e}")
-        sys.exit(1)
+    # Load centroids
+    print("Loading taxonomy centroids...")
+    centroids = load_centroids()
+    print(f"Loaded {len(centroids)} centroids")
     
-    # 2. Load Logs (Placeholder for actual data loading logic)
-    # In a real pipeline, this would come from T005a/T005c or similar
-    # For this task implementation, we assume logs are available in memory or 
-    # a standard location. We'll simulate a load from a test file if it exists,
-    # or just print that processing is ready.
-    # Note: T017 specifically asks for export_results implementation.
-    # We assume the caller (e.g., main.py) provides the 'logs' list.
+    # Load logs from test fixture (for demonstration)
+    # In a real scenario, this would load from raw data
+    logs_path = get_path("data", "test", "test_static_logs.json")
+    if not os.path.exists(logs_path):
+        # Try alternative path
+        logs_path = get_path("data", "test", "real_ground_truth_fixture.json")
     
-    # For demonstration of the export function, we'll create a dummy result set
-    # if no real logs are provided in this specific context, 
-    # BUT the function export_results itself is fully implemented to handle real data.
-    # The actual pipeline flow is: load -> process -> export.
+    if not os.path.exists(logs_path):
+        raise LoudFailureError(f"Log file not found: {logs_path}")
     
-    # Since T017 is about implementing export_results, we ensure it works.
-    # We will not generate fake data here to avoid violating "Real data only" 
-    # unless a real input file is detected.
+    print(f"Loading logs from {logs_path}...")
+    logs = load_json_file(logs_path)
+    print(f"Loaded {len(logs)} logs")
     
-    # Check for a standard processed input file if available (e.g. from T005c)
-    input_logs_path = get_path("test_static_logs")
-    logs = []
+    # Process logs
+    print("Processing logs...")
+    results = batch_process_logs(logs, centroids)
+    print(f"Processed {len(results)} logs")
     
-    if os.path.exists(input_logs_path):
-        print(f"Loading logs from {input_logs_path}...")
-        logs = load_json_file(input_logs_path)
-        if not logs:
-            print("Warning: Log file is empty.")
-    else:
-        print(f"Warning: No input logs found at {input_logs_path}. Skipping processing.")
+    # Export results
+    print("Exporting results...")
+    output_path = export_results(results)
+    print(f"Results exported to {output_path}")
     
-    if logs:
-        print(f"Processing {len(logs)} logs...")
-        results = batch_process_logs(logs, centroids)
-        
-        if results:
-            print(f"Exporting results to {get_path('drift_scores_output')}...")
-            try:
-                output_file = export_results(results)
-                print(f"Successfully exported to {output_file}")
-                print(f"Sample output:\n{pd.read_csv(output_file).head()}")
-            except Exception as e:
-                print(f"Error exporting results: {e}")
-                sys.exit(1)
-        else:
-            print("No results to export.")
-    else:
-        print("No logs to process. Ensure T005c (test_static_logs) or data loader is run first.")
+    # Summary
+    df = pd.read_csv(output_path)
+    print(f"\nSummary statistics:")
+    print(f"  Total logs: {len(df)}")
+    print(f"  Mean drift score: {df['drift_score'].mean():.4f}")
+    print(f"  Std drift score: {df['drift_score'].std():.4f}")
+    print(f"  Logs flagged for review: {df['review_flag'].sum()}")
+    
+    return output_path
 
 if __name__ == "__main__":
     main()

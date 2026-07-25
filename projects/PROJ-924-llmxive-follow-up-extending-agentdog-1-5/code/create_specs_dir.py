@@ -1,42 +1,47 @@
-"""
-Script to create the `specs/` directory for the project.
-This task (T001f) ensures the directory structure for specification documents exists.
-"""
 import os
 from pathlib import Path
+from typing import Optional
 
-def ensure_specs_directory():
+from config import get_path, ensure_directories
+
+def ensure_specs_directory(base_path: Optional[str] = None) -> bool:
     """
-    Creates the `specs/` directory if it does not already exist.
-    Returns the Path object of the created/existing directory.
+    Ensure the 'specs' directory exists under the project root.
+
+    Args:
+        base_path: Optional override for the project root path.
+                   If None, uses the path defined in config.
+
+    Returns:
+        True if the directory was successfully created or already exists.
+        Raises an exception if creation fails.
     """
-    # Define the project root relative to this script's location or use a standard base
-    # Assuming the script is run from the project root or the path is constructed correctly
-    project_root = Path(__file__).resolve().parent.parent
+    project_root = get_path(base_path)
     specs_dir = project_root / "specs"
 
-    if not specs_dir.exists():
-        specs_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {specs_dir}")
-    else:
-        print(f"Directory already exists: {specs_dir}")
+    # Use the shared ensure_directories helper to create the path
+    # This will raise an error if creation fails
+    ensure_directories([specs_dir])
 
-    return specs_dir
+    return True
 
-def main():
-    """Main entry point for T001f."""
+def main() -> int:
+    """
+    Main entry point for the script.
+    Creates the specs directory and verifies its existence.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
     try:
-        specs_path = ensure_specs_directory()
-        # Verify creation
-        if specs_path.exists() and specs_path.is_dir():
-            print(f"Success: {specs_path} is ready.")
-            return 0
-        else:
-            print(f"Error: Failed to create or verify {specs_path}")
-            return 1
+        print("Creating specs directory...")
+        ensure_specs_directory()
+        print("Specs directory created successfully.")
+        return 0
     except Exception as e:
-        print(f"Error during directory creation: {e}")
+        print(f"Error creating specs directory: {e}")
         return 1
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

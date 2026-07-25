@@ -1,63 +1,48 @@
-# Ruff Configuration for llmXive Project
-# Linter rules and settings
+# Ruff configuration for llmXive project
+# Linting rules and settings
+
 [lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM"]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "RUF", # Ruff-specific rules
+]
 ignore = [
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D105", # Missing docstring in magic method
-  "D107", # Missing docstring in __init__
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+# Allow autofix for all enabled rules (if possible)
+fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few specific files from linting.
+# Exclude a few files/directories
 exclude = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".git-rewrite",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".pytype",
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
+    ".git",
+    "__pycache__",
+    ".tox",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+    "data",
 ]
 
-# Same as `--line-length`.
-line-length = 100
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# Same as Black
+line-length = 88
+target-version = "py311"
 
 [lint.per-file-ignores]
-"tests/*" = ["D101", "D102", "D103"]
-"code/*" = ["D103"]
+# Ignore specific rules for test files if needed
+"tests/*" = ["S101"] # Allow assert in tests
 
-[format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
-
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2

@@ -1,24 +1,48 @@
 # llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection
 
+## Project Documentation
+
+This directory contains documentation for the llmXive Drift Detection pipeline.
+
+### Contents
+
+- **README.md**: This file, providing an overview of the project structure and documentation organization.
+- **quickstart.md**: (To be created in T043a) Step-by-step guide for running the drift detection pipeline.
+- **data-model.md**: (To be created in T043b) Specification of data schemas and field definitions.
+- **api.md**: (Future) API reference for the core modules.
+
 ## Overview
 
-This directory contains documentation for the llmXive project, which extends the AgentDoG 1.5 framework with zero-shot drift detection capabilities.
+This project implements a zero-shot drift detection system to identify novel attack patterns in LLM interaction logs by comparing them against a known taxonomy of safety categories.
 
-## Documentation Structure
+### Key Features
 
-- `README.md`: This file, providing an overview of the project documentation.
-- `quickstart.md`: (To be created) A guide for getting started with the drift detection pipeline.
-- `data-model.md`: (To be created) Documentation of the data models and schemas used.
-- `api.md`: (To be created) API reference for the code modules.
+- **Zero-Shot Drift Scoring**: Computes cosine distances between log embeddings and taxonomy centroids.
+- **Human-in-the-Loop Validation**: Stratifies logs for human annotation to validate drift scores.
+- **Baseline Comparison**: Compares drift detection performance against a local zero-shot LLM classifier.
+
+## Directory Structure
+
+```
+projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/
+├── code/ # Source code modules
+├── data/
+│ ├── raw/ # Raw downloaded datasets
+│ ├── processed/ # Processed data and results
+│ └── test/ # Test fixtures and static logs
+├── docs/ # This directory: project documentation
+├── specs/ # Design documents and requirements
+└── tests/ # Unit and integration tests
+```
 
 ## Getting Started
 
-Refer to the `quickstart.md` guide for instructions on setting up the environment and running the drift detection pipeline.
+1. Ensure all prerequisites are installed (see `requirements.txt`).
+2. Configure the project using `code/config.py`.
+3. Run the full pipeline with `python code/run_full_pipeline.py`.
 
-## Contributing
-
-Please refer to the main project repository for contribution guidelines.
+For detailed instructions, see `quickstart.md` (coming soon).
 
 ## License
 
-This project is licensed under the terms specified in the main repository.
+[Project License Placeholder]

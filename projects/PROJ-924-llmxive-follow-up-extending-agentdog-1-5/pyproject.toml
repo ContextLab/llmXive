@@ -3,15 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-drift-detection"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Zero-shot drift detection for LLM safety logs"
-readme = "README.md"
+description = "llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Team"}
-]
 dependencies = [
     "sentence-transformers",
     "scikit-learn",
@@ -23,40 +18,55 @@ dependencies = [
     "pytest",
     "transformers",
     "accelerate",
-    "openai",
-    "ruff",
-    "black"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.mypy_cache
-    | \.venv
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
 )/
 '''
 
+[tool.ruff]
+# Configuration is in .ruff.toml, but we include basic settings here for compatibility
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".tox",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+    "data",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --strict-markers"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: unit tests",
-    "integration: integration tests",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
 ]
 
-[tool.ruff]
-# Explicitly point to the .ruff.toml if needed, though usually auto-discovered.
-# The configuration is primarily in .ruff.toml, but this ensures pyproject.toml
-# acts as the entry point for tool discovery.
-extend = ".ruff.toml"
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+exclude = ["tests*", "data*", "docs*", "specs*"]

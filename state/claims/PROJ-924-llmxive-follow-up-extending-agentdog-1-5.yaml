@@ -667,3 +667,178 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T23:30:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: specification requires statistical validation and contract tests
+  claim_id: c_80e7803d
+  context: 'Tests: The specification explicitly requires statistical validation and
+    contract tests.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specification_requires_statistical_validation_and_contract_t
+  kind: entity_fact
+  raw_text: The specification explicitly requires statistical validation and contract
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:03:45Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift score formula 1 minus cosine similarity of L2 normalized vectors
+  claim_id: c_fc430c06
+  context: 'Implement compute_cosine_distance function... using the formula: 1 - cosine_similarity(L2_normalized_vectors)
+    to guarantee max distance of 2.0 for orthogonal vectors'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses the formula 1 - cosine_similarity(L2_normalized_vectors)
+    to calculate minimum cosine distance to centroids.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:03:52Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: empty logs assigned drift score 2.0
+  claim_id: c_68e2e47b
+  context: Unit test for empty/whitespace log handling... asserting result['drift_score']
+    == 2.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empty logs are explicitly assigned a Drift Score of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:03:58Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: centroid embeddings generated using all-MiniLM-L6-v2 model
+  claim_id: c_1a0f0091
+  context: Implement taxonomy_builder.py... to generate centroid embeddings using
+    all-MiniLM-L6-v2
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_generated_using_all-MiniLM-L6-v2_model
+  kind: entity_fact
+  raw_text: Centroid embeddings are generated using the 'all-MiniLM-L6-v2' model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:06Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: system enforces strict peak RAM limit of 7GB
+  claim_id: c_b76a6d27
+  context: Implement runtime memory monitoring logic... to enforce a strict peak RAM
+    limit of < 7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_enforces_strict_peak_RAM_limit_of_7GB
+  kind: entity_fact
+  raw_text: The system enforces a strict peak RAM limit of < 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:18Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: OWASP Top LLM taxonomy downloaded from OWASP/Top-LLM Hugging Face dataset
+  claim_id: c_8f309e8c
+  context: Implement fetch_taxonomy function... to download the OWASP Top LLM taxonomy
+    from Hugging Face dataset OWASP/Top-LLM
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OWASP_Top_LLM_taxonomy_downloaded_from_OWASP/Top-LLM_Hugging
+  kind: entity_fact
+  raw_text: The OWASP Top LLM taxonomy is downloaded from the Hugging Face dataset
+    'OWASP/Top-LLM'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:27Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: baseline comparison uses facebook/bart-large-mnli model
+  claim_id: c_d9ae3d7c
+  context: Implement comparison.py... to run a zero-shot LLM classifier using a local
+    CPU-friendly model (facebook/bart-large-mnli)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_comparison_uses_facebook/bart-large-mnli_model
+  kind: entity_fact
+  raw_text: The baseline comparison uses the local CPU-friendly model 'facebook/bart-large-mnli'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:32Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa > 0.6 indicates substantial agreement
+  claim_id: c_282c0c73
+  context: 'Threshold: Kappa > 0.6 indicates substantial agreement. IF Kappa < 0.6,
+    raise a ValueError...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inter-annotator agreement is measured using Cohen's Kappa, where a value
+    > 0.6 indicates substantial agreement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:33Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: flag computationally efficient alternative if AUC difference <= 0.10
+  claim_id: c_72e2b692
+  context: "Add logic to flag 'computationally efficient alternative' if |AUC_drift\
+    \ - AUC_llm| \u2264 0.10"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The 'computationally efficient alternative' is flagged if the absolute\
+    \ difference between Drift Score AUC and LLM AUC is \u2264 0.10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:04:33Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: large-scale log benchmark completes within 30 minutes
+  claim_id: c_906e2435
+  context: "Implement benchmark_performance.py... to run a large-scale log benchmark\
+    \ and assert completion time \u2264 30 minutes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The large-scale log benchmark must complete within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T14:09:46Z'
