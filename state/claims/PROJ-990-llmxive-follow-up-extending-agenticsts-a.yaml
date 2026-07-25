@@ -793,3 +793,382 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-22T19:08:35Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: Total runtime is 125000 ms
+  claim_id: c_d2f7e98b
+  context: Summary section listing total runtime metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Runtime: 125000 ms'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:35:07Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: Slowest phase duration is 75000 ms
+  claim_id: c_0d17d946
+  context: Summary section identifying the slowest phase and its duration.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slowest_phase_duration_is_75000_ms
+  kind: magnitude
+  raw_text: 'Slowest Phase Duration: 75000 ms'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:35:35Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: Slowest phase accounts for 60.0% of total runtime
+  claim_id: c_084ca715
+  context: Summary section stating the percentage of total runtime for the slowest
+    phase.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slowest_phase_accounts_for_60.0%25_of_total_runtime
+  kind: magnitude
+  raw_text: 'Percentage of Total Runtime: 60.0%'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:36:24Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: parser phase runtime is 15000 ms
+  claim_id: c_37fd080e
+  context: Phase Breakdown table listing runtime for the parser phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parser runtime is 15000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:37:03Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: splitter phase runtime is 5000 ms
+  claim_id: c_a38de7dc
+  context: Phase Breakdown table listing runtime for the splitter phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: splitter runtime is 5000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:38:08Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: ablation phase runtime is 75000 ms
+  claim_id: c_e5201c3d
+  context: Phase Breakdown table listing runtime for the ablation phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ablation runtime is 75000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:38:45Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: classifier phase runtime is 8000 ms
+  claim_id: c_870d3604
+  context: Phase Breakdown table listing runtime for the classifier phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: classifier runtime is 8000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:39:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: simulation phase runtime is 18000 ms
+  claim_id: c_33a1f19e
+  context: Phase Breakdown table listing runtime for the simulation phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulation runtime is 18000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:39:59Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/data/processed/optimization_report.md
+  attempts: 1
+  canonical: stats phase runtime is 4000 ms
+  claim_id: c_3aaeaf6a
+  context: Phase Breakdown table listing runtime for the stats phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stats runtime is 4000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:40:19Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: TOKEN_BUDGET set to 4096, MIN_CONTEXT set to 256, K_RANDOM_BASELINE set
+    to 2
+  claim_id: c_3042e692
+  context: T004 Implement code/config.py for paths, seeds, and hyperparameters. Define
+    TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as explicit constants
+    loaded from config or env vars.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as
+    explicit constants loaded from config or env vars.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:45:33Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Shannon entropy calculated as negative sum of p_i log(p_i)
+  claim_id: c_db6b080a
+  context: 'T006 [P] Implement code/parser.py... Logic: Parse the legal_moves array
+    to reconstruct the available move set, calculate Shannon entropy H = -sum p_i
+    log(p_i) where p_i = 1/|legal_moves|, and write to CSV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Shannon entropy H = -sum p_i log(p_i) where p_i = 1/|legal_moves|.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:46:07Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Fallback flag generated if sample count n is less than 300
+  claim_id: c_97fd1b17
+  context: 'T008c [US1] Implement code/validator.py to check sample count. Logic:
+    If n < 300 (where n is the count of rows in ablation_labels_train.json), MUST
+    log a WARNING... and generate data/processed/fallback_flag.json with content {"fallback":
+    true, "reason": "n < 300 or low variance"}.'
+  evidence:
+    entailment_evidence: Fallback flag generated if sample count n is less than 300
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_flag_generated_if_sample_count_n_is_less_than_300
+  kind: magnitude
+  raw_text: 'If n < 300, log a WARNING... and generate data/processed/fallback_flag.json
+    with content {"fallback": true, "reason": "n < 300 or low variance"}.'
+  resolved_value: Fallback flag generated if sample count n is less than 300
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T03:46:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pearson correlation between static log proxy and ablation utility must
+    be at least 0.7
+  claim_id: c_37aceba4
+  context: T014 [US1] Implement proxy validation logic in code/classifier.py... 4.
+    Check Pearson correlation (>= 0.7) between static log proxy (T007c, candidate
+    proxy) and ablation utility (T008b, ground truth) on the Validation set.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_static_log_proxy_and_ablation_ut
+  kind: magnitude
+  raw_text: Check Pearson correlation (>= 0.7) between static log proxy and ablation
+    utility on the Validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:46:36Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token budget enforced at 4096 tokens with truncation
+  claim_id: c_ab1b3e39
+  context: 'T016 [US1] Add logic to enforce a hard token budget... 1. Maximum Budget:
+    If predicted token count > 4096, truncate or prune the least useful layers until
+    the prompt size is <= 4096.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If predicted token count > 4096, truncate or prune the least useful layers
+    until the prompt size is <= 4096.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:47:31Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Minimum context floor enforced at 256 tokens
+  claim_id: c_8ccd6d6d
+  context: 'T016 [US1] Add logic to enforce a hard token budget... 2. Minimum Floor:
+    If the selected layers result in a token count < 256 tokens, append the ''Current
+    Objective'' layer to enforce the minimum context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_context_floor_enforced_at_256_tokens
+  kind: causal
+  raw_text: If the selected layers result in a token count < 256 tokens, append the
+    'Current Objective' layer to enforce the minimum context.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:47:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Random baseline k value set to 2
+  claim_id: c_acba1860
+  context: 'T020 [US2] Implement "No-Store Random" baseline execution... Logic: Select
+    k layers uniformly at random for each turn with NO memory of past layers (no-store).
+    k is defined as config.K_RANDOM_BASELINE (default 2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_baseline_k_value_set_to_2
+  kind: entity_fact
+  raw_text: k is defined as config.K_RANDOM_BASELINE (default 2) for the No-Store
+    Random baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:48:15Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction verification requires at least 30% reduction
+  claim_id: c_e4f36c49
+  context: 'T022a [US2] Implement verification logic to calculate percentage reduction
+    in token usage... Output: Generate data/processed/token_reduction_verification.json
+    containing a boolean field passed (true if reduction >= 30%) and a numeric field
+    actual_reduction_percent.'
+  evidence:
+    candidates:
+    - - ''
+      - 30.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Token_reduction_verification_requires_at_least_30%25_reduction
+  kind: magnitude
+  raw_text: Generate data/processed/token_reduction_verification.json containing a
+    boolean field passed (true if reduction >= 30%) and a numeric field actual_reduction_percent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-25T03:49:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: 'Optimization strategy: cache engine calls or use numpy vectorization'
+  claim_id: c_be7cebac
+  context: 'T031c [P] Refactor code if needed... Optimization Targets: Vectorize loops,
+    cache engine calls. Decision Tree: If engine calls dominate, cache results; if
+    loops dominate, use numpy vectorization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimization_strategy:_cache_engine_calls_or_use_numpy_vecto
+  kind: entity_fact
+  raw_text: If engine calls dominate, cache results; if loops dominate, use numpy
+    vectorization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:50:00Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage must be less than 7GB on 1GB file with stream mode
+  claim_id: c_464b5529
+  context: 'T039 [P] Add a --stream flag to code/parser.py... Verification: Verify
+    memory usage < 7GB with --stream on a 1GB file.'
+  evidence:
+    candidates:
+    - - Log in Memory usage must be less than
+      - 7.0
+    - - Memory usage must be less than 7GB on
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_less_than_7GB_on_1GB_file_with_stream_m
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-25T03:51:06Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if engine error rate exceeds 5%
+  claim_id: c_6c44ca09
+  context: T038 [P] Add robust error handling for the engine runner... Log the specific
+    error type and trajectory ID to data/processed/engine_errors.log and fail the
+    pipeline (exit code 1) if the error rate exceeds 5% of the test set, preventing
+    silent data loss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the pipeline (exit code 1) if the error rate exceeds 5% of the test
+    set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:51:49Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Code refactoring triggered if runtime exceeds 6 hours
+  claim_id: c_9eb55e11
+  context: 'T031c [P] Refactor code if needed. Logic: If optimization_report.md indicates
+    runtime > 6 hours, refactor code to reduce runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code to reduce runtime if optimization_report.md indicates runtime
+    > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:51:49Z'

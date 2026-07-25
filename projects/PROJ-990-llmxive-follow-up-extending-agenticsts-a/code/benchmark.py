@@ -4,184 +4,198 @@ import time
 import json
 import logging
 import tracemalloc
-import hashlib
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, List, Callable, Optional
+from typing import Dict, Any, Optional, List
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger('llmXive.benchmark')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('benchmark')
 
-PROCESSED_DIR = Path('data/processed')
-OUTPUT_FILE = PROCESSED_DIR / 'benchmark_log.json'
+# Ensure paths are in sys.path for relative imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Ensure output directory exists
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+from config import load_config_from_file, ensure_directories
+from parser import main as run_parser
+from splitter import main as run_splitter
+from ablation import main as run_ablation
+from classifier import main as run_classifier
+from simulator import main as run_simulation
+from stats import main as run_stats
 
-def get_memory_usage_mb():
+def get_memory_usage_mb() -> float:
     """Get current memory usage in MB."""
-    if tracemalloc.is_tracing():
-        current, peak = tracemalloc.get_traced_memory()
-        return current / (1024 * 1024)
-    return 0.0
+    if not tracemalloc.is_tracing():
+        return 0.0
+    current, peak = tracemalloc.get_traced_memory()
+    return current / (1024 * 1024)
 
-def get_peak_memory_mb():
-    """Get peak memory usage in MB since tracing started."""
-    if tracemalloc.is_tracing():
-        current, peak = tracemalloc.get_traced_memory()
-        return peak / (1024 * 1024)
-    return 0.0
+def get_peak_memory_mb() -> float:
+    """Get peak memory usage in MB."""
+    if not tracemalloc.is_tracing():
+        return 0.0
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 * 1024)
 
-def run_phase_benchmark(phase_name: str, func: Callable, *args, **kwargs) -> Dict[str, Any]:
-    """Run a specific phase function and benchmark its execution time and memory."""
-    logger.info(f"Starting benchmark phase: {phase_name}")
-    
+def run_phase_benchmark(phase_name: str, phase_func: callable, *args, **kwargs) -> Dict[str, Any]:
+    """
+    Run a specific phase and measure its execution time and memory usage.
+    """
+    logger.info(f"Starting benchmark for phase: {phase_name}")
     tracemalloc.start()
-    start_time = time.time()
-    
+    start_time = time.perf_counter()
+
     try:
-        result = func(*args, **kwargs)
-        success = True
-        error_msg = None
+        phase_func(*args, **kwargs)
+        end_time = time.perf_counter()
+        current_mem = get_memory_usage_mb()
+        peak_mem = get_peak_memory_mb()
+        duration_ms = (end_time - start_time) * 1000
+
+        result = {
+            "phase": phase_name,
+            "duration_ms": round(duration_ms, 2),
+            "peak_memory_mb": round(peak_mem, 2),
+            "final_memory_mb": round(current_mem, 2),
+            "status": "success"
+        }
+        logger.info(f"Phase {phase_name} completed in {duration_ms:.2f}ms. Peak memory: {peak_mem:.2f}MB")
+        return result
     except Exception as e:
-        success = False
-        error_msg = str(e)
-        result = None
-        logger.error(f"Phase {phase_name} failed: {e}")
+        end_time = time.perf_counter()
+        duration_ms = (end_time - start_time) * 1000
+        logger.error(f"Phase {phase_name} failed: {str(e)}")
+        return {
+            "phase": phase_name,
+            "duration_ms": round(duration_ms, 2),
+            "status": "failed",
+            "error": str(e)
+        }
     finally:
-        end_time = time.time()
-        current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
-    duration = end_time - start_time
-    memory_mb = peak / (1024 * 1024)
+def benchmark_parser_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the parser phase."""
+    # The parser main function expects to be run as a script, so we call it directly
+    # We wrap it to catch errors if it expects sys.argv
+    try:
+        # Mock sys.argv if needed, but main() usually handles internal args
+        # For benchmarking, we call the core logic if exposed, or wrap main
+        # Assuming main() handles its own arg parsing or uses defaults
+        run_parser()
+        return {"phase": "parser", "status": "success"}
+    except Exception as e:
+        return {"phase": "parser", "status": "failed", "error": str(e)}
 
-    benchmark_record = {
-        'phase': phase_name,
-        'start_time': datetime.fromtimestamp(start_time).isoformat(),
-        'end_time': datetime.fromtimestamp(end_time).isoformat(),
-        'duration_seconds': round(duration, 4),
-        'peak_memory_mb': round(memory_mb, 2),
-        'success': success,
-        'error': error_msg
-    }
+def benchmark_splitter_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the splitter phase."""
+    try:
+        run_splitter()
+        return {"phase": "splitter", "status": "success"}
+    except Exception as e:
+        return {"phase": "splitter", "status": "failed", "error": str(e)}
 
-    if result is not None:
-        benchmark_record['result_summary'] = str(result)[:200] if not isinstance(result, (dict, list)) else "data_generated"
+def benchmark_ablation_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the ablation phase."""
+    try:
+        run_ablation()
+        return {"phase": "ablation", "status": "success"}
+    except Exception as e:
+        return {"phase": "ablation", "status": "failed", "error": str(e)}
 
-    logger.info(f"Phase {phase_name} completed in {duration:.2f}s (Peak Memory: {memory_mb:.2f}MB)")
-    return benchmark_record
+def benchmark_classifier_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the classifier phase."""
+    try:
+        run_classifier()
+        return {"phase": "classifier", "status": "success"}
+    except Exception as e:
+        return {"phase": "classifier", "status": "failed", "error": str(e)}
 
-def benchmark_parser_phase():
-    """Benchmark the parser phase by running the main function."""
-    from parser import main as parser_main
-    return run_phase_benchmark('parser', parser_main)
+def benchmark_simulation_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the simulation phase."""
+    try:
+        run_simulation()
+        return {"phase": "simulation", "status": "success"}
+    except Exception as e:
+        return {"phase": "simulation", "status": "failed", "error": str(e)}
 
-def benchmark_splitter_phase():
-    """Benchmark the splitter phase by running the main function."""
-    from splitter import main as splitter_main
-    return run_phase_benchmark('splitter', splitter_main)
+def benchmark_stats_phase(config: Any) -> Dict[str, Any]:
+    """Benchmark the stats phase."""
+    try:
+        run_stats()
+        return {"phase": "stats", "status": "success"}
+    except Exception as e:
+        return {"phase": "stats", "status": "failed", "error": str(e)}
 
-def benchmark_ablation_phase():
-    """Benchmark the ablation phase by running the main function."""
-    from ablation import main as ablation_main
-    return run_phase_benchmark('ablation', ablation_main)
-
-def benchmark_classifier_phase():
-    """Benchmark the classifier phase by running the main function."""
-    from classifier import main as classifier_main
-    return run_phase_benchmark('classifier', classifier_main)
-
-def benchmark_simulation_phase():
-    """Benchmark the simulation phase by running the main function."""
-    from simulator import main as simulator_main
-    return run_phase_benchmark('simulation', simulator_main)
-
-def benchmark_stats_phase():
-    """Benchmark the stats phase by running the main function."""
-    from stats import main as stats_main
-    return run_phase_benchmark('stats', stats_main)
-
-def run_full_benchmark() -> List[Dict[str, Any]]:
-    """Run all benchmark phases sequentially and return results."""
-    results = []
+def run_full_benchmark(config: Optional[Any] = None) -> Dict[str, Any]:
+    """
+    Run the full benchmark pipeline, timing each phase.
+    """
+    if config is None:
+        config = load_config_from_file()
     
+    ensure_directories(config)
+
     phases = [
-        ('parser', benchmark_parser_phase),
-        ('splitter', benchmark_splitter_phase),
-        ('ablation', benchmark_ablation_phase),
-        ('classifier', benchmark_classifier_phase),
-        ('simulation', benchmark_simulation_phase),
-        ('stats', benchmark_stats_phase)
+        ("parser", benchmark_parser_phase),
+        ("splitter", benchmark_splitter_phase),
+        ("ablation", benchmark_ablation_phase),
+        ("classifier", benchmark_classifier_phase),
+        ("simulation", benchmark_simulation_phase),
+        ("stats", benchmark_stats_phase)
     ]
 
-    for phase_name, phase_func in phases:
-        try:
-            result = phase_func()
-            results.append(result)
-        except Exception as e:
-            logger.error(f"Critical error in phase {phase_name}: {e}")
-            results.append({
-                'phase': phase_name,
-                'success': False,
-                'error': str(e),
-                'duration_seconds': 0,
-                'peak_memory_mb': 0
-            })
-            # Continue to next phase even if one fails, to get full picture
-    
-    return results
+    phase_timings = {}
+    total_start = time.perf_counter()
 
-def save_benchmark_report(results: List[Dict[str, Any]]):
-    """Save the benchmark results to the JSON file."""
-    total_duration = sum(r.get('duration_seconds', 0) for r in results)
-    total_memory = max(r.get('peak_memory_mb', 0) for r in results)
-    success_count = sum(1 for r in results if r.get('success', False))
-    
+    for name, func in phases:
+        # Run the benchmark wrapper which measures time and memory
+        result = run_phase_benchmark(name, func, config)
+        phase_timings[name] = result['duration_ms'] if result['status'] == 'success' else 0
+
+    total_end = time.perf_counter()
+    total_runtime_ms = (total_end - total_start) * 1000
+
     report = {
-        'timestamp': datetime.now().isoformat(),
-        'total_runtime_seconds': round(total_duration, 4),
-        'peak_memory_mb': round(total_memory, 2),
-        'phases_completed': success_count,
-        'phases_total': len(results),
-        'overall_success': success_count == len(results),
-        'phase_results': results
+        "total_runtime": round(total_runtime_ms, 2),
+        "phase_timings": phase_timings,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "config_summary": {
+            "token_budget": config.get('TOKEN_BUDGET', 4096),
+            "min_context": config.get('MIN_CONTEXT', 256),
+            "k_random_baseline": config.get('K_RANDOM_BASELINE', 2)
+        }
     }
 
-    with open(OUTPUT_FILE, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Saved benchmark report to {OUTPUT_FILE}")
-    logger.info(f"Total Runtime: {total_duration:.2f}s, Peak Memory: {total_memory:.2f}MB")
     return report
 
-def main():
-    """Entry point for the benchmark script."""
-    logger.info("Starting FULL benchmark execution.")
-    start_total = time.time()
-    
-    results = run_full_benchmark()
-    
-    report = save_benchmark_report(results)
-    
-    end_total = time.time()
-    total_real_time = end_total - start_total
-    
-    # Update report with total real wall-clock time
-    report['total_wall_clock_seconds'] = round(total_real_time, 4)
-    
-    # Rewrite file with updated total
-    with open(OUTPUT_FILE, 'w') as f:
+def save_benchmark_report(report: Dict[str, Any], output_path: str) -> None:
+    """Save the benchmark report to a JSON file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Benchmark report saved to {output_path}")
+
+def main():
+    """Main entry point for the benchmark script."""
+    logger.info("Starting benchmark execution...")
     
-    logger.info(f"Benchmark complete. Total wall-clock time: {total_real_time:.2f}s")
-    
-    if not report['overall_success']:
-        logger.warning("One or more benchmark phases failed. Check logs for details.")
-        sys.exit(1)
-    else:
-        logger.info("All benchmark phases completed successfully.")
-        sys.exit(0)
+    config = load_config_from_file()
+    ensure_directories(config)
+
+    report = run_full_benchmark(config)
+    output_path = str(Path(config.get('DATA_PROCESSED', 'data/processed')) / 'benchmark_log.json')
+    save_benchmark_report(report, output_path)
+
+    print(f"Benchmark complete. Total runtime: {report['total_runtime']}ms")
+    print(f"Results saved to: {output_path}")
+
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

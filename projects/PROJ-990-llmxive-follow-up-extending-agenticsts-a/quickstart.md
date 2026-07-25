@@ -1,190 +1,119 @@
 # llmXive Quickstart Guide
 
-## Overview
-
-This guide walks through the complete execution of the llmXive automated science pipeline
-for the AgenticSTS follow-up project.
+This guide provides the commands to run the full AgenticSTS pipeline for the follow-up project.
 
 ## Prerequisites
 
 - Python 3.11+
-- pip dependencies installed (see `requirements.txt`)
-- Project structure initialized (T001)
+- Dependencies installed via `pip install -r requirements.txt`
+- Raw trajectory data in `data/raw/` (JSON/JSONL format)
 
-## Installation
+## Execution Steps
 
-```bash
-pip install -r requirements.txt
-```
+The pipeline is executed in phases. Run the following commands in order.
 
-## Execution
+### Phase 1: Setup & Data Processing
 
-Run the full pipeline:
+1. **Parse Trajectories** (T006)
+ ```bash
+ python code/parser.py
+ ```
+ *Output*: `data/processed/metrics_with_moves.csv`
 
-8. **Run Simulations (Dynamic, Static, Random)**
+2. **Calculate Entropy** (T005)
+ ```bash
+ python code/entropy.py
+ ```
+ *Output*: `data/processed/edge_case_warnings.log` (if applicable)
+
+3. **Split Data** (T014a)
+ ```bash
+ python code/splitter.py
+ ```
+ *Output*: `data/processed/train_set.csv`, `data/processed/test_set.csv`, `data/processed/validation_set_ids.json`
+
+4. **Extract Static Proxy** (T007c)
+ ```bash
+ python code/proxy_extractor.py
+ ```
+ *Output*: `data/processed/static_log_proxy.json`
+
+5. **Run Ablation Study** (T008)
+ ```bash
+ python code/ablation.py
+ ```
+ *Output*: `data/processed/ablation_labels_train.json`, `data/processed/ablation_labels_validation.json`
+
+6. **Validate Proxy** (T014)
+ ```bash
+ python code/classifier.py
+ ```
+ *Output*: `data/processed/proxy_validation_report.json`
+
+7. **Train Classifier** (T009)
+ ```bash
+ python code/classifier.py --train
+ ```
+ *Output*: `models/layer_utility_classifier.pkl`
+
+### Phase 2: Simulation & Baselines
+
+8. **Run Dynamic Simulation** (T017)
  ```bash
  python code/simulator.py --policy dynamic
- python code/simulator.py --policy static
- python code/simulator.py --policy random
  ```
- *Output*: `data/processed/simulation_logs_dynamic.json`, `data/processed/simulation_logs_static.json`, `data/processed/simulation_logs_random.json`
+ *Output*: `data/processed/simulation_logs_dynamic.json`
 
-9. **Aggregate Baseline Comparisons**
+9. **Run Static Baseline** (T019)
  ```bash
- python code/stats.py --aggregate
+ python code/baseline_static_runner.py
+ ```
+ *Output*: `data/processed/simulation_logs_static.json`
+
+10. **Run Random Baseline** (T020)
+ ```bash
+ python code/engine_runner.py --policy random
+ ```
+ *Output*: `data/processed/simulation_logs_random.json`
+
+### Phase 3: Analysis
+
+11. **Aggregate Stats** (T021)
+ ```bash
+ python code/stats.py
  ```
  *Output*: `data/processed/baseline_comparison.csv`
 
-10. **Verify Token Reduction**
+12. **Token Reduction Verification** (T022a)
  ```bash
  python code/token_reduction_verifier.py
  ```
  *Output*: `data/processed/token_reduction_verification.json`
 
-11. **Check Token Consistency**
- ```bash
- python code/token_consistency_checker.py
- ```
- *Output*: `data/processed/token_consistency_report.json`
-
-12. **Detect Trajectory Divergence**
- ```bash
- python code/stats.py --detect-divergence
- ```
- *Output*: `data/processed/divergence_report.json`
-
-13. **Run Statistical Tests**
+13. **Statistical Testing** (T025)
  ```bash
  python code/stats.py --test
  ```
  *Output*: `data/processed/statistical_results.json`
 
-14. **Generate Final Statistical Report**
+14. **Generate Final Report** (T028)
  ```bash
  python code/generate_statistical_report.py
  ```
- *Output*: `data/processed/statistical_results.json` (updated)
+ *Output*: `data/processed/statistical_results.json` (finalized)
 
-15. **Generate Analysis Config Snapshot (Reproducibility)**
- ```bash
- python code/generate_analysis_config.py
- ```
- *Output*: `data/processed/analysis_config.json`
+## Full Pipeline Run
 
-16. **Run Benchmark**
- ```bash
- python code/benchmark.py
- ```
- *Output*: `data/processed/benchmark_log.json`
+To run the entire pipeline sequentially (excluding manual checks):
 
-17. **Generate Optimization Report**
- ```bash
- python code/optimization_report.py
- ```
- *Output*: `data/processed/optimization_report.md`
-
-## Full Pipeline Execution
-
-Alternatively, run the entire pipeline with a single command:
 ```bash
 python code/main.py
 ```
 
-This will execute all phases in order:
-1. **Phase 1**: Setup (already completed)
-2. **Phase 2**: Foundational (data parsing, splitting, ablation, validation)
-3. **Phase 3**: User Stories 1 & 2 (Dynamic policy, baselines, aggregation)
-4. **Phase 4**: Statistical Significance Reporting
-5. **Polish**: Documentation and cleanup
-
-## Individual Task Execution
-
-If you need to run specific tasks independently:
-
-### Data Processing
-```bash
-# Parse trajectories
-python code/parser.py
-
-# Split data
-python code/splitter.py
-
-# Calculate entropy
-python code/entropy.py
-```
-
-### Ablation & Validation
-```bash
-# Run ablation study
-python code/ablation.py
-
-# Validate proxy correlation
-python code/classifier.py
-```
-
-### Simulation & Baselines
-```bash
-# Run dynamic simulation
-python code/simulator.py --policy dynamic
-
-# Run static baseline
-python code/baseline_static_runner.py
-
-# Run random baseline
-python code/simulator.py --policy random
-```
-
-### Aggregation & Statistics
-```bash
-# Generate baseline comparison
-python code/generate_baseline_comparison.py
-
-# Check token reduction
-python code/token_reduction_verifier.py
-
-# Check token consistency (T023)
-python code/token_consistency_checker.py
-
-# Run statistical tests
-python code/stats.py
-```
-
-### Validation & Reporting
-```bash
-# Generate final statistical report
-python code/generate_statistical_report.py
-
-# Run quickstart validation
-python code/run_quickstart_validation.py
-```
-
-## Output Artifacts
-
-All processed data will be written to `data/processed/`:
-
-- `metrics_with_moves.csv` - Parsed trajectory metrics
-- `train_set.csv`, `validation_set.csv`, `test_set.csv` - Data splits
-- `ablation_labels_*.json` - Ablation study results
-- `simulation_logs_*.json` - Simulation outputs
-- `baseline_comparison.csv` - Aggregated statistics
-- `token_consistency_report.json` - Token savings consistency (T023)
-- `statistical_results.json` - Final statistical analysis
+*Note*: Ensure `data/raw/` contains valid trajectory files before running.
 
 ## Troubleshooting
 
-### Missing Data Files
-Ensure `data/raw/` contains trajectory files (`.json`, `.jsonl`, `.log`).
-
-### Pipeline Failures
-Check `data/processed/edge_case_warnings.log` for specific error details.
-
-### Memory Issues
-Use `--dry-run` flag for a quick validation on a subset:
-```bash
-python code/quickstart_validator.py
-```
-
-## Next Steps
-
-After successful execution, review the final reports in `data/processed/` and
-proceed to Phase 4 (Statistical Significance) if not automatically completed.
+- **Missing Data**: Ensure `data/raw/` is populated with trajectory logs.
+- **Import Errors**: Verify `code/` is in `PYTHONPATH` or run from project root.
+- **Engine Errors**: Check `data/processed/engine_errors.log` for crash details.

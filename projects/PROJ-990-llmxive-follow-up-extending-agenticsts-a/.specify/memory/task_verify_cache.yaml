@@ -1,3 +1,50 @@
+T005:
+  c: false
+  h: 31c7021babaac00013cd15b1081032035b2675037cdbfe2b0dc23635b592f775
+  r: 'The repository lacks the required `data/processed/metrics_with_moves.csv` and
+    the `edge_case_warnings.log` file, so the script cannot be exercised. Moreover,
+    `code/entropy.py` does not detect NaN/Inf results, does not return `float(''inf'')`
+    as a sentinel, and never writes the exact warning text `"Warning: NaN/Inf entropy
+    detected at trajectory {id}, turn {turn}"` to the log. These missing pieces must
+    be added for the task to be considered complete.'
+T006:
+  c: false
+  h: 1d296f52b76707356c15373f8d8b60c7ee61558c5e63af047d7aba45f0763199
+  r: "The required output file `data/processed/metrics_with_moves.csv` does not exist,\
+    \ and the provided `code/parser.py` is incomplete (truncated and lacking logic\
+    \ to compute move entropy and write the specified CSV). Consequently the task\u2019\
+    s core requirement is unmet."
+T014a:
+  c: false
+  h: 4448ebab375abeac5abba24a20b58fabb24d2fd5f348c2d4237fc09bf2a28812
+  r: "The repository contains a partially\u2011written `code/splitter.py` that ends\
+    \ abruptly and never writes the required CSV files or `validation_set_ids.json`.\
+    \ The expected output files (`train_set.csv`, `ablation_train_set.csv`, `validation_set.csv`,\
+    \ `test_set.csv`, `validation_set_ids.json`) are absent from `data/processed/`.\
+    \ Consequently the split is not performed nor saved, violating the task requirements."
+T017:
+  c: false
+  h: 6a5877bb5e84a9a8907d0fb980944d3652974557b1dc9170bfb5c9be4fe952e3
+  r: The required output file `data/processed/simulation_logs_dynamic.json` is missing,
+    so the dynamic simulation was not executed and no logs (including the required
+    mode flag) were produced. The implementer must generate this JSON file with the
+    simulation results.
+T019:
+  c: false
+  h: 033c31af7351e253a1f1bd8e48dbd27e2572a8aea33f27ed9391c74f264bc8d4
+  r: "The required output file `data/processed/simulation_logs_static.json` does not\
+    \ exist, and there is no evidence in the provided `engine_runner.py` (or any shown\
+    \ supporting module) that the static baseline is actually run and writes that\
+    \ file. The implementation only contains a stub delegating to an undefined `baseline_static_runner`,\
+    \ so the task\u2019s output requirement is unmet."
+T020:
+  c: false
+  h: 4f02f54c5961421a4251449f1be74cd70e8136d96f1dbdf161703bc9dbe56380
+  r: "The required output file `data/processed/simulation_logs_random.json` does not\
+    \ exist, and the provided `engine_runner.py` is truncated before completing the\
+    \ random\u2011baseline logic (no evidence that it selects\u202Fk random layers\
+    \ per turn or writes the simulation results). The artifact is missing and the\
+    \ implementation is incomplete."
 T024a:
   c: false
   h: 9a6bc81f657a41ef216583d31b77f7212dbdb90cd370eae73193be62c7a7265f
@@ -20,8 +67,9 @@ T030:
     \ or a report of refactoring changes, the requirement cannot be verified."
 T031:
   c: false
-  h: 48b0bf4c3655b5ac390e54932f223ae06cdb17080fa6010b51cc326361a5935d
-  r: "The provided `code/benchmark.py` exists, but it neither records a total runtime\
-    \ nor has produced the required `data/processed/benchmark_log.json` file. The\
-    \ JSON log is missing, and the script does not aggregate a total execution time,\
-    \ so the task\u2019s specification is not satisfied."
+  h: 408e5fd29105d6b0a56e5162877563b757c6f801da031ba651d7459c428659ac
+  r: "The repository contains a `code/benchmark.py` file, but it does not show any\
+    \ code that writes a JSON file to `data/processed/benchmark_log.json`, nor does\
+    \ it compute a total runtime or produce the exact `{total_runtime, phase_timings:\
+    \ {...}}` schema. Moreover, the expected `benchmark_log.json` file is absent from\
+    \ the `data/processed` directory. The task\u2019s core output is missing."
