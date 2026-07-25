@@ -1,0 +1,51 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `code`,
+    `tests`, `code/contracts`) being created is provided; the implementer did not
+    supply any artifact showing the project structure exists. The task is therefore
+    not satisfied.
+T005:
+  c: false
+  h: 9c36a04d9d39ff7ce11bca8ddcf659aa84845ec70ce698e484d3cb4422c4e155
+  r: "The implementer\u2019s `code/main.py` does contain a Pydantic\u2011based `Config`\
+    \ model and attempts to validate against a schema, but the required file `contracts/config.schema.yaml`\
+    \ is missing from the repository, so the schema\u2011validation step cannot actually\
+    \ be performed. The task is therefore not fully satisfied."
+T009:
+  c: true
+  h: cda04b41f3e2578980ac11835aa7d2025e650f1366c81d9ce8a6742c0d057657
+  r: The `code/exceptions.py` file defines the required `E_NO_DATA` exception, and
+    `code/main.py` implements `validate_data_availability()` that checks for the two
+    CSV files, raises `E_NO_DATA` with the mandated message (including the required
+    phrase) and the main routine logs the error and exits. The necessary artifacts
+    are present and functional.
+T012a:
+  c: false
+  h: fba5bc2a963444c54ba4970b3bbaff05e4f00e796c9725aefbf46bde0505e0c1
+  r: The `code/download_data.py` file is present but the provided excerpt is truncated,
+    so we cannot confirm that it actually downloads the CDC FluView ILI CSV, saves
+    it to `data/raw/fluview_ili.csv`, and logs the URL/retrieval date or performs
+    checksum verification. Moreover, the expected output file `data/raw/fluview_ili.csv`
+    is missing, indicating the script has not been executed or does not produce the
+    required artifact. The implementer must ensure the script contains the full download
+    logic, logging, and (if possible) checksum verification, and that running it creates
+    the `fluview_ili.csv` fil
+T012b:
+  c: false
+  h: 3b20897d5e4f949b578955917ef1b86eab3b31b8ba5ca077f105c44e9ef165ad
+  r: "The repository lacks the required `data/raw/ground_truth_events.csv` file, and\
+    \ the provided `code/download_data.py` does not demonstrably implement fetching\
+    \ a ground\u2011truth CSV with the exact `start_week, end_week, event_name` columns\
+    \ nor raise `E-NO-DATA` on failure. The script is truncated and appears to generate\
+    \ events heuristically rather than download a verified ground\u2011truth file,\
+    \ so the task\u2019s requirements are not met."
+T016:
+  c: false
+  h: 7f2536cc75263b7495a27e0a608028bb8277d87dd335c75d60a080a653d6314a
+  r: "The repository lacks the required `data/raw/ground_truth_events.csv` file, so\
+    \ `evaluate.py` cannot actually load the ground\u2011truth data. Moreover, the\
+    \ script contains no logic to perform the \u201Csource independence\u201D checks\
+    \ (URL whitelist validation and ensuring the file has no ILI columns) that the\
+    \ task explicitly demands. These missing pieces must be added for the task to\
+    \ be considered complete."

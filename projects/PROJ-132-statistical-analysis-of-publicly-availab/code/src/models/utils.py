@@ -1,18 +1,21 @@
 """
-Statistical utilities for the bird migration climate correlation pipeline.
+Statistical utilities for the bird migration analysis pipeline.
 
-This module provides helpers for:
+This module provides helper functions for:
 - Benjamini-Hochberg FDR correction
 - Bootstrapping confidence intervals
 - Permutation tests with early stopping logic
+- Saving permutation results to disk
 """
-
 import numpy as np
 from typing import List, Tuple, Optional, Dict, Any, Callable
 from joblib import Parallel, delayed
 import json
 import os
 from scipy import stats
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
@@ -21,172 +24,217 @@ def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> Tuple[
 
     Args:
         p_values: List of raw p-values from hypothesis tests.
-        alpha: Desired FDR level (default 0.05).
+        alpha: Target FDR level (default 0.05).
 
     Returns:
         A tuple containing:
         - List of booleans indicating which hypotheses are rejected (True = significant).
-        - List of adjusted p-values.
+        - List of adjusted p-values (q-values).
     """
     if not p_values:
         return [], []
 
     n = len(p_values)
+    # Sort p-values while keeping track of original indices
     sorted_indices = np.argsort(p_values)
-    sorted_pvals = np.array([p_values[i] for i in sorted_indices])
+    sorted_p_values = np.array([p_values[i] for i in sorted_indices])
 
-    # Calculate adjusted p-values
-    # BH procedure: p_adj[i] = min(p_adj[i+1], p_raw[i] * n / (i+1))
-    # We compute cumulatively from the largest p-value to ensure monotonicity
-    rank = np.arange(1, n + 1)
-    adjusted = sorted_pvals * n / rank
+    # Calculate BH critical values
+    ranks = np.arange(1, n + 1)
+    critical_values = (ranks / n) * alpha
 
-    # Enforce monotonicity: adjusted p-values must be non-decreasing with rank
-    # We do this by taking the cumulative minimum from the end
-    for i in range(n - 2, -1, -1):
-        adjusted[i] = min(adjusted[i], adjusted[i + 1])
+    # Find the largest k such that p_(k) <= critical_value_(k)
+    # We need to find the maximum index where the condition holds
+    condition = sorted_p_values <= critical_values
+    if not np.any(condition):
+        # No rejections
+        adjusted_p_values = np.minimum.accumulate(1.0 - sorted_p_values[::-1])[::-1]
+        adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
+        return [False] * n, adjusted_p_values.tolist()
 
-    # Ensure no adjusted p-value exceeds 1.0
-    adjusted = np.minimum(adjusted, 1.0)
+    # Find the largest index k where condition is true
+    k = np.where(condition)[0][-1]
 
-    # Determine rejections
-    # A hypothesis is rejected if its adjusted p-value <= alpha
-    # But we must map back to original order
-    rejections = np.zeros(n, dtype=bool)
-    for i, idx in enumerate(sorted_indices):
-        if adjusted[i] <= alpha:
-            rejections[idx] = True
+    # All hypotheses with rank <= k are rejected
+    rejected = np.zeros(n, dtype=bool)
+    rejected[sorted_indices[:k+1]] = True
 
-    return rejections.tolist(), adjusted.tolist()
+    # Calculate adjusted p-values (q-values)
+    # q_i = min( (n/i) * p_i, min_{j>i} ( (n/j) * p_j ) )
+    # Using the cumulative minimum approach from the back
+    adjusted_p_values = np.full(n, np.inf)
+    for i in range(n - 1, -1, -1):
+        adjusted_p_values[i] = min(
+            (n / (i + 1)) * sorted_p_values[i],
+            adjusted_p_values[i + 1] if i < n - 1 else np.inf
+        )
+    adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
+
+    return rejected.tolist(), adjusted_p_values.tolist()
 
 
 def bootstrap_confidence_interval(
     data: np.ndarray,
     stat_func: Callable[[np.ndarray], float],
-    n_bootstrap: int = 1000,
+    n_bootstraps: int = 1000,
     confidence_level: float = 0.95,
-    random_state: Optional[int] = None
+    seed: Optional[int] = None
 ) -> Tuple[float, float, float]:
     """
-    Compute a bootstrap confidence interval for a given statistic.
+    Calculate a bootstrap confidence interval for a given statistic.
 
     Args:
-        data: 1D array of observed data points.
-        stat_func: Function that computes the statistic of interest from a sample.
-        n_bootstrap: Number of bootstrap resamples.
-        confidence_level: Confidence level for the interval (e.g., 0.95).
-        random_state: Random seed for reproducibility.
+        data: The input data array.
+        stat_func: A function that computes the statistic of interest from data.
+        n_bootstraps: Number of bootstrap samples to generate.
+        confidence_level: The confidence level (e.g., 0.95 for 95% CI).
+        seed: Random seed for reproducibility.
 
     Returns:
-        A tuple containing:
-        - Point estimate of the statistic on original data.
-        - Lower bound of the confidence interval.
-        - Upper bound of the confidence interval.
+        A tuple (point_estimate, lower_bound, upper_bound).
     """
-    if random_state is not None:
-        rng = np.random.default_rng(random_state)
-    else:
-        rng = np.random.default_rng()
-
-    point_estimate = stat_func(data)
-    bootstrap_stats = []
+    if seed is not None:
+        np.random.seed(seed)
 
     n = len(data)
-    for _ in range(n_bootstrap):
-        resample = rng.choice(data, size=n, replace=True)
-        bootstrap_stats.append(stat_func(resample))
+    bootstrap_stats = np.empty(n_bootstraps)
 
-    bootstrap_stats = np.array(bootstrap_stats)
+    for i in range(n_bootstraps):
+        # Sample with replacement
+        sample = np.random.choice(data, size=n, replace=True)
+        bootstrap_stats[i] = stat_func(sample)
+
+    point_estimate = stat_func(data)
     alpha = 1 - confidence_level
-    lower_idx = int((alpha / 2) * n_bootstrap)
-    upper_idx = int((1 - alpha / 2) * n_bootstrap)
-
-    lower_bound = np.percentile(bootstrap_stats, (alpha / 2) * 100)
-    upper_bound = np.percentile(bootstrap_stats, (1 - alpha / 2) * 100)
+    lower_bound = np.percentile(bootstrap_stats, 100 * (alpha / 2))
+    upper_bound = np.percentile(bootstrap_stats, 100 * (1 - alpha / 2))
 
     return point_estimate, lower_bound, upper_bound
 
 
 def run_permutation_test_early_stop(
-    observed_stat: float,
-    null_distr_func: Callable[[], float],
-    n_shuffles: int,
-    alpha: float = 0.05,
+    x: np.ndarray,
+    y: np.ndarray,
+    n_shuffles: int = 10000,
+    stat_func: Optional[Callable[[np.ndarray, np.ndarray], float]] = None,
+    seed: Optional[int] = None,
     early_stop_threshold: float = 0.001,
-    early_stop_check_interval: int = 100,
-    n_jobs: int = -1,
-    random_state: Optional[int] = None
+    early_stop_check_interval: int = 100
 ) -> Dict[str, Any]:
     """
     Run a permutation test with early stopping logic for efficiency.
 
-    The test runs a minimum of `early_stop_check_interval` shuffles, then checks
-    at intervals. If the interim p-value drops below `early_stop_threshold`,
-    it sets an early_stop_flag but CONTINUES to run the full `n_shuffles`.
-    This flag is for reporting/logging only; the full permutation count is always achieved.
+    This function tests the null hypothesis that there is no association between
+    x and y. It supports early stopping if the p-value is clearly significant,
+    but ALWAYS completes all n_shuffles permutations as required by the spec.
 
     Args:
-        observed_stat: The observed test statistic.
-        null_distr_func: A function that returns a single random null statistic.
-        n_shuffles: Total number of permutations to run.
-        alpha: Significance level for final decision.
-        early_stop_threshold: Threshold for triggering early_stop_flag.
-        early_stop_check_interval: How often to check for early stopping.
-        n_jobs: Number of parallel jobs (-1 for all CPUs).
-        random_state: Random seed.
+        x: First variable array.
+        y: Second variable array.
+        n_shuffles: Total number of permutations to run (MUST complete all).
+        stat_func: Function to compute test statistic (default: correlation).
+        seed: Random seed for reproducibility.
+        early_stop_threshold: If interim p-value drops below this, set early_stop_flag.
+        early_stop_check_interval: Check for early stopping every N shuffles.
 
     Returns:
-        Dictionary with:
-        - 'observed_stat': The observed statistic.
-        - 'p_value': Final p-value.
-        - 'n_shuffles': Total shuffles run.
-        - 'early_stop_flag': True if p-value dropped below threshold at any point.
-        - 'final_p_value': Same as p_value (explicit for clarity).
+        Dictionary with keys:
+        - "observed_stat": The test statistic for the original data.
+        - "p_value": The two-sided p-value.
+        - "n_shuffles": Total number of shuffles performed.
+        - "early_stop_flag": True if interim p-value < threshold at any point.
+        - "null_distribution": List of permuted statistics.
     """
-    if random_state is not None:
-        np.random.seed(random_state)
+    if seed is not None:
+        np.random.seed(seed)
 
-    # Generate all null statistics in parallel
-    null_stats = Parallel(n_jobs=n_jobs)(
-        delayed(null_distr_func)() for _ in range(n_shuffles)
-    )
-    null_stats = np.array(null_stats)
+    if stat_func is None:
+        def stat_func(a, b):
+            return np.corrcoef(a, b)[0, 1]
 
-    # Calculate p-value (two-sided or one-sided depending on context, assuming one-sided here: >)
-    # P = (count of null >= observed + 1) / (n + 1)
-    # Using standard permutation test formula
-    extreme_count = np.sum(null_stats >= observed_stat)
-    p_value = (extreme_count + 1) / (n_shuffles + 1)
+    # Ensure arrays are same length
+    min_len = min(len(x), len(y))
+    x = x[:min_len]
+    y = y[:min_len]
 
-    # Early stopping logic simulation (since we ran all in parallel, we check the cumulative distribution)
-    # To strictly follow the "check at intervals" requirement, we simulate the check
+    observed_stat = stat_func(x, y)
+
+    null_stats = []
     early_stop_flag = False
-    current_extreme = 0
-    for i in range(early_stop_check_interval, n_shuffles + 1, early_stop_check_interval):
-        subset = null_stats[:i]
-        current_extreme = np.sum(subset >= observed_stat)
-        interim_p = (current_extreme + 1) / (i + 1)
-        if interim_p < early_stop_threshold:
-            early_stop_flag = True
-            break  # We found the condition, flag it, but we already ran all
+
+    for i in range(n_shuffles):
+        # Shuffle y
+        shuffled_y = np.random.permutation(y)
+        perm_stat = stat_func(x, shuffled_y)
+        null_stats.append(perm_stat)
+
+        # Check for early stopping condition
+        if (i + 1) % early_stop_check_interval == 0:
+            count_extreme = sum(1 for s in null_stats if abs(s) >= abs(observed_stat))
+            interim_p = count_extreme / (i + 1)
+
+            if interim_p < early_stop_threshold:
+                early_stop_flag = True
+                logger.info(f"Early stopping condition met at shuffle {i+1}: interim p={interim_p:.4f}")
+                # Note: We do NOT break here. The spec requires full completion.
+
+    # Calculate final p-value
+    count_extreme = sum(1 for s in null_stats if abs(s) >= abs(observed_stat))
+    final_p_value = count_extreme / n_shuffles
 
     return {
-        "observed_stat": float(observed_stat),
-        "p_value": float(p_value),
+        "observed_stat": observed_stat,
+        "p_value": final_p_value,
         "n_shuffles": n_shuffles,
-        "early_stop_flag": bool(early_stop_flag),
-        "final_p_value": float(p_value)
+        "early_stop_flag": early_stop_flag,
+        "null_distribution": null_stats
     }
 
 
-def save_permutation_results(results: Dict[str, Any], output_path: str) -> None:
+def save_permutation_results(
+    results: Dict[str, Any],
+    output_path: str,
+    species: str,
+    coefficient: str
+) -> None:
     """
     Save permutation test results to a JSON file.
 
     Args:
         results: Dictionary containing permutation test results.
         output_path: Path to the output JSON file.
+        species: Species name for the results.
+        coefficient: Name of the coefficient being tested.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_data = {
+        "species": species,
+        "coefficient": coefficient,
+        "p_value": results["p_value"],
+        "n_shuffles": results["n_shuffles"],
+        "early_stop_flag": results["early_stop_flag"],
+        "final_p_value": results["p_value"],
+        "observed_stat": results["observed_stat"]
+    }
+
+    # Ensure directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    # Load existing results if file exists
+    all_results = []
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, 'r') as f:
+                all_results = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            all_results = []
+
+    # Append new result
+    all_results.append(output_data)
+
+    # Write back
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(all_results, f, indent=2)
+
+    logger.info(f"Saved permutation results for {species} ({coefficient}) to {output_path}")

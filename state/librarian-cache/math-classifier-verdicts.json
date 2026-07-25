@@ -1639,6 +1639,10 @@
     "classified_at": "2026-07-10T21:34:43Z",
     "verdict": false
   },
+  "PROJ-972-llmxive-follow-up-extending-spatialbench::1.6.0": {
+    "classified_at": "2026-07-25T01:21:19Z",
+    "verdict": false
+  },
   "PROJ-975-llmxive-follow-up-extending-from-chatbot::1.6.0": {
     "classified_at": "2026-07-07T04:30:47Z",
     "verdict": false

@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001c` (rejected 1x): No evidence of the required directories (`tests` and `state/projects` inside `projects/PROJ-096-exploring-the-role-of-network-topology-o/`) is provided; the artifact list is empty, so we cannot confirm the `mkdir -p` command was executed. The implementer must supply a directory listing or screenshots showing the created folders.
-- `T003b` (rejected 1x): No linting output, log file, or any evidence that `black --check` and `flake8` were executed and passed without errors is present. The required artifact (a linting verification report or command output) is missing, so the task is not demonstrably completed.
+- `T001` (rejected 1x): No evidence was provided showing that the required directories (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`, `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`) actually exist on disk. Without a listing, screenshot, or other artifact confirming the `mkdir -p …` command was run, we cannot confirm the task was completed.
+- `T003b` (rejected 1x): declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
 
 ## Required change
 

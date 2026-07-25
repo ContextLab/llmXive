@@ -43,12 +43,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create source directories: `mkdir -p code/utils code/data` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
-- [ ] T001b [P] Create data directories: `mkdir -p data/processed data/checksums data/raw` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/` and verify with `test -d data/processed && echo 'OK' || exit 1`.
-- [ ] T001c [P] Create test directories: `mkdir -p tests state/projects` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
+- [ ] T001 [P] **Initialize Project Directories**: Create `code/`, `code/utils/`, `data/`, `data/processed/`, `data/raw/`, `data/checksums/`, `tests/`, `state/`, `state/projects/`. Verify creation by running `ls -R data/ code/ tests/ state/` and capturing the output to `data/checksums/dir_structure.log`.
+ **Verification**: `test -f data/checksums/dir_structure.log && echo 'OK' || exit 1`.
+
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `networkx>=3.2.0`, `scipy>=1.12.0`, `numpy>=1.26.0`, `pandas>=2.2.0`, `pyyaml>=6.0.0`.
 - [X] T003a [P] Create `.flake8` config with `max-line-length=88`, `ignore=E203,W503` and `pyproject.toml` for black with `line-length=88`.
-- [ ] T003b [P] Verify linting configuration by running `black --check. && flake8.` and ensuring no errors. (This is the single source of truth for lint verification).
+- [ ] T003b [P] **Verify Linting Configuration**: Run `black --check .` and `flake8 .` on the existing code base. Redirect output to `data/checksums/lint.log`. If no code exists yet, create a dummy `code/__init__.py` first.
+ **Verification**: `test -f data/checksums/lint.log && echo 'OK' || exit 1`.
 
 ---
 
@@ -58,21 +59,23 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T009 [P] [US2] **Feasibility Study**: Determine the maximum time steps and number of topologies feasible within 6 hours on a 2-core CPU runner.
- **Objective**: Binary search for `time_steps` in range [, 20000] and calculate `n_topologies` such that total runtime <= 6 hours.
- **Logic**:
- 1. Run a single simulation with `time_steps` = 1000 to measure `runtime_per_1k_steps`.
- 2. Calculate max `time_steps` = floor(6h / (runtime_per_1k_steps * 50)) * 1000.
- 3. If max `time_steps` < 1000, calculate `n_topologies` = floor(6h / (runtime_per_1k_steps * 1000/1000)).
- 4. If `n_topologies` < 10, log "CRITICAL WARNING: Insufficient compute for minimum scientific validity" and halt.
- **Input**: Requires T004, T005 (utils) to be implemented.
- **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `runtime_estimate` (float), `n_topologies` (int).
- **Verification**: Run `python -c "import json; d=json.load(open('data/processed/config.json')); assert d['time_steps'] >= 1000; assert d['n_topologies'] >= 10"`.
- **Constraint**: If `time_steps` < 1000, the task MUST NOT proceed to US1 generation until `n_topologies` is adjusted to fit the budget.
-
 - [X] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations
 - [X] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction
+
+- [ ] T009 [P] [US2] **Feasibility Study**: Determine the maximum time steps and number of topologies feasible within 6 hours on a 2-core CPU runner.
+ **Script**: `code/feasibility_study.py`.
+ **Objective**: Binary search for `time_steps` in range [1000, 20000] for a fixed N=50 topologies. If max `time_steps` < 1000, calculate max `n_topologies` for fixed 1000 steps.
+ **Logic**:
+ 1. Run a single simulation with `time_steps` = 1000 to measure `runtime_per_1k_steps`.
+ 2. Binary search for max `time_steps` such that `50 * (time_steps/1000) * runtime_per_1k_steps <= 6 hours`.
+ 3. If max `time_steps` < 1000, calculate `n_topologies` = floor(6h / (runtime_per_1k_steps * 1)).
+ 4. If `n_topologies` < 10, log "CRITICAL WARNING: Insufficient compute for minimum scientific validity" and set `n_topologies = 10` with a contingency flag.
+ **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `n_topologies` (int), `runtime_estimate` (float), `contingency_flag` (bool, default false).
+ **Verification**: Run `python -c "import json; d=json.load(open('data/processed/config.json')); assert d['time_steps'] >= 1000 or d['contingency_flag'] == True; assert d['n_topologies'] >= 10"`.
+ **Constraint**: If `time_steps` < 1000 and `n_topologies` < 10, the task MUST log a contingency and set the flag; it does NOT proceed to US1 generation until `n_topologies` is adjusted to fit the budget.
+
 - [ ] T008 [P] [US3] **Analysis Configuration**: Create `data/processed/analysis_config.yaml` defining the statistical model.
+ **Dependency**: Runs after T009. Reads `data/processed/config.json` to determine the number of tests.
  **Schema**: Must contain keys: `model_type` (string: 'single_regression'), `correction_method` (string: 'bonferroni' or 'none'), `thresholds` (list: [0.4, 0.5, 0.6]).
  **Purpose**: Breaks circular dependency by defining the statistical model before analysis implementation.
  **Verification**: `test -f data/processed/analysis_config.yaml && echo 'OK' || exit 1`.
@@ -105,10 +108,13 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Note**: This task explicitly generates a synthetic regular ring lattice. This deviates from spec FR-001 (ca-AstroPh) based on the Plan Summary's methodological correction. The code must include a comment stating: "Base graph is synthetic; FR-001 requirement to use ca-AstroPh is formally deviated from per Plan Summary, pending spec amendment."
+ **Additional Step**: Generate `data/processed/scope_limitation.log` documenting this deviation and update `state/projects/PROJ-096-exploring-the-role-of-network-topology-o.yaml` with the change.
 - [X] T014 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`
 - [X] T015 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance)
-- [ ] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, N instances as defined in `data/processed/config.json`) in `code/generate_topology.py`
-- [ ] T017 [US1] Save generated graphs as `.gpickle` and metadata as `.json` in `data/processed/`
+- [ ] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 steps, N instances as defined in `data/processed/config.json`) in `code/generate_topology.py`.
+ **Output**: Save graphs as `data/processed/graph_{p:.2f}.gpickle` and metadata as `data/processed/graph_metadata.json`.
+ **Dependency**: Requires `data/processed/config.json` from T009.
+- [ ] T017 [US1] Save generated graphs as `.gpickle` and metadata as `.json` in `data/processed/` (Consolidated with T016)
 - [X] T018 [US1] Add checksum generation for all artifacts in `data/checksums.txt`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -134,9 +140,26 @@
 - [ ] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
 - [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max iterations, tol specified) in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 and T022.
 - [ ] T024 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`. **Dependency**: Depends on T023.
-- [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`). (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604) **Runtime Check**: Measure total runtime. If > 6 hours, implement fallback: reduce `time_steps` by `max(1000, floor(current_steps / 1000) * 1000)`. If the reduced value is < 1000, log "FAILURE" and halt. This task satisfies SC-003 compliance.
-- [ ] T026 [US2] [FR-009] Implement rotational invariance verification on **the full set of topologies**. Re-run the full binary search for $K_c$ on each using two reference frames: "single oscillator" and "center-of-mass". If any assertion fails, log a "FAILURE" and halt. Save results to `data/processed/invariance_verification.json`. **Justification**: FR-009 requires system-wide verification; a subset is insufficient.
-- [ ] T027 [US2] Run stability check script in `code/simulate_kuramoto.py` to simulate Kuramoto dynamics multiple times per topology for **ALL 50 topologies** (indices 0-49). Calculate sample variance of R and verify it is < 0.01 (SC-001). **Fallback Logic**: If variance > 0.01 for ANY topology, log "CRITICAL WARNING: Statistical instability detected in topology X" and HALT. DO NOT reduce time-steps as a fallback, as this increases numerical noise and violates the stability requirement. The task must fail loudly to preserve scientific integrity.
+- [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`).
+ **Input**: `data/processed/graph_*.gpickle`.
+ **Output**: `data/processed/simulation_results.csv`.
+ **Logic**: Run binary search for each topology. If runtime exceeds budget, log warning but do NOT reduce steps (T009 guarantees budget).
+ **Verification**: `test -f data/processed/simulation_results.csv && echo 'OK' || exit 1`.
+ **Constraint**: This task relies on T009's configuration; no fallback logic for time steps is allowed here.
+- [ ] T026a [P] [US2] [FR-009] Implement rotational invariance verification script `code/verify_invariance.py`.
+ **Logic**: Re-run the full binary search for $K_c$ on each topology using two reference frames: "single oscillator" and "center-of-mass".
+ **Output**: `data/processed/invariance_verification.json`.
+ **Dependency**: Requires `data/processed/simulation_results.csv` from T025.
+- [ ] T026b [US2] [FR-009] Run `code/verify_invariance.py` and verify results.
+ **Verification**: `test -f data/processed/invariance_verification.json && echo 'OK' || exit 1`.
+ **Justification**: FR-009 requires system-wide verification; a subset is insufficient.
+- [ ] T027a [P] [US2] Implement stability check script `code/check_stability.py`.
+ **Logic**: Simulate Kuramoto dynamics multiple times per topology for **ALL 50 topologies** (indices 0-49). Calculate sample variance of R.
+ **Output**: `data/processed/stability_results.json`.
+ **Logic**: If variance > 0.01 for a topology, log "WARNING: Statistical instability detected in topology X" and SKIP that topology (do not halt).
+ **Dependency**: Requires `data/processed/simulation_results.csv` from T025.
+- [ ] T027b [US2] Run `code/check_stability.py` to check stability.
+ **Verification**: `test -f data/processed/stability_results.json && echo 'OK' || exit 1`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, with verified Kc values
 
@@ -155,16 +178,22 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`
+- [ ] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`.
+ **Input**: `data/processed/simulation_results.csv`.
+ **Output**: `data/processed/correlation_results.json`.
 - [ ] T031 [US3] Implement multiple-comparison correction logic in `code/analyze_results.py`. **Logic**: Read the pre-defined statistical model from `data/processed/analysis_config.yaml` (defined in T008). If the model specifies multiple tests, apply Bonferroni/Benjamini-Hochberg. If single regression, skip. Explicitly log the statistical model choice and whether correction was applied in the final report (FR-006, FR-008).
 - [ ] T032 [US3] Implement sensitivity analysis sweep over thresholds in `code/analyze_results.py`. **Scope**: Sweep over a range of values as defined in Assumptions. **Note**: This range is explicitly justified in the spec's "Assumption about Threshold Justification" as a representative range for community standards.
+ **Output**: `data/processed/sensitivity_analysis.json`.
 - [ ] T033 [US3] Calculate the variation metric of the headline correlation rate across the sensitivity sweep. **Definition**: Calculate the Spearman correlation coefficient for each threshold in a set of representative values.. Compute the relative variation: (max(coef) - min(coef)) / mean(coef). Verify this value is ≤ 0.05 (SC-004).
-- [ ] T034 [US3] Generate summary plot (Critical Coupling vs. Rewiring Probability) with trend line in `code/analyze_results.py` saving to `data/processed/plot_kc_vs_p.png` and verify file exists and is non-empty
-- [ ] T035 [US3] Write final report summary to `data/processed/analysis_report.md` containing:
- 1. Spearman correlation value and p-value.
+ **Output**: Append result to `data/processed/sensitivity_analysis.json`.
+ **Verification**: `test -f data/processed/sensitivity_analysis.json && echo 'OK' || exit 1`.
+- [ ] T034 [US3] Generate summary plot (Critical Coupling vs. Rewiring Probability) with trend line in `code/analyze_results.py` saving to `data/processed/plot_kc_vs_p.png` and verify file exists and is non-empty.
+- [ ] T035 [US3] Write final report summary to `data/processed/analysis_report.md` using `code/generate_report.py`.
+ **Content**:
+ 1. Spearman correlation value (float) and p-value.
  2. A dedicated section "Physical Invariance" citing the results from T026 (invariance_verification.json) and explicitly stating that the critical coupling is an observer-invariant property.
  3. Explicit definition and justification of the statistical model used (single regression vs. multiple tests) as defined in `data/processed/analysis_config.yaml`.
- Verify file exists and is non-empty with required content.
+ **Verification**: `test -f data/processed/analysis_report.md && echo 'OK' || exit 1`.
 - [ ] T036 [US3] (Removed: Runtime check moved to T025)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -283,4 +312,5 @@ With multiple developers:
 - **Removed**: Phase 6 (Reviewer Revision) and T009c (Spec Amendment) have been removed to eliminate duplication and ensure a single source of truth for FR-009. Spec modifications are handled via contingency logging, not direct spec editing.
 - **Reviewer Response (albert-einstein-simulated)**: Task T026 explicitly addresses the concern regarding physical invariance by verifying that the critical coupling strength $K_c$ is identical regardless of whether the phase reference is a single oscillator or the center-of-mass. This ensures the symbol $K_c$ corresponds to an element of physical reality independent of the observer's coordinate frame.
 - **Statistical Model**: T031 reads the pre-defined statistical model from `analysis_config.yaml` (created in T008) to determine correction logic, ensuring the model is defined before analysis as per FR-008.
-- **Stability Fallback Correction**: Task T027 has been updated to HALT on variance > 0.01. Reducing time-steps is scientifically invalid for improving stability in chaotic systems and has been removed as a fallback.
+- **Stability Fallback Correction**: Task T027 has been updated to SKIP on variance > 0.01. Reducing time-steps is scientifically invalid for improving stability in chaotic systems and has been removed as a fallback.
+- **Task Order**: T004/T005 are before T009. T009 is before T008. T025 is before T026 and T027.

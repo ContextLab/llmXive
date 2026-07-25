@@ -1,36 +1,38 @@
-title: Configuration Schema
-description: Schema for the distribution shift detection pipeline configuration.
-type: object
-properties:
-  seed:
-    type: integer
-    description: Random seed for reproducibility.
-    default: 42
-  permutations:
-    type: integer
-    description: Number of permutations for MMD test.
-    default: 1000
-    minimum: 1
-  window_size:
-    type: integer
-    description: Size of the sliding window in weeks.
-    default: 12
-    minimum: 2
-  stride:
-    type: integer
-    description: Stride for the sliding window.
-    default: 1
-    minimum: 1
-  alpha:
-    type: number
-    description: Significance level for hypothesis testing.
-    default: 0.01
-    minimum: 0.0
-    maximum: 1.0
+%YAML 1.1
+---
+schema_type: object
+description: Configuration schema for the distribution shift detection pipeline.
 required:
   - seed
   - permutations
   - window_size
   - stride
   - alpha
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    default: 42
+    description: Random seed for reproducibility.
+  permutations:
+    type: integer
+    minimum: 1
+    default: 1000
+    description: Number of permutations for MMD p-value estimation.
+  window_size:
+    type: integer
+    minimum: 1
+    default: 12
+    description: Size of the sliding window in weeks.
+  stride:
+    type: integer
+    minimum: 1
+    default: 1
+    description: Stride for sliding the window.
+  alpha:
+    type: number
+    exclusiveMinimum: 0
+    exclusiveMaximum: 1
+    default: 0.01
+    description: Significance level for statistical tests.
 additionalProperties: false

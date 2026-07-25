@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: `mkdir -p data/raw data/processed code tests code/contracts`
-- [ ] T002 Create `requirements.txt` at root with: `numpy, scipy, pandas, scikit-learn, matplotlib, seaborn, pyyaml, pytest, pydantic`
-- [ ] T003 [P] Create `.flake8` and `pyproject.toml` with black/flake8 settings (max-line-length=88, exclude=venv)
+- [X] T002 Create `requirements.txt` at root with: `numpy, scipy, pandas, scikit-learn, matplotlib, seaborn, pyyaml, pytest, pydantic`
+- [X] T003 [P] Create `.flake8` and `pyproject.toml` with black/flake8 settings (max-line-length=88, exclude=venv)
 
 ---
 
@@ -60,7 +60,7 @@
 - [ ] T006 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for data integrity
 - [X] T007 Setup logging infrastructure in `code/__init__.py` to record runtime params and seeds (FR-009)
 - [X] T008 Implement synthetic data generator in `code/synthetic_data.py` for unit tests ONLY. MUST generate data with: (a) missing weeks (NaNs), (b) constant segments (zero variance), and (c) outliers. Must NOT be used for final report; reference E-NO-DATA fallback.
-- [~] T009 Define `E-NO-DATA` exception class in `code/exceptions.py`. Implement a validation script in `code/main.py` that checks for the existence of `data/raw/fluview_ili.csv` and `data/raw/ground_truth_events.csv`. If either is missing, raise `E-NO-DATA` with log message "Pipeline halted: Real CDC data unavailable" and exit. (FR-001, FR-006, Constitution Principle VI)
+- [X] T009 Define `E-NO-DATA` exception class in `code/exceptions.py`. Implement a validation script in `code/main.py` that checks for the existence of `data/raw/fluview_ili.csv` and `data/raw/ground_truth_events.csv`. If either is missing, raise `E-NO-DATA` with log message "Pipeline halted: Real CDC data unavailable" and exit. (FR-001, FR-006, Constitution Principle VI)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,16 +78,16 @@
 > **Prerequisite**: T008 (synthetic data generator) must be complete.
 
 - [X] T010 [P] [US1] Write unit test `tests/unit/test_mmd.py` with function `test_mmd_stat_correctness` using synthetic data from T008 to verify MMD logic.
-- [ ] T011 [P] [US1] Write integration test `tests/integration/test_pipeline.py` with function `test_full_pipeline_flags` to verify full flow. <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Write integration test `tests/integration/test_pipeline.py` with function `test_full_pipeline_flags` to verify full flow. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T012a [US1] Implement `code/download_data.py` to fetch CDC FluView ILI CSV from the canonical CDC source (e.g., ` API or verified direct CSV) and save to `data/raw/fluview_ili.csv`. **MUST** verify file checksum against a known hash if available, or log the exact URL and retrieval date. Do NOT use third-party mirrors (NAB) as the primary source. (FR-001, Constitution Principle VI)
-- [~] T012b [US1] Implement `code/download_data.py` (or separate function) to fetch CDC Virological/Hospitalization ground truth from a verified CDC URL (e.g., specific API endpoint or direct CSV). **MUST NOT** allow a fallback to a local file provided by the user. If the fetch fails, raise `E-NO-DATA` exception. Save to `data/raw/ground_truth_events.csv` with columns `start_week, end_week, event_name`. (FR-006, Constitution Principle IV)
+- [ ] T012a [US1] Implement `code/download_data.py` to fetch CDC FluView ILI CSV from the canonical CDC source (e.g., ` API or verified direct CSV) and save to `data/raw/fluview_ili.csv`. **MUST** verify file checksum against a known hash if available, or log the exact URL and retrieval date. Do NOT use third-party mirrors (NAB) as the primary source. (FR-001, Constitution Principle VI)
+- [ ] T012b [US1] Implement `code/download_data.py` (or separate function) to fetch CDC Virological/Hospitalization ground truth from a verified CDC URL (e.g., specific API endpoint or direct CSV). **MUST NOT** allow a fallback to a local file provided by the user. If the fetch fails, raise `E-NO-DATA` exception. Save to `data/raw/ground_truth_events.csv` with columns `start_week, end_week, event_name`. (FR-006, Constitution Principle IV)
 - [X] T013 [US1] Implement `code/preprocess.py` to handle missing weeks (remove), log-transform, and standardize (FR-002)
 - [X] T014 [US1] Implement `code/mmd_detector.py` with Gaussian-kernel MMD, multi-week windows, and dynamic permutation count. **Internal Logic**: Include a runtime monitor that checks elapsed time. If time > 30 mins, reduce `permutations` in config (e.g., halve it), log "Permutations reduced to X", and re-calculate the MMD statistic. **Do NOT** change the Bonferroni threshold `p < 0.01/N`; the threshold remains strict. (FR-003, FR-004, FR-008)
 - [X] T015 [US1] Implement Bonferroni correction in `code/mmd_detector.py`: calculate `N` (number of window pairs) dynamically, apply `p < 0.01/N`, and output `flags.csv`. Ensure `N` is recalculated for each sensitivity run (different window sizes). (FR-004)
-- [~] T016 [US1] Implement `code/evaluate.py` to load `data/raw/ground_truth_events.csv`, verify source independence (URL whitelist check, ensure no ILI columns), and parse ±2-week tolerance (FR-006)
+- [ ] T016 [US1] Implement `code/evaluate.py` to load `data/raw/ground_truth_events.csv`, verify source independence (URL whitelist check, ensure no ILI columns), and parse ±2-week tolerance (FR-006)
 - [X] T017 [US1] Implement metrics calculation (precision, recall, detection delay within ±2 weeks) in `code/evaluate.py`
 - [X] T018 [US1] Implement `code/report_generator.py` to produce `report.pdf` with metrics (FR-006)
 
@@ -103,16 +103,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Write unit test `tests/unit/test_baselines.py` with function `test_pettitt_rolling_window` for Pettitt rolling-window.
-- [ ] T021 [P] [US2] Write unit test `tests/unit/test_baselines.py` with function `test_bocpd_gaussian` for BOCPD.
+- [X] T020 [P] [US2] Write unit test `tests/unit/test_baselines.py` with function `test_pettitt_rolling_window` for Pettitt rolling-window.
+- [X] T021 [P] [US2] Write unit test `tests/unit/test_baselines.py` with function `test_bocpd_gaussian` for BOCPD.
 
 ### Implementation for User Story 2
 
 - [ ] T022 [P] [US2] Implement Pettitt **rolling-window** test in `code/pettitt.py`: window=12, stride=1, compute Pettitt statistic for every window (FR-005)
-- [ ] T023 [P] [US2] Implement BOCPD (Gaussian observation model) in `code/bocpd.py` (FR-005)
-- [ ] T024 [US2] Integrate baselines execution into `code/main.py` after preprocessing
-- [ ] T025 [US2] Output `baselines.csv` containing detected change weeks and statistics (FR-005)
-- [ ] T026a [US2] Implement logic in `code/evaluate.py` to compute detection delays from `baselines.csv` alone (independent of MMD)
+- [X] T023 [P] [US2] Implement BOCPD (Gaussian observation model) in `code/bocpd.py` (FR-005)
+- [X] T024 [US2] Integrate baselines execution into `code/main.py` after preprocessing
+- [~] T025 [US2] Output `baselines.csv` containing detected change weeks and statistics (FR-005)
+- [X] T026a [US2] Implement logic in `code/evaluate.py` to compute detection delays from `baselines.csv` alone (independent of MMD)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,7 +122,7 @@
 
 **Purpose**: Combine results from US1 and US2 for final comparison and sensitivity analysis.
 
-- [ ] T026b [US1+US2] Implement cross-comparison in `code/evaluate.py`: Load MMD delays (from T017) and Baseline delays (from T026a). Perform a two-sample t-test using `scipy.stats.ttest_ind` on these delay arrays. Report the resulting p-value in `report.pdf` to compare detection delays (SC-004). (FR-005, SC-004)
+- [X] T026b [US1+US2] Implement cross-comparison in `code/evaluate.py`: Load MMD delays (from T017) and Baseline delays (from T026a). Perform a two-sample t-test using `scipy.stats.ttest_ind` on these delay arrays. Report the resulting p-value in `report.pdf` to compare detection delays (SC-004). (FR-005, SC-004)
 
 ---
 
@@ -134,13 +134,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Write unit test `tests/unit/test_sensitivity.py` with function `test_grid_generation` for sensitivity grid generation.
+- [X] T028 [P] [US3] Write unit test `tests/unit/test_sensitivity.py` with function `test_grid_generation` for sensitivity grid generation.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/sensitivity.py` to handle grid search: bandwidths=[median, cv], windows=[8, 12, 16], output `sensitivity.csv` (FR-007)
-- [ ] T030 [US3] Implement week-alignment tolerance sweep (±1, ±2, ±3 weeks) in `code/sensitivity.py` and output `tolerance_sensitivity.csv` with metric variations (FR-010)
-- [ ] T031 [US3] Execute sensitivity grid in `code/main.py` (after US1/US2 completion)
+- [X] T029 [P] [US3] Implement `code/sensitivity.py` to handle grid search: bandwidths=[median, cv], windows=[8, 12, 16], output `sensitivity.csv` (FR-007)
+- [X] T030 [US3] Implement week-alignment tolerance sweep (±1, ±2, ±3 weeks) in `code/sensitivity.py` and output `tolerance_sensitivity.csv` with metric variations (FR-010)
+- [X] T031 [US3] Execute sensitivity grid in `code/main.py` (after US1/US2 completion) <!-- ATOMIZE: requested -->
 - [ ] T032 [US3] Aggregate metrics for all configurations into `sensitivity.csv` (FR-007, FR-010)
 - [ ] T033 [US3] Update `report.pdf` to include sensitivity analysis summary and variation plots (SC-005)
 

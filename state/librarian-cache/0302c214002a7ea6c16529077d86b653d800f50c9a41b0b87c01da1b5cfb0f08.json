@@ -1,0 +1,595 @@
+{
+  "fetched_at": "2026-07-25T01:21:42Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an All-Round Player?\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.155,
+    "ended_at": "2026-07-25T01:21:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "spatial reasoning benchmarks for foundation models"
+        ],
+        [
+          2,
+          "evaluation of multimodal large language models on spatial tasks"
+        ],
+        [
+          3,
+          "3D spatial understanding in vision-language models"
+        ],
+        [
+          4,
+          "generalization capabilities of spatial foundation models"
+        ],
+        [
+          5,
+          "spatial intelligence assessment in AI systems"
+        ],
+        [
+          6,
+          "benchmarking geometric reasoning in large language models"
+        ],
+        [
+          7,
+          "holistic evaluation of spatial perception in foundation models"
+        ],
+        [
+          8,
+          "spatial task performance of vision-language pre-trained models"
+        ],
+        [
+          9,
+          "limitations of current spatial foundation models"
+        ],
+        [
+          10,
+          "2D and 3D spatial comprehension in generative AI"
+        ],
+        [
+          11,
+          "cross-domain spatial reasoning in multimodal models"
+        ],
+        [
+          12,
+          "spatial benchmark datasets for foundation model evaluation"
+        ],
+        [
+          13,
+          "robustness of spatial reasoning in large-scale models"
+        ],
+        [
+          14,
+          "comparative analysis of spatial foundation models"
+        ],
+        [
+          15,
+          "spatial query answering in vision-language systems"
+        ],
+        [
+          16,
+          "measuring spatial all-round capabilities in AI"
+        ],
+        [
+          17,
+          "geometric reasoning benchmarks for generative models"
+        ],
+        [
+          18,
+          "spatial cognitive abilities of foundation models"
+        ],
+        [
+          19,
+          "evaluation metrics for spatial understanding in LLMs"
+        ],
+        [
+          20,
+          "comprehensive testing of spatial foundation model versatility"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an All-Round Player?\" computer science": 0,
+        "spatial reasoning benchmarks for foundation models": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "3D scene understanding geometric reasoning spatial generalization",
+      "SpatialBench benchmark evaluation spatial foundation models",
+      "neural radiance fields implicit representation geometry learning",
+      "spatial reasoning accuracy zero-shot transfer evaluation metrics",
+      "inductive bias geometric priors 3D vision transformer architecture"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.27367"
+      ]
+    },
+    "per_query_hit_count": {
+      "3D scene understanding geometric reasoning spatial generalization": 3,
+      "SpatialBench benchmark evaluation spatial foundation models": 3,
+      "inductive bias geometric priors 3D vision transformer architecture": 3,
+      "llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an All-Round Player?\" computer science": 3,
+      "neural radiance fields implicit representation geometry learning": 3,
+      "spatial reasoning accuracy zero-shot transfer evaluation metrics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2312.11562",
+          "rationale": "The paper is a general survey on reasoning with foundation models and does not address the specific domain of \"spatial\" capabilities, benchmarks, or the evaluation of \"Spatial Foundation Models\" required by the user's question. While it covers the broad category of foundation models, it lacks the specific mechanism (spatial reasoning) or empirical population (spatial benchmarks) necessary to satisfy the inclusion criteria for a literature review on this specific topic.",
+          "title": "A Survey of Reasoning with Foundation Models"
+        },
+        {
+          "primary_pointer": "2512.03307",
+          "rationale": "The paper focuses on tabular foundation models and adversarial robustness for structured data, which is a distinct domain from the user's question regarding spatial foundation models and spatial reasoning benchmarks. It fails the \"off-domain entirely\" rejection rule as it addresses neither the specific mechanism (spatial reasoning) nor the empirical population (spatial tasks) central to the user's inquiry.",
+          "title": "Robust Tabular Foundation Models"
+        },
+        {
+          "primary_pointer": "2506.13817",
+          "rationale": "The paper focuses on applying generative AI to single-cell RNA sequencing data labeling in the biological domain, which is entirely off-domain from the user's question regarding spatial foundation models and spatial reasoning benchmarks in computer science. It shares no measurable connection to the specific mechanism (spatial reasoning), variables (spatial benchmarks), or empirical setting (computer vision/spatial AI) of the user's query, failing all inclusion criteria (a-f) and triggering the \"",
+          "title": "DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-25T01:20:48Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"spatialbench: is your spatial foundation model an all-round player?\" computer science",
+      "raw": "llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an All-Round Player?\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Creating high-fidelity 3D models of indoor environments is essential for applications in design, virtual reality, and robotics. However, manual 3D modeling remains time-consuming and labor-intensive. While recent advances in generative AI have enabled automated scene synthesis, existing methods often face challenges in balancing visual quality, diversity, semantic consistency, and user control. A major bottleneck is the lack of a large-scale, high-quality dataset tailored to this task. To address this gap, we introduce a comprehensive synthetic dataset, featuring 12,328 structured annotated scenes with 57,431 rooms, and 4.7M photorealistic 2D renderings. Leveraging this dataset, we present SpatialGen, a novel multi-view multi-modal diffusion model that generates realistic and semantically consistent 3D indoor scenes. Given a 3D layout and a reference image (derived from a text prompt), our model synthesizes appearance (color image), geometry (scene coordinate map), and semantic (semantic segmentation map) from arbitrary viewpoints, while preserving spatial consistency across modalities. SpatialGen consistently generates superior results to previous methods in our experiments. We are open-sourcing our data and models to empower the community and advance the field of indoor scene understanding and generation.",
+          "claimed_authors": [
+            "Chuan Fang",
+            "Heng Li",
+            "Yixun Liang",
+            "Jia Zheng",
+            "Yongsen Mao",
+            "Yuan Liu",
+            "Rui Tang",
+            "Zihan Zhou",
+            "Ping Tan"
+          ],
+          "claimed_title": "SPATIALGEN: Layout-guided 3D Indoor Scene Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.14981"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='SPATIALGEN: Layout-guided 3D Indoor Scene Generation')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-based Visual Question Answering~(TextVQA) aims to produce correct answers for given questions about the images with multiple scene texts. In most cases, the texts naturally attach to the surface of the objects. Therefore, spatial reasoning between texts and objects is crucial in TextVQA. However, existing approaches are constrained within 2D spatial information learned from the input images and rely on transformer-based architectures to reason implicitly during the fusion process. Under this setting, these 2D spatial reasoning approaches cannot distinguish the fine-grain spatial relations between visual objects and scene texts on the same image plane, thereby impairing the interpretability and performance of TextVQA models. In this paper, we introduce 3D geometric information into a human-like spatial reasoning process to capture the contextual knowledge of key objects step-by-step. %we formulate a human-like spatial reasoning process by introducing 3D geometric information for capturing key objects' contextual knowledge. To enhance the model's understanding of 3D spatial relationships, Specifically, (i)~we propose a relation prediction module for accurately locating the region of interest of critical objects; (ii)~we design a depth-aware attention calibration module for calibrating the OCR tokens' attention according to critical objects. Extensive experiments show that our method achieves state-of-the-art performance on TextVQA and ST-VQA datasets. More encouragingly, our model surpasses others by clear margins of 5.7\\% and 12.1\\% on questions that involve spatial reasoning in TextVQA and ST-VQA valid split. Besides, we also verify the generalizability of our model on the text-based image captioning task.",
+          "claimed_authors": [
+            "Hao Li",
+            "Jinfa Huang",
+            "Peng Jin",
+            "Guoli Song",
+            "Qi Wu",
+            "Jie Chen"
+          ],
+          "claimed_title": "Toward 3D Spatial Reasoning for Human-like Text-based Visual Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.10326"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Toward 3D Spatial Reasoning for Human-like Text-based Visual Question Answering')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robotic tasks such as planning and navigation require a hierarchical semantic understanding of a scene, which could include multiple floors and rooms. Current methods primarily focus on object segmentation for 3D scene understanding. However, such methods struggle to segment out topological regions like \"kitchen\" in the scene. In this work, we introduce a two-step pipeline to solve this problem. First, we extract a topological map, i.e., floorplan of the indoor scene using a novel multi-channel occupancy representation. Then, we generate CLIP-aligned features and semantic labels for every room instance based on the objects it contains using a self-attention transformer. Our language-topology alignment supports natural language querying, e.g., a \"place to cook\" locates the \"kitchen\". We outperform the current state-of-the-art on room segmentation by ~20% and room classification by ~12%. Our detailed qualitative analysis and ablation studies provide insights into the problem of joint structural and semantic 3D scene understanding. Project Page: quest-maps.github.io",
+          "claimed_authors": [
+            "Yash Mehan",
+            "Kumaraditya Gupta",
+            "Rohit Jayanti",
+            "Anirudh Govil",
+            "Sourav Garg",
+            "Madhava Krishna"
+          ],
+          "claimed_title": "QueSTMaps: Queryable Semantic Topological Maps for 3D Scene Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.06442"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='QueSTMaps: Queryable Semantic Topological Maps for 3D Scene Understanding')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electroencephalography (EEG) supports a variety of brain-computer interface (BCI) tasks ranging from brain-state monitoring to human-LLM interactions. EEG foundation models are emerging, but evaluation remains fragmented due to heterogeneous datasets and nconsistent task protocols. Here, we introduce OmniEEG-Bench, a unified benchmark and downstream task roadmap for EEG foundation models (FMs). It organizes evaluation of EEG FMs into six task families spanning (i) signal reliability, (ii) biometrics and disease, (iii) consciousness and state, (iv) cognition and emotion, (v) naturalistic stimulus decoding, and (vi) motor and interaction, introducing a new generation of tasks not systematically benchmarked in prior EEG FM work. OmniEEG-Bench standardizes model deployment, task definitions, and metrics through a task-card specification, and unifies 54 EEG datasets with consistent evaluation protocols. We benchmark 10 representative EEG foundation models and report a leaderboard that covers diverse evaluation settings. Both pretraining dataset diversity and model size are significantly associated with better average ranks across datasets, revealing scaling-law behavior in EEG foundation models (Figure 1). These results suggest that scaling EEG foundation models requires not only larger architectures but also broader and more diverse pretraining data. The benchmark code is available at https://github.com/ncclab-sustech/omni-eegbench.git.",
+          "claimed_authors": [
+            "Ziling Lu",
+            "Zongsheng Li",
+            "Xinke Shen",
+            "Kexin Lou",
+            "Yingyue Xin",
+            "Xiaoqi Chen",
+            "Shinan Wang",
+            "Xiang Chen",
+            "Jiahao Fan",
+            "Chenyu Huang",
+            "Xin Xu",
+            "Zhoujie Hou",
+            "Chen Wei",
+            "Quanying Liu"
+          ],
+          "claimed_title": "OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.00815"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='OmniEEG-Bench: A Standardized Evaluation Benchmark for EEG Foundation Models')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of tabular foundation models (TFMs) has accelerated in recent years, showing strong potential to outperform traditional ML methods for structured data. A key finding is that TFMs can be pretrained entirely on synthetic datasets, opening opportunities to design data generators that encourage desirable model properties. Prior work has mainly focused on crafting high-quality priors over generators to improve overall pretraining performance. Our insight is that parameterizing the generator distribution enables an adversarial robustness perspective: during training, we can adapt the generator to emphasize datasets that are particularly challenging for the model. We formalize this by introducing an optimality gap measure, given by the difference between TFM performance and the best achievable performance as estimated by strong baselines such as XGBoost, CatBoost, and Random Forests. Building on this idea, we propose Robust Tabular Foundation Models (RTFM), a model-agnostic adversarial training framework. Applied to the TabPFN V2 classifier, RTFM improves benchmark performance, with up to a 6% increase in mean normalized AUC over the original TabPFN and other baseline algorithms, while requiring less than 100k additional synthetic datasets. These results highlight a promising new direction for targeted adversarial training and fine-tuning of TFMs using synthetic data alone.",
+          "claimed_authors": [
+            "Matthew Peroni",
+            "Franck Le",
+            "Vadim Sheinin"
+          ],
+          "claimed_title": "Robust Tabular Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03307"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Robust Tabular Foundation Models')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work investigates the use of Neural implicit representations, specifically Neural Radiance Fields (NeRF), for geometrical queries and motion planning. We show that by adding the capacity to infer occupancy in a radius to a pre-trained NeRF, we are effectively learning an approximation to a Euclidean Signed Distance Field (ESDF). Using backward differentiation of the augmented network, we obtain an obstacle gradient that is integrated into an obstacle avoidance policy based on the Riemannian Motion Policies (RMP) framework. Thus, our findings allow for very fast sampling-free obstacle avoidance planning in the implicit representation.",
+          "claimed_authors": [
+            "Michael Pantic",
+            "Cesar Cadena",
+            "Roland Siegwart",
+            "Lionel Ott"
+          ],
+          "claimed_title": "Sampling-free obstacle gradients and reactive planning in Neural Radiance Fields (NeRF)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.01389"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Sampling-free obstacle gradients and reactive planning in Neural Radiance Fields (NeRF)')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding user instructions and object spatial relations in surrounding environments is crucial for intelligent robot systems to assist humans in various tasks. The natural language and spatial reasoning capabilities of Vision-Language Models (VLMs) have the potential to enhance the generalization of robot planners on new tasks, objects, and motion specifications. While foundation models have been applied to task planning, it is still unclear the degree to which they have the capability of spatial reasoning required to enforce user preferences or constraints on motion, such as desired distances from objects, topological properties, or motion style preferences. In this paper, we evaluate the capability of four state-of-the-art VLMs at spatial reasoning over robot motion, using four different querying methods. Our results show that, with the highest-performing querying method, Qwen2.5-VL achieves 71.4% accuracy zero-shot and 75% on a smaller model after fine-tuning, and GPT-4o leads to lower performance. We evaluate two types of motion preferences (object-proximity and path-style), and we also analyze the trade-off between accuracy and computation cost in number of tokens. This work shows some promise in the potential of VLM integration with robot motion planning pipelines.",
+          "claimed_authors": [
+            "Wenxi Wu",
+            "Jingjing Zhang",
+            "Martim Brandão"
+          ],
+          "claimed_title": "Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13100"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title=\"Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences\")",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision transformers have shown great potential in various computer vision tasks owing to their strong capability to model long-range dependency using the self-attention mechanism. Nevertheless, they treat an image as a 1D sequence of visual tokens, lacking an intrinsic inductive bias (IB) in modeling local visual structures and dealing with scale variance, which is instead learned implicitly from large-scale training data with longer training schedules. In this paper, we propose a Vision Transformer Advanced by Exploring intrinsic IB from convolutions, i.e., ViTAE. Technically, ViTAE has several spatial pyramid reduction modules to downsample and embed the input image into tokens with rich multi-scale context using multiple convolutions with different dilation rates. In this way, it acquires an intrinsic scale invariance IB and can learn robust feature representation for objects at various scales. Moreover, in each transformer layer, ViTAE has a convolution block parallel to the multi-head self-attention module, whose features are fused and fed into the feed-forward network. Consequently, it has the intrinsic locality IB and is able to learn local features and global dependencies collaboratively. The proposed two kinds of cells are stacked in both isotropic and multi-stage manners to formulate two families of ViTAE models, i.e., the vanilla ViTAE and ViTAEv2. Experiments on the ImageNet dataset as well as downstream tasks on the MS COCO, ADE20K, and AP10K datasets validate the superiority of our models over the baseline transformer models and concurrent works. Besides, we scale up our ViTAE model to 644M parameters and obtain the state-of-the-art classification performance, i.e., 88.5% Top-1 classification accuracy on ImageNet validation set and the best 91.2% Top-1 accuracy on ImageNet real validation set, without using extra private data.",
+          "claimed_authors": [
+            "Qiming Zhang",
+            "Yufei Xu",
+            "Jing Zhang",
+            "Dacheng Tao"
+          ],
+          "claimed_title": "ViTAEv2: Vision Transformer Advanced by Exploring Inductive Bias for Image Recognition and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.10108"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='ViTAEv2: Vision Transformer Advanced by Exploring Inductive Bias for Image Recognition and Beyond')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision transformers have shown great success on numerous computer vision tasks. However, its central component, softmax attention, prohibits vision transformers from scaling up to high-resolution images, due to both the computational complexity and memory footprint being quadratic. Although linear attention was introduced in natural language processing (NLP) tasks to mitigate a similar issue, directly applying existing linear attention to vision transformers may not lead to satisfactory results. We investigate this problem and find that computer vision tasks focus more on local information compared with NLP tasks. Based on this observation, we present a Vicinity Attention that introduces a locality bias to vision transformers with linear complexity. Specifically, for each image patch, we adjust its attention weight based on its 2D Manhattan distance measured by its neighbouring patches. In this case, the neighbouring patches will receive stronger attention than far-away patches. Moreover, since our Vicinity Attention requires the token length to be much larger than the feature dimension to show its efficiency advantages, we further propose a new Vicinity Vision Transformer (VVT) structure to reduce the feature dimension without degenerating the accuracy. We perform extensive experiments on the CIFAR100, ImageNet1K, and ADE20K datasets to validate the effectiveness of our method. Our method has a slower growth rate of GFlops than previous transformer-based and convolution-based networks when the input resolution increases. In particular, our approach achieves state-of-the-art image classification accuracy with 50% fewer parameters than previous methods.",
+          "claimed_authors": [
+            "Weixuan Sun",
+            "Zhen Qin",
+            "Hui Deng",
+            "Jianyuan Wang",
+            "Yi Zhang",
+            "Kaihao Zhang",
+            "Nick Barnes",
+            "Stan Birchfield",
+            "Lingpeng Kong",
+            "Yiran Zhong"
+          ],
+          "claimed_title": "Vicinity Vision Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.10552"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Vicinity Vision Transformer')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "State-of-the-art reinforcement learning algorithms predominantly learn a policy from either a numerical state vector or images. Both approaches generally do not take structural knowledge of the task into account, which is especially prevalent in robotic applications and can benefit learning if exploited. This work introduces a neural network architecture that combines relational inductive bias and visual feedback to learn an efficient position control policy for robotic manipulation. We derive a graph representation that models the physical structure of the manipulator and combines the robot's internal state with a low-dimensional description of the visual scene generated by an image encoding network. On this basis, a graph neural network trained with reinforcement learning predicts joint velocities to control the robot. We further introduce an asymmetric approach of training the image encoder separately from the policy using supervised learning. Experimental results demonstrate that, for a 2-DoF planar robot in a geometrically simplistic 2D environment, a learned representation of the visual scene can replace access to the explicit coordinates of the reaching target without compromising on the quality and sample efficiency of the policy. We further show the ability of the model to improve sample efficiency for a 6-DoF robot arm in a visually realistic 3D environment.",
+          "claimed_authors": [
+            "Marco Oliva",
+            "Soubarna Banik",
+            "Josip Josifovski",
+            "Alois Knoll"
+          ],
+          "claimed_title": "Graph Neural Networks for Relational Inductive Bias in Vision-based Deep Reinforcement Learning of Robot Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.05985"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SpatialBench: Is Your Spatial Foundation Model an ', candidate_title='Graph Neural Networks for Relational Inductive Bias in Vision-based Deep Reinforcement Learning of Robot Control')",
+        "failed_at": "2026-07-25T01:21:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haosong Peng",
+            "Hao Li",
+            "Jiaqi Chen",
+            "Yuhao Pan",
+            "Runmao Yao",
+            "Yalun Dai",
+            "Fushuo Huo",
+            "Fangzhou Hong",
+            "Zhaoxi Chen",
+            "Haozhao Wang",
+            "Dingwen Zhang",
+            "Ziwei Liu",
+            "Wenchao Xu"
+          ],
+          "title": "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27367",
+        "summary": "While spatial foundation models have demonstrated impressive performance on standard datasets, a critical question remains: are they truly all-round players capable of generalizing robustly across diverse downstream tasks, arbitrary viewpoints, shifting scene domains, varying input densities, and specific hardware constraints? Answering this overarching question requires a holistic assessment, yet current models are mainly evaluated on specific domains for which they were specifically designed or trained. Such evaluations are intrinsically limited by narrow paradigm coverage, limited scene domains, and arbitrary frame sampling, making it fundamentally difficult to assess their true generalization capabilities. To address this gap, we present SpatialBench, a cross-paradigm, domain-diverse benchmark for spatial foundation models with deterministic sampling. SpatialBench features unprecedented scale and rigorous deterministic design, comprising 19 datasets and 546 scenes across 5 diverse spatial domains. It comprehensively evaluates 41 models across 6 paradigms on 5 task suites under 4 different input density settings. Our extensive evaluation reveals that current models are not yet all-round players, and uncovers crucial insights for future advancement. Specifically, we demonstrate that full-context attention maximizes accuracy while bounded-memory strategies unlock long-sequence scalability. Moreover, our empirical evaluations in challenging embodied and egocentric tasks demonstrate that strict domain alignment and high data quality are far more critical to performance than simple dataset scaling. Furthermore, to address the largest data gap identified in our analysis, we go beyond evaluation by introducing a large-scale dataset, DA-Next-5M, and a strong baseline model, DA-Next, pushing the boundaries of spatial representation learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.27367",
+          "http_status": 200,
+          "pdf_sample_score": 0.2773,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-25T01:21:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13782",
+        "summary": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13782",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-25T01:21:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"spatialbench: is your spatial foundation model an all-round player?\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

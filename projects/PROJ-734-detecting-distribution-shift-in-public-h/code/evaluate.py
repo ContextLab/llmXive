@@ -1,174 +1,296 @@
+"""
+Evaluation module for distribution shift detection pipeline.
+Loads flags, ground truth, and baseline results to compute metrics and perform statistical comparisons.
+"""
+
 import os
 import sys
 import logging
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Optional
-
-from main import load_config
-from contracts import validate_csv_file, validate_record
+from scipy import stats
 
 logger = logging.getLogger(__name__)
 
-def load_flags(filepath: str) -> pd.DataFrame:
-    """Load the flags.csv file produced by the MMD detector."""
+def load_flags(filepath: str = "data/processed/flags.csv") -> pd.DataFrame:
+    """
+    Load the MMD flags CSV.
+    Expected columns: week, mmd_stat, p_value, is_flagged
+    """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Flags file not found: {filepath}")
     df = pd.read_csv(filepath)
-    # Ensure week column is numeric for comparison
-    if 'week' in df.columns:
-        df['week'] = pd.to_numeric(df['week'], errors='coerce')
+    logger.info(f"Loaded {len(df)} flags from {filepath}")
     return df
 
-def load_ground_truth(filepath: str) -> pd.DataFrame:
-    """Load the ground truth events CSV."""
+def load_ground_truth(filepath: str = "data/raw/ground_truth_events.csv") -> pd.DataFrame:
+    """
+    Load ground truth events.
+    Expected columns: start_week, end_week, event_name
+    """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Ground truth file not found: {filepath}")
     df = pd.read_csv(filepath)
-    # Ensure start_week is numeric
-    if 'start_week' in df.columns:
-        df['start_week'] = pd.to_numeric(df['start_week'], errors='coerce')
+    logger.info(f"Loaded {len(df)} ground truth events from {filepath}")
     return df
 
-def calculate_detection_delay(flagged_week: float, true_start_week: float, tolerance: int = 2) -> Optional[float]:
+def load_baselines(filepath: str = "data/processed/baselines.csv") -> pd.DataFrame:
     """
-    Calculate the detection delay for a single true event.
-    Returns the delay (flagged_week - true_start_week) if the flag is within tolerance.
-    Returns None if no flag is within tolerance.
+    Load baseline change points (Pettitt and BOCPD).
+    Expected columns: method, week, statistic, is_change
     """
-    diff = flagged_week - true_start_week
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Baselines file not found: {filepath}")
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded {len(df)} baseline change points from {filepath}")
+    return df
+
+def calculate_detection_delay(
+    detected_week: int,
+    true_start_week: int,
+    tolerance: int = 2
+) -> Optional[int]:
+    """
+    Calculate detection delay for a single detection event.
+    Returns the delay if the detection is within the tolerance window.
+    Returns None if the detection is outside the tolerance window.
+    """
+    diff = detected_week - true_start_week
     if abs(diff) <= tolerance:
         return diff
     return None
 
 def compute_metrics(
     flags_df: pd.DataFrame,
-    truth_df: pd.DataFrame,
+    ground_truth_df: pd.DataFrame,
     tolerance: int = 2
 ) -> Dict[str, float]:
     """
-    Compute Precision, Recall, and average Detection Delay.
-
-    Precision: TP / (TP + FP)
-    Recall: TP / (TP + FN)
-    Detection Delay: Average of (flagged_week - true_start_week) for all matched pairs.
-
-    Matching logic:
-    - A True Event is "detected" if there exists at least one flagged week within [start_week - tolerance, start_week + tolerance].
-    - A Flagged Week is a "True Positive" if it falls within tolerance of ANY true event start.
-    - A Flagged Week is a "False Positive" if it does not fall within tolerance of ANY true event.
-    - A True Event is a "False Negative" if NO flagged week falls within its tolerance window.
+    Compute precision, recall, and average detection delay for MMD flags.
     """
-    true_events = truth_df['start_week'].dropna().unique()
-    flagged_weeks = flags_df['week'].dropna().unique()
+    detected_weeks = flags_df[flags_df['is_flagged']]['week'].tolist()
+    true_weeks = ground_truth_df['start_week'].tolist()
 
-    true_positives = 0
-    false_positives = 0
-    delays = []
+    if not detected_weeks or not true_weeks:
+        return {
+            'precision': 0.0,
+            'recall': 0.0,
+            'avg_delay': None,
+            'total_detected': 0,
+            'total_true': len(true_weeks)
+        }
 
-    # Track which true events have been detected
-    detected_events = set()
+    # Match detections to ground truth within tolerance
+    matched_delays = []
+    true_matched = set()
 
-    # 1. Identify True Positives and calculate delays
-    for flag_week in flagged_weeks:
-        is_tp = False
-        for true_week in true_events:
-            if abs(flag_week - true_week) <= tolerance:
-                is_tp = True
-                detected_events.add(true_week)
-                # Calculate delay for this specific match
-                delay = flag_week - true_week
-                delays.append(delay)
-                break # A flag only needs to match one event to be a TP
-        
-        if is_tp:
-            true_positives += 1
-        else:
-            false_positives += 1
+    for det_week in detected_weeks:
+        for i, true_week in enumerate(true_weeks):
+            if i in true_matched:
+                continue
+            if abs(det_week - true_week) <= tolerance:
+                matched_delays.append(det_week - true_week)
+                true_matched.add(i)
+                break
 
-    # 2. Count False Negatives (True events not detected)
-    false_negatives = len(true_events) - len(detected_events)
-
-    # 3. Calculate Metrics
-    precision = 0.0
-    if (true_positives + false_positives) > 0:
-        precision = true_positives / (true_positives + false_positives)
-
-    recall = 0.0
-    if (true_positives + false_negatives) > 0:
-        recall = true_positives / (true_positives + false_negatives)
-
-    avg_delay = 0.0
-    if len(delays) > 0:
-        avg_delay = float(np.mean(delays))
+    precision = len(matched_delays) / len(detected_weeks) if detected_weeks else 0.0
+    recall = len(matched_delays) / len(true_weeks) if true_weeks else 0.0
+    avg_delay = np.mean(matched_delays) if matched_delays else None
 
     return {
-        "precision": precision,
-        "recall": recall,
-        "detection_delay": avg_delay,
-        "true_positives": true_positives,
-        "false_positives": false_positives,
-        "false_negatives": false_negatives,
-        "total_events": len(true_events),
-        "total_flags": len(flagged_weeks)
+        'precision': precision,
+        'recall': recall,
+        'avg_delay': avg_delay,
+        'total_detected': len(detected_weeks),
+        'total_true': len(true_weeks),
+        'matched_count': len(matched_delays)
     }
 
+def compute_baseline_delays(
+    baselines_df: pd.DataFrame,
+    ground_truth_df: pd.DataFrame,
+    tolerance: int = 2,
+    method: Optional[str] = None
+) -> Dict[str, List[int]]:
+    """
+    Compute detection delays for baseline methods (Pettitt, BOCPD).
+    Returns a dictionary mapping method names to lists of delays.
+    """
+    results = {}
+
+    if method:
+        methods_to_process = [method]
+    else:
+        methods_to_process = baselines_df['method'].unique().tolist()
+
+    for m in methods_to_process:
+        m_df = baselines_df[baselines_df['method'] == m]
+        detected_weeks = m_df[m_df['is_change']]['week'].tolist()
+        true_weeks = ground_truth_df['start_week'].tolist()
+
+        delays = []
+        true_matched = set()
+
+        for det_week in detected_weeks:
+            for i, true_week in enumerate(true_weeks):
+                if i in true_matched:
+                    continue
+                if abs(det_week - true_week) <= tolerance:
+                    delays.append(det_week - true_week)
+                    true_matched.add(i)
+                    break
+
+        results[m] = delays
+        logger.info(f"Method {m}: Found {len(delays)} matched delays out of {len(detected_weeks)} detections.")
+
+    return results
+
 def evaluate_pipeline(
-    flags_path: str,
-    truth_path: str,
-    output_path: str,
+    flags_path: str = "data/processed/flags.csv",
+    ground_truth_path: str = "data/raw/ground_truth_events.csv",
     tolerance: int = 2
 ) -> Dict[str, float]:
     """
-    Main entry point for evaluation.
-    Loads data, computes metrics, and saves a summary CSV.
+    Full evaluation of the MMD pipeline.
     """
-    logger.info(f"Loading flags from {flags_path}")
     flags_df = load_flags(flags_path)
-    
-    logger.info(f"Loading ground truth from {truth_path}")
-    truth_df = load_ground_truth(truth_path)
+    ground_truth_df = load_ground_truth(ground_truth_path)
+    return compute_metrics(flags_df, ground_truth_df, tolerance)
 
-    # Basic validation
-    if 'week' not in flags_df.columns:
-        raise ValueError("Flags file must contain a 'week' column")
-    if 'start_week' not in truth_df.columns:
-        raise ValueError("Ground truth file must contain a 'start_week' column")
+def evaluate_baselines(
+    baselines_path: str = "data/processed/baselines.csv",
+    ground_truth_path: str = "data/raw/ground_truth_events.csv",
+    tolerance: int = 2
+) -> Dict[str, List[int]]:
+    """
+    Evaluate baseline methods and return detection delays.
+    """
+    baselines_df = load_baselines(baselines_path)
+    ground_truth_df = load_ground_truth(ground_truth_path)
+    return compute_baseline_delays(baselines_df, ground_truth_df, tolerance)
 
-    metrics = compute_metrics(flags_df, truth_df, tolerance=tolerance)
+def compare_detection_delays(
+    mmd_delays: List[int],
+    baseline_delays: List[int],
+    method_name: str = "Baseline"
+) -> Dict[str, float]:
+    """
+    Perform a two-sample t-test to compare MMD detection delays against baseline delays.
+    Returns a dictionary with t-statistic, p-value, and mean delays.
+    """
+    if not mmd_delays or not baseline_delays:
+        logger.warning("One or both delay lists are empty. Cannot perform t-test.")
+        return {
+            't_statistic': np.nan,
+            'p_value': np.nan,
+            'mmd_mean_delay': np.nan if not mmd_delays else np.mean(mmd_delays),
+            'baseline_mean_delay': np.nan if not baseline_delays else np.mean(baseline_delays),
+            'mmd_count': len(mmd_delays),
+            'baseline_count': len(baseline_delays),
+            'skipped': True
+        }
 
-    # Save metrics to CSV
-    metrics_df = pd.DataFrame([metrics])
-    metrics_df.to_csv(output_path, index=False)
-    logger.info(f"Metrics saved to {output_path}")
-    
-    return metrics
+    t_stat, p_val = stats.ttest_ind(mmd_delays, baseline_delays)
+
+    logger.info(f"T-test (MMD vs {method_name}): t={t_stat:.4f}, p={p_val:.4f}")
+    logger.info(f"  MMD mean delay: {np.mean(mmd_delays):.2f} (n={len(mmd_delays)})")
+    logger.info(f"  {method_name} mean delay: {np.mean(baseline_delays):.2f} (n={len(baseline_delays)})")
+
+    return {
+        't_statistic': t_stat,
+        'p_value': p_val,
+        'mmd_mean_delay': float(np.mean(mmd_delays)),
+        'baseline_mean_delay': float(np.mean(baseline_delays)),
+        'mmd_count': len(mmd_delays),
+        'baseline_count': len(baseline_delays),
+        'skipped': False
+    }
 
 def main():
-    """CLI entry point for evaluation."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    config = load_config()
-    
-    # Default paths based on project structure
+    """
+    Main entry point for evaluation and cross-comparison.
+    Loads MMD and Baseline results, computes delays, performs t-test, and prints summary.
+    """
+    # Setup logging
+    from logging_setup import setup_logging
+    setup_logging()
+
+    logger.info("Starting evaluation and cross-comparison (T026b)...")
+
+    # Paths
     flags_path = "data/processed/flags.csv"
-    truth_path = "data/raw/ground_truth_events.csv"
-    output_path = "data/processed/evaluation_metrics.csv"
-    
-    # Allow override via config if present
-    tolerance = config.get("tolerance", 2)
+    baselines_path = "data/processed/baselines.csv"
+    ground_truth_path = "data/raw/ground_truth_events.csv"
 
     try:
-        metrics = evaluate_pipeline(flags_path, truth_path, output_path, tolerance=tolerance)
-        print(f"Evaluation Complete:")
-        print(f"  Precision: {metrics['precision']:.4f}")
-        print(f"  Recall:    {metrics['recall']:.4f}")
-        print(f"  Avg Delay: {metrics['detection_delay']:.2f} weeks")
+        # 1. Evaluate MMD
+        logger.info("Loading MMD results...")
+        mmd_metrics = evaluate_pipeline(flags_path, ground_truth_path)
+        logger.info(f"MMD Metrics: Precision={mmd_metrics['precision']:.3f}, Recall={mmd_metrics['recall']:.3f}")
+
+        # Extract MMD delays from the metrics if available, otherwise re-calculate
+        # Note: compute_metrics currently returns a single avg_delay, but for t-test we need the list.
+        # We need to re-run the delay calculation logic to get the list.
+        flags_df = load_flags(flags_path)
+        ground_truth_df = load_ground_truth(ground_truth_path)
+        
+        detected_weeks = flags_df[flags_df['is_flagged']]['week'].tolist()
+        true_weeks = ground_truth_df['start_week'].tolist()
+        mmd_delays = []
+        true_matched = set()
+        for det_week in detected_weeks:
+            for i, true_week in enumerate(true_weeks):
+                if i in true_matched:
+                    continue
+                if abs(det_week - true_week) <= 2:
+                    mmd_delays.append(det_week - true_week)
+                    true_matched.add(i)
+                    break
+        
+        logger.info(f"MMD matched delays count: {len(mmd_delays)}")
+
+        # 2. Evaluate Baselines
+        logger.info("Loading Baseline results...")
+        baseline_delays_map = evaluate_baselines(baselines_path, ground_truth_path)
+        
+        # Combine all baseline delays for a global comparison, or compare per method
+        # The task asks for "Baseline delays" generally. We will aggregate all matched baseline delays.
+        all_baseline_delays = []
+        for method, delays in baseline_delays_map.items():
+            all_baseline_delays.extend(delays)
+            logger.info(f"  {method} matched delays: {len(delays)}")
+
+        logger.info(f"Total Baseline matched delays count: {len(all_baseline_delays)}")
+
+        # 3. Perform T-Test
+        if mmd_delays and all_baseline_delays:
+            logger.info("Performing two-sample t-test on detection delays...")
+            comparison_result = compare_detection_delays(mmd_delays, all_baseline_delays, "Baselines (Aggregated)")
+            
+            print("\n--- Cross-Comparison Results (T026b) ---")
+            print(f"MMD Mean Delay: {comparison_result['mmd_mean_delay']:.2f} (n={comparison_result['mmd_count']})")
+            print(f"Baseline Mean Delay: {comparison_result['baseline_mean_delay']:.2f} (n={comparison_result['baseline_count']})")
+            print(f"T-Statistic: {comparison_result['t_statistic']:.4f}")
+            print(f"P-Value: {comparison_result['p_value']:.4f}")
+            
+            # Save comparison result to a JSON file for the report generator to pick up
+            comparison_path = "data/processed/delay_comparison.json"
+            import json
+            with open(comparison_path, 'w') as f:
+                json.dump(comparison_result, f, indent=2, default=str)
+            logger.info(f"Comparison results saved to {comparison_path}")
+        else:
+            logger.warning("Insufficient matched delays to perform t-test.")
+            print("\n--- Cross-Comparison Results (T026b) ---")
+            print("Skipped: Insufficient matched delays for t-test.")
+
     except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+        logger.error(f"Data file missing: {e}")
+        raise
     except Exception as e:
         logger.error(f"Evaluation failed: {e}")
-        sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main()

@@ -3,9 +3,10 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-detect-shift"
+name = "detecting-distribution-shift"
 version = "0.1.0"
-description = "Detecting Distribution Shift in Public Health Surveillance Data"
+description = "Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two-Sample Tests"
+readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "numpy",
@@ -19,12 +20,9 @@ dependencies = [
     "pydantic"
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py38', 'py39', 'py310', 'py311']
 exclude = '''
 /(
     \.git
@@ -38,6 +36,11 @@ exclude = '''
     | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = ["venv", ".git", "__pycache__", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

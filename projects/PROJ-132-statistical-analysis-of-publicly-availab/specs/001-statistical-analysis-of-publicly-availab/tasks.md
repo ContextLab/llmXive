@@ -93,11 +93,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
-- [ ] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
-- [ ] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
+- [X] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
+- [X] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
+- [X] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
 - [ ] T018 [US1] Add logic to mark grid cells as "insufficient data" when observation density is too low, excluding them from downstream modeling (Depends on **completion** of T007 - file creation, not just module import)
-- [ ] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
+- [X] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
 - [ ] T019b [P] [US1] Implement **Tail-Preserving Stratified Sampling** (FR-002-S) in `src/data/preprocess.py`:
  1. Quantile-bin `first_arrival` into deciles.
  2. Oversample cells in the lowest decile by a moderate factor.
