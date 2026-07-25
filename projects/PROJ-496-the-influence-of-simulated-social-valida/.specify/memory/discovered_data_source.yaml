@@ -1,0 +1,16 @@
+status: none
+intent: EEG social feedback task social anxiety questionnaire OpenNeuro PhysioNet
+  download python package dataset
+required_fields:
+- subject_id
+- eeg_data
+- sampling_rate
+- event_markers
+- feedback_condition
+- feedback_type
+- social_anxiety_score
+- demographics
+- session_timestamp
+cache_key: a436940a20fa537d561b1b24ab3b704f16bf3e858c12fce6cf53b88633f571d8
+searched_at: '2026-07-25T23:01:14.650563+00:00'
+retry_count: 1

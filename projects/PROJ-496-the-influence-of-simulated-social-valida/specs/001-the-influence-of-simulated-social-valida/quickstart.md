@@ -1,14 +1,13 @@
 # Quickstart: The Influence of Simulated Social Validation on Neural Responses to Novel Information
 
 ## Prerequisites
-
 - Python 3.11+
-- 7 GB+ RAM available
-- Internet connection (for dataset download)
+- Git
+- Access to GitHub Actions (or local virtualenv for testing)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
+1. **Clone the repository**:
    ```bash
    git clone <repo-url>
    cd projects/PROJ-496-the-influence-of-simulated-social-valida
@@ -22,54 +21,57 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r code/requirements.txt
    ```
 
 ## Running the Pipeline
 
-The pipeline is executed in three stages.
-
-### Stage 1: Dataset Search
+### Step 1: Dataset Search & Eligibility Check
 Run the search script to identify eligible datasets.
 ```bash
-python code/main.py --stage search
+python code/search.py
 ```
-- **Output**: `data/results/search_results.csv`.
-- **Expected**:
-  - If **Eligible**: Lists the dataset ID.
-  - If **Partial** or **None**: Outputs "No eligible datasets found" and exits with code 0 (Negative Finding). The pipeline terminates here.
+- **Output**: `data/raw/dataset_catalog.csv` and `data/results/negative_finding_report.pdf` (if no dataset found).
+- **Note**: If the report is generated, the pipeline stops here. No further steps are valid.
 
-### Stage 2: Preprocessing & Extraction (Only if Eligible Dataset Found)
-If an Eligible dataset is found, run preprocessing.
+### Step 2: Preprocessing (If Dataset Found)
+If a dataset is eligible, run the preprocessing pipeline.
 ```bash
-python code/main.py --stage preprocess --dataset-id <ID>
+python code/preprocess.py --dataset-id <ID>
 ```
-- **Output**: `data/processed/p300_measures.csv`.
-- **QC Check**: The script will automatically flag participants failing the [deferred] retention or 2-15 µV amplitude criteria. If QC fails, the pipeline aborts and generates a Negative Finding Report.
+- **Output**: `data/processed/p300_metrics.csv`.
+- **QC Check**: The script will log participants excluded due to low trial count or high artifact rate.
 
-### Stage 3: Analysis & Reporting (Only if QC Passed)
-Run the statistical model.
+### Step 3: Statistical Analysis
+Run the LMM and sensitivity analysis.
 ```bash
-python code/main.py --stage analyze
+python code/analyze.py
 ```
-- **Output**:
-  - **Primary Path**: `data/results/model_results.json` (LMM + Bayes Factors), `data/results/report.pdf`.
-  - **Negative Finding Path**: `data/results/negative_finding_report.json`, `data/results/negative_finding_report.pdf`.
+- **Output**: `data/results/model_summary.csv`, `data/results/sensitivity_sweep.csv`, and plots.
+
+### Step 4: Generate Report
+Generate the final PDF/HTML report.
+```bash
+python code/report.py
+```
+- **Output**: `data/results/final_report.pdf`, `data/results/final_report.html`.
 
 ## Verification
 
-- **Check Data Integrity**:
-  ```bash
-  python code/main.py --stage verify-checksums
-  ```
-- **Run Tests**:
-  ```bash
-  pytest tests/
-  ```
+1. **Check Data Integrity**:
+   ```bash
+   sha256sum data/processed/p300_metrics.csv
+   # Compare with checksum in state/artifact_hashes.yaml
+   ```
+2. **Run Tests**:
+   ```bash
+   pytest tests/
+   ```
+3. **Validate Schema**:
+   Ensure `data/processed/p300_metrics.csv` matches `contracts/p300_measure.schema.yaml`.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the number of subjects processed or increase RAM. The pipeline is optimized for ~7 GB RAM.
-- **No Dataset Found**: This is a valid outcome. Review `logs/search.log` for details. The project will generate a "Negative Finding" report and exit with code 0.
-- **Bayes Factor Not Significant**: The pipeline automatically reports the Bayes Factor. If BF < 3 and p > 0.05, the report will state "No significant effect found" and proceed to the sensitivity analysis.
-- **QC Failed**: If the dataset fails the QC criteria (SC-002), the pipeline will abort and generate a "Negative Finding" report explaining the failure.
+- **Error: "No eligible datasets found"**: This is expected if the verified dataset list does not contain the required data. Review `data/results/negative_finding_report.pdf` for details.
+- **Error: "Model did not converge"**: Check `data/results/model_summary.csv` for convergence flags. May indicate insufficient data or collinearity.
+- **Error: "Memory Limit"**: If processing fails on CI, ensure `streaming=True` is used in `code/preprocess.py`.

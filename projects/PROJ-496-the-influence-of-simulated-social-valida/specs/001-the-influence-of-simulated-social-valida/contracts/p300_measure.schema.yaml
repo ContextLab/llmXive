@@ -1,130 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "P300 Measure Schema"
-description: "Schema defining the structure of extracted P300 features for each participant/condition."
-type: object
+description: "Schema for extracted P300 metrics per subject and condition."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Anonymized participant identifier."
+  condition:
+    type: "string"
+    enum:
+      - "simulated"
+      - "real"
+    description: "Type of social validation condition."
+  p300_amplitude:
+    type: "number"
+    description: "Peak amplitude in microvolts (µV)."
+    minimum: -20.0
+    maximum: 20.0
+  p300_latency:
+    type: "number"
+    description: "Time to peak in milliseconds (ms)."
+    minimum: 0.0
+    maximum: 1000.0
+  trial_count:
+    type: "integer"
+    description: "Number of valid trials included in the average."
+    minimum: 0
+  rejected:
+    type: "boolean"
+    description: "True if the subject was excluded due to QC failure."
 required:
   - subject_id
-  - dataset_id
   - condition
   - p300_amplitude
   - p300_latency
-  - qc_status
-  - threshold_used
-properties:
-  subject_id:
-    type: string
-    description: "Unique identifier for the participant within the dataset."
-    minLength: 1
-  
-  dataset_id:
-    type: string
-    description: "Source dataset identifier (references eeg_dataset.schema.yaml)."
-  
-  session_id:
-    type: string
-    description: "Optional session identifier if multiple sessions exist."
-    default: ""
-  
-  condition:
-    type: string
-    enum:
-      - "positive_feedback"
-      - "negative_feedback"
-      - "neutral_feedback"
-      - "simulated_positive"
-      - "simulated_negative"
-      - "real_positive"
-      - "real_negative"
-      - "baseline"
-    description: "Experimental condition for this measurement."
-  
-  p300_amplitude:
-    type: number
-    description: "Peak amplitude in microvolts (µV)."
-    minimum: -50.0
-    maximum: 50.0
-  
-  p300_latency:
-    type: number
-    description: "Peak latency in milliseconds (ms) relative to stimulus onset."
-    minimum: 0.0
-    maximum: 1000.0
-  
-  electrodes_used:
-    type: array
-    items:
-      type: string
-      enum:
-        - "Pz"
-        - "CPz"
-        - "POz"
-        - "Cz"
-    description: "List of electrodes used for peak detection."
-    default:
-      - "Pz"
-      - "CPz"
-  
-  baseline_window:
-    type: array
-    items:
-      type: number
-    minItems: 2
-    maxItems: 2
-    description: "Baseline window [start_ms, end_ms] used for normalization."
-    default:
-      - -200
-      - 0
-  
-  time_window:
-    type: array
-    items:
-      type: number
-    minItems: 2
-    maxItems: 2
-    description: "Time window [start_ms, end_ms] searched for P300 peak."
-    default:
-      - 250
-      - 600
-  
-  trial_count:
-    type: integer
-    description: "Number of trials included in the average."
-    minimum: 1
-  
-  rejection_rate:
-    type: number
-    description: "Percentage of trials rejected during preprocessing."
-    minimum: 0.0
-    maximum: 100.0
-  
-  qc_status:
-    type: string
-    enum:
-      - "pass"
-      - "fail"
-      - "warning"
-    description: "Quality control status of the extraction."
-  
-  qc_reason:
-    type: string
-    description: "Reason for QC failure or warning if applicable."
-    default: ""
-  
-  threshold_used:
-    type: string
-    description: "Rejection threshold used during preprocessing (e.g., '±100µV')."
-  
-  preprocessing_version:
-    type: string
-    default: "1.0.0"
-    description: "Version of the preprocessing pipeline."
-  
-  extraction_timestamp:
-    type: string
-    format: date-time
-    description: "Timestamp when the measure was extracted."
-  
-  notes:
-    type: string
-    description: "Optional additional notes or observations."
-    default: ""
+  - trial_count
+  - rejected
+additionalProperties: false
