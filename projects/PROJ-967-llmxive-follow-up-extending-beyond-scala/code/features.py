@@ -3,429 +3,287 @@ import json
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Tuple
-
+import math
 import numpy as np
-from scipy import stats
+import pandas as pd
 
-# ---------------------------------------------------------------------------
-# Configuration & Setup
-# ---------------------------------------------------------------------------
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+    return logging.getLogger(__name__)
 
-def setup_logging() -> logging.Logger:
-    """Configure and return a logger."""
-    logger = logging.getLogger("features")
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        )
-        logger.addHandler(handler)
-    return logger
-
-# ---------------------------------------------------------------------------
-# Data Loading Helpers
-# ---------------------------------------------------------------------------
-
-def load_aligned_data(
-    input_path: str, logger: logging.Logger
-) -> List[Dict[str, Any]]:
+def load_aligned_data(ingestion_path: str) -> pd.DataFrame:
     """
-    Load the aligned dataset from the intermediate CSV produced by ingest.py.
-
-    Expected columns (per schema):
-    - sample_id: str
-    - prompt: str
-    - image_path: str
-    - teacher_logits: list[float] (stored as JSON string or comma-separated)
-    - student_scalar: float
-    - human_annotations: dict (stored as JSON string)
-    - primary_dimension: str
-
-    Returns a list of dicts with parsed types.
+    Load the aligned dataset produced by ingest.py.
+    Expected columns: prompt, image_path, teacher_logits (list), student_scalar,
+    human_annotations (dict), primary_dimension.
     """
-    logger.info(f"Loading aligned data from {input_path}")
-    data = []
-
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    with open(input_path, "r", encoding="utf-8") as f:
-        # Assuming CSV with header; if JSON lines, adjust accordingly
-        # Based on T012/T013 output expectations, we assume CSV format
-        import csv
-
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Parse teacher_logits if stored as string
-            if isinstance(row.get("teacher_logits"), str):
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading aligned data from {ingestion_path}")
+    
+    if not os.path.exists(ingestion_path):
+        raise FileNotFoundError(f"Aligned data file not found: {ingestion_path}")
+    
+    # Assuming the output of ingest.py is a CSV or JSONL format
+    # Based on typical pipeline outputs, we expect a CSV with stringified lists/dicts
+    # or a JSON file. Let's handle JSON first as it's safer for nested structures.
+    if ingestion_path.endswith('.json'):
+        with open(ingestion_path, 'r') as f:
+            data = json.load(f)
+        return pd.DataFrame(data)
+    elif ingestion_path.endswith('.csv'):
+        df = pd.read_csv(ingestion_path)
+        # If teacher_logits are stored as strings "[x, y, z]", parse them
+        if 'teacher_logits' in df.columns:
+            def parse_list(s):
+                if isinstance(s, list): return s
                 try:
-                    row["teacher_logits"] = json.loads(row["teacher_logits"])
-                except json.JSONDecodeError:
-                    # Fallback for comma-separated if JSON load fails
-                    row["teacher_logits"] = [float(x) for x in row["teacher_logits"].split(",")]
+                    return json.loads(s)
+                except:
+                    return []
+            df['teacher_logits'] = df['teacher_logits'].apply(parse_list)
+        if 'human_annotations' in df.columns:
+            def parse_dict(s):
+                if isinstance(s, dict): return s
+                try:
+                    return json.loads(s)
+                except:
+                    return {}
+            df['human_annotations'] = df['human_annotations'].apply(parse_dict)
+        return df
+    else:
+        raise ValueError(f"Unsupported file format: {ingestion_path}")
 
-            # Parse human_annotations if stored as string
-            if isinstance(row.get("human_annotations"), str):
-                row["human_annotations"] = json.loads(row["human_annotations"])
-
-            # Ensure numeric types
-            row["student_scalar"] = float(row["student_scalar"])
-
-            data.append(row)
-
-    logger.info(f"Loaded {len(data)} samples")
-    return data
-
-# ---------------------------------------------------------------------------
-# Statistical Calculations (Per-Sample & Global)
-# ---------------------------------------------------------------------------
-
-def calculate_variance_and_range(values: List[float]) -> Tuple[float, float]:
-    """
-    Calculate variance and range for a list of values.
-
-    Returns:
-        Tuple[float, float]: (variance, range)
-    """
-    if not values or len(values) < 2:
-        return 0.0, 0.0
-
-    arr = np.array(values, dtype=float)
+def calculate_variance_and_range(scores: list) -> dict:
+    """Calculate variance and range for a list of scores."""
+    if not scores:
+        return {"variance": 0.0, "range": 0.0}
+    arr = np.array(scores)
     variance = float(np.var(arr))
-    range_val = float(np.ptp(arr))  # peak-to-peak (max - min)
-    return variance, range_val
+    range_val = float(np.max(arr) - np.min(arr))
+    return {"variance": variance, "range": range_val}
 
-def calculate_entropy(values: List[float]) -> float:
-    """
-    Calculate Shannon entropy for a list of values.
-    Treats values as a probability distribution (normalized).
-
-    Returns:
-        float: Entropy value.
-    """
-    if not values:
+def calculate_entropy(scores: list) -> float:
+    """Calculate entropy of a distribution. Treats scores as unnormalized probabilities."""
+    if not scores:
         return 0.0
-
-    arr = np.array(values, dtype=float)
-
-    # Handle zero-variance or constant values
-    if np.all(arr == arr[0]):
+    arr = np.array(scores)
+    # Normalize to probabilities
+    total = np.sum(arr)
+    if total == 0:
         return 0.0
-
-    # Normalize to probability distribution
-    # If values can be negative (logits), we shift to positive for probability interpretation
-    # or use softmax. Given the context of "teacher distributions", we assume these are
-    # logits that should be normalized via softmax, or they are already scores.
-    # The task asks for entropy of "teacher distributions".
-    # Strategy: Apply softmax to logits to get probs, then calculate entropy.
-    # If values are already positive scores, we normalize by sum.
-    # Let's assume input is logits -> apply softmax.
-
-    # Stable softmax
-    exp_arr = np.exp(arr - np.max(arr))
-    probs = exp_arr / np.sum(exp_arr)
-
-    # Avoid log(0)
+    probs = arr / total
+    # Filter out zeros to avoid log(0)
     probs = probs[probs > 0]
-    if len(probs) == 0:
-        return 0.0
-
     entropy = -np.sum(probs * np.log(probs))
     return float(entropy)
 
-def calculate_skewness_and_kurtosis(values: List[float]) -> Tuple[float, float]:
-    """
-    Calculate skewness and kurtosis for a list of values.
-
-    Returns:
-        Tuple[float, float]: (skewness, kurtosis)
-    """
-    if not values or len(values) < 3:
-        return 0.0, 0.0
-
-    arr = np.array(values, dtype=float)
-
-    # Handle zero-variance
-    if np.std(arr) == 0:
-        return 0.0, 0.0
-
-    skew = float(stats.skew(arr))
-    kurt = float(stats.kurtosis(arr))  # Fisher's definition (excess kurtosis)
-
-    return skew, kurt
-
-def calculate_per_sample_stats(
-    teacher_logits: List[float], logger: logging.Logger
-) -> Dict[str, float]:
-    """
-    Calculate variance, range, entropy, skewness, and kurtosis for a single sample.
-
-    Args:
-        teacher_logits: List of float values (logits/scores).
-        logger: Logger instance.
-
-    Returns:
-        Dict containing calculated stats.
-    """
-    variance, range_val = calculate_variance_and_range(teacher_logits)
-    entropy = calculate_entropy(teacher_logits)
-    skewness, kurtosis = calculate_skewness_and_kurtosis(teacher_logits)
-
-    return {
-        "variance": variance,
-        "range": range_val,
-        "entropy": entropy,
-        "skewness": skewness,
-        "kurtosis": kurtosis,
-    }
-
-def calculate_global_entanglement_score(
-    all_teacher_distributions: List[List[float]], logger: logging.Logger
-) -> float:
-    """
-    Calculate the global dominant eigenvalue of the covariance matrix
-    across the entire dataset's teacher distributions.
-
-    This implements the "Global Covariance Matrix" requirement.
-
-    Args:
-        all_teacher_distributions: List of lists, where each inner list is a sample's teacher distribution.
-        logger: Logger instance.
-
-    Returns:
-        float: The dominant (largest) eigenvalue.
-    """
-    if not all_teacher_distributions or len(all_teacher_distributions) < 2:
-        logger.warning("Insufficient data for global entanglement score.")
-        return 0.0
-
-    # Convert to numpy array (N_samples x N_dimensions)
+def calculate_skewness_and_kurtosis(scores: list) -> dict:
+    """Calculate skewness and kurtosis."""
+    if len(scores) < 4:
+        return {"skewness": 0.0, "kurtosis": 0.0}
+    arr = np.array(scores)
+    # Use scipy if available, otherwise fallback to manual or numpy
     try:
-        matrix = np.array(all_teacher_distributions, dtype=float)
-    except ValueError as e:
-        logger.error(f"Failed to convert teacher distributions to array: {e}")
-        return float('nan')
+        from scipy.stats import skew, kurtosis
+        return {
+            "skewness": float(skew(arr)),
+            "kurtosis": float(kurtosis(arr))
+        }
+    except ImportError:
+        # Fallback manual calculation
+        mean = np.mean(arr)
+        std = np.std(arr)
+        if std == 0:
+            return {"skewness": 0.0, "kurtosis": 0.0}
+        skewness = np.mean(((arr - mean) / std) ** 3)
+        kurtosis = np.mean(((arr - mean) / std) ** 4) - 3
+        return {"skewness": float(skewness), "kurtosis": float(kurtosis)}
 
-    N, D = matrix.shape
-    logger.info(f"Computing global covariance on {N} samples, {D} dimensions.")
-
-    if D < 2:
-        logger.warning("Less than 2 dimensions for covariance.")
-        return 0.0
-
-    # Compute covariance matrix (D x D)
-    # We want the covariance of the score vector across samples.
-    # np.cov expects variables in rows, observations in columns by default.
-    # So we transpose: (D x N) -> cov -> (D x D)
-    cov_matrix = np.cov(matrix.T)
-
-    # Check for NaNs
-    if np.any(np.isnan(cov_matrix)):
-        logger.error("Covariance matrix contains NaN values.")
-        return float('nan')
-
-    # Compute eigenvalues
-    eigenvalues = np.linalg.eigvalsh(cov_matrix)
-
-    # Dominant eigenvalue is the largest
-    dominant_eigenvalue = float(np.max(eigenvalues))
-
-    logger.info(f"Global dominant eigenvalue: {dominant_eigenvalue}")
-    return dominant_eigenvalue
-
-def calculate_dimensional_fidelity_loss(
-    student_scalar: float,
-    human_annotations: Dict[str, float],
-    primary_dimension: str,
-    logger: logging.Logger,
-) -> float:
+def calculate_per_sample_stats(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate Mean Absolute Error (MAE) between student scalar and human annotation
-    for the primary dimension.
-
-    Args:
-        student_scalar: The student's predicted scalar score.
-        human_annotations: Dict mapping dimension names to scores.
-        primary_dimension: The key in human_annotations to use.
-        logger: Logger instance.
-
-    Returns:
-        float: MAE (absolute difference).
-
-    Raises:
-        KeyError: If primary_dimension is missing from human_annotations.
+    Calculate per-sample statistical features (variance, entropy, skewness, kurtosis).
+    This corresponds to T022a.
     """
-    if primary_dimension not in human_annotations:
-        raise KeyError(
-            f"Primary dimension '{primary_dimension}' not found in human_annotations: {list(human_annotations.keys())}"
-        )
-
-    human_score = human_annotations[primary_dimension]
-    loss = abs(float(student_scalar) - float(human_score))
-    return loss
-
-# ---------------------------------------------------------------------------
-# Main Feature Engineering Logic
-# ---------------------------------------------------------------------------
-
-def compute_all_features(
-    data: List[Dict[str, Any]], logger: logging.Logger
-) -> Tuple[List[Dict[str, Any]], float]:
-    """
-    Compute all per-sample features and the global entanglement score.
-
-    Args:
-        data: List of aligned sample dictionaries.
-        logger: Logger instance.
-
-    Returns:
-        Tuple[List[Dict], float]:
-            - List of feature dictionaries (one per sample).
-            - Global dominant eigenvalue.
-    """
-    processed_features = []
-    all_teacher_distributions = []
-
-    for idx, sample in enumerate(data):
-        sample_id = sample.get("sample_id", f"sample_{idx}")
-        teacher_logits = sample.get("teacher_logits", [])
-        student_scalar = sample.get("student_scalar", 0.0)
-        human_annotations = sample.get("human_annotations", {})
-        primary_dimension = sample.get("primary_dimension", "Alignment")
-
-        # 1. Per-sample stats (T020, T021, T022b)
-        try:
-            per_sample_stats = calculate_per_sample_stats(teacher_logits, logger)
-        except Exception as e:
-            logger.error(f"Error calculating stats for {sample_id}: {e}")
-            # Handle zero-variance gracefully as per T023
-            per_sample_stats = {
+    logger = logging.getLogger(__name__)
+    logger.info("Calculating per-sample statistics (T022a)...")
+    
+    results = []
+    for idx, row in df.iterrows():
+        logits = row.get('teacher_logits', [])
+        if not logits:
+            stats = {
+                "sample_id": row.get('sample_id', idx),
                 "variance": 0.0,
-                "range": 0.0,
                 "entropy": 0.0,
                 "skewness": 0.0,
-                "kurtosis": 0.0,
+                "kurtosis": 0.0
             }
+        else:
+            var_range = calculate_variance_and_range(logits)
+            ent = calculate_entropy(logits)
+            skew_kurt = calculate_skewness_and_kurtosis(logits)
+            stats = {
+                "sample_id": row.get('sample_id', idx),
+                "variance": var_range["variance"],
+                "entropy": ent,
+                "skewness": skew_kurt["skewness"],
+                "kurtosis": skew_kurt["kurtosis"]
+            }
+        results.append(stats)
+    
+    return pd.DataFrame(results)
 
-        # 2. Dimensional Fidelity Loss (T024)
-        try:
-            fidelity_loss = calculate_dimensional_fidelity_loss(
-                student_scalar, human_annotations, primary_dimension, logger
-            )
-        except KeyError:
-            logger.warning(
-                f"Skipping sample {sample_id}: Missing primary dimension '{primary_dimension}' in annotations."
-            )
-            # Exclude samples with missing annotations as per T024 logic
+def calculate_global_entanglement_score(df: pd.DataFrame) -> float:
+    """
+    Implement T022b: Global Covariance Matrix and Dominant Eigenvalue.
+    
+    1. Extract teacher score vectors for the entire dataset.
+    2. Compute the 4x4 covariance matrix of these vectors.
+    3. Extract the dominant eigenvalue (largest eigenvalue).
+    4. Return as a single scalar.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Calculating Global Covariance Matrix and Dominant Eigenvalue (T022b)...")
+    
+    # Collect all teacher logits
+    all_logits = []
+    for _, row in df.iterrows():
+        logits = row.get('teacher_logits', [])
+        if len(logits) == 4: # Ensure we have exactly 4 dimensions
+            all_logits.append(logits)
+        elif len(logits) > 0:
+            # Pad or truncate if necessary, but spec implies 4 dims
+            # For robustness, we take the first 4 or pad with 0
+            if len(logits) < 4:
+                logits = list(logits) + [0.0] * (4 - len(logits))
+            else:
+                logits = logits[:4]
+            all_logits.append(logits)
+    
+    if len(all_logits) == 0:
+        logger.warning("No valid teacher logits found. Returning 0.0 for global eigenvalue.")
+        return 0.0
+    
+    matrix = np.array(all_logits)
+    logger.info(f"Constructed global teacher score matrix of shape: {matrix.shape}")
+    
+    # Compute covariance matrix (4x4)
+    # np.cov expects variables as rows, observations as columns by default?
+    # Actually np.cov(m) where m is (N, M) treats rows as variables.
+    # We want covariance between the 4 dimensions.
+    # So we pass matrix.T to np.cov so that each row is a dimension.
+    try:
+        cov_matrix = np.cov(matrix.T)
+    except Exception as e:
+        logger.error(f"Failed to compute covariance matrix: {e}")
+        return 0.0
+    
+    logger.info(f"Global Covariance Matrix:\n{cov_matrix}")
+    
+    # Calculate eigenvalues
+    eigenvalues = np.linalg.eigvals(cov_matrix)
+    
+    # Get the dominant (largest) eigenvalue (real part, as covariance matrices are symmetric/Hermitian)
+    # Ensure we take the real part if there's tiny imaginary noise
+    dominant_eigenvalue = float(np.max(np.real(eigenvalues)))
+    
+    # Validation: Ensure finite and non-NaN
+    if not np.isfinite(dominant_eigenvalue):
+        logger.error("Dominant eigenvalue is not finite. Returning 0.0.")
+        return 0.0
+    
+    logger.info(f"Dominant Eigenvalue (Global Entanglement Score): {dominant_eigenvalue}")
+    return dominant_eigenvalue
+
+def calculate_dimensional_fidelity_loss(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate MAE between student scalar and human annotation for the primary dimension.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Calculating dimensional fidelity loss (T024)...")
+    
+    results = []
+    for _, row in df.iterrows():
+        student_scalar = row.get('student_scalar')
+        human_annotations = row.get('human_annotations', {})
+        primary_dim = row.get('primary_dimension', 'Alignment')
+        
+        if student_scalar is None or primary_dim not in human_annotations:
+            # Missing data handling
+            results.append({"sample_id": row.get('sample_id', 0), "fidelity_loss": None})
             continue
+        
+        human_score = human_annotations[primary_dim]
+        if human_score is None:
+            results.append({"sample_id": row.get('sample_id', 0), "fidelity_loss": None})
+            continue
+        
+        mae = abs(float(student_scalar) - float(human_score))
+        results.append({"sample_id": row.get('sample_id', 0), "fidelity_loss": mae})
+    
+    return pd.DataFrame(results)
 
-        # 3. Store for global calculation
-        all_teacher_distributions.append(teacher_logits)
-
-        feature_record = {
-            "sample_id": sample_id,
-            "primary_dimension": primary_dimension,
-            **per_sample_stats,
-            "fidelity_loss": fidelity_loss,
-        }
-        processed_features.append(feature_record)
-
-        if (idx + 1) % 1000 == 0:
-            logger.info(f"Processed {idx + 1}/{len(data)} samples")
-
-    # 4. Global Entanglement Score (T022a)
-    dominant_eigenvalue = 0.0
-    if all_teacher_distributions:
-        dominant_eigenvalue = calculate_global_entanglement_score(
-            all_teacher_distributions, logger
-        )
-
-    # Add global score to every record (or keep separate? T025 says "contains dominant_eigenvalue")
-    # We will attach it to each record for convenience in downstream tasks, or just return it.
-    # The contract likely expects it in the JSON. Let's add it to each record.
-    for record in processed_features:
-        record["dominant_eigenvalue"] = dominant_eigenvalue
-
-    return processed_features, dominant_eigenvalue
-
-def save_features_to_json(
-    features: List[Dict[str, Any]], output_path: str, logger: logging.Logger
-) -> None:
-    """Save the computed features to a JSON file."""
+def save_features_to_json(features_df: pd.DataFrame, global_eigenvalue: float, output_path: str):
+    """
+    Merge per-sample stats with global eigenvalue and save to JSON.
+    """
+    logger = logging.getLogger(__name__)
     logger.info(f"Saving features to {output_path}")
+    
+    # Add global eigenvalue to every row
+    features_df['dominant_eigenvalue'] = global_eigenvalue
+    
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(features, f, indent=2)
-    logger.info("Features saved successfully.")
+    
+    # Convert to list of dicts and save
+    # Handle potential NaN in fidelity_loss by converting to null or specific value
+    features_df = features_df.where(pd.notnull(features_df), None)
+    
+    with open(output_path, 'w') as f:
+        json.dump(features_df.to_dict(orient='records'), f, indent=2)
+    
+    logger.info(f"Features saved successfully to {output_path}")
 
-# ---------------------------------------------------------------------------
-# CLI Interface
-# ---------------------------------------------------------------------------
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Compute entanglement features and fidelity loss."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to the aligned CSV data from ingest.py",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Path to save the features JSON",
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level",
-    )
+def parse_args():
+    parser = argparse.ArgumentParser(description="Feature Engineering Pipeline")
+    parser.add_argument("--input", type=str, required=True, help="Path to aligned data (CSV/JSON)")
+    parser.add_argument("--output", type=str, required=True, help="Path to output features JSON")
     return parser.parse_args()
 
-def main() -> None:
+def main():
     args = parse_args()
     logger = setup_logging()
-    logger.setLevel(getattr(logging, args.log_level))
-
+    
     try:
-        # Load data
-        data = load_aligned_data(args.input, logger)
-
-        if not data:
-            logger.error("No data loaded. Exiting.")
-            sys.exit(1)
-
-        # Compute features
-        features, global_eigenvalue = compute_all_features(data, logger)
-
-        if not features:
-            logger.warning("No valid features computed (possibly due to missing annotations).")
-            # Still save empty or partial? T025 says "no null values".
-            # If all failed, we might have an empty list.
-            # We'll save what we have.
-            save_features_to_json(features, args.output, logger)
-            logger.info(f"Global dominant eigenvalue: {global_eigenvalue}")
-            return
-
-        # Save
-        save_features_to_json(features, args.output, logger)
-
-        logger.info(f"Global dominant eigenvalue: {global_eigenvalue}")
-        logger.info(f"Total valid samples: {len(features)}")
-
-    except FileNotFoundError as e:
-        logger.error(f"Data loading failed: {e}")
-        sys.exit(1)
+        # 1. Load Data
+        df = load_aligned_data(args.input)
+        
+        # 2. Calculate Per-Sample Stats (T022a)
+        per_sample_stats = calculate_per_sample_stats(df)
+        
+        # 3. Calculate Global Eigenvalue (T022b)
+        global_eigenvalue = calculate_global_entanglement_score(df)
+        
+        # 4. Calculate Fidelity Loss (T024)
+        fidelity_loss_df = calculate_dimensional_fidelity_loss(df)
+        
+        # 5. Merge Data
+        # Merge per_sample_stats and fidelity_loss_df on sample_id
+        merged = pd.merge(per_sample_stats, fidelity_loss_df, on='sample_id', how='left')
+        
+        # 6. Save Results
+        save_features_to_json(merged, global_eigenvalue, args.output)
+        
+        logger.info("Feature engineering completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Feature computation failed: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

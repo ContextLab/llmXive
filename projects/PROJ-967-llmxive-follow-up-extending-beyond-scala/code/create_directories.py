@@ -1,50 +1,55 @@
-"""
-Task T001a: Create project directories.
-
-Creates the required directory structure for the llmXive follow-up project:
-- data/raw
-- data/processed
-- code
-- tests
-- results
-
-This script ensures all necessary folders exist relative to the project root.
-"""
 import os
 import sys
 from pathlib import Path
 
-def ensure_directory(path: Path) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    if not path.exists():
+def ensure_directory(path: Path) -> bool:
+    """
+    Ensure a directory exists, creating it if necessary.
+
+    Args:
+        path: The directory path to ensure exists.
+
+    Returns:
+        True if the directory exists or was created successfully, False otherwise.
+    """
+    try:
         path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-    else:
-        print(f"Directory already exists: {path}")
+        return True
+    except OSError as e:
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+        return False
 
-def main() -> None:
-    """Main entry point for directory creation."""
-    # Determine project root relative to this script's location
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent  # projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/
+def main() -> int:
+    """
+    Main entry point for creating project directories.
+    Creates the standard directory structure for the project.
 
-    # Define required directories relative to project root
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "results"
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    # Define the project root relative to repository root
+    project_root = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+
+    # Define the required directories
+    directories = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "code",
+        project_root / "tests",
+        project_root / "results",
     ]
 
-    print(f"Project root: {project_root}")
-    print(f"Creating directories in: {project_root}")
+    print(f"Creating project structure in: {project_root}")
+    success = True
 
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        ensure_directory(dir_path)
+    for directory in directories:
+        if ensure_directory(directory):
+            print(f"Created: {directory}")
+        else:
+            success = False
+            print(f"Failed to create: {directory}")
 
-    print("Directory creation complete.")
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

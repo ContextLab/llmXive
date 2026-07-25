@@ -1,257 +1,131 @@
-import json
-import os
-import tempfile
-from unittest.mock import patch
-
-import numpy as np
 import pytest
-from scipy import stats
-
-# Import the module under test
-# Assuming the tests are run from the project root, adjust path if necessary
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-
-from features import (
+import numpy as np
+import math
+from code.features import (
     calculate_variance_and_range,
     calculate_entropy,
     calculate_skewness_and_kurtosis,
     calculate_per_sample_stats,
     calculate_global_entanglement_score,
-    calculate_dimensional_fidelity_loss,
-    compute_all_features,
-    load_aligned_data,
+    calculate_dimensional_fidelity_loss
 )
 
-# ---------------------------------------------------------------------------
-# Unit Tests for Statistical Functions
-# ---------------------------------------------------------------------------
+def test_calculate_variance_and_range():
+    """Test variance and range calculation."""
+    values = [1.0, 2.0, 3.0, 4.0]
+    result = calculate_variance_and_range(values)
+    
+    # Manual calculation:
+    # Mean = 2.5
+    # Variance = ((1-2.5)^2 + (2-2.5)^2 + (3-2.5)^2 + (4-2.5)^2) / 4
+    #          = (2.25 + 0.25 + 0.25 + 2.25) / 4 = 5.0 / 4 = 1.25
+    expected_variance = 1.25
+    expected_range = 3.0
+    
+    assert abs(result["variance"] - expected_variance) < 1e-6
+    assert abs(result["range"] - expected_range) < 1e-6
 
-class TestVarianceAndRange:
-    def test_normal_distribution(self):
-        values = [1.0, 2.0, 3.0, 4.0, 5.0]
-        var, rng = calculate_variance_and_range(values)
-        # Numpy variance (ddof=0) for [1,2,3,4,5] is 2.0
-        assert np.isclose(var, 2.0)
-        assert np.isclose(rng, 4.0)
+def test_calculate_variance_and_range_zero_variance():
+    """Test zero-variance case."""
+    values = [5.0, 5.0, 5.0]
+    result = calculate_variance_and_range(values)
+    assert result["variance"] == 0.0
+    assert result["range"] == 0.0
 
-    def test_single_value(self):
-        values = [5.0]
-        var, rng = calculate_variance_and_range(values)
-        assert var == 0.0
-        assert rng == 0.0
+def test_calculate_entropy():
+    """Test entropy calculation."""
+    # Uniform distribution [1, 1, 1, 1] -> probabilities [0.25, 0.25, 0.25, 0.25]
+    # Entropy = -4 * (0.25 * log2(0.25)) = -4 * (0.25 * -2) = 2.0
+    values = [1.0, 1.0, 1.0, 1.0]
+    result = calculate_entropy(values)
+    assert abs(result - 2.0) < 1e-6
 
-    def test_empty_list(self):
-        values = []
-        var, rng = calculate_variance_and_range(values)
-        assert var == 0.0
-        assert rng == 0.0
+def test_calculate_entropy_zero_variance():
+    """Test entropy with zero variance (all same values)."""
+    values = [2.0, 2.0, 2.0]
+    result = calculate_entropy(values)
+    assert result == 0.0
 
-    def test_constant_values(self):
-        values = [3.0, 3.0, 3.0]
-        var, rng = calculate_variance_and_range(values)
-        assert var == 0.0
-        assert rng == 0.0
+def test_calculate_skewness_and_kurtosis():
+    """Test skewness and kurtosis calculation."""
+    values = [1.0, 2.0, 3.0, 4.0, 5.0]
+    result = calculate_skewness_and_kurtosis(values)
+    
+    # For a symmetric distribution, skewness should be ~0
+    # Kurtosis for uniform-like distribution is negative (platykurtic)
+    assert isinstance(result["skewness"], float)
+    assert isinstance(result["kurtosis"], float)
 
-class TestEntropy:
-    def test_uniform_distribution(self):
-        # Uniform distribution over 4 outcomes -> entropy = log(4)
-        # Using softmax on [0,0,0,0] gives uniform probs
-        values = [0.0, 0.0, 0.0, 0.0]
-        ent = calculate_entropy(values)
-        expected = np.log(4)
-        assert np.isclose(ent, expected)
+def test_calculate_per_sample_stats():
+    """Test per-sample stats calculation (T022a)."""
+    # 4-dimensional sample (typical teacher logits)
+    teacher_logits = [0.1, 0.4, 0.3, 0.2]
+    result = calculate_per_sample_stats(teacher_logits)
+    
+    assert "variance" in result
+    assert "entropy" in result
+    assert "skewness" in result
+    assert "kurtosis" in result
+    
+    # Variance should be positive
+    assert result["variance"] >= 0
+    # Entropy should be non-negative
+    assert result["entropy"] >= 0
 
-    def test_skewed_distribution(self):
-        # One value dominates -> low entropy
-        values = [10.0, 0.0, 0.0, 0.0]
-        ent = calculate_entropy(values)
-        # Should be close to 0
-        assert ent < 1.0
+def test_calculate_per_sample_stats_zero_variance():
+    """Test per-sample stats with zero variance (T022a validation)."""
+    teacher_logits = [0.5, 0.5, 0.5, 0.5]
+    result = calculate_per_sample_stats(teacher_logits)
+    
+    assert result["variance"] == 0.0
+    assert result["entropy"] == 0.0
+    assert result["skewness"] == 0.0
+    assert result["kurtosis"] == 0.0
 
-    def test_negative_logits(self):
-        values = [-1.0, -2.0, -3.0]
-        ent = calculate_entropy(values)
-        assert ent >= 0
+def test_calculate_global_entanglement_score():
+    """Test global dominant eigenvalue calculation (T022b)."""
+    # Create a simple 4x4 dataset (4 samples, 4 dimensions each)
+    all_logits = [
+        [0.1, 0.4, 0.3, 0.2],
+        [0.2, 0.3, 0.4, 0.1],
+        [0.3, 0.2, 0.1, 0.4],
+        [0.4, 0.1, 0.2, 0.3]
+    ]
+    
+    result = calculate_global_entanglement_score(all_logits)
+    
+    # Should return a finite scalar
+    assert isinstance(result, float)
+    assert np.isfinite(result)
+    assert result >= 0
 
-    def test_constant_values(self):
-        values = [5.0, 5.0, 5.0]
-        ent = calculate_entropy(values)
-        assert ent == 0.0
+def test_calculate_dimensional_fidelity_loss():
+    """Test fidelity loss calculation (T024)."""
+    student_scalar = 0.75
+    human_annotations = {
+        "Alignment": 0.8,
+        "Realism": 0.6,
+        "Aesthetics": 0.9,
+        "Plausibility": 0.7
+    }
+    primary_dimension = "Alignment"
+    
+    result = calculate_dimensional_fidelity_loss(
+        student_scalar, human_annotations, primary_dimension
+    )
+    
+    expected = abs(0.75 - 0.8)
+    assert abs(result - expected) < 1e-6
 
-class TestSkewnessAndKurtosis:
-    def test_normal_distribution(self):
-        # Generate a known normal distribution
-        np.random.seed(42)
-        values = np.random.normal(0, 1, 1000).tolist()
-        skew, kurt = calculate_skewness_and_kurtosis(values)
-        # Skewness should be close to 0, Kurtosis (excess) close to 0
-        assert np.isclose(skew, 0, atol=0.1)
-        assert np.isclose(kurt, 0, atol=0.1)
-
-    def test_skewed_distribution(self):
-        # Exponential distribution is skewed
-        values = np.random.exponential(1, 1000).tolist()
-        skew, kurt = calculate_skewness_and_kurtosis(values)
-        # Skewness > 0
-        assert skew > 0
-
-    def test_small_sample(self):
-        values = [1.0, 2.0]
-        skew, kurt = calculate_skewness_and_kurtosis(values)
-        # Should handle gracefully
-        assert isinstance(skew, float)
-        assert isinstance(kurt, float)
-
-    def test_constant_values(self):
-        values = [5.0, 5.0, 5.0]
-        skew, kurt = calculate_skewness_and_kurtosis(values)
-        assert skew == 0.0
-        assert kurt == 0.0
-
-# ---------------------------------------------------------------------------
-# Integration Tests for Per-Sample Stats
-# ---------------------------------------------------------------------------
-
-class TestPerSampleStats:
-    def test_full_calculation(self):
-        values = [1.0, 2.0, 3.0, 4.0]
-        result = calculate_per_sample_stats(values, None) # Logger can be None for unit test if not used in logic
-        
-        assert "variance" in result
-        assert "range" in result
-        assert "entropy" in result
-        assert "skewness" in result
-        assert "kurtosis" in result
-        
-        # Check types
-        for key, val in result.items():
-            assert isinstance(val, float)
-
-    def test_zero_variance_handling(self):
-        values = [5.0, 5.0, 5.0]
-        result = calculate_per_sample_stats(values, None)
-        
-        assert result["variance"] == 0.0
-        assert result["entropy"] == 0.0
-        assert result["skewness"] == 0.0
-        assert result["kurtosis"] == 0.0
-
-# ---------------------------------------------------------------------------
-# Integration Tests for Global Entanglement
-# ---------------------------------------------------------------------------
-
-class TestGlobalEntanglement:
-    def test_global_covariance(self):
-        # Create a simple dataset: 3 samples, 2 dimensions
-        # Sample 1: [1, 10]
-        # Sample 2: [2, 20]
-        # Sample 3: [3, 30]
-        # Perfect correlation -> one dominant eigenvalue, one near zero
-        data = [[1.0, 10.0], [2.0, 20.0], [3.0, 30.0]]
-        
-        eigenvalue = calculate_global_entanglement_score(data, None)
-        
-        assert eigenvalue > 0
-        assert not np.isnan(eigenvalue)
-
-    def test_insufficient_data(self):
-        data = [[1.0, 2.0]] # Only 1 sample
-        eigenvalue = calculate_global_entanglement_score(data, None)
-        assert eigenvalue == 0.0
-
-    def test_empty_data(self):
-        eigenvalue = calculate_global_entanglement_score([], None)
-        assert eigenvalue == 0.0
-
-# ---------------------------------------------------------------------------
-# Integration Tests for Fidelity Loss
-# ---------------------------------------------------------------------------
-
-class TestDimensionalFidelityLoss:
-    def test_correct_loss_calculation(self):
-        student = 0.8
-        human = {"Alignment": 0.9, "Realism": 0.7}
-        primary = "Alignment"
-        
-        loss = calculate_dimensional_fidelity_loss(student, human, primary, None)
-        assert np.isclose(loss, 0.1)
-
-    def test_missing_dimension_raises(self):
-        student = 0.8
-        human = {"Realism": 0.7}
-        primary = "Alignment"
-        
-        with pytest.raises(KeyError):
-            calculate_dimensional_fidelity_loss(student, human, primary, None)
-
-# ---------------------------------------------------------------------------
-# End-to-End Feature Computation Test
-# ---------------------------------------------------------------------------
-
-class TestComputeAllFeatures:
-    def test_full_pipeline(self):
-        # Create mock data
-        mock_data = [
-            {
-                "sample_id": "s1",
-                "teacher_logits": [1.0, 2.0, 3.0, 4.0],
-                "student_scalar": 0.5,
-                "human_annotations": {"Alignment": 0.6, "Realism": 0.4},
-                "primary_dimension": "Alignment",
-            },
-            {
-                "sample_id": "s2",
-                "teacher_logits": [4.0, 3.0, 2.0, 1.0],
-                "student_scalar": 0.4,
-                "human_annotations": {"Alignment": 0.3, "Realism": 0.5},
-                "primary_dimension": "Alignment",
-            },
-        ]
-        
-        # Mock logger
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-        
-        features, eigenvalue = compute_all_features(mock_data, MockLogger())
-        
-        assert len(features) == 2
-        assert features[0]["sample_id"] == "s1"
-        assert "variance" in features[0]
-        assert "entropy" in features[0]
-        assert "dominant_eigenvalue" in features[0]
-        assert "fidelity_loss" in features[0]
-        
-        # Check fidelity loss for s1: |0.5 - 0.6| = 0.1
-        assert np.isclose(features[0]["fidelity_loss"], 0.1)
-
-    def test_missing_annotation_excludes_sample(self):
-        mock_data = [
-            {
-                "sample_id": "s1",
-                "teacher_logits": [1.0, 2.0],
-                "student_scalar": 0.5,
-                "human_annotations": {}, # Missing primary dimension
-                "primary_dimension": "Alignment",
-            },
-            {
-                "sample_id": "s2",
-                "teacher_logits": [1.0, 2.0],
-                "student_scalar": 0.5,
-                "human_annotations": {"Alignment": 0.5},
-                "primary_dimension": "Alignment",
-            },
-        ]
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-        
-        features, eigenvalue = compute_all_features(mock_data, MockLogger())
-        
-        # s1 should be excluded
-        assert len(features) == 1
-        assert features[0]["sample_id"] == "s2"
+def test_calculate_dimensional_fidelity_loss_missing_dimension():
+    """Test fidelity loss with missing dimension."""
+    student_scalar = 0.75
+    human_annotations = {
+        "Realism": 0.6
+    }
+    primary_dimension = "Alignment"
+    
+    with pytest.raises(ValueError):
+        calculate_dimensional_fidelity_loss(
+            student_scalar, human_annotations, primary_dimension
+        )

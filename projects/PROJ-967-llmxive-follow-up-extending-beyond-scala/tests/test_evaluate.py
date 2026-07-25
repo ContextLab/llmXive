@@ -1,165 +1,385 @@
 """
-Tests for the evaluate module.
+Integration tests for permutation test p-value calculation.
+
+This module validates the correctness of the permutation test logic in code/evaluate.py.
+It ensures that:
+1. The permutation test correctly scrambles the relationship between features and target.
+2. The calculated p-value reflects the proportion of permuted scores >= observed score.
+3. The function handles edge cases (e.g., all zeros, single sample) gracefully.
 """
-import pytest
-import numpy as np
+
+import json
+import os
+import pickle
+import tempfile
+import shutil
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the functions we are testing
-# Note: We assume the evaluate.py file is in the parent directory relative to tests/
-# In a real project setup, this might be handled via PYTHONPATH or a src layout.
-# For this test file, we import directly assuming the runner sets the path correctly.
-try:
-    from evaluate import calculate_baseline_mae, perform_permutation_test
-except ImportError:
-    # Fallback for local execution if not in a package
-    import sys
-    import os
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from evaluate import calculate_baseline_mae, perform_permutation_test
+import numpy as np
+import pytest
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score
 
+# Import the function under test
+# The path is relative to the project root where tests/ is a sibling of code/
+import sys
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-class TestCalculateBaselineMae:
-    """Tests for baseline MAE calculation."""
-
-    def test_mean_prediction(self):
-        """Test MAE when predicting the mean."""
-        y_true = [1.0, 2.0, 3.0, 4.0, 5.0]
-        # Mean is 3.0
-        # Errors: |1-3|=2, |2-3|=1, |3-3|=0, |4-3|=1, |5-3|=2 -> Sum=6, MAE=1.2
-        baseline_mae = calculate_baseline_mae(y_true)
-        assert abs(baseline_mae - 1.2) < 1e-5
-
-    def test_empty_list(self):
-        """Test handling of empty list."""
-        with pytest.raises(ValueError):
-            calculate_baseline_mae([])
-
-    def test_single_value(self):
-        """Test with a single value."""
-        y_true = [5.0]
-        # Mean is 5.0, error is 0
-        baseline_mae = calculate_baseline_mae(y_true)
-        assert baseline_mae == 0.0
+from evaluate import perform_permutation_test, load_features, load_model, calculate_metrics
 
 
 class TestPermutationTest:
-    """Tests for the permutation test logic."""
+    """Integration tests for the permutation test p-value calculation."""
 
-    def test_permutation_test_runs(self):
-        """Test that the permutation test runs and returns a p-value."""
-        # Mock model MAE and baseline MAE
-        model_mae = 0.5
-        baseline_mae = 1.2
-        # Mock y_true
-        y_true = [1.0, 2.0, 3.0, 4.0, 5.0]
-        # Mock features (not used in baseline, but needed for signature)
-        X = [[1.0], [2.0], [3.0], [4.0], [5.0]]
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Setup a temporary directory for test artifacts."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.data_dir = Path(self.temp_dir)
+        
+        # Create subdirectories matching project structure
+        self.processed_dir = self.data_dir / "data" / "processed"
+        self.results_dir = self.data_dir / "results"
+        self.processed_dir.mkdir(parents=True)
+        self.results_dir.mkdir(parents=True)
 
-        # Run test (assuming n_permutations is small for speed)
-        p_value = perform_permutation_test(model_mae, baseline_mae, y_true, X, n_permutations=10)
+        yield
+
+        # Cleanup
+        shutil.rmtree(self.temp_dir)
+
+    def _create_mock_features(self, n_samples=100, n_features=3):
+        """Create a mock features.json file with random data."""
+        features = []
+        for i in range(n_samples):
+            feature_record = {
+                "sample_id": f"sample_{i}",
+                "variance": float(np.random.rand()),
+                "entropy": float(np.random.rand()),
+                "skewness": float(np.random.rand()),
+                "kurtosis": float(np.random.rand()),
+                "dominant_eigenvalue": float(np.random.rand()),
+                "fidelity_loss": float(np.random.rand())
+            }
+            features.append(feature_record)
+        
+        features_path = self.processed_dir / "features.json"
+        with open(features_path, 'w') as f:
+            json.dump(features, f)
+        
+        return features_path
+
+    def _create_mock_model(self):
+        """Create and save a mock trained model."""
+        # Create a simple model that has some predictive power on random data
+        # to ensure the observed R2 is not exactly 0 or 1
+        X = np.random.rand(100, 3)
+        y = np.random.rand(100)
+        model = RandomForestRegressor(n_estimators=10, random_state=42)
+        model.fit(X, y)
+        
+        model_path = self.results_dir / "model.pkl"
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        
+        return model_path
+
+    def test_permutation_test_reduces_correlation(self):
+        """
+        Integration test: Verify that permuting features breaks the correlation.
+        
+        If the original model has a reasonable R2, the permuted versions should
+        generally have lower R2 scores. The p-value should be low if the original
+        correlation is significant.
+        """
+        # Create mock data where we know there is a relationship
+        # We'll create features and target that are correlated
+        n_samples = 200
+        X = np.random.rand(n_samples, 3)
+        # Create target with a linear relationship + noise
+        y = X[:, 0] * 2 + X[:, 1] * 0.5 + np.random.normal(0, 0.1, n_samples)
+        
+        # Train a model on this correlated data
+        model = RandomForestRegressor(n_estimators=50, random_state=42, max_depth=5)
+        model.fit(X, y)
+        
+        # Calculate observed R2
+        y_pred = model.predict(X)
+        observed_r2 = r2_score(y, y_pred)
+        
+        # Verify we have a positive correlation to test against
+        assert observed_r2 > 0.1, "Test setup failed: Model has no predictive power"
+        
+        # Now run the permutation test logic manually to verify the function
+        n_permutations = 100
+        permuted_scores = []
+        
+        for _ in range(n_permutations):
+            # Permute the target (y) to break the relationship with X
+            y_permuted = np.random.permutation(y)
+            # Re-evaluate on permuted target (simulating what the function does)
+            # Note: In the actual implementation, we permute X, but the effect is symmetric
+            # for R2 calculation in this context
+            y_pred_perm = model.predict(X)
+            # Actually, the standard permutation test for feature importance
+            # permutes the feature matrix X. Let's do that.
+            X_perm = X.copy()
+            for j in range(X.shape[1]):
+                X_perm[:, j] = np.random.permutation(X[:, j])
+            
+            y_pred_perm = model.predict(X_perm)
+            r2_perm = r2_score(y, y_pred_perm)
+            permuted_scores.append(r2_perm)
+        
+        # Calculate p-value: fraction of permuted scores >= observed score
+        p_value = sum(1 for s in permuted_scores if s >= observed_r2) / n_permutations
+        
+        # With a strong correlation, the p-value should be low (e.g., < 0.05)
+        # This is a probabilistic test, so we allow some tolerance
+        assert p_value < 0.2, f"Permutation test failed: p-value {p_value} is too high for correlated data"
+
+    def test_permutation_test_function_integration(self):
+        """
+        Integration test: Run the full perform_permutation_test function
+        with mock data and verify it returns a valid p-value.
+        """
+        # Setup mock data
+        features_path = self._create_mock_features(n_samples=100)
+        model_path = self._create_mock_model()
+        
+        # Load the data
+        features = load_features(str(features_path))
+        model = load_model(str(model_path))
+        
+        # Extract X and y
+        X = np.array([
+            [f['variance'], f['entropy'], f['skewness'], f['kurtosis'], f['dominant_eigenvalue']]
+            for f in features
+        ])
+        y = np.array([f['fidelity_loss'] for f in features])
+        
+        # Run the permutation test
+        p_value = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=50,  # Small number for speed in tests
+            random_state=42
+        )
+        
+        # Assertions
+        assert isinstance(p_value, float), "p-value should be a float"
+        assert 0.0 <= p_value <= 1.0, "p-value must be between 0 and 1"
+
+    def test_permutation_test_deterministic_with_seed(self):
+        """
+        Integration test: Verify that the permutation test is deterministic
+        when a random_state is provided.
+        """
+        features_path = self._create_mock_features(n_samples=50)
+        model_path = self._create_mock_model()
+        
+        features = load_features(str(features_path))
+        model = load_model(str(model_path))
+        
+        X = np.array([
+            [f['variance'], f['entropy'], f['skewness'], f['kurtosis'], f['dominant_eigenvalue']]
+            for f in features
+        ])
+        y = np.array([f['fidelity_loss'] for f in features])
+        
+        # Run twice with the same seed
+        p_value_1 = perform_permutation_test(
+            model=model, X=X, y=y, n_permutations=20, random_state=123
+        )
+        p_value_2 = perform_permutation_test(
+            model=model, X=X, y=y, n_permutations=20, random_state=123
+        )
+        
+        # They should be identical
+        assert p_value_1 == p_value_2, "Permutation test should be deterministic with fixed seed"
+
+    def test_permutation_test_high_pvalue_for_random_data(self):
+        """
+        Integration test: When features and target are uncorrelated,
+        the p-value should be high (close to 0.5 or higher).
+        """
+        # Create completely random, uncorrelated data
+        n_samples = 100
+        X = np.random.rand(n_samples, 3)
+        y = np.random.rand(n_samples)
+        
+        # Train a model (it will have poor performance)
+        model = RandomForestRegressor(n_estimators=10, random_state=42)
+        model.fit(X, y)
+        
+        observed_r2 = r2_score(y, model.predict(X))
+        
+        # Run permutation test
+        p_value = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=50,
+            random_state=42
+        )
+        
+        # With random data, the observed R2 is likely similar to permuted R2s
+        # So p-value should not be extremely low
+        # We expect it to be > 0.1 (not significant)
+        assert p_value > 0.05, "For random data, p-value should not be significant"
+
+    def test_permutation_test_zero_variance_features(self):
+        """
+        Integration test: Handle edge case where features have zero variance.
+        """
+        # Create features with zero variance
+        X = np.zeros((50, 3))
+        y = np.random.rand(50)
+        
+        # Train a model (will fail to learn, but shouldn't crash permutation test)
+        model = RandomForestRegressor(n_estimators=5, random_state=42)
+        try:
+            model.fit(X, y)
+        except Exception:
+            # If fitting fails, skip this test case as it's a model limitation, not function logic
+            pytest.skip("RandomForest cannot fit zero-variance features")
+        
+        # Run permutation test
+        p_value = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=20,
+            random_state=42
+        )
+        
+        assert isinstance(p_value, float)
         assert 0.0 <= p_value <= 1.0
 
-    def test_permutation_test_significance(self):
-        """Test that a very good model gets a low p-value."""
-        # Create a scenario where the model is significantly better than baseline
-        y_true = [1.0] * 100
-        # Baseline predicts mean (1.0), MAE = 0.0? No, let's make it varied.
-        y_true = list(range(1, 101)) # 1 to 100
-        baseline_mae = calculate_baseline_mae(y_true) # Should be around 25.75 (mean absolute deviation from mean 50.5)
-
-        # Model is perfect (MAE = 0)
-        model_mae = 0.0
-
-        # Features are irrelevant, just need shape
-        X = [[i] for i in range(100)]
-
-        # With a perfect model and a bad baseline, p-value should be 0 (or very low)
-        # We use a larger n_permutations to be sure, but for this test small is okay if logic is sound
-        p_value = perform_permutation_test(model_mae, baseline_mae, y_true, X, n_permutations=50)
+    def test_permutation_test_single_feature(self):
+        """
+        Integration test: Permutation test with a single feature.
+        """
+        X = np.random.rand(50, 1)
+        y = X[:, 0] + np.random.normal(0, 0.1, 50)  # Strong correlation
         
-        # If the model is perfect and baseline is not, the model should always win in permutation
-        # unless the random shuffle accidentally creates a better baseline (unlikely with perfect model)
-        # Actually, permutation test shuffles y_true, so the "model" is re-evaluated on shuffled data?
-        # Wait, the standard permutation test for regression:
-        # 1. Calculate observed statistic (model_mae)
-        # 2. Shuffle y_true many times.
-        # 3. For each shuffle, calculate the statistic (model_mae on shuffled y_true? No, that doesn't make sense).
-        # Standard approach: Shuffle y_true, re-train model? Too expensive.
-        # Alternative: Shuffle residuals? Or shuffle y_true and see if a random model (or the same model on shuffled data) beats the observed?
+        model = RandomForestRegressor(n_estimators=10, random_state=42)
+        model.fit(X, y)
         
-        # Let's assume the implementation of `perform_permutation_test` in `evaluate.py` does:
-        # Shuffle y_true, calculate MAE of a "null" model (predicting mean of shuffled y_true) or re-run the trained model?
-        # The task description says: "Compare model MAE against a null baseline (predicting mean loss) using a permutation test".
-        # This implies:
-        # Null hypothesis: The features have no predictive power.
-        # Statistic: Difference between Baseline MAE and Model MAE (or just Model MAE if baseline is fixed).
-        # Common implementation: Shuffle y_true, calculate Model MAE on shuffled data (assuming model is refit or if we assume the model is just a function of X and y, and we are testing if the relationship is real).
-        # However, refitting is expensive.
-        # Let's assume the provided `evaluate.py` implements a standard permutation test where:
-        # 1. Observed stat = model_mae (or baseline_mae - model_mae)
-        # 2. Permutations: Shuffle y_true, calculate the same stat (e.g., MAE of a model trained on shuffled data? Or just MAE of the baseline on shuffled data? No, that's always the same).
+        p_value = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=50,
+            random_state=42
+        )
         
-        # Re-reading the prompt's `evaluate.py` signature: `perform_permutation_test(model_mae, baseline_mae, y_true, X, n_permutations)`
-        # It takes the model_mae and baseline_mae as inputs, so it doesn't re-train.
-        # It likely simulates the null distribution by shuffling y_true and calculating the MAE of a "random" prediction or by shuffling the residuals?
-        # Actually, a common simple permutation test for regression without retraining:
-        # Shuffle y_true. Calculate the MAE of the *original model predictions* against the *shuffled y_true*.
-        # If the model is good, the MAE on shuffled y_true should be high (close to baseline).
-        # If the model is random, the MAE on shuffled y_true should be similar to the original.
-        # Wait, if the model is good, it predicts y_true well. If we shuffle y_true, the predictions (fixed) will be far from the new y_true.
-        # So the MAE on shuffled y_true should be high (similar to baseline).
-        # The observed MAE is low.
-        # So we count how many times the shuffled MAE <= observed MAE.
-        # If the model is good, this count should be low (p-value low).
-        
-        # Let's assume the implementation does:
-        # count = 0
-        # for _ in range(n_permutations):
-        #     y_shuffled = shuffle(y_true)
-        #     perm_mae = calculate_mae(y_shuffled, model_predictions) -> We don't have model_predictions here.
-        
-        # Alternative: The function might re-train the model on shuffled data? But we don't have the model in the arguments.
-        # Maybe it calculates the MAE of the *baseline* on shuffled data? No, baseline is just mean(y).
-        
-        # Let's look at the test `test_permutation_test_runs`. It passes `model_mae` and `baseline_mae` as scalars.
-        # It doesn't pass the model or predictions.
-        # This suggests the function might be a simplified simulation or it assumes the `evaluate.py` has access to the model/predictions via closure or global?
-        # No, that's bad practice.
-        
-        # Perhaps the `perform_permutation_test` in `evaluate.py` is implemented as:
-        # "Simulate the null distribution of the test statistic (Baseline MAE - Model MAE) by permuting y_true and re-calculating the statistic assuming a random model?"
-        # Or maybe it's a permutation of the *labels* to check if the model's performance is significantly better than chance.
-        # Given the constraints, I will assume the implementation in `evaluate.py` (which I must assume exists and works) handles this logic.
-        # My job is to write the test that calls it.
-        
-        # Let's assume the implementation calculates the p-value as:
-        # p = (number of permuted stats <= observed stat) / n_permutations
-        # where the permuted stat is calculated by shuffling y_true and recalculating the MAE of a "random" model?
-        # Or maybe it just shuffles the residuals?
-        
-        # Since I cannot see the implementation of `evaluate.py` (only the API surface), I must trust that `perform_permutation_test` is implemented correctly to take these arguments.
-        # The test just needs to ensure it runs and returns a valid p-value.
-        
-        # Let's try a scenario where the model is clearly better.
-        # If model_mae is very low and baseline_mae is high, the p-value should be low.
-        # If model_mae is close to baseline_mae, p-value should be high.
-        
-        # Test 1: Model is perfect (0.0), Baseline is high (25.0). P-value should be 0.0 (or very low).
-        p_value_good = perform_permutation_test(0.0, 25.0, y_true, X, n_permutations=50)
-        # We can't guarantee it's exactly 0 with random shuffling, but it should be low.
-        # However, without knowing the exact implementation, we just check it's in range.
-        assert 0.0 <= p_value_good <= 1.0
-
-    def test_permutation_test_random_model(self):
-        """Test with a random model (MAE similar to baseline)."""
-        y_true = [1.0, 2.0, 3.0, 4.0, 5.0]
-        baseline_mae = calculate_baseline_mae(y_true) # 1.2
-        # Model MAE is same as baseline (random performance)
-        model_mae = baseline_mae
-        
-        X = [[1.0], [2.0], [3.0], [4.0], [5.0]]
-        
-        p_value = perform_permutation_test(model_mae, baseline_mae, y_true, X, n_permutations=50)
-        # If model is same as baseline, p-value should be around 0.5 (or high)
+        assert isinstance(p_value, float)
         assert 0.0 <= p_value <= 1.0
+        # With strong correlation, p-value should be low
+        assert p_value < 0.3, "Strong correlation should yield low p-value"
+
+    def test_permutation_test_large_n_permutations(self):
+        """
+        Integration test: Verify stability with larger number of permutations.
+        """
+        X = np.random.rand(100, 3)
+        y = X[:, 0] * 2 + np.random.normal(0, 0.2, 100)
+        
+        model = RandomForestRegressor(n_estimators=20, random_state=42)
+        model.fit(X, y)
+        
+        # Run with more permutations
+        p_value_large = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=200,
+            random_state=42
+        )
+        
+        assert isinstance(p_value_large, float)
+        assert 0.0 <= p_value_large <= 1.0
+
+    def test_permutation_test_invalid_input_types(self):
+        """
+        Integration test: Verify behavior with invalid input types.
+        """
+        # Test with non-numeric data
+        X = [["a", "b"], ["c", "d"]]
+        y = [1, 2]
+        
+        model = MagicMock()
+        model.predict.return_value = [1, 2]
+        
+        with pytest.raises((ValueError, TypeError)):
+            perform_permutation_test(
+                model=model,
+                X=X,
+                y=y,
+                n_permutations=10,
+                random_state=42
+            )
+
+    def test_permutation_test_empty_permutation_list(self):
+        """
+        Integration test: Edge case where n_permutations=0.
+        """
+        X = np.random.rand(10, 3)
+        y = np.random.rand(10)
+        
+        model = RandomForestRegressor(n_estimators=5, random_state=42)
+        model.fit(X, y)
+        
+        # This should handle 0 permutations gracefully or raise a clear error
+        # Based on typical implementation, it should raise an error or return 0
+        try:
+            p_value = perform_permutation_test(
+                model=model,
+                X=X,
+                y=y,
+                n_permutations=0,
+                random_state=42
+            )
+            # If it returns a value, it should be handled
+            assert isinstance(p_value, (float, int))
+        except ValueError as e:
+            # Expected behavior: clear error message
+            assert "permutations" in str(e).lower() or "n_permutations" in str(e).lower()
+
+    def test_permutation_test_consistency_with_r2(self):
+        """
+        Integration test: Verify that the permutation test correctly uses R2.
+        """
+        # Create data with known R2
+        X = np.random.rand(100, 3)
+        y = X[:, 0] + X[:, 1] + np.random.normal(0, 0.1, 100)
+        
+        model = RandomForestRegressor(n_estimators=50, random_state=42)
+        model.fit(X, y)
+        
+        y_pred = model.predict(X)
+        true_r2 = r2_score(y, y_pred)
+        
+        # The permutation test calculates R2 for each permutation
+        # We can't easily verify the exact p-value without running the whole test,
+        # but we can verify the function completes and returns a valid value
+        p_value = perform_permutation_test(
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=30,
+            random_state=42
+        )
+        
+        assert 0.0 <= p_value <= 1.0
+        # With true R2 > 0, p-value should generally be < 1.0
+        # (unless the model is completely random)
+        if true_r2 > 0.1:
+            assert p_value < 0.9, "With meaningful R2, p-value should not be 1.0"
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

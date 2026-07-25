@@ -1,120 +1,98 @@
-# Output Schema Contract for Feature Engineering Results
-# This schema defines the structure of the processed features JSON file.
-# Consumed by T025 (Feature Integration) and T027a (Training).
-
+# Output Schema Contract for llmXive Follow-up Pipeline
+# Defines the structure of data/processed/features.json
+# Generated for Task T001f
+---
 type: object
+description: >-
+  Schema for the processed features file containing statistical descriptors
+  of teacher entanglement and scalar distillation loss metrics.
 required:
-  - metadata
-  - samples
-
+  - sample_id
+  - variance
+  - entropy
+  - skewness
+  - kurtosis
+  - dominant_eigenvalue
+  - fidelity_loss
 properties:
-  metadata:
-    type: object
-    description: Information about the processing run.
-    properties:
-      version:
-        type: string
-        description: Schema version.
-        const: "1.0.0"
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
-      source_dataset:
-        type: string
-        description: Name of the source dataset (e.g., 'zreward/evaluation').
-      total_samples:
-        type: integer
-        minimum: 0
-        description: Total number of samples processed.
-
-  samples:
-    type: array
-    description: List of feature records per sample.
-    items:
-      type: object
-      required:
-        - sample_id
-        - variance
-        - range
-        - entropy
-        - skewness
-        - kurtosis
-        - global_eigenvalue
-        - fidelity_loss
-        - primary_dimension
-      properties:
-        sample_id:
-          type: string
-          description: Unique identifier for the sample.
-
-        variance:
-          type: object
-          description: Variance of teacher logits per dimension.
-          properties:
-            Alignment:
-              type: number
-              format: float
-            Realism:
-              type: number
-              format: float
-            Aesthetics:
-              type: number
-              format: float
-            Plausibility:
-              type: number
-              format: float
-
-        range:
-          type: object
-          description: Range (max - min) of teacher logits per dimension.
-          properties:
-            Alignment:
-              type: number
-              format: float
-            Realism:
-              type: number
-              format: float
-            Aesthetics:
-              type: number
-              format: float
-            Plausibility:
-              type: number
-              format: float
-
-        entropy:
-          type: number
-          format: float
-          description: Entropy of the teacher distribution.
-          minimum: 0.0
-
-        skewness:
-          type: number
-          format: float
-          description: Skewness of the teacher distribution.
-
-        kurtosis:
-          type: number
-          format: float
-          description: Kurtosis of the teacher distribution.
-
-        global_eigenvalue:
-          type: number
-          format: float
-          description: Dominant eigenvalue of the global covariance matrix.
-          # Note: This value is constant across all samples as it is a global statistic.
-
-        fidelity_loss:
-          type: number
-          format: float
-          description: MAE between student scalar and human annotation for the primary dimension.
-
-        primary_dimension:
-          type: string
-          enum:
-            - Alignment
-            - Realism
-            - Aesthetics
-            - Plausibility
+  sample_id:
+    type: string
+    description: Unique identifier for the sample (e.g., from the Z-Reward dataset)
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  variance:
+    type: number
+    description: >-
+      Per-sample variance of the teacher's 4-dimensional score distribution.
+      Represents the spread of scores across dimensions for a single sample.
+      Calculated as the mean of squared deviations from the mean score.
+    minimum: 0
+    default: 0.0
+  
+  entropy:
+    type: number
+    description: >-
+      Per-sample entropy of the teacher's score distribution.
+      Measures the uncertainty or disorder in the dimension scores.
+      Calculated using normalized probabilities derived from softmax or direct normalization.
+      Zero if variance is zero (degenerate distribution).
+    minimum: 0
+    default: 0.0
+  
+  skewness:
+    type: number
+    description: >-
+      Per-sample skewness of the teacher's score distribution.
+      Measures the asymmetry of the distribution around the mean.
+      Positive skew indicates a longer tail on the right.
+    default: 0.0
+  
+  kurtosis:
+    type: number
+    description: >-
+      Per-sample kurtosis of the teacher's score distribution.
+      Measures the "tailedness" of the distribution.
+      Excess kurtosis (kurtosis - 3) is often used; here we store raw kurtosis.
+    default: 3.0
+  
+  dominant_eigenvalue:
+    type: number
+    description: >-
+      Global dominant eigenvalue of the 4x4 covariance matrix of teacher scores
+      across the entire dataset. This is a constant value repeated for every sample,
+      representing the dataset-wide entanglement context.
+      Calculated as the largest eigenvalue of the global covariance matrix.
+    minimum: 0
+    default: 0.0
+  
+  fidelity_loss:
+    type: number
+    description: >-
+      Dimensional fidelity loss: Mean Absolute Error (MAE) between the student's
+      scalar output and the human-annotated score for the primary quality dimension.
+      The primary dimension is selected based on metadata (T014).
+      Higher values indicate greater discrepancy between student scalar and human judgment.
+    minimum: 0
+    default: 0.0
+  
+  primary_dimension:
+    type: string
+    description: >-
+      The name of the primary quality dimension used for fidelity loss calculation.
+      Derived from metadata or defaulting to the first schema dimension.
+    enum:
+      - Alignment
+      - Realism
+      - Aesthetics
+      - Plausibility
 
 additionalProperties: false
+example:
+  sample_id: "zreward_sample_001"
+  variance: 0.045
+  entropy: 1.38
+  skewness: 0.12
+  kurtosis: 2.95
+  dominant_eigenvalue: 0.85
+  fidelity_loss: 0.15
+  primary_dimension: "Alignment"
