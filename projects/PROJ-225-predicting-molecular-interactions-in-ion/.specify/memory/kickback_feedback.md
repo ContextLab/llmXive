@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012a` (rejected 1x): The `download_spice` function is implemented, but the required output file `data/raw/spice.parquet` does not exist, so the verification step (file existence and correct columns) cannot be satisfied. The task must ensure the function is executed and the parquet file is created with the specified columns.
+- `T015a` (rejected 1x): The provided `code/data_ingestion.py` does not contain a `calculate_partial_charges_internal_only(df)` implementation (the visible portion shows only download utilities and no such function), and the required `data/processed/internal_consistency_checks.parquet` file is absent. Both the function and its saved output are missing, so the task is not fulfilled.
+- `T017e` (rejected 1x): The provided `code/data_ingestion.py` excerpt does not contain a `write_unified_dataset(df, path)` function, and the expected output file `data/processed/unified_dataset.parquet` is absent from the repository. Consequently the required implementation and artifact are missing.
 
 ## Required change
 

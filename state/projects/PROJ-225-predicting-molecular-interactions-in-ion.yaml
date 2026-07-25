@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-225-predicting-molecular-interactions-in-ion
-last_run_id: b906a423-7bae-44c0-9286-0acdb6092ca9
+last_run_id: d7009a3d-c4d3-4960-920a-e3b26f1d09ad
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion
 title: Predicting Molecular Interactions in Ionic Liquids via Machine Learning
-updated_at: '2026-07-22T11:29:17.408751Z'
+updated_at: '2026-07-25T13:33:22.090748Z'

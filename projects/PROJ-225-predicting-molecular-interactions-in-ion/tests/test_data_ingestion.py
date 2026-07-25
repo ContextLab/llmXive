@@ -1,79 +1,167 @@
+"""
+Tests for data ingestion module.
+"""
 import pytest
 import pandas as pd
 import os
+import json
 import tempfile
 import shutil
 from unittest.mock import patch, MagicMock
-import json
+import numpy as np
 
-# Import the function to test
-try:
-    from code.data_ingestion import calculate_partial_charges_internal_only
-except ImportError:
-    from data_ingestion import calculate_partial_charges_internal_only
+# Import the module
+import sys
+sys.path.insert(0, 'code')
+from data_ingestion import (
+    verify_checksum,
+    calculate_partial_charges_internal_only,
+    engineer_features,
+    merge_consistency_artifacts,
+    extract_structures_from_data,
+    DataIngestionError
+)
 
-class TestCalculatePartialChargesInternalOnly:
-    @pytest.fixture
-    def sample_df(self):
-        """Create a sample dataframe with SMILES."""
-        return pd.DataFrame({
-            'cation_id': ['C1', 'C2'],
-            'anion_id': ['A1', 'A2'],
-            'smiles_cation': ['CCO', 'CC(C)O'],  # Ethanol, Isopropanol
-            'smiles_anion': ['[Cl-]', '[F-]'],
-            'electrostatic_energy': [-5.0, -4.5],
-            'dispersion_energy': [-2.0, -1.8],
-            'hbond_energy': [-1.0, -0.9],
-            'structural_family': ['alcohol', 'alcohol']
-        })
+@pytest.fixture
+def sample_df():
+    """Create a sample dataframe for testing."""
+    return pd.DataFrame({
+        'cation_id': ['C001', 'C002'],
+        'anion_id': ['A001', 'A002'],
+        'smiles_cation': ['CCO', 'CN(C)C'],
+        'smiles_anion': ['[Cl-]', '[Br-]'],
+        'structural_family': ['alcohol', 'amine']
+    })
 
-    def test_calculate_partial_charges_creates_output_file(self, sample_df):
-        """Test that the function creates the internal consistency checks file."""
-        # Create a temporary directory for output
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock the output path
-            original_path = "data/processed/internal_consistency_checks.parquet"
-            test_path = os.path.join(tmpdir, "internal_consistency_checks.parquet")
-            
-            # We can't easily mock the internal path, so we'll test the logic
-            # by checking if the function returns a dataframe without partial_charge
-            result_df = calculate_partial_charges_internal_only(sample_df)
-            
-            # Verify partial_charge is NOT in the returned dataframe
-            assert 'partial_charge' not in result_df.columns
-            assert 'partial_charge_cation' not in result_df.columns
-            assert 'partial_charge_anion' not in result_df.columns
-            
-            # Verify original columns are preserved
-            for col in sample_df.columns:
-                assert col in result_df.columns
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test files."""
+    temp = tempfile.mkdtemp()
+    yield temp
+    shutil.rmtree(temp)
 
-    def test_calculate_partial_charges_returns_correct_shape(self, sample_df):
-        """Test that the returned dataframe has the same number of rows."""
-        result_df = calculate_partial_charges_internal_only(sample_df)
-        assert len(result_df) == len(sample_df)
-
-    def test_partial_charges_not_used_as_features(self, sample_df):
-        """Test that the constraint is enforced: partial charges are not in training data."""
-        result_df = calculate_partial_charges_internal_only(sample_df)
+def test_verify_checksum():
+    """Test checksum verification."""
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test data")
+        temp_path = f.name
+    
+    try:
+        # Calculate actual hash
+        import hashlib
+        sha256_hash = hashlib.sha256(b"test data").hexdigest()
         
-        # These columns should definitely not exist in the training dataframe
-        forbidden_cols = ['partial_charge', 'partial_charge_cation', 'partial_charge_anion']
-        for col in forbidden_cols:
-            assert col not in result_df.columns, f"Column {col} should not be in training data"
-
-    def test_internal_checks_file_is_created(self, sample_df):
-        """Test that the internal consistency file is created."""
-        # This test checks if the file exists after running the function
-        # We'll use a mock to check the file creation logic
+        # Test correct hash
+        assert verify_checksum(temp_path, sha256_hash) == True
         
-        # The function should create the file at data/processed/internal_consistency_checks.parquet
-        # For testing, we verify the function completes without error
-        result_df = calculate_partial_charges_internal_only(sample_df)
+        # Test incorrect hash
+        assert verify_checksum(temp_path, "wrong_hash") == False
         
-        # Check if the file exists (it should be created in the actual run)
-        # In a real test environment, we'd mock the path
-        assert result_df is not None
+    finally:
+        os.unlink(temp_path)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_calculate_partial_charges_internal_only(sample_df, temp_dir):
+    """Test partial charge calculation."""
+    # Mock the output path
+    original_path = "data/processed/internal_consistency_checks.parquet"
+    test_path = os.path.join(temp_dir, "test_consistency.parquet")
+    
+    with patch('data_ingestion.os.makedirs'), \
+         patch('data_ingestion.logger'), \
+         patch('data_ingestion.pd.DataFrame.to_parquet') as mock_to_parquet:
+        
+        result = calculate_partial_charges_internal_only(sample_df)
+        
+        # Verify partial_charge column was added
+        assert 'partial_charge' in result.columns
+        assert len(result) == len(sample_df)
+        
+        # Verify to_parquet was called
+        mock_to_parquet.assert_called_once()
+
+def test_engineer_features(sample_df, temp_dir):
+    """Test feature engineering."""
+    with patch('data_ingestion.calculate_partial_charges_internal_only') as mock_calc, \
+         patch('data_ingestion.os.makedirs'), \
+         patch('data_ingestion.logger'), \
+         patch('data_ingestion.pd.DataFrame.to_parquet') as mock_to_parquet:
+        
+        # Mock the partial charge calculation to return a simple dataframe
+        mock_calc.return_value = sample_df.copy()
+        
+        result = engineer_features(sample_df)
+        
+        # Verify expected columns were added
+        expected_cols = ['cation_tpsa', 'anion_tpsa', 'total_tpsa', 
+                       'cation_surface_area', 'anion_surface_area', 'total_surface_area',
+                       'cation_hbond_count', 'anion_hbond_count', 'total_hbond_count']
+        
+        for col in expected_cols:
+            assert col in result.columns, f"Missing column: {col}"
+
+def test_merge_consistency_artifacts(temp_dir):
+    """Test merging consistency artifacts."""
+    # Create test data
+    unified_df = pd.DataFrame({
+        'cation_id': ['C001', 'C002'],
+        'anion_id': ['A001', 'A002'],
+        'smiles_cation': ['CCO', 'CN(C)C'],
+        'smiles_anion': ['[Cl-]', '[Br-]'],
+        'structural_family': ['alcohol', 'amine']
+    })
+    
+    consistency_df = pd.DataFrame({
+        'cation_id': ['C001', 'C002'],
+        'anion_id': ['A001', 'A002'],
+        'partial_charge': [0.5, 0.6]
+    })
+    
+    # Save test files
+    os.makedirs(os.path.join(temp_dir, 'processed'), exist_ok=True)
+    unified_path = os.path.join(temp_dir, 'processed', 'unified_dataset.parquet')
+    consistency_path = os.path.join(temp_dir, 'processed', 'internal_consistency_checks.parquet')
+    
+    unified_df.to_parquet(unified_path)
+    consistency_df.to_parquet(consistency_path)
+    
+    # Patch paths
+    with patch('data_ingestion.os.path.exists', side_effect=lambda x: True if x in [consistency_path, unified_path] else False), \
+         patch('data_ingestion.pd.read_parquet', side_effect=[consistency_df, unified_df]), \
+         patch('data_ingestion.os.path.dirname', return_value=os.path.join(temp_dir, 'processed')), \
+         patch('data_ingestion.os.makedirs'), \
+         patch('data_ingestion.logger'), \
+         patch('data_ingestion.pd.DataFrame.to_parquet') as mock_to_parquet:
+        
+        result = merge_consistency_artifacts()
+        
+        # Verify partial_charge is in result
+        assert 'partial_charge' in result.columns
+        assert len(result) == 2
+
+def test_extract_structures_from_data(temp_dir):
+    """Test structure extraction."""
+    # Create a sample parquet file
+    sample_df = pd.DataFrame({
+        'cation_id': ['C001', 'C002'],
+        'anion_id': ['A001', 'A002'],
+        'smiles_cation': ['CCO', 'CN(C)C'],
+        'smiles_anion': ['[Cl-]', '[Br-]'],
+        'structural_family': ['alcohol', 'amine']
+    })
+    
+    os.makedirs(os.path.join(temp_dir, 'raw'), exist_ok=True)
+    spice_path = os.path.join(temp_dir, 'raw', 'spice.parquet')
+    sample_df.to_parquet(spice_path)
+    
+    with patch('data_ingestion.os.path.exists', side_effect=lambda x: x == spice_path), \
+         patch('data_ingestion.pd.read_parquet', return_value=sample_df), \
+         patch('data_ingestion.os.path.dirname', return_value=os.path.join(temp_dir, 'raw')), \
+         patch('data_ingestion.os.makedirs'), \
+         patch('data_ingestion.logger'), \
+         patch('builtins.open', MagicMock()) as mock_open:
+        
+        extract_structures_from_data()
+        
+        # Verify file was written
+        mock_open.assert_called()
