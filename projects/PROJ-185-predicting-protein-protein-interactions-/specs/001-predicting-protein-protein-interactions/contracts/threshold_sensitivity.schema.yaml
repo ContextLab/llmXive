@@ -1,13 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Threshold Sensitivity Table"
+title: "Threshold Sensitivity"
 type: "object"
-description: "TSV file recording performance metrics for each correlation threshold."
+description: "Results of correlation‑threshold sensitivity analysis per species."
 properties:
-  header:
+  species:
+    type: "string"
+    description: "Species name."
+  records:
     type: "array"
     items:
-      type: "string"
-    enum:
-      - ["threshold", "edge_count", "auroc", "auprc"]
-required: ["header"]
+      type: "object"
+      required: ["threshold", "edge_count", "auroc", "auprc"]
+      properties:
+        threshold:
+          type: "number"
+          description: "Correlation threshold examined (≥ 0.75)."
+        edge_count:
+          type: "integer"
+          description: "Number of edges retained at this threshold."
+        auroc:
+          type: "number"
+          description: "AUROC computed on full set at this threshold."
+        auprc:
+          type: "number"
+          description: "AUPRC computed on full set at this threshold."
+required: ["species", "records"]
 additionalProperties: false

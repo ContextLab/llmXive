@@ -33,6 +33,6 @@ additionalProperties: false
 example:
   go_id: "GO:0008150"
   description: "biological_process"
-  raw_p: 0.0012
-  adjusted_p: 0.0045
-  gene_count: 42
+  raw_p: a low (significant) value
+  adjusted_p: a low, statistically significant value
+  gene_count: a representative value to be determined during the research phase

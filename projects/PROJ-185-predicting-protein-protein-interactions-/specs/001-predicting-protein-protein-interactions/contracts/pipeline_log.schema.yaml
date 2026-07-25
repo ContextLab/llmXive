@@ -1,17 +1,21 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Pipeline Log Entry"
 type: "object"
-description: "JSON‑Line schema for pipeline logging."
+description: "Single JSON‑Line entry in pipeline.log."
 properties:
   timestamp:
     type: "string"
     format: "date-time"
+    description: "ISO‑8601 timestamp of the log entry."
   level:
     type: "string"
     enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    description: "Log severity level."
   message:
     type: "string"
+    description: "Human‑readable log message."
   schema_version:
     type: "string"
+    description: "Version identifier for the log schema, e.g., \"1.0.0\"."
 required: ["timestamp", "level", "message", "schema_version"]
 additionalProperties: false

@@ -1,0 +1,88 @@
+# Feature Specification: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
+
+**Feature Branch**: `PROJ-185-predict-ppi-coexpression`  
+**Created**: 2026‑06‑17  
+**Status**: Draft  
+**Input**: User description: “Develop a reproducible pipeline that downloads public *Arabidopsis thaliana* RNA‑seq data, builds a high‑threshold co‑expression network, and tests whether the resulting edges recover known protein‑protein interactions from STRING, with functional enrichment of the predicted interactome.”
+
+## User Stories & Testing *(mandatory)*
+
+### User Story 1 – Build & Export Co‑expression‑based PPI Predictions (US-1) (Priority: P1) (See US-1)
+
+A researcher wants to run the pipeline on a fresh GitHub Actions runner and obtain files of predicted protein‑protein interactions derived solely from gene co‑expression for each plant species being analyzed.
+
+**Why this priority**: This is the core value‑add of the feature – producing hypothesis sets of PPIs without any manual preprocessing, across all targeted species.
+
+**Traceability**:
+- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-1)
+- Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-1)
+
+**Independent Test**: Execute the `make all` target on a fresh runner and verify that for each species a file `predicted_ppi_<species>.tsv` is created and contains ≥ 10 000 edges (or an empty file if no edges meet the threshold).
+
+**Acceptance Scenarios**:
+
+1. **Given** a fresh runner with internet access and a configured list of GEO series for each target species, **When** the pipeline downloads the specified GEO series, normalizes counts, filters low‑expression genes, applies batch‑effect correction across series, computes Pearson (or Spearman for TPM) correlations, and applies the threshold *r* ≥ THRESHOLD, **Then** for each species an undirected edge list `predicted_ppi_<species>.tsv` is produced where each row is a pair of STRING protein IDs and the corresponding correlation coefficient.
+
+2. **Given** the same input data, **When** the gene‑to‑protein identifier mapping fails for a subset of genes in a species, **Then** those genes are omitted from that species’ edge list and a warning log `mapping_warnings_<species>.log` records the unmapped identifiers.
+
+### User Story 2 – Quantitative Evaluation Against STRING (US-2) (Priority: P2) (See US-2)
+
+A researcher wants to know how well the co‑expression‑derived predictions recapitulate high‑confidence STRING interactions.
+
+**Why this priority**: Validation is essential to assess the scientific claim and to decide whether co‑expression alone is sufficient.
+
+**Traceability**:
+- Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-2)
+- Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-2)
+
+**Independent Test**: Run the `make evaluate` target and check that `evaluation_metrics.json` contains AUROC, AUPRC, and `baseline_p` values for each species, and that the file validates against `contracts/evaluation.schema.yaml`.
+
+**Acceptance Scenarios**:
+
+1. **Given** the edge list `predicted_ppi_<species>.tsv` and the STRING file `protein.links.v11.5.txt.gz`, **When** the evaluation script scores *all* gene‑pair correlation scores (full, imbalanced set) against STRING high‑confidence interactions (combined score ≥ 700 **excluding the co‑expression evidence channel**) and also samples a balanced negative set (size = positive set) for a secondary sanity‑check, **Then** the script outputs AUROC ≥ 0.70 and AUPRC ≥ 0.65 in `evaluation_metrics.json` for that species, together with a `baseline_p` field for the random‑graph baseline.
+
+2. **Given** the same inputs, **When** a degree‑preserving random rewiring baseline is generated, **Then** the baseline AUROC is ≤ 0.55, demonstrating that the observed performance is not due to network topology alone.
+
+### User Story 3 – Functional Enrichment of Predicted Interactome (US-3) (Priority: P3) (See US-3)
+
+A researcher wants to know whether the predicted PPIs are biologically coherent by testing GO term enrichment.
+
+**Why this priority**: Functional relevance supports the utility of the predictions beyond statistical performance.
+
+**Traceability**:
+- Functional Requirements: FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035 (See US-3)
+- Success Criteria: SC-002, SC-003, SC-004, SC-005, SC-006 (See US-3)
+
+**Independent Test**: Run the `make enrich` target and verify that `go_enrichment_<species>.tsv` lists GO terms with adjusted p‑values for each species.
+
+**Acceptance Scenarios**:
+
+1. **Given** the set of genes participating in `predicted_ppi_<species>.tsv`, **When** GOATOOLS performs Fisher’s exact test with Benjamini–Hochberg correction using the filtered‑gene universe (all genes that passed CPM filtering and were successfully mapped to STRING IDs) as background, **Then** at least one GO term has an adjusted p‑value < 0.05, and the report is saved as `go_enrichment_<species>.tsv`.
+
+2. **Given** a scenario where no GO term meets the significance threshold, **Then** the pipeline records “No significant enrichment” in `go_enrichment_<species>.tsv` and exits gracefully.
+
+### Edge Cases
+
+- **What happens when a downloaded GEO series contains < 30 samples?**  
+  *The series is skipped with a warning `Series <accession> has insufficient samples (<30) and will be omitted`; the pipeline continues with remaining series.*
+
+- **How does the system handle missing or malformed STRING files?**  
+  *A clear error `STRING reference not found or unreadable` is raised; downstream steps for the affected species are skipped.*
+
+- **What if the correlation threshold yields zero edges for a species?**  
+  *The pipeline records a warning `No edges meet correlation threshold` in `pipeline.log`, writes an empty `predicted_ppi_<species>.tsv` file (header only), and proceeds to the evaluation step, which will output AUROC = 0.5 and AUPRC = 0.0 (or NA) for that species. The overall run continues.*
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: The system MUST download bulk RNA‑seq count matrices for each target plant species from NCBI GEO using a configurable accession list per species (default: `Arabidopsis thaliana → GSEXXXXX`; other species may be added via the configuration file). (See US-1)
+
+- **FR-002**: The system MUST normalize raw counts using either DESeq2’s variance‑stabilizing transformation (default) **or** TPM (optional). When TPM is selected, downstream correlation MUST be computed with Spearman’s ρ to respect the compositional nature of TPM values. (See US-1)
+
+- **FR-003**: The system MUST filter out genes with CPM < 1 in > 80 % of samples before correlation calculation **and retain at most the [deferred] genes with highest variance among the remaining genes**. (See US-1)
+
+- **FR-004**: The system MUST compute pairwise Pearson correlation for all retained genes **or** Spearman correlation when TPM is used; it MUST retain edges with correlation coefficient *r* ≥ **0.80** (default) and MUST never allow the threshold to be set below **0.75**. (See US-1)
+
+- **FR-005**: The system MUST map gene identifiers to STRING protein IDs using either Bioconductor `org.At.tair.db` (for *Arabidopsis*) or Ensembl BioMart (fallback to the latter if the former is unavailable). (See US-1)
+

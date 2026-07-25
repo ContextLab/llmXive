@@ -15,22 +15,24 @@ properties:
     description: "STRING protein identifier for the second node."
   correlation:
     type: number
-    format: float
-    description: "Pearson (or Spearman) correlation coefficient between the two proteins."
-    minimum: a moderate threshold (e.g., above a low baseline)
+    description: "Pearson or Spearman correlation coefficient between the two proteins."
+    minimum: -1.0
+    maximum: 1.0
   method:
     type: string
     enum: ["pearson", "spearman"]
     description: "Correlation method used."
   bootstrap_ci_lower:
     type: number
-    description: "Lower bound of the bootstrap confidence interval at a conventional confidence level for the correlation (optional)."
+    description: "Lower bound of the bootstrap confidence interval for the correlation (optional)."
   bootstrap_ci_upper:
     type: number
-    description: "Upper bound of the bootstrap confidence interval (optional)."
+    description: "Upper bound of the bootstrap confidence interval for the correlation (optional)."
 additionalProperties: false
 example:
   protein_id_1: "AT1G01010"
   protein_id_2: "AT2G02020"
-  correlation: strong positive relationship
+  correlation:
   method: "pearson"
+  bootstrap_ci_lower: a relatively high lower bound
+  bootstrap_ci_upper: a high confidence interval upper bound
