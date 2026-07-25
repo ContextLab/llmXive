@@ -1,21 +1,20 @@
-# Core Data & Bioinformatics
-biopython>=1.81
-pysam>=0.21.0
-scipy>=1.11.0
-pandas>=2.0.0
-matplotlib>=3.7.0
-gprofiler-official>=1.0.0
-rpy2>=3.5.0
+# Core Data Science & Bioinformatics
+biopython==1.84
+pysam==0.22.1
+scipy==1.13.1
+pandas==2.2.2
+matplotlib==3.9.0
 
-# Linting & Formatting Tools (T003)
-flake8>=6.1.0
-pylint>=3.0.0
-black>=23.0.0
-isort>=5.12.0
+# Statistical & R Integration
+gprofiler-official==1.0.0
+rpy2==3.5.16
 
-# Utilities
-requests>=2.31.0
-tomlkit>=0.12.0
-tomli-w>=1.0.0
-tomli>=2.0.0
-numpy>=1.24.0
+# Utilities & Testing
+requests==2.32.3
+tqdm==4.66.4
+pytest==8.2.2
+pytest-cov==5.0.0
+numpy==1.26.4
+
+# Note: R dependencies (DESeq2, etc.) must be installed via system package manager
+# or R before running rpy2. See README for setup instructions.

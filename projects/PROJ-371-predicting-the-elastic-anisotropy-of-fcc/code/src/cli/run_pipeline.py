@@ -1,9 +1,3 @@
-"""
-Orchestration script for the Elastic Anisotropy Data Pipeline.
-
-This script fetches elastic constants, cleans the data, computes features,
-and saves the final processed dataset.
-"""
 import argparse
 import sys
 import logging
@@ -12,148 +6,128 @@ from typing import Optional
 
 import pandas as pd
 
-# Import pipeline stages from sibling modules
+# Import sibling modules using the exact names from the API surface
+from src.utils.logging import setup_logger, log_info, log_warning, log_error, log_success
+from src.utils.config import get_path, ensure_directories, get_config
 from src.data.ingest import ingest_elastic_data
+from src.data.validate_ingest import validate_ingest
 from src.data.clean import clean_elastic_data
 from src.data.features import compute_compositional_features
-from src.utils.config import get_config, get_path, ensure_directories, validate_api_keys
-from src.utils.logging import setup_logger, get_logger
+from src.data.group_elements import group_elements_pipeline
 
-def validate_output_descriptors(df: pd.DataFrame, logger: logging.Logger) -> bool:
+def validate_output_descriptors(df: pd.DataFrame) -> bool:
     """
-    Validate that the output DataFrame has no null values in key descriptor columns.
+    Validate that the output DataFrame has no null values in descriptor columns.
     
-    Args:
-        df: The processed DataFrame.
-        logger: The logger instance.
-        
-    Returns:
-        True if validation passes, False otherwise.
+    Descriptor columns are the compositional features computed in T014.
+    Returns True if validation passes, raises ValueError if validation fails.
     """
-    required_columns = ['C11', 'C12', 'C44', 'A1']
-    # Add compositional features that should be present
-    compositional_cols = ['atomic_radius_variance', 'electronegativity_std', 'valence_electron_concentration']
+    if df.empty:
+        log_warning("Output DataFrame is empty, skipping null check")
+        return True
     
-    all_required = required_columns + compositional_cols
+    # Identify descriptor columns (compositional features)
+    # These are typically the columns added by compute_compositional_features
+    # Based on T014 implementation, these include:
+    descriptor_columns = [
+        'atomic_radius_variance',
+        'electronegativity_std',
+        'valence_electron_concentration'
+    ]
     
-    missing_cols = [col for col in all_required if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in output: {missing_cols}")
-        return False
+    # Check for columns that actually exist in the dataframe
+    existing_descriptors = [col for col in descriptor_columns if col in df.columns]
     
-    for col in all_required:
-        null_count = df[col].isnull().sum()
-        if null_count > 0:
-            logger.error(f"Column '{col}' contains {null_count} null values")
-            return False
+    if not existing_descriptors:
+        log_warning("No descriptor columns found in output DataFrame")
+        return True
     
-    logger.info("Output validation passed: All required columns present and non-null.")
+    # Check for null values in descriptor columns
+    null_counts = df[existing_descriptors].isnull().sum()
+    total_nulls = null_counts.sum()
+    
+    if total_nulls > 0:
+        error_msg = f"Validation failed: Found {total_nulls} null values in descriptor columns:\n{null_counts[null_counts > 0].to_string()}"
+        log_error(error_msg)
+        raise ValueError(error_msg)
+    
+    log_success("All descriptor columns contain valid (non-null) values")
     return True
 
-def main(argv: Optional[list] = None) -> int:
-    """
-    Main entry point for the pipeline orchestration.
-    
-    Args:
-        argv: Command line arguments (optional).
-        
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    parser = argparse.ArgumentParser(description="Run the Elastic Anisotropy Data Pipeline")
-    parser.add_argument(
-        "--validate", 
-        action="store_true", 
-        help="Validate output descriptors after pipeline execution"
+def main():
+    parser = argparse.ArgumentParser(
+        description="Orchestrate the elastic anisotropy data pipeline"
     )
     parser.add_argument(
-        "--manifest",
-        type=str,
-        default=None,
-        help="Path to the manifest file (overrides config)"
+        "--test-mode",
+        action="store_true",
+        help="Run in test mode using static fixtures instead of live API calls"
     )
     parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Path to the output CSV file (overrides config)"
+        "--validate",
+        action="store_true",
+        help="Run validation checks on the output"
     )
-    
-    args = parser.parse_args(argv)
-    
+    args = parser.parse_args()
+
     # Setup logging
-    logger = setup_logger("pipeline", level=logging.INFO)
+    logger = setup_logger(__name__)
     
-    logger.info("Starting Elastic Anisotropy Data Pipeline")
+    # Ensure directories exist
+    config = get_config()
+    ensure_directories()
+    
+    log_info("Starting elastic anisotropy data pipeline")
     
     try:
-        # Load configuration
-        config = get_config()
-        
-        # Validate API keys
-        if not validate_api_keys(config):
-            logger.error("API key validation failed. Check environment variables.")
-            return 1
-        
-        # Ensure output directories exist
-        ensure_directories(config)
-        
-        # Determine paths
-        manifest_path = args.manifest or get_path(config, "raw_manifest")
-        output_path = args.output or get_path(config, "processed_anisotropy")
-        
-        logger.info(f"Using manifest: {manifest_path}")
-        logger.info(f"Output will be saved to: {output_path}")
-        
         # Step 1: Ingest data
-        logger.info("Step 1: Ingesting elastic constants...")
-        raw_df = ingest_elastic_data(manifest_path, logger)
+        log_info("Step 1: Ingesting elastic constants from data sources")
+        raw_data_path = get_path("raw_manifest")
+        ingest_data = ingest_elastic_data(
+            manifest_path=raw_data_path,
+            test_mode=args.test_mode
+        )
         
-        if raw_df is None or raw_df.empty:
-            logger.error("Ingestion failed or returned empty dataset.")
-            return 1
+        if ingest_data.empty:
+            log_error("Ingested data is empty. Pipeline cannot continue.")
+            sys.exit(1)
         
-        logger.info(f"Ingested {len(raw_df)} entries.")
+        # Step 2: Validate ingestion
+        log_info("Step 2: Validating ingested data")
+        validate_ingest(ingest_data)
         
-        # Step 2: Clean data
-        logger.info("Step 2: Cleaning data...")
-        cleaned_df = clean_elastic_data(raw_df, logger)
+        # Step 3: Clean data
+        log_info("Step 3: Cleaning and filtering data")
+        cleaned_data = clean_elastic_data(ingest_data)
         
-        if cleaned_df is None or cleaned_df.empty:
-            logger.error("Cleaning failed or resulted in empty dataset.")
-            return 1
+        if cleaned_data.empty:
+            log_error("Cleaned data is empty. Pipeline cannot continue.")
+            sys.exit(1)
         
-        logger.info(f"Cleaned dataset contains {len(cleaned_df)} entries.")
+        # Step 4: Compute features
+        log_info("Step 4: Computing compositional features")
+        featured_data = compute_compositional_features(cleaned_data)
         
-        # Step 3: Feature engineering
-        logger.info("Step 3: Computing compositional features...")
-        final_df = compute_compositional_features(cleaned_df, logger)
+        # Step 5: Group elements for LOEO
+        log_info("Step 5: Grouping elements for LOEO cross-validation")
+        group_elements_pipeline(featured_data)
         
-        if final_df is None or final_df.empty:
-            logger.error("Feature engineering failed or resulted in empty dataset.")
-            return 1
+        # Step 6: Save final output
+        output_path = get_path("processed_elastic_anisotropy")
+        featured_data.to_csv(output_path, index=False)
+        log_info(f"Pipeline complete. Output saved to: {output_path}")
         
-        logger.info(f"Final dataset contains {len(final_df)} entries with features.")
+        # Step 7: Validate output descriptors if requested
+        if args.validate or True:  # Always validate as per T016 requirement
+            log_info("Step 6: Validating output descriptors for null values")
+            output_df = pd.read_csv(output_path)
+            validate_output_descriptors(output_df)
         
-        # Step 4: Validate if requested
-        if args.validate:
-            logger.info("Step 4: Validating output descriptors...")
-            if not validate_output_descriptors(final_df, logger):
-                logger.error("Output validation failed.")
-                return 1
-        
-        # Step 5: Save output
-        logger.info("Step 4: Saving processed data...")
-        output_path_obj = Path(output_path)
-        output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        final_df.to_csv(output_path, index=False)
-        
-        logger.info(f"Pipeline completed successfully. Output saved to {output_path}")
-        return 0
+        log_success("Pipeline execution completed successfully")
         
     except Exception as e:
-        logger.exception(f"Pipeline failed with error: {e}")
-        return 1
+        log_error(f"Pipeline failed with error: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

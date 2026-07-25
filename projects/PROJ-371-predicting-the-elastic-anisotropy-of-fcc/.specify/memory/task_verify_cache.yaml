@@ -12,22 +12,6 @@ T011:
     the required static manifest `data/raw/manifest_subset.json` is missing, so the
     test cannot run on a known subset of FCC IDs as specified. The missing manifest
     must be added with a list of valid material IDs.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No timing logs, benchmark results, or execution evidence were provided to demonstrate\
-    \ that the model training script actually finishes within 1\u202Fhour on a standard\
-    \ CPU environment. Without such artifacts, we cannot confirm the acceptance criterion\
-    \ for US\u20112. The implementer must supply concrete run logs or a reproducible\
-    \ benchmark showing the training duration."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/metrics.json` file or any evidence of logging hyperparameters and\
-    \ performance metrics is present; without this artifact the task requirement is\
-    \ not satisfied. The implementer must create the JSON file in the specified path\
-    \ containing the model\u2019s hyperparameter settings and the evaluation metrics\
-    \ (e.g., R\xB2, MAE, RMSE) for traceability."
 T027:
   c: false
   h: 2fc90794f6f93614957679d3ba46545cce81960c4fb916ceaca54e1bca0340c6

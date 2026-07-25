@@ -1,11 +1,6 @@
-[MASTER]
-extension-pkg-allow-list=numpy,pandas
-ignore=
-    data/raw,
-    data/processed,
-    .venv,
-    venv
-load-plugins=
+[MAIN]
+init-hook='import sys; sys.path.append("code")'
+ignore-patterns=^\.#
 
 [MESSAGES CONTROL]
 disable=
@@ -16,11 +11,22 @@ disable=
     R0913,  # too-many-arguments
     R0914,  # too-many-locals
     W0511,  # fixme
-    W1203,  # logging-fstring-interpolation
+    W1203,  # lazy-formatting
+    E1101,  # instance-has-no-member (often false positives with dynamic attrs)
+    R0801,  # duplicate-code (handled by isort/black usually)
+good-names=
+    i, j, k,
+    df,
+    ex,
+    id,
+    pk,
+    fk,
+    ts,
+    fn,
+    _
 
 [FORMAT]
 max-line-length=88
-max-module-lines=1000
 
 [DESIGN]
 max-args=10
@@ -29,8 +35,9 @@ max-returns=6
 max-branches=15
 max-statements=60
 max-attributes=15
-max-public-methods=20
+max-public-methods=25
 
-[BASIC]
-good-names=i,j,k,ex,_,f,fd,df
-naming-style=snake_case
+[SIMILARITIES]
+min-similarity-lines=6
+ignore-comments=yes
+ignore-docstrings=yes

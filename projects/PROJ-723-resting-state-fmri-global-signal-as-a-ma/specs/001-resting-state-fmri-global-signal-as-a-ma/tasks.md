@@ -77,15 +77,15 @@
 ### Implementation for User Story 1
 
 - [X] T009 [US1] Implement data download logic in `code/ingestion.py` to fetch HCP resting-state fMRI (NPI source, parquet/zip format) and MWQ scores. Output: files in `data/raw/`. (FR-001) <!-- FAILED: unspecified -->
-- [~] T010 [US1] [Requires: T009] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
+- [ ] T010 [US1] [Requires: T009] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
 - [X] T011 [US1] [Requires: T010] Implement voxel-wise mean time series (global signal) computation per run in `code/ingestion.py` (FR-002)
 - [X] T012 [US1] [Requires: T011] Implement standard deviation calculation of global signal per run and averaging across runs per subject in `code/ingestion.py` (FR-002)
-- [~] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
-- [~] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
+- [ ] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
+- [ ] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
 - [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0` and log warnings
 - [ ] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
-- [ ] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
-- [ ] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
+- [X] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
+- [X] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,9 +99,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement primary ridge regression pipeline in `code/modeling.py` with nested 5-fold CV for alpha tuning (FR-004)
-- [ ] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
-- [ ] T021 [US2] [Requires: T016] Implement null distribution generation in `code/modeling.py` by training on **[deferred]** permuted MWQ vectors (Plan Phase 2 Step 3, Complexity Tracking). Verification: Assert permutation count is 1,000 in output logs/metadata. (FR-005, Plan Constraint)
+- [X] T019 [US2] Implement primary ridge regression pipeline in `code/modeling.py` with nested 5-fold CV for alpha tuning (FR-004)
+- [X] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
+- [X] T021 [US2] [Requires: T016] Implement null distribution generation in `code/modeling.py` by training on **[deferred]** permuted MWQ vectors (Plan Phase 2 Step 3, Complexity Tracking). Verification: Assert permutation count is 1,000 in output logs/metadata. (FR-005, Plan Constraint)
 - [ ] T022 [US2] [Requires: T021] Implement empirical p-value calculation: proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
 - [ ] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
 - [ ] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)

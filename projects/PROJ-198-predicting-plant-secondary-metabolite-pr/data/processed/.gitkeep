@@ -1,1 +1,3 @@
-# Keep this directory for processed datasets
+# This directory contains processed, aligned, and analyzed data ready for modeling.
+# Output files from pipelines (e.g., aligned_matrix.csv, metrics.json) go here.
+# Placeholder file to ensure directory creation.

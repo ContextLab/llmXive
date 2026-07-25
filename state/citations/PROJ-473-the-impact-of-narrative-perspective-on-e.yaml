@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.17605/OSF.IO/XXXXX
   verified_at: '2026-07-10T07:45:50.174071Z'
-- artifact_hash: f6dfc687c04667d92eabe3d58eef62257ee0faa49171f5b08ddd238bb07ee80a
+- artifact_hash: 8d9583faecdce258c5ee3a69b72d7b8d7ffcc8788f7c30013f9abd476c39341d
   artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://osf.io/7v8zq/
   verification_status: pending
   verified_against_url: https://osf.io/7v8zq/
-  verified_at: '2026-07-10T08:14:12.562541Z'
+  verified_at: '2026-07-25T07:10:49.250081Z'

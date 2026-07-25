@@ -1,0 +1,43 @@
+T010:
+  c: false
+  h: 49404b4419916e375e9576abdec0d1b65687cce9e3982f48e16665dc530302c6
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
+    \ `code/ingestion.py` contains no logic that reads a schema or aborts with \u201C\
+    FATAL: Dataset Mismatch\u201D when required columns (e.g., global_signal, global_signal_sd)\
+    \ are absent. The task\u2019s core verification requirement is therefore unmet."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files implementing the subject\u2011validation logic\
+    \ are present; the evidence consists only of the task description and project\
+    \ spec. The required artifact\u2014a piece of software that joins fMRI and MWQ\
+    \ data, excludes unmatched subjects, and records exclusion counts\u2014is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or log file was provided that implements the\
+    \ per\u2011subject mean FD >\u202F0.5\u202Fmm exclusion or records the exclusion\
+    \ counts (FR\u2011008). Without such artifacts, the requirement cannot be verified\
+    \ as satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test file was presented that adds a zero\u2011variance (`global_signal_sd\
+    \ == 0`) exclusion check and logs a warning. The provided project description\
+    \ and user stories do not contain the required implementation artifact, so the\
+    \ task is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided materials contain only the project specification and user stories;\
+    \ there is no code, script, function, or output that computes the empirical p\u2011\
+    value as the proportion of null MAEs \u2264 the observed MAE. Consequently, the\
+    \ required artifact is missing."
+T024:
+  c: false
+  h: 1b5f1d0948df6b7c84af4970b59981403700e9652715d788eb683a0f367ba2b6
+  r: "The repository contains a partially\u2011implemented `code/diagnostics.py` (the\
+    \ `run_collinearity_diagnostics` function is cut off and does not show JSON writing\
+    \ or VIF\u2011threshold warnings). Moreover, the required input file `data/processed/cleaned_data.csv`\
+    \ and the expected output `data/results/diagnostics.json` are absent. The task\u2019\
+    s deliverables are therefore not present."

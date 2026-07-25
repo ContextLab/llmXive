@@ -1,13 +1,17 @@
 """
-Script to initialize the project directory structure.
-This script ensures that the required directories exist.
+Project structure initialization script for PROJ-473.
+Creates the required directory hierarchy: code/, data/, tests/, artifacts/.
 """
 import os
 import sys
+from pathlib import Path
 
 def main():
-    """Create the standard project directories."""
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    """Create the project directory structure."""
+    # Define the root directory (current working directory or project root)
+    root = Path(os.getcwd())
+    
+    # Define required directories relative to root
     directories = [
         "code",
         "data",
@@ -16,31 +20,21 @@ def main():
         "tests",
         "tests/integration",
         "artifacts",
-        "figures"
+        "figures",
+        "specs"
     ]
-
-    created = []
-    for dir_path in directories:
-        full_path = os.path.join(root_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created.append(dir_path)
-        else:
-            print(f"Directory exists: {dir_path}")
-
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    else:
-        print("All directories already exist.")
     
-    # Create __init__.py files if missing
-    for dir_path in ["code", "tests", "tests/integration"]:
-        full_path = os.path.join(root_dir, dir_path, "__init__.py")
-        if not os.path.exists(full_path):
-            with open(full_path, 'w') as f:
-                f.write('"""Auto-generated init file."""\n')
-            print(f"Created __init__.py in {dir_path}")
-
+    created_count = 0
+    for dir_name in directories:
+        target_path = root / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
+            created_count += 1
+        else:
+            print(f"Directory exists: {target_path}")
+    
+    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

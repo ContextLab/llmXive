@@ -1,3 +1,1 @@
-"""
-Scripts package initialization.
-"""
+# Scripts module initialization

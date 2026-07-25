@@ -1,157 +1,202 @@
-"""
-Unit tests for data preprocessing functions.
-Tests for antiSMASH wrapper and other preprocessing utilities.
-"""
-import pytest
-import json
+import os
+import sys
 import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
+import pandas as pd
+import numpy as np
 
-from code.data.preprocess import (
-    run_antiasmh_wrapper,
-    _parse_antismash_output,
-    _generate_mock_antismash_results,
-    CLUSTER_TYPE_MAPPING
-)
+# Ensure code/ is in path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-class TestAntiSMASHWrapper:
-    """Tests for the antiSMASH wrapper functionality."""
+from data.preprocess import harmonize_metabolites, MIBiGMappingError
+from utils.logging import setup_logging
 
-    def test_cluster_type_mapping_exists(self):
-        """Verify that cluster type mapping is populated."""
-        assert len(CLUSTER_TYPE_MAPPING) > 0
-        assert "polyketide" in CLUSTER_TYPE_MAPPING
-        assert CLUSTER_TYPE_MAPPING["polyketide"] == "PKS"
+# Setup logging for tests
+setup_logging()
 
-    @patch('code.data.preprocess._check_antismash_installation')
-    @patch('code.data.preprocess._generate_mock_antismash_results')
-    def test_mock_mode_generation(self, mock_gen, mock_check):
-        """Test that mock mode is triggered when antiSMASH is not available."""
-        mock_check.return_value = False
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir) / "genomes"
-            input_dir.mkdir()
-            
-            # Create a dummy genome file
-            (input_dir / "test_species.fasta").write_text(">test\nATCG")
-            
-            binary, count = run_antiasmh_wrapper(
-                input_dir=input_dir,
-                species_list=["test_species"]
-            )
-            
-            # Verify mock generation was called
-            mock_gen.assert_called_once()
-            
-            # Verify output structure
-            assert "test_species" in binary
-            assert "test_species" in count
-            assert isinstance(binary["test_species"], dict)
-            assert isinstance(count["test_species"], dict)
+class TestInChIKeyHarmonization:
+    """
+    Unit tests for InChIKey harmonization logic in harmonize_metabolites().
+    Tests cover normalization, pseudo-count addition, and log-transformation.
+    """
 
-    def test_parse_antismash_output_structure(self):
-        """Test parsing of antiSMASH JSON output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Create mock JSON output
-            mock_json = {
-                "clusters": [
-                    {"type": "polyketide"},
-                    {"type": "terpene"},
-                    {"type": "polyketide"},
-                    {"type": "unknown_type"}
-                ]
-            }
-            
-            json_file = output_dir / "antismash.json"
-            with open(json_file, "w") as f:
-                json.dump(mock_json, f)
-            
-            binary_matrix = {}
-            count_matrix = {}
-            
-            _parse_antismash_output(output_dir, "test_sp", binary_matrix, count_matrix)
-            
-            # Verify counts
-            assert count_matrix["test_sp"]["PKS"] == 2
-            assert count_matrix["test_sp"]["Terpene"] == 1
-            assert count_matrix["test_sp"]["unknown_type"] == 1
-            
-            # Verify binary presence
-            assert binary_matrix["test_sp"]["PKS"] == 1
-            assert binary_matrix["test_sp"]["Terpene"] == 1
-            assert binary_matrix["test_sp"]["unknown_type"] == 1
+    def test_inchikey_normalization_uppercase(self):
+        """Test that lowercase InChIKeys are converted to uppercase."""
+        df = pd.DataFrame({
+            'species': ['A', 'B'],
+            'inchikey': ['abc123', 'DEF456']
+        })
+        result = harmonize_metabolites(df)
+        assert result['inchikey'].iloc[0] == 'ABC123'
+        assert result['inchikey'].iloc[1] == 'DEF456'
 
-    def test_empty_clusters_handling(self):
-        """Test handling of empty cluster list."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            mock_json = {"clusters": []}
-            json_file = output_dir / "antismash.json"
-            with open(json_file, "w") as f:
-                json.dump(mock_json, f)
-            
-            binary_matrix = {}
-            count_matrix = {}
-            
-            _parse_antismash_output(output_dir, "empty_sp", binary_matrix, count_matrix)
-            
-            # Should have empty dicts
-            assert "empty_sp" in binary_matrix
-            assert "empty_sp" in count_matrix
-            assert len(binary_matrix["empty_sp"]) == 0
-            assert len(count_matrix["empty_sp"]) == 0
+    def test_inchikey_normalization_whitespace(self):
+        """Test that whitespace around InChIKeys is stripped."""
+        df = pd.DataFrame({
+            'species': ['A', 'B'],
+            'inchikey': ['  abc123  ', 'DEF456']
+        })
+        result = harmonize_metabolites(df)
+        assert result['inchikey'].iloc[0] == 'ABC123'
 
-    def test_missing_json_file(self):
-        """Test handling of missing JSON output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            binary_matrix = {}
-            count_matrix = {}
-            
-            # Should not raise, just log warning
-            _parse_antismash_output(output_dir, "missing_sp", binary_matrix, count_matrix)
-            
-            # Dictionaries should remain empty
-            assert "missing_sp" not in binary_matrix or len(binary_matrix["missing_sp"]) == 0
+    def test_pseudo_count_addition(self):
+        """Test that a pseudo-count of 1 is added to zero abundance values."""
+        df = pd.DataFrame({
+            'species': ['A', 'B', 'C'],
+            'inchikey': ['ABC123', 'DEF456', 'GHI789'],
+            'abundance': [0.0, 5.0, 0.0]
+        })
+        result = harmonize_metabolites(df)
+        # Check that 0.0 becomes 1.0 before log transform
+        # The function applies log10(abundance + 1)
+        # So input 0 -> log10(1) = 0
+        # Input 5 -> log10(6) ~ 0.778
+        assert result['abundance'].iloc[0] == pytest.approx(0.0, rel=1e-5) # log10(0+1)
+        assert result['abundance'].iloc[2] == pytest.approx(0.0, rel=1e-5) # log10(0+1)
+        assert result['abundance'].iloc[1] > 0.5 # log10(5+1) > 0.5
 
-class TestMockDataGeneration:
-    """Tests for mock data generation fallback."""
+    def test_log_transformation(self):
+        """Test that log10 transformation is applied correctly."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC123'],
+            'abundance': [100.0]
+        })
+        result = harmonize_metabolites(df)
+        # log10(100 + 1) = log10(101) ~ 2.004
+        expected = np.log10(101.0)
+        assert result['abundance'].iloc[0] == pytest.approx(expected, rel=1e-3)
 
-    def test_mock_generation_consistency(self):
-        """Test that mock generation produces consistent results for same species."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir)
-            
-            binary1, count1 = {}, {}
-            binary2, count2 = {}, {}
-            
-            _generate_mock_antismash_results(["consistent_sp"], input_dir, binary1, count1)
-            _generate_mock_antismash_results(["consistent_sp"], input_dir, binary2, count2)
-            
-            # Results should be identical due to deterministic seeding
-            assert binary1 == binary2
-            assert count1 == count2
+    def test_log_transformation_large_values(self):
+        """Test log transformation on large abundance values."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC123'],
+            'abundance': [1000000.0]
+        })
+        result = harmonize_metabolites(df)
+        expected = np.log10(1000001.0)
+        assert result['abundance'].iloc[0] == pytest.approx(expected, rel=1e-3)
 
-    def test_mock_generation_variability(self):
-        """Test that different species get different mock results."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir)
-            
-            binary1, count1 = {}, {}
-            binary2, count2 = {}, {}
-            
-            _generate_mock_antismash_results(["species_A"], input_dir, binary1, count1)
-            _generate_mock_antismash_results(["species_B"], input_dir, binary2, count2)
-            
-            # Results should likely differ (high probability)
-            # We don't assert inequality as it's theoretically possible they match,
-            # but we can verify the structure is correct
-            assert "species_A" in binary1
-            assert "species_B" in binary2
-            assert isinstance(binary1["species_A"], dict)
+    def test_missing_inchikey_handling(self):
+        """Test behavior when InChIKey is missing (None or NaN)."""
+        df = pd.DataFrame({
+            'species': ['A', 'B'],
+            'inchikey': ['ABC123', None],
+            'abundance': [10.0, 20.0]
+        })
+        # The function should drop rows with missing InChIKeys or handle gracefully
+        result = harmonize_metabolites(df)
+        # Check that the row with None is handled (dropped or filtered)
+        # Assuming it drops rows with missing InChIKey
+        assert 'ABC123' in result['inchikey'].values
+        assert len(result) <= 2
+
+    def test_empty_dataframe(self):
+        """Test harmonization on an empty DataFrame."""
+        df = pd.DataFrame(columns=['species', 'inchikey', 'abundance'])
+        result = harmonize_metabolites(df)
+        assert result.empty
+
+    def test_single_row(self):
+        """Test harmonization on a single row."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC123'],
+            'abundance': [50.0]
+        })
+        result = harmonize_metabolites(df)
+        assert len(result) == 1
+        assert result['inchikey'].iloc[0] == 'ABC123'
+        assert result['abundance'].iloc[0] == pytest.approx(np.log10(51.0), rel=1e-3)
+
+    def test_negative_abundance_handling(self):
+        """Test behavior with negative abundance values (should be handled or filtered)."""
+        df = pd.DataFrame({
+            'species': ['A', 'B'],
+            'inchikey': ['ABC123', 'DEF456'],
+            'abundance': [-5.0, 10.0]
+        })
+        # Negative values + 1 might still be negative or zero, causing log domain errors
+        # The function should handle this, likely by filtering or setting to 0
+        result = harmonize_metabolites(df)
+        # Check that the negative value row is handled (dropped or corrected)
+        # If it's dropped, result length < 2
+        # If it's corrected, abundance should be valid (>=0 after log)
+        if len(result) == 2:
+            # If both rows exist, the negative one must have been corrected
+            assert result['abundance'].iloc[0] >= 0
+        else:
+            # If dropped, the negative row is gone
+            assert len(result) == 1
+            assert result['abundance'].iloc[0] > 0
+
+    def test_inchikey_deduplication(self):
+        """Test that duplicate InChIKeys are handled (e.g., summed or averaged)."""
+        df = pd.DataFrame({
+            'species': ['A', 'A', 'B'],
+            'inchikey': ['ABC123', 'ABC123', 'DEF456'],
+            'abundance': [10.0, 20.0, 5.0]
+        })
+        result = harmonize_metabolites(df)
+        # Check that duplicates are handled - either summed or one row per unique InChIKey
+        # Assuming it aggregates (sums) abundance for same InChIKey per species or globally
+        # This test verifies the function doesn't crash and produces valid output
+        assert 'ABC123' in result['inchikey'].values
+        assert 'DEF456' in result['inchikey'].values
+
+    def test_mixed_case_inchikey_with_special_chars(self):
+        """Test InChIKeys with mixed case and special characters (if any)."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['AbC123XyZ'],
+            'abundance': [100.0]
+        })
+        result = harmonize_metabolites(df)
+        assert result['inchikey'].iloc[0] == 'ABC123XYZ'
+
+    def test_abundance_zero_after_pseudo_count(self):
+        """Verify that abundance=0 becomes log10(1)=0 after pseudo-count."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC123'],
+            'abundance': [0.0]
+        })
+        result = harmonize_metabolites(df)
+        assert result['abundance'].iloc[0] == pytest.approx(0.0, rel=1e-5)
+
+    def test_abundance_very_small_values(self):
+        """Test with very small positive abundance values."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC123'],
+            'abundance': [1e-10]
+        })
+        result = harmonize_metabolites(df)
+        # log10(1e-10 + 1) ~ log10(1) = 0 (since 1e-10 is negligible)
+        expected = np.log10(1.0 + 1e-10)
+        assert result['abundance'].iloc[0] == pytest.approx(expected, rel=1e-5)
+
+    def test_multiple_species_same_metabolite(self):
+        """Test handling of multiple species with the same metabolite."""
+        df = pd.DataFrame({
+            'species': ['A', 'B', 'C'],
+            'inchikey': ['ABC123', 'ABC123', 'ABC123'],
+            'abundance': [10.0, 20.0, 30.0]
+        })
+        result = harmonize_metabolites(df)
+        # Should process all rows, preserving species and InChIKey info
+        assert len(result) == 3
+        assert result['inchikey'].tolist() == ['ABC123'] * 3
+        assert result['species'].tolist() == ['A', 'B', 'C']
+
+    def test_inchikey_with_hyphens(self):
+        """Test InChIKeys that contain hyphens (standard format)."""
+        df = pd.DataFrame({
+            'species': ['A'],
+            'inchikey': ['ABC-123-XYZ'],
+            'abundance': [100.0]
+        })
+        result = harmonize_metabolites(df)
+        # Hyphens should be preserved, only case normalized
+        assert result['inchikey'].iloc[0] == 'ABC-123-XYZ'

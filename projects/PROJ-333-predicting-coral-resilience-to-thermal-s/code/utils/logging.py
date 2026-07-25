@@ -3,7 +3,7 @@ Logging infrastructure for the llmXive coral resilience pipeline.
 
 Provides utilities to:
 - Configure project-wide loggers with consistent formatting.
-- Track memory usage (RSS) via the `psutil` library.
+- Track memory usage (RSS) via the `psutil` library or `resource` fallback.
 - Measure and log execution time for pipeline stages.
 
 This module implements the requirements for task T005.
@@ -116,6 +116,7 @@ def log_memory_usage(logger: logging.Logger, message: str = "Current memory usag
 class MemoryTracker:
     """
     Context manager to track memory usage at the start and end of a block.
+    Logs the start memory, end memory, and the delta.
     """
     def __init__(self, logger: logging.Logger, description: str = "Block"):
         self.logger = logger
@@ -141,6 +142,7 @@ class MemoryTracker:
 class ExecutionTimer:
     """
     Context manager to track and log execution time.
+    Logs the start time, end time, and the total duration in seconds.
     """
     def __init__(self, logger: logging.Logger, description: str = "Block"):
         self.logger = logger

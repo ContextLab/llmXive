@@ -1,9 +1,8 @@
 """
-Group elements by material ID for Leave-One-Element-Out (LOEO) cross-validation.
+Group elements module for LOEO cross-validation.
 
-This module parses chemical formulas from the cleaned dataset and generates
-a mapping of element -> list of material IDs. This mapping is required for
-implementing LOEO cross-validation to prevent chemical similarity leakage.
+Parses chemical formulas from the cleaned dataset and generates
+element-to-material-ID mappings required for Leave-One-Element-Out splitting.
 """
 
 import os
@@ -12,166 +11,195 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
-
 import pandas as pd
+import re
 
-# Import from project utils
+# Import config for paths
 from src.utils.config import get_path, ensure_directories
 from src.utils.logging import get_logger
 
-# Import formula parsing from features module
-from src.data.features import parse_formula
+# Re-use formula parsing logic from features.py to ensure consistency
+# We import the function if it exists, or define a minimal version here
+try:
+    from src.data.features import parse_formula as features_parse_formula
+except ImportError:
+    features_parse_formula = None
+
+logger = get_logger(__name__)
 
 
-def load_cleaned_data(input_path: Optional[Path] = None) -> pd.DataFrame:
+def load_cleaned_data(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load the cleaned elastic data from the processed CSV file.
+    Load the cleaned dataset from the processed directory.
 
     Args:
-        input_path: Path to the cleaned data CSV. If None, uses default path from config.
+        input_path: Optional explicit path. If None, uses config default.
 
     Returns:
-        DataFrame containing cleaned elastic data with 'material_id' and 'formula' columns.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
+        DataFrame containing cleaned elastic data with 'formula' and 'material_id' columns.
     """
     if input_path is None:
-        input_path = get_path("processed_elastic_data")
+        input_path = str(get_path("data_processed", "elastic_anisotropy.csv"))
 
-    if not input_path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found: {input_path}")
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Cleaned data file not found at {input_path}")
 
+    logger.info(f"Loading cleaned data from {input_path}")
     df = pd.read_csv(input_path)
 
-    required_columns = {'material_id', 'formula'}
-    missing_columns = required_columns - set(df.columns)
-    if missing_columns:
-        raise ValueError(f"Cleaned data missing required columns: {missing_columns}")
+    required_cols = {"formula", "material_id"}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Cleaned data missing required columns: {missing}")
+
+    # Ensure no nulls in key columns
+    if df["formula"].isnull().any() or df["material_id"].isnull().any():
+        logger.warning("Cleaned data contains null values in formula or material_id; dropping rows.")
+        df = df.dropna(subset=["formula", "material_id"])
 
     return df
 
 
+def parse_formula_simple(formula: str) -> Set[str]:
+    """
+    Parse a chemical formula string into a set of unique element symbols.
+    Handles standard formula notation (e.g., "Fe2O3", "CuAl2").
+
+    Args:
+        formula: Chemical formula string.
+
+    Returns:
+        Set of unique element symbols found in the formula.
+    """
+    if not isinstance(formula, str):
+        return set()
+
+    # Regex to match element symbols: Capital letter followed by optional lowercase
+    # This is a robust regex for standard chemical formulas
+    elements = re.findall(r'([A-Z][a-z]?)', formula)
+    return set(elements)
+
+
 def build_element_groups(df: pd.DataFrame) -> Dict[str, List[str]]:
     """
-    Parse chemical formulas and build a mapping of element -> list of material IDs.
+    Build a mapping of element -> list of material IDs.
+
+    Iterates through the dataframe, parsing each formula to extract elements,
+    and accumulating material IDs for each element.
 
     Args:
-        df: DataFrame with 'material_id' and 'formula' columns.
+        df: DataFrame with 'formula' and 'material_id' columns.
 
     Returns:
-        Dictionary mapping each element symbol to a list of material IDs containing that element.
+        Dictionary mapping element symbol (str) to list of material IDs (str).
     """
     element_groups: Dict[str, Set[str]] = {}
+    total_rows = len(df)
 
-    for _, row in df.iterrows():
-        material_id = str(row['material_id'])
-        formula = str(row['formula'])
+    for idx, row in df.iterrows():
+        formula = row["formula"]
+        material_id = row["material_id"]
 
-        # Parse formula to get unique elements
-        elements = parse_formula(formula)
+        try:
+            # Use the shared parser if available, otherwise fallback to simple regex
+            if features_parse_formula:
+                elements = features_parse_formula(formula)
+            else:
+                elements = parse_formula_simple(formula)
 
-        for element in elements:
-            if element not in element_groups:
-                element_groups[element] = set()
-            element_groups[element].add(material_id)
+            if not elements:
+                logger.debug(f"No elements found in formula: {formula} at row {idx}")
+                continue
 
-    # Convert sets to sorted lists for JSON serialization
-    return {elem: sorted(list(material_ids)) for elem, material_ids in element_groups.items()}
+            for elem in elements:
+                if elem not in element_groups:
+                    element_groups[elem] = set()
+                element_groups[elem].add(material_id)
+
+        except Exception as e:
+            logger.warning(f"Failed to parse formula '{formula}' at row {idx}: {e}")
+            continue
+
+    # Convert sets to sorted lists for deterministic JSON output
+    return {k: sorted(list(v)) for k, v in element_groups.items()}
 
 
-def save_element_groups(element_groups: Dict[str, List[str]], output_path: Optional[Path] = None) -> None:
+def save_element_groups(groups: Dict[str, List[str]], output_path: Optional[str] = None) -> str:
     """
-    Save the element groups mapping to a JSON file.
+    Save the element groups dictionary to a JSON file.
 
     Args:
-        element_groups: Dictionary mapping elements to material ID lists.
-        output_path: Path for the output JSON file. If None, uses default path from config.
-    """
-    if output_path is None:
-        output_path = get_path("element_groups")
-
-    ensure_directories([output_path])
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(element_groups, f, indent=2)
-
-    logging.info(f"Element groups saved to {output_path}")
-
-
-def group_elements_pipeline(input_path: Optional[Path] = None,
-                             output_path: Optional[Path] = None) -> Dict[str, List[str]]:
-    """
-    Run the complete element grouping pipeline: load data, build groups, save results.
-
-    Args:
-        input_path: Path to cleaned data CSV. Defaults to config path.
-        output_path: Path for output JSON. Defaults to config path.
+        groups: The element-to-materials mapping.
+        output_path: Optional explicit path. If None, uses config default.
 
     Returns:
-        The element groups dictionary.
+        The path where the file was saved.
     """
-    logger = get_logger(__name__)
+    if output_path is None:
+        output_path = str(get_path("data_processed", "element_groups.json"))
+
+    path_obj = Path(output_path)
+    ensure_directories(path_obj)
+
+    logger.info(f"Saving element groups to {output_path}")
+    with open(path_obj, 'w', encoding='utf-8') as f:
+        json.dump(groups, f, indent=2)
+
+    logger.info(f"Saved {len(groups)} unique elements to {output_path}")
+    return output_path
+
+
+def group_elements_pipeline(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> str:
+    """
+    Execute the full grouping pipeline: load, parse, build, save.
+
+    Args:
+        input_path: Path to cleaned CSV.
+        output_path: Path for output JSON.
+
+    Returns:
+        Path to the generated JSON file.
+    """
     logger.info("Starting element grouping pipeline")
 
-    # Load cleaned data
     df = load_cleaned_data(input_path)
-    logger.info(f"Loaded {len(df)} records from {input_path}")
+    logger.info(f"Loaded {len(df)} records")
 
-    # Build element groups
-    element_groups = build_element_groups(df)
-    logger.info(f"Found {len(element_groups)} unique elements across {len(df)} materials")
+    groups = build_element_groups(df)
+    logger.info(f"Built groups for {len(groups)} unique elements")
 
-    # Save results
-    save_element_groups(element_groups, output_path)
+    saved_path = save_element_groups(groups, output_path)
 
     logger.info("Element grouping pipeline completed successfully")
-    return element_groups
+    return saved_path
 
 
 def main() -> int:
     """
-    Main entry point for the element grouping script.
+    CLI entry point for the group_elements module.
 
     Returns:
-        Exit code (0 for success, non-zero for failure).
+        Exit code (0 for success, 1 for failure).
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Running group_elements.py")
 
     try:
-        # Use default paths from config
-        input_path = get_path("processed_elastic_data")
-        output_path = get_path("element_groups")
-
-        element_groups = group_elements_pipeline(input_path, output_path)
-
-        # Print summary
-        print(f"\nElement Groups Summary:")
-        print(f"  Total unique elements: {len(element_groups)}")
-        print(f"  Output file: {output_path}")
-
-        # Show some statistics
-        element_counts = {elem: len(ids) for elem, ids in element_groups.items()}
-        sorted_elements = sorted(element_counts.items(), key=lambda x: x[1], reverse=True)
-
-        print(f"\nTop 10 most common elements:")
-        for elem, count in sorted_elements[:10]:
-            print(f"  {elem}: {count} materials")
-
+        # Use config defaults for paths unless overridden by CLI args (not implemented for simplicity here)
+        output_path = group_elements_pipeline()
+        logger.info(f"Pipeline finished. Output: {output_path}")
         return 0
-
     except FileNotFoundError as e:
-        logging.error(f"Input file not found: {e}")
-        return 1
-    except ValueError as e:
-        logging.error(f"Data validation error: {e}")
+        logger.error(f"Input file missing: {e}")
         return 1
     except Exception as e:
-        logging.error(f"Unexpected error during element grouping: {e}", exc_info=True)
+        logger.error(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 

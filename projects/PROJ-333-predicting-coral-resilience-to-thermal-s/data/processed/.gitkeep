@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists for processed data outputs
+# Directory for processed data (count matrices, DGE results, plots)
+# This file ensures the directory is tracked in version control.

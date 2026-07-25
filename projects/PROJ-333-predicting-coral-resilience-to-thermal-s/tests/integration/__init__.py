@@ -1,3 +1,1 @@
-"""
-Integration tests for pipeline workflows.
-"""
+"""Integration tests for the coral resilience pipeline."""

@@ -1,5 +1,5 @@
 """
-Pydantic models for Metabolite data.
+Pydantic models for Metabolites.
 """
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional, List
@@ -8,53 +8,44 @@ import re
 
 class MetaboliteClass(str, Enum):
     """
-    Standardized metabolite classes (e.g., from MIBiG or PMDB).
+    Metabolite classes mapped from MIBiG ontology or PMDB.
     """
-    ALKALOID = "alkaloid"
-    FLAVONOID = "flavonoid"
-    TERPENOIDE = "terpenoide"
+    ALKALOIDS = "alkaloids"
+    TERPENOIDS = "terpenoids"
     PHENYLPROPANOIDS = "phenylpropanoids"
-    GLUCOSINOLATE = "glucosinolate"
-    ALIPHATIC = "aliphatic"
-    INDOLIC = "indolic"
-    STEROID = "steroid"
+    GLUCOSINOLATES = "glucosinolates"
+    GLYCOSIDES = "glycosides"
+    LIPIDS = "lipids"
+    AMINO_ACIDS_DERIVATIVES = "amino acids derivatives"
+    OTHER = "other"
     UNKNOWN = "unknown"
 
 class Metabolite(BaseModel):
     """
-    Represents a detected metabolite with abundance data.
+    Represents a metabolite entry with abundance data.
     """
-    model_config = ConfigDict(
-        populate_by_name=True,
-        extra="forbid",
-        str_strip_whitespace=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
-    metabolite_id: str = Field(..., description="Unique identifier (e.g., PMDB ID, PubChem CID)")
-    inchi_key: str = Field(..., description="Standard InChIKey for unambiguous identification")
-    common_name: Optional[str] = Field(None, description="Common chemical name")
-    chemical_class: Optional[MetaboliteClass] = Field(None, description="Broad chemical classification")
-    species_id: str = Field(..., description="Reference to the source species")
-    abundance: float = Field(
-        ...,
-        ge=0.0,
-        description="Measured abundance (e.g., peak area, concentration)"
-    )
+    metabolite_id: str = Field(..., description="Unique metabolite identifier (e.g., PMDB ID)")
+    inchi_key: str = Field(..., description="InChIKey for unambiguous identification")
+    chemical_name: str = Field(..., description="Common chemical name")
+    metabolite_class: MetaboliteClass = Field(..., description="Primary chemical class")
+    species_id: str = Field(..., description="Reference to the species")
+    abundance_value: float = Field(..., ge=0.0, description="Raw abundance value")
     abundance_unit: Optional[str] = Field(None, description="Unit of measurement")
-    detection_method: Optional[str] = Field(None, description="Method used (e.g., 'LC-MS', 'GC-MS')")
-    retention_time: Optional[float] = Field(None, ge=0.0, description="Chromatographic retention time")
-    mass_to_charge: Optional[float] = Field(None, description="m/z value")
+    detection_method: Optional[str] = Field(None, description="Detection method (e.g., LC-MS, NMR)")
+    pmdb_id: Optional[str] = Field(None, description="Original PMDB ID if applicable")
+    metabololights_id: Optional[str] = Field(None, description="MetaboLights study ID if applicable")
+    log_transformed: bool = Field(False, description="Whether log transformation has been applied")
 
-    @field_validator('inchi_key')
+    @field_validator("inchi_key")
     @classmethod
     def validate_inchi_key(cls, v: str) -> str:
-        """
-        Validates that the InChIKey is in the standard 27-character format.
-        """
+        """Validate InChIKey format (27 characters, two blocks separated by hyphen)."""
         if not v:
-            raise ValueError("InChIKey cannot be empty")
-        # Standard InChIKey format: 14 chars + hyphen + 10 chars + hyphen + 1 char
+            return v
+        # Basic InChIKey format check: 14 chars - 10 chars - 1 char
         pattern = r"^[A-Z0-9]{14}-[A-Z0-9]{10}-[A-Z0-9]$"
         if not re.match(pattern, v):
-            raise ValueError(f"Invalid InChIKey format: {v}. Expected 14-10-1 format.")
+            raise ValueError(f"Invalid InChIKey format: {v}")
         return v

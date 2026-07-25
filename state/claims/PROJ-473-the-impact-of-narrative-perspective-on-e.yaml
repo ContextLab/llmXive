@@ -166,3 +166,392 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T08:12:23Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlate 0.8 with human annotations on 50
+    story gold standard
+  claim_id: c_f5edc2b9
+  context: "Independent Test: The pipeline can be tested by processing a small, manually\
+    \ annotated sample of 10 stories and verifying that the computed 'first-person\
+    \ density' scores correlate \u2265 0.8 with human annotations of perspective type."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process a manually annotated gold-standard subset of 50 stories and verify\
+    \ that the computed 'first-person density' scores correlate \u2265 0.8 with human\
+    \ annotations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T06:59:21Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: text similarity matching precision 0.9 on 50 story judgement pairs
+  claim_id: c_6f84616e
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a 'gold standard' subset of 50 manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "running it against a 'gold standard' subset of 50 manually annotated\
+    \ story-judgement pairs, verifying a precision \u2265 0.9"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:00:16Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: reader response data source OSF 7v8zq Moral Foundations Twitter dataset
+  claim_id: c_7ec18076
+  context: Implement `code/data_loader.py` function `load_reader_response_data(source_url)`
+    to fetch real reader-response data from **OSF (https://osf.io/7v8zq/ - Moral Foundations
+    Twitter dataset)** via verified URLs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reader_response_data_source_OSF_7v8zq_Moral_Foundations_Twit
+  kind: entity_fact
+  raw_text: fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral
+    Foundations Twitter dataset)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:01:19Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: linear regression recovers slope within 5% margin of error on synthetic
+    data
+  claim_id: c_ed1e261b
+  context: 'Independent Test: The analysis can be tested by running it on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5), verifying that the
+    regression recovers the slope within a 5% margin of error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that the regression recovers the slope within a 5% margin of error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:01:19Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: synthetic dataset hardcoded correlation slope 0.5
+  claim_id: c_7390e7c5
+  context: 'Independent Test: The analysis can be tested by running it on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5), verifying that the
+    regression recovers the slope within a 5% margin of error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run it on a synthetic dataset with a known, hardcoded correlation (slope
+    = 0.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:01:55Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlate >= 0.8 with human annotations on
+    10 story sample
+  claim_id: c_900419bc
+  context: "Independent Test: The pipeline can be tested by processing a small, manually\
+    \ annotated sample of 10 stories and verifying that the computed 'first-person\
+    \ density' scores correlate \u2265 0.8 with human annotations of perspective type."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pipeline can be tested by processing a small, manually annotated\
+    \ sample of 10 stories and verifying that the computed 'first-person density'\
+    \ scores correlate \u2265 0.8 with human annotations of perspective type."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:03:00Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: fetch reader-response data from OSF URL https://osf.io/7v8zq/
+  claim_id: c_1afbd676
+  context: Implement code/data_loader.py function load_reader_response_data(source_url)
+    to fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral Foundations
+    Twitter dataset) via verified URLs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_reader-response_data_from_OSF_URL_https://osf.io/7v8zq
+  kind: entity_fact
+  raw_text: Implement code/data_loader.py function load_reader_response_data(source_url)
+    to fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral Foundations
+    Twitter dataset) via verified URLs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:03:50Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: linear regression recovers slope = 0.5 within 5% margin of error on synthetic
+    data
+  claim_id: c_6ec1328c
+  context: 'Independent Test: The analysis can be tested by running it on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5), verifying that the
+    regression recovers the slope within a 5% margin of error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis can be tested by running it on a synthetic dataset with a
+    known, hardcoded correlation (slope = 0.5), verifying that the regression recovers
+    the slope within a 5% margin of error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:04:03Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: 50 stories gold standard with first-person density correlation >= 0.8
+  claim_id: c_4fa08d94
+  context: "Independent Test: The pipeline can be tested by processing a small, manually\
+    \ annotated sample of 10 stories and verifying that the computed 'first-person\
+    \ density' scores correlate \u2265 0.8 with human annotations of perspective type."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process a manually annotated gold-standard subset of 50 stories and verify\
+    \ that the computed 'first-person density' scores correlate \u2265 0.8 with human\
+    \ annotations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:08:05Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlate >= 0.8 with human annotations
+  claim_id: c_d2493c8d
+  context: "Independent Test: The pipeline can be tested by processing a small, manually\
+    \ annotated sample of 10 stories and verifying that the computed 'first-person\
+    \ density' scores correlate \u2265 0.8 with human annotations of perspective type."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "correlate \u2265 0.8 with human annotations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:08:06Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 2
+  canonical: text-similarity matching precision >= 0.9 on 50 story-judgement pairs
+  claim_id: c_30890221
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a 'gold standard' subset of 50 manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ subset of 50 manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:08:06Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: 50 story-judgement pairs gold standard
+  claim_id: c_7dab706b
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a 'gold standard' subset of 50 manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50 manually annotated story-judgement pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:08:42Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: regression slope recovery within 5% margin of error on synthetic data
+    with slope 0.5
+  claim_id: c_a0b50d71
+  context: 'Independent Test: The analysis can be tested by running it on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5), verifying that the
+    regression recovers the slope within a 5% margin of error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that the regression recovers the slope within a 5% margin of error
+    on a synthetic dataset with a known, hardcoded correlation (slope = 0.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:08:55Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: synthetic dataset hardcoded slope 0.5
+  claim_id: c_b55499f6
+  context: 'Independent Test: The analysis can be tested by running it on a synthetic
+    dataset with a known, hardcoded correlation (slope = 0.5), verifying that the
+    regression recovers the slope within a 5% margin of error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: slope = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:09:42Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: fetch reader-response data from OSF URL https://osf.io/7v8zq/
+  claim_id: c_ec327a8a
+  context: Implement `code/data_loader.py` function `load_reader_response_data(source_url)`
+    to fetch real reader-response data from **OSF (https://osf.io/7v8zq/ - Moral Foundations
+    Twitter dataset)** via verified URLs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_reader-response_data_from_OSF_URL_https://osf.io/7v8zq
+  kind: entity_fact
+  raw_text: fetch real reader-response data from OSF (https://osf.io/7v8zq/ - Moral
+    Foundations Twitter dataset)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:09:44Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pipeline execution time < 45 minutes and memory < 6 GB
+  claim_id: c_bf4ed5ae
+  context: Run full pipeline end-to-end on the GitHub Actions runner to verify execution
+    time < 45 minutes and memory < 6 GB (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify execution time < 45 minutes and memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:09:44Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pipeline memory usage < 6 GB
+  claim_id: c_0dc7dcba
+  context: Run full pipeline end-to-end on the GitHub Actions runner to verify execution
+    time < 45 minutes and memory < 6 GB (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:09:44Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: GitHub Actions CPU-only configuration with 7GB RAM limit
+  claim_id: c_12cdd894
+  context: Setup CI environment configuration for GitHub Actions (CPU-only, 7GB RAM
+    limit)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_CPU-only_configuration_with_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: CPU-only, 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:10:27Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.25, 0.30, 0.35, 0.40
+  claim_id: c_226b943c
+  context: Implement `code/matching.py` function `apply_sensitivity_analysis(thresholds=[0.25,
+    0.30, 0.35, 0.40])` (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thresholds=[0.25, 0.30, 0.35, 0.40]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:10:48Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: exclude unmatched stories with similarity < 0.3
+  claim_id: c_fb5f6b3c
+  context: Add logic to exclude unmatched stories (similarity < 0.3) and log them
+    as 'unmatched'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: similarity < 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:10:49Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: VIF variation significant if standard deviation of slopes < 5% of mean
+    slope
+  claim_id: c_0d96c1ed
+  context: define a statistical test (e.g., checking if the standard deviation of
+    slopes across thresholds is < 5% of the mean slope) to determine if the variation
+    is 'significant'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: standard deviation of slopes across thresholds is < 5% of the mean slope
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:10:49Z'

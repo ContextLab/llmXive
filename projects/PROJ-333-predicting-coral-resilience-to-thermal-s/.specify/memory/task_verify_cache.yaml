@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence of the required directories (`code/`, `tests/`,
+    `data/raw`, `data/processed`) being present or populated; no file listings or
+    screenshots are supplied. Without concrete artifacts showing the project structure,
+    the task requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository contains no linting or formatting configuration files (e.g., `.flake8`,
+    `.pylintrc`, `pyproject.toml` with Black settings, or `isort.cfg`) and no evidence
+    of these tools being set up in CI. To satisfy T003, the implementer must add the
+    appropriate configuration files and ensure the tools run as part of the development
+    workflow.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/integration/` directory or any test files were presented, and there
+    are no mock FASTQ files or test code shown that would verify the pipeline flow.
+    The required integration test scaffolding is missing entirely.

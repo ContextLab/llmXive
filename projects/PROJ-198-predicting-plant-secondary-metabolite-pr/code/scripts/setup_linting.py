@@ -1,71 +1,75 @@
 """
-Script to verify and initialize linting and formatting configuration.
-This script ensures that ruff and black are installed and that the
-project's pyproject.toml contains the necessary configuration.
+Script to verify and install linting/formatting tools (ruff, black).
+This script ensures the development environment is ready for code quality checks.
 """
-
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> tuple[int, str, str]:
-    """Run a shell command and return (returncode, stdout, stderr)."""
+def run_command(cmd: list[str]) -> bool:
+    """Run a shell command and return True if successful."""
+    print(f"Running: {' '.join(cmd)}")
     try:
         result = subprocess.run(
             cmd,
+            check=True,
             capture_output=True,
             text=True,
-            check=False,
-            timeout=60,
         )
-        return result.returncode, result.stdout, result.stderr
-    except subprocess.TimeoutExpired:
-        return -1, "", "Command timed out"
-    except Exception as e:
-        return -1, "", str(e)
+        if result.stdout:
+            print(result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error running command: {e}")
+        print(f"stderr: {e.stderr}")
+        return False
 
-def check_tool_installed(tool: str) -> bool:
+def check_tool_installed(tool_name: str) -> bool:
     """Check if a tool is installed and accessible."""
-    ret, _, _ = run_command([sys.executable, "-m", "pip", "show", tool])
-    return ret == 0
+    try:
+        subprocess.run(
+            [tool_name, "--version"],
+            check=True,
+            capture_output=True,
+        )
+        print(f"✓ {tool_name} is installed.")
+        return True
+    except FileNotFoundError:
+        print(f"✗ {tool_name} is not installed.")
+        return False
 
-def main() -> None:
-    """Verify linting and formatting setup."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    pyproject_path = project_root / "pyproject.toml"
+def main() -> int:
+    """Main entry point for setup script."""
+    print("=== Linting & Formatting Setup ===")
 
-    print(f"Checking configuration at: {pyproject_path}")
+    # Check for tools
+    tools = ["ruff", "black"]
+    missing_tools = [t for t in tools if not check_tool_installed(t)]
 
-    if not pyproject_path.exists():
-        print("ERROR: pyproject.toml not found. Please ensure it exists in the project root.")
-        sys.exit(1)
+    if missing_tools:
+        print("\nMissing tools detected. Attempting to install...")
+        if not run_command([sys.executable, "-m", "pip", "install", "ruff", "black"]):
+            print("Failed to install tools via pip.")
+            return 1
 
-    # Check for black and ruff in requirements
-    with open(pyproject_path, "r", encoding="utf-8") as f:
-        content = f.read()
+        # Re-check
+        all_present = all(check_tool_installed(t) for t in tools)
+        if not all_present:
+            print("Tools still missing after installation attempt.")
+            return 1
 
-    has_black = "[tool.black]" in content
-    has_ruff = "[tool.ruff]" in content
+    print("\n=== Running Initial Checks ===")
+    
+    # Run ruff check
+    if not run_command(["ruff", "check", "code/"]):
+        print("Note: Ruff check found issues (expected in initial setup).")
+    
+    # Run black check
+    if not run_command(["black", "--check", "code/"]):
+        print("Note: Black check found formatting issues (expected in initial setup).")
 
-    if not has_black:
-        print("WARNING: [tool.black] section missing in pyproject.toml")
-    else:
-        print("OK: Black configuration found.")
-
-    if not has_ruff:
-        print("WARNING: [tool.ruff] section missing in pyproject.toml")
-    else:
-        print("OK: Ruff configuration found.")
-
-    # Verify tools are installed
-    tools = ["black", "ruff"]
-    for tool in tools:
-        if check_tool_installed(tool):
-            print(f"OK: {tool} is installed.")
-        else:
-            print(f"WARNING: {tool} is not installed. Run: pip install {tool}")
-
-    print("\nLinting and formatting configuration complete.")
+    print("\nSetup complete. Tools are available.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

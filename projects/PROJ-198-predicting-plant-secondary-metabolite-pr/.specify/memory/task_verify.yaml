@@ -1,9 +1,6 @@
-? 'T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`,
-  `tests/`) <!-- ATOMIZE: requested -->'
-: 2
-? T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`,
-  `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`,
-  `tqdm`, `pydantic`) in `requirements.txt`
-: 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
-T004 Create Pydantic models for `Species`, `BGCFeature`, `Metabolite`, and `ModelOutput` in `code/models/`: 2
+T001: 1
+T003: 1
+T004: 1
+T008: 1
+T018: 1
+T023a: 1

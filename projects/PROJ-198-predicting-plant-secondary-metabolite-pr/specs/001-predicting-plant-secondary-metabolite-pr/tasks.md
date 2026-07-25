@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`) <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`, `tqdm`, `pydantic`) in `requirements.txt`
+- [X] T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`, `tqdm`, `pydantic`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers
 - [X] T007 Implement data directory structure creation and checksum verification logic in `code/data/__init__.py`
-- [~] T008 Setup environment variable management for API keys (if needed) and local paths
+- [ ] T008 Setup environment variable management for API keys (if needed) and local paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,13 +80,13 @@
 - [X] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
 - [X] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
 - [ ] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
-- [ ] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
+- [X] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Unit test for genome size filter logic in `tests/unit/test_download.py`
-- [ ] T010 [P] [US1] Unit test for InChIKey harmonization in `tests/unit/test_preprocess.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end data alignment on 3 mock species in `tests/integration/test_align.py`
+- [X] T009 [P] [US1] Unit test for genome size filter logic in `tests/unit/test_download.py`
+- [X] T010 [P] [US1] Unit test for InChIKey harmonization in `tests/unit/test_preprocess.py`
+- [X] T011 [P] [US1] Integration test for end-to-end data alignment on 3 mock species in `tests/integration/test_align.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,11 +98,11 @@
 
 **Independent Test**: Run training on the P1 dataset, verify R² > 0 for PGLS, and confirm phylogenetic permutation baseline yields R² near zero.
 
-- [ ] T021 [US2] Implement `load_phylogeny()` in `code/modeling/phylo.py` to load species tree data (Newick format) from `data/raw/phylogeny/` for stratification
-- [ ] T021b [US2] Implement `construct_covariance_matrix()` in `code/modeling/phylo.py` using `dendropy` to generate the phylogenetic covariance matrix from the tree loaded in T021
-- [ ] T024 [US2] [PRIMARY] Implement `train_pgls()` in `code/modeling/phylo.py` using `statsmodels` and the phylogenetic covariance matrix from T021b (constructed via `dendropy`) to account for non-independence. This task produces the PRIMARY analysis output per FR-010. Use PCA-reduced features from T023a-PCA.
-- [ ] T024b [US2] Implement `report_primary_results()` in `code/modeling/eval.py` to explicitly extract, format, and log the PGLS R² and feature importance as the primary result for the final report, ensuring FR-010 compliance.
-- [ ] T022 [US2] Implement `create_stratified_split()` in `code/modeling/train.py` to split data by phylogenetic clade
+- [X] T021 [US2] Implement `load_phylogeny()` in `code/modeling/phylo.py` to load species tree data (Newick format) from `data/raw/phylogeny/` for stratification
+- [X] T021b [US2] Implement `construct_covariance_matrix()` in `code/modeling/phylo.py` using `dendropy` to generate the phylogenetic covariance matrix from the tree loaded in T021
+- [X] T024 [US2] [PRIMARY] Implement `train_pgls()` in `code/modeling/phylo.py` using `statsmodels` and the phylogenetic covariance matrix from T021b (constructed via `dendropy`) to account for non-independence. This task produces the PRIMARY analysis output per FR-010. Use PCA-reduced features from T023a-PCA.
+- [X] T024b [US2] Implement `report_primary_results()` in `code/modeling/eval.py` to explicitly extract, format, and log the PGLS R² and feature importance as the primary result for the final report, ensuring FR-010 compliance.
+- [X] T022 [US2] Implement `create_stratified_split()` in `code/modeling/train.py` to split data by phylogenetic clade
 - [ ] T023a-PCA [US2] Implement `apply_pca()` in `code/modeling/train.py` to apply PCA for dimensionality reduction before multivariate modeling to prevent overfitting (N < 50 vs high features). Output saved to `data/interim/pca_features.csv`.
 - [ ] T023a [US2] Implement `train_models_loo()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting using Leave-One-Out CV. **Run this task; if N >= 20, run T023b instead; otherwise skip T023b.** Use PCA-reduced features from T023a-PCA.
 - [ ] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.

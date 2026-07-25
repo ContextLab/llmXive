@@ -1,0 +1,183 @@
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify at least 50 unique material entries
+  claim_id: c_c00f8a07
+  context: "Implement src/data/validate_ingest.py to merge MP/AFLOW results, verify\
+    \ \u226550 unique entries (SC-001), and log skipped IDs."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: is 17920. We use the definition c{}(4) = 1 and the conjecture cD(4,4)(4)
+        = 1,
+      source_id: '2409.02789'
+      url: https://arxiv.org/abs/2409.02789
+      value: '17920'
+    filled: true
+  kind: magnitude
+  raw_text: "verify \u226550 unique entries"
+  resolved_value: '17920'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:52:39Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds default to 2.5, 3.0, and 3.5 standard
+    deviations
+  claim_id: c_2278f5ca
+  context: 'Create src/utils/config.py to manage paths... and configurable sensitivity
+    analysis thresholds (default: [2.5, 3.0, 3.5] std devs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'default: [2.5, 3.0, 3.5] std devs'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:53:05Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: log warning if aggregate violation rate exceeds 5 percent
+  claim_id: c_ba424b2b
+  context: Implement logic in src/models/evaluate.py to calculate the aggregate violation
+    rate percentage... and log a warning if rate > 5% (SC-003...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log a warning if rate > 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:53:05Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: sweep outlier removal thresholds over standard deviation values defaulting
+    to 2.5, 3.0, and 3.5
+  claim_id: c_c6498073
+  context: 'Implement src/models/sensitivity.py to sweep outlier removal thresholds
+    over a configurable range of standard deviation values (loaded from src/utils/config.py,
+    default: [2.5, 3.0, 3.5]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'default: [2.5, 3.0, 3.5]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:53:28Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: log warning if variance of R-squared across sweeps exceeds 0.1
+  claim_id: c_746c8067
+  context: "Calculate the variance of R\xB2 across these sweeps... and log a warning\
+    \ if variance > 0.1 (US-3 Acceptance 2...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log a warning if variance > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:53:28Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify variance calculation and threshold check less than or equal to
+    0.1
+  claim_id: c_e3c831e6
+  context: Add tests/unit/test_sensitivity.py::test_sensitivity_sweep_variance_calculation
+    to verify the variance calculation across the sweep and the threshold check (<=
+    0.1)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_variance_calculation_and_threshold_check_less_than_or
+  kind: magnitude
+  raw_text: verify the variance calculation... and the threshold check (<= 0.1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:54:01Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify consistency check flags predictions outside range 0 to 3 for A1
+  claim_id: c_bb0e106e
+  context: "Add tests/unit/test_evaluate.py::test_physical_bounds_flags_out_of_range\
+    \ to verify the consistency check flags predictions outside 0 < A\u2081 < 3"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the consistency check flags predictions outside 0 < A\u2081 <\
+    \ 3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:54:23Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: flag predictions where A1 is less than or equal to 0 or greater than
+    or equal to 3
+  claim_id: c_532b2d67
+  context: Implement src/models/evaluate.py physical consistency check to flag predictions
+    where A1 <= 0 or A1 >= 3 (SC-003, US-3 Acceptance 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictions_where_A1_is_less_than_or_equal_to_0_or_grea
+  kind: magnitude
+  raw_text: flag predictions where A1 <= 0 or A1 >= 3
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:54:47Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: verify if R-squared is greater than or equal to 0.5
+  claim_id: c_99c699e2
+  context: "This task must check if R\xB2 >= 0.5 and log the result as 'benchmark_status'\
+    \ in output/metrics.json to satisfy SC-004."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_if_R-squared_is_greater_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: "verify if R\xB2 >= 0.5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:55:17Z'
+- artifact_path: projects/PROJ-371-predicting-the-elastic-anisotropy-of-fcc/specs/001-predicting-the-elastic-anisotropy-of-fcc/tasks.md
+  attempts: 1
+  canonical: check if R-squared is greater than or equal to 0.5
+  claim_id: c_e5be8298
+  context: "Implement logic in output/metrics.json generation... to explicitly check\
+    \ if R\xB2 >= 0.5 and log a boolean benchmark_met..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_if_R-squared_is_greater_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: "check if R\xB2 >= 0.5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:55:36Z'

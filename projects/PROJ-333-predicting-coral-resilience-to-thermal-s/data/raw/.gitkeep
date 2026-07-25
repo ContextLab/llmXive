@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists for raw data downloads
+# Directory for raw data downloads (FASTQ, reference transcriptomes, metadata)
+# This file ensures the directory is tracked in version control.

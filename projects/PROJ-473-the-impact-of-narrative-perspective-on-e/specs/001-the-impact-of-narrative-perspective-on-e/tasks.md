@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (directories: `code/`, `data/`, `tests/`, `artifacts/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -38,10 +38,10 @@
 
 - [X] T004 Implement `code/config.py` for paths, seeds (`np.random.seed(42)`), and hyperparameters
 - [X] T005 [P] Implement `code/utils.py` function `scan_for_pii(text)` to detect PII; this logic is intended to be invoked by the CI Repository-Hygiene Agent as a blocking gate (Constitution Principle III)
-- [ ] T006 [P] Implement `code/utils.py` function `compute_artifact_hash(file_path)` for versioning; this logic is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V)
+- [X] T006 [P] Implement `code/utils.py` function `compute_artifact_hash(file_path)` for versioning; this logic is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V)
 - [X] T007 [P] Implement `code/data_loader.py` to fetch real external datasets (OSF, Moral Foundations Twitter, Project Gutenberg) via verified URLs
 - [X] T008 Create base data models (`StoryDocument`, `ReaderResponse`) in `code/models.py`
-- [~] T009 Setup CI environment configuration for GitHub Actions (CPU-only, 7GB RAM limit)
+- [ ] T009 Setup CI environment configuration for GitHub Actions (CPU-only, 7GB RAM limit [UNRESOLVED-CLAIM: c_12cdd894 — status=not_enough_info])
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,11 +51,11 @@
 
 **Goal**: Automatically extract narrative perspective markers (pronoun density, focalization cues) from a corpus of public short stories.
 
-**Independent Test**: The pipeline can be tested by processing a small, manually annotated sample of 10 stories and verifying that the computed "first-person density" scores correlate ≥ 0.8 with human annotations of perspective type.
+**Independent Test**: The pipeline can be tested by processing a small, manually annotated sample of 10 stories and verifying that the computed "first-person density" scores correlate ≥ 0.8 with human annotations [UNRESOLVED-CLAIM: c_d2493c8d — status=not_enough_info] of perspective type.
 
 ### Tests for User Story 1
 
-- [~] T010 [US1] Validation test: Process a manually annotated gold-standard subset of **50 stories** and verify that the computed "first-person density" scores correlate ≥ 0.8 with human annotations, satisfying SC-001. <!-- ATOMIZE: requested -->
+- [ ] T010 [US1] Validation test: Process a manually annotated gold-standard subset of **50 stories** and verify that the computed "first-person density" scores correlate ≥ 0.8 with human annotations [UNRESOLVED-CLAIM: c_d2493c8d — status=not_enough_info], satisfying SC-001. <!-- ATOMIZE: requested -->
 - [X] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
 - [X] T012 [P] [US1] Integration test for full pipeline on a sample of 10 stories in `tests/integration/test_extraction_flow.py`
 
@@ -64,9 +64,9 @@
 - [X] T013 [P] [US1] Implement `code/extraction.py` function `calculate_pronoun_density(text)` using spaCy (FR-001)
 - [X] T014 [US1] Implement `code/extraction.py` function `calculate_narrator_distance_score(text)` (FR-001)
 - [X] T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)` handling edge cases (<50 words, mixed language)
-- [~] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`
-- [~] T017 [US1] Add validation logic to flag "neutral/omniscient" texts where `pronoun_density_1st` is 0.0
-- [ ] T018 [US1] Add logging for extraction quality warnings (e.g., "data_quality_insufficient")
+- [ ] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`
+- [ ] T017 [US1] Add validation logic to flag "neutral/omniscient" texts where `pronoun_density_1st` is 0.0
+- [~] T018 [US1] Add logging for extraction quality warnings (e.g., "data_quality_insufficient")
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -76,11 +76,11 @@
 
 **Goal**: Validate the text-similarity matching algorithm by aligning processed stories with a "gold standard" set of story-judgement pairs.
 
-**Independent Test**: The matching logic can be tested by running it against a "gold standard" subset of 50 manually annotated story-judgement pairs, verifying a precision ≥ 0.9.
+**Independent Test**: The matching logic can be tested by running it against a "gold standard" subset of 50 manually annotated story-judgement pairs [UNRESOLVED-CLAIM: c_7dab706b — status=not_enough_info], verifying a precision ≥ 0.9.
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for TF-IDF vector construction excluding pronouns in `tests/test_matching.py` (FR-008)
+- [X] T019 [P] [US2] Unit test for TF-IDF vector construction excluding pronouns in `tests/test_matching.py` (FR-008)
 - [ ] T020 [P] [US2] Unit test for cosine similarity calculation and tie-breaking logic in `tests/test_matching.py`
 - [ ] T021 [P] [US2] Integration test for matching on the 50-item gold standard set in `tests/integration/test_matching_flow.py`
 
@@ -88,9 +88,9 @@
 
 - [ ] T022 [P] [US2] Implement `code/matching.py` function `build_tfidf_vectors(stories, exclude_pronouns=True)` (FR-002, FR-008)
 - [ ] T023 [US2] Implement `code/matching.py` function `find_top_matches(query_vector, candidate_vectors, k=3)`
-- [ ] T024 [US2] Implement `code/matching.py` function `apply_sensitivity_analysis(thresholds=[0.25, 0.30, 0.35, 0.40])` (FR-006). **Output Requirement**: Must generate a report detailing how the sample size and headline correlation coefficient vary across these thresholds to satisfy SC-003. **Validation**: The task must explicitly link the variation in the headline correlation coefficient to the final regression model (US-3) and define a statistical test (e.g., checking if the standard deviation of slopes across thresholds is < 5% of the mean slope) to determine if the variation is "significant".
+- [ ] T024 [US2] Implement `code/matching.py` function `apply_sensitivity_analysis(thresholds=[0.25, 0.30, 0.35, 0.40] [UNRESOLVED-CLAIM: c_226b943c — status=not_enough_info])` (FR-006). **Output Requirement**: Must generate a report detailing how the sample size and headline correlation coefficient vary across these thresholds to satisfy SC-003. **Validation**: The task must explicitly link the variation in the headline correlation coefficient to the final regression model (US-3) and define a statistical test (e.g., checking if the standard deviation of slopes across thresholds is < 5% of the mean slope [UNRESOLVED-CLAIM: c_0d96c1ed — status=not_enough_info]) to determine if the variation is "significant".
 - [ ] T025 [US2] Create `code/main.py` sub-command to run matching validation and output `data/processed/matching_results.json`
-- [ ] T026 [US2] Add logic to exclude unmatched stories (similarity < 0.3) and log them as "unmatched"
+- [ ] T026 [US2] Add logic to exclude unmatched stories (similarity < 0.3 [UNRESOLVED-CLAIM: c_fb5f6b3c — status=not_enough_info]) and log them as "unmatched"
 - [ ] T027 [US2] Implement deterministic tie-breaking rule (highest raw score) for multiple matches
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,7 +124,7 @@
 
 **Goal**: Run linear regression and t-tests on the dataset containing reader-response data (from US4) to determine if first-person perspective predicts higher deontological moral judgement scores.
 
-**Independent Test**: The analysis can be tested by running it on a synthetic dataset with a known, hardcoded correlation (slope = 0.5), verifying that the regression recovers the slope within a 5% margin of error.
+**Independent Test**: The analysis can be tested by running it on a synthetic dataset with a known, hardcoded correlation (slope = 0.5 [UNRESOLVED-CLAIM: c_b55499f6 — status=not_enough_info]), verifying that the regression recovers the slope within a 5% margin of error.
 
 ### Tests for User Story 3
 
@@ -153,7 +153,7 @@
 ### Post-Run Automation
 
 - [ ] T052 [P] Implement `code/scripts/update_state.py` to automatically compute artifact hashes and update the `state` file after a successful run; this script is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V).
-- [ ] T053 [P] Run full pipeline end-to-end on the GitHub Actions runner to verify execution time < 45 minutes and memory < 6 GB (SC-005)
+- [ ] T053 [P] Run full pipeline end-to-end on the GitHub Actions runner to verify execution time < 45 minutes and memory < 6 GB [UNRESOLVED-CLAIM: c_bf4ed5ae — status=not_enough_info] (SC-005)
 
 ### General Polish
 

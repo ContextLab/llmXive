@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/raw`, `data/processed`)
-- [ ] T002 Initialize Python project with pinned dependencies (`biopython`, `pysam`, `scipy`, `pandas`, `matplotlib`, `gprofiler-official`, `rpy2`) in `requirements.txt`
+- [X] T002 Initialize Python project with pinned dependencies (`biopython`, `pysam`, `scipy`, `pandas`, `matplotlib`, `gprofiler-official`, `rpy2`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
 
 ---
@@ -58,12 +58,12 @@
 - [X] T004 Create `code/config.py` defining all project constants: paths (`data/raw`, `data/processed`), NCBI BioProject ID (`PRJNA321023`), RAM thresholds (`MAX_RAM_GB = 7`), and `MIN_SAMPLES_FOR_FILTER` (to be determined in research phase).
  - **MUST include a code comment explicitly referencing Plan.md's correction note**: `# Override: Spec FR-001 lists PRJNA292777, but Plan.md confirms PRJNA321023 contains the required thermal stress data. Source: Plan.md Technical Context.`
  - **MUST define `MIN_COUNT_THRESHOLD` as a placeholder** (e.g., `None` or `# TODO: Determine in research phase`) to satisfy deferral of empirical specifics.
-- [ ] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time
+- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time
 - [X] T006 [P] Create base data model schema definition `code/models/expression.py` (ExpressionMatrix class definition only, no instances)
 - [X] T007 [P] Create base data model schema definition `code/models/phenotype.py` (PhenotypeRecord class definition only, no instances)
 - [X] T008 [P] Create base data model schema definition `code/models/dge.py` (DGEResult class definition only, no instances)
-- [ ] T009 [P] Create error handling utilities in `code/utils/errors.py` (specifically for NCBI timeout retries and checksum mismatches)
-- [ ] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `data/processed/data-model.md`.
+- [X] T009 [P] Create error handling utilities in `code/utils/errors.py` (specifically for NCBI timeout retries and checksum mismatches)
+- [X] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `data/processed/data-model.md`.
  - **Do NOT hardcode values** (e.g., 10, 3).
  - **MUST describe the decision process**: e.g., "Inspect mean-dispersion trend in DESeq2; select threshold where dispersion stabilizes; ensure at least 3 samples per group have counts > threshold."
  - **MUST state** that the final numeric values will be determined during the research phase and recorded in `config.py` before T020 runs.
@@ -80,7 +80,7 @@
 
 ## Phase 3: User Story 1 - RNA-seq Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw FASTQ reads from NCBI BioProject PRJNA321023, map to reference transcriptome, and quantify gene expression while ensuring peak memory < 7 GB.
+**Goal**: Download raw FASTQ reads from NCBI BioProject PRJNA321023 [UNRESOLVED-CLAIM: c_fd7d2a33 — status=not_enough_info], map to reference transcriptome, and quantify gene expression while ensuring peak memory < 7 GB.
 
 **Independent Test**: Can be fully tested by running the download and quantification script on a local machine or CI runner and verifying that peak memory usage (RSS) remains < 7 GB and that the output expression matrix contains only samples with valid treatment metadata.
 
