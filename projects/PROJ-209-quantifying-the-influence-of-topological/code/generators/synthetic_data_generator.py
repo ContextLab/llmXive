@@ -1,13 +1,10 @@
 """
 Synthetic Data Generator for 2D Material Defect Properties.
 
-Implements physics-based surrogate models for generating training and holdout
-datasets when real defect data is unavailable.
-
-Surrogate Model Logic:
+Implements the surrogate model described in T013:
 - Analytical Signal: Continuum elasticity (E = E0 * (1 - k*density))
-- Noise: Gaussian (sigma=0.05) calibrated from DFT dataset statistics
-- Physics Constraints: Griffith criterion, Rule of Mixtures, Matthiessen's rule
+- Noise: Gaussian (sigma=0.05) calibrated from DFT dataset
+- Generates train and holdout sets with seed=42 for reproducibility.
 """
 import os
 import csv
@@ -15,251 +12,280 @@ import json
 import hashlib
 import subprocess
 import numpy as np
-from typing import Dict, List, Tuple, Any, Optional
 from pathlib import Path
+from typing import Dict, List, Any, Tuple
 
-# Constants for physics-based generation
-SEED = 42
-NOISE_SIGMA = 0.05
-ELASTICITY_K = 0.8  # Scaling factor for density impact
-DEFECT_TYPES = ['vacancy', 'substitution', 'interstitial', 'grain_boundary']
-MATERIAL_TYPES = ['graphene', 'MoS2']
-
+# Project root resolution (relative to code/generators)
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).resolve().parent.parent.parent
+    """Returns the absolute path to the project root."""
+    current = Path(__file__).resolve()
+    # Navigate up from code/generators to root
+    return current.parent.parent
 
 def ensure_output_directories() -> None:
-    """Ensure all required output directories exist."""
-    project_root = get_project_root()
-    raw_dir = project_root / 'data' / 'raw'
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    """Creates necessary output directories if they don't exist."""
+    root = get_project_root()
+    dirs = [
+        root / "data" / "raw",
+        root / "data" / "state",
+        root / "data" / "processed"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 def get_git_hash() -> str:
-    """Get the current git commit hash for reproducibility."""
+    """Returns the current git commit hash."""
     try:
         result = subprocess.run(
-            ['git', 'rev-parse', 'HEAD'],
+            ["git", "rev-parse", "--short", "HEAD"],
             cwd=get_project_root(),
             capture_output=True,
             text=True,
             check=True
         )
         return result.stdout.strip()
-    except Exception:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
-def compute_sha256(file_path: str) -> str:
-    """Compute SHA-256 hash of a file."""
+def compute_sha256(filepath: Path) -> str:
+    """Computes SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def apply_griffith_criterion(
-    fracture_energy: float,
-    elastic_modulus: float,
-    defect_size: float
-) -> float:
+def apply_griffith_criterion(fracture_energy: float, elastic_modulus: float, flaw_size: float) -> float:
     """
-    Apply Griffith criterion for fracture strength.
-    
+    Calculates fracture strength using Griffith criterion.
     sigma_f = sqrt(2 * E * gamma / (pi * a))
-    where:
-      E = elastic modulus
-      gamma = fracture energy
-      a = defect size (crack length)
     """
-    if defect_size <= 0:
-        defect_size = 0.01  # Minimum defect size
-    if elastic_modulus <= 0 or fracture_energy <= 0:
+    if flaw_size <= 0:
         return 0.0
-    return np.sqrt(2 * elastic_modulus * fracture_energy / (np.pi * defect_size))
+    return np.sqrt((2 * elastic_modulus * fracture_energy) / (np.pi * flaw_size))
 
-def apply_rule_of_mixtures(
-    base_property: float,
-    defect_fraction: float,
-    defect_property: float
-) -> float:
+def apply_rule_of_mixtures(base_val: float, defect_fraction: float, modifier: float) -> float:
     """
-    Apply rule of mixtures for composite properties.
-    
-    P_composite = V1 * P1 + V2 * P2
+    Simple rule of mixtures for property degradation.
+    P = P0 * (1 - k * defect_fraction)
     """
-    return (1 - defect_fraction) * base_property + defect_fraction * defect_property
+    return base_val * (1 - modifier * defect_fraction)
 
-def apply_matthiessen_rule(
-    base_conductivity: float,
-    defect_conductivity: float,
-    defect_density: float
-) -> float:
+def apply_matthiessen_rule(base_conductivity: float, scattering_rate: float) -> float:
     """
-    Apply Matthiessen's rule for conductivity reduction.
-    
-    1/sigma_total = 1/sigma_base + 1/sigma_defect
+    Approximates conductivity reduction due to defects.
+    1/sigma_total = 1/sigma0 + 1/sigma_defect
+    Simplified: sigma = sigma0 / (1 + k * scattering)
     """
-    if base_conductivity <= 0 or defect_conductivity <= 0:
-        return 0.0
-    inverse_total = (1 / base_conductivity) + (defect_density / defect_conductivity)
-    return 1 / inverse_total if inverse_total > 0 else 0.0
+    return base_conductivity / (1 + 0.5 * scattering_rate)
 
 def generate_synthetic_data(
     n_samples: int,
-    seed: int = SEED
+    seed: int,
+    pristine_references: Dict[str, float],
+    defect_materials: List[str] = ["graphene", "MoS2"]
 ) -> List[Dict[str, Any]]:
     """
-    Generate synthetic dataset using physics-based surrogate models.
+    Generates synthetic dataset based on continuum elasticity models.
     
     Args:
-        n_samples: Number of samples to generate
-        seed: Random seed for reproducibility
+        n_samples: Number of samples to generate.
+        seed: Random seed for reproducibility.
+        pristine_references: Dictionary of pristine property values (E0, sigma0, etc.).
+        defect_materials: List of materials to simulate.
         
     Returns:
-        List of dictionaries containing synthetic data points
+        List of dictionaries representing the synthetic dataset rows.
     """
     np.random.seed(seed)
     data = []
     
+    # Default pristine values if not provided
+    E0 = pristine_references.get("E0", 1000.0)  # GPa
+    sigma0 = pristine_references.get("sigma0", 130.0)  # GPa
+    gamma0 = pristine_references.get("gamma0", 10.0)  # J/m^2
+    kappa0 = pristine_references.get("kappa0", 1000.0)  # S/m (thermal/electrical)
+
+    # Parameters for the analytical model
+    k_elastic = 0.8  # Elastic degradation factor
+    k_conductivity = 1.2  # Conductivity degradation factor
+    k_fracture = 0.5  # Fracture energy degradation factor
+    noise_sigma = 0.05  # Gaussian noise standard deviation (5%)
+
     for i in range(n_samples):
-        # Generate random defect parameters
-        material = np.random.choice(MATERIAL_TYPES)
-        defect_type = np.random.choice(DEFECT_TYPES)
-        defect_density = np.random.uniform(0.001, 0.1)  # 0.1% to 10%
-        defect_size = np.random.uniform(0.1, 5.0)  # nm
+        material = np.random.choice(defect_materials)
         
-        # Base material properties (approximate real values)
-        if material == 'graphene':
-            base_conductivity = 1e6  # S/m
-            base_elastic_modulus = 1000  # GPa
-            base_fracture_energy = 10  # J/m^2
-        else:  # MoS2
-            base_conductivity = 1e3  # S/m
-            base_elastic_modulus = 330  # GPa
-            base_fracture_energy = 5  # J/m^2
+        # Generate defect density in realistic range [0, 0.1]
+        density = np.random.uniform(0.001, 0.1)
         
-        # Apply physics-based models
-        # Conductivity: Matthiessen's rule with Gaussian noise
-        defect_conductivity = base_conductivity * 0.1
-        conductivity = apply_matthiessen_rule(
-            base_conductivity, defect_conductivity, defect_density
-        )
-        conductivity *= np.random.normal(1.0, NOISE_SIGMA)
-        conductivity = max(0, conductivity)
+        # Defect type (categorical)
+        defect_types = ["vacancy", "substitution", "grain_boundary", "dislocation"]
+        defect_type = np.random.choice(defect_types)
         
-        # Elastic modulus: Continuum elasticity model
-        # E = E0 * (1 - k*density) + noise
-        elastic_modulus = base_elastic_modulus * (1 - ELASTICITY_K * defect_density)
-        elastic_modulus *= np.random.normal(1.0, NOISE_SIGMA)
-        elastic_modulus = max(0, elastic_modulus)
+        # Base properties for this material
+        mat_E0 = E0 if material == "graphene" else 300.0
+        mat_sigma0 = sigma0 if material == "graphene" else 20.0
+        mat_gamma0 = gamma0 if material == "graphene" else 5.0
+        mat_kappa0 = kappa0 if material == "graphene" else 5000.0
+
+        # Analytical Signal: Continuum Elasticity
+        # E = E0 * (1 - k * density)
+        base_elastic = mat_E0 * (1 - k_elastic * density)
+        base_conductivity = mat_kappa0 * (1 - k_conductivity * density)
+        base_fracture_energy = mat_gamma0 * (1 - k_fracture * density)
         
-        # Fracture energy: Rule of mixtures with noise
-        defect_fracture_energy = base_fracture_energy * 0.5
-        fracture_energy = apply_rule_of_mixtures(
-            base_fracture_energy, defect_density, defect_fracture_energy
-        )
-        fracture_energy *= np.random.normal(1.0, NOISE_SIGMA)
-        fracture_energy = max(0, fracture_energy)
+        # Add Gaussian Noise (calibrated from DFT)
+        # Ensure values stay positive
+        noise_E = np.random.normal(0, noise_sigma * base_elastic)
+        noise_sigma_prop = np.random.normal(0, noise_sigma * base_conductivity)
+        noise_gamma = np.random.normal(0, noise_sigma * base_fracture_energy)
         
-        # Fracture strength: Griffith criterion
-        fracture_strength = apply_griffith_criterion(
-            fracture_energy, elastic_modulus, defect_size
-        )
-        fracture_strength *= np.random.normal(1.0, NOISE_SIGMA)
-        fracture_strength = max(0, fracture_strength)
+        elastic_modulus = max(0.1, base_elastic + noise_E)
+        conductivity = max(0.1, base_conductivity + noise_sigma_prop)
+        fracture_energy = max(0.1, base_fracture_energy + noise_gamma)
         
-        # Create data point
-        data_point = {
-            'id': f'synth_{i:05d}',
-            'material': material,
-            'defect_type': defect_type,
-            'defect_density': defect_density,
-            'defect_size': defect_size,
-            'conductivity': conductivity,
-            'elastic_modulus': elastic_modulus,
-            'fracture_energy': fracture_energy,
-            'fracture_strength': fracture_strength,
-            'generation_seed': seed,
-            'generation_timestamp': 'synthetic'
+        # Calculate Fracture Strength using Griffith Criterion
+        # Assume a characteristic flaw size related to defect density
+        flaw_size = 1e-9 * (1 + 100 * density) # nm -> m scale approximation
+        fracture_strength = apply_griffith_criterion(fracture_energy, elastic_modulus, flaw_size)
+        
+        row = {
+            "id": f"synth_{i:04d}",
+            "material": material,
+            "defect_type": defect_type,
+            "defect_density": density,
+            "elastic_modulus_GPa": elastic_modulus,
+            "conductivity_S_m": conductivity,
+            "fracture_energy_J_m2": fracture_energy,
+            "fracture_strength_GPa": fracture_strength,
+            "synthetic": True
         }
-        data.append(data_point)
-    
+        data.append(row)
+        
     return data
 
-def save_to_csv(data: List[Dict[str, Any]], file_path: str) -> None:
-    """Save synthetic data to CSV file."""
+def save_to_csv(data: List[Dict[str, Any]], filepath: Path) -> None:
+    """Saves a list of dictionaries to a CSV file."""
     if not data:
-        raise ValueError("Cannot save empty data")
-    
-    fieldnames = list(data[0].keys())
-    with open(file_path, 'w', newline='') as f:
+        return
+    fieldnames = data[0].keys()
+    with open(filepath, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
 def generate_holdout_data(
     n_samples: int,
-    seed: int = SEED
+    seed: int,
+    pristine_references: Dict[str, float],
+    defect_materials: List[str] = ["graphene", "MoS2"]
 ) -> List[Dict[str, Any]]:
     """
-    Generate holdout dataset with different seed for validation.
-    
-    Args:
-        n_samples: Number of samples to generate
-        seed: Random seed for reproducibility
-        
-    Returns:
-        List of dictionaries containing synthetic holdout data
+    Generates a distinct holdout set using a different seed or parameters.
     """
-    # Use a different seed for holdout to ensure independence
+    # Use a different seed offset to ensure distinctness but reproducibility
     holdout_seed = seed + 1000
-    return generate_synthetic_data(n_samples, holdout_seed)
+    return generate_synthetic_data(n_samples, holdout_seed, pristine_references, defect_materials)
 
-def main() -> None:
-    """Main function to generate synthetic training and holdout datasets."""
-    print("Starting synthetic data generation for T013...")
+def load_pristine_references() -> Dict[str, float]:
+    """
+    Loads pristine reference values.
+    Tries to load from data/raw/pristine_structures.csv if it exists,
+    otherwise uses defaults.
+    """
+    root = get_project_root()
+    path = root / "data" / "raw" / "pristine_structures.csv"
     
-    # Ensure output directories exist
+    if path.exists():
+        # Try to parse the CSV to get averages
+        # Expected columns: material, elastic_modulus, conductivity, fracture_energy
+        try:
+            with open(path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            if not rows:
+                return {"E0": 1000.0, "sigma0": 130.0, "gamma0": 10.0, "kappa0": 1000.0}
+            
+            # Simple averaging for now
+            e_vals = [float(r['elastic_modulus']) for r in rows if r.get('elastic_modulus')]
+            s_vals = [float(r['conductivity']) for r in rows if r.get('conductivity')]
+            g_vals = [float(r['fracture_energy']) for r in rows if r.get('fracture_energy')]
+            
+            return {
+                "E0": np.mean(e_vals) if e_vals else 1000.0,
+                "sigma0": np.mean(s_vals) if s_vals else 130.0,
+                "gamma0": np.mean(g_vals) if g_vals else 10.0,
+                "kappa0": np.mean(s_vals) * 10 if s_vals else 1000.0 # Rough proxy
+            }
+        except (ValueError, KeyError):
+            pass
+    
+    # Fallback defaults
+    return {"E0": 1000.0, "sigma0": 130.0, "gamma0": 10.0, "kappa0": 1000.0}
+
+def main():
+    """
+    Main entry point for synthetic data generation.
+    Reads generation_status.json to determine if synthetic data is needed.
+    """
+    root = get_project_root()
     ensure_output_directories()
     
-    project_root = get_project_root()
+    status_path = root / "data" / "state" / "generation_status.json"
     
-    # Check generation status to confirm synthetic mode is active
-    generation_status_path = project_root / 'data' / 'state' / 'generation_status.json'
-    if not generation_status_path.exists():
-        print(f"[ERROR] Generation status file not found: {generation_status_path}")
-        print("This task requires T012 to run first to set the generation status.")
+    # Check if synthetic generation is triggered
+    if not status_path.exists():
+        print("Error: data/state/generation_status.json not found. Cannot proceed.")
         return
     
-    with open(generation_status_path, 'r') as f:
+    with open(status_path, 'r') as f:
         status = json.load(f)
     
-    if status.get('source') != 'synthetic':
-        print(f"[INFO] Generation source is '{status.get('source')}', skipping synthetic generation.")
-        print("This task only runs when source is 'synthetic'.")
+    if status.get("source") != "synthetic":
+        print("Status indicates source is not synthetic. Skipping generation.")
         return
     
-    print(f"Generating synthetic data with seed={SEED}...")
+    print("Starting Synthetic Data Generation (T013)...")
     
-    # Generate training data (N=1000+)
-    train_data = generate_synthetic_data(n_samples=1000, seed=SEED)
-    train_path = project_root / 'data' / 'raw' / 'synthetic_train.csv'
-    save_to_csv(train_data, str(train_path))
-    print(f"Generated training data: {train_path} ({len(train_data)} samples)")
+    # Load pristine references
+    refs = load_pristine_references()
     
-    # Generate holdout data (N=200)
-    holdout_data = generate_holdout_data(n_samples=200, seed=SEED)
-    holdout_path = project_root / 'data' / 'raw' / 'synthetic_holdout.csv'
-    save_to_csv(holdout_data, str(holdout_path))
-    print(f"Generated holdout data: {holdout_path} ({len(holdout_data)} samples)")
+    # Generate Train Set (N=1000)
+    train_seed = 42
+    train_data = generate_synthetic_data(1000, train_seed, refs)
+    train_path = root / "data" / "raw" / "synthetic_train.csv"
+    save_to_csv(train_data, train_path)
+    print(f"Generated {len(train_data)} training samples at {train_path}")
     
-    # Record checksums
-    train_checksum = compute_sha256(str(train_path))
-    holdout_checksum = compute_sha256(str(holdout_path))
+    # Generate Holdout Set (N=200)
+    holdout_data = generate_holdout_data(200, train_seed, refs)
+    holdout_path = root / "data" / "raw" / "synthetic_holdout.csv"
+    save_to_csv(holdout_data, holdout_path)
+    print(f"Generated {len(holdout_data)} holdout samples at {holdout_path}")
     
-    print(f"Training data checksum: {train_checksum}")
-    print(f"Holdout data checksum: {holdout_checksum}")
-    print("Synthetic data generation completed successfully.")
+    # Write Configuration
+    config = {
+        "seed": train_seed,
+        "analytical_formula": "E = E0 * (1 - k*density)",
+        "parameters": {
+            "k_elastic": 0.8,
+            "k_conductivity": 1.2,
+            "k_fracture": 0.5,
+            "noise_sigma": 0.05
+        },
+        "pristine_references": refs,
+        "git_hash": get_git_hash(),
+        "train_count": len(train_data),
+        "holdout_count": len(holdout_data)
+    }
+    
+    config_path = root / "data" / "state" / "synthetic_config.json"
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    print(f"Configuration saved to {config_path}")
+    
+    print("Synthetic Data Generation Complete.")
 
 if __name__ == "__main__":
     main()

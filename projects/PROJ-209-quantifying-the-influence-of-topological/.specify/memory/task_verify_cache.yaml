@@ -1,45 +1,11 @@
-T010:
+T016b:
   c: false
-  h: 4d24e025f2cd13dd8998257410fde054fb6444a5b8bbcb4b59dab8f8241ed39d
-  r: "The repository contains a partially shown `code/01_data_acquisition.py` that\
-    \ does not include any logic for querying the Materials Project API, performing\
-    \ exponential backoff, or writing the required `data/raw/pristine_structures.csv`\
-    \ and `data/state/data_source.json`. Both expected output files are missing from\
-    \ the filesystem. Consequently, the task\u2019s functional and output requirements\
-    \ are not met."
-T011:
-  c: false
-  h: 35644a06c628b76df8fa05ff90546c7f4997de45fada2afee624de724db2a033
-  r: "The required output files `data/raw/defect_dataset_2022.csv` and `data/state/source_validation.json`\
-    \ are absent, and the provided `code/01_data_acquisition.py` does not contain\
-    \ the logic to download the dataset, validate its schema, handle missing `fracture_energy`\
-    \ via the mock DFTB+ simulation, or log exclusions. The task\u2019s core requirements\
-    \ are therefore unmet."
-T012:
-  c: false
-  h: 3b682969979fa165b16bb63b2da102ae46eee36b2cae1da128b0241bdc612b70
-  r: "The required `data/state/source_validation.json` file is absent, so the script\
-    \ cannot perform the \u201CSource Validity Check & Branching\u201D step it was\
-    \ supposed to implement. Additionally, the provided `code/01_data_acquisition.py`\
-    \ excerpt is truncated and does not show any logic that reads this JSON or branches\
-    \ based on its contents. The missing JSON and lack of evident implementation mean\
-    \ the task is not genuinely completed."
-T013:
-  c: false
-  h: 17efb9ff36870ee43ae2ca775adcdd9335277bdb19a1699e59b1b16939758c28
-  r: "The repository lacks the required `data/state/generation_status.json` and the\
-    \ generated CSV files (`synthetic_train.csv`, `synthetic_holdout.csv`). Moreover,\
-    \ the provided `code/01_data_acquisition.py` snippet ends before any synthetic\u2011\
-    data generation logic is implemented, so the script does not fulfill the specified\
-    \ step. The task therefore remains unfinished."
-T016a:
-  c: false
-  h: 820aea9b1c1a62185db9bdb1c2212dff847e47b16704cf42b1fc80b3b3726cc1
-  r: "The repository lacks the required `data/state/exclusion_log.json` file, and\
-    \ the provided `code/01_data_acquisition.py` does not contain any implementation\
-    \ of checksum verification, required\u2011field checks, defect\u2011density filtering,\
-    \ or logging of excluded entries as specified in Step\u202F6. The task\u2019s\
-    \ core functionality and output are therefore missing."
+  h: 424f9c384d1ec7850df4ea438a82951ffb7a6b776dda77791dbb472e731a9e00
+  r: "The required output files (`data/raw/synthetic_train.csv`, `data/raw/synthetic_holdout.csv`,\
+    \ and `data/state/synthetic_exclusions.json`) are absent, and the provided `code/01_data_acquisition.py`\
+    \ snippet is truncated before any validation logic is shown, so there is no evidence\
+    \ that the synthetic\u2011data validation step was implemented. The task\u2019\
+    s core requirements are therefore not met."
 T018:
   c: false
   h: c358d1a397877ecc5909edd6f38f6107d05ccf578c4026ce1e930b63a3bb2e0c
@@ -56,13 +22,37 @@ T020:
     \ Moreover, the required `feature_selection_log.json` file is absent from the\
     \ `data/processed` directory. The task\u2019s core output (the log file documenting\
     \ excluded features and method) is missing, so the requirement is not met."
-T024:
+T021:
   c: false
-  h: 6a4ba61a21d5d05ec0aceff0a0cbd378778ac0b58868ab72646f776fec3fd47a
-  r: "The repository lacks the required `data/raw/synthetic_holdout.csv` file, and\
-    \ the provided `code/03_modeling.py` (as shown) contains no logic for loading\
-    \ a distinct hold\u2011out set or performing evaluation on it. Consequently, the\
-    \ task\u2019s Step\u202F5 hold\u2011out evaluation requirement is not satisfied."
+  h: 0b0926fdc406128cc651e707eb303bbba7304fb746361af5b2d9e70d8ba40d07
+  r: "The repository lacks the required `data/processed/confounding_config.json` and\
+    \ the expected output files `data/processed/final_models.pkl` and `data/processed/training_metrics.json`.\
+    \ Moreover, `code/03_modeling.py` is truncated and does not contain the full model\u2011\
+    training loop, stratification handling, or saving of the final models/metrics\
+    \ as specified."
+T021a:
+  c: false
+  h: 04d8a8cab332049fc90b724b1f4f618d292d01e37af7ac8bc7b8c934969029c6
+  r: The repository contains a partially implemented `code/03_modeling.py` that defines
+    helper functions but the script is truncated before any training or saving logic
+    is executed, and the required output file `data/processed/preliminary_model.pkl`
+    is absent. Consequently the preliminary Random Forest model is neither trained
+    nor persisted as specified.
+T026:
+  c: false
+  h: 3860c691661c888a6fcd4ddf26be79c36e3eeabc0b3ade01a87a14d82e16b44e
+  r: The required input file `data/processed/model_outputs.json` is missing, so the
+    script cannot perform the prescribed sensitivity analysis. Moreover, the provided
+    `code/04_inference.py` is truncated and does not clearly contain the logic to
+    sweep cutoffs and compute FPR/FNR. The task therefore is not fully satisfied.
+T030:
+  c: false
+  h: ee12c28f3c29f9433bfb7b3a9a4cd3e648ba5034600145ab01b6d702324a1071
+  r: The required `data/state/data_source.json` file is absent, so the script cannot
+    read the data source as specified. Moreover, the provided `code/05_validation.py`
+    excerpt shows utility functions but no implementation that scans `data/validation/external/`
+    for valid CSV/JSON datasets matching the experimental or distinct DFT criteria.
+    Both the essential input file and the core validation logic are missing.
 T031:
   c: false
   h: 41caaaabd92098043bb39f651065633155598085e1592988f14f460e23941d6e
