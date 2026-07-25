@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-25T00:29:24.007472+00:00",
+  "generated_at": "2026-07-25T00:58:25.159613+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -116012,7 +116012,7 @@
       },
       "authors": [
         {
-          "contributions": 2640,
+          "contributions": 2650,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -116070,83 +116070,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 3.498514,
-          "ended_at": "2026-07-25T00:29:16.365635Z",
+          "duration_s": 2.068818,
+          "ended_at": "2026-07-25T00:33:16.865892Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:29:12.867121Z"
+          "started_at": "2026-07-25T00:33:14.797074Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.657585,
-          "ended_at": "2026-07-25T00:29:12.805976Z",
+          "duration_s": 8.559913,
+          "ended_at": "2026-07-25T00:33:14.727440Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:29:12.148391Z"
+          "started_at": "2026-07-25T00:33:06.167527Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.570075,
-          "ended_at": "2026-07-25T00:29:12.086001Z",
+          "duration_s": 5.02919,
+          "ended_at": "2026-07-25T00:33:06.098017Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:29:10.515926Z"
+          "started_at": "2026-07-25T00:33:01.068827Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 6.251222,
-          "ended_at": "2026-07-25T00:29:10.452944Z",
+          "duration_s": 4.609519,
+          "ended_at": "2026-07-25T00:33:00.998166Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:29:04.201722Z"
+          "started_at": "2026-07-25T00:32:56.388647Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.949021,
-          "ended_at": "2026-07-25T00:29:04.138331Z",
+          "duration_s": 0.562677,
+          "ended_at": "2026-07-25T00:32:56.319464Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:29:00.189310Z"
+          "started_at": "2026-07-25T00:32:55.756787Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.478083,
-          "ended_at": "2026-07-25T00:29:00.126493Z",
+          "duration_s": 0.677893,
+          "ended_at": "2026-07-25T00:32:55.688042Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:28:55.648410Z"
+          "started_at": "2026-07-25T00:32:55.010149Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.565102,
-          "ended_at": "2026-07-25T00:28:55.498047Z",
+          "duration_s": 0.691236,
+          "ended_at": "2026-07-25T00:32:54.870812Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:28:52.932945Z"
+          "started_at": "2026-07-25T00:32:54.179576Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.104487,
-          "ended_at": "2026-07-25T00:28:52.870394Z",
+          "duration_s": 10.573127,
+          "ended_at": "2026-07-25T00:32:54.107765Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:28:49.765907Z"
+          "started_at": "2026-07-25T00:32:43.534638Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.803313,
-          "ended_at": "2026-07-25T00:28:49.703255Z",
+          "duration_s": 10.67936,
+          "ended_at": "2026-07-25T00:32:43.462481Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:28:47.899942Z"
+          "started_at": "2026-07-25T00:32:32.783121Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 8.937837,
-          "ended_at": "2026-07-25T00:28:47.830532Z",
+          "duration_s": 5.801549,
+          "ended_at": "2026-07-25T00:32:32.705571Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-25T00:28:38.892695Z"
+          "started_at": "2026-07-25T00:32:26.904022Z"
         }
       ],
       "paper_status": null,
@@ -154426,6 +154426,294 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 2.068818,
+      "ended_at": "2026-07-25T00:33:16.865892Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:33:14.797074Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 8.559913,
+      "ended_at": "2026-07-25T00:33:14.727440Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:33:06.167527Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.02919,
+      "ended_at": "2026-07-25T00:33:06.098017Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:33:01.068827Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.609519,
+      "ended_at": "2026-07-25T00:33:00.998166Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:56.388647Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.562677,
+      "ended_at": "2026-07-25T00:32:56.319464Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:55.756787Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.677893,
+      "ended_at": "2026-07-25T00:32:55.688042Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:55.010149Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.691236,
+      "ended_at": "2026-07-25T00:32:54.870812Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:54.179576Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.573127,
+      "ended_at": "2026-07-25T00:32:54.107765Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:43.534638Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.67936,
+      "ended_at": "2026-07-25T00:32:43.462481Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:32.783121Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.801549,
+      "ended_at": "2026-07-25T00:32:32.705571Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:32:26.904022Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.72186,
+      "ended_at": "2026-07-25T00:29:32.401121Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:31.679261Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.730606,
+      "ended_at": "2026-07-25T00:29:31.609948Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:30.879342Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.777602,
+      "ended_at": "2026-07-25T00:29:30.810163Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:30.032561Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.264868,
+      "ended_at": "2026-07-25T00:29:29.964022Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:28.699154Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.063259,
+      "ended_at": "2026-07-25T00:29:28.628829Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:25.565570Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.482875,
+      "ended_at": "2026-07-25T00:29:25.496051Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:23.013176Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.912165,
+      "ended_at": "2026-07-25T00:29:22.876873Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:19.964708Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.134349,
+      "ended_at": "2026-07-25T00:29:19.892741Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:16.758392Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.687519,
+      "ended_at": "2026-07-25T00:29:16.687921Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:14.000402Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.498514,
+      "ended_at": "2026-07-25T00:29:16.365635Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:12.867121Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 16.378302,
+      "ended_at": "2026-07-25T00:29:13.922581Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:57.544279Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.657585,
+      "ended_at": "2026-07-25T00:29:12.805976Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:12.148391Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.570075,
+      "ended_at": "2026-07-25T00:29:12.086001Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:10.515926Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 6.251222,
+      "ended_at": "2026-07-25T00:29:10.452944Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:04.201722Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 4.04083,
       "ended_at": "2026-07-25T00:29:05.878405Z",
       "failure_reason": "",
@@ -154435,6 +154723,18 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-25T00:29:01.837575Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.949021,
+      "ended_at": "2026-07-25T00:29:04.138331Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:29:00.189310Z"
     },
     {
       "agent": "implementer",
@@ -154450,6 +154750,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 4.478083,
+      "ended_at": "2026-07-25T00:29:00.126493Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:55.648410Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 4.721887,
       "ended_at": "2026-07-25T00:28:58.286481Z",
       "failure_reason": "",
@@ -154459,6 +154771,18 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-25T00:28:53.564594Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.565102,
+      "ended_at": "2026-07-25T00:28:55.498047Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:52.932945Z"
     },
     {
       "agent": "implementer",
@@ -154474,6 +154798,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 3.104487,
+      "ended_at": "2026-07-25T00:28:52.870394Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:49.765907Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 0.760654,
       "ended_at": "2026-07-25T00:28:49.915940Z",
       "failure_reason": "",
@@ -154486,6 +154822,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 1.803313,
+      "ended_at": "2026-07-25T00:28:49.703255Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:47.899942Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 3.545793,
       "ended_at": "2026-07-25T00:28:49.085276Z",
       "failure_reason": "",
@@ -154495,6 +154843,18 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-25T00:28:45.539483Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 8.937837,
+      "ended_at": "2026-07-25T00:28:47.830532Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-25T00:28:38.892695Z"
     },
     {
       "agent": "implementer",
@@ -160063,366 +160423,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-24T18:34:30.528370Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.707578,
-      "ended_at": "2026-07-24T18:34:32.056744Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:31.349166Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.595202,
-      "ended_at": "2026-07-24T18:34:31.278688Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:30.683486Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.672963,
-      "ended_at": "2026-07-24T18:34:30.528730Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:29.855767Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.730161,
-      "ended_at": "2026-07-24T18:34:29.785686Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:29.055525Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.77183,
-      "ended_at": "2026-07-24T18:34:28.986298Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:28.214468Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.674952,
-      "ended_at": "2026-07-24T18:34:28.144747Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:27.469795Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.589753,
-      "ended_at": "2026-07-24T18:34:27.331063Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:26.741310Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.592558,
-      "ended_at": "2026-07-24T18:34:26.671101Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:26.078543Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.699912,
-      "ended_at": "2026-07-24T18:34:26.007574Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:25.307662Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.022368,
-      "ended_at": "2026-07-24T18:34:25.225337Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:22.202969Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.512147,
-      "ended_at": "2026-07-24T18:34:18.505178Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:17.993031Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.522048,
-      "ended_at": "2026-07-24T18:34:17.913964Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:17.391916Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.614425,
-      "ended_at": "2026-07-24T18:34:17.313872Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:16.699447Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.537337,
-      "ended_at": "2026-07-24T18:34:16.621611Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:16.084274Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.523101,
-      "ended_at": "2026-07-24T18:34:16.005887Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:15.482786Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.557828,
-      "ended_at": "2026-07-24T18:34:15.251878Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:14.694050Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.533559,
-      "ended_at": "2026-07-24T18:34:14.531067Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:13.997508Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.573038,
-      "ended_at": "2026-07-24T18:34:13.918316Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:13.345278Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.674946,
-      "ended_at": "2026-07-24T18:34:13.268136Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:12.593190Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.570117,
-      "ended_at": "2026-07-24T18:34:12.509564Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-895-llmxive-follow-up-extending-occ-rag-opti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:34:08.939447Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.502947,
-      "ended_at": "2026-07-24T18:33:57.882258Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:57.379311Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.626234,
-      "ended_at": "2026-07-24T18:33:57.309297Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:56.683063Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.522028,
-      "ended_at": "2026-07-24T18:33:56.614107Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:56.092079Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.502815,
-      "ended_at": "2026-07-24T18:33:56.021379Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:55.518564Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.558966,
-      "ended_at": "2026-07-24T18:33:55.448712Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:54.889746Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.550467,
-      "ended_at": "2026-07-24T18:33:54.819864Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:54.269397Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.586099,
-      "ended_at": "2026-07-24T18:33:54.121013Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:53.534914Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.51598,
-      "ended_at": "2026-07-24T18:33:53.464120Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:52.948140Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.485149,
-      "ended_at": "2026-07-24T18:33:52.878043Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:52.392894Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.139635,
-      "ended_at": "2026-07-24T18:33:52.316441Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-24T18:33:49.176806Z"
     }
   ],
   "reviewed_preprints": [
