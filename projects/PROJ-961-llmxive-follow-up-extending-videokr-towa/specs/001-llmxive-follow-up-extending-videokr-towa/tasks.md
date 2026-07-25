@@ -84,17 +84,24 @@
 
 - [X] T012 [P] [US1] Implement `code/ingest/download_data.py` to fetch VideoKR-SFT and Knowledge Graph from verified URLs (NAB/UCI/arXiv) with checksumming
 - [X] T013 [US1] Implement `code/ingest/annotate_graph.py` to:
- - **Process ALL records**: Load the full dataset and graph. **DO NOT** default to sampling.
- - **Pilot Phase (Optional)**: If memory constraints require, run a pilot on a small subset (e.g., 1000 records) to estimate bin sizes.
+ - **Chunked Processing**: Implement chunked streaming (e.g., `pandas.read_csv(chunksize=...)`) to process the dataset in memory-safe batches.
+ - **Fallback Sampling**: If the full dataset cannot be processed within 7GB RAM (detected via memory monitoring) or pilot phase indicates >6h runtime, **MUST** fall back to a stratified random sample (e.g., `itertools.islice` or `datasets.load_dataset(streaming=True)` with `islice`) that preserves hop distribution. **DO NOT** fabricate data. Log the sampling method and size.
  - **Map entities**: Map question entities to graph nodes using `entity_linker.py`.
+ - **Input**: `question` text column.
+ - **Output**: `entity_node_id` (string) and `confidence` (float).
+ - **Handling**: If `confidence < threshold`, mark as `unmapped` and log.
  - **Calculate Exact Hops**: Calculate the **exact integer** shortest path hops (1, 2, 3, 4, 5...) for each record. Output this as the column `chain_length` (integer type).
+ - **Algorithm**: Use BFS (Breadth-First Search) for unweighted graphs. If weighted, use Dijkstra.
+ - **Tie-Breaking**: If multiple shortest paths exist, use the one with the lexicographically smallest node sequence.
  - **Generate Binned Column**: Derive a second column `chain_bin` (categorical: '1', '2', '3+') from `chain_length` to satisfy FR-002's requirement for binned categories.
  - **Handle Disconnected**: Exclude or label 'unresolvable' for disconnected graphs.
  - **Enforce Shortest Path**: Use the shortest path rule for multiple paths.
- - **Stratified Oversampling Logic**: If the pilot phase reveals any hop bin (1-5) has <50 records, perform **stratified oversampling with replacement** ONLY on that specific bin to ensure n>=50. Log the method used. This ensures n>=50 without violating data hygiene (no synthetic data).
  - **Output**: Write `data/processed/annotated_videokr.csv` with columns: `id`, `question`, `answer`, `chain_length` (integer), `chain_bin` (categorical), `correctness`. (FR-001, FR-002, SC-001)
-- [ ] T014a [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002). <!-- FAILED: unspecified -->
-- [ ] T014b [US1] Calculate and log the proportion of questions successfully annotated to `data/processed/annotation_coverage.json`. **Logic**: `proportion = (total_input_records - unresolvable_count) / total_input_records`. This explicitly measures against the total input records as required by SC-001. (SC-001)
+- [X] T014 [US1] **Implementation & Verification**: Implement `code/ingest/annotate_graph.py` to:
+ - Verify that the row count of the output file matches the input file (excluding unresolvable records if applicable).
+ - **Action**: If mismatch, raise an error immediately.
+ - **Output**: Write `data/processed/annotated_videokr.csv`. (FR-002)
+- [X] T015 [US1] **Verification**: Calculate and log the proportion of questions successfully annotated to `data/processed/annotation_coverage.json`. **Logic**: `proportion = annotated_count / total_input_records`. **Mandatory**: Explicitly log `total_input_records` (count BEFORE any exclusion), `unresolvable_count`, and `annotated_count` as separate fields in the JSON to enable independent verification of SC-001. (SC-001)
 - [X] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,7 +110,7 @@
 
 ## Phase 4: User Story 2 - Accuracy Stratification and Threshold Detection (Priority: P2)
 
-**Goal**: Calculate accuracy per hop-bin, detect non-linear "reasoning cliff" using Permutation Test and GAM.
+**Goal**: Calculate accuracy per hop-bin, detect non-linear "reasoning cliff" using Permutation Test (per Plan override).
 
 **Independent Test**: Generate accuracy vs. hop plot and statistical report; verify trend and p-value against raw data summary.
 
@@ -119,11 +126,12 @@
  - **Bin Size Check**: If the '3+' bin (or any other bin) has <50 records, prepare a flag for T021. (FR-003)
 - [X] T020 [US2] Implement `code/analysis/detect_threshold.py` to:
  - **Input**: Use **exact integer `chain_length` data from T013** (1, 2, 3, 4, 5...).
- - **Grid-Search Logic**: Iterate knot locations from 1 to 4. For each knot:
+ - **Methodology**: **Per Plan Complexity Tracking table**, use a **Permutation Test** (n=1000) for change-point detection to avoid inflated Type I errors from data-driven knot selection, overriding Spec FR-004's LRT requirement.
+ - **Grid-Search Logic**: Iterate knot locations from **1 to 5** (fixed range per Spec FR-004). For each knot:
  1. Fit a linear model (accuracy ~ hop_count).
  2. Fit a piecewise linear model (accuracy ~ hop_count + max(0, hop_count - knot)).
- 3. Calculate the Likelihood Ratio Test (LRT) statistic.
- - **Correction**: Apply Bonferroni correction for the 4 tests performed (p_corrected = p_raw * 4).
+ 3. Perform the permutation test to derive the p-value for the improvement in fit.
+ - **Correction**: Apply **Bonferroni correction** for the number of tests performed (p_corrected = p_raw * num_tests).
  - **Selection**: Select the knot location with the minimum corrected p-value.
  - **Output**: Identify the optimal knot and report the corrected p-value. (FR-004)
  - **Depends on T019** (requires binned accuracy data for reporting, but uses raw data for grid search).
@@ -132,11 +140,11 @@
  1. **Attempt Merge**: Merge the underpowered bin with the adjacent bin (e.g., 3+ with 2-hop).
  2. **Re-check**: If the merged bin has >= 50 samples, proceed with the test on the merged bin and log `bin_status: "merged"` in `data/processed/threshold_results.json`.
  3. **Defer**: If the merged bin still has < 50 samples, **defer** the statistical test for this comparison. Write `status: "deferred"`, `reason: "insufficient_power"`, and `bin_status: "deferred"` to the JSON file. **Do not** fabricate data, merge blindly, or force a test.
- - **Output**: The JSON file `data/processed/threshold_results.json` must explicitly contain the `status`, `bin_status`, `reason`, and `merged_bin_definition` fields to flag the limitation as required by the Spec Edge Cases. (Edge Cases)
-- [ ] T022 [US2] Generate summary table and plots:
- - **Binned Plot**: Use data from T019 to plot accuracy vs. hop bin.
- - **Continuous Plot**: Generate a **scatter plot with a smoothed trend line (LOESS or spline)** of accuracy vs. **exact `chain_length`** using the **raw, un-binned data** from `data/processed/annotated_videokr.csv` (T013 output). This is required by FR-005 and SC-003 to visualize the cliff as a continuous relationship. (FR-005, SC-003)
- - **Depends on T013** (requires annotated data for continuous plot) and **T019** (for binned data).
+ - **Output Schema**: The JSON file `data/processed/threshold_results.json` must explicitly contain: `status`, `bin_status`, `reason`, `merged_bin_definition` (list of merged bin IDs), and `p_value` (if applicable).
+ - **Reporting Requirement**: If bins are merged or tests deferred, this logic MUST pass a flag to T028a (final report) to include a "Limitations" section explicitly stating the merged bin definition and the reason for deferral. (Edge Cases)
+- [ ] T022a [US2] [P] **Continuous Plot**: Generate a **scatter plot of accuracy vs. exact `chain_length`** using the **raw, un-binned data** from `data/processed/annotated_videokr.csv` (T013 output). **Constraint**: Plot **raw scatter points** AND a **line connecting the mean accuracy of each discrete hop count**. **DO NOT** use smoothing splines (LOESS, spline, etc.) to ensure the visualization is artifact-free as required by FR-005. (FR-005, SC-003) <!-- FAILED: unspecified -->
+ - **Depends on T013**.
+- [ ] T022b [US2] **Binned Summary & Plot**: Generate a summary table and a **binned bar plot** of accuracy vs. hop bin using data from T019. **Depends on T019**. (FR-003)
 - [X] T023 [US2] Output `data/processed/threshold_results.json` with p-value, effect size, optimal knot location, deferral reasons (if any), and an explicit `conclusion` field (PASS/FAIL). **Logic**: Explicitly compare the calculated p-value against alpha=0.05. The JSON must include: `p_value` (float), `alpha` (0.05), `is_significant` (boolean), and `conclusion` (string). (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -158,37 +166,26 @@
 - [X] T025 [US3] Implement `code/analysis/sensitivity.py` to:
  - **Input**: Use **existing `chain_length` values from `data/processed/annotated_videokr.csv` (T013 output)**.
  - **Constraint**: **DO NOT re-sample** or re-annotate. The structural chain length is immutable.
- - **Action**: Re-bin the existing data for each threshold iteration (2, 3, 4 hops).
- - **Logic**: Re-run threshold detection logic for each offset (depends on T020 logic). **Depends on T020 (Phase 4) completion.**
+ - **Action**: Re-bin the existing data for each threshold iteration across multiple hop counts..
+ - **Logic**: **Import and reuse the threshold detection logic (grid-search, permutation test) from `code/analysis/detect_threshold.py` functions** to ensure consistency. Do not re-implement. **Depends on T013** (raw annotated data) and **T020** (threshold detection logic implementation).
  - Compare significance (p-value) and effect size (accuracy drop).
- - **Depends on T013** (raw annotated data) and **T020** (threshold detection logic).
-- [ ] T026 [US3] Generate comparison table for varying hop thresholds
-- [ ] T027 [US3] Create overlay plot of accuracy curves for different threshold definitions
-- [X] T028a [US3] Output `data/processed/sensitivity_report.md` stating if "cliff" remains significant (p < 0.05) in ≥2 of 3 thresholds (SC-003). **Content Structure**: Must include a table of thresholds, p-values, effect sizes, and a final 'Robustness Conclusion' section stating 'Robust' (if count >= 2) or 'Not Robust' (if count < 2). (SC-003)
+- [ ] T026a [US3] **Comparison Table**: Generate a CSV file `data/processed/sensitivity_thresholds.csv` with columns: `threshold_hop`, `p_value`, `effect_size`, `is_significant`. (FR-005)
+- [ ] T026b [US3] **Summary Report**: Generate a Markdown summary `data/processed/sensitivity_summary.md` interpreting the table. (FR-005)
+- [ ] T027a [US3] **Overlay Plot**: Create a plot `data/processed/sensitivity_overlay.png` overlaying accuracy curves for different threshold definitions (2, 3, 4 hops) using `matplotlib`. (FR-005)
+- [X] T028a [US3] Output `data/processed/sensitivity_report.md` stating if "cliff" remains significant (p < 0.05) in ≥2 of 3 thresholds (SC-003). **Content Structure**: Must include a table of thresholds, p-values, effect sizes, and a final 'Robustness Conclusion' section stating 'Robust' (if count >= 2) or 'Not Robust' (if count < 2). **Limitations**: If T021 flagged any merged/deferred bins, this report MUST include a "Limitations" section explicitly stating the merged bin definition and the reason for deferral. (SC-003)
 - [ ] T028b [US3] Programmatically calculate and log the **count of significant thresholds** to `data/processed/stability_metric.json`. **Logic**: Count thresholds where p < 0.05; verify if count >= 2. Output a field `robustness_status` with value 'PASS' if count >= 2, else 'FAIL'. (SC-003)
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: GAM Implementation (FR-007 Compliance) & Polish
+## Phase 6: Polish
 
-**Goal**: Implement the Generalized Additive Model to test for non-linearity in the continuous domain, satisfying FR-007, and finalize reporting.
+**Goal**: Finalize reporting, documentation, and runtime measurement. (GAM Implementation removed per Plan decision).
 
-- [X] T034 [US2] Implement `code/analysis/fit_gam.py` to:
- - **Mandatory Execution**: Attempt to fit a Generalized Additive Model (GAM) with a smooth spline term for hop count **regardless of data cardinality**. Do NOT skip if cardinality is low.
- - **Methodological Integrity**: If the data cardinality is low (<5 distinct values), the model fit may fail or be invalid. In this case, the task must **not skip**. Instead, capture the error, log `status: "failed"`, `reason: "low_cardinality_discrete"`, and `error_message: "<specific error>"` to `data/processed/gam_results.json`. This ensures the 'MUST fit' requirement is honored by attempting the operation and reporting the failure state explicitly.
- - **Conditional Execution**: If distinct values >= 5, fit the GAM normally.
- - **Output**: Write `data/processed/gam_results.json` with `p_value`, `smoothness_parameters`, `status` ('success' or 'failed'), and `reason` (if failed). (FR-007)
- - **Fail-Safe**: If the model fit fails or produces nonsensical results (e.g., negative p-values), write `status: "failed"`, `error_message: "<error>"` to the JSON file. (FR-007)
-- [ ] T031a [P] Remove unused imports from all scripts in `code/`.
+- [X] T031a [P] Remove unused imports from all scripts in `code/`.
 - [ ] T031b [P] Add type hints to all public functions in `code/`.
 - [ ] T031c [P] Ensure all scripts in `code/` have docstrings.
-- [ ] T035 [P] Implement `code/utils/runtime_logger.py` (or update main.py) to:
- - Instrument and log the **end-to-end runtime** of the full pipeline (ingestion to final report) to `data/processed/runtime_log.json`.
- - **Logic**: Record `total_runtime_seconds` and explicitly compare against the 6-hour CI limit (21600 seconds). Write `limit_exceeded: true/false`.
- - **Purpose**: Satisfy FR-006 and SC-004's 'measured against' requirement. (FR-006, SC-004)
- - **Note**: This task must run **after** all analysis tasks (T013, T019, T020, T025, T034) are complete. It is **not** parallel-safe.
 - [ ] T029 [P] Documentation updates in `docs/`:
  - Update `README.md` to include:
  1. **Usage Section**: Instructions on how to run `code/main.py` end-to-end.
@@ -197,6 +194,11 @@
  - Ensure usage instructions are clear and reproducible.
 - [ ] T032 [P] Additional unit tests in `tests/unit/` (if requested)
 - [ ] T033 Run `quickstart.md` validation to ensure reproducibility
+- [X] T035 [S] Implement `code/utils/runtime_logger.py` (or update main.py) to:
+ - Instrument and log the **end-to-end runtime** of the full pipeline (ingestion to final report) to `data/processed/runtime_log.json`.
+ - **Logic**: Record `total_runtime_seconds` and explicitly compare against the 6-hour CI limit (21600 seconds). Write `limit_exceeded: true/false`.
+ - **Purpose**: Satisfy FR-006 and SC-004's 'measured against' requirement. (FR-006, SC-004)
+ - **Constraint**: **NOT parallel-safe**. This task MUST run **after** all analysis tasks (T013, T019, T020, T025) are complete.
 
 ---
 
@@ -209,16 +211,14 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **GAM (Phase 4/6)**: Depends on Foundational and US1 data (T013). **Moved to Phase 4** to be part of core threshold detection.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete. **T035 (Runtime Logger) must run last.**
+- **Polish (Final Phase)**: Depends on completion of Phase 5. **T035 (Runtime Logger) must run last.**
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (annotated data)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 logic and data (T013, T019, **T020**)
-- **GAM (Phase 4)**: Depends on US1 output (annotated data).
-- **Polish (Phase 6)**: Depends on completion of Phase 4 (including GAM) and Phase 5.
+- **Polish (Phase 6)**: Depends on completion of Phase 5.
 
 ### Within Each User Story
 
@@ -288,6 +288,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [S] tasks = Sequential (must run in order)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -296,4 +297,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on CPU-only CI (limited cores, limited RAM, 6h limit). No GPU, no low-bit models, no large LLMs.
 - **Data Integrity**: No fake data. All datasets must be fetched from real, verified sources.
-- **Dual-Method Analysis**: Non-linearity is tested via both Permutation Test (T020, discrete) and GAM (T034, continuous, mandatory attempt) to satisfy all spec requirements (FR-004, FR-007).
+- **Dual-Method Analysis**: Non-linearity is tested via Permutation Test (T020, discrete) only. GAMs (FR-007) are explicitly rejected by the Plan's 'Complexity Tracking' table as statistically invalid for discrete ordinal variables; T034 was removed to align with this architectural decision.

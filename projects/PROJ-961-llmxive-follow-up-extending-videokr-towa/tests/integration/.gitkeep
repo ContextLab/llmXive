@@ -1,1 +1,2 @@
-# Placeholder file to ensure tests/integration directory is tracked by version control.
+# Integration tests placeholder
+# Tests for end-to-end pipeline components.

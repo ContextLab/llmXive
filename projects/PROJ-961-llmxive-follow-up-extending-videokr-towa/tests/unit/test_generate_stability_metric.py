@@ -1,192 +1,180 @@
-"""
-Unit tests for generate_stability_metric.py
-
-Tests the robustness calculation logic for sensitivity analysis results.
-"""
 import json
-import pytest
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+import pytest
+
+# Import the module under test
+# We need to add the code directory to the path temporarily if running standalone
+# but in the project context, it should be importable as analysis.generate_stability_metric
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from analysis.generate_stability_metric import (
-    calculate_robustness,
-    load_sensitivity_results,
-    save_stability_metric
-)
-from utils.config import get_project_root, get_path, ensure_dir
+from analysis.generate_stability_metric import calculate_robustness, load_sensitivity_results, save_stability_metric
 
+@pytest.fixture
+def sample_sensitivity_data():
+    """Sample sensitivity data for testing."""
+    return [
+        {'threshold_hop': 2, 'p_value': 0.01, 'effect_size': 0.15, 'is_significant': True},
+        {'threshold_hop': 3, 'p_value': 0.03, 'effect_size': 0.12, 'is_significant': True},
+        {'threshold_hop': 4, 'p_value': 0.08, 'effect_size': 0.05, 'is_significant': False},
+    ]
+
+@pytest.fixture
+def temp_csv_file(tmp_path):
+    """Create a temporary CSV file with sensitivity results."""
+    csv_path = tmp_path / "sensitivity_thresholds.csv"
+    content = """threshold_hop,p_value,effect_size,is_significant
+2,0.01,0.15,True
+3,0.03,0.12,True
+4,0.08,0.05,False
+"""
+    csv_path.write_text(content)
+    return csv_path
 
 class TestCalculateRobustness:
-    """Tests for calculate_robustness function."""
+    def test_pass_condition(self, sample_sensitivity_data):
+        """Test that PASS is returned when count >= 2."""
+        result = calculate_robustness(sample_sensitivity_data, alpha=0.05)
+        
+        assert result['count_significant_thresholds'] == 2
+        assert result['total_thresholds_tested'] == 3
+        assert result['robustness_status'] == 'PASS'
+        assert result['alpha'] == 0.05
 
-    def test_all_significant(self):
+    def test_fail_condition(self, sample_sensitivity_data):
+        """Test that FAIL is returned when count < 2."""
+        # Modify data to have only 1 significant
+        modified_data = [
+            {'threshold_hop': 2, 'p_value': 0.01, 'effect_size': 0.15, 'is_significant': True},
+            {'threshold_hop': 3, 'p_value': 0.06, 'effect_size': 0.12, 'is_significant': False},
+            {'threshold_hop': 4, 'p_value': 0.08, 'effect_size': 0.05, 'is_significant': False},
+        ]
+        result = calculate_robustness(modified_data, alpha=0.05)
+        
+        assert result['count_significant_thresholds'] == 1
+        assert result['robustness_status'] == 'FAIL'
+
+    def test_all_significant(self, sample_sensitivity_data):
         """Test when all thresholds are significant."""
-        results = [
-            {'threshold': 2, 'p_value': 0.01},
-            {'threshold': 3, 'p_value': 0.02},
-            {'threshold': 4, 'p_value': 0.03}
+        all_sig_data = [
+            {'threshold_hop': 2, 'p_value': 0.01, 'effect_size': 0.15, 'is_significant': True},
+            {'threshold_hop': 3, 'p_value': 0.02, 'effect_size': 0.12, 'is_significant': True},
+            {'threshold_hop': 4, 'p_value': 0.04, 'effect_size': 0.05, 'is_significant': True},
         ]
-        metric = calculate_robustness(results)
+        result = calculate_robustness(all_sig_data, alpha=0.05)
+        
+        assert result['count_significant_thresholds'] == 3
+        assert result['robustness_status'] == 'PASS'
 
-        assert metric['significant_count'] == 3
-        assert metric['total_thresholds'] == 3
-        assert metric['robustness_status'] == 'PASS'
-        assert metric['alpha'] == 0.05
-
-    def test_two_significant(self):
-        """Test when exactly 2 thresholds are significant (boundary case for PASS)."""
-        results = [
-            {'threshold': 2, 'p_value': 0.01},
-            {'threshold': 3, 'p_value': 0.04},
-            {'threshold': 4, 'p_value': 0.06}
+    def test_edge_case_boundary(self, sample_sensitivity_data):
+        """Test boundary condition where p_value equals alpha."""
+        boundary_data = [
+            {'threshold_hop': 2, 'p_value': 0.05, 'effect_size': 0.15, 'is_significant': False}, # Not < 0.05
+            {'threshold_hop': 3, 'p_value': 0.049, 'effect_size': 0.12, 'is_significant': True},
+            {'threshold_hop': 4, 'p_value': 0.051, 'effect_size': 0.05, 'is_significant': False},
         ]
-        metric = calculate_robustness(results)
-
-        assert metric['significant_count'] == 2
-        assert metric['total_thresholds'] == 3
-        assert metric['robustness_status'] == 'PASS'
-
-    def test_one_significant(self):
-        """Test when only 1 threshold is significant (should FAIL)."""
-        results = [
-            {'threshold': 2, 'p_value': 0.01},
-            {'threshold': 3, 'p_value': 0.06},
-            {'threshold': 4, 'p_value': 0.08}
-        ]
-        metric = calculate_robustness(results)
-
-        assert metric['significant_count'] == 1
-        assert metric['total_thresholds'] == 3
-        assert metric['robustness_status'] == 'FAIL'
-
-    def test_none_significant(self):
-        """Test when no thresholds are significant."""
-        results = [
-            {'threshold': 2, 'p_value': 0.10},
-            {'threshold': 3, 'p_value': 0.20},
-            {'threshold': 4, 'p_value': 0.30}
-        ]
-        metric = calculate_robustness(results)
-
-        assert metric['significant_count'] == 0
-        assert metric['total_thresholds'] == 3
-        assert metric['robustness_status'] == 'FAIL'
-
-    def test_missing_p_value(self):
-        """Test handling of missing p_value (should skip)."""
-        results = [
-            {'threshold': 2, 'p_value': 0.01},
-            {'threshold': 3},  # Missing p_value
-            {'threshold': 4, 'p_value': 0.06}
-        ]
-        metric = calculate_robustness(results)
-
-        assert metric['significant_count'] == 1
-        assert metric['total_thresholds'] == 3
-        assert metric['robustness_status'] == 'FAIL'
-
-    def test_custom_alpha(self):
-        """Test with custom alpha threshold."""
-        results = [
-            {'threshold': 2, 'p_value': 0.06},
-            {'threshold': 3, 'p_value': 0.07},
-            {'threshold': 4, 'p_value': 0.08}
-        ]
-        # With alpha=0.10, all should be significant
-        metric = calculate_robustness(results, alpha=0.10)
-
-        assert metric['significant_count'] == 3
-        assert metric['robustness_status'] == 'PASS'
-        assert metric['alpha'] == 0.10
-
-class TestLoadSensitivityResults:
-    """Tests for load_sensitivity_results function."""
-
-    def test_load_valid_json(self, tmp_path):
-        """Test loading a valid JSON file."""
-        test_data = [{'threshold': 2, 'p_value': 0.01}]
-        json_file = tmp_path / 'test_results.json'
-        json_file.write_text(json.dumps(test_data))
-
-        results = load_sensitivity_results(json_file)
-
-        assert results == test_data
-
-    def test_load_empty_json(self, tmp_path):
-        """Test loading an empty JSON list."""
-        json_file = tmp_path / 'empty_results.json'
-        json_file.write_text('[]')
-
-        results = load_sensitivity_results(json_file)
-
-        assert results == []
-
-    def test_load_invalid_file(self, tmp_path):
-        """Test loading a non-existent file."""
-        non_existent = tmp_path / 'non_existent.json'
-
-        with pytest.raises(FileNotFoundError):
-            load_sensitivity_results(non_existent)
+        result = calculate_robustness(boundary_data, alpha=0.05)
+        
+        assert result['count_significant_thresholds'] == 1
+        assert result['robustness_status'] == 'FAIL'
 
 class TestSaveStabilityMetric:
-    """Tests for save_stability_metric function."""
-
-    def test_save_metric(self, tmp_path):
-        """Test saving a metric to JSON."""
-        metric = {
-            'significant_count': 2,
-            'total_thresholds': 3,
-            'alpha': 0.05,
-            'robustness_status': 'PASS'
-        }
-        output_file = tmp_path / 'stability_metric.json'
-
-        save_stability_metric(metric, output_file)
-
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
+    def test_save_creates_file(self, tmp_path, sample_sensitivity_data):
+        """Test that save_stability_metric creates the JSON file correctly."""
+        output_path = tmp_path / "stability_metric.json"
+        metric_data = calculate_robustness(sample_sensitivity_data)
+        
+        save_stability_metric(metric_data, output_path)
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
             saved_data = json.load(f)
+        
+        assert saved_data['robustness_status'] == 'PASS'
+        assert saved_data['count_significant_thresholds'] == 2
 
-        assert saved_data == metric
+class TestLoadSensitivityResults:
+    def test_load_from_csv(self, temp_csv_file):
+        """Test loading sensitivity results from a CSV file."""
+        # Mock the get_project_root to return the temp directory
+        with patch('analysis.generate_stability_metric.get_project_root') as mock_root:
+            mock_root.return_value = temp_csv_file.parent
+            # We need to patch the path construction inside the function
+            # The function constructs root / "data" / "processed" / "sensitivity_thresholds.csv"
+            # So we need to ensure the mock root leads to the temp file
+            # This is tricky because the function builds the path.
+            # Let's mock the file reading directly instead of relying on get_project_root
+            pass
+        
+        # Direct test of the file reading logic by mocking the path
+        import analysis.generate_stability_metric as module
+        
+        original_get_path = module.get_path
+        
+        def mock_get_path(key):
+            if key == "sensitivity_thresholds":
+                return str(temp_csv_file)
+            return original_get_path(key)
+        
+        with patch.object(module, 'get_path', side_effect=mock_get_path):
+            # We also need to mock get_project_root to avoid path issues
+            with patch.object(module, 'get_project_root') as mock_root:
+                mock_root.return_value = temp_csv_file.parent
+                
+                # The function uses root / "data" / "processed" / "sensitivity_thresholds.csv"
+                # But we mocked get_path to return the temp file directly? 
+                # No, the function doesn't use get_path, it constructs the path manually.
+                # Let's just test the logic by creating a temporary file in the expected location
+                # relative to a mock root.
+                pass
 
-    def test_save_creates_directory(self, tmp_path):
-        """Test that save creates parent directories if needed."""
-        metric = {'test': 'data'}
-        output_file = tmp_path / 'subdir' / 'nested' / 'metric.json'
-
-        save_stability_metric(metric, output_file)
-
-        assert output_file.exists()
-
-class TestIntegration:
-    """Integration tests for the full flow."""
-
-    def test_full_flow(self, tmp_path):
-        """Test the complete flow from input to output."""
-        # Create input data
-        input_data = [
-            {'threshold': 2, 'p_value': 0.01},
-            {'threshold': 3, 'p_value': 0.04},
-            {'threshold': 4, 'p_value': 0.06}
-        ]
-        input_file = tmp_path / 'sensitivity_results.json'
-        input_file.write_text(json.dumps(input_data))
-
-        output_file = tmp_path / 'stability_metric.json'
-
-        # Run the logic
-        results = load_sensitivity_results(input_file)
-        metric = calculate_robustness(results)
-        save_stability_metric(metric, output_file)
-
-        # Verify output
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
-            saved_metric = json.load(f)
-
-        assert saved_metric['significant_count'] == 2
-        assert saved_metric['robustness_status'] == 'PASS'
-        assert saved_metric['total_thresholds'] == 3
+        # Simpler approach: create the file in a temp dir and mock get_project_root
+        # to return that temp dir.
+        temp_root = temp_csv_file.parent
+        # The expected path is temp_root / "data" / "processed" / "sensitivity_thresholds.csv"
+        # But our temp_csv_file is directly in temp_root.
+        # Let's restructure the test.
+        
+        # Create a proper temp directory structure
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            data_processed = tmp_path / "data" / "processed"
+            data_processed.mkdir(parents=True)
+            csv_path = data_processed / "sensitivity_thresholds.csv"
+            csv_path.write_text("""threshold_hop,p_value,effect_size,is_significant
+2,0.01,0.15,True
+3,0.03,0.12,True
+4,0.08,0.05,False
+""")
+            
+            with patch('analysis.generate_stability_metric.get_project_root') as mock_root:
+                mock_root.return_value = tmp_path
+                
+                results = load_sensitivity_results()
+                
+                assert len(results) == 3
+                assert results[0]['threshold_hop'] == 2
+                assert results[0]['p_value'] == 0.01
+                assert results[0]['is_significant'] == True
+                
+                assert results[1]['threshold_hop'] == 3
+                assert results[1]['p_value'] == 0.03
+                assert results[1]['is_significant'] == True
+                
+                assert results[2]['threshold_hop'] == 4
+                assert results[2]['p_value'] == 0.08
+                assert results[2]['is_significant'] == False
+                
+        # Test missing file
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            with patch('analysis.generate_stability_metric.get_project_root') as mock_root:
+                mock_root.return_value = tmp_path
+                with pytest.raises(FileNotFoundError):
+                    load_sensitivity_results()

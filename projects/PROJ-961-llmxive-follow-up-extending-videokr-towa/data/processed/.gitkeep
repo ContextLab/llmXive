@@ -1,10 +1,10 @@
-# This directory stores processed data artifacts for the llmXive pipeline.
-# Generated files include:
+# This file ensures the data/processed directory is tracked by Git.
+# This directory will contain processed data artifacts such as:
 # - annotated_videokr.csv
 # - annotation_coverage.json
 # - threshold_results.json
-# - sensitivity_report.md
+# - sensitivity_thresholds.csv
+# - sensitivity_summary.md
+# - sensitivity_overlay.png
 # - stability_metric.json
-# - gam_results.json
 # - runtime_log.json
-# - plots/

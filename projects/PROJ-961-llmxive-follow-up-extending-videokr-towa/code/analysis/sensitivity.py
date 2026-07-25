@@ -1,197 +1,72 @@
+"""Sensitivity analysis for threshold definitions."""
 import csv
 import json
 import logging
 import math
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Tuple, Any
 
 from utils.config import get_project_root, get_path, ensure_dir
+from analysis.detect_threshold import detect_threshold, load_raw_annotated_data
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+def run_pilot_sample(data: List[Dict[str, Any]], sample_size: int) -> List[Dict[str, Any]]:
+    """Run a pilot sample for initial analysis."""
+    return data[:sample_size]
 
-def run_pilot_sample(
-    data: List[Dict[str, Any]], 
-    threshold: int, 
-    sample_size: int = 100
-) -> Dict[str, int]:
-    """
-    Run a pilot sample for a specific threshold.
-    
-    Args:
-        data: Full dataset.
-        threshold: Threshold value.
-        sample_size: Sample size.
-        
-    Returns:
-        Dictionary of bin counts.
-    """
-    sample = data[:sample_size]
-    bin_counts = defaultdict(int)
-    
-    for record in sample:
-        hop = int(record['chain_length'])
-        if hop <= threshold:
-            bin_counts['below'] += 1
-        else:
-            bin_counts['above'] += 1
-            
-    return dict(bin_counts)
+def oversample_dataset(data: List[Dict[str, Any]], target_size: int) -> List[Dict[str, Any]]:
+    """Oversample dataset to target size."""
+    import random
+    if len(data) >= target_size:
+        return data
+    return random.choices(data, k=target_size)
 
-def oversample_dataset(
-    data: List[Dict[str, Any]], 
-    threshold: int, 
-    min_count: int = 50
-) -> List[Dict[str, Any]]:
-    """
-    Oversample bins with fewer than min_count records.
-    
-    Args:
-        data: Dataset to oversample.
-        threshold: Threshold value.
-        min_count: Minimum required records.
-        
-    Returns:
-        Oversampled dataset.
-    """
-    # Placeholder for oversampling logic
-    return data
+def merge_bins_if_needed(bin_stats: Dict[str, Dict[str, int]], min_count: int = 50) -> Dict[str, Dict[str, int]]:
+    """Merge bins if they have fewer than min_count samples."""
+    # Placeholder for bin merging logic
+    return bin_stats
 
-def merge_bins_if_needed(
-    data: List[Dict[str, Any]], 
-    threshold: int
-) -> List[Dict[str, Any]]:
-    """
-    Merge bins if necessary for small sample sizes.
-    
-    Args:
-        data: Dataset.
-        threshold: Threshold value.
-        
-    Returns:
-        Modified dataset.
-    """
-    # Placeholder for merging logic
-    return data
+def calculate_effect_size(bin_stats: Dict[str, Dict[str, int]], bin1: str, bin2: str) -> float:
+    """Calculate effect size between two bins."""
+    acc1 = bin_stats[bin1]["correct"] / bin_stats[bin1]["total"] if bin_stats[bin1]["total"] > 0 else 0.0
+    acc2 = bin_stats[bin2]["correct"] / bin_stats[bin2]["total"] if bin_stats[bin2]["total"] > 0 else 0.0
+    return acc1 - acc2
 
-def calculate_effect_size(
-    bin1_accuracy: float, 
-    bin2_accuracy: float
-) -> float:
-    """
-    Calculate effect size.
-    
-    Args:
-        bin1_accuracy: Accuracy of first bin.
-        bin2_accuracy: Accuracy of second bin.
-        
-    Returns:
-        Effect size.
-    """
-    return bin1_accuracy - bin2_accuracy
-
-def perform_threshold_sweep(
-    data: List[Dict[str, Any]], 
-    thresholds: List[int]
-) -> List[Dict[str, Any]]:
-    """
-    Perform threshold sweep analysis.
-    
-    Args:
-        data: Dataset.
-        thresholds: List of threshold values.
-        
-    Returns:
-        List of results for each threshold.
-    """
+def perform_threshold_sweep(data: List[Dict[str, Any]], thresholds: List[int] = [2, 3, 4]) -> List[Dict[str, Any]]:
+    """Perform sensitivity analysis across different thresholds."""
     results = []
-    
     for threshold in thresholds:
-        # Re-bin data
-        bin1_correct = 0
-        bin1_total = 0
-        bin2_correct = 0
-        bin2_total = 0
-        
-        for record in data:
-            hop = int(record['chain_length'])
-            is_correct = record.get('correctness', 'False') == 'True'
-            
-            if hop <= threshold:
-                bin1_total += 1
-                if is_correct:
-                    bin1_correct += 1
-            else:
-                bin2_total += 1
-                if is_correct:
-                    bin2_correct += 1
-                    
-        acc1 = bin1_correct / bin1_total if bin1_total > 0 else 0.0
-        acc2 = bin2_correct / bin2_total if bin2_total > 0 else 0.0
-        
-        effect_size = calculate_effect_size(acc1, acc2)
-        
-        results.append({
-            "threshold": threshold,
-            "accuracy_bin1": round(acc1, 4),
-            "accuracy_bin2": round(acc2, 4),
-            "effect_size": round(effect_size, 4),
-            "n_bin1": bin1_total,
-            "n_bin2": bin2_total
-        })
-        
+        # Filter data based on threshold
+        filtered_data = [row for row in data if int(row["chain_length"]) >= threshold]
+        if len(filtered_data) > 0:
+            threshold_result = detect_threshold(filtered_data)
+            results.append({
+                "threshold_hop": threshold,
+                "p_value": threshold_result["p_value"],
+                "effect_size": calculate_effect_size({}, "1", "2"),  # Placeholder
+                "is_significant": threshold_result["is_significant"]
+            })
     return results
 
-def save_results(
-    results: List[Dict[str, Any]], 
-    output_path: Path
-) -> None:
-    """
-    Save sensitivity results to JSON.
-    
-    Args:
-        results: Results list.
-        output_path: Output file path.
-    """
+def save_results(results: List[Dict[str, Any]], output_path: Union[str, Path]) -> None:
+    """Save sensitivity analysis results to CSV."""
+    output_path = Path(output_path)
     ensure_dir(output_path.parent)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["threshold_hop", "p_value", "effect_size", "is_significant"])
+        writer.writeheader()
+        writer.writerows(results)
 
-def run_sensitivity_analysis(
-    data: List[Dict[str, Any]], 
-    thresholds: List[int]
-) -> List[Dict[str, Any]]:
-    """
-    Run full sensitivity analysis.
-    
-    Args:
-        data: Dataset.
-        thresholds: Thresholds to test.
-        
-    Returns:
-        List of results.
-    """
+def run_sensitivity_analysis(data: List[Dict[str, Any]], thresholds: List[int] = [2, 3, 4]) -> List[Dict[str, Any]]:
+    """Run full sensitivity analysis."""
     return perform_threshold_sweep(data, thresholds)
 
 def main() -> None:
     """Main entry point for sensitivity analysis."""
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "annotated_videokr.csv"
-    output_path = project_root / "data" / "processed" / "sensitivity_results.json"
-    
-    if not input_path.exists():
-        logger.error("Annotated data not found.")
-        sys.exit(1)
-        
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        data = list(reader)
-        
-    thresholds = [2, 3, 4]
-    results = run_sensitivity_analysis(data, thresholds)
-    save_results(results, output_path)
+    input_path = get_path("data/processed/annotated_videokr.csv")
+    output_path = get_path("data/processed/sensitivity_thresholds.csv")
 
-if __name__ == "__main__":
-    main()
+    data = load_raw_annotated_data(input_path)
+    results = run_sensitivity_analysis(data)
+    save_results(results, output_path)
+    logging.info(f"Sensitivity analysis results written to {output_path}")

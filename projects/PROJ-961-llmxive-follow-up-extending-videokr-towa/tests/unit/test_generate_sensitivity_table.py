@@ -1,6 +1,8 @@
 """
-Unit tests for generate_sensitivity_table.py (T026).
+Unit tests for generate_sensitivity_table.py
 """
+
+import csv
 import json
 import os
 import tempfile
@@ -9,104 +11,142 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-# Import the module functions
-from code.analysis.generate_sensitivity_table import (
+# Add the code directory to the path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from analysis.generate_sensitivity_table import (
+    load_sensitivity_results,
     format_p_value,
     format_effect_size,
-    generate_table_markdown,
+    format_significance,
     generate_table_csv
 )
 
-class TestFormatting:
-    def test_format_p_value_less_than_0001(self):
-        assert format_p_value(0.0001) == "< 0.001"
-        assert format_p_value(0.00001) == "< 0.001"
-    
-    def test_format_p_value_normal(self):
+
+class TestFormatFunctions:
+    """Tests for formatting helper functions."""
+
+    def test_format_p_value(self):
+        """Test p-value formatting."""
         assert format_p_value(0.05) == "0.0500"
-        assert format_p_value(0.12345) == "0.1235"
-    
-    def test_format_p_value_none(self):
-        assert format_p_value(None) == "N/A"
+        assert format_p_value(0.00123) == "0.0012"
+        assert format_p_value(0.99999) == "1.0000"
 
-    def test_format_effect_size_normal(self):
-        assert format_effect_size(0.15) == "0.1500"
-    
-    def test_format_effect_size_none(self):
-        assert format_effect_size(None) == "N/A"
+    def test_format_effect_size(self):
+        """Test effect size formatting."""
+        assert format_effect_size(0.12345) == "0.1235"
+        assert format_effect_size(-0.5) == "-0.5000"
+        assert format_effect_size(0.0) == "0.0000"
 
-class TestMarkdownGeneration:
-    def test_generate_table_with_data(self):
-        mock_results = {
-            "sweep_results": [
-                {"threshold_definition": "2-hop", "optimal_knot": 2, "p_value": 0.01, "effect_size": 0.15},
-                {"threshold_definition": "3-hop", "optimal_knot": 3, "p_value": 0.04, "effect_size": 0.12},
-                {"threshold_definition": "4-hop", "optimal_knot": 4, "p_value": 0.06, "effect_size": 0.08}
-            ]
-        }
-        md = generate_table_markdown(mock_results)
-        
-        assert "# Sensitivity Analysis" in md
-        assert "2-hop" in md
-        assert "3-hop" in md
-        assert "4-hop" in md
-        assert "Yes" in md  # Significant
-        assert "No" in md   # Not significant
-        assert "robust" in md.lower() # Conclusion logic
+    def test_format_significance(self):
+        """Test significance formatting."""
+        assert format_significance(True) == "Yes"
+        assert format_significance(False) == "No"
 
-    def test_generate_table_empty(self):
-        mock_results = {"sweep_results": []}
-        md = generate_table_markdown(mock_results)
-        assert "*No data available*" in md
 
-    def test_generate_table_no_sweep_key(self):
-        mock_results = []
-        md = generate_table_markdown(mock_results)
-        assert "*No data available*" in md
+class TestLoadSensitivityResults:
+    """Tests for loading sensitivity results."""
 
-class TestCSVGeneration:
-    def test_generate_csv_with_data(self):
-        mock_results = {
-            "sweep_results": [
-                {"threshold_definition": "2-hop", "optimal_knot": 2, "p_value": 0.01, "effect_size": 0.15},
-                {"threshold_definition": "3-hop", "optimal_knot": 3, "p_value": 0.06, "effect_size": 0.08}
-            ]
-        }
-        rows = generate_table_csv(mock_results)
-        
-        assert len(rows) == 2
-        assert rows[0]["threshold_definition"] == "2-hop"
-        assert rows[0]["significant"] == "Yes"
-        assert rows[1]["significant"] == "No"
-
-    def test_generate_csv_empty(self):
-        mock_results = {"sweep_results": []}
-        rows = generate_table_csv(mock_results)
-        assert len(rows) == 0
-
-class TestIntegration:
-    @patch('code.analysis.generate_sensitivity_table.get_path')
-    @patch('code.analysis.generate_sensitivity_table.ensure_dir')
+    @patch('analysis.generate_sensitivity_table.get_project_root')
+    @patch('analysis.generate_sensitivity_table.get_path')
     @patch('builtins.open', new_callable=MagicMock)
-    def test_main_execution(self, mock_open, mock_ensure_dir, mock_get_path):
-        # Setup mocks
-        mock_path = MagicMock()
-        mock_path.exists.return_value = True
-        mock_get_path.side_effect = lambda x: mock_path if "sensitivity_results.json" in x else mock_path
-        
-        # Mock file content
-        mock_file = MagicMock()
-        mock_open.return_value.__enter__.return_value = mock_file
-        mock_file.read.return_value = json.dumps({
-            "sweep_results": [
-                {"threshold_definition": "2-hop", "optimal_knot": 2, "p_value": 0.01, "effect_size": 0.15}
+    @patch('json.load')
+    def test_load_results_list_format(self, mock_json_load, mock_open, mock_get_path, mock_get_root):
+        """Test loading results when JSON is a list."""
+        mock_get_root.return_value = Path("/fake/root")
+        mock_get_path.return_value = Path("/fake/root/data/processed/sensitivity_results.json")
+        mock_open.return_value.__enter__.return_value = MagicMock()
+        mock_json_load.return_value = [
+            {"threshold_hop": 2, "p_value": 0.03, "effect_size": 0.15, "is_significant": True},
+            {"threshold_hop": 3, "p_value": 0.12, "effect_size": 0.08, "is_significant": False}
+        ]
+
+        results = load_sensitivity_results()
+
+        assert len(results) == 2
+        assert results[0]["threshold_hop"] == 2
+        assert results[1]["is_significant"] == False
+
+    @patch('analysis.generate_sensitivity_table.get_project_root')
+    @patch('analysis.generate_sensitivity_table.get_path')
+    @patch('builtins.open', new_callable=MagicMock)
+    @patch('json.load')
+    def test_load_results_dict_format(self, mock_json_load, mock_open, mock_get_path, mock_get_root):
+        """Test loading results when JSON is a dict with 'results' key."""
+        mock_get_root.return_value = Path("/fake/root")
+        mock_get_path.return_value = Path("/fake/root/data/processed/sensitivity_results.json")
+        mock_open.return_value.__enter__.return_value = MagicMock()
+        mock_json_load.return_value = {
+            "results": [
+                {"threshold_hop": 2, "p_value": 0.03}
             ]
-        })
-        
-        # Run main
-        from code.analysis.generate_sensitivity_table import main
-        main()
-        
-        # Verify calls
-        assert mock_ensure_dir.called
-        assert mock_open.call_count >= 2 # Read input, write md, write csv
+        }
+
+        results = load_sensitivity_results()
+
+        assert len(results) == 1
+        assert results[0]["threshold_hop"] == 2
+
+    @patch('analysis.generate_sensitivity_table.get_project_root')
+    @patch('analysis.generate_sensitivity_table.get_path')
+    def test_load_results_file_not_found(self, mock_get_path, mock_get_root):
+        """Test that FileNotFoundError is raised when file doesn't exist."""
+        mock_get_root.return_value = Path("/fake/root")
+        mock_get_path.return_value = Path("/fake/root/data/processed/sensitivity_results.json")
+
+        with pytest.raises(FileNotFoundError):
+            load_sensitivity_results()
+
+
+class TestGenerateTableCsv:
+    """Tests for CSV generation."""
+
+    def test_generate_table_csv_creates_file(self):
+        """Test that the CSV file is created with correct columns and data."""
+        results = [
+            {"threshold_hop": 2, "p_value": 0.03, "effect_size": 0.15, "is_significant": True},
+            {"threshold_hop": 3, "p_value": 0.12, "effect_size": 0.08, "is_significant": False},
+            {"threshold_hop": 4, "p_value": 0.001, "effect_size": 0.25, "is_significant": True}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_sensitivity.csv"
+
+            generate_table_csv(results, output_path)
+
+            assert output_path.exists()
+
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+
+                assert len(rows) == 3
+                assert rows[0]['threshold_hop'] == '2'
+                assert rows[0]['p_value'] == '0.0300'
+                assert rows[0]['effect_size'] == '0.1500'
+                assert rows[0]['is_significant'] == 'Yes'
+
+                assert rows[2]['is_significant'] == 'Yes'
+                assert rows[1]['is_significant'] == 'No'
+
+    def test_generate_table_csv_empty_results(self):
+        """Test CSV generation with empty results list."""
+        results = []
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_empty.csv"
+
+            generate_table_csv(results, output_path)
+
+            assert output_path.exists()
+
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+
+                assert len(rows) == 0
+                # Check header exists
+                f.seek(0)
+                header = f.readline().strip()
+                assert header == "threshold_hop,p_value,effect_size,is_significant"

@@ -4,10 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T021` (rejected 1x): The implementer supplied only a high‑level feature description and user stories; there is no evidence of any changes to `detect_threshold.py`, no code, tests, or output demonstrating handling of small bin sizes. The required artifact (updated script handling small bins) is missing.
-- `T022` (rejected 1x): The response contains only the task description and no actual artifacts such as the annotated dataset, summary table, statistical test results, or the required plots. Consequently, there is no evidence that the summary table and visualizations were generated, so the requirement is not satisfied.
-- `T026` (rejected 1x): No comparison table (or any other output) was provided; the response contains only the task description and no concrete artifact such as a CSV/markdown table showing accuracy or other metrics across hop thresholds. The required deliverable is missing.
-- `T027` (rejected 1x): No overlay plot or any data/analysis artifacts were provided; the claim contains only the task description and specifications, with no figure, code, or results to verify that accuracy curves for different threshold definitions were actually created. The required overlay plot is missing.
+- `T001a` (rejected 1x): No evidence of the required `code/`, `tests/`, or `data/` directories is provided; the claim lacks any listed files or directory listings confirming their existence or non‑emptiness. The implementer must create these three top‑level folders and populate them with at least placeholder content to satisfy the task.
+- `T001b` (rejected 1x): No evidence of the required `code/ingest/`, `code/analysis/`, or `code/utils/` directories is provided; the claim lacks any artifact showing that these subdirectories exist. The implementer must create and show these directories (e.g., a directory listing or file paths) to satisfy the task.
+- `T001c` (rejected 1x): No evidence was presented showing that the `tests/unit/` and `tests/integration/` directories actually exist in the repository (e.g., a directory listing, file paths, or any files within them). Without such artifacts, we cannot confirm the required subdirectories were created.
+- `T008a` (rejected 1x): No `.gitkeep` file in `data/raw/` was shown or described; the implementer provided no artifact or proof that the file exists, so the requirement is not demonstrated.
+- `T008b` (rejected 1x): No evidence of a `.gitkeep` file in the `data/processed/` directory was provided; the implementer did not supply the required file or any proof of its existence. The task remains undone until the placeholder file is created and shown.
+- `T028b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/stability_metric.json
+- `T031b` (rejected 1x): No code files from the `code/` directory were presented, nor any diff, type‑hinted signatures, or a report confirming that every public function now includes type annotations. Without concrete artifacts showing the added type hints, the requirement cannot be verified as satisfied.
 
 ## Required change
 
