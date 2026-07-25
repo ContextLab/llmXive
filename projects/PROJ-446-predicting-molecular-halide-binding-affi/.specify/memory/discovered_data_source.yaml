@@ -1,0 +1,15 @@
+status: none
+intent: halide binding constants NIST Chemistry WebBook PubChem dataset python package
+  dataset
+required_fields:
+- host_smiles
+- halide_identity
+- binding_constant
+- solvent_type
+- source_reference
+- measurement_temperature
+- binding_constant_units
+- host_inchi
+cache_key: a386bb950c819d148a7113aee9da609cacc3fec0fb6ff31bffd6672c80c90339
+searched_at: '2026-07-25T10:41:06.963833+00:00'
+retry_count: 1

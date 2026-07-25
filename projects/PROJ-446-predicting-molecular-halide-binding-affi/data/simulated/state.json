@@ -2,5 +2,7 @@
   "SIMULATED_MODE": true,
   "MODE_HALIDE": "Cl-",
   "generated_count": 100,
-  "timestamp": "2023-10-27 10:00:00"
+  "timestamp": "2023-10-27 10:00:00",
+  "analysis_mode": "single_halide_prediction",
+  "comparative_analysis_aborted": true
 }

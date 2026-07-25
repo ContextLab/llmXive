@@ -1,0 +1,20 @@
+type: object
+properties:
+  host_id:
+    type: string
+  halide:
+    type: string
+  log_k:
+    type: number
+  solvent:
+    type: string
+  charge_density:
+    type: number
+  cavity_volume:
+    type: number
+  smiles:
+    type: string
+required:
+  - host_id
+  - halide
+  - log_k

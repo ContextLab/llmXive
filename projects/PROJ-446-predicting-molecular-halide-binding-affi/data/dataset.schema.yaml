@@ -1,18 +1,37 @@
+# Dataset schema for halide binding affinity data
 type: object
+required:
+  - host_id
+  - smiles
+  - halide
+  - solvent
+  - log_k
+  - charge_density
+  - cavity_volume
 properties:
-  host_smiles:
+  host_id:
     type: string
-  halide_identity:
+    description: Unique identifier for the host molecule
+  smiles:
     type: string
-  affinity_value:
-    type: number
-  unit:
+    description: SMILES string representation of the molecule
+  halide:
     type: string
+    enum:
+      - F-
+      - Cl-
+      - Br-
+      - I-
+    description: Identity of the halide anion
   solvent:
     type: string
-  standardized_logK:
+    description: Solvent used in the experiment
+  log_k:
     type: number
-required:
-- host_smiles
-- halide_identity
-- standardized_logK
+    description: Binding affinity as log K
+  charge_density:
+    type: number
+    description: Calculated charge density descriptor
+  cavity_volume:
+    type: number
+    description: Calculated cavity volume descriptor
