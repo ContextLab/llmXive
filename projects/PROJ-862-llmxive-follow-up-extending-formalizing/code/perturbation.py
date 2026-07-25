@@ -1,10 +1,5 @@
 """
-Perturbation module for injecting Gaussian noise and projecting to valid tokens.
-
-This module implements the logic for:
-1. Adding Gaussian noise to input embeddings.
-2. Projecting the noisy embeddings to the nearest valid token embedding
-   from the model's embedding matrix.
+Perturbation module for noise injection and token projection.
 """
 import torch
 import numpy as np
@@ -13,70 +8,65 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 def inject_and_project(
-    embedding: torch.Tensor,
+    input_embeddings: torch.Tensor,
     sigma: float,
     model_embedding_matrix: torch.Tensor,
-    random_seed: Optional[int] = None
+    padding_mask: Optional[torch.Tensor] = None
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Inject Gaussian noise into embeddings and project to the nearest valid token.
-
+    Inject Gaussian noise and project to nearest valid token.
+    
     Args:
-        embedding (torch.Tensor): Input embeddings of shape [batch_size, hidden_dim].
-        sigma (float): Standard deviation of the Gaussian noise.
-        model_embedding_matrix (torch.Tensor): The model's embedding matrix of shape 
-            [vocab_size, hidden_dim].
-        random_seed (int, optional): Random seed for reproducibility.
-
+        input_embeddings: Tensor of shape (batch_size, seq_len, hidden_dim)
+        sigma: Standard deviation for Gaussian noise
+        model_embedding_matrix: Tensor of shape (vocab_size, hidden_dim)
+        padding_mask: Optional boolean tensor (batch_size, seq_len)
+    
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]: 
-            - perturbed_token_ids: Tensor of shape [batch_size] containing the indices 
-              of the nearest tokens.
-            - perturbed_embeddings: Tensor of shape [batch_size, hidden_dim] containing 
-              the projected embeddings (which are copies of the nearest token embeddings).
-    
-    Raises:
-        ValueError: If sigma is negative or if dimensions mismatch.
+        perturbed_token_ids: Tensor of shape (batch_size, seq_len)
+        perturbed_embeddings: Tensor of shape (batch_size, seq_len, hidden_dim)
     """
-    if sigma < 0:
-        raise ValueError(f"Sigma must be non-negative, got {sigma}")
+    logger.debug(f"Injecting noise with sigma={sigma}")
     
-    if random_seed is not None:
-        torch.manual_seed(random_seed)
-
-    batch_size, hidden_dim = embedding.shape
-    vocab_size, emb_dim = model_embedding_matrix.shape
-
-    if hidden_dim != emb_dim:
-        raise ValueError(
-            f"Embedding dimension mismatch: input {hidden_dim} vs model {emb_dim}"
-        )
-
-    # 1. Inject Gaussian Noise
-    # Generate noise with the same shape and dtype as the embedding
-    noise = torch.randn_like(embedding) * sigma
-    noisy_embedding = embedding + noise
-
-    # 2. Project to Nearest Valid Token
-    # Calculate Euclidean distances between noisy embeddings and all vocab embeddings
-    # Shape: [batch_size, vocab_size]
-    # Using efficient broadcasting: ||a - b||^2 = ||a||^2 - 2a.b + ||b||^2
-    # Or simply torch.cdist for clarity and numerical stability on CPU
-    distances = torch.cdist(noisy_embedding, model_embedding_matrix, p=2)
-
-    # Find the index of the minimum distance for each item in the batch
-    # Shape: [batch_size]
-    perturbed_token_ids = torch.argmin(distances, dim=1)
-
-    # Retrieve the actual embeddings of the nearest tokens
-    # Shape: [batch_size, hidden_dim]
-    perturbed_embeddings = model_embedding_matrix[perturbed_token_ids]
-
-    logger.debug(
-        f"Injected noise (sigma={sigma}) and projected {batch_size} embeddings. "
-        f"Unique tokens selected: {len(torch.unique(perturbed_token_ids))}"
+    device = input_embeddings.device
+    batch_size, seq_len, hidden_dim = input_embeddings.shape
+    
+    # 1. Generate noise
+    noise = torch.randn_like(input_embeddings) * sigma
+    
+    # 2. Add noise
+    perturbed_embeddings = input_embeddings + noise
+    
+    # 3. Project to nearest valid token
+    # Flatten for efficient computation
+    flat_embeddings = perturbed_embeddings.view(-1, hidden_dim)
+    
+    # Compute distances to all vocab tokens
+    # ||x - e||^2 = ||x||^2 + ||e||^2 - 2<x,e>
+    x_norm_sq = torch.sum(flat_embeddings ** 2, dim=1, keepdim=True)
+    e_norm_sq = torch.sum(model_embedding_matrix ** 2, dim=1, keepdim=True)
+    dot_products = torch.matmul(flat_embeddings, model_embedding_matrix.t())
+    
+    distances = x_norm_sq + e_norm_sq.t() - 2 * dot_products
+    distances = torch.clamp(distances, min=0.0)
+    
+    # Find nearest
+    nearest_indices = torch.argmin(distances, dim=1)
+    
+    # Reshape
+    perturbed_token_ids = nearest_indices.view(batch_size, seq_len)
+    
+    # Retrieve embeddings
+    perturbed_embeddings = model_embedding_matrix[nearest_indices].view(
+        batch_size, seq_len, hidden_dim
     )
-
+    
+    # Apply mask
+    if padding_mask is not None:
+        valid_mask = ~padding_mask
+        valid_mask_3d = valid_mask.unsqueeze(-1).expand(-1, -1, hidden_dim)
+        perturbed_token_ids = torch.where(valid_mask, perturbed_token_ids, 0)
+        perturbed_embeddings = torch.where(valid_mask_3d, perturbed_embeddings, torch.zeros_like(perturbed_embeddings))
+    
     return perturbed_token_ids, perturbed_embeddings

@@ -1,47 +1,28 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
 title: Reasoning Dataset Schema
-description: |
-  Schema for the input reasoning dataset used in the noise injection pipeline.
-  Derived from BigBench subset or equivalent verified source.
+description: Defines the structure for the input reasoning dataset used in the noise injection pipeline.
 type: object
 required:
+  - pair_id
+  - task_type
   - question
   - expected_answer
-  - task_type
+  - input_token_ids
 properties:
-  question:
-    type: string
-    description: The raw input question/prompt for the reasoning task.
-    minLength: 1
-  expected_answer:
-    type: string
-    description: The ground truth answer for the question, used for validity checks.
-    minLength: 1
-  task_type:
-    type: string
-    description: Classification of the reasoning task (e.g., 'math', 'logic', 'common_sense').
-    minLength: 1
   pair_id:
     type: integer
-    description: Unique identifier linking baseline and perturbed pairs.
-    minimum: 0
-    nullable: true
-  sigma_value:
-    type: number
-    description: The noise injection magnitude (sigma) applied to this record.
-    minimum: 0
-    nullable: true
-  source_row_id:
-    type: integer
-    description: Original row index from the source dataset for traceability.
-    minimum: 0
-additionalProperties: false
-examples:
-  - question: "If I have 3 apples and buy 2 more, how many do I have?"
-    expected_answer: "5"
-    task_type: "math"
-    pair_id: 101
-    sigma_value: 0.5
-    source_row_id: 42
+    description: Unique identifier for the question pair.
+  task_type:
+    type: string
+    description: The category or type of the reasoning task (e.g., 'math', 'logic', 'commonsense').
+  question:
+    type: string
+    description: The raw text of the input question.
+  expected_answer:
+    type: string
+    description: The ground truth answer for validation purposes.
+  input_token_ids:
+    type: array
+    items:
+      type: integer
+    description: List of token IDs representing the tokenized question.

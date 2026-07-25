@@ -1,59 +1,26 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
 title: Latent Vector Schema
-description: |
-  Schema for extracted latent vectors (hidden states) from the transformer model.
-  Includes baseline and perturbed vectors.
+description: Defines the structure for extracted latent vectors (hidden states) from the model.
 type: object
 required:
   - pair_id
-  - vector_type
-  - vector_data
-  - model_hidden_size
-  - is_normalized
+  - task_type
+  - vector_base64
+  - norm_status
 properties:
   pair_id:
     type: integer
-    description: The unique identifier linking this vector to its question pair.
-    minimum: 0
-  vector_type:
-    type: string
-    description: Type of vector: 'baseline' or 'perturbed'.
-    enum:
-      - baseline
-      - perturbed
-  sigma_value:
-    type: number
-    description: Noise magnitude if vector_type is 'perturbed'.
-    minimum: 0
-    nullable: true
-  vector_data:
-    type: array
-    description: The raw float values of the hidden state vector.
-    items:
-      type: number
-    minItems: 1
-  model_hidden_size:
-    type: integer
-    description: Expected dimensionality of the vector (e.g., 4096 for Llama-7B).
-    minimum: 1
-  is_normalized:
-    type: boolean
-    description: True if the vector has been L2-normalized to unit length.
+    description: Unique identifier linking back to the original dataset entry.
   task_type:
     type: string
-    description: The task type associated with this vector.
-  extraction_step:
-    type: integer
-    description: The token position or step where the hidden state was extracted.
-    minimum: 0
-additionalProperties: false
-examples:
-  - pair_id: 101
-    vector_type: "baseline"
-    vector_data: [0.012, -0.45, 0.99, ...]
-    model_hidden_size: 4096
-    is_normalized: true
-    task_type: "math"
-    extraction_step: 15
+    description: The category of the reasoning task.
+  vector_base64:
+    type: string
+    description: The L2-normalized hidden state vector encoded as a base64 string.
+  norm_status:
+    type: string
+    description: Status of the normalization process (e.g., 'normalized', 'error', 'skipped').
+    enum:
+      - normalized
+      - error
+      - skipped

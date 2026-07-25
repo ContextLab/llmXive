@@ -55,14 +55,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [ ] T010 [ ] Create data schema contracts in `specs/001-lm-axive-noise-injection/contracts/`: Create four YAML files defining the exact structure for all data artifacts.
+ - `dataset.schema.yaml`: Fields `pair_id`, `task_type`, `question`, `expected_answer`, `input_token_ids`.
+ - `latent-vector.schema.yaml`: Fields `pair_id`, `task_type`, `vector_base64` (L2 normalized), `norm_status`.
+ - `statistical-result.schema.yaml`: Fields `task_type`, `sigma`, `p_value`, `mean_diff`, `ci_lower`, `ci_upper`, `test_type` (t-test/Wilcoxon), `validity_collapse_point`.
+ - `validity-log.schema.yaml`: Fields `task_type`, `sigma`, `pass_rate`, `collapse_point` (boolean), `semantic_drift_score`, `output_validity_score`.
 - [X] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest)
 - [X] T005 [P] Setup virtual environment instructions in `docs/` (or `code/scripts/setup.sh`)
-- [X] T006 [P] Implement `code/data_loader.py` to fetch the reasoning dataset (BigBench subset) from a verified URL/HF dataset, ensuring `expected_answer` column exists, and **raise ConfigurationError and halt** if missing (NO synthetic fallback)
+- [X] T006 [P] Implement `code/data_loader.py` to fetch the reasoning dataset (`bigbench_lite`) from a verified HuggingFace URL, ensuring `expected_answer` column exists, and **raise ConfigurationError and halt** if missing (NO synthetic fallback)
 - [X] T007 [P] Implement `code/model_utils.py` to load the frozen transformer model (Llama or distilled variant) in CPU-only mode with `torch.no_grad()` and `model.eval()`
 - [X] T008 [P] Implement `code/streaming_utils.py` to provide chunked/batched iteration over large datasets to respect the available RAM limit
-- [X] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition; raise `MemoryLimitExceeded` if the threshold is breached during execution (SC-004)
-- [X] T009 [P] Implement `code/config.py` to define noise sweep parameters ($\sigma \in [\text{low}, \text{high}]$), model paths, random seeds, and memory limits
-- [ ] T010 [P] Create data schema contracts in `specs/001-lm-axive-noise-injection/contracts/` (dataset.schema.yaml, latent-vector.schema.yaml, statistical-result.schema.yaml, validity-log.schema.yaml)
+- [ ] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition; raise `MemoryLimitExceeded` if the threshold is breached during execution (SC-004). **MUST log the peak RSS value to `data/processed/memory_profile.json` even if the limit is not breached.**
+- [X] T009 [P] Implement `code/config.py` to define noise sweep parameters: Create a `NoiseConfig` dataclass with fields `sigma_min`, `sigma_max`, `step`, model paths, random seeds, and memory limits
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,11 +87,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data_loader.py` function to pair questions by task type and assign unique `PairID`s (output: `data/processed/pairing_config.json`)
-- [X] T014 [US1] Implement `code/model_utils.py` function `extract_thought_vector(model, input_ids, thought_token_pos)` to return the hidden state vector
-- [ ] T015 [US1] Implement `code/main.py` baseline extraction loop: Load data -> Extract vectors -> Normalize to unit length -> Save to `data/processed/baseline_vectors.csv`
-- [ ] T016 [US1] Add validation to ensure output vectors match model hidden dimension and are L2-normalized
-- [ ] T017 [US1] Add logging for baseline extraction progress and memory usage
+- [X] T013 [US1] Extend `code/data_loader.py` to pair questions by task type and assign unique `PairID`s (output: `data/processed/pairing_config.json`)
+- [X] T014 [US1] Extend `code/model_utils.py` with function `extract_thought_vector(model, input_ids, thought_token_pos)` to return the hidden state vector
+- [ ] T015 [US1] Implement `code/main.py` baseline extraction loop: Load data -> Extract vectors -> **Save to `data/processed/baseline_vectors.csv`** with columns `pair_id`, `task_type`, `vector_base64` (L2 normalized, base64 encoded string), `norm_status`. **Include validation that raises ValueError if dimensions mismatch model hidden size, and log progress/peak RSS via tracemalloc.**
+- [X] T016 [US1] Implement `code/model_utils.py` function `normalize_vector(vector)`: Explicitly handle L2 normalization logic, ensuring unit length, and return the normalized vector. This task isolates the normalization logic previously merged into T015 to ensure distinct testing and verification.
+- [X] T017 [US1] Add logging for baseline extraction progress and memory usage (Logic merged into T015)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,12 +111,12 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/perturbation.py` function `inject_and_project(embedding, sigma, model_embedding_matrix)` that adds Gaussian noise and **projects to nearest valid token by minimizing Euclidean distance against model.embedding_matrix**, returning `perturbed_token_ids` and `perturbed_embeddings`
-- [ ] T021 [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input, sbert_model)` using `sentence-transformers/all-MiniLM-L6-v2` (threshold ≥ 0.95); **explicitly exclude pairs failing this check (cosine similarity < 0.95) from the dataset immediately** and save the filtered pair set to `data/processed/filtered_pairs_input_drift.csv` (FR-009)
+- [ ] T021 [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input)` using `sentence-transformers/all-MiniLM-L6-v2`. **Define `GLOBAL_SBERT` as a module-level lazy-loaded singleton.** **Exclude pairs with cosine similarity < 0.95** and **MUST explicitly exclude these pairs from downstream statistical analysis**. Save the filtered set to `data/processed/filtered_pairs_input_drift.csv` with columns: `PairID`, `baseline_embedding_hash`, `perturbed_embedding_hash`, `drift_score`, `pass/fail`. **Depends on `data/processed/baseline_vectors.csv` from T015.** (FR-009).
 - [X] T022 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline); **if the dataset lacks an `expected_answer` column, raise a ConfigurationError and halt** (FR-006)
 - [X] T023 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$
-- [X] T024 [US2] Implement `code/main.py` perturbation sweep loop: Iterate $\sigma$ across a range of small positive values. -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **Call check_validity_collapse; if true: record validity collapse point (sigma, pass-rate) for THIS TASK TYPE to validity_log.csv and break ONLY the sigma-loop for this task type, then continue to the next task type** -> Save results (FR-003, FR-011)
+- [ ] T024a [US2] Implement `code/main.py` perturbation sweep loop logic: Iterate $\sigma$ across a range of small positive values. -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **MUST record validity collapse point (task_type, sigma, pass_rate) to `data/processed/validity_log.csv` (schema: task_type, sigma, pass_rate, collapse_point) IMMEDIATELY upon detection and BEFORE breaking the sigma-loop for this task type** -> Save results (FR-003, FR-011). **Depends on `data/processed/baseline_vectors.csv` from T015.**
 - [X] T025 [US2] Save perturbed vectors and metadata to `data/processed/perturbed_vectors.csv` linked by `PairID` and `sigma`
-- [ ] T026 [US2] Add logging for sweep progress and memory usage
+- [ ] T026 [US2] Implement logging for sweep progress: **MUST write to `logs/sweep.log` in JSON lines format** with fields: `current_sigma`, `pairs_processed`, `current_rss`, `status`. (FR-011).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,18 +136,17 @@
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement `code/analysis.py` function `calculate_pairwise_cosine_similarity(vectors, pair_ids)` to generate similarity distributions for baseline and perturbed sets
-- [X] T030 [US3] Implement `code/analysis.py` function `run_hypothesis_test(baseline_sims, perturbed_sims)` that:
- - Filters pairs based on `data/processed/validity_log.csv` (passed both input drift and output validity)
- - Checks normality (Shapiro-Wilk) and sample size (n ≥ 30)
- - Selects Paired t-test or Wilcoxon signed-rank test
- - Applies family-wise error correction (Bonferroni or Holm)
- - **Generates sensitivity report for full range of valid sigma values**
- - **Explicitly calculates and reports the 'validity collapse point' distribution across all task types (FR-003)**
- - **Explicitly generates the trade-off curve (perturbation magnitude vs. semantic validity pass-rate) if no valid $\sigma$ exists (FR-007, SC-002)**
- - Saves to `data/processed/sensitivity_report.json`
-- [ ] T031 [US3] Implement `code/main.py` analysis orchestration: Load filtered vectors -> Run tests -> Generate sensitivity report -> Save to `data/processed/statistical_results.json`
+- [X] T030 [US3] Implement `code/analysis.py` function `generate_per_task_trade_off(task_results)`:
+ - **Consume `data/processed/validity_log.csv`** to filter pairs (FR-009, FR-011).
+ - Calculate the trade-off curve (perturbation magnitude vs. semantic validity pass-rate) for EACH task type.
+ - **Save per-task trade-off curves to `data/processed/trade_off_curve.csv`** (FR-007, SC-002).
+ - **Depends on `data/processed/validity_log.csv` from T024a.**
+- [X] T030b [US3] Implement `code/analysis.py` function `aggregate_global_results(task_results)`:
+ - Aggregate per-task trade-off curves and validity collapse points into a global distribution.
+ - **Save global distribution to `data/processed/global_trade_off_curve.csv`**.
+ - **Generate `data/processed/sensitivity_report.json`** containing the global distribution and validity collapse point distribution (SC-006).
+- [ ] T031 [US3] Implement `code/main.py` analysis orchestration: Load filtered vectors -> Run tests -> **Apply Bonferroni or Holm family-wise error correction to all resulting p-values across all task types as a distinct step** -> Generate sensitivity report -> Save to `data/processed/statistical_results.json` with keys: `p_value`, `mean_diff`, `ci`, `validity_collapse_distribution`, `trade_off_curve` (FR-005).
 - [ ] T032 [US3] Implement logic to flag "Significant Separability Increase" if corrected p-value < 0.05
-- [ ] T033 [US3] Generate a trade-off curve report (perturbation magnitude vs semantic validity pass-rate) if no valid $\sigma$ is found (fallback)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,12 +156,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` including `quickstart.md` with exact run commands for CPU-only execution
+- [X] T034 [P] Documentation updates in `docs/` including **create `docs/quickstart.md`** with exact run commands for CPU-only execution
 - [ ] T035 Code cleanup and refactoring of `main.py` for clarity
-- [ ] T036 Performance optimization for the perturbation sweep loop (vectorized operations where possible)
-- [ ] T037 [P] Additional unit tests for edge cases (e.g., normality violation, no valid sigma) in `tests/unit/`
-- [ ] T038 Security hardening: Ensure no PII leaks in logs or output files
-- [ ] T039 Run `quickstart.md` validation to verify end-to-end execution on a small subset
+- [~] T036 Performance optimization for the perturbation sweep loop (vectorized operations where possible)
+- [~] T037 [P] Additional unit tests for edge cases (e.g., normality violation, no valid sigma) in `tests/unit/`
+- [~] T038 Security hardening: Ensure no PII leaks in logs or output files
+- [X] T039 [P] Run `docs/quickstart.md` validation to verify end-to-end execution on a small subset
 
 ---
 

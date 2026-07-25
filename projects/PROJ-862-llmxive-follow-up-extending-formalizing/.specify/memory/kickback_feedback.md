@@ -4,10 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T015` (rejected 1x): The required output file `data/processed/baseline_vectors.csv` does not exist, so the baseline extraction loop has not produced the expected CSV. Consequently the task’s core requirement is unmet.
-- `T016` (rejected 1x): No code, tests, or documentation were provided that adds validation to ensure output vectors match the model’s hidden dimension and are L2‑normalized. The claim lacks any artifact (e.g., a function, unit test, or example output) demonstrating the required checks, so the task is not satisfied.
-- `T017` (rejected 1x): No code, configuration, or log files were provided showing that progress or memory‑usage logging was added to the baseline extraction pipeline. Without any artifact demonstrating new logging statements or generated logs, the requirement cannot be verified as met.
+- `T021` (rejected 1x): The repository lacks the required data files (`data/processed/baseline_vectors.csv` and the output `filtered_pairs_input_drift.csv`). The provided `check_input_drift` function is incomplete (truncated), has a different signature than specified, and does not demonstrate saving the filtered pairs to the CSV with the exact column names. Additionally, the singleton is named `_GLOBAL_SBERT` instead of the required `GLOBAL_SBERT`. These missing/incorrect elements must be added for the task to be considered complete.
+- `T026` (rejected 1x): No code, configuration, or log files were provided that implement “Add logging for sweep progress and memory usage.” The evidence contains only a feature specification unrelated to logging, and there are no artifacts showing the required logging functionality. The task therefore remains unfinished.
 
 ## Required change
 

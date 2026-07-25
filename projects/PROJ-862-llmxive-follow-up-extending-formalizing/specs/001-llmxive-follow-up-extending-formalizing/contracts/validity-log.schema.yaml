@@ -1,81 +1,30 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
 title: Validity Log Schema
-description: |
-  Schema for logging validity checks (input drift, output validity) and collapse points.
+description: Defines the structure for logging the validity of perturbed inputs and outputs during the sweep.
 type: object
 required:
-  - pair_id
   - task_type
-  - sigma_value
-  - checks
+  - sigma
+  - pass_rate
+  - collapse_point
+  - semantic_drift_score
+  - output_validity_score
 properties:
-  pair_id:
-    type: integer
-    description: The unique identifier for the question pair.
-    minimum: 0
   task_type:
     type: string
-    description: The task type of the pair.
-  sigma_value:
+    description: The category of the reasoning task.
+  sigma:
     type: number
-    description: The noise magnitude applied.
-    minimum: 0
-  checks:
-    type: object
-    description: Results of individual validity checks.
-    properties:
-      input_drift:
-        type: object
-        properties:
-          passed:
-            type: boolean
-          score:
-            type: number
-            description: Cosine similarity score from SBERT.
-          threshold:
-            type: number
-      output_validity:
-        type: object
-        properties:
-          passed:
-            type: boolean
-          bert_score_f1:
-            type: number
-          perplexity_ratio:
-            type: number
-          threshold_f1:
-            type: number
-          threshold_perplexity:
-            type: number
-      overall_passed:
-        type: boolean
-        description: True if all individual checks passed.
-  failure_reasons:
-    type: array
-    description: List of strings explaining why checks failed.
-    items:
-      type: string
-  timestamp:
-    type: string
-    format: date-time
-additionalProperties: false
-examples:
-  - pair_id: 101
-    task_type: "math"
-    sigma_value: 0.5
-    checks:
-      input_drift:
-        passed: true
-        score: 0.98
-        threshold: 0.95
-      output_validity:
-        passed: true
-        bert_score_f1: 0.92
-        perplexity_ratio: 1.1
-        threshold_f1: 0.85
-        threshold_perplexity: 2.0
-      overall_passed: true
-    failure_reasons: []
-    timestamp: "2023-10-27T10:00:00Z"
+    description: The standard deviation of the Gaussian noise injected.
+  pass_rate:
+    type: number
+    description: The proportion of pairs that passed validity checks (0.0 to 1.0).
+  collapse_point:
+    type: boolean
+    description: True if the pass_rate dropped below the threshold (indicating collapse).
+  semantic_drift_score:
+    type: number
+    description: The average cosine similarity score between baseline and perturbed input embeddings.
+  output_validity_score:
+    type: number
+    description: The average BERTScore F1 or perplexity-based validity score of the model outputs.

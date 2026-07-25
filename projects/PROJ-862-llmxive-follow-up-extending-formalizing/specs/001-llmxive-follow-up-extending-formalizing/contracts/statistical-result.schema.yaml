@@ -1,94 +1,41 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
-title: Statistical Analysis Result Schema
-description: |
-  Schema for the output of the statistical separability analysis.
-  Contains hypothesis test results and sensitivity reports.
+title: Statistical Result Schema
+description: Defines the structure for statistical hypothesis testing results comparing baseline and perturbed vectors.
 type: object
 required:
-  - analysis_id
-  - test_type
+  - task_type
+  - sigma
   - p_value
-  - corrected_p_value
-  - significance_level
-  - conclusion
-  - sample_sizes
+  - mean_diff
+  - ci_lower
+  - ci_upper
+  - test_type
+  - validity_collapse_point
 properties:
-  analysis_id:
-    type: string
-    description: Unique identifier for this analysis run.
   task_type:
     type: string
-    description: The specific task type analyzed.
+    description: The category of the reasoning task being analyzed.
+  sigma:
+    type: number
+    description: The standard deviation of the Gaussian noise injected.
+  p_value:
+    type: number
+    description: The p-value resulting from the statistical test.
+  mean_diff:
+    type: number
+    description: The mean difference in cosine similarity or distance between groups.
+  ci_lower:
+    type: number
+    description: The lower bound of the confidence interval for the mean difference.
+  ci_upper:
+    type: number
+    description: The upper bound of the confidence interval for the mean difference.
   test_type:
     type: string
-    description: The statistical test used (e.g., 'paired_t_test', 'wilcoxon_signed_rank').
+    description: The statistical test used (e.g., 't-test', 'Wilcoxon').
     enum:
-      - paired_t_test
-      - wilcoxon_signed_rank
-      - mann_whitney_u
-  normality_check:
-    type: object
-    properties:
-      method:
-        type: string
-        enum: [shapiro_wilk, kolmogorov_smirnov]
-      p_value:
-        type: number
-      is_normal:
-        type: boolean
-  sample_sizes:
-    type: object
-    properties:
-      baseline_n:
-        type: integer
-        minimum: 1
-      perturbed_n:
-        type: integer
-        minimum: 1
-  test_statistics:
-    type: object
-    properties:
-      statistic:
-        type: number
-      p_value:
-        type: number
-  corrected_p_value:
-    type: number
-    description: P-value after family-wise error rate correction (Bonferroni/Holm).
-    minimum: 0
-    maximum: 1
-  significance_level:
-    type: number
-    description: The alpha threshold used for significance (e.g., 0.05).
-    minimum: 0
-    maximum: 1
-  conclusion:
-    type: string
-    description: Human-readable conclusion of the test.
-  separability_increase:
+      - t-test
+      - Wilcoxon
+  validity_collapse_point:
     type: boolean
-    description: True if the test indicates a significant increase in separability.
-  sensitivity_report:
-    type: object
-    description: Report on validity collapse points and trade-off curves.
-    properties:
-      validity_collapse_point:
-        type: number
-        description: The sigma value where validity dropped below threshold.
-        nullable: true
-      trade_off_curve:
-        type: array
-        description: List of {sigma, pass_rate} points.
-        items:
-          type: object
-          properties:
-            sigma:
-              type: number
-            pass_rate:
-              type: number
-  timestamp:
-    type: string
-    format: date-time
-additionalProperties: false
+    description: Indicates if this sigma level represents a point where validity collapsed (>90% failure).

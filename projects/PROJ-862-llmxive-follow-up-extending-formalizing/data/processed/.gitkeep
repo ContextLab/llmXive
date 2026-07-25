@@ -1,3 +1,2 @@
-# This directory stores processed data artifacts.
-# Created by T002.
-.gitkeep
+# This directory contains processed data artifacts.
+# Baseline vectors will be generated here by code/main.py.

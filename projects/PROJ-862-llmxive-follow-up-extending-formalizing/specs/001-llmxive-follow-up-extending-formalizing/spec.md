@@ -24,7 +24,7 @@
 
 ### User Story 2 - Noise-Augmented Perturbation & Re-Extraction (Priority: P2)
 
-**Journey**: The researcher applies controlled perturbations to the input embeddings of the same questions and re-runs the model to extract the perturbed latent vectors. This tests the hypothesis that input manifold smoothness is the cause of the collapse. The system must execute a sweep of noise thresholds ($\sigma \in [, 0.20]$ with step 0.01) and verify that each perturbation preserves semantic validity using an independent metric before proceeding.
+**Journey**: The researcher applies controlled perturbations to the input embeddings of the same questions and re-runs the model to extract the perturbed latent vectors. This tests the hypothesis that input manifold smoothness is the cause of the collapse. The system must execute a sweep of noise thresholds across a relevant range with a fine-grained step size. and verify that each perturbation preserves semantic validity using an independent metric before proceeding.
 
 **Why this priority**: This is the core experimental intervention. It directly addresses the research question by introducing the independent variable (noise sweep) to observe the dependent variable (separability change), while ensuring the change is not an artifact of model failure via independent validation.
 
@@ -64,7 +64,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load a frozen transformer model (e.g., Llama-8B or distilled variant) in CPU-only mode without requiring CUDA or GPU accelerators. (See US-1)
+- **FR-001**: System MUST load a frozen transformer model (e.g., Llama or distilled variant) in CPU-only mode without requiring CUDA or GPU accelerators. (See US-1)
 - **FR-002**: System MUST extract the hidden state vector at the designated "thought" token for every input question in the dataset. (See US-1)
 - **FR-003**: System MUST inject perturbations ($\sigma$) directly into the input token embeddings before forward pass using the following algorithm: (1) Add Gaussian noise $N(0, \sigma^2)$ to the continuous input embedding vector, (2) Project the noisy vector to the nearest valid token embedding in the model's vocabulary (minimizing Euclidean distance), (3) Use the corresponding token ID for the forward pass. The system MUST execute a linear sweep of perturbation magnitudes $\sigma$ across a defined range in fixed increments. If >90% of pairs fail the semantic validity check at a specific $\sigma$, the system MUST record this as the 'validity collapse point' for that task type and exclude that $\sigma$ (and all higher values) from the final statistical analysis. (See US-2)
 - **FR-004**: System MUST calculate the pairwise cosine similarity between the latent vectors of distinct questions within the same task type for both baseline and perturbed conditions. (See US-3)
@@ -100,7 +100,7 @@
 ## Assumptions
 
 - **Dataset Availability**: The "23 reasoning tasks" dataset or a publicly available equivalent (e.g., BigBench subset) is accessible and contains the specific "within-task" question pairs previously identified as failing the Separability axiom, along with a **ground truth answer key** (column `expected_answer`) for semantic validity checks.
-- **Model Compatibility**: A small, open-weight model (e.g., Llama-3-8B or a distilled variant) is available in a format compatible with CPU-only inference via `transformers` without requiring 8-bit quantization or GPU-specific kernels.
+- **Model Compatibility**: A small, open-weight model (e.g., Llama-8B or a distilled variant) is available in a format compatible with CPU-only inference via `transformers` without requiring 8-bit quantization or GPU-specific kernels.
 - **Perturbation Validity**: The existence of a "sweet spot" for $\sigma$ is NOT assumed. The system MUST empirically measure and report the trade-off curve between perturbation magnitude and semantic validity (as mandated by FR-007) to verify if a range of $\sigma$ exists where the input perturbation alters the latent manifold while preserving semantic meaning.
 - **Input vs Output Validity**: The SBERT check (FR-009) validates the *input* perturbation (ensuring it is a valid semantic neighbor), while the BERTScore check (FR-006) validates the *output* (ensuring the task capability is preserved). These are distinct and necessary to avoid circular validation: the input check ensures the perturbation is "small" in semantic space, the output check ensures the model didn't "break" the task, and the latent check measures the effect of the input perturbation on the representation.
 - **Inference Cost**: The total number of question pairs is small enough that the cumulative forward pass time for both baseline and perturbed conditions fits within the CI job limit on a 2-core runner.
