@@ -1,140 +1,146 @@
-schema_version: "1.0.0"
+%YAML 1.2
+---
+# Dataset Schema for Simulated DFT Data (MolSpectra)
+# Used for training and validation of reaction yield/energy prediction models.
+# Target variable: normalized DFT total molecular energy.
+
+version: "1.0.0"
 description: >
-  Schema for the reaction dataset used in the DFT energy prediction pipeline.
-  This schema defines the structure for raw, processed, and split dataset files.
-  Note: The target variable is 'normalized_dft_total_molecular_energy' per the project pivot.
+  Schema defining the structure of the raw and processed dataset files
+  used by the data ingestion and preprocessing pipeline.
 
-dataset:
-  type: object
-  required:
-    - metadata
-    - samples
+fields:
+  - name: reaction_id
+    type: string
+    description: Unique identifier for the reaction instance.
+    required: true
+    pattern: "^RXN-[0-9]{6}$"
 
-  properties:
-    metadata:
-      type: object
-      required:
-        - source
-        - timestamp
-        - version
-        - checksum
-        - split_info
-      properties:
-        source:
-          type: string
-          description: "Origin of the data (e.g., 'MolSpectra', 'NIST', 'Simulated')"
-        timestamp:
-          type: string
-          format: date-time
-          description: "ISO 8601 timestamp of data generation/loading"
-        version:
-          type: string
-          description: "Schema version or dataset version"
-        checksum:
-          type: string
-          description: "SHA256 hash of the dataset file"
-        split_info:
-          type: object
-          description: "Information about the train/val/test split"
-          properties:
-            train_count:
-              type: integer
-              minimum: 0
-            val_count:
-              type: integer
-              minimum: 0
-            test_count:
-              type: integer
-              minimum: 0
-            scaffold_overlap_check:
-              type: boolean
-              description: "True if scaffold overlap was verified as zero"
+  - name: reactant_smiles
+    type: string
+    description: SMILES string of the reactants.
+    required: true
 
-    samples:
-      type: array
-      description: "List of reaction samples"
-      items:
-        type: object
-        required:
-          - sample_id
-          - reaction_smiles
-          - ir_spectrum
-          - raman_spectrum
-          - nmr_spectrum
-          - reaction_conditions
-          - fingerprint
-          - target_energy
-          - scaffold
-        properties:
-          sample_id:
-            type: string
-            description: "Unique identifier for the sample"
-          reaction_smiles:
-            type: string
-            description: "SMILES string of the reaction"
-          ir_spectrum:
-            type: object
-            description: "IR spectrum data"
-            properties:
-              wavenumbers:
-                type: array
-                items:
-                  type: number
-                description: "Wavenumbers in cm^-1"
-              intensities:
-                type: array
-                items:
-                  type: number
-                description: "Normalized intensities"
-          raman_spectrum:
-            type: object
-            description: "Raman spectrum data"
-            properties:
-              wavenumbers:
-                type: array
-                items:
-                  type: number
-              intensities:
-                type: array
-                items:
-                  type: number
-          nmr_spectrum:
-            type: object
-            description: "NMR spectrum data"
-            properties:
-              ppm:
-                type: array
-                items:
-                  type: number
-                description: "Chemical shifts in ppm"
-              intensities:
-                type: array
-                items:
-                  type: number
-          reaction_conditions:
-            type: object
-            description: "Encoded reaction conditions"
-            properties:
-              solvent:
-                type: string
-                description: "Solvent identifier (one-hot encoded index or name)"
-              catalyst:
-                type: string
-                description: "Catalyst identifier"
-              temperature:
-                type: number
-                description: "Temperature in Kelvin"
-              # Additional condition embeddings may be added here
-          fingerprint:
-            type: array
-            items:
-              type: integer
-              minimum: 0
-              maximum: 1
-            description: "ECFP4 fingerprint vector (binary)"
-          target_energy:
-            type: number
-            description: "Normalized DFT total molecular energy (eV or Ha)"
-          scaffold:
-            type: string
-            description: "Molecular scaffold string for splitting logic"
+  - name: product_smiles
+    type: string
+    description: SMILES string of the product.
+    required: true
+
+  - name: reaction_smiles
+    type: string
+    description: Full reaction SMILES (Reactants >> Product).
+    required: true
+
+  - name: ir_spectrum_wavenumbers
+    type: array
+    item_type: float
+    description: Wavenumber axis for IR spectrum (cm⁻¹).
+    required: true
+    min_items: 100
+    max_items: 5000
+
+  - name: ir_spectrum_intensity
+    type: array
+    item_type: float
+    description: IR intensity values corresponding to wavenumbers.
+    required: true
+    min_items: 100
+    max_items: 5000
+
+  - name: raman_spectrum_wavenumbers
+    type: array
+    item_type: float
+    description: Wavenumber axis for Raman spectrum (cm⁻¹).
+    required: false
+    nullable: true
+
+  - name: raman_spectrum_intensity
+    type: array
+    item_type: float
+    description: Raman intensity values.
+    required: false
+    nullable: true
+
+  - name: nmr_chemical_shifts
+    type: array
+    item_type: float
+    description: NMR chemical shift axis (ppm).
+    required: false
+    nullable: true
+
+  - name: nmr_intensity
+    type: array
+    item_type: float
+    description: NMR intensity values.
+    required: false
+    nullable: true
+
+  - name: solvent
+    type: string
+    description: Solvent used in the reaction.
+    required: true
+    enum:
+      - DCM
+      - THF
+      - Toluene
+      - Methanol
+      - Water
+      - Acetonitrile
+      - DMF
+      - None
+
+  - name: catalyst
+    type: string
+    description: Catalyst used (or 'None').
+    required: true
+
+  - name: temperature_celsius
+    type: number
+    description: Reaction temperature in Celsius.
+    required: true
+    minimum: -273.15
+    maximum: 1000.0
+
+  - name: reaction_time_hours
+    type: number
+    description: Duration of the reaction in hours.
+    required: true
+    minimum: 0.0
+
+  - name: ecfp4_fingerprint
+    type: array
+    item_type: integer
+    description: ECFP4 fingerprint vector (binary).
+    required: true
+    min_items: 1024
+    max_items: 2048
+
+  - name: dft_total_energy
+    type: number
+    description: Raw DFT total molecular energy (Hartree).
+    required: true
+
+  - name: normalized_energy
+    type: number
+    description: Normalized DFT total molecular energy (target variable).
+    required: true
+
+  - name: reaction_template
+    type: string
+    description: Reaction template SMILES pattern extracted from the center.
+    required: true
+
+  - name: split
+    type: string
+    description: Dataset split assignment.
+    required: true
+    enum:
+      - train
+      - val
+      - test
+
+constraints:
+  - description: "Spectral arrays must have matching lengths."
+    condition: "len(ir_spectrum_wavenumbers) == len(ir_spectrum_intensity)"
+  - description: "Normalized energy must be within a reasonable statistical range."
+    condition: "-10.0 <= normalized_energy <= 10.0"

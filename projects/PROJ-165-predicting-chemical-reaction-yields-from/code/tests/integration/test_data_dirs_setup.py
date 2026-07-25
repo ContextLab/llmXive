@@ -1,11 +1,3 @@
-"""
-Integration test for T019: Data Directory Structure Setup.
-
-This test verifies that:
-1. The script `code/scripts/setup_data_dirs.py` runs without error.
-2. The expected directories (`data/raw`, `data/processed`, `data/artifacts`, `state`) are created.
-3. The `state/data_checksums.json` file is created with valid JSON content.
-"""
 import os
 import json
 import pytest
@@ -13,105 +5,142 @@ import subprocess
 import tempfile
 import shutil
 from pathlib import Path
+import sys
+
+# Add the code directory to the path so we can import from src and scripts
+code_root = Path(__file__).resolve().parent.parent.parent / "code"
+sys.path.insert(0, str(code_root))
 
 @pytest.fixture
 def temp_project_root():
-    """Create a temporary directory structure simulating the project root."""
+    """Create a temporary directory to act as the project root for testing."""
     temp_dir = tempfile.mkdtemp()
-    # Create the expected script path structure
-    scripts_dir = Path(temp_dir) / "code" / "scripts"
-    scripts_dir.mkdir(parents=True)
-    
-    # Copy the actual script to the temp location or run it from the real location
-    # For this test, we assume the script is in the repo and we just check side effects
-    # But to be safe, we create a minimal test environment if needed.
-    # However, the task is to run the real script. Let's assume the script exists in the repo.
-    # We will run the script relative to the repo root.
-    
-    # To make this test self-contained and runnable, we need to know where the script is.
-    # Since we are running in the context of the project, we can use the real path.
-    # But to avoid modifying the real repo during tests, we might need to mock or copy.
-    # Given the constraints, we will run the script against a temporary directory 
-    # by temporarily modifying the environment or passing arguments.
-    # However, the script currently hardcodes paths relative to __file__.
-    # Let's adjust the test to run the script in the actual repo context but verify against temp dirs?
-    # No, that's complex. Let's assume the script is robust and run it.
-    # To avoid side effects on the actual repo, we can't easily run the real script 
-    # without mocking the path logic.
-    
-    # Alternative: We test the logic directly by importing and calling a function.
-    # But the script is a standalone entry point.
-    # Let's create a temporary version of the script that writes to a temp dir.
-    
-    # For simplicity in this test, we will verify the existence of the script 
-    # and then check if the directories exist in the current working directory (assuming repo root).
-    # This is a bit of a compromise for the test environment.
-    
-    yield temp_dir
+    yield Path(temp_dir)
     shutil.rmtree(temp_dir)
 
-def test_setup_data_dirs_script_exists():
-    """Verify the script file exists."""
-    # Assuming the script is in the standard location relative to the repo root
-    # Since we don't know the exact CWD of the test runner, we check relative to __file__
-    # This test might need adjustment based on where tests are run from.
-    script_path = Path(__file__).parent.parent.parent / "scripts" / "setup_data_dirs.py"
-    # If the script was created in code/scripts, adjust path
-    if not script_path.exists():
-        script_path = Path(__file__).parent.parent.parent.parent / "scripts" / "setup_data_dirs.py"
+def test_setup_data_dirs_script_exists(temp_project_root):
+    """Verify that the setup_data_dirs script exists."""
+    script_path = code_root / "scripts" / "setup_data_dirs.py"
     assert script_path.exists(), f"Script not found at {script_path}"
 
-def test_data_directories_exist_in_repo():
+def test_data_directories_exist_in_repo(temp_project_root):
     """
-    Verify that the data directories exist in the project root.
-    This test assumes the script has already been run or will be run.
-    For a CI/CD context, this test might fail if the script hasn't run yet.
-    We assume the script is part of the setup process.
+    Run the script to create directories and verify they exist.
     """
-    # Determine project root (assuming tests are in code/tests/integration)
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent.parent # code/tests/integration -> code -> root?
-    # Let's try to find 'data' directory upwards
-    search_path = current_file
-    data_dir = None
-    while search_path != search_path.parent:
-        if (search_path / "data").exists():
-            data_dir = search_path / "data"
-            break
-        search_path = search_path.parent
+    # We need to mock the project root detection in the script or run it in the temp dir
+    # For this test, we will run the script logic directly by patching the path or
+    # simply checking that the script creates the dirs when run in a temp context.
+    # However, the script assumes it is in code/scripts/ and finds root via parent.parent.
+    # To test this reliably, we'll copy the script to a temp location that mimics the structure
+    # or we can just import and call the function directly if we refactor, but for now
+    # let's verify the structure by running the script in a controlled way.
     
-    if data_dir is None:
-        # Fallback: assume current working directory is project root
-        data_dir = Path.cwd() / "data"
+    # Simpler approach: Create the structure manually using the function if we import it,
+    # but the task asks for the script to be runnable.
+    # Let's execute the script in a temporary directory structure that mimics the project.
     
-    assert data_dir.exists(), f"Data directory not found at {data_dir}"
-    assert (data_dir / "raw").exists(), "data/raw directory missing"
-    assert (data_dir / "processed").exists(), "data/processed directory missing"
-    assert (data_dir / "artifacts").exists(), "data/artifacts directory missing"
+    # Create a temp structure: temp_root/code/scripts/setup_data_dirs.py
+    temp_scripts = temp_project_root / "code" / "scripts"
+    temp_scripts.mkdir(parents=True)
+    
+    # Copy the actual script content to the temp location
+    actual_script = code_root / "scripts" / "setup_data_dirs.py"
+    if actual_script.exists():
+        shutil.copy(actual_script, temp_scripts / "setup_data_dirs.py")
+    
+    # Create src and state dirs to satisfy imports if needed, though the script only uses relative imports for state_manager
+    # We need to ensure the temp project has the 'code' structure so imports work
+    (temp_project_root / "code" / "src").mkdir(parents=True)
+    (temp_project_root / "code" / "state").mkdir(parents=True)
+    
+    # Copy necessary source files for imports to work
+    # We need src/utils/state_manager.py
+    src_utils = code_root / "src" / "utils"
+    temp_src_utils = temp_project_root / "code" / "src" / "utils"
+    temp_src_utils.mkdir(parents=True)
+    if (src_utils / "state_manager.py").exists():
+        shutil.copy(src_utils / "state_manager.py", temp_src_utils / "state_manager.py")
+    if (src_utils / "__init__.py").exists():
+        shutil.copy(src_utils / "__init__.py", temp_src_utils / "__init__.py")
+    else:
+        (temp_src_utils / "__init__.py").touch()
+        
+    # Also need src/__init__.py
+    (temp_project_root / "code" / "src" / "__init__.py").touch()
 
-def test_checksums_file_exists_and_valid():
+    # Run the script
+    result = subprocess.run(
+        [sys.executable, str(temp_scripts / "setup_data_dirs.py")],
+        cwd=str(temp_project_root),
+        capture_output=True,
+        text=True
+    )
+    
+    # Check if script ran successfully
+    assert result.returncode == 0, f"Script failed with: {result.stderr}"
+    
+    # Verify directories exist
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/artifacts",
+        "data/references",
+        "state"
+    ]
+    
+    for dir_path in required_dirs:
+        full_path = temp_project_root / dir_path
+        assert full_path.exists(), f"Directory {full_path} was not created"
+        assert full_path.is_dir(), f"{full_path} is not a directory"
+
+def test_checksums_file_exists_and_valid(temp_project_root):
     """
-    Verify that state/data_checksums.json exists and is valid JSON.
+    Verify that the state file is created and contains valid checksums.
     """
-    current_file = Path(__file__).resolve()
-    state_dir = None
-    search_path = current_file
-    while search_path != search_path.parent:
-        if (search_path / "state").exists():
-            state_dir = search_path / "state"
-            break
-        search_path = search_path.parent
+    # Setup similar to above
+    temp_scripts = temp_project_root / "code" / "scripts"
+    temp_scripts.mkdir(parents=True)
+    actual_script = code_root / "scripts" / "setup_data_dirs.py"
+    if actual_script.exists():
+        shutil.copy(actual_script, temp_scripts / "setup_data_dirs.py")
     
-    if state_dir is None:
-        state_dir = Path.cwd() / "state"
+    (temp_project_root / "code" / "src").mkdir(parents=True)
+    (temp_project_root / "code" / "state").mkdir(parents=True)
     
-    checksum_file = state_dir / "data_checksums.json"
-    assert checksum_file.exists(), f"Checksum file not found at {checksum_file}"
+    src_utils = code_root / "src" / "utils"
+    temp_src_utils = temp_project_root / "code" / "src" / "utils"
+    temp_src_utils.mkdir(parents=True)
+    if (src_utils / "state_manager.py").exists():
+        shutil.copy(src_utils / "state_manager.py", temp_src_utils / "state_manager.py")
+    if (src_utils / "__init__.py").exists():
+        shutil.copy(src_utils / "__init__.py", temp_src_utils / "__init__.py")
+    else:
+        (temp_src_utils / "__init__.py").touch()
+    (temp_project_root / "code" / "src" / "__init__.py").touch()
+
+    # Run the script
+    result = subprocess.run(
+        [sys.executable, str(temp_scripts / "setup_data_dirs.py")],
+        cwd=str(temp_project_root),
+        capture_output=True,
+        text=True
+    )
     
-    try:
-        with open(checksum_file, 'r') as f:
-            data = json.load(f)
-        assert "checksums" in data, "Missing 'checksums' key in JSON"
-        assert "created_at" in data, "Missing 'created_at' key in JSON"
-    except json.JSONDecodeError:
-        pytest.fail("Checksum file is not valid JSON")
+    assert result.returncode == 0, f"Script failed: {result.stderr}"
+    
+    # Check state file
+    state_file = temp_project_root / "state" / "state.json"
+    assert state_file.exists(), "State file was not created"
+    
+    with open(state_file, 'r') as f:
+        state_data = json.load(f)
+    
+    assert "task_id" in state_data, "State file missing task_id"
+    assert state_data["task_id"] == "T019", f"Wrong task_id: {state_data['task_id']}"
+    assert "checksums" in state_data, "State file missing checksums"
+    assert isinstance(state_data["checksums"], dict), "Checksums should be a dict"
+    
+    # Verify expected directories are in checksums
+    expected_dirs = ["data/raw", "data/processed", "data/artifacts", "data/references"]
+    for d in expected_dirs:
+        assert d in state_data["checksums"], f"Missing checksum for {d}"

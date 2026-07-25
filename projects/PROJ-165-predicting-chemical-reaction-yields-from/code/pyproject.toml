@@ -3,10 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-reaction-yield-prediction"
+name = "llmxive-predict-reaction-yields"
 version = "0.1.0"
-description = "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms (Pivot: DFT Energy)"
-readme = "README.md"
+description = "Predicting Normalized DFT Total Molecular Energy from Spectroscopic Data"
 requires-python = ">=3.11"
 dependencies = [
     "torch>=2.0.0",
@@ -17,69 +16,67 @@ dependencies = [
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
     "pyyaml>=6.0",
-    "pytest>=7.3.0",
+    "datasets>=2.14.0",
+    "huggingface_hub>=0.16.0",
+    "pyarrow>=12.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "isort>=5.12.0",
+    "pytest>=7.3.0",
     "pytest-cov>=4.1.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-exclude = ["tests*"]
-
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
     | \.venv
-    | __pycache__
-    | data
-    | state
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
-src = ["code/src", "code/tests"]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "data",
-    "state",
-    "build",
-    "dist",
-]
-
-[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-    "F",   # pyflakes
+    "F",   # Pyflakes
     "I",   # isort
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in ML)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in ML)
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["src", "tests"]
+[tool.ruff.per-file-ignores]
+"code/tests/*" = ["S101"] # Allow asserts in tests
+
+[tool.ruff.isort]
+known-first-party = ["src", "scripts", "tests"]
 force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 pythonpath = ["code"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+]

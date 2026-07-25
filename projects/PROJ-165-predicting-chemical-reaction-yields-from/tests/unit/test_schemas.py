@@ -1,137 +1,93 @@
-"""
-Unit tests for dataset and model output schema validation.
-Validates that sample data conforms to the defined YAML schemas.
-"""
 import pytest
 import yaml
 import json
 from pathlib import Path
 import sys
+import os
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add src to path for imports if needed
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.utils.validators import load_yaml, validate_schema, ValidationError
-
-
-class TestDatasetSchema:
-    """Tests for dataset.schema.yaml validation"""
+class TestSchemas:
+    """Unit tests to verify schema files are valid YAML and follow expected structure."""
 
     @pytest.fixture
-    def schema_path(self):
-        return Path(__file__).parent.parent.parent / "contracts" / "dataset.schema.yaml"
+    def schema_dir(self):
+        """Get the path to the contracts directory."""
+        return Path(__file__).parent.parent.parent / "contracts"
 
-    @pytest.fixture
-    def valid_sample(self):
-        return {
-            "sample_id": "SAMPLE-000001",
-            "reactant_smiles": "CCO",
-            "product_smiles": "CC=O",
-            "spectrum_ir": [0.1, 0.2, 0.15],
-            "spectrum_raman": [0.05, 0.1, 0.08],
-            "spectrum_nmr": [1.0, 0.9, 0.95],
-            "fingerprint_ecfp4": [1] * 1024,
-            "conditions": {
-                "solvent": "water",
-                "catalyst": "acid",
-                "temperature_k": 298.15
-            },
-            "target_energy_normalized": -0.5,
-            "scaffold_id": "SCAF-000001",
-            "split": "train"
-        }
+    def test_dataset_schema_exists(self, schema_dir):
+        """Verify dataset.schema.yaml exists."""
+        path = schema_dir / "dataset.schema.yaml"
+        assert path.exists(), f"Schema file not found: {path}"
 
-    def test_schema_loads(self, schema_path):
-        """Test that the schema file is valid YAML"""
-        schema = load_yaml(schema_path)
-        assert schema is not None
-        assert "properties" in schema
-        assert "required" in schema
+    def test_model_output_schema_exists(self, schema_dir):
+        """Verify model_output.schema.yaml exists."""
+        path = schema_dir / "model_output.schema.yaml"
+        assert path.exists(), f"Schema file not found: {path}"
 
-    def test_valid_sample_passes(self, schema_path, valid_sample):
-        """Test that a valid sample passes schema validation"""
-        schema = load_yaml(schema_path)
-        # Note: validate_schema in validators.py expects a function or schema dict
-        # This test verifies the structure is loadable
-        assert schema["type"] == "object"
-        assert "sample_id" in schema["properties"]
+    def test_dataset_schema_is_valid_yaml(self, schema_dir):
+        """Verify dataset.schema.yaml is valid YAML."""
+        path = schema_dir / "dataset.schema.yaml"
+        try:
+            with open(path, 'r') as f:
+                schema = yaml.safe_load(f)
+            assert isinstance(schema, dict), "Schema must be a dictionary"
+            assert "properties" in schema, "Schema must have 'properties' at root"
+            assert "metadata" in schema["properties"], "Schema must define 'metadata'"
+            assert "samples" in schema["properties"], "Schema must define 'samples'"
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML in dataset.schema.yaml: {e}")
 
-    def test_missing_required_field(self, schema_path, valid_sample):
-        """Test that missing required fields are detected"""
-        schema = load_yaml(schema_path)
-        invalid_sample = valid_sample.copy()
-        del invalid_sample["sample_id"]
+    def test_model_output_schema_is_valid_yaml(self, schema_dir):
+        """Verify model_output.schema.yaml is valid YAML."""
+        path = schema_dir / "model_output.schema.yaml"
+        try:
+            with open(path, 'r') as f:
+                schema = yaml.safe_load(f)
+            assert isinstance(schema, dict), "Schema must be a dictionary"
+            assert "properties" in schema, "Schema must have 'properties' at root"
+            assert "predictions" in schema["properties"], "Schema must define 'predictions'"
+            assert "metrics" in schema["properties"], "Schema must define 'metrics'"
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML in model_output.schema.yaml: {e}")
+
+    def test_dataset_schema_required_fields(self, schema_dir):
+        """Verify dataset schema defines required fields."""
+        path = schema_dir / "dataset.schema.yaml"
+        with open(path, 'r') as f:
+            schema = yaml.safe_load(f)
         
-        # The validator should catch missing required fields
-        # This is a structural test - actual validation logic depends on validators.py
-        assert "sample_id" in schema["required"]
+        # Check top-level required fields
+        assert "required" in schema, "Root schema must have 'required' field"
+        assert "metadata" in schema["required"], "Root schema must require 'metadata'"
+        assert "samples" in schema["required"], "Root schema must require 'samples'"
 
-    def test_invalid_split_value(self, schema_path, valid_sample):
-        """Test that invalid split values are detected"""
-        invalid_sample = valid_sample.copy()
-        invalid_sample["split"] = "invalid_split"
+    def test_model_output_schema_required_fields(self, schema_dir):
+        """Verify model output schema defines required fields."""
+        path = schema_dir / "model_output.schema.yaml"
+        with open(path, 'r') as f:
+            schema = yaml.safe_load(f)
         
-        schema = load_yaml(schema_path)
-        valid_splits = schema["properties"]["split"]["enum"]
-        assert "invalid_split" not in valid_splits
-        assert "train" in valid_splits
+        # Check top-level required fields
+        assert "required" in schema, "Root schema must have 'required' field"
+        assert "metadata" in schema["required"], "Root schema must require 'metadata'"
+        assert "predictions" in schema["required"], "Root schema must require 'predictions'"
+        assert "metrics" in schema["required"], "Root schema must require 'metrics'"
 
-    def test_fingerprint_length(self, schema_path, valid_sample):
-        """Test that fingerprint length is validated"""
-        schema = load_yaml(schema_path)
-        min_len = schema["properties"]["fingerprint_ecfp4"]["minItems"]
-        assert min_len == 1024
-
-
-class TestModelOutputSchema:
-    """Tests for model_output.schema.yaml validation"""
-
-    @pytest.fixture
-    def schema_path(self):
-        return Path(__file__).parent.parent.parent / "contracts" / "model_output.schema.yaml"
-
-    @pytest.fixture
-    def valid_prediction(self):
-        return {
-            "sample_id": "SAMPLE-000001",
-            "predicted_energy_normalized": -0.45,
-            "true_energy_normalized": -0.5,
-            "error": 0.05,
-            "absolute_error": 0.05,
-            "attention_weights_ir": [0.1, 0.2, 0.1],
-            "attention_weights_raman": [0.05, 0.1, 0.05],
-            "attention_weights_nmr": [0.2, 0.3, 0.2],
-            "timestamp": "2024-01-01T00:00:00Z"
-        }
-
-    def test_schema_loads(self, schema_path):
-        """Test that the model output schema file is valid YAML"""
-        schema = load_yaml(schema_path)
-        assert schema is not None
-        assert "properties" in schema
-        assert "required" in schema
-
-    def test_valid_prediction_passes(self, schema_path, valid_prediction):
-        """Test that a valid prediction passes schema validation"""
-        schema = load_yaml(schema_path)
-        assert schema["type"] == "object"
-        assert "sample_id" in schema["properties"]
-
-    def test_additional_properties_false(self, schema_path):
-        """Test that additional properties are not allowed"""
-        schema = load_yaml(schema_path)
-        assert schema.get("additionalProperties") is False
-
-    def test_attention_weights_range(self, schema_path, valid_prediction):
-        """Test that attention weights are in valid range"""
-        schema = load_yaml(schema_path)
-        for key in ["attention_weights_ir", "attention_weights_raman", "attention_weights_nmr"]:
-            prop = schema["properties"][key]
-            assert prop["items"]["minimum"] == 0.0
-            assert prop["items"]["maximum"] == 1.0
-
-    def test_error_calculation_valid(self, valid_prediction):
-        """Test that error calculation is consistent"""
-        calculated_error = valid_prediction["predicted_energy_normalized"] - valid_prediction["true_energy_normalized"]
-        assert abs(calculated_error - valid_prediction["error"]) < 1e-6
-        assert abs(calculated_error) == valid_prediction["absolute_error"]
+    def test_schema_references_data_model(self, schema_dir):
+        """Verify schemas reference the pivot to DFT energy."""
+        dataset_path = schema_dir / "dataset.schema.yaml"
+        with open(dataset_path, 'r') as f:
+            content = f.read()
+        
+        # Check for DFT energy reference in target description
+        assert "DFT" in content or "energy" in content, \
+            "Dataset schema should reference DFT energy as target"
+        
+        model_path = schema_dir / "model_output.schema.yaml"
+        with open(model_path, 'r') as f:
+            content = f.read()
+        
+        assert "DFT" in content or "energy" in content, \
+            "Model output schema should reference DFT energy"

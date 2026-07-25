@@ -62,7 +62,7 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 
 - [ ] T004 Implement `src/utils/seeds.py` for deterministic random seed management (global seed, PyTorch, NumPy, Python)
 - [X] T005 [P] Implement `src/utils/state_manager.py` to update project state hashes and timestamps (Principle V)
-- [X] T006 [P] Create `src/config/defaults.yaml` defining hyperparameters (LR=1e-3, batch=32, epochs=10, early stopping patience)
+- [X] T006 [P] Create `src/config/defaults.yaml` defining hyperparameters (LR=1e-3, batch=32, epochs=10, early stopping patience) and **attention visualization thresholds** (default and sensitivity range) as required by FR-009.
 - [ ] T007 Implement `src/utils/validators.py` for schema validation helpers (YAML/JSON)
 - [ ] T008 Create `contracts/` directory with `dataset.schema.yaml` and `model_output.schema.yaml` based on `data-model.md`
 - [ ] T009 Implement `src/cli/main.py` entry point with `--update-state` flag and basic argument parsing
@@ -73,31 +73,31 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest raw spectral/structural data, resample to fixed grids, normalize, encode conditions, and split by scaffold to prevent leakage. **Note**: Target variable is now "normalized DFT total molecular energy" per Plan Summary.
+**Goal**: Ingest raw spectral/structural data, resample to fixed grids, normalize, encode conditions, and split by reaction template to prevent leakage. **Note**: Target variable is now "normalized DFT total molecular energy" per Plan Summary.
 
-**Independent Test**: The pipeline can be executed on a subset of simulated DFT data (MolSpectra), producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping scaffolds across splits.
+**Independent Test**: The pipeline can be executed on a subset of simulated DFT data (MolSpectra), producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [User Story 1] Unit test for spectral resampling logic in `tests/unit/test_preprocessing.py`
-- [X] T011 [P] [User Story 1] Unit test for scaffold extraction and leakage check in `tests/unit/test_data_splitting.py`
+- [X] T011 [P] [User Story 1] Unit test for reaction template extraction and leakage check in `tests/unit/test_data_splitting.py`
 - [X] T012 [P] [User Story 1] Integration test for full pipeline end-to-end on dummy data in `tests/integration/test_pipeline.py`
+- [X] T010c [User Story 1] **Document FR-010 Limitation**. **Logic**: Create `data/artifacts/fr010_limitation_report.json`. **Content**: 1) State that FR-010 (Independent Experimental Validation) cannot be satisfied due to the pivot to simulated DFT data. 2) Document the Plan's mitigation strategy: reliance on Structure-Only Baseline (T023) and Permutation Test (T035) to address circularity. 3) Flag this as a required output for the research review stage. **Timing**: Run after T013 completes.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [User Story 1] Implement `src/data/ingestion.py` to fetch data. **Logic**: 1) Attempt to fetch verified real experimental data from a canonical source (e.g., NIST/ZINC). 2) If the fetch fails with a 404 or "source unavailable" error, explicitly switch to the MolSpectra simulated pipeline and log the pivot. 3) If the fetch fails due to network error or timeout, raise an exception to trigger the execution stage's re-try logic (DO NOT fall back to synthetic). 4) Log the data source used and checksum in `state/`. 5) If an independent experimental dataset is found (see T013b), flag it for validation but DO NOT use it for training. <!-- FAILED: unspecified -->
-- [ ] T013b [User Story 1] Implement `src/data/ingestion.py` check for independent experimental dataset (FR-010). **Logic**: Attempt to locate and fetch the independent validation dataset. If successful, enable the validation pipeline (T043). If it fails (source unreachable), trigger the pivot to simulated data and ensure the limitation is documented in T020c. This task runs AFTER T013's initial fetch attempt to determine availability. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T014 [P] [User Story 1] Implement `src/data/preprocessing.py`: Resampling IR/Raman to a standard mid-infrared range (starting from the lower wavenumber limit) and NMR to –10 ppm (or schema-defined ranges from MolSpectra) to fixed grids, unit variance normalization. Ensure target variable is "normalized DFT total molecular energy".
-- [X] T015 [User Story 1] Implement `src/data/preprocessing.py`: Encoding reaction conditions (solvent, catalyst, temperature) as one-hot or embedding vectors. **Note**: These MUST be used as features in the split logic (T017) to prevent confounding.
+- [ ] T013 [User Story 1] Implement `src/data/ingestion.py` to fetch primary training data and check for independent experimental dataset. **Logic**: 1) Fetch the **primary** training dataset: Simulated DFT data (MolSpectra) as defined in the Plan. This fetch MUST occur. 2) If the fetch of the primary training data fails (e.g., network error or missing HuggingFace mirror), raise an exception immediately (DO NOT fall back to synthetic; the simulated data IS the primary source here). 3) Attempt to locate an independent experimental dataset for validation. If found, log status='found'; if not (expected), log status='missing' in `data/validation_status.json`. 4) Log the data source used and checksum in `data/ingestion_log.json`. 5) If independent dataset is 'found', flag it for T043; if 'missing', document the limitation for T010c. **Deliverables**: Create/Write `data/validation_status.json` (schema: `{status: string, timestamp: string}`) and `data/ingestion_log.json` (schema: `{source: string, checksum: string, timestamp: string}`).
+- [X] T014 [P] [User Story 1] Implement `src/data/preprocessing.py`: Resampling IR/Raman to a standard mid-infrared range (starting from the lower wavenumber limit) and NMR to a defined chemical shift range. (or schema-defined ranges from MolSpectra) to fixed grids, unit variance normalization. Ensure target variable is "normalized DFT total molecular energy".
+- [X] T015 [User Story 1] Implement `src/data/preprocessing.py`: Encoding reaction conditions (solvent, catalyst, temperature) as one-hot or embedding vectors. **Note**: These MUST be used as features in the split logic (T017a) to prevent confounding. **Dependency**: This task MUST complete before T017a.
 - [X] T016 [User Story 1] Implement `src/data/preprocessing.py`: Reaction template extraction (substructure at reaction center) using RDKit.
-- [X] T017 [User Story 1] Implement `src/data/preprocessing.py`: Splitting logic. **Algorithm**: Implement **scaffold-based splitting** (molecular scaffolds) as mandated by the Plan's Summary and Complexity Tracking. This supersedes the Spec's "reaction template" for this project. Ensure zero scaffold overlap between train/val/test. Explicitly use the encoded reaction conditions (from T015) as features during the split to prevent confounding, as required by FR-011.
+- [ ] T017a [User Story 1] Implement `src/data/preprocessing.py`: **Reaction Template Splitting**. **Algorithm**: Implement strict splitting by reaction template (substructure at reaction center) to satisfy FR-002's zero-overlap constraint. If the initial split results in any template overlap, raise an error and halt the pipeline. Do NOT fall back to clustering methods. Explicitly use the encoded reaction conditions (from T015) as features during the split to prevent confounding, as required by FR-011. **Deliverables**: 1) Generate `data/processed/split_indices.parquet` with schema `{split: string, index: int}`. 2) Generate `data/artifacts/split_manifest.json` with schema `{train_count: int, val_count: int, test_count: int, overlap_check: boolean}`. **Constraint**: If overlap > 0, raise an error and halt the pipeline.
+- [X] T017b [User Story 1] Implement `src/data/preprocessing.py`: **Reaction Template Overlap Verification**. **Logic**: Verify that the split produced by T017a has zero overlap of reaction templates between train, val, and test sets. Additionally, verify that reaction conditions were explicitly used in the split logic (per FR-011) by checking the split manifest or code artifacts. If overlap > 0 or conditions not used, raise an error and halt the pipeline. This is a mandatory verification step.
 - [ ] T018 [User Story 1] Implement `src/data/loaders.py`: PyTorch `Dataset` classes for `ReactionSample` handling missing channels (masking). Target variable: normalized DFT total molecular energy.
-- [ ] T019 [User Story 1] Create `data/` directory structure (`raw/`, `processed/`, `artifacts/`) and implement checksum logging in `state/`.
+- [ ] T019 [User Story 1] Create `data/` directory structure (`raw/`, `processed/`, `artifacts/`, `references/`) and implement checksum logging in `state/`.
+- [X] T019b [User Story 1] Create `data/references/literature_values.csv` containing functional group frequencies. **Schema**: Columns must be `functional_group` (string), `min_wavenumber` (float), `max_wavenumber` (float), `unit` (string, e.g., "cm-1"). **Content**: Populate with standard functional group ranges (e.g., carbonyl, OH, NH) for use in T037.
 - [ ] T020 [User Story 1] Add validation script to verify no scaffold leakage between splits and log results to `data/artifacts/leakage_report.json`.
-- [ ] T020d [User Story 1] Generate a "Confounding Prevention Report" in `data/artifacts/`. **Content**: Verify that the encoded reaction conditions (from T015) were explicitly used as features during the split logic (T017) to prevent confounding, as mandated by FR-011. Include a statistical check or log confirming this usage.
-- [ ] T020c [User Story 1] Generate a "Pivot & Limitation Report" in `data/artifacts/`. **Content**: 1) Document the pivot from experimental yield to DFT energy (Spec vs Plan contradiction). 2) Explicitly state the limitation regarding FR-010 (Independent Experimental Validation) due to the pivot to simulated data (circular validation). 3) Verify and list all downstream tasks (T014, T015, T018, T023-T025, T031-T035) to confirm they use the "normalized DFT total molecular energy" target in their **implementation** (code check), not just specification. **Timing**: Run AFTER T014, T015, T018, T020, and T020d to ensure the pivot decision is finalized and implementation is verifiable.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,8 +111,8 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [User Story 2] Unit test for model architecture construction in `tests/unit/test_attention_net.py`
-- [ ] T022 [P] [User Story 2] Unit test for training loop logic (loss calculation, backprop) in `tests/unit/test_trainer.py`
+- [X] T021 [P] [User Story 2] Unit test for model architecture construction in `tests/unit/test_attention_net.py`
+- [X] T022 [P] [User Story 2] Unit test for training loop logic (loss calculation, backprop) in `tests/unit/test_trainer.py`
 
 ### Implementation for User Story 2
 
@@ -142,12 +142,14 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 
 - [ ] T031 [P] [User Story 3] Implement `src/eval/metrics.py`: Compute RMSE, MAE, R² for attention model and all baselines against normalized DFT total molecular energy.
 - [ ] T032 [User Story 3] Implement `src/eval/metrics.py`: Paired t-test on absolute errors (Attention vs. best baseline) with Bonferroni correction.
-- [ ] T033 [User Story 3] Implement `src/eval/interpretability.py`: Extract attention weights and generate heatmaps. **Mechanism**: Hardcode thresholds as {%, 10%, 15%} as required by FR-009. Loop over these thresholds to generate separate heatmaps and a comparative sensitivity report. Ignore config file values for this specific metric to ensure compliance with the spec.
+- [ ] T033a [User Story 3] Implement `src/eval/interpretability.py`: **Attention Weight Extraction**. Extract attention weights from the trained model for the test set.
+- [ ] T033b [User Story 3] Implement `src/eval/interpretability.py`: **Heatmap Generation**. Generate heatmaps for each sample using the extracted weights.
+- [ ] T033c [User Story 3] Implement `src/eval/interpretability.py`: **Sensitivity Analysis**. **Logic**: Read the default threshold and sensitivity range from `src/config/defaults.yaml` (as defined in T006). Perform sensitivity analysis over the defined range of thresholds. Generate a comparative sensitivity report. **Constraint**: Do NOT hardcode thresholds; the task must fail if config values are missing.
 - [ ] T034 [User Story 3] Implement `src/eval/interpretability.py`: Correlation analysis between attention weights and energy residuals (controlling for fingerprints).
 - [ ] T035 [User Story 3] Implement `src/eval/permutation.py`: Permutation test (shuffled energies) to verify R² < 0.05.
 - [ ] T036 [User Story 3] Implement `src/cli/main.py` subcommand `eval` to run full evaluation suite and generate `data/artifacts/evaluation_report.json`.
-- [ ] T037 [User Story 3] Implement `src/eval/interpretability.py`: Literature alignment sanity check. **Logic**: Compare attention peaks against literature values for functional groups. **Note**: Per the Plan, this is a **secondary sanity check**, NOT a pass/fail metric. Generate a report of the alignment statistics (e.g., % of peaks within ±50 cm⁻¹) but DO NOT enforce a hard success criterion that contradicts the Plan.
-- [ ] T043 [User Story 3] Implement `src/eval/validate_independent.py`: Independent Experimental Validation. **Logic**: If an independent experimental dataset was found (T013b), load it, run the trained model (T027) on it, and compute RMSE/MAE/R². Generate a "Independent Validation Report" comparing these results to the test set results to verify generalizability (FR-010). If no independent dataset was found, log a "Skipped" status and document the limitation in T020c. **Timing**: Run AFTER T027 (model training) and T036 (evaluation).
+- [ ] T037 [User Story 3] Implement `src/eval/interpretability.py`: **Literature Alignment Sanity Check**. **Logic**: Compare attention peaks against literature values from `data/references/literature_values.csv` (schema defined in T019b). **Metric**: Calculate the percentage of top 5 attention peaks falling within ±50 cm⁻¹ of literature values. **Constraint**: **Enforce SC-003**: This metric MUST be treated as a primary blocking metric. If the threshold (≥80%) is not met, the task MUST fail and log a specific error. **Note**: This implementation contradicts the Plan's "Evaluation Strategy" which downgrades this to a secondary check. The task MUST flag this contradiction in `data/artifacts/sc003_contradiction_flag.json` for the research review stage. **Output**: Report a "Primary Pass/Fail" status based on the ≥80% threshold.
+- [ ] T043 [User Story 3] **Independent Experimental Validation**. **Logic**: 1) Read `data/validation_status.json` (from T013). 2) If status is 'found', load the independent dataset, run the trained model (T027) on it, and compute RMSE/MAE/R². Generate a "Independent Validation Report" comparing these results to the test set results to verify generalizability (FR-010). 3) If status is 'missing', log a "Skipped" status and document the limitation in `data/artifacts/fr010_limitation_phase5.json`. **Timing**: Run AFTER T027 (model training) and T036 (evaluation). **Note**: Moved from Phase 3 to Phase 5 to reflect dependencies.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,6 +164,8 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 - [ ] T040 Performance optimization across all stories (ensure CPU execution < 6 hours)
 - [ ] T041 [P] Additional unit tests in `tests/unit/`
 - [ ] T042 Run `quickstart.md` validation and update `research.md` with findings
+- [ ] T020e [Phase N] **Verify Target Variable Usage**. **Logic**: Run static analysis script `src/utils/verify_target.py` against `src/` to confirm all downstream tasks (T014, T015, T018, T023-T025, T031-T035) use the "normalized DFT total molecular energy" target. **Output**: `data/artifacts/target_verification.json`. **Timing**: Run AFTER T014, T015, T018, T020, T023, T024, T025, T031, T032, T033a, T033b, T033c, T034, T035, T037, T043 are completed and committed.
+- [ ] T020c [Phase N] **Generate Pivot & Limitation Report**. **Content**: 1) Document the pivot from experimental yield to DFT energy (Spec vs Plan contradiction). 2) Explicitly state the limitation regarding FR-010 (Independent Experimental Validation) due to the pivot to simulated data (circular validation). 3) Aggregate results from `data/artifacts/target_verification.json` (generated by T020e) to confirm downstream tasks use the correct target. **Timing**: Run AFTER T020e is completed and committed. **Method**: Read `data/artifacts/target_verification.json` from T020e to confirm target usage.
 
 ---
 
@@ -258,10 +262,13 @@ With multiple developers:
 - **Data Hygiene**: All data loading tasks MUST fail loudly on missing real/simulated data; NO synthetic fallbacks allowed.
 - **CPU Constraint**: Ensure all training tasks are optimized for CPU execution within 6 hours.
 - **Scope Pivot**: All tasks assume the target variable is "normalized DFT total molecular energy" per Plan Summary, not "yield_percent" from Spec.
-- **Report Generation**: T020c (Pivot & Limitation Report) runs AFTER T014, T015, T018, T020, and T020d to ensure the pivot decision is finalized and implementation is verifiable.
-- **Split Logic**: T017 uses Plan's "scaffold-based splitting" (stricter) over Spec's "reaction template".
-- **FR-011**: T020d verifies conditions are used in split logic.
-- **FR-009**: T033 hardcodes thresholds as {5%, 10%, 15%} and ignores config.
-- **FR-010**: T013b checks for independent dataset; T043 performs actual validation if found.
-- **Literature Check**: T037 is a secondary sanity check, not a hard pass/fail.
-- **T013 Logic**: Attempt fetch; if 404/unavailable, pivot; if network error, raise.
+- **Report Generation**: T020c (Pivot & Limitation Report) runs AFTER T020e is completed and committed.
+- **Split Logic**: T017a uses strict reaction template splitting to satisfy FR-002; T017b verifies zero overlap and condition usage; T017c is removed.
+- **FR-011**: T015 and T017a ensure conditions are used in split logic.
+- **FR-009**: T033c reads thresholds from config and performs sensitivity analysis.
+- **FR-010**: T013 checks for independent dataset; T043 performs actual validation if found; T010c and T043 document the limitation if missing.
+- **Literature Check**: T037 is now a primary blocking metric per SC-003, with a contradiction flag for the Plan.
+- **T013 Logic**: Reads status from T013; fetches simulated DFT data as primary training source; raises on network error for primary data. T013 also logs the status of the independent dataset check.
+- **T015/T017a Dependency**: T015 is a blocking prerequisite for T017a.
+- **T043 Location**: Moved to Phase 5 to reflect dependencies on T027 and T036.
+- **Removed Tasks**: T017c (Scaffold Strictness Check) and T020d (Chi-square test) removed to align with Plan.

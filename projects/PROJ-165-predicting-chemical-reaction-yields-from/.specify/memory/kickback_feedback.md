@@ -4,14 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directories (`src/`, `data/`, `tests/`, `state/`) is provided; the implementer did not supply any artifact showing the project structure exists.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff settings, `.flake8`, or CI workflow steps) were presented, nor any evidence that these tools have been set up and run. The required artifacts to prove the task are missing.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/seeds.py
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/validators.py
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: src/cli/main.py
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/ingestion.py
-- `T013b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/ingestion.py
+- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/loaders.py
+- `T019` (rejected 1x): No evidence of a `data/` directory with the required `raw/`, `processed/`, and `artifacts/` subfolders is shown, nor any code or log demonstrating checksum logging in a `state/` location. The implementer’s claim lacks the necessary artifacts to verify that the directory structure was created and that checksum logging was implemented.
+- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: data/artifacts/leakage_report.json
 
 ## Required change
 

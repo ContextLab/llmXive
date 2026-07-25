@@ -1,103 +1,80 @@
-"""
-Project Structure Setup Script for llmXive Pipeline.
-Creates the standard directory hierarchy required for the research project.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_structure(base_dir: str = ".") -> None:
+def create_structure(root_path: str) -> None:
     """
-    Creates the standard project directory structure under the specified base directory.
+    Create the standard project directory structure.
     
-    Structure created:
-    - code/ (source code)
-      - src/
-        - cli/
-        - data/
-        - models/
-        - eval/
-        - utils/
-        - config/
-      - tests/
-        - unit/
-        - integration/
-        - contract/
-    - data/
-      - raw/
-      - processed/
-      - artifacts/
-      - figures/
-    - state/ (for state tracking and hashes)
-    - docs/
-    - logs/
+    Creates the following directories relative to root_path:
+    - src/ (source code)
+    - src/cli/
+    - src/data/
+    - src/eval/
+    - src/models/
+    - src/utils/
+    - data/ (data storage)
+    - data/raw/
+    - data/processed/
+    - data/artifacts/
+    - data/references/
+    - tests/ (test suite)
+    - tests/unit/
+    - tests/integration/
+    - tests/contract/
+    - state/ (state management)
+    - specs/ (feature specifications)
+    - docs/ (documentation)
     
     Args:
-        base_dir: Root directory where the structure will be created. Defaults to current directory.
+        root_path: The root directory where the structure will be created.
     """
-    base_path = Path(base_dir)
+    root = Path(root_path)
     
-    # Define the directory structure to create
+    # Define directory structure
     directories = [
-        # Source code structure
-        "code/src/cli",
-        "code/src/data",
-        "code/src/models",
-        "code/src/eval",
-        "code/src/utils",
-        "code/src/config",
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/tests/contract",
-        
-        # Data structure
+        "src",
+        "src/cli",
+        "src/data",
+        "src/eval",
+        "src/models",
+        "src/utils",
         "data/raw",
         "data/processed",
         "data/artifacts",
-        "data/figures",
-        
-        # State and documentation
+        "data/references",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
         "state",
+        "specs",
         "docs",
-        "logs",
     ]
     
-    created_count = 0
+    created = []
     for dir_path in directories:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            # Check if it's actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(full_path))
+        # Create __init__.py for Python packages
+        if dir_path.startswith("src") or dir_path.startswith("tests"):
+          init_file = full_path / "__init__.py"
+          if not init_file.exists():
+              init_file.touch()
     
-    # Create __init__.py files to make directories Python packages
-    init_files = [
-        "code/src/__init__.py",
-        "code/src/cli/__init__.py",
-        "code/src/data/__init__.py",
-        "code/src/models/__init__.py",
-        "code/src/eval/__init__.py",
-        "code/src/utils/__init__.py",
-        "code/src/config/__init__.py",
-        "code/tests/__init__.py",
-        "code/tests/unit/__init__.py",
-        "code/tests/integration/__init__.py",
-        "code/tests/contract/__init__.py",
-    ]
+    # Create README in data directories to ensure they are tracked
+    for data_sub in ["raw", "processed", "artifacts", "references"]:
+        readme_path = root / "data" / data_sub / ".gitkeep"
+        if not readme_path.exists():
+            readme_path.touch()
     
-    for init_file in init_files:
-        full_path = base_path / init_file
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created package init: {full_path}")
-    
-    print(f"\nProject structure setup complete. {created_count} new directories created.")
-    print(f"Base directory: {base_path.resolve()}")
+    print(f"Project structure created at {root}")
+    for p in created:
+        print(f"  - {p}")
 
 if __name__ == "__main__":
-    # If run directly, create structure in current directory
-    create_structure()
+    if len(sys.argv) > 1:
+        create_structure(sys.argv[1])
+    else:
+        # Default to current directory if no argument provided
+        create_structure(".")

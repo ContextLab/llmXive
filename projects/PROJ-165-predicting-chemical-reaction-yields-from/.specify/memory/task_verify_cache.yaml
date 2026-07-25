@@ -1,17 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`src/`, `data/`, `tests/`, `state/`)
+    is provided; the claim lacks any artifact showing that these folders exist or
+    contain files. The implementer must add the directory structure (and preferably
+    placeholder files) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.flake8`, or related CI scripts) were presented, nor any evidence that
+    these tools have been set up and run. The required artifacts are missing, so the
+    task is not satisfied.
 T010:
   c: false
   h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
   r: "The required artifact `tests/unit/test_preprocessing.py` does not exist, so\
     \ no unit test for the spectral resampling logic is present. The task\u2019s core\
     \ deliverable is missing and therefore not satisfied."
-T019:
+T017a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` directory with the required `raw/`, `processed/`, and\
-    \ `artifacts/` subfolders is shown, nor any code or log demonstrating checksum\
-    \ logging in a `state/` location. The implementer\u2019s claim lacks the necessary\
-    \ artifacts to verify that the directory structure was created and that checksum\
-    \ logging was implemented."
+  h: ab09fb770f57bb92c8f8f965cac7cdf60dcc9a8be028c4580198358d9c3a240a
+  r: "The provided `src/data/preprocessing.py` contains only spectral resampling logic\
+    \ and does not implement the required reaction\u2011template\u2011based splitting,\
+    \ overlap checking, or condition\u2011feature integration. Moreover, the required\
+    \ output artifacts `data/processed/split_indices.parquet` and `data/artifacts/split_manifest.json`\
+    \ are absent. The task\u2019s core deliverables are therefore missing."
 T020c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,14 +34,6 @@ T020c:
     \ pivot, the FR\u2011010 limitation, or a code\u2011level verification of downstream\
     \ tasks (T014, T015, T018, T023\u2011T025, T031\u2011T035). The required artifact\
     \ is missing, so the task is not satisfied."
-T020d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact was presented \u2013 there is no file in `data/artifacts/` containing\
-    \ a \u201CConfounding Prevention Report\u201D, nor any log or statistical check\
-    \ showing that the encoded reaction conditions from T015 were used as features\
-    \ in the split logic (T017). The required report is missing, so the task is not\
-    \ satisfied."
 T021:
   c: false
   h: 39da4220ec041de553a16c471381ac2f43f1705320adc1458a92e49abed53a64

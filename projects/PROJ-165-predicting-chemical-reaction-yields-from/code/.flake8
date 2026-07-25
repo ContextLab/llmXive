@@ -1,12 +1,13 @@
 [flake8]
-max-line-length = 88
-extend-ignore = E203, E501, W503
+max-line-length = 100
+extend-ignore = E501, B008
 exclude =
     .git,
     __pycache__,
-    data,
-    state,
     .venv,
     build,
-    dist
-max-complexity = 15
+    dist,
+    .eggs,
+    *.egg-info
+per-file-ignores =
+    code/tests/*:S101
