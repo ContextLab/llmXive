@@ -4,9 +4,9 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the project directory structure explicitly.
+    Creates the required project directory structure for the gut microbiome study.
     
-    Creates:
+    Directories created:
     - code/
     - data/raw
     - data/processed
@@ -14,33 +14,33 @@ def create_directories():
     - specs/001-investigating-the-correlation-between-gu/contracts/
     
     Returns:
-        dict: A summary of created directories and their absolute paths.
+        bool: True if all directories were created or already exist.
     """
-    base_dir = Path(__file__).resolve().parent.parent
+    # Define the project root (assuming this script is in code/)
+    # We go up one level to find the project root
+    project_root = Path(__file__).resolve().parent.parent
     
     directories = [
-        base_dir / "code",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "results",
-        base_dir / "specs" / "001-investigating-the-correlation-between-gu" / "contracts",
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "specs/001-investigating-the-correlation-between-gu/contracts"
     ]
     
-    created = []
+    created_count = 0
     for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            # Verify it is actually a directory
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
     
-    return {
-        "created": created,
-        "total_created": len(created),
-        "base_directory": str(base_dir)
-    }
+    return True
 
 if __name__ == "__main__":
-    result = create_directories()
-    print(f"Directory creation summary: {result}")
+    create_directories()
+    print("Directory structure verified/created successfully.")

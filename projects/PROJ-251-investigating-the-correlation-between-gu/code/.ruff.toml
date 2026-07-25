@@ -1,45 +1,12 @@
-# Ruff configuration for llmXive project
-# Implements linting requirements for T003
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and flake8-bugbear (`B`)
-select = ["E", "F", "W", "B", "I", "N", "UP"]
-ignore = [
-    "E501",  # Line too long (handled by black)
-    "B008",  # Do not perform function call in argument defaults (common in data pipelines)
-]
-
-# Allow autofix for all enabled rules
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "B008"]
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few generated or third-party directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Per-file ignores
 [lint.per-file-ignores]
-"code/tests/*" = ["S101"]  # Allow assert in tests
+"code/tests/*" = ["S101"]
 
-[lint.isort]
-known-first-party = ["code"]
+[format]
+line-length = 88
+target-version = "py311"

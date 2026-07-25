@@ -1841,3 +1841,207 @@
   source_type: external
   status: verified
   updated_at: '2026-07-19T11:30:05Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fetch SRP053178 accession from NCBI SRA
+  claim_id: c_46654125
+  context: 'Implement Strategy A: Fetch pre-processed OTU table and serology metadata
+    for the SRP accession series. Method: Fetch the specific URL for accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_SRP053178_accession_from_NCBI_SRA
+  kind: entity_fact
+  raw_text: Fetch the specific URL for accession SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:41:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: raise error if sample size less than 50
+  claim_id: c_321240c1
+  context: 'Constraint Check: Calculate max_rows based on memory. If max_rows < 50,
+    RAISE InsufficientSampleSizeError immediately with message ''Insufficient memory
+    to retain minimum sample size (N=50).'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_sample_size_less_than_50
+  kind: magnitude
+  raw_text: Raise InsufficientSampleSizeError immediately if max_rows < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:41:58Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: raise error if N less than 50
+  claim_id: c_ca4a31e0
+  context: 'Logic: 1. Count subjects (N) in filtered_data.csv. 2. Log N to data/results/N_count.json.
+    3. If N < 50, raise InsufficientSampleSizeError with message including N.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_N_less_than_50
+  kind: magnitude
+  raw_text: If N < 50, raise InsufficientSampleSizeError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:43:11Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: log transform titer post with plus one
+  claim_id: c_d2c3a096
+  context: 'Implement log-transformation of raw antibody titers in code/02_preprocess.py.
+    Logic: Apply np.log(titer_post + 1) (or similar base) to titer_post column.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply np.log(titer_post + 1) to titer_post column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:43:50Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: flag if significant taxa count less than 1 or greater than 20
+  claim_id: c_f3005622
+  context: If count < 1 or count > 20, set within_expected_range to False in the output
+    JSON and log a warning. Do NOT halt execution, but flag for review.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'False'
+      source_id: Q105812849
+      url: https://www.wikidata.org/wiki/Q105812849
+      value: 'False'
+    filled: true
+  kind: magnitude
+  raw_text: If count < 1 or count > 20, set within_expected_range to False.
+  resolved_value: 'False'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T03:44:25Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: sweep responder thresholds across range
+  claim_id: c_442ec3ac
+  context: 'Implement Threshold Sweep and Robustness Check. Logic: Loop through responder
+    thresholds across a representative range in regular steps. For EACH threshold:
+    1. Define the range: from a value below the default to a value above the default,
+    divided into equal steps.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_responder_thresholds_across_range
+  kind: entity_fact
+  raw_text: 'Define the range: from a value below the default to a value above the
+    default, divided into equal steps.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:45:22Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: seroconversion defined as 4 fold rise in titer
+  claim_id: c_2ddc5ac9
+  context: "Implement seroconversion logic (\u22654-fold rise in titer) in code/04_modeling.py.\
+    \ Formula: post_titer >= 4 * baseline_titer."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seroconversion logic defined as post_titer >= 4 * baseline_titer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:46:15Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: absolute titer responder defined as 40
+  claim_id: c_0c5f322a
+  context: "Implement absolute titer logic (e.g., HAI \u2265 40) in code/04_modeling.py.\
+    \ Formula: post_titer >= 40."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use absolute titer logic defined as post_titer >= 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:46:56Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: perform one-tailed Wilcoxon rank-sum test for model significance
+  claim_id: c_ea0aa939
+  context: Perform a one-tailed Wilcoxon rank-sum test comparing the observed accuracy
+    against the null distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_one-tailed_Wilcoxon_rank-sum_test_for_model_signific
+  kind: entity_fact
+  raw_text: Perform a one-tailed Wilcoxon rank-sum test comparing the observed accuracy
+    against the null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:47:53Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: assert total runtime less than 6 hours
+  claim_id: c_c96d21d0
+  context: Use time module to measure total runtime at the end of execution. Log to
+    data/results/resource_usage.json with key total_runtime_seconds. Assert < 6h (21600s).
+    If violated, raise RuntimeError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Assert total runtime < 6h (21600s).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:48:35Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: assert peak memory less than 7 gigabytes
+  claim_id: c_8f9c32af
+  context: Use psutil.Process().memory_info().rss to measure peak memory at the end
+    of execution. Log to data/results/resource_usage.json with key peak_memory_mb.
+    Assert < 7GB (7340 MB). If violated, raise RuntimeError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_memory_less_than_7_gigabytes
+  kind: magnitude
+  raw_text: Assert peak memory < 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T03:49:09Z'

@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/raw`, `data/processed`,\
+    \ `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`)\
+    \ is present in the provided artifacts; the implementer\u2019s claim cannot be\
+    \ verified. The missing folder structure must be created and shown."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or related setup scripts were provided, so there
+    is no evidence that ruff/flake8 and Black have been configured for the project.
+    The required artifacts are missing.
 T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

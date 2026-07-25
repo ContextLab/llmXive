@@ -27,7 +27,7 @@ This project implements a statistical pipeline to investigate the association be
 
 | Principle | Status | Evidence / Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; data fetched from canonical URL (SRP053178) or raw SRA; `requirements.txt` pins versions. |
+| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; data fetched from canonical URL (SRP) or raw SRA; `requirements.txt` pins versions. |
 | **II. Verified Accuracy** | PASS | Dataset URL for the SRP accession is verified and reachable. No fabricated URLs. |
 | **III. Data Hygiene** | PASS | Checksums recorded in state; raw data preserved; derivations written to new files; PII scan passed. |
 | **IV. Single Source of Truth** | PASS | All results trace to `data/` artifacts; no hand-typed statistics in `paper/`. N_count.json logged before halt. |

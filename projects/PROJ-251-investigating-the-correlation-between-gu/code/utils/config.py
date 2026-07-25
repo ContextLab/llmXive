@@ -8,6 +8,14 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 import yaml
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+
+# Ensure .env is loaded before reading environment variables
+# Load from project root (parent of code/)
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
 # Project root is assumed to be the parent of the 'code' directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 CODE_ROOT = PROJECT_ROOT / "code"
