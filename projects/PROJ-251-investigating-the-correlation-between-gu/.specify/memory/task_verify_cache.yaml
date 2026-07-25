@@ -1,17 +1,9 @@
-T001:
+T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `data/raw`, `data/processed`,\
-    \ `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`)\
-    \ is present in the provided artifacts; the implementer\u2019s claim cannot be\
-    \ verified. The missing folder structure must be created and shown."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or Black settings) or related setup scripts were provided, so there
-    is no evidence that ruff/flake8 and Black have been configured for the project.
-    The required artifacts are missing.
+  r: "No `.env` template file was presented in the evidence; the required placeholders\
+    \ for `SRA_TOKEN` and `DATA_SOURCE_URL` are absent, so the task\u2019s deliverable\
+    \ is missing."
 T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,3 +47,10 @@ T020c:
     \ and the provided `code/02_preprocess.py` is truncated (ends abruptly with \u201C\
     l\u201D) and contains no function that computes the Shannon diversity index. Both\
     \ the data source and the necessary implementation are missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a ruff check, black formatting run, or any logs/patches showing\
+    \ that issues were identified and fixed in the `code/` directory is provided.\
+    \ The required artifact (a report or updated, lint\u2011free code) is missing,\
+    \ so the task is not demonstrably completed."
