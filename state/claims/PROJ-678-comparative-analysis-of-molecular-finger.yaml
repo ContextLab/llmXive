@@ -596,3 +596,493 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T01:23:41Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: study investigates Morgan and MACCS fingerprints for organophosphate
+    toxicity using Tox21
+  claim_id: c_9b95f7eb
+  context: This study investigates the predictive performance of Morgan (ECFP) and
+    MACCS molecular fingerprints for classifying organophosphate pesticide toxicity
+    using the Tox21 dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_Morgan_and_MACCS_fingerprints_for_organop
+  kind: entity_fact
+  raw_text: This study investigates the predictive performance of Morgan (ECFP) and
+    MACCS molecular fingerprints for classifying organophosphate pesticide toxicity
+    using the Tox21 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:29Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: compounds filtered using SMARTS pattern [P](=O)([O,SC])[O,SC] to isolate
+    organophosphates
+  claim_id: c_3e36e0c0
+  context: 'Filtering: Compounds are filtered using the SMARTS pattern [P](=O)([O,SC])[O,SC]
+    to isolate organophosphates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/compounds_filtered_using_SMARTS_pattern_%5BP%5D(=O)(%5BO,SC%5D)%5BO,SC
+  kind: entity_fact
+  raw_text: Compounds are filtered using the SMARTS pattern [P](=O)([O,SC])[O,SC]
+    to isolate organophosphates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:34Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: Morgan fingerprints generated with radius 2 and 2048 bits
+  claim_id: c_fff01218
+  context: 'Morgan Fingerprints: Radius=2, 2048 bits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan Fingerprints are generated with Radius=2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:39Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: MACCS fingerprints use 166 bits
+  claim_id: c_852b5ae6
+  context: 'MACCS Fingerprints: 166 bits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS Fingerprints use 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:41Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: split strategy uses 5-fold greedy maximal dissimilarity split with Tanimoto
+    less than 0.85
+  claim_id: c_2508615c
+  context: 'Split Strategy: 5-Fold Greedy Maximal Dissimilarity Split (Tanimoto <
+    0.85) to ensure structural diversity between training and test sets.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Split_strategy_uses_5-fold_greedy_maximal_dissimilarity_spli
+  kind: magnitude
+  raw_text: The split strategy uses a 5-Fold Greedy Maximal Dissimilarity Split with
+    Tanimoto < 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:45Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: Random Forest model uses 100 trees and max depth 15
+  claim_id: c_4724817f
+  context: 'Algorithm: Random Forest (100 trees, max_depth=15).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model uses a Random Forest algorithm with 100 trees and max_depth=15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:51Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: study employs 5-fold cross-validation for model validation
+  claim_id: c_282944d4
+  context: 'Validation: 5-Fold Cross-Validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study employs 5-Fold Cross-Validation for model validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:56Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: confidence intervals calculated using 1000 bootstrap resamples
+  claim_id: c_d5652543
+  context: 'Confidence Intervals: 1,000 bootstrap resamples of the performance difference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence Intervals are calculated using 1,000 bootstrap resamples of
+    the performance difference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:59:00Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: Tox21 dataset is a curated collection of high-throughput screening assay
+    results
+  claim_id: c_9d43ad96
+  context: However, this study utilizes the Tox21 dataset, which is a curated collection
+    of high-throughput screening (HTS) assay results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_is_a_curated_collection_of_high-throughput_scr
+  kind: entity_fact
+  raw_text: The study utilizes the Tox21 dataset, which is a curated collection of
+    high-throughput screening (HTS) assay results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:59:07Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: Tox21 binary toxicity labels curated by NCI and NIEHS
+  claim_id: c_70f2af01
+  context: The variability inherent in the original HTS assays (e.g., signal-to-noise
+    ratios, Z-scores) has already been processed and thresholded by the original data
+    curators (NCI, NIEHS) into the binary states used here.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_binary_toxicity_labels_curated_by_NCI_and_NIEHS
+  kind: entity_fact
+  raw_text: The binary toxicity labels in the Tox21 dataset are curated by NCI and
+    NIEHS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:59:14Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: Morgan and MACCS fingerprints generated using RDKit
+  claim_id: c_d719655d
+  context: The Morgan and MACCS fingerprints are generated using RDKit, a standard,
+    open-source cheminformatics toolkit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Morgan_and_MACCS_fingerprints_generated_using_RDKit
+  kind: entity_fact
+  raw_text: Morgan and MACCS fingerprints are generated using RDKit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:59:20Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/research.md
+  attempts: 1
+  canonical: study employs Corrected Resampled t-test by Nadeau and Bengio
+  claim_id: c_4f6b9e67
+  context: The study employs the Corrected Resampled t-test (Nadeau & Bengio), which
+    is specifically designed to account for the variance introduced by both the data
+    splitting process and the learning algorithm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_employs_Corrected_Resampled_t-test_by_Nadeau_and_Bengi
+  kind: entity_fact
+  raw_text: The study employs the Corrected Resampled t-test (Nadeau & Bengio) for
+    significance testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:59:25Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/invalid_split_report.md
+  attempts: 1
+  canonical: greedy maximal dissimilarity split failed to produce test sets of size
+    20 with Tanimoto distance 0.85
+  claim_id: c_ed34017f
+  context: The greedy maximal dissimilarity split failed to produce test sets of size
+    >= 20 while maintaining Tanimoto distance > 0.85. This indicates insufficient
+    structural diversity in the dataset to support the required statistical comparison.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The greedy maximal dissimilarity split failed to produce test sets of
+    size >= 20 while maintaining Tanimoto distance > 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:06:50Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: SMARTS pattern for organophosphate filtering is [P](=O)([O,SC])[O,SC]
+  claim_id: c_913a59d2
+  context: 'Create code/constants.py with exact variable definitions: SMARTS_PATTERN
+    = "[P](=O)([O,SC])[O,SC]" (str)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SMARTS_pattern_for_organophosphate_filtering_is_%5BP%5D(=O)(%5BO,S
+  kind: entity_fact
+  raw_text: SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:23Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Tanimoto threshold for greedy maximal dissimilarity split is 0.85
+  claim_id: c_786db302
+  context: 'Create code/constants.py with exact variable definitions: TANIMOTO_THRESHOLD
+    = 0.85 (float)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TANIMOTO_THRESHOLD = 0.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:24Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint radius is 2
+  claim_id: c_53f1a499
+  context: 'Create code/constants.py with exact variable definitions: MORGAN_RADIUS
+    = 2 (int)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MORGAN_RADIUS = 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:28Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint bit length is 2048
+  claim_id: c_826b935c
+  context: 'Create code/constants.py with exact variable definitions: MORGAN_BITS
+    = 2048 (int)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MORGAN_BITS = 2048
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:32Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint bit length is 166
+  claim_id: c_53ae5ad1
+  context: 'Create code/constants.py with exact variable definitions: MACCS_BITS =
+    166 (int)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS_BITS = 166
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:38Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Number of folds for cross-validation is 5
+  claim_id: c_59834747
+  context: 'Create code/constants.py with exact variable definitions: N_FOLDS = 5
+    (int)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_FOLDS = 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:43Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Tox21 dataset source is HuggingFace deepchem/tox
+  claim_id: c_c10667c2
+  context: Implement code/download.py to fetch Tox dataset from HuggingFace datasets.load_dataset("deepchem/tox")
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_source_is_HuggingFace_deepchem/tox
+  kind: entity_fact
+  raw_text: The dataset is fetched from HuggingFace deepchem/tox
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:07:48Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Random Forest model tree count is 100
+  claim_id: c_f4c6daf5
+  context: Implement code/train.py to train two Random Forest models (100 trees, max_depth=15)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models use 100 trees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:09:51Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Random Forest model max depth is 15
+  claim_id: c_187199be
+  context: Implement code/train.py to train two Random Forest models (100 trees, max_depth=15)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models use max_depth=15
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:12:30Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Bootstrap resample count for confidence intervals is 1000
+  claim_id: c_77945255
+  context: Implement code/evaluate.py to generate confidence intervals via 1,000 bootstrap
+    resamples
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: Bootstrap confidence intervals use 1,000 resamples
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T22:12:36Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Statistical test method is Corrected Resampled t-test by Nadeau and Bengio
+  claim_id: c_93f6e6c6
+  context: Perform the Corrected Resampled t-test (Nadeau & Bengio) on the 5-fold
+    ROC-AUC and PR-AUC scores
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_method_is_Corrected_Resampled_t-test_by_Nad
+  kind: entity_fact
+  raw_text: Statistical test uses Corrected Resampled t-test (Nadeau & Bengio)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:16:28Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Morgan mean Gini importance must exceed MACCS mean by at least 15%
+  claim_id: c_bb8d0676
+  context: "Verify if the Morgan Mean exceeds the MACCS Mean by \u226515%"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Morgan_mean_Gini_importance_must_exceed_MACCS_mean_by_at_lea
+  kind: magnitude
+  raw_text: Threshold check for Gini importance comparison is 15%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:20:23Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Low sample size warning condition is n less than 50
+  claim_id: c_558e6e9c
+  context: 'If total sample size < 50, write the exact string "WARNING: Low Sample
+    Size (n < 50)" to data/processed/filter_log.txt'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_sample_size_warning_condition_is_n_less_than_50
+  kind: magnitude
+  raw_text: Sample size warning is triggered if n < 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:20:30Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Minimum test set size per fold is 20
+  claim_id: c_e48c97ba
+  context: Verify test set size >= 20
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test set size must be >= 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:20:34Z'

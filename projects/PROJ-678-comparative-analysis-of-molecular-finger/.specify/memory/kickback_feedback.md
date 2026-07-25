@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): The repository contains `code/filter.py`, but the script never writes the filtered DataFrame to `data/processed/organophosphates_filtered.csv` (no save function is present) and the expected CSV file is absent from the filesystem. Consequently the required output artifact does not exist.
-- `T013` (rejected 1x): The `validate_endpoints` function in `code/filter.py` contains the warning logic, but the snippet ends before any file‑write operation and the required `data/processed/filter_log.txt` does not exist on disk. Consequently the task’s requirement to record the limitation in that log file is not fulfilled.
-- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/filter_log.txt
+- `T008` (rejected 1x): No evidence of the required `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` file is provided, nor any content defining the Compound, Fingerprint, Model, and PerformanceMetric entities with their schemas. The implementer must create and supply this markdown file with the specified entity definitions.
+- `T001` (rejected 1x): No directory listing or file system evidence was provided showing that `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/` and its required subdirectories (`data/raw/`, `data/processed/`, `code/`, `tests/`) actually exist. The claim lacks concrete artifacts, so the required structure is missing.
 
 ## Required change
 

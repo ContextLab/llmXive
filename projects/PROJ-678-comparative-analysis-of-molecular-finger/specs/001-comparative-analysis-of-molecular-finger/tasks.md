@@ -51,12 +51,12 @@
 
 **Purpose**: Project initialization and basic structure. **Gate**: Pre-Phase 0 (T008) must be complete.
 
-- [ ] T001 Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/` with subdirs `data/raw/`, `data/processed/`, `code/`, `tests/`. Note: `specs/` is a sibling to `projects/`, not nested inside.
-- [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md` [UNRESOLVED-CLAIM: c_ce5dbbdd — status=not_enough_info]
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml` [UNRESOLVED-CLAIM: c_4c370b2e — status=not_enough_info]
+- [ ] T001 Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-finger/` with subdirs `data/raw/`, `data/processed/`, `code/`, `tests/`. Note: `specs/` is a sibling to `projects/`, not nested inside.
+- [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 - [X] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`. Verify with: `ls -d data/raw data/processed && test -f data/raw/.gitkeep && test -f data/processed/.gitkeep`.
 - [X] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
-- [X] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden.
+- [X] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]" [UNRESOLVED-CLAIM: c_913a59d2 — status=not_enough_info]` (str), `TANIMOTO_THRESHOLD = 0.85 [UNRESOLVED-CLAIM: c_786db302 — status=not_enough_info]` (float), `MORGAN_RADIUS = 2 [UNRESOLVED-CLAIM: c_53f1a499 — status=not_enough_info]` (int), `MORGAN_BITS = 2048 [UNRESOLVED-CLAIM: c_826b935c — status=not_enough_info]` (int), `MACCS_BITS = 166 [UNRESOLVED-CLAIM: c_53ae5ad1 — status=not_enough_info]` (int), `N_FOLDS = 5 [UNRESOLVED-CLAIM: c_59834747 — status=not_enough_info]` (int). **MUST**: Ensure `code/filter.py` imports and applies this exact constant from `code/constants.py`; hardcoding the pattern in `code/filter.py` is strictly forbidden.
 - [X] T007 [P] Setup `tests/` directory structure (`unit/`, `integration/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,9 +78,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`, including checksum verification. [UNRESOLVED-CLAIM: c_9f9a71d6 — status=not_enough_info] **Depends on T008 (Data Model)**.
-- [ ] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. [UNRESOLVED-CLAIM: c_8053dd5e — status=not_enough_info] **Depends on T004 (Directory Creation) and T008 (Data Model)**.
-- [ ] T013 [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint; if sample size < 50, log a "Low Sample Size" warning and skip statistical tests (do not raise error), recording this limitation in `data/processed/filter_log.txt`. <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model)**.
+- [ ] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Depends on T004 (Directory Creation) and T008 (Data Model)**.
+- [ ] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**: If total sample size < 50, write the exact string "WARNING: Low Sample Size (n < 50)" to `data/processed/filter_log.txt`. **Verification**: After execution, `grep "WARNING: Low Sample Size (n < 50)" data/processed/filter_log.txt` must succeed if n < 50. **Deliverable**: File `data/processed/filter_log.txt` must contain the exact warning string if n < 50. **Depends on T012**. <!-- FAILED: unspecified -->
+- [ ] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **CRITICAL**: This file is the trigger for downstream statistical tasks. **Verification**: `cat data/processed/sample_size_status.json` must return valid JSON. **Depends on T013a**. <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -89,9 +90,9 @@
 
 ## Phase 3: User Story 2 - Fingerprint Generation and Model Training (Priority: P2)
 
-**Goal**: Generate Morgan and MACCS fingerprints, perform 5-Fold Greedy Maximal Dissimilarity Split (Tanimoto < 0.85), and train Random Forest models on CPU.
+**Goal**: Generate Morgan and MACCS fingerprints, perform a **5-Fold Greedy Maximal Dissimilarity Split** (Tanimoto < 0.85) per fold, and train Random Forest models on CPU.
 
-**Independent Test**: Execute training script on a sample subset to verify memory safety, artifact generation, and completion within 60 minutes on 2-core CPU. [UNRESOLVED-CLAIM: c_3ec400e8 — status=not_enough_info]
+**Independent Test**: Execute training script on a sample subset to verify memory safety, artifact generation, and completion within 60 minutes on 2-core CPU.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -100,9 +101,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB. [UNRESOLVED-CLAIM: c_19b5f778 — status=not_enough_info]
-- [ ] T018 [US2] Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split (Tanimoto < 0.85) for each of 5 folds: 1) Initialize test set with the compound furthest from the mean; 2) Iterate through remaining compounds, selecting the one with max min-distance to current test set; 3) Add to test set if distance > threshold; 4) Verify test set size >= 20. **CRITICAL**: If split fails (size < 20 or threshold not met), the script MUST: (a) Log "Insufficient Structural Diversity: Cannot achieve valid split", (b) Write a file `data/processed/invalid_split_report.md` stating that statistical comparison is invalid, (c) Write a status file `data/processed/split_status.json` with `{"status": "INVALID"}`, and (d) **HALT EXECUTION** (exit with code 1). **DO NOT** allow the pipeline to continue to T029a. **Depends on T017**.
-- [X] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA). [UNRESOLVED-CLAIM: c_e943d3db — status=not_enough_info] **Depends on T018 (Success Path)**.
+- [X] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB.
+- [X] T018a [US2] Implement `code/split.py` to execute **5-Fold Greedy Maximal Dissimilarity Split** (Tanimoto < 0.85): Loop 5 times (fold=0..4). In each iteration: 1) Initialize test set with the compound furthest from the mean of remaining compounds; 2) Iterate through remaining compounds, selecting the one with max min-distance to current test set; 3) Add to test set if distance > threshold; 4) Verify test set size >= 20. Write `data/processed/split_fold_{fold}.json` with schema `{"fold": int, "status": "VALID|INVALID", "test_indices": [int], "train_indices": [int]}`. After the loop, aggregate results into `data/processed/split_summary.json` with schema `{"total_folds": 5, "valid_folds": int, "invalid_folds": int, "status": "VALID|INVALID"}`. If ANY fold fails (status="INVALID"), set `split_summary.json` status to "INVALID". **Depends on T017**.
+- [X] T018b [US2] Implement `code/split.py` (or a verification script) to read `data/processed/split_summary.json` and verify its content. If status is "INVALID", log "Split Verification Failed: Status is INVALID". **Depends on T018a**.
+- [X] T018c [US2] **Invalid Path Handler**: If `data/processed/split_summary.json` status is "INVALID", write `data/processed/invalid_split_report.md` stating "Statistical comparison is invalid due to insufficient structural diversity." AND write `data/processed/research_results.md` with header "## STATISTICAL COMPARISON INVALID" and the same message. **THEN** exit with code 0 (success) to allow the pipeline to complete. **CRITICAL**: The final `research_results.md` MUST be generated before exit. **Depends on T018b**.
+- [X] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) for **EACH** of the 5 folds defined by T018a. **MUST**: Check `data/processed/split_summary.json` at startup; if status is "INVALID", exit immediately with code 0 (no training). **Depends on T018a** (Success Path).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,33 +113,37 @@
 
 ## Phase 4: User Story 3 - Comparative Evaluation and Statistical Validation (Priority: P3)
 
-**Goal**: Evaluate models, perform paired t-test on CV scores, bootstrap confidence intervals, and map feature importance to phosphorus center.
+**Goal**: Evaluate models on the **5-fold CV** results, perform a Corrected Resampled t-test on the k-fold scores, generate bootstrap confidence intervals, and map feature importance to phosphorus center.
 
-**Independent Test**: Verify final report contains ROC-AUC and PR-AUC for both models, p-value from paired t-test on CV scores, 95% CI, and SC-003 feature importance analysis.
+**Independent Test**: Verify final report contains ROC-AUC and PR-AUC for both models, p-value from paired t-test on **5-fold scores**, 95% CI, and SC-003 feature importance analysis.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on CV scores.
+- [X] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on **5-fold scores**.
 - [X] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
 
 ### Implementation for User Story 3
 
-- [X] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for all 5 folds. <!-- FAILED: unspecified -->
-- [X] T025a [US3] Implement `code/evaluate.py` to perform the **Corrected Resampled t-test (Nadeau & Bengio)**. **Prerequisite**: Explicitly collect the ROC-AUC and Precision-Recall AUC scores from ALL 5 folds into two numpy arrays (`morgan_scores`, `maccs_scores`). Perform the t-test on these paired arrays to determine statistical significance (p < 0.05). **Depends on T019**.
-- [X] T025b [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC using the collected test set predictions. **MUST use exactly 1,000 bootstrap resamples** to match Spec precision requirements. <!-- FAILED: unspecified -->
-- [ ] T025c [US3] Implement `code/evaluate.py` to perform the SC-003 analysis: 1) Identify phosphorus atom; 2) Use RDKit `GetBitInfo` to find Morgan bits within radius=2; 3) Sum the Gini importance for these bits; 4) Calculate the **total Gini importance** for both Morgan and MACCS models; 5) Compare the Morgan sum to the MACCS sum to verify if the Morgan sum exceeds the MACCS sum by ≥15%. **Write the result (sums, comparison, threshold check) to `data/processed/sc003_analysis.json`**. <!-- ATOMIZE: requested -->
-- [X] T029a [US3] **Valid Path**: Generate final report `data/processed/research_results.md` containing:
- 1. **Metrics table** with exact Markdown syntax:
+- [ ] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for **each of the 5 folds**. **Deliverable**: Write `data/processed/cv_scores.json` with schema `{"morgan": {"roc_auc": [float,...], "pr_auc": [float,...], "balanced_acc": [float,...]}, "maccs": {...}}`. **Depends on T019**. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T025a [US3] Implement `code/evaluate.py` to perform the **Corrected Resampled t-test (Nadeau & Bengio)** on the **5-fold ROC-AUC and PR-AUC scores** from `data/processed/cv_scores.json`. **Prerequisite**: Read `data/processed/sample_size_status.json`; if status is "SKIP_STATS", skip execution and log "Statistical test skipped due to low sample size". **Depends on T024**. <!-- FAILED: unspecified -->
+- [X] T025b [US3] Implement `code/evaluate.py` to generate confidence intervals via **1,000 (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))** bootstrap resamples of the **difference** in performance (Morgan - MACCS) for BOTH ROC-AUC and Precision-Recall AUC using the **5-fold scores**. **Depends on T025a**. <!-- FAILED: unspecified -->
+- [ ] T025c1 [US3] Implement `code/evaluate.py` to identify the phosphorus atom in the filtered compounds and use RDKit `GetBitInfo` to find Morgan bits within radius=2 of the phosphorus atom. **Depends on T019**.
+- [ ] T025c2 [US3] Implement `code/evaluate.py` to sum the Gini importance for the identified Morgan bits and calculate the **total Gini importance** for both Morgan and MACCS models. **Depends on T025c1**.
+- [ ] T025c3 [US3] Implement `code/evaluate.py` to compare the Morgan sum to the MACCS sum. **CRITICAL**: Must calculate **Mean Gini Importance** (Sum / Total Bits: a standard fixed-length vector for Morgan, a standard fixed-length vector for MACCS.) before comparing. Verify if the Morgan Mean exceeds the MACCS Mean by ≥15%. Write the result (sums, means, comparison, threshold check) to `data/processed/sc003_analysis.json`. **Depends on T025c2**.
+- [ ] T029a1 [US3] **Valid Path**: Implement `code/evaluate.py` to read `data/processed/split_summary.json`. If status is "VALID", proceed to generate metrics. **Depends on T025a, T025b, T025c3**.
+- [ ] T029a2 [US3] **Valid Path**: Generate metrics table with exact Markdown syntax:
  ```markdown
  | Metric | Morgan | MACCS | P-Value | 95% CI |
  |:--- |:---: |:---: |:---: |:---: |
  | ROC-AUC |... |... |... |... |
  | PR-AUC |... |... |... |... |
  ```
+ **Depends on T029a1**.
+- [ ] T029a3 [US3] **Valid Path**: Write final report `data/processed/research_results.md` containing:
+ 1. **Metrics table** (from T029a2).
  2. **Statistical Test Results** (p-values for ROC-AUC and PR-AUC).
- 3. **SC-003 Analysis** (Gini sums and threshold verification).
- **Condition**: ONLY run if `data/processed/split_status.json` indicates "VALID". **Depends on T025a, T025b, T025c**.
-- [ ] T029b [US3] **Invalid Path**: If `data/processed/split_status.json` indicates "INVALID" (from T018), generate a report `data/processed/research_results.md` that **DOES NOT** contain statistical tables or p-values. The report must contain a prominent header "## STATISTICAL COMPARISON INVALID" and state: "The Greedy Maximal Dissimilarity Split failed to achieve a Tanimoto threshold < 0.85. Statistical comparison is invalid. See `data/processed/invalid_split_report.md` for details." **Depends on T018 (Failure Path)**.
+ 3. **SC-003 Analysis** (Gini means and threshold verification).
+ **Condition**: ONLY run if `data/processed/split_summary.json` indicates "VALID". **Depends on T029a2**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,11 +153,8 @@
 
 **Purpose**: Address specific research-stage reviews regarding measurement uncertainty and calibration (by documenting their exclusion per spec).
 
-- [ ] T031 [US3] Update `specs/001-comparative-analysis-of-molecular-fingerprints/research.md` to explicitly document that measurement uncertainty was not recalculated and no external calibration was performed, citing `spec.md:Assumptions` sections "Instrument Precision" and "Algorithm Calibration".
 - [X] T033 Code cleanup and refactoring to ensure all random seeds are reproducible
-- [X] T034 Run `quickstart.md` validation to ensure full pipeline execution within 60 minutes on CI [UNRESOLVED-CLAIM: c_3170cf9f — status=not_enough_info]
-- [ ] T035 [US3] Implement `code/evaluate.py` to append a section titled `## Measurement Uncertainty & Calibration` to `research_results.md` with the exact text: "Measurement uncertainty was not recalculated; toxicity labels treated as ground truth per Spec Assumptions. RDKit fingerprint generation is the industry-standard calibration method." Cite spec.md:Assumptions.
-- [ ] T036 [US3] Add a "Limitations" section to `research_results.md` explicitly stating that the study does not provide standard deviations for toxicity measurements because the dataset provides binary labels (assay results) rather than continuous quantitative values, and that the "calibration" of fingerprints is inherent to the RDKit implementation standard, not a re-calibrated instrument.
+- [X] T034 Run `quickstart.md` validation to ensure full pipeline execution within 60 minutes on CI
 
 **Checkpoint**: All documentation and reporting requirements met
 
@@ -164,7 +168,7 @@
  1. Acknowledge the reviewer's concern regarding "measurement uncertainty" and "calibration".
  2. State that the Spec Assumptions ("Instrument Precision" and "Algorithm Calibration") explicitly define the methodology: toxicity labels are treated as ground truth (binary, no SD), and RDKit defaults constitute the standard calibration. No additional justification or fabricated methodological notes are required.
  3. Reiterate that the statistical rigor of the study is ensured by the **Corrected Resampled t-test** (Nadeau & Bengio) on the *model predictions*, which accounts for the variance in the learning process.
- **Note**: T037 and T038 (previously planned to generate detailed methodological notes) have been **DELETED** because the Spec Assumptions already provide the necessary directive; generating new justification tasks risks fabricating a methodological constraint where the Spec says none is needed.
+ **Note**: Do not generate new methodological notes or data. Strictly document the existing assumptions from the Spec. **Depends on T029a3 (Valid Path) or T018c (Invalid Path)**.
 
 **Checkpoint**: Reviewer concerns fully addressed with transparent documentation and methodological justification.
 
@@ -180,14 +184,14 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Phase 5)**: Depends on all desired user stories being complete
-- **Revision (Phase 6)**: Depends on Phase 5 (T029a/T029b) to have generated the initial results report to be updated.
+- **Revision (Phase 6)**: Depends on Phase 5 (T029a) to have generated the initial results report to be updated.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories. **Depends on T008 (Data Model)**.
 - **User Story 2 (P2)**: Depends on US1 completion (requires filtered data). **Depends on T004 (Directory Creation)**.
 - **User Story 3 (P3)**: Depends on US2 completion (requires trained models and splits). **Depends on T018 (Split)**.
-- **Phase 5 (Review)**: Depends on US3 completion (requires results to analyze). **Depends on T029a/T029b (Report)**.
+- **Phase 5 (Review)**: Depends on US3 completion (requires results to analyze). **Depends on T029a (Report)**.
 - **Phase 6 (Revision)**: Depends on Phase 5 completion.
 
 ### Within Each User Story
@@ -209,16 +213,18 @@
 
 ### Critical Sequential Dependencies (Non-Parallel)
 
-- **US1**: T011 (Download) -> T012 (Filter) -> T013 (Validate)
+- **US1**: T011 (Download) -> T012 (Filter) -> T013a (Validate) -> T013b (Write Status).
  - T012 depends on T004 (Directory creation) and T008 (Data Model).
-- **US2**: T017 (Fingerprints) -> T018 (Split) -> T019 (Train)
- - T018 strictly depends on T017 (requires fingerprint vectors for Tanimoto calculation)
- - T019 strictly depends on T018 (requires split indices)
- - **T018 is a hard gate**: If T018 fails, T019 and T029a are skipped; T029b is executed.
-- **US3**: T024 (Metrics) -> T025a (t-test) -> T025b (Bootstrap) -> T025c (Feature Importance) -> T029a/T029b (Report)
- - T025c strictly depends on T019 (Train) for Gini importance data
- - T029a/T029b strictly depend on T018 (Split) to handle both success and failure paths.
-- **Phase 5**: T031/T035/T036 strictly depend on T029a/T029b (Report) for content verification.
+- **US2**: T017 (Fingerprints) -> T018a (5-Fold Split) -> T018b (Verify) -> T018c (Invalid Path Halt) OR T019 (Train).
+ - T018b strictly depends on T018a (requires split status).
+ - T018c strictly depends on T018b (requires verification).
+ - T019 strictly depends on T018a (Success Path). If T018c halts, T019 is skipped by runner logic.
+ - **T018c is a hard gate**: If T018c halts, T019 and T029a are skipped; T018c generates the final report.
+- **US3**: T024 (Metrics) -> T025a (t-test) -> T025b (Bootstrap) -> T025c1/2/3 (Feature Importance) -> T029a (Report).
+ - T025a/T025b strictly depend on T013b (Sample Size Status) to skip if needed.
+ - T025c1 strictly depends on T019 (Train) for Gini importance data.
+ - T029a strictly depends on T018 (Split) to handle the valid path.
+- **Phase 5**: T033/T034 strictly depend on T029a (Report) for content verification.
 - **Phase 6**: T039 strictly depends on Phase 5 completion.
 
 ---
@@ -277,10 +283,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (cores, limited RAM, no GPU). Do not use 8-bit quantization or CUDA.
+- **Critical Constraint**: All tasks must run on CPU-only CI (cores, limited RAM, no GPU). Do not use low-bit quantization or CUDA.
 - **Data Integrity**: All data must be real. No synthetic data generation tasks are allowed.
-- **Statistical Rigor**: Corrected Resampled t-test (Nadeau & Bengio) on **test set predictions** MUST apply to both ROC-AUC and Precision-Recall AUC.
-- **Success Criteria**: SC-003 ([deferred] Gini improvement) MUST be explicitly verified using radius=2.
-- **Edge Cases**: Handle n < 50 with warning/skip; handle insufficient diversity with **HALT** and invalid report.
-- **Reviewer Compliance**: T031, T035, and T036 explicitly document the exclusion of uncertainty analysis and the nature of "calibration" per Spec Assumptions. T039 addresses the `marie-curie-simulated` review by confirming the Spec Assumptions are sufficient and no new justification is needed.
-- **Revision Compliance**: T018 now strictly enforces the "halt execution" constraint. T029a/T029b ensure valid/invalid paths are handled correctly without conflating reports.
+- **Statistical Rigor**: Corrected Resampled t-test (Nadeau & Bengio) on **5-fold CV scores** MUST apply to both ROC-AUC and Precision-Recall AUC. **NO Single Split** for the t-test.
+- **Success Criteria**: SC-003 ([deferred] Gini improvement) MUST be explicitly verified using **Mean** Gini Importance (normalized by bit count).
+- **Edge Cases**: Handle n < 50 with warning/skip (T013a/T013b); handle insufficient diversity with **HALT** (T018c) and invalid report generation (T018c).
+- **Reviewer Compliance**: T039 addresses the `marie-curie-simulated` review by confirming the Spec Assumptions are sufficient and no new justification is needed. Tasks T031, T035, T036 have been removed to avoid gold-plating.
+- **Revision Compliance**: T018 now strictly enforces the "halt execution" constraint with verification (T018b) before halting (T018c). T018c now generates the final `research_results.md` for the invalid path to ensure the report exists. T029a/T029b logic updated to reflect 5-Fold CV.

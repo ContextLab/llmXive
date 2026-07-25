@@ -1,2 +1,1 @@
-# This directory stores raw, unprocessed data files downloaded from external sources.
-# Do not modify files here directly; use the data processing pipeline.
+# This directory stores raw, unprocessed data downloads (e.g., Tox21 source files).

@@ -1,123 +1,184 @@
+"""
+code/filter.py
+Filters the Tox21 dataset for organophosphates using a SMARTS pattern,
+validates endpoints, logs statistics, and writes status files.
+"""
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
 import logging
 from pathlib import Path
 from datetime import datetime
-from typing import List, Tuple, Optional
+import json
 import os
 
-from utils import setup_logging, get_logger
-from constants import SMARTS_PATTERN
+# Import constants and utilities from project modules
+from code.constants import SMARTS_PATTERN
+from code.utils import setup_logging, get_logger, init_random_seed
 
-logger = get_logger(__name__)
+# Initialize random seed for reproducibility
+init_random_seed(42)
 
 def load_compounds(input_path: str) -> pd.DataFrame:
-    """Load compounds from a CSV file."""
+    """Load the raw Tox21 dataset from CSV."""
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+    logger = get_logger(__name__)
     logger.info(f"Loading compounds from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} compounds")
-    return df
+    return pd.read_csv(input_path)
 
-def apply_smarts_filter(df: pd.DataFrame, smarts: str = SMARTS_PATTERN) -> pd.DataFrame:
-    """Apply SMARTS pattern filter to the dataframe."""
-    logger.info(f"Applying SMARTS pattern: {smarts}")
+def apply_smarts_filter(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Filter compounds that match the SMARTS pattern for organophosphates.
+    Uses the SMARTS_PATTERN constant from code/constants.py.
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Applying SMARTS filter: {SMARTS_PATTERN}")
     
-    pattern = Chem.MolFromSmarts(smarts)
+    pattern = Chem.MolFromSmarts(SMARTS_PATTERN)
     if pattern is None:
-        raise ValueError(f"Invalid SMARTS pattern: {smarts}")
-    
-    def matches_pattern(smiles: str) -> bool:
+        raise ValueError(f"Invalid SMARTS pattern: {SMARTS_PATTERN}")
+
+    # Vectorize the matching logic for performance
+    def matches_pattern(smiles):
+        if pd.isna(smiles) or not isinstance(smiles, str):
+            return False
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return False
         return mol.HasSubstructMatch(pattern)
+
+    mask = df['smiles'].apply(matches_pattern)
+    filtered_df = df[mask].reset_index(drop=True)
     
-    # Log download size if available (from metadata or row count)
-    total_rows = len(df)
-    logger.info(f"Dataset download size (row count): {total_rows}")
-    
-    filtered_df = df[df['smiles'].apply(matches_pattern)]
-    filter_count = len(filtered_df)
-    
-    logger.info(f"Filter counts: Original={total_rows}, Filtered={filter_count}, Removed={total_rows - filter_count}")
-    
+    logger.info(f"Filtered {len(df)} -> {len(filtered_df)} compounds")
     return filtered_df
 
-def validate_endpoints(df: pd.DataFrame, log_path: str) -> None:
-    """Validate endpoint distributions and log results."""
-    logger.info("Validating endpoint distributions")
+def validate_endpoints(df: pd.DataFrame) -> dict:
+    """
+    Count rows per toxicity endpoint.
+    Returns a dictionary of endpoint -> count.
+    """
+    logger = get_logger(__name__)
+    endpoint_counts = {}
     
-    endpoint_cols = [col for col in df.columns if col.startswith('NR-')]
-    if not endpoint_cols:
-        # Fallback for different column naming if necessary, though Tox21 usually uses NR-
-        endpoint_cols = [col for col in df.columns if col != 'smiles' and col != 'ID']
+    # Identify toxicity endpoints (columns that are not 'smiles' or 'compound_name')
+    # Assuming standard Tox21 schema where endpoints are boolean/float columns
+    endpoints = [col for col in df.columns if col not in ['smiles', 'compound_name']]
     
-    log_lines = []
-    log_lines.append(f"Validation Log - {datetime.now().isoformat()}")
-    log_lines.append(f"Total rows: {len(df)}")
-    log_lines.append("-" * 40)
-    
-    low_sample_warning = False
-    
-    for endpoint in endpoint_cols:
+    for endpoint in endpoints:
         if endpoint in df.columns:
+            # Count non-null entries
             count = df[endpoint].notna().sum()
-            log_lines.append(f"Endpoint: {endpoint} -> Count: {count}")
-            if count < 50:
-                log_lines.append(f"  WARNING: Low sample size ({count} < 50) for {endpoint}. Statistical tests skipped.")
-                low_sample_warning = True
-        else:
-            log_lines.append(f"Endpoint: {endpoint} -> NOT FOUND")
-    
-    if low_sample_warning:
-        log_lines.append("-" * 40)
-        log_lines.append("LIMITATION: Some endpoints have < 50 samples. Statistical significance cannot be guaranteed.")
-    
-    # Write to log file
-    log_path_obj = Path(log_path)
-    log_path_obj.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path_obj, 'w') as f:
-        f.write('\n'.join(log_lines))
-    
-    logger.info(f"Validation log written to {log_path}")
+            endpoint_counts[endpoint] = int(count)
+            logger.debug(f"Endpoint {endpoint}: {count} valid rows")
+        
+    return endpoint_counts
 
-def save_filtered_data(df: pd.DataFrame, output_path: str, log_path: str) -> None:
-    """Save filtered data and update log."""
-    logger.info(f"Saving filtered data to {output_path}")
-    
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+def save_filtered_data(df: pd.DataFrame, output_path: str):
+    """Save the filtered dataframe to CSV."""
+    logger = get_logger(__name__)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} rows to {output_path}")
+    logger.info(f"Saved filtered data to {output_path}")
+
+def write_sample_size_status(total_count: int, output_path: str):
+    """
+    Write sample size status JSON.
+    If n < 50, writes {"status": "SKIP_STATS"}.
+    Otherwise, writes {"status": "OK"}.
+    """
+    logger = get_logger(__name__)
+    status = "SKIP_STATS" if total_count < 50 else "OK"
+    status_data = {"status": status}
     
-    # Update log with endpoint distribution
-    validate_endpoints(df, log_path)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(status_data, f, indent=2)
+    
+    logger.info(f"Wrote sample size status: {status} (n={total_count}) to {output_path}")
+
+def write_filter_log(
+    download_size: int,
+    filter_count_before: int,
+    filter_count_after: int,
+    endpoint_distribution: dict,
+    log_path: str
+):
+    """
+    Write detailed logging for dataset download size, filter counts, and endpoint distribution.
+    """
+    logger = get_logger(__name__)
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    with open(log_path, 'w') as f:
+        f.write(f"=== Filter Log - {timestamp} ===\n\n")
+        
+        f.write("--- Dataset Statistics ---\n")
+        f.write(f"Download Size (bytes): {download_size}\n")
+        f.write(f"Total Compounds Before Filter: {filter_count_before}\n")
+        f.write(f"Total Compounds After Filter: {filter_count_after}\n")
+        f.write(f"Filter Retention Rate: {(filter_count_after / max(filter_count_before, 1)) * 100:.2f}%\n\n")
+        
+        f.write("--- Endpoint Distribution ---\n")
+        for endpoint, count in sorted(endpoint_distribution.items()):
+            f.write(f"{endpoint}: {count}\n")
+        
+        if filter_count_after < 50:
+            f.write("\nWARNING: Low Sample Size (n < 50)\n")
+        
+        f.write("\n=== End Log ===\n")
+    
+    logger.info(f"Wrote filter log to {log_path}")
 
 def main():
-    """Main entry point for filtering."""
+    """Main entry point for the filtering pipeline."""
     setup_logging()
+    logger = get_logger(__name__)
     
-    input_path = "data/raw/tox21.csv" # Expected path from download.py
-    output_path = "data/processed/organophosphates_filtered.csv"
-    log_path = "data/processed/filter_log.txt"
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_path = project_root / "data" / "raw" / "tox21.csv"
+    filtered_output_path = project_root / "data" / "processed" / "organophosphates_filtered.csv"
+    log_output_path = project_root / "data" / "processed" / "filter_log.txt"
+    status_output_path = project_root / "data" / "processed" / "sample_size_status.json"
     
-    # Check if input exists (if download.py hasn't run yet, this will fail loudly)
-    if not os.path.exists(input_path):
-        logger.error(f"Input file {input_path} not found. Please run download.py first.")
-        raise FileNotFoundError(f"Input file {input_path} not found")
+    # Simulate download size if file exists (or use actual file size if needed)
+    # For this task, we assume the download step has already written the file
+    download_size = 0
+    if raw_data_path.exists():
+        download_size = raw_data_path.stat().st_size
+        logger.info(f"Detected raw data size: {download_size} bytes")
     
-    try:
-        df = load_compounds(input_path)
-        filtered_df = apply_smarts_filter(df)
-        save_filtered_data(filtered_df, output_path, log_path)
-        logger.info("Filtering completed successfully")
-    except Exception as e:
-        logger.error(f"Filtering failed: {e}")
-        raise
+    # 1. Load compounds
+    df = load_compounds(str(raw_data_path))
+    count_before = len(df)
+    
+    # 2. Apply SMARTS filter
+    df_filtered = apply_smarts_filter(df)
+    count_after = len(df_filtered)
+    
+    # 3. Validate endpoints
+    endpoint_dist = validate_endpoints(df_filtered)
+    
+    # 4. Save filtered data
+    save_filtered_data(df_filtered, str(filtered_output_path))
+    
+    # 5. Write sample size status
+    write_sample_size_status(count_after, str(status_output_path))
+    
+    # 6. Write filter log with all required metrics
+    write_filter_log(
+        download_size=download_size,
+        filter_count_before=count_before,
+        filter_count_after=count_after,
+        endpoint_distribution=endpoint_dist,
+        log_path=str(log_output_path)
+    )
+    
+    logger.info("Filtering pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()
