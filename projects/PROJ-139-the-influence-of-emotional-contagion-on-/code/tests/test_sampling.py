@@ -1,137 +1,201 @@
 """
-Tests for the sampling module (T007a).
+Tests for the sampling and power analysis module.
 """
-import json
 import os
+import json
 import tempfile
 from pathlib import Path
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
-
+import numpy as np
 from code.data.sampling import (
     load_extracted_data,
-    sample_comments,
-    get_vader_label,
-    get_textblob_label,
-    generate_annotations,
-    load_hf_corpus
+    load_thread_metrics,
+    calculate_stratification_grid,
+    generate_power_analysis_report,
+    update_analysis_summary_with_power_limitations
 )
-from code.config.settings import DatasetPaths
 
-# Fixtures
+
 @pytest.fixture
-def sample_df():
-    """Create a sample DataFrame for testing."""
+def sample_extracted_data():
+    """Create sample extracted thread data."""
     data = {
-        'thread_id': ['t1', 't2', 't3', 't4', 't5'],
-        'comment_id': ['c1', 'c2', 'c3', 'c4', 'c5'],
-        'body': ['Good post', 'Bad post', 'Neutral', 'Great!', 'Terrible'],
-        'subreddit': ['r/test', 'r/test', 'r/test', 'r/test', 'r/test'],
-        'timestamp': ['2023-01-01'] * 5
+        'thread_id': [f'thread_{i}' for i in range(100)],
+        'subreddit': ['reddit_a' if i % 2 == 0 else 'reddit_b' for i in range(100)],
+        'reply_count': np.random.randint(1, 50, 100),
+        'is_valid': [True if i % 3 == 0 else False for i in range(100)],
+        'is_valid_no_gt': [False if i % 3 == 0 else True for i in range(100)]
     }
     return pd.DataFrame(data)
 
+
 @pytest.fixture
-def temp_raw_dir():
-    """Create a temporary directory for raw data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-# Tests
-def test_sample_comments_small_df(sample_df):
-    """Test sampling when df is smaller than requested sample size."""
-    result = sample_comments(sample_df, n_samples=10)
-    assert len(result) == 5  # Should return all rows
-    assert isinstance(result, list)
-    assert 'comment_id' in result[0]
-
-def test_sample_comments_large_df(sample_df):
-    """Test sampling when df is larger than requested sample size."""
-    # Create a larger dataframe
-    large_df = pd.concat([sample_df] * 100, ignore_index=True)
-    result = sample_comments(large_df, n_samples=50)
-    assert len(result) == 50
-    assert isinstance(result, list)
-
-def test_get_vader_label_ranges():
-    """Test VADER label mapping."""
-    assert get_vader_label(-0.8) == -2
-    assert get_vader_label(-0.5) == -1
-    assert get_vader_label(0.0) == 0
-    assert get_vader_label(0.5) == 1
-    assert get_vader_label(0.9) == 2
-
-def test_get_textblob_label_ranges():
-    """Test TextBlob label mapping."""
-    assert get_textblob_label(-0.8) == -2
-    assert get_textblob_label(-0.5) == -1
-    assert get_textblob_label(0.0) == 0
-    assert get_textblob_label(0.5) == 1
-    assert get_textblob_label(0.9) == 2
-
-def test_generate_annotations(temp_raw_dir):
-    """Test annotation file generation."""
-    comments = [{'comment_id': 'c1', 'text': 'Hello', 'thread_id': 't1'}]
-    output_path = temp_raw_dir / 'annotations.json'
-    
-    generate_annotations(comments, output_path)
-    
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert len(data) == 1
-    assert data[0]['comment_id'] == 'c1'
-    assert data[0]['score'] is None  # Placeholder
-
-@patch('code.data.sampling.Path')
-def test_load_extracted_data_missing_file(mock_path_class, sample_df):
-    """Test loading data when file is missing."""
-    mock_path = MagicMock()
-    mock_path.exists.return_value = False
-    mock_path_class.return_value = mock_path
-    
-    config = {
-        'paths': {
-            'processed': '/fake/path'
-        }
+def sample_thread_metrics():
+    """Create sample thread metrics."""
+    data = {
+        'thread_id': [f'thread_{i}' for i in range(100)],
+        'contagion_index': np.random.uniform(-1, 1, 100),
+        'agreement_proportion': np.random.uniform(0, 1, 100),
+        'entropy': np.random.uniform(0, 2, 100)
     }
-    
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def temp_extracted_file(sample_extracted_data):
+    """Create a temporary file with sample extracted data."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        sample_extracted_data.to_csv(f, index=False)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
+
+
+@pytest.fixture
+def temp_metrics_file(sample_thread_metrics):
+    """Create a temporary file with sample thread metrics."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        sample_thread_metrics.to_csv(f, index=False)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
+
+
+@pytest.fixture
+def temp_summary_file():
+    """Create a temporary summary file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("# Analysis Summary\n\n## Introduction\n")
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
+
+
+def test_load_extracted_data(temp_extracted_file, sample_extracted_data):
+    """Test loading extracted thread data."""
+    df = load_extracted_data(temp_extracted_file)
+    assert len(df) == len(sample_extracted_data)
+    assert 'thread_id' in df.columns
+    assert 'subreddit' in df.columns
+
+
+def test_load_thread_metrics(temp_metrics_file, sample_thread_metrics):
+    """Test loading thread metrics."""
+    df = load_thread_metrics(temp_metrics_file)
+    assert len(df) == len(sample_thread_metrics)
+    assert 'thread_id' in df.columns
+    assert 'contagion_index' in df.columns
+
+
+def test_load_missing_file():
+    """Test that loading a missing file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        load_extracted_data(config)
+        load_extracted_data("/nonexistent/path/file.csv")
 
-@patch('code.data.sampling.nltk')
-def test_load_hf_corpus_success(mock_nltk):
-    """Test loading HuggingFace/NLTK corpus successfully."""
-    mock_nltk.data.find.return_value.dirname = '/fake/nltk/data'
-    
-    # Mock the file existence check
-    with patch('pathlib.Path.exists') as mock_exists:
-        mock_exists.return_value = True
-        
-        # Mock file reading
-        with patch('builtins.open', mock_open_read_data=[
-            json.dumps([{'text': 'test', 'label': 1}])
-        ]):
-            # We need to mock open to return the data
-            # This is a simplified mock for the test
-            pass 
-    
-    # Since mocking file I/O and nltk is complex, we test the logic flow
-    # by ensuring the function raises if not found, or returns if found.
-    # For now, we assume the path exists and test the happy path logic
-    # by patching the file read.
-    pass
 
-# Helper for mocking open
-from unittest.mock import mock_open
+def test_calculate_stratification_grid(sample_extracted_data):
+    """Test stratification grid calculation."""
+    grid = calculate_stratification_grid(sample_extracted_data)
 
-def test_load_hf_corpus_file_not_found():
-    """Test loading HuggingFace/NLTK corpus when file is missing."""
-    with patch('code.data.sampling.Path') as mock_path:
-        mock_path.return_value.exists.return_value = False
-        with patch('code.data.sampling.nltk') as mock_nltk:
-            mock_nltk.data.find.side_effect = LookupError("Not found")
-            with pytest.raises(FileNotFoundError):
-                load_hf_corpus()
+    assert 'stratification_columns' in grid
+    assert 'distribution' in grid
+    assert 'total_count' in grid
+    assert grid['total_count'] == len(sample_extracted_data)
+
+    # Check that distribution includes expected columns
+    assert 'subreddit' in grid['distribution']
+
+
+def test_calculate_stratification_grid_with_thread_length(sample_extracted_data):
+    """Test stratification grid with thread length binning."""
+    grid = calculate_stratification_grid(sample_extracted_data, ['reply_count'])
+
+    assert 'thread_length_bin' in str(grid['distribution']) or 'reply_count' in grid['distribution']
+
+
+def test_generate_power_analysis_report(sample_extracted_data):
+    """Test power analysis report generation."""
+    report = generate_power_analysis_report(sample_extracted_data)
+
+    assert 'total_threads' in report
+    assert 'required_sample_size' in report
+    assert 'achieved_power' in report
+    assert 'power_limitation' in report
+    assert 'warning_message' in report
+
+    # Check that total threads matches input
+    assert report['total_threads'] == len(sample_extracted_data)
+
+
+def test_generate_power_analysis_small_sample():
+    """Test power analysis with small sample (should trigger warning)."""
+    small_data = pd.DataFrame({
+        'thread_id': [f't{i}' for i in range(10)],
+        'subreddit': ['a'] * 10,
+        'reply_count': [5] * 10
+    })
+
+    report = generate_power_analysis_report(small_data)
+
+    assert report['power_limitation'] is True
+    assert report['warning_message'] is not None
+    assert "Power limitation detected" in report['warning_message']
+
+
+def test_generate_power_analysis_large_sample():
+    """Test power analysis with large sample (should not trigger warning)."""
+    large_data = pd.DataFrame({
+        'thread_id': [f't{i}' for i in range(200)],
+        'subreddit': ['a'] * 100 + ['b'] * 100,
+        'reply_count': [10] * 200
+    })
+
+    report = generate_power_analysis_report(large_data)
+
+    # With 200 samples, power limitation should be False
+    assert report['power_limitation'] is False
+
+
+def test_update_analysis_summary_with_power_limitations(temp_summary_file, sample_extracted_data):
+    """Test updating analysis summary with power limitations."""
+    report = generate_power_analysis_report(sample_extracted_data)
+
+    # Create a sample report with power limitation
+    limited_report = report.copy()
+    limited_report['power_limitation'] = True
+    limited_report['warning_message'] = "Test power limitation warning"
+
+    update_analysis_summary_with_power_limitations(temp_summary_file, limited_report)
+
+    # Read the updated file
+    with open(temp_summary_file, 'r') as f:
+        content = f.read()
+
+    assert "Statistical Power Analysis" in content
+    assert "Power limitation detected" in content
+
+
+def test_update_analysis_summary_without_limitations(temp_summary_file, sample_extracted_data):
+    """Test updating analysis summary without power limitations."""
+    report = generate_power_analysis_report(sample_extracted_data)
+
+    # Create a sample report without power limitation
+    sufficient_report = report.copy()
+    sufficient_report['power_limitation'] = False
+    sufficient_report['warning_message'] = None
+
+    update_analysis_summary_with_power_limitations(temp_summary_file, sufficient_report)
+
+    # Read the updated file
+    with open(temp_summary_file, 'r') as f:
+        content = f.read()
+
+    assert "Statistical Power Analysis" in content
+    assert "Sufficient Power" in content
+
+
+def test_update_analysis_summary_missing_file():
+    """Test updating a missing summary file."""
+    with pytest.warns(UserWarning):
+        update_analysis_summary_with_power_limitations("/nonexistent/summary.md", {})

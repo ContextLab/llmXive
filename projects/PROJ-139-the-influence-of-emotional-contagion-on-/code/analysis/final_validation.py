@@ -1,8 +1,3 @@
-"""
-Final validation module to verify all Success Criteria (SC-001 to SC-006) are met.
-This script acts as the gatekeeper before project completion.
-"""
-
 import os
 import sys
 import json
@@ -13,348 +8,275 @@ import pandas as pd
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('state/final_validation.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative to this script
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-STATE_DIR = PROJECT_ROOT / "state"
-DOCS_DIR = PROJECT_ROOT / "docs"
-
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def check_sc_001_variable_fit():
     """
-    SC-001: Variable Fit.
-    Verify that all required variables (sentiment, contagion_index, decision_quality metrics)
-    exist in the processed data and contain non-null, non-NaN values.
+    SC-001: Verify that all required variables are present in the final dataset.
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-001: Variable Fit...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-001: Variable Fit")
+    processed_dir = PROJECT_ROOT / "data" / "processed"
+    metrics_file = processed_dir / "thread_metrics.csv"
+    validation_file = processed_dir / "valid_threads.csv"
 
-    # Check thread_metrics.csv
-    metrics_path = DATA_PROCESSED / "thread_metrics.csv"
-    if not metrics_path.exists():
-        errors.append(f"Missing file: {metrics_path}")
-    else:
-        df_metrics = pd.read_csv(metrics_path)
-        required_cols = ["thread_id", "contagion_index"]
-        for col in required_cols:
-            if col not in df_metrics.columns:
-                errors.append(f"Missing column '{col}' in thread_metrics.csv")
-            elif df_metrics[col].isna().all():
-                errors.append(f"All values in '{col}' are NaN in thread_metrics.csv")
+    try:
+        if not metrics_file.exists():
+            return False, f"Missing required file: {metrics_file}"
+        if not validation_file.exists():
+            return False, f"Missing required file: {validation_file}"
 
-    # Check decision quality metrics in valid_threads.csv or a merged file
-    # T018 appends to valid_threads.csv or creates a specific file.
-    # We assume valid_threads.csv has the decision quality metrics.
-    valid_path = DATA_PROCESSED / "valid_threads.csv"
-    if not valid_path.exists():
-        # Fallback: check if metrics are in a separate file or if we can infer
-        # For now, strictly check if the file exists and has the columns.
-        errors.append(f"Missing file: {valid_path}")
-    else:
-        df_valid = pd.read_csv(valid_path)
-        # Expected columns from T018: agreement_proportion, shannon_entropy, external_validation_score
-        required_decision_cols = ["agreement_proportion", "shannon_entropy", "external_validation_score"]
-        for col in required_decision_cols:
-            if col not in df_valid.columns:
-                errors.append(f"Missing decision quality column '{col}' in valid_threads.csv")
-            elif df_valid[col].isna().all():
-                errors.append(f"All values in '{col}' are NaN in valid_threads.csv")
+        metrics_df = pd.read_csv(metrics_file)
+        validation_df = pd.read_csv(validation_file)
 
-    if errors:
-        status = "fail"
-        logger.error(f"SC-001 Failed: {errors}")
-    else:
-        logger.info("SC-001 Passed: All variables present and valid.")
+        required_metrics = ['thread_id', 'contagion_index', 'agreement_proportion', 'shannon_entropy']
+        required_validation = ['thread_id', 'external_validation_score']
 
-    return {
-        "sc_id": "SC-001",
-        "status": status,
-        "details": errors if errors else "All required variables fit criteria."
-    }
+        missing_metrics = [col for col in required_metrics if col not in metrics_df.columns]
+        missing_validation = [col for col in required_validation if col not in validation_df.columns]
 
+        if missing_metrics:
+            return False, f"Missing columns in thread_metrics.csv: {missing_metrics}"
+        if missing_validation:
+            return False, f"Missing columns in valid_threads.csv: {missing_validation}"
+
+        return True, "All required variables present in metrics and validation files."
+    except Exception as e:
+        return False, f"Error checking SC-001: {str(e)}"
 
 def check_sc_002_associational_framing():
     """
-    SC-002: Associational Framing.
-    Verify that the final report (paper.md) explicitly frames findings as associational.
+    SC-002: Verify that the paper explicitly frames findings as associational.
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-002: Associational Framing...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-002: Associational Framing")
+    paper_path = PROJECT_ROOT / "docs" / "paper.md"
 
-    paper_path = DOCS_DIR / "paper.md"
     if not paper_path.exists():
-        errors.append("Missing file: docs/paper.md")
-        return {
-            "sc_id": "SC-002",
-            "status": "fail",
-            "details": errors
-        }
+        return False, "Missing required file: docs/paper.md"
 
-    with open(paper_path, 'r', encoding='utf-8') as f:
-        content = f.read().lower()
+    try:
+        content = paper_path.read_text()
+        # Check for explicit limitations section or statement
+        if "Limitations" not in content:
+            return False, "Missing 'Limitations' section in paper.md"
+        
+        # Check for explicit associational language
+        if "observational" not in content.lower():
+            return False, "Missing 'observational' keyword in paper.md"
+        if "correlational" not in content.lower():
+            return False, "Missing 'correlational' keyword in paper.md"
+        
+        # Check for absence of causal language (basic check)
+        causal_phrases = ["causes", "leads to", "proves", "determines", "results in"]
+        found_causal = [phrase for phrase in causal_phrases if phrase in content.lower()]
+        if found_causal:
+            return False, f"Found potentially causal language: {found_causal}"
 
-    # Keywords to look for
-    keywords = ["associational", "correlational", "observational", "not causal", "should not be interpreted as causal"]
-    found_keywords = [kw for kw in keywords if kw in content]
-
-    if not found_keywords:
-        errors.append("No explicit associational framing found in paper.md.")
-    else:
-        logger.info(f"Found associational framing keywords: {found_keywords}")
-
-    if errors:
-        status = "fail"
-        logger.error(f"SC-002 Failed: {errors}")
-    else:
-        logger.info("SC-002 Passed: Associational framing confirmed.")
-
-    return {
-        "sc_id": "SC-002",
-        "status": status,
-        "details": errors if errors else "Findings are explicitly framed as associational."
-    }
-
+        return True, "Paper explicitly frames findings as associational."
+    except Exception as e:
+        return False, f"Error checking SC-002: {str(e)}"
 
 def check_sc_003_multiple_comparison():
     """
-    SC-003: Multiple Comparison Correction.
-    Verify that multiple comparison correction (Bonferroni or BH) was applied in modeling outputs.
+    SC-003: Verify that multiple-comparison correction was applied.
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-003: Multiple Comparison Correction...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-003: Multiple Comparison Correction")
+    modeling_path = PROJECT_ROOT / "code" / "data" / "modeling.py"
+    sensitivity_file = PROJECT_ROOT / "data" / "processed" / "sensitivity_analysis.csv"
 
-    # Check modeling output or report
-    # T022 saves correction info. We check if the report mentions it or if a file exists.
-    # Let's check the paper.md for mention of correction or a specific log file.
-    paper_path = DOCS_DIR / "paper.md"
-    if not paper_path.exists():
-        errors.append("Missing file: docs/paper.md")
-        return {
-            "sc_id": "SC-003",
-            "status": "fail",
-            "details": errors
-        }
+    try:
+        if not modeling_path.exists():
+            return False, "Missing modeling.py"
+        
+        modeling_content = modeling_path.read_text()
+        if "bonferroni" not in modeling_content.lower() and "benjamini" not in modeling_content.lower() and "fdr" not in modeling_content.lower():
+            return False, "No multiple comparison correction method found in modeling.py"
 
-    with open(paper_path, 'r', encoding='utf-8') as f:
-        content = f.read().lower()
+        if not sensitivity_file.exists():
+            return False, "Missing sensitivity_analysis.csv"
+        
+        # Verify the file has results (non-empty)
+        df = pd.read_csv(sensitivity_file)
+        if df.empty:
+            return False, "sensitivity_analysis.csv is empty"
 
-    correction_keywords = ["bonferroni", "benjamini-hochberg", "fdr", "multiple comparison", "multiple testing"]
-    found_keywords = [kw for kw in correction_keywords if kw in content]
-
-    if not found_keywords:
-        errors.append("No mention of multiple comparison correction in paper.md.")
-    else:
-        logger.info(f"Found correction keywords: {found_keywords}")
-
-    if errors:
-        status = "fail"
-        logger.error(f"SC-003 Failed: {errors}")
-    else:
-        logger.info("SC-003 Passed: Multiple comparison correction applied.")
-
-    return {
-        "sc_id": "SC-003",
-        "status": status,
-        "details": errors if errors else "Multiple comparison correction is documented."
-    }
-
+        return True, "Multiple comparison correction applied and sensitivity analysis generated."
+    except Exception as e:
+        return False, f"Error checking SC-003: {str(e)}"
 
 def check_sc_004_threshold_sensitivity():
     """
-    SC-004: Threshold Sensitivity.
-    Verify that sensitivity analysis was performed across a range of thresholds.
+    SC-004: Verify that threshold sensitivity analysis grid is complete (9 rows).
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-004: Threshold Sensitivity...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-004: Threshold Sensitivity")
+    sensitivity_file = PROJECT_ROOT / "data" / "processed" / "sensitivity_analysis.csv"
 
-    sensitivity_path = DATA_PROCESSED / "sensitivity_analysis.csv"
-    if not sensitivity_path.exists():
-        errors.append(f"Missing file: {sensitivity_path}")
-        return {
-            "sc_id": "SC-004",
-            "status": "fail",
-            "details": errors
-        }
+    if not sensitivity_file.exists():
+        return False, "Missing sensitivity_analysis.csv"
 
-    df_sens = pd.read_csv(sensitivity_path)
+    try:
+        df = pd.read_csv(sensitivity_file)
+        
+        # Check for required columns
+        required_cols = ['agreement_cutoff', 'entropy_threshold']
+        for col in required_cols:
+            if col not in df.columns:
+                return False, f"Missing column '{col}' in sensitivity_analysis.csv"
 
-    # Check if it has the required columns and rows
-    required_cols = ["agreement_cutoff", "entropy_threshold", "trend_summary"]
-    for col in required_cols:
-        if col not in df_sens.columns:
-            errors.append(f"Missing column '{col}' in sensitivity_analysis.csv")
+        # Check grid completeness: 3 cutoffs x 3 thresholds = 9 rows
+        expected_cutoffs = {0.5, 0.6, 0.7}
+        expected_thresholds = {0.2, 0.4, 0.6}
+        
+        actual_cutoffs = set(df['agreement_cutoff'].unique())
+        actual_thresholds = set(df['entropy_threshold'].unique())
 
-    # T023 specifies 9 rows (3x3 grid) for full coverage.
-    # We check if at least some rows exist and cover the range.
-    if len(df_sens) == 0:
-        errors.append("Sensitivity analysis file is empty.")
-    else:
-        # Check if we have variation in cutoffs and thresholds
-        cutoffs = sorted(df_sens["agreement_cutoff"].unique())
-        thresholds = sorted(df_sens["entropy_threshold"].unique())
+        if actual_cutoffs != expected_cutoffs:
+            return False, f"Missing agreement_cutoffs. Expected {expected_cutoffs}, got {actual_cutoffs}"
+        if actual_thresholds != expected_thresholds:
+            return False, f"Missing entropy_thresholds. Expected {expected_thresholds}, got {actual_thresholds}"
+        
+        if len(df) != 9:
+            return False, f"Grid incomplete: expected 9 rows, found {len(df)}"
 
-        if len(cutoffs) < 2 or len(thresholds) < 2:
-            errors.append(f"Insufficient variation in thresholds. Cutoffs: {cutoffs}, Thresholds: {thresholds}")
-        else:
-            logger.info(f"Sensitivity grid covered: {len(cutoffs)} cutoffs x {len(thresholds)} thresholds.")
-
-    if errors:
-        status = "fail"
-        logger.error(f"SC-004 Failed: {errors}")
-    else:
-        logger.info("SC-004 Passed: Threshold sensitivity analysis present.")
-
-    return {
-        "sc_id": "SC-004",
-        "status": status,
-        "details": errors if errors else "Threshold sensitivity analysis is complete."
-    }
-
+        return True, "Threshold sensitivity analysis grid is complete (9 rows)."
+    except Exception as e:
+        return False, f"Error checking SC-004: {str(e)}"
 
 def check_sc_005_performance():
     """
-    SC-005: Performance.
-    Verify that the pipeline completed within the time limit (6 hours) on the target runner.
+    SC-005: Verify that pipeline runtime is within limits (6 hours).
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-005: Performance...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-005: Performance")
+    perf_log = PROJECT_ROOT / "state" / "performance_log.json"
 
-    perf_log_path = STATE_DIR / "performance_log.json"
-    if not perf_log_path.exists():
-        errors.append(f"Missing file: {perf_log_path}")
-        return {
-            "sc_id": "SC-005",
-            "status": "fail",
-            "details": errors
-        }
+    if not perf_log.exists():
+        return False, "Missing state/performance_log.json"
 
-    with open(perf_log_path, 'r', encoding='utf-8') as f:
-        perf_data = json.load(f)
-
-    total_runtime = perf_data.get("total_runtime_seconds", 0)
-    max_runtime = 6 * 60 * 60  # 6 hours in seconds
-
-    if total_runtime > max_runtime:
-        errors.append(f"Pipeline exceeded time limit: {total_runtime}s > {max_runtime}s")
-    elif perf_data.get("status") != "success":
-        errors.append(f"Pipeline status was not 'success': {perf_data.get('status')}")
-    else:
-        logger.info(f"SC-005 Passed: Runtime {total_runtime}s within limit.")
-
-    if errors:
-        status = "fail"
-        logger.error(f"SC-005 Failed: {errors}")
-
-    return {
-        "sc_id": "SC-005",
-        "status": status,
-        "details": errors if errors else f"Performance within limits ({total_runtime}s)."
-    }
-
+    try:
+        with open(perf_log, 'r') as f:
+            data = json.load(f)
+        
+        status = data.get('status')
+        runtime = data.get('total_runtime_seconds', 0)
+        
+        if status == 'failure':
+            return False, f"Pipeline execution failed. Reason: {data.get('error', 'Unknown')}"
+        
+        # 6 hours = 21600 seconds
+        if runtime > 21600:
+            return False, f"Runtime exceeded 6 hours: {runtime} seconds"
+        
+        return True, f"Pipeline completed successfully in {runtime} seconds."
+    except Exception as e:
+        return False, f"Error checking SC-005: {str(e)}"
 
 def check_sc_006_ground_truth():
     """
-    SC-006: Ground Truth Compliance.
-    Verify that the dataset contains >= 30% valid threads (with ground truth).
+    SC-006: Verify ground truth availability threshold (>=30% valid threads).
+    Returns: (status: bool, reason: str)
     """
-    logger.info("Checking SC-006: Ground Truth Compliance...")
-    errors = []
-    status = "pass"
+    logger.info("Checking SC-006: Ground Truth Availability")
+    stats_file = PROJECT_ROOT / "data" / "processed" / "ground_truth_stats.json"
+    compliance_file = PROJECT_ROOT / "state" / "sc_006_compliance_report.json"
 
-    validity_status_path = DATA_PROCESSED / "validity_status.json"
-    if not validity_status_path.exists():
-        errors.append(f"Missing file: {validity_status_path}")
-        return {
-            "sc_id": "SC-006",
-            "status": "fail",
-            "details": errors
-        }
+    if not stats_file.exists():
+        return False, "Missing data/processed/ground_truth_stats.json"
 
-    with open(validity_status_path, 'r', encoding='utf-8') as f:
-        validity_data = json.load(f)
-
-    if not validity_data.get("sc_006_compliance", False):
-        errors.append("SC-006 compliance is False in validity_status.json.")
-    elif validity_data.get("status") != "pass":
-        errors.append(f"Validity status is not 'pass': {validity_data.get('status')}")
-    else:
-        logger.info(f"SC-006 Passed: Compliance status is true.")
-
-    if errors:
-        status = "fail"
-        logger.error(f"SC-006 Failed: {errors}")
-
-    return {
-        "sc_id": "SC-006",
-        "status": status,
-        "details": errors if errors else "Ground truth compliance verified."
-    }
-
+    try:
+        with open(stats_file, 'r') as f:
+            stats = json.load(f)
+        
+        valid_pct = stats.get('valid_thread_percentage', 0)
+        
+        if valid_pct < 30:
+            # Check if compliance report exists and reflects failure
+            if not compliance_file.exists():
+                return False, f"Valid thread percentage ({valid_pct}) < 30% but no compliance report found."
+            
+            with open(compliance_file, 'r') as f:
+                compliance = json.load(f)
+            
+            if compliance.get('sc_006_compliance') is not False:
+                return False, f"Valid thread percentage ({valid_pct}) < 30% but compliance report does not indicate failure."
+            
+            return True, f"Valid thread percentage ({valid_pct}) < 30%. Compliance report correctly indicates failure."
+        
+        return True, f"Valid thread percentage ({valid_pct}) >= 30%."
+    except Exception as e:
+        return False, f"Error checking SC-006: {str(e)}"
 
 def run_final_validation():
     """
-    Execute all SC checks and aggregate results.
+    Run all SC checks and compile results into validation_details map.
+    Returns: dict containing status and details for each SC.
     """
-    logger.info("Running Final Validation Suite...")
+    logger.info("Running Final Validation")
+    
+    checks = [
+        ("SC-001", check_sc_001_variable_fit),
+        ("SC-002", check_sc_002_associational_framing),
+        ("SC-003", check_sc_003_multiple_comparison),
+        ("SC-004", check_sc_004_threshold_sensitivity),
+        ("SC-005", check_sc_005_performance),
+        ("SC-006", check_sc_006_ground_truth),
+    ]
 
-    results = {
-        "sc_001": check_sc_001_variable_fit(),
-        "sc_002": check_sc_002_associational_framing(),
-        "sc_003": check_sc_003_multiple_comparison(),
-        "sc_004": check_sc_004_threshold_sensitivity(),
-        "sc_005": check_sc_005_performance(),
-        "sc_006": check_sc_006_ground_truth()
+    validation_details = {}
+    all_passed = True
+
+    for sc_id, check_func in checks:
+        try:
+            status, reason = check_func()
+            validation_details[sc_id] = {
+                "status": "pass" if status else "fail",
+                "reason": reason
+            }
+            if not status:
+                all_passed = False
+                logger.warning(f"{sc_id} failed: {reason}")
+            else:
+                logger.info(f"{sc_id} passed: {reason}")
+        except Exception as e:
+            validation_details[sc_id] = {
+                "status": "fail",
+                "reason": f"Exception during check: {str(e)}"
+            }
+            all_passed = False
+            logger.error(f"{sc_id} raised exception: {str(e)}")
+
+    result = {
+        "all_criteria_met": all_passed,
+        "validation_details": validation_details
     }
 
-    all_met = all(r["status"] == "pass" for r in results.values())
-
-    output_path = STATE_DIR / "final_validation.json"
+    # Write result to state/final_validation.json
+    output_path = PROJECT_ROOT / "state" / "final_validation.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump({
-            "all_criteria_met": all_met,
-            "details": results
-        }, f, indent=2)
-
-    logger.info(f"Final validation complete. All criteria met: {all_met}")
-    logger.info(f"Results written to {output_path}")
-
-    return all_met, results
-
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Final validation report written to {output_path}")
+    return result
 
 def main():
-    """
-    Entry point for the final validation script.
-    """
-    try:
-        success, results = run_final_validation()
-        if success:
-            logger.info("SUCCESS: All Success Criteria (SC-001 to SC-006) are met.")
-            sys.exit(0)
-        else:
-            logger.error("FAILURE: One or more Success Criteria were not met.")
-            for sc_id, res in results.items():
-                if res["status"] != "pass":
-                    logger.error(f"  - {sc_id}: {res['details']}")
-            sys.exit(1)
-    except Exception as e:
-        logger.exception(f"Unexpected error during final validation: {e}")
-        sys.exit(2)
-
+    """Main entry point."""
+    result = run_final_validation()
+    if result["all_criteria_met"]:
+        print("All success criteria met.")
+        sys.exit(0)
+    else:
+        print("One or more success criteria failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

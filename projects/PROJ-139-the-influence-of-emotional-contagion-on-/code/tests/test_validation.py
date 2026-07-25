@@ -1,208 +1,172 @@
 import os
 import json
 import tempfile
-from pathlib import Path
 import pytest
 import pandas as pd
-
+from pathlib import Path
 from code.data.validation import (
-    check_ground_truth_availability,
+    compute_external_validation_score,
     classify_thread,
     validate_and_classify,
-    save_validated_dataset,
-    save_exclusions_log,
-    check_valid_thread_threshold_with_total,
-    generate_validity_status_report
+    run_validation_pipeline
 )
 
-# Sample data for testing
-def sample_valid_thread_stackexchange():
-    return {
-        'thread_id': 'SE_001',
-        'source': 'stackexchange',
-        'accepted_answer_id': 'ans_123',
-        'title': 'How to fix Python error',
-        'body': 'I am getting an error...',
-        'replies': []
+def test_compute_external_validation_score_stackexchange_valid():
+    """Test StackExchange thread with accepted answer."""
+    thread = {
+        'platform': 'StackExchange',
+        'accepted_answer_id': 12345
     }
+    assert compute_external_validation_score(thread) == 1.0
 
-def sample_invalid_thread_stackexchange():
-    return {
-        'thread_id': 'SE_002',
-        'source': 'stackexchange',
-        'accepted_answer_id': None,
-        'title': 'Question without answer',
-        'body': 'I have a question...',
-        'replies': []
+def test_compute_external_validation_score_stackexchange_invalid():
+    """Test StackExchange thread without accepted answer."""
+    thread = {
+        'platform': 'StackExchange',
+        'accepted_answer_id': None
     }
+    assert compute_external_validation_score(thread) == 0.0
 
-def sample_valid_thread_reddit():
-    return {
-        'thread_id': 'RD_001',
-        'source': 'reddit',
-        'replies': [
-            {'id': 'r1', 'body': 'This is the accepted solution.', 'upvotes': 100},
-            {'id': 'r2', 'body': 'Try this.', 'upvotes': 50}
-        ]
+def test_compute_external_validation_score_reddit_valid():
+    """Test Reddit thread with upvotes > downvotes."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': 100,
+        'downvotes': 50
     }
+    assert compute_external_validation_score(thread) == 1.0
 
-def sample_invalid_thread_reddit():
-    return {
-        'thread_id': 'RD_002',
-        'source': 'reddit',
-        'replies': [
-            {'id': 'r1', 'body': 'I don\'t know.', 'upvotes': 10},
-            {'id': 'r2', 'body': 'Maybe.', 'upvotes': 5}
-        ]
+def test_compute_external_validation_score_reddit_invalid():
+    """Test Reddit thread with upvotes < downvotes."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': 50,
+        'downvotes': 100
     }
+    assert compute_external_validation_score(thread) == 0.0
 
-def sample_thread_missing_source():
-    return {
-        'thread_id': 'UNKNOWN_001',
-        'source': 'unknown',
-        'replies': []
+def test_compute_external_validation_score_reddit_inconclusive():
+    """Test Reddit thread with equal upvotes and downvotes."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': 50,
+        'downvotes': 50
     }
+    assert compute_external_validation_score(thread) is None
 
-def test_check_ground_truth_valid_stackexchange():
-    thread = sample_valid_thread_stackexchange()
-    assert check_ground_truth_availability(thread) is True
+def test_compute_external_validation_score_reddit_missing_upvotes():
+    """Test Reddit thread with missing upvotes (should return None and be logged)."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': None,
+        'downvotes': 50
+    }
+    assert compute_external_validation_score(thread) is None
 
-def test_check_ground_truth_missing_label_stackexchange():
-    thread = sample_invalid_thread_stackexchange()
-    assert check_ground_truth_availability(thread) is False
+def test_compute_external_validation_score_reddit_missing_downvotes():
+    """Test Reddit thread with missing downvotes (should return None and be logged)."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': 100,
+        'downvotes': None
+    }
+    assert compute_external_validation_score(thread) is None
 
-def test_check_ground_truth_valid_reddit():
-    thread = sample_valid_thread_reddit()
-    assert check_ground_truth_availability(thread) is True
+def test_compute_external_validation_score_reddit_missing_both():
+    """Test Reddit thread with both missing (should return None and be logged)."""
+    thread = {
+        'platform': 'Reddit',
+        'upvotes': None,
+        'downvotes': None
+    }
+    assert compute_external_validation_score(thread) is None
 
-def test_check_ground_truth_missing_source():
-    thread = sample_thread_missing_source()
-    assert check_ground_truth_availability(thread) is False
+def test_classify_thread_stackexchange_valid():
+    """Test classification of valid StackExchange thread."""
+    thread = {
+        'platform': 'StackExchange',
+        'accepted_answer_id': 123
+    }
+    assert classify_thread(thread) == 'valid'
 
-def test_classify_thread_valid():
-    thread = sample_valid_thread_stackexchange()
-    classification, reason = classify_thread(thread)
-    assert classification == 'valid'
-    assert reason is None
+def test_classify_thread_stackexchange_invalid():
+    """Test classification of invalid StackExchange thread."""
+    thread = {
+        'platform': 'StackExchange',
+        'accepted_answer_id': None
+    }
+    assert classify_thread(thread) == 'invalid'
 
-def test_classify_thread_invalid():
-    thread = sample_invalid_thread_stackexchange()
-    classification, reason = classify_thread(thread)
-    assert classification == 'excluded'
-    assert reason == 'ground_truth_missing'
+def test_classify_thread_reddit():
+    """Test classification of Reddit thread."""
+    thread = {
+        'platform': 'Reddit'
+    }
+    assert classify_thread(thread) == 'valid_no_gt'
 
-def test_validate_and_classify():
-    data = [
-        sample_valid_thread_stackexchange(),
-        sample_invalid_thread_stackexchange(),
-        sample_valid_thread_reddit(),
-        sample_invalid_thread_reddit()
-    ]
-    df = pd.DataFrame(data)
-    
-    valid_df, excluded_df = validate_and_classify(df)
-    
-    assert len(valid_df) == 2
-    assert len(excluded_df) == 2
-    assert valid_df.iloc[0]['thread_id'] == 'SE_001'
-    assert valid_df.iloc[1]['thread_id'] == 'RD_001'
-    assert excluded_df.iloc[0]['thread_id'] == 'SE_002'
-    assert excluded_df.iloc[1]['thread_id'] == 'RD_002'
-
-def test_save_validated_dataset():
-    data = [sample_valid_thread_stackexchange()]
-    df = pd.DataFrame(data)
-    
-    with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
-        temp_path = f.name
-    
-    try:
-        save_validated_dataset(df, temp_path)
-        assert os.path.exists(temp_path)
-        loaded_df = pd.read_csv(temp_path)
-        assert len(loaded_df) == 1
-        assert loaded_df.iloc[0]['thread_id'] == 'SE_001'
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-def test_save_exclusions_log():
-    data = [sample_invalid_thread_stackexchange()]
-    df = pd.DataFrame(data)
-    df['exclusion_reason'] = 'ground_truth_missing'
-    
-    with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
-        temp_path = f.name
-    
-    try:
-        save_exclusions_log(df, temp_path)
-        assert os.path.exists(temp_path)
-        loaded_df = pd.read_csv(temp_path)
-        assert len(loaded_df) == 1
-        assert loaded_df.iloc[0]['exclusion_reason'] == 'ground_truth_missing'
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-def test_check_valid_thread_threshold_with_total_pass():
-    result = check_valid_thread_threshold_with_total(total_threads=100, valid_threads=40, threshold=0.30)
-    assert result['valid_thread_percentage'] == 40.0
-    assert result['status'] == 'pass'
-    assert result['total_threads'] == 100
-    assert result['valid_threads'] == 40
-
-def test_check_valid_thread_threshold_with_total_fail():
-    result = check_valid_thread_threshold_with_total(total_threads=100, valid_threads=20, threshold=0.30)
-    assert result['valid_thread_percentage'] == 20.0
-    assert result['status'] == 'fail'
-    assert result['total_threads'] == 100
-    assert result['valid_threads'] == 20
-
-def test_check_valid_thread_threshold_with_total_zero_total():
-    result = check_valid_thread_threshold_with_total(total_threads=0, valid_threads=0, threshold=0.30)
-    assert result['valid_thread_percentage'] == 0.0
-    assert result['status'] == 'fail'
-
-def test_generate_validity_status_report():
-    data = [sample_valid_thread_stackexchange(), sample_invalid_thread_stackexchange()]
-    valid_df = pd.DataFrame([data[0]])
-    total_threads = 2
-    
-    with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
-        temp_path = f.name
-    
-    try:
-        generate_validity_status_report(valid_df, total_threads, temp_path, threshold=0.30)
-        assert os.path.exists(temp_path)
+def test_run_validation_pipeline_missing_votes_logging():
+    """Test that missing vote data is correctly logged."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'input.csv')
+        output_valid = os.path.join(tmpdir, 'valid.csv')
+        output_all = os.path.join(tmpdir, 'all.csv')
+        output_stats = os.path.join(tmpdir, 'stats.json')
+        output_compliance = os.path.join(tmpdir, 'compliance.json')
+        output_missing_log = os.path.join(tmpdir, 'missing_votes.log')
         
-        with open(temp_path, 'r') as f:
-            report = json.load(f)
+        # Create input data with missing votes
+        data = [
+            {
+                'thread_id': 't1',
+                'platform': 'Reddit',
+                'upvotes': 10,
+                'downvotes': 5,
+                'accepted_answer_id': None
+            },
+            {
+                'thread_id': 't2',
+                'platform': 'Reddit',
+                'upvotes': None,
+                'downvotes': 5,
+                'accepted_answer_id': None
+            },
+            {
+                'thread_id': 't3',
+                'platform': 'StackExchange',
+                'upvotes': None,
+                'downvotes': None,
+                'accepted_answer_id': 123
+            }
+        ]
+        df_input = pd.DataFrame(data)
+        df_input.to_csv(input_path, index=False)
         
-        assert report['valid_thread_percentage'] == 50.0
-        assert report['status'] == 'pass'
-        assert report['threshold'] == 30.0
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-def test_empty_dataframe_handling():
-    df = pd.DataFrame()
-    valid_df, excluded_df = validate_and_classify(df)
-    assert len(valid_df) == 0
-    assert len(excluded_df) == 0
-
-def test_generate_failure_report_pass():
-    # Simulate a case where validation passes
-    result = check_valid_thread_threshold_with_total(100, 50, 0.30)
-    assert result['status'] == 'pass'
-
-def test_generate_failure_report_fail():
-    # Simulate a case where validation fails
-    result = check_valid_thread_threshold_with_total(100, 20, 0.30)
-    assert result['status'] == 'fail'
-
-def test_generate_failure_report_edge_case():
-    # Edge case: exactly at threshold
-    result = check_valid_thread_threshold_with_total(100, 30, 0.30)
-    assert result['status'] == 'pass'
-    assert result['valid_thread_percentage'] == 30.0
+        run_validation_pipeline(
+            input_path=input_path,
+            output_valid_path=output_valid,
+            output_all_classified_path=output_all,
+            output_gt_stats_path=output_stats,
+            output_compliance_path=output_compliance,
+            output_missing_votes_log=output_missing_log
+        )
+        
+        # Verify missing votes log exists and contains t2
+        assert os.path.exists(output_missing_log)
+        with open(output_missing_log, 'r') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == 1
+        logged_data = json.loads(lines[0])
+        assert logged_data['thread_id'] == 't2'
+        assert 'Missing upvotes or downvotes' in logged_data['reason']
+        
+        # Verify valid threads CSV contains t1 and t3 (t3 is StackExchange valid)
+        df_valid = pd.read_csv(output_valid)
+        assert len(df_valid) == 2
+        assert 't1' in df_valid['thread_id'].values
+        assert 't3' in df_valid['thread_id'].values
+        
+        # Verify external_validation_score for t2 is None in all.csv
+        df_all = pd.read_csv(output_all)
+        row_t2 = df_all[df_all['thread_id'] == 't2'].iloc[0]
+        assert pd.isna(row_t2['external_validation_score'])

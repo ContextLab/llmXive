@@ -4,286 +4,250 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import numpy as np
 
-from config.settings import get_config, DatasetPaths
-
-# Configure logging
 logger = logging.getLogger(__name__)
 
-def load_processed_data() -> pd.DataFrame:
-    """
-    Load the validated dataset from data/processed/valid_threads.csv.
-    This file is expected to be created by T019 (validate_and_classify).
-    """
-    config = get_config()
-    path = config.paths.processed / "valid_threads.csv"
-    
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Expected file {path} not found. "
-            "Please run T019 (validate_and_classify) first to generate valid_threads.csv."
-        )
-    
-    df = pd.read_csv(path)
-    logger.info(f"Loaded {len(df)} valid threads from {path}")
-    return df
+def load_processed_data(input_path: str) -> pd.DataFrame:
+    """Load the processed threads CSV."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    return pd.read_csv(input_path)
 
-def classify_thread(thread: Dict[str, Any]) -> Tuple[str, Optional[str]]:
+def classify_thread(thread: Dict[str, Any]) -> str:
     """
-    Classify a single thread as 'valid' or 'excluded' based on ground truth availability.
-    
-    Logic:
-    - Stack Exchange: 'valid' if 'accepted_answer_id' exists.
-    - Reddit: 'valid' if 'best_answer' heuristic detected (highest upvoted reply with keywords).
-    
-    Returns:
-        Tuple of (status, reason_code)
+    Classify a thread based on ground truth availability.
+    Returns: 'valid' (has GT), 'valid_no_gt' (Reddit), 'invalid' (excluded).
     """
-    source = thread.get('source', '').lower()
+    platform = thread.get('platform', '').lower()
     
-    if source == 'stackexchange':
+    if platform == 'stackexchange':
         if thread.get('accepted_answer_id') is not None:
-            return 'valid', None
+            return 'valid'
         else:
-            return 'excluded', 'NO_ACCEPTED_ANSWER'
-    
-    elif source == 'reddit':
-        # Heuristic: Check if the highest upvoted reply has specific keywords indicating a solution
-        replies = thread.get('replies', [])
-        if not replies:
-            return 'excluded', 'NO_REPLIES'
-        
-        # Sort by upvotes
-        sorted_replies = sorted(replies, key=lambda x: x.get('upvotes', 0), reverse=True)
-        top_reply = sorted_replies[0]
-        top_text = (top_reply.get('body', '') or '').lower()
-        
-        # Keywords indicating a "best answer" or solution
-        solution_keywords = [
-            'solution', 'answer', 'resolved', 'fixed', 'solved', 
-            'thanks', 'worked', 'correct', 'accepted'
-        ]
-        
-        if any(keyword in top_text for keyword in solution_keywords):
-            return 'valid', None
-        else:
-            return 'excluded', 'NO_BEST_ANSWER_HEURISTIC'
-    
+            return 'invalid' # No GT for StackExchange without accepted answer
+    elif platform == 'reddit':
+        # Reddit threads are valid for dataset inclusion but have no external GT
+        return 'valid_no_gt'
     else:
-        return 'excluded', 'UNKNOWN_SOURCE'
+        return 'invalid'
 
 def validate_and_classify(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply classification logic to the entire dataframe.
-    
-    Returns:
-        DataFrame with 'status' and 'reason_code' columns added.
-    """
-    def apply_class(row):
-        status, reason = classify_thread(row.to_dict())
-        return pd.Series({'status': status, 'reason_code': reason})
-    
-    validation_results = df.apply(apply_class, axis=1)
-    df = pd.concat([df, validation_results], axis=1)
-    
-    valid_count = len(df[df['status'] == 'valid'])
-    total_count = len(df)
-    logger.info(f"Classification complete: {valid_count}/{total_count} threads are valid.")
-    
+    """Apply classification to the dataframe."""
+    df['classification'] = df.apply(classify_thread, axis=1)
     return df
 
-def save_validated_dataset(df: pd.DataFrame, output_path: Path):
-    """
-    Save the valid threads to CSV.
-    """
-    valid_df = df[df['status'] == 'valid'].copy()
-    # Drop helper columns if needed, but keep for now for debugging
-    valid_df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(valid_df)} valid threads to {output_path}")
+def save_validated_dataset(df: pd.DataFrame, output_path: str):
+    """Save the validated dataset."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved validated dataset to {output_path}")
 
-def save_exclusions_log(df: pd.DataFrame, output_path: Path):
-    """
-    Save excluded threads to a log file (CSV format for easy parsing).
-    """
-    excluded_df = df[df['status'] == 'excluded'].copy()
-    excluded_df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(excluded_df)} excluded threads to {output_path}")
+def save_exclusions_log(exclusions: List[Dict], log_path: str):
+    """Save the exclusions log."""
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'w') as f:
+        for exc in exclusions:
+            f.write(json.dumps(exc) + '\n')
+    logger.info(f"Saved exclusions log to {log_path}")
 
-def check_valid_thread_threshold(df: pd.DataFrame, threshold: float = 0.30) -> Tuple[bool, float]:
-    """
-    Check if the percentage of valid threads meets the threshold.
-    
-    Returns:
-        Tuple of (pass_status, percentage)
-    """
-    valid_count = len(df[df['status'] == 'valid'])
-    total_count = len(df)
-    
+def check_valid_thread_threshold(valid_count: int, total_count: int, threshold: float = 30.0) -> bool:
+    """Check if valid threads meet the percentage threshold."""
     if total_count == 0:
-        return False, 0.0
-    
-    percentage = valid_count / total_count
-    return percentage >= threshold, percentage
+        return False
+    percentage = (valid_count / total_count) * 100
+    return percentage >= threshold
 
-def generate_validity_status_report(df: pd.DataFrame, output_path: Path, threshold: float = 0.30):
-    """
-    Generate a JSON report on the validity status of the dataset.
-    """
-    passed, percentage = check_valid_thread_threshold(df, threshold)
+def generate_validity_status_report(df: pd.DataFrame, output_path: str):
+    """Generate a JSON report on validity status."""
+    total = len(df)
+    valid_count = len(df[df['classification'] == 'valid'])
+    valid_no_gt_count = len(df[df['classification'] == 'valid_no_gt'])
+    invalid_count = len(df[df['classification'] == 'invalid'])
     
-    report = {
-        "valid_thread_percentage": round(percentage, 4),
-        "threshold": threshold,
-        "status": "pass" if passed else "fail",
-        "valid_count": int(len(df[df['status'] == 'valid'])),
-        "total_count": int(len(df))
+    stats = {
+        "total_threads": total,
+        "valid_count": valid_count,
+        "valid_no_gt_count": valid_no_gt_count,
+        "invalid_count": invalid_count,
+        "valid_percentage": (valid_count / total * 100) if total > 0 else 0,
+        "valid_no_gt_percentage": (valid_no_gt_count / total * 100) if total > 0 else 0
     }
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Validity status report saved to {output_path}: {report['status']}")
-    return report
+        json.dump(stats, f, indent=2)
+    logger.info(f"Validity status report saved to {output_path}")
 
-def compute_external_validation_score(df: pd.DataFrame) -> pd.DataFrame:
+def compute_external_validation_score(thread: Dict[str, Any]) -> Optional[float]:
     """
-    Compute the external validation score (accuracy of consensus vs. ground truth) for valid threads.
+    Compute the external validation score for a single thread.
     
     Logic:
-    - For valid threads (those with ground truth), we compare the 'consensus' outcome
-      (e.g., majority sentiment or decision) against the 'ground truth' label.
-    - Since we don't have explicit human consensus labels in the raw data yet, 
-      we simulate the 'consensus' as the majority sentiment of the top 5 replies.
-    - Ground Truth is derived from the 'accepted_answer_id' (SE) or 'best_answer' heuristic (Reddit).
-      We map these to a binary label: 1 (Positive/Resolved), 0 (Neutral/Negative/Unresolved).
-    
-    Mapping:
-    - Stack Exchange: accepted_answer_id exists -> Ground Truth = 1. 
-      Consensus: If majority of top 5 replies are positive (compound > 0.1), Consensus = 1.
-    - Reddit: best_answer heuristic -> Ground Truth = 1.
-      Consensus: If majority of top 5 replies are positive, Consensus = 1.
+    - Stack Exchange: Consensus is 'accepted_answer_id' (1 if exists, 0 otherwise).
+    - Reddit: Consensus is upvotes > downvotes (1 if true, 0 if false).
+      - If upvotes or downvotes are missing, return None.
+      - If upvotes == downvotes, return None (Inconclusive).
     
     Returns:
-        DataFrame with 'external_validation_score' column added (0 or 1 for each thread).
+      float: 1.0 (Valid), 0.0 (Invalid), None (Missing/Inconclusive).
     """
-    # Ensure we only process valid threads
-    valid_df = df[df['status'] == 'valid'].copy()
+    platform = thread.get('platform', '').lower()
     
-    if valid_df.empty:
-        logger.warning("No valid threads found to compute external validation score.")
-        df['external_validation_score'] = np.nan
-        return df
-
-    def calculate_score(row):
-        source = row.get('source', '').lower()
-        replies = row.get('replies', [])
-        
-        if not replies:
-            return np.nan # Cannot compute consensus without replies
-        
-        # Determine Ground Truth (GT)
-        # 1 if ground truth exists and is positive/resolved, 0 otherwise
-        # Based on T019 logic: valid implies GT exists.
-        # We assume valid threads have a "positive" resolution by definition of having an answer.
-        ground_truth = 1 
-        
-        # Determine Consensus
-        # Take top 5 replies (or all if < 5)
-        top_replies = replies[:5]
-        positive_count = 0
-        
-        # We need sentiment scores for replies. 
-        # Assumption: T013 (sentiment.py) has run and added 'compound' scores to replies?
-        # If not, we must compute them here or assume they are present.
-        # For robustness, let's assume replies might not have sentiment yet if this runs before T013.
-        # However, the task T019a depends on T019, and T013 is US2. 
-        # The prompt says T019a depends on T019. It does NOT explicitly say it depends on T013.
-        # BUT, to compute consensus, we need sentiment. 
-        # If T013 hasn't run, we might need to compute VADER scores here temporarily 
-        # or assume the data model includes them.
-        # Let's implement a fallback: if 'compound' is missing in replies, compute it.
-        
-        try:
-            from nltk.sentiment import SentimentIntensityAnalyzer
-            sia = SentimentIntensityAnalyzer()
-        except ImportError:
-            raise ImportError("NLTK is required for external validation score calculation. Install with: pip install nltk")
-
-        for reply in top_replies:
-            text = reply.get('body', '') or ''
-            if not text:
-                continue
-            
-            # Check if sentiment is already present
-            if 'compound' in reply:
-                score = reply['compound']
-            else:
-                # Compute on the fly if missing (fallback for pipeline order)
-                score = sia.polarity_scores(text)['compound']
-            
-            if score > 0.1: # Threshold for positive sentiment
-                positive_count += 1
-        
-        consensus = 1 if (positive_count / len(top_replies)) > 0.5 else 0
-        
-        # Accuracy: 1 if Consensus == Ground Truth, else 0
-        return 1 if consensus == ground_truth else 0
-
-    valid_df['external_validation_score'] = valid_df.apply(calculate_score, axis=1)
+    if platform == 'stackexchange':
+        # For StackExchange, we assume the presence of accepted_answer_id implies validity (1)
+        # This is used to validate the consensus mechanism against the GT.
+        if thread.get('accepted_answer_id') is not None:
+            return 1.0
+        else:
+            return 0.0
     
-    # Merge back to original df
-    # Create a series with index from valid_df
-    score_series = valid_df['external_validation_score']
+    elif platform == 'reddit':
+        upvotes = thread.get('upvotes')
+        downvotes = thread.get('downvotes')
+        
+        # Check for missing data
+        if upvotes is None or downvotes is None:
+            return None
+        
+        # Check for inconclusive (equal votes)
+        if upvotes == downvotes:
+            return None
+        
+        # Determine consensus: upvotes > downvotes
+        if upvotes > downvotes:
+            return 1.0
+        else:
+            return 0.0
     
-    # Initialize the column in the main df with NaN
-    df['external_validation_score'] = np.nan
-    df.loc[score_series.index, 'external_validation_score'] = score_series.values
-    
-    logger.info(f"Computed external validation scores for {len(valid_df)} valid threads.")
-    return df
+    return None
 
-def run_validation_pipeline():
+def run_validation_pipeline(
+    input_path: str,
+    output_valid_path: str,
+    output_all_classified_path: str,
+    output_gt_stats_path: str,
+    output_compliance_path: str,
+    output_missing_votes_log: str
+):
     """
-    Main entry point for T019a.
-    1. Load valid_threads.csv (from T019).
-    2. Compute external validation score.
-    3. Append score to valid_threads.csv.
-    4. Save updated file.
+    Main pipeline execution for validation and external score computation.
+    
+    1. Load data.
+    2. Classify threads (valid, valid_no_gt, invalid).
+    3. Compute external_validation_score for all threads (handling missing votes).
+    4. Log missing vote data.
+    5. Save outputs.
+    6. Generate compliance report.
     """
-    config = get_config()
-    input_path = config.paths.processed / "valid_threads.csv"
-    output_path = config.paths.processed / "valid_threads.csv" # Overwrite or create new? Task says "Append".
-    # To be safe and idempotent, we read, process, and write back to the same path 
-    # or a new path if we want to preserve the intermediate state. 
-    # The task says "Append ... to data/processed/valid_threads.csv".
-    # We will read, update, and write back.
+    logger.info(f"Loading data from {input_path}")
+    df = load_processed_data(input_path)
     
-    logger.info("Starting T019a: External Validation Score Computation")
+    # Classify threads
+    logger.info("Classifying threads...")
+    df = validate_and_classify(df)
     
-    df = load_processed_data()
-    df = compute_external_validation_score(df)
+    # Initialize external_validation_score column
+    df['external_validation_score'] = None
     
-    # Save the updated file
-    df.to_csv(output_path, index=False)
-    logger.info(f"Updated {output_path} with external_validation_score")
+    # Track missing vote data for logging
+    missing_vote_threads = []
     
-    # Optional: Generate a summary report
-    summary = {
-        "threads_computed": int(df['external_validation_score'].notna().sum()),
-        "accuracy": float(df['external_validation_score'].mean()) if not df.empty else 0.0
+    logger.info("Computing external validation scores...")
+    for idx, row in df.iterrows():
+        score = compute_external_validation_score(row.to_dict())
+        
+        if score is None:
+            # Check if it's due to missing Reddit votes
+            if row.get('platform', '').lower() == 'reddit':
+                upvotes = row.get('upvotes')
+                downvotes = row.get('downvotes')
+                if upvotes is None or downvotes is None:
+                    missing_vote_threads.append({
+                        'thread_id': row.get('thread_id'),
+                        'reason': 'Missing upvotes or downvotes',
+                        'upvotes': upvotes,
+                        'downvotes': downvotes
+                    })
+            # If None due to inconclusive (equal votes), we just leave it as None, 
+            # but we don't log it as "missing data" in the specific log for missing votes.
+            # The task specifically asks to log missing upvotes/downvotes.
+        
+        df.at[idx, 'external_validation_score'] = score
+    
+    # Log missing vote data
+    if missing_vote_threads:
+        os.makedirs(os.path.dirname(output_missing_votes_log), exist_ok=True)
+        with open(output_missing_votes_log, 'w') as f:
+            for item in missing_vote_threads:
+                f.write(json.dumps(item) + '\n')
+        logger.warning(f"Logged {len(missing_vote_threads)} threads with missing vote data to {output_missing_votes_log}")
+    
+    # Save all classified threads (including valid_no_gt and invalid)
+    save_validated_dataset(df, output_all_classified_path)
+    
+    # Filter for 'valid' threads only for the valid_threads.csv
+    valid_df = df[df['classification'] == 'valid'].copy()
+    save_validated_dataset(valid_df, output_valid_path)
+    
+    # Generate Ground Truth Stats
+    total_count = len(df)
+    valid_count = len(valid_df)
+    valid_percentage = (valid_count / total_count * 100) if total_count > 0 else 0
+    
+    gt_stats = {
+        "total_dataset_count": total_count,
+        "valid_dataset_count": valid_count,
+        "valid_thread_percentage": valid_percentage
     }
     
-    report_path = config.paths.processed / "external_validation_summary.json"
-    with open(report_path, 'w') as f:
-        json.dump(summary, f, indent=2)
+    os.makedirs(os.path.dirname(output_gt_stats_path), exist_ok=True)
+    with open(output_gt_stats_path, 'w') as f:
+        json.dump(gt_stats, f, indent=2)
+    logger.info(f"Saved ground truth stats to {output_gt_stats_path}")
     
-    logger.info(f"Summary saved to {report_path}")
-    return df
+    # Generate Compliance Report (SC-006)
+    is_compliant = valid_percentage >= 30.0
+    compliance_report = {
+        "sc_006_compliance": is_compliant,
+        "status": "pass" if is_compliant else "fail",
+        "valid_thread_percentage": valid_percentage,
+        "threshold": 30.0
+    }
+    
+    os.makedirs(os.path.dirname(output_compliance_path), exist_ok=True)
+    with open(output_compliance_path, 'w') as f:
+        json.dump(compliance_report, f, indent=2)
+    logger.info(f"Saved compliance report to {output_compliance_path}")
+    
+    logger.info("Validation pipeline completed successfully.")
 
 def main():
-    run_validation_pipeline()
+    """Entry point for the validation script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run validation pipeline for emotional contagion study.")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV path (all_threads_classified.csv)")
+    parser.add_argument("--output-valid", type=str, required=True, help="Output path for valid threads CSV")
+    parser.add_argument("--output-all", type=str, required=True, help="Output path for all classified threads CSV")
+    parser.add_argument("--output-stats", type=str, required=True, help="Output path for ground truth stats JSON")
+    parser.add_argument("--output-compliance", type=str, required=True, help="Output path for SC-006 compliance report JSON")
+    parser.add_argument("--output-missing-votes", type=str, required=True, help="Output path for missing votes log")
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    run_validation_pipeline(
+        input_path=args.input,
+        output_valid_path=args.output_valid,
+        output_all_classified_path=args.output_all,
+        output_gt_stats_path=args.output_stats,
+        output_compliance_path=args.output_compliance,
+        output_missing_votes_log=args.output_missing_votes
+    )
 
 if __name__ == "__main__":
     main()
