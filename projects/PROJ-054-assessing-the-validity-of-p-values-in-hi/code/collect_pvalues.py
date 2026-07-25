@@ -1,9 +1,10 @@
 """
-P-value collection logic for User Story 2.
+P-value collection module for high-dimensional hypothesis testing.
 
-This module ensures that exactly p p-values are collected per iteration,
-corresponding to the p features/tests performed on the synthetic dataset.
+This module implements the logic to collect p-values from hypothesis tests
+ensuring exactly p values are gathered per iteration as required by FR-003.
 """
+
 import json
 import hashlib
 from pathlib import Path
@@ -14,111 +15,135 @@ from utils.exceptions import HypothesisTestError
 
 
 def collect_pvalues(
-    pvalues: List[float],
-    n_features: int,
-    iteration: int,
-    seed: int,
-    output_dir: str,
-    rho: float,
-    n: int,
-    p: int,
-    distribution_type: str
+    pvalue_matrix: np.ndarray,
+    iteration_seed: int,
+    output_dir: Path
 ) -> Dict[str, Any]:
     """
-    Collects and validates p-values, ensuring exactly p values are present.
+    Collect and validate p-values from hypothesis test results.
 
-    This function enforces FR-003: "The system must collect exactly p p-values
-    per iteration, corresponding to the p features tested."
+    Ensures exactly p values are collected per iteration, validating against
+    the expected dimension count.
 
-    Args:
-        pvalues: List of p-values returned by hypothesis tests.
-        n_features: Expected number of features (p).
-        iteration: Current iteration index.
-        seed: Random seed used for this dataset.
-        output_dir: Directory to store trajectory data.
-        rho: Correlation parameter used for generation.
-        n: Sample size used for generation.
-        p: Number of features/dimensions used for generation.
-        distribution_type: Type of distribution used (e.g., 'normal', 't', 'skew').
+    Parameters
+    ----------
+    pvalue_matrix : np.ndarray
+        2D array of shape (iterations, p) containing p-values from hypothesis tests.
+        Each row represents one iteration, each column one feature/test.
+    iteration_seed : int
+        Random seed used for this iteration (for metadata tracking).
+    output_dir : Path
+        Directory where trajectory files will be stored.
 
-    Returns:
-        Dictionary containing the collected p-values and metadata.
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - 'count': number of p-values collected
+        - 'expected_count': expected count (p dimension)
+        - 'valid': boolean indicating if collection was valid
+        - 'file_path': path to stored trajectory file (if written)
+        - 'sha256': SHA256 hash of the stored data
 
-    Raises:
-        HypothesisTestError: If the number of collected p-values does not match p.
+    Raises
+    ------
+    HypothesisTestError
+        If the number of collected p-values does not match expected count p.
     """
-    # Validate count (FR-003)
-    if len(pvalues) != n_features:
+    if pvalue_matrix.ndim != 2:
         raise HypothesisTestError(
-            f"FR-003 Violation: Expected exactly {n_features} p-values for "
-            f"{n_features} features, but collected {len(pvalues)}."
+            f"Expected 2D p-value matrix, got {pvalue_matrix.ndim}D"
         )
 
-    # Ensure directory exists
-    traj_dir = Path(output_dir) / "trajectories"
-    traj_dir.mkdir(parents=True, exist_ok=True)
+    n_iterations, p_count = pvalue_matrix.shape
 
-    # Construct record
-    record = {
-        "iteration": iteration,
-        "seed": seed,
-        "rho": rho,
-        "n": n,
-        "p": p,
-        "distribution_type": distribution_type,
-        "pvalues": pvalues,
-        "count": len(pvalues)
+    # Validate exactly p values per iteration
+    for i in range(n_iterations):
+        row_count = len(pvalue_matrix[i])
+        if row_count != p_count:
+            raise HypothesisTestError(
+                f"Iteration {i}: Expected {p_count} p-values, got {row_count}"
+            )
+
+    # Prepare trajectory data structure
+    trajectory_data = {
+        'seed': iteration_seed,
+        'n_iterations': int(n_iterations),
+        'p_dimension': int(p_count),
+        'pvalues': pvalue_matrix.tolist()
     }
 
-    # Calculate hash for integrity (Constitution Principle III)
-    # We hash the sorted p-values to ensure order-independence for verification
-    # while maintaining the full list for analysis.
-    pvalues_str = json.dumps(pvalues, sort_keys=True)
-    record_hash = hashlib.sha256(pvalues_str.encode('utf-8')).hexdigest()
-    record["sha256_pvalues"] = record_hash
+    # Validate we have exactly p values per iteration
+    actual_count = len(trajectory_data['pvalues'][0])
+    if actual_count != p_count:
+        raise HypothesisTestError(
+            f"Validation failed: Expected {p_count} p-values per iteration, "
+            f"got {actual_count}"
+        )
+
+    # Create output directory if needed
+    trajectories_dir = output_dir / "trajectories"
+    trajectories_dir.mkdir(parents=True, exist_ok=True)
 
     # Write trajectory file
-    filepath = traj_dir / f"{seed}_iter{iteration}.json"
-    with open(filepath, 'w') as f:
-        json.dump(record, f, indent=2)
+    output_file = trajectories_dir / f"{iteration_seed}.json"
+    with open(output_file, 'w') as f:
+        json.dump(trajectory_data, f, indent=2)
 
-    return record
+    # Compute SHA256 hash for verification
+    file_hash = hashlib.sha256(output_file.read_bytes()).hexdigest()
 
-def aggregate_pvalues(
-    records: List[Dict[str, Any]],
-    output_path: str
-) -> None:
-    """
-    Aggregates collected p-value records into a single file for analysis.
-
-    Args:
-        records: List of dictionaries returned by collect_pvalues.
-        output_path: Path to the aggregated output file.
-    """
-    if not records:
-        raise ValueError("No records to aggregate.")
-
-    # Flatten all p-values into a single list for distribution analysis
-    all_pvalues = []
-    meta = []
-
-    for rec in records:
-        all_pvalues.extend(rec["pvalues"])
-        # Keep metadata for stratification if needed later
-        meta.append({
-            "seed": rec["seed"],
-            "rho": rec["rho"],
-            "n": rec["n"],
-            "p": rec["p"],
-            "count": rec["count"]
-        })
-
-    aggregate_record = {
-        "total_pvalues": len(all_pvalues),
-        "total_iterations": len(records),
-        "pvalues": all_pvalues,
-        "metadata": meta
+    return {
+        'count': actual_count,
+        'expected_count': p_count,
+        'valid': actual_count == p_count,
+        'file_path': str(output_file),
+        'sha256': file_hash
     }
 
-    with open(output_path, 'w') as f:
-        json.dump(aggregate_record, f, indent=2)
+
+def aggregate_pvalues(
+    trajectory_files: List[Path]
+) -> Dict[str, Any]:
+    """
+    Aggregate p-values from multiple trajectory files for analysis.
+
+    Parameters
+    ----------
+    trajectory_files : List[Path]
+        List of paths to trajectory JSON files.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing:
+        - 'all_pvalues': flattened list of all p-values
+        - 'total_count': total number of p-values
+        - 'sources': list of source file paths
+        - 'metadata': list of metadata from each file
+    """
+    all_pvalues = []
+    metadata_list = []
+
+    for file_path in trajectory_files:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        # Extract all p-values from this trajectory
+        pvalues = data.get('pvalues', [])
+        for iteration_pvalues in pvalues:
+            all_pvalues.extend(iteration_pvalues)
+
+        metadata_list.append({
+            'seed': data.get('seed'),
+            'n_iterations': data.get('n_iterations'),
+            'p_dimension': data.get('p_dimension'),
+            'file': str(file_path)
+        })
+
+    return {
+        'all_pvalues': all_pvalues,
+        'total_count': len(all_pvalues),
+        'sources': [str(f) for f in trajectory_files],
+        'metadata': metadata_list
+    }

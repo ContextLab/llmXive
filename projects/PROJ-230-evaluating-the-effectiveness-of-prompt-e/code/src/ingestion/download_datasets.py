@@ -1,171 +1,139 @@
-"""
-Dataset Ingestion Module for PROJ-230.
-
-Fetches code translation pairs from HuggingFace datasets,
-caches raw data to data/raw/, and extracts python_code/javascript_code columns.
-"""
 import os
 import sys
 import logging
 import traceback
 from pathlib import Path
-
-# Add project root to path to allow imports from src/
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from datasets import load_dataset
-from src.utils.logging import get_logger, log_raw_output
+import pandas as pd
 
 # Configure logging
-logger = get_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/dataset_download.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-# Constants
-DATASET_NAMES = [
-    "codeparrot/code-trans-py-js",
-    "bigcode/evaluation"
-]
-OUTPUT_DIR = Path(project_root) / "data" / "raw"
-OUTPUT_FILE = OUTPUT_DIR / "raw_code_corpus.parquet"
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
 
 def ensure_dirs():
-    """Ensure output directories exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {OUTPUT_DIR}")
+    """Ensure the data/raw directory exists."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured data directory exists at: {DATA_RAW_DIR}")
 
-def fetch_dataset(dataset_name: str):
+def fetch_dataset(dataset_name: str, split: str = "train", cache_dir: str = None):
     """
     Fetch a dataset from HuggingFace.
     
     Args:
-        dataset_name: Name of the dataset on HuggingFace.
-        
+        dataset_name: The HuggingFace dataset identifier (e.g., 'codeparrot/code-trans-py-js')
+        split: The dataset split to load (default: 'train')
+        cache_dir: Optional cache directory for datasets
+    
     Returns:
-        Dataset object or None if failed.
+        The loaded dataset object
+    
+    Raises:
+        Exception: If the dataset cannot be fetched (fails loudly, no synthetic fallback)
     """
-    logger.info(f"Fetching dataset: {dataset_name}")
+    logger.info(f"Fetching dataset: {dataset_name}, split: {split}")
     try:
-        # Load dataset with streaming to manage memory
-        ds = load_dataset(dataset_name, split="train", streaming=False)
-        logger.info(f"Successfully loaded {dataset_name}: {len(ds)} rows")
-        return ds
+        # Load dataset with explicit streaming to manage memory if large
+        # We use streaming=True initially to check availability, then load normally if small enough
+        # or process in chunks if large. For this specific task, we assume the dataset is manageable
+        # but we use trust_remote_code=False for safety unless needed.
+        dataset = load_dataset(
+            dataset_name,
+            split=split,
+            trust_remote_code=False,
+            cache_dir=cache_dir
+        )
+        logger.info(f"Successfully fetched dataset: {dataset_name}, size: {len(dataset)}")
+        return dataset
     except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_name}: {e}")
-        logger.error(traceback.format_exc())
-        return None
+        logger.error(f"Failed to fetch dataset {dataset_name}: {e}")
+        raise e
 
-def extract_code_columns(dataset, source_col: str, target_col: str):
+def extract_code_columns(dataset, output_path: Path):
     """
-    Extract and validate code columns from a dataset.
+    Extract 'python_code' and 'javascript_code' columns from the dataset
+    and save them to a CSV file.
     
     Args:
-        dataset: The loaded dataset.
-        source_col: Name of the source code column (e.g., python_code).
-        target_col: Name of the target code column (e.g., javascript_code).
-        
-    Returns:
-        List of dicts with extracted code, or empty list if failed.
+        dataset: The loaded HuggingFace dataset
+        output_path: Path to the output CSV file
     """
-    extracted = []
-    logger.info(f"Extracting columns '{source_col}' and '{target_col}'")
+    logger.info(f"Extracting code columns to: {output_path}")
     
-    for i, row in enumerate(dataset):
-        # Check if columns exist
-        if source_col not in row or target_col not in row:
-            if i < 5:  # Log only first few missing
-                logger.warning(f"Row {i} missing required columns")
-            continue
-        
-        src_code = row[source_col]
-        tgt_code = row[target_col]
-        
-        # Validate types and content
-        if not isinstance(src_code, str) or not isinstance(tgt_code, str):
-            if i < 5:
-                logger.warning(f"Row {i} has non-string code")
-            continue
-        
-        if not src_code.strip() or not tgt_code.strip():
-            if i < 5:
-                logger.warning(f"Row {i} has empty code")
-            continue
-        
-        extracted.append({
-            "source_language": "python",
-            "target_language": "javascript",
-            "python_code": src_code,
-            "javascript_code": tgt_code
-        })
-        
-        # Log progress every 1000 rows
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Processed {i + 1} rows, extracted {len(extracted)} valid pairs")
-
-    return extracted
+    # Convert dataset to pandas DataFrame for easier manipulation
+    # This is safe for the expected size of the code-trans-py-js dataset
+    try:
+        df = dataset.to_pandas()
+    except Exception as e:
+        logger.error(f"Failed to convert dataset to pandas: {e}")
+        raise e
+    
+    # Validate and filter for required columns
+    required_columns = ['python_code', 'javascript_code']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    
+    if missing_columns:
+        raise ValueError(f"Dataset missing required columns: {missing_columns}. "
+                       f"Available columns: {list(df.columns)}")
+    
+    # Filter out rows where code columns are missing or not strings
+    initial_count = len(df)
+    df = df.dropna(subset=required_columns)
+    df = df[df['python_code'].apply(lambda x: isinstance(x, str) and len(x.strip()) > 0)]
+    df = df[df['javascript_code'].apply(lambda x: isinstance(x, str) and len(x.strip()) > 0)]
+    
+    filtered_count = len(df)
+    excluded_count = initial_count - filtered_count
+    
+    logger.info(f"Initial entries: {initial_count}, Excluded invalid entries: {excluded_count}, "
+              f"Valid entries: {filtered_count}")
+    
+    if filtered_count == 0:
+        raise ValueError("No valid entries found in the dataset after filtering.")
+    
+    # Select only the required columns
+    df = df[required_columns]
+    
+    # Save to CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {filtered_count} valid entries to {output_path}")
 
 def main():
-    """Main entry point for dataset ingestion."""
-    logger.info("Starting dataset ingestion pipeline")
+    """
+    Main function to download, cache, and extract code columns from the dataset.
+    """
     ensure_dirs()
-
-    all_records = []
-
-    for ds_name in DATASET_NAMES:
-        ds = fetch_dataset(ds_name)
-        if ds is None:
-            logger.warning(f"Skipping {ds_name} due to fetch failure")
-            continue
-
-        # Attempt to extract standard columns first
-        # Different datasets may have different column names
-        # We try common patterns
-        possible_source_cols = ["python_code", "source_code", "code", "python"]
-        possible_target_cols = ["javascript_code", "target_code", "translation", "javascript"]
-
-        extracted = []
-        for src_col in possible_source_cols:
-            for tgt_col in possible_target_cols:
-                if src_col in ds.column_names and tgt_col in ds.column_names:
-                    logger.info(f"Found columns: {src_col} -> {tgt_col}")
-                    extracted = extract_code_columns(ds, src_col, tgt_col)
-                    if extracted:
-                        break
-            if extracted:
-                break
-        
-        if not extracted:
-            logger.warning(f"No valid code pairs found in {ds_name} with standard column names")
-            logger.info(f"Available columns in {ds_name}: {ds.column_names}")
-            continue
-
-        all_records.extend(extracted)
-        logger.info(f"Extracted {len(extracted)} pairs from {ds_name}")
-
-    if not all_records:
-        logger.error("No valid code pairs extracted from any dataset")
+    
+    # Define dataset source and output path
+    dataset_name = "codeparrot/code-trans-py-js"
+    output_filename = "code_trans_py_js_raw.csv"
+    output_path = DATA_RAW_DIR / output_filename
+    
+    # Check if already downloaded (checksum logic would be applied here in a full pipeline)
+    if output_path.exists():
+        logger.warning(f"Output file {output_path} already exists. Skipping download.")
+        # In a real pipeline, we might verify checksums here
+        return
+    
+    # Fetch the dataset
+    try:
+        dataset = fetch_dataset(dataset_name)
+        extract_code_columns(dataset, output_path)
+        logger.info("Dataset download and extraction completed successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        traceback.print_exc()
         sys.exit(1)
-
-    logger.info(f"Total valid pairs collected: {len(all_records)}")
-
-    # Convert to pandas DataFrame for easy saving
-    import pandas as pd
-    df = pd.DataFrame(all_records)
-
-    # Save to parquet (efficient storage)
-    logger.info(f"Saving {len(df)} rows to {OUTPUT_FILE}")
-    df.to_parquet(OUTPUT_FILE, index=False)
-    
-    # Also save a CSV for quick inspection
-    csv_path = OUTPUT_DIR / "raw_code_corpus.csv"
-    df.to_csv(csv_path, index=False)
-    
-    logger.info(f"Saved raw corpus to {OUTPUT_FILE} and {csv_path}")
-    logger.info("Dataset ingestion completed successfully")
-
-    # Log a sample for audit
-    if len(df) > 0:
-        sample = df.iloc[0].to_dict()
-        log_raw_output("ingestion_sample", sample)
 
 if __name__ == "__main__":
     main()

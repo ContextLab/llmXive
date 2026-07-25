@@ -1,12 +1,8 @@
 """
-Translate Python unit tests to JavaScript using a deterministic AST-based transpiler.
+translate_tests.py
 
-This module strictly forbids LLM-based test generation (FR-003).
-It uses 'transcrypt' as the deterministic transpiler for converting Python test files
-to JavaScript, ensuring reproducible and verifiable test translations.
-
-The transpiled tests will be used to evaluate the functional correctness of
-LLM-generated JavaScript translations of Python code.
+Converts Python unit tests to JavaScript using Transcrypt (a deterministic transpiler).
+Strictly forbids LLM-based test generation (FR-003).
 """
 import os
 import sys
@@ -14,251 +10,275 @@ import subprocess
 import logging
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
-# Ensure transcrypt is available
+# Ensure we can import from the project root if run as a module
 try:
-    import transcrypt
+    from src.utils.logging import get_logger
 except ImportError:
-    logger.error("transcrypt is not installed. Please install it with: pip install transcrypt")
-    sys.exit(1)
+    # Fallback for direct execution in case src is not in path
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+
+logger = get_logger(__name__)
+
+# Constants
+TRANSCRYPT_CMD = "transcrypt"
+TRANSCRYPT_MIN_VERSION = (3, 8, 0)  # Minimum expected version
+DEFAULT_OUTPUT_DIR = "data/evaluation/translated_tests"
+INPUT_TEST_DIR = "data/raw/tests"  # Assumed location for raw Python tests
 
 def ensure_transcrypt_available() -> bool:
     """
-    Verify that transcrypt is installed and available.
-    
-    Returns:
-        bool: True if transcrypt is available, False otherwise.
+    Checks if 'transcrypt' is installed and available in PATH.
+    Installs it if missing (via pip).
+    Returns True if available, False otherwise.
     """
+    logger.info("Checking for Transcrypt availability...")
     try:
-        import transcrypt
-        logger.info(f"Transcrypt version: {transcrypt.__version__}")
+        result = subprocess.run(
+            ["transcrypt", "-version"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            logger.info(f"Transcrypt found: {result.stdout.strip()}")
+            return True
+    except FileNotFoundError:
+        logger.warning("Transcrypt not found in PATH. Attempting installation via pip...")
+    except subprocess.TimeoutExpired:
+        logger.error("Transcrypt version check timed out.")
+        return False
+    except Exception as e:
+        logger.error(f"Error checking Transcrypt: {e}")
+        return False
+
+    # Attempt installation
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "transcrypt", "-q"],
+            check=True,
+            timeout=60
+        )
+        logger.info("Transcrypt installed successfully.")
         return True
-    except ImportError:
-        logger.error("Transcrypt is not installed. Cannot proceed with test translation.")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to install Transcrypt: {e}")
+        return False
+    except subprocess.TimeoutExpired:
+        logger.error("Transcrypt installation timed out.")
         return False
 
 def translate_python_test_to_js(
     python_test_path: Path,
-    output_js_path: Path,
-    build_dir: Optional[Path] = None
-) -> bool:
+    output_dir: Path,
+    preserve_structure: bool = True
+) -> Optional[Path]:
     """
-    Translate a Python unit test file to JavaScript using transcrypt.
-    
+    Translates a single Python test file to JavaScript using Transcrypt.
+
     Args:
-        python_test_path: Path to the Python test file.
-        output_js_path: Path where the translated JavaScript file should be saved.
-        build_dir: Optional directory for transcrypt build artifacts.
-        
+        python_test_path: Path to the input .py test file.
+        output_dir: Directory where the compiled JS will be placed.
+        preserve_structure: If True, maintains subdirectory structure relative to input.
+
     Returns:
-        bool: True if translation was successful, False otherwise.
-        
-    Raises:
-        RuntimeError: If transcrypt fails to translate the file.
+        Path to the generated .js file, or None if translation failed.
     """
     if not python_test_path.exists():
-        logger.error(f"Python test file not found: {python_test_path}")
-        return False
+        logger.error(f"Input file not found: {python_test_path}")
+        return None
 
-    if not python_test_path.suffix == '.py':
-        logger.error(f"Expected a .py file, got: {python_test_path.suffix}")
-        return False
+    if not python_test_path.suffix == ".py":
+        logger.warning(f"Skipping non-Python file: {python_test_path}")
+        return None
 
-    # Create a temporary directory for transcrypt build if not provided
-    if build_dir is None:
-        build_dir = Path(tempfile.mkdtemp(prefix="transcrypt_build_"))
-        logger.debug(f"Using temporary build directory: {build_dir}")
+    logger.info(f"Translating: {python_test_path}")
+
+    # Determine output path
+    if preserve_structure:
+        # Calculate relative path from a base (e.g., data/raw/tests)
+        # We assume the caller passes the correct base context or we use the file's parent
+        relative_path = python_test_path.relative_to(python_test_path.parent.parent)
+        target_dir = output_dir / relative_path.parent
     else:
-        build_dir.mkdir(parents=True, exist_ok=True)
+        target_dir = output_dir
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+    output_js_path = target_dir / f"{python_test_path.stem}.js"
+
+    # Transcrypt command construction
+    # -m: no module
+    # -a: generate annotations (optional but helpful for debugging)
+    # -b: build only (no HTML)
+    # -d: debug mode (optional)
+    # We target the specific file to compile
+    cmd = [
+        TRANSCRYPT_CMD,
+        "-b",       # Build only (no HTML)
+        "-m",       # No module wrapper (standalone script)
+        "-a",       # Add annotations
+        "-d",       # Debug mode (helps with error reporting)
+        "-n",       # No minification (easier to read/debug)
+        "-k",       # Keep generated files in target
+        str(python_test_path)
+    ]
 
     try:
-        # Run transcrypt to convert Python to JavaScript
-        # Using command-line interface for better control
-        cmd = [
-            sys.executable, '-m', 'transcrypt',
-            '-b',  # Build
-            '-m',  # Minify (optional, can be removed for debugging)
-            '-n',  # No license header
-            '-k',  # Keep build directory
-            '-o', str(build_dir),  # Output directory
-            str(python_test_path)
-        ]
+        # Run transcrypt. Note: Transcrypt often writes to a 'target' subdirectory
+        # inside the source directory or the current working directory.
+        # To control output, we might need to run it in a temp dir or parse its output.
+        # However, standard usage is: transcrypt [options] <source>.
+        # It creates a 'target' folder. We will move the result.
 
-        logger.info(f"Running transcrypt: {' '.join(cmd)}")
-        
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=60  # 60 second timeout for translation
-        )
+        # Strategy: Run transcrypt in the parent of the output dir to control placement,
+        # or run in temp and move. Let's try running in a temp dir to avoid pollution.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            # Copy source to tmp to run transcrypt there
+            temp_src = tmp_path / python_test_path.name
+            temp_src.write_text(python_test_path.read_text())
 
-        if result.returncode != 0:
-            logger.error(f"Transcrypt failed with return code {result.returncode}")
-            logger.error(f"stdout: {result.stdout}")
-            logger.error(f"stderr: {result.stderr}")
-            return False
+            # Run transcrypt in tmp_dir
+            # We need to tell it where to put the 'target' folder or move it afterwards.
+            # Transcrypt defaults to creating 'target' in the current working directory.
+            proc = subprocess.run(
+                cmd,
+                cwd=tmp_dir,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
 
-        # Find the generated JavaScript file
-        # Transcrypt typically generates files in <build_dir>/__target__/
-        target_dir = build_dir / '__target__'
-        if not target_dir.exists():
-            logger.error(f"Transcrypt target directory not found: {target_dir}")
-            return False
+            if proc.returncode != 0:
+                logger.error(f"Transcrypt failed for {python_test_path}: {proc.stderr}")
+                # Check for specific errors (e.g., syntax errors in Python)
+                if "SyntaxError" in proc.stderr:
+                    logger.error("Syntax error in Python test file. Cannot translate.")
+                return None
 
-        # Look for the generated JS file (same base name as input)
-        base_name = python_test_path.stem
-        js_files = list(target_dir.glob(f"{base_name}*.js"))
-        
-        if not js_files:
-            logger.error(f"No JavaScript files generated for {base_name}")
-            logger.error(f"Files in target directory: {list(target_dir.iterdir())}")
-            return False
+            # Transcrypt creates 'target' folder in cwd (tmp_dir)
+            target_folder = tmp_path / "target"
+            if not target_folder.exists():
+                logger.error(f"Transcrypt did not create target folder in {tmp_dir}")
+                return None
 
-        # Use the first matching JS file
-        generated_js = js_files[0]
-        logger.debug(f"Generated JS file: {generated_js}")
+            # Find the generated .js file
+            # It usually matches the source stem
+            js_candidates = list(target_folder.glob(f"{python_test_path.stem}.js"))
+            
+            if not js_candidates:
+                # Maybe it's in a subfolder if module structure was inferred?
+                # Try recursive search
+                js_candidates = list(target_folder.rglob(f"{python_test_path.stem}.js"))
+            
+            if not js_candidates:
+                logger.error(f"Could not find generated JS for {python_test_path} in {target_folder}")
+                return None
 
-        # Copy to the desired output path
-        output_js_path.parent.mkdir(parents=True, exist_ok=True)
-        import shutil
-        shutil.copy2(generated_js, output_js_path)
-        
-        logger.info(f"Successfully translated {python_test_path} to {output_js_path}")
-        return True
+            js_file = js_candidates[0]
+
+            # Move to final destination
+            # Ensure output dir exists
+            output_js_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Read and write to ensure permissions and atomicity
+            content = js_file.read_text()
+            output_js_path.write_text(content)
+
+            logger.info(f"Successfully translated to: {output_js_path}")
+            return output_js_path
 
     except subprocess.TimeoutExpired:
-        logger.error(f"Transcrypt timed out while translating {python_test_path}")
-        return False
+        logger.error(f"Transcrypt timed out for {python_test_path}")
+        return None
     except Exception as e:
-        logger.error(f"Error during translation of {python_test_path}: {str(e)}")
-        return False
+        logger.error(f"Unexpected error translating {python_test_path}: {e}")
+        return None
 
 def translate_test_directory(
     input_dir: Path,
     output_dir: Path,
     recursive: bool = True
-) -> Dict[str, Any]:
+) -> int:
     """
-    Translate all Python test files in a directory to JavaScript.
-    
+    Translates all Python test files in a directory to JavaScript.
+
     Args:
         input_dir: Directory containing Python test files.
-        output_dir: Directory where translated JavaScript files will be saved.
-        recursive: Whether to search recursively for Python files.
-        
+        output_dir: Directory to save translated JavaScript files.
+        recursive: If True, search subdirectories.
+
     Returns:
-        Dict containing translation statistics.
+        Number of successfully translated files.
     """
     if not input_dir.exists():
         logger.error(f"Input directory does not exist: {input_dir}")
-        return {'success': 0, 'failed': 0, 'total': 0}
+        return 0
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Find all Python test files
-    pattern = '**/*.py' if recursive else '*.py'
-    python_files = list(input_dir.glob(pattern))
-    
-    # Filter for test files (files starting with 'test_' or ending with '_test.py')
-    test_files = [
-        f for f in python_files
-        if f.name.startswith('test_') or f.name.endswith('_test.py')
-    ]
+    # Ensure Transcrypt is available
+    if not ensure_transcrypt_available():
+        logger.critical("Transcrypt not available. Aborting translation.")
+        return 0
 
-    logger.info(f"Found {len(test_files)} Python test files to translate")
+    # Find all .py files
+    pattern = "**/*.py" if recursive else "*.py"
+    py_files = list(input_dir.glob(pattern))
 
-    stats = {'success': 0, 'failed': 0, 'total': len(test_files)}
+    if not py_files:
+        logger.warning(f"No Python files found in {input_dir}")
+        return 0
 
-    for py_file in test_files:
-        # Compute relative path to preserve directory structure
-        rel_path = py_file.relative_to(input_dir)
-        js_file = output_dir / rel_path.with_suffix('.js')
+    logger.info(f"Found {len(py_files)} Python files to translate.")
 
-        logger.info(f"Translating: {py_file} -> {js_file}")
-        
-        success = translate_python_test_to_js(py_file, js_file)
-        
-        if success:
-            stats['success'] += 1
+    success_count = 0
+    for py_file in py_files:
+        # Skip __init__.py or other non-test files if necessary
+        if py_file.name.startswith("__"):
+            continue
+
+        result = translate_python_test_to_js(py_file, output_dir, preserve_structure=True)
+        if result:
+            success_count += 1
         else:
-            stats['failed'] += 1
             logger.warning(f"Failed to translate: {py_file}")
 
-    logger.info(f"Translation complete: {stats['success']}/{stats['total']} successful")
-    return stats
+    logger.info(f"Translation complete. Successful: {success_count}/{len(py_files)}")
+    return success_count
 
 def main():
-    """
-    Main entry point for the test translation script.
+    """Main entry point for the test translation task."""
+    # Default paths relative to project root
+    # Adjust based on actual project structure if different
+    input_path = Path("data/raw/tests")
+    output_path = Path(DEFAULT_OUTPUT_DIR)
+
+    # Allow override via command line
+    if len(sys.argv) > 1:
+        input_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        output_path = Path(sys.argv[2])
+
+    logger.info(f"Starting test translation from {input_path} to {output_path}")
     
-    This script translates Python unit tests to JavaScript using transcrypt,
-    ensuring deterministic and reproducible test translations for evaluation.
-    """
-    # Configure logging
+    count = translate_test_directory(input_path, output_path)
+    
+    if count == 0:
+        logger.warning("No tests were translated. Check logs for errors.")
+        sys.exit(1)
+    else:
+        logger.info(f"Successfully translated {count} test files.")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    # Setup basic logging for direct execution
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-
-    # Check if transcrypt is available
-    if not ensure_transcrypt_available():
-        sys.exit(1)
-
-    # Default paths - these should be configured via command line args or config
-    # For now, use project-standard paths
-    input_dir = Path('data/raw/python_tests')
-    output_dir = Path('data/processed/js_tests')
-
-    # Check if input directory exists, if not, look for alternative locations
-    if not input_dir.exists():
-        # Try common alternative locations
-        alternative_dirs = [
-            Path('data/raw/tests'),
-            Path('data/tests'),
-            Path('tests')
-        ]
-        
-        found = False
-        for alt_dir in alternative_dirs:
-            if alt_dir.exists() and any(alt_dir.glob('**/*.py')):
-                input_dir = alt_dir
-                logger.info(f"Using alternative input directory: {input_dir}")
-                found = True
-                break
-        
-        if not found:
-            logger.error(f"No Python test files found in any expected directory")
-            logger.error(f"Expected in: {input_dir}")
-            logger.error("Please ensure Python test files are available for translation")
-            sys.exit(1)
-
-    logger.info(f"Translating Python tests from: {input_dir}")
-    logger.info(f"Output directory: {output_dir}")
-
-    # Perform translation
-    stats = translate_test_directory(input_dir, output_dir)
-
-    # Log final statistics
-    logger.info("=" * 60)
-    logger.info("TRANSLATION SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Total files: {stats['total']}")
-    logger.info(f"Successful: {stats['success']}")
-    logger.info(f"Failed: {stats['failed']}")
-    logger.info(f"Success rate: {stats['success']/stats['total']*100:.1f}%" if stats['total'] > 0 else "N/A")
-    logger.info("=" * 60)
-
-    # Exit with error code if all translations failed
-    if stats['total'] > 0 and stats['success'] == 0:
-        logger.error("All translations failed!")
-        sys.exit(1)
-
-    logger.info("Test translation completed successfully")
-
-if __name__ == '__main__':
     main()

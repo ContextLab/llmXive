@@ -86,7 +86,7 @@
 - [X] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
 - [X] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
 - [ ] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
-- [ ] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested -->
+- [ ] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -127,10 +127,10 @@
 ### Implementation for User Story 3
 
 - [X] T026 [P] [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
-- [~] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
-- [~] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
-- [~] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
-- [ ] T030 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
+- [ ] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
+- [ ] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
+- [ ] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
+- [X] T030 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
 
 **Checkpoint**: All user stories should now be independently functional
 

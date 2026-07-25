@@ -1,8 +1,9 @@
 """
-Bootstrap Confidence Interval Calculation for KS Statistics (T030).
+Bootstrap confidence interval calculation for KS statistics.
 
-Implements Constitution Principle VII: Report bootstrap confidence intervals
-for KS statistics to quantify uncertainty in p-value distribution deviations.
+This module implements the bootstrap procedure to estimate confidence intervals
+for Kolmogorov-Smirnov statistics comparing standard hypothesis test p-values
+against a permutation-based gold standard.
 
 Output: data/results/bootstrap_cis.json
 """
@@ -16,14 +17,11 @@ from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 from scipy import stats
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    parent_dir = Path(__file__).resolve().parent
-    if str(parent_dir) not in sys.path:
-        sys.path.insert(0, str(parent_dir))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from utils.simulation import SyntheticDataset
 from analyze_pvalues import calculate_ks_statistic
-from utils.exceptions import AnalysisError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,237 +29,239 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_N_BOOTSTRAP = 1000
+DEFAULT_CONFIDENCE_LEVEL = 0.95
+OUTPUT_PATH = Path("data/results/bootstrap_cis.json")
+
 
 def calculate_bootstrap_ci(
-    pvalues: np.ndarray,
-    permutation_pvalues: np.ndarray,
-    n_bootstraps: int = 1000,
-    confidence_level: float = 0.95,
-    random_seed: Optional[int] = None
-) -> Tuple[float, float, float]:
+    ks_values: np.ndarray,
+    confidence_level: float = DEFAULT_CONFIDENCE_LEVEL
+) -> Tuple[float, float]:
     """
-    Calculate bootstrap confidence intervals for the KS statistic.
-
+    Calculate bootstrap confidence interval for KS statistics.
+    
+    Uses the percentile method to compute the confidence interval from the
+    bootstrap distribution of KS statistics.
+    
     Args:
-        pvalues: Array of p-values from standard hypothesis tests (n_features,).
-        permutation_pvalues: Array of p-values from permutation-based gold standard (n_features,).
-        n_bootstraps: Number of bootstrap resamples to generate.
-        confidence_level: Confidence level for the interval (e.g., 0.95).
-        random_seed: Random seed for reproducibility.
-
+        ks_values: Array of KS statistics from bootstrap resamples.
+        confidence_level: Confidence level (e.g., 0.95 for 95% CI).
+        
     Returns:
-        Tuple of (KS_statistic, ci_lower, ci_upper).
+        Tuple of (lower_bound, upper_bound) for the confidence interval.
+        
+    Raises:
+        ValueError: If ks_values is empty or has insufficient samples.
     """
-    if random_seed is not None:
-        np.random.seed(random_seed)
-
-    if len(pvalues) != len(permutation_pvalues):
-        raise AnalysisError(
-            f"p-values and permutation_p-values must have the same length. "
-            f"Got {len(pvalues)} vs {len(permutation_pvalues)}"
-        )
-
-    n = len(pvalues)
-    ks_stats = []
-
-    # Calculate the observed KS statistic
-    observed_ks = calculate_ks_statistic(pvalues, permutation_pvalues)
-    logger.info(f"Observed KS statistic: {observed_ks:.6f}")
-
-    # Bootstrap resampling
-    for i in range(n_bootstraps):
-        # Resample with replacement
-        indices = np.random.choice(n, size=n, replace=True)
-        boot_pvalues = pvalues[indices]
-        boot_perm_pvalues = permutation_pvalues[indices]
-
-        # Calculate KS statistic for this resample
-        ks = calculate_ks_statistic(boot_pvalues, boot_perm_pvalues)
-        ks_stats.append(ks)
-
-    ks_stats = np.array(ks_stats)
-
-    # Calculate confidence interval
+    if len(ks_values) == 0:
+        raise ValueError("ks_values array is empty")
+        
+    if len(ks_values) < 10:
+        logger.warning(f"Only {len(ks_values)} bootstrap samples available. "
+                     "Confidence intervals may be unreliable.")
+    
     alpha = 1 - confidence_level
-    ci_lower = np.percentile(ks_stats, (alpha / 2) * 100)
-    ci_upper = np.percentile(ks_stats, (1 - alpha / 2) * 100)
-
-    logger.info(f"Bootstrap CI ({confidence_level*100}%): [{ci_lower:.6f}, {ci_upper:.6f}]")
-
-    return observed_ks, ci_lower, ci_upper
+    lower_percentile = (alpha / 2) * 100
+    upper_percentile = (1 - alpha / 2) * 100
+    
+    lower_bound = np.percentile(ks_values, lower_percentile)
+    upper_bound = np.percentile(ks_values, upper_percentile)
+    
+    return float(lower_bound), float(upper_bound)
 
 
 def load_trajectory_data(
-    trajectory_file: Path
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    trajectory_path: Path
+) -> Dict[str, Any]:
     """
-    Load p-value trajectory and metadata from a JSON file.
-
+    Load p-value trajectory data from a JSON file.
+    
     Args:
-        trajectory_file: Path to the trajectory JSON file.
-
+        trajectory_path: Path to the trajectory JSON file.
+        
     Returns:
-        Tuple of (pvalues, permutation_pvalues, metadata_dict).
+        Dictionary containing trajectory data.
+        
+    Raises:
+        FileNotFoundError: If the trajectory file doesn't exist.
+        json.JSONDecodeError: If the file contains invalid JSON.
     """
-    if not trajectory_file.exists():
-        raise FileNotFoundError(f"Trajectory file not found: {trajectory_file}")
-
-    with open(trajectory_file, 'r') as f:
+    if not trajectory_path.exists():
+        raise FileNotFoundError(f"Trajectory file not found: {trajectory_path}")
+        
+    with open(trajectory_path, 'r') as f:
         data = json.load(f)
-
-    if 'pvalues' not in data or 'permutation_pvalues' not in data:
-        raise AnalysisError(
-            f"Trajectory file missing required fields: {trajectory_file}"
-        )
-
-    pvalues = np.array(data['pvalues'])
-    permutation_pvalues = np.array(data['permutation_pvalues'])
-
-    metadata = {
-        'seed': data.get('seed'),
-        'n': data.get('n'),
-        'p': data.get('p'),
-        'rho': data.get('rho'),
-        'distribution_type': data.get('distribution_type', 'unknown')
-    }
-
-    return pvalues, permutation_pvalues, metadata
+        
+    logger.info(f"Loaded trajectory data from {trajectory_path}")
+    return data
 
 
 def run_bootstrap_analysis(
-    trajectory_file: Path,
-    output_file: Path,
-    n_bootstraps: int = 1000,
-    confidence_level: float = 0.95,
+    standard_pvalues: np.ndarray,
+    permutation_pvalues: np.ndarray,
+    n_bootstrap: int = DEFAULT_N_BOOTSTRAP,
+    confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
     random_seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Run bootstrap analysis on a single trajectory and save results.
-
+    Run bootstrap analysis to calculate confidence intervals for KS statistics.
+    
+    This function resamples the standard p-values with replacement, calculates
+    the KS statistic against the permutation reference for each resample, and
+    computes the confidence interval from the bootstrap distribution.
+    
     Args:
-        trajectory_file: Path to the trajectory JSON file.
-        output_file: Path to save the bootstrap CI results.
-        n_bootstraps: Number of bootstrap resamples.
+        standard_pvalues: Array of p-values from standard hypothesis tests.
+        permutation_pvalues: Array of p-values from permutation test (gold standard).
+        n_bootstrap: Number of bootstrap resamples.
         confidence_level: Confidence level for the interval.
         random_seed: Random seed for reproducibility.
-
+        
     Returns:
-        Dictionary containing the bootstrap CI results.
+        Dictionary containing:
+            - KS_statistic: The original KS statistic (full sample).
+            - bootstrap_ci_lower: Lower bound of the confidence interval.
+            - bootstrap_ci_upper: Upper bound of the confidence interval.
+            - n_bootstrap: Number of bootstrap samples used.
+            - confidence_level: Confidence level used.
+            - ks_bootstrap_values: Array of all bootstrap KS values (for diagnostics).
     """
-    logger.info(f"Processing trajectory: {trajectory_file}")
-
-    pvalues, permutation_pvalues, metadata = load_trajectory_data(trajectory_file)
-
-    ks_stat, ci_lower, ci_upper = calculate_bootstrap_ci(
-        pvalues,
-        permutation_pvalues,
-        n_bootstraps=n_bootstraps,
-        confidence_level=confidence_level,
-        random_seed=random_seed
+    if random_seed is not None:
+        np.random.seed(random_seed)
+        
+    if len(standard_pvalues) == 0 or len(permutation_pvalues) == 0:
+        raise ValueError("Input p-value arrays cannot be empty")
+        
+    # Calculate original KS statistic (full sample)
+    original_ks = calculate_ks_statistic(standard_pvalues, permutation_pvalues)
+    logger.info(f"Original KS statistic: {original_ks:.6f}")
+    
+    # Bootstrap resampling
+    ks_bootstrap_values = []
+    n = len(standard_pvalues)
+    
+    logger.info(f"Starting bootstrap analysis with {n_bootstrap} resamples...")
+    
+    for i in range(n_bootstrap):
+        # Resample with replacement
+        indices = np.random.choice(n, size=n, replace=True)
+        resampled_pvalues = standard_pvalues[indices]
+        
+        # Calculate KS statistic for this resample
+        ks_val = calculate_ks_statistic(resampled_pvalues, permutation_pvalues)
+        ks_bootstrap_values.append(ks_val)
+        
+        if (i + 1) % 100 == 0:
+            logger.debug(f"Completed {i + 1}/{n_bootstrap} bootstrap resamples")
+    
+    ks_bootstrap_values = np.array(ks_bootstrap_values)
+    
+    # Calculate confidence interval
+    ci_lower, ci_upper = calculate_bootstrap_ci(
+        ks_bootstrap_values, 
+        confidence_level
     )
-
-    result = {
-        'KS_statistic': float(ks_stat),
-        'bootstrap_ci_lower': float(ci_lower),
-        'bootstrap_ci_upper': float(ci_upper),
+    
+    logger.info(f"Bootstrap CI ({confidence_level*100:.0f}%): "
+               f"[{ci_lower:.6f}, {ci_upper:.6f}]")
+    
+    return {
+        'KS_statistic': float(original_ks),
+        'bootstrap_ci_lower': ci_lower,
+        'bootstrap_ci_upper': ci_upper,
+        'n_bootstrap': n_bootstrap,
         'confidence_level': confidence_level,
-        'n_bootstraps': n_bootstraps,
-        'seed': metadata['seed'],
-        'n': metadata['n'],
-        'p': metadata['p'],
-        'rho': metadata['rho'],
-        'distribution_type': metadata['distribution_type']
+        'ks_bootstrap_values': ks_bootstrap_values.tolist()
     }
-
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Results saved to: {output_file}")
-
-    return result
 
 
 def main():
     """
     Main entry point for bootstrap CI calculation.
-
-    Usage:
-        python code/bootstrap_ci.py --trajectory data/synthetic/trajectories/{seed}.json
-                                    --output data/results/bootstrap_cis.json
+    
+    Reads trajectory data from data/synthetic/trajectories/, performs bootstrap
+    analysis for each dataset, and stores results in data/results/bootstrap_cis.json.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Calculate bootstrap confidence intervals for KS statistics."
-    )
-    parser.add_argument(
-        '--trajectory',
-        type=str,
-        required=True,
-        help="Path to the trajectory JSON file (e.g., data/synthetic/trajectories/12345.json)"
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/results/bootstrap_cis.json',
-        help="Path to save the bootstrap CI results (default: data/results/bootstrap_cis.json)"
-    )
-    parser.add_argument(
-        '--n-bootstraps',
-        type=int,
-        default=1000,
-        help="Number of bootstrap resamples (default: 1000)"
-    )
-    parser.add_argument(
-        '--confidence-level',
-        type=float,
-        default=0.95,
-        help="Confidence level for the interval (default: 0.95)"
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=None,
-        help="Random seed for reproducibility (default: None)"
-    )
-
-    args = parser.parse_args()
-
-    trajectory_path = Path(args.trajectory)
-    output_path = Path(args.output)
-
-    if not trajectory_path.is_absolute():
-        # Make relative to project root if needed
-        project_root = Path(__file__).resolve().parent.parent
-        trajectory_path = project_root / trajectory_path
-
-    if not output_path.is_absolute():
-        project_root = Path(__file__).resolve().parent.parent
-        output_path = project_root / output_path
-
-    try:
-        result = run_bootstrap_analysis(
-            trajectory_path,
-            output_path,
-            n_bootstraps=args.n_bootstraps,
-            confidence_level=args.confidence_level,
-            random_seed=args.seed
-        )
-
-        print(json.dumps(result, indent=2))
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    trajectories_dir = Path("data/synthetic/trajectories")
+    if not trajectories_dir.exists():
+        logger.error(f"Trajectories directory not found: {trajectories_dir}")
+        logger.error("Please run data generation and hypothesis testing first.")
         sys.exit(1)
-    except AnalysisError as e:
-        logger.error(f"Analysis error: {e}")
+    
+    # Find all trajectory files
+    trajectory_files = list(trajectories_dir.glob("*.json"))
+    if not trajectory_files:
+        logger.error(f"No trajectory files found in {trajectories_dir}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    
+    logger.info(f"Found {len(trajectory_files)} trajectory files to process")
+    
+    results = []
+    
+    for traj_file in trajectory_files:
+        try:
+            logger.info(f"Processing {traj_file.name}...")
+            
+            # Load trajectory data
+            traj_data = load_trajectory_data(traj_file)
+            
+            # Extract metadata
+            metadata = traj_data.get('metadata', {})
+            seed = metadata.get('seed')
+            rho = metadata.get('rho')
+            n = metadata.get('n')
+            p = metadata.get('p')
+            
+            # Extract p-values
+            standard_pvalues = np.array(traj_data.get('standard_pvalues', []))
+            permutation_pvalues = np.array(traj_data.get('permutation_pvalues', []))
+            
+            if len(standard_pvalues) == 0 or len(permutation_pvalues) == 0:
+                logger.warning(f"Skipping {traj_file.name}: missing p-value data")
+                continue
+            
+            # Run bootstrap analysis
+            bootstrap_result = run_bootstrap_analysis(
+                standard_pvalues=standard_pvalues,
+                permutation_pvalues=permutation_pvalues,
+                n_bootstrap=DEFAULT_N_BOOTSTRAP,
+                confidence_level=DEFAULT_CONFIDENCE_LEVEL,
+                random_seed=seed if seed is not None else 42
+            )
+            
+            # Format result according to specification
+            result_entry = {
+                'KS_statistic': bootstrap_result['KS_statistic'],
+                'bootstrap_ci_lower': bootstrap_result['bootstrap_ci_lower'],
+                'bootstrap_ci_upper': bootstrap_result['bootstrap_ci_upper'],
+                'rho': rho,
+                'n': n,
+                'p': p,
+                'seed': seed
+            }
+            
+            results.append(result_entry)
+            logger.info(f"Completed {traj_file.name}: KS={bootstrap_result['KS_statistic']:.4f}, "
+                       f"CI=[{bootstrap_result['bootstrap_ci_lower']:.4f}, "
+                       f"{bootstrap_result['bootstrap_ci_upper']:.4f}]")
+            
+        except Exception as e:
+            logger.error(f"Error processing {traj_file.name}: {str(e)}", exc_info=True)
+            continue
+    
+    # Write results to output file
+    with open(OUTPUT_PATH, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Bootstrap CI results written to {OUTPUT_PATH}")
+    logger.info(f"Processed {len(results)} datasets successfully")
+    
+    return results
 
 
 if __name__ == "__main__":

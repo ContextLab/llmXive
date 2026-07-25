@@ -1,35 +1,42 @@
 # PROJ-054: Assessing the Validity of p-Values in High-Dimensional Data
 
+## Linting and Formatting
+
+This project uses **Ruff** for linting and **Black** for code formatting.
+
+### Setup
+
+Ensure dependencies are installed:
+```bash
+pip install -r requirements.txt
+```
+
+### Usage
+
+**Format code:**
+```bash
+black code/ tests/
+```
+
+**Lint code:**
+```bash
+ruff check code/ tests/
+```
+
+**Fix linting issues automatically (where safe):**
+```bash
+ruff check --fix code/ tests/
+```
+
+**Run pre-commit checks (if configured):**
+```bash
+pre-commit run --all-files
+```
+
 ## Project Structure
 
 - `code/`: Source code for the research pipeline
- - `utils/`: Utilities for simulation, regularization, and exceptions
- - `generate_data/`: Synthetic data generation modules
- - `run_tests/`: Hypothesis test execution modules
- - `analyze_pvalues/`: P-value analysis and visualization modules
-- `data/`: Generated datasets and analysis results
- - `synthetic/`: Raw synthetic datasets
- - `synthetic/trajectories/`: P-value trajectories per iteration
- - `results/`: Aggregated analysis results (JSON, CSV)
-- `tests/`: Test suite
- - `unit/`: Unit tests
- - `integration/`: Integration tests
+- `tests/`: Unit and integration tests
+- `data/`: Generated datasets and results
 - `docs/`: Documentation
 - `specs/`: Feature specifications and design documents
-
-## Quick Start
-
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-2. Run the simulation pipeline:
- ```bash
- python code/run_simulation.py
- ```
-
-3. View results in `data/results/`
-
-## License
-Research use only.

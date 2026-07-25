@@ -1,38 +1,13 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Distribution / packaging
-.eggs/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
 *.egg-info/
-dist/
-build/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Test coverage
 .coverage
 htmlcov/
-.pytest_cache/
-
-# Data files (large)
-data/
-!data/.gitkeep
-
-# Figures
+data/**/*.json
+!data/README.md
 figures/
-!figures/.gitkeep
-
-# Local config
-.env
-*.local
+.venv/
+venv/

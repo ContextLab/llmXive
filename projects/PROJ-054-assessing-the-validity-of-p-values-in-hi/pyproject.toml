@@ -1,29 +1,92 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "p-value-validity-study"
+name = "llmxive-pvalue-assessment"
 version = "0.1.0"
 description = "Assessing the validity of p-values in high-dimensional data"
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26.0",
-    "scipy>=1.11.0",
-    "pandas>=2.0.0",
+    "scipy>=1.12.0",
+    "pandas>=2.2.0",
     "matplotlib>=3.8.0",
     "seaborn>=0.13.0",
     "pytest>=7.4.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "ruff>=0.3.0",
+    "black>=24.3.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["code", "tests"]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # assert statements allowed in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils", "generate_data", "run_tests", "collect_pvalues", "analyze_pvalues", "plot_qq", "bootstrap_ci", "sensitivity_analysis"]
+force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+pythonpath = ["code"]
 addopts = "-v --tb=short"

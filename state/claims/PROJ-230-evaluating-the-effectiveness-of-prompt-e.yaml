@@ -294,3 +294,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T04:31:36Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: corpus of 200 Python-to-JavaScript pairs from HuggingFace within 7GB
+    RAM
+  claim_id: c_d7ed6327
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:55:23Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: local CSV with 200 valid pairs and memory peak below 7GB
+  claim_id: c_74714e2b
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify src/ingestion/download_datasets.py creates a local CSV with \u2265\
+    200 valid pairs and logs a memory peak <7GB during execution."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:55:23Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: apply four prompt conditions to the corpus
+  claim_id: c_614ee933
+  context: 'Goal: Execute four distinct prompt conditions against the corpus using
+    CodeLlama-7B via HuggingFace Inference API, storing outputs deterministically.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_four_prompt_conditions_to_the_corpus
+  kind: entity_fact
+  raw_text: Implement src/execution/run_inference.py to iterate through the corpus
+    and apply the four prompt conditions from data/prompts/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:55:39Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: execute four prompt conditions using CodeLlama-7B via HuggingFace Inference
+    API
+  claim_id: c_2a5937a9
+  context: 'Phase 4: User Story 2 - Prompt Condition Execution (Priority: P2) Goal:
+    Execute four distinct prompt conditions against the corpus using CodeLlama-7B
+    via HuggingFace Inference API, storing outputs deterministically.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_four_prompt_conditions_using_CodeLlama-7B_via_Huggin
+  kind: entity_fact
+  raw_text: Execute four distinct prompt conditions against the corpus using CodeLlama-7B
+    via HuggingFace Inference API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:55:55Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: perform Chi-square and ANOVA with Bonferroni correction
+  claim_id: c_8fa5f9d7
+  context: 'Implementation for User Story 3: Implement src/evaluation/statistical_analysis.py
+    to perform Chi-square (correctness) and ANOVA (quality) with Bonferroni correction.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P9644: BONFERRONI'
+      source_id: Q87892954
+      url: https://www.wikidata.org/wiki/Q87892954
+      value: BONFERRONI
+    filled: true
+  kind: entity_fact
+  raw_text: Implement src/evaluation/statistical_analysis.py to perform Chi-square
+    (correctness) and ANOVA (quality) with Bonferroni correction.
+  resolved_value: BONFERRONI
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T18:56:03Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: no local LLM training or 8-bit quantization allowed
+  claim_id: c_7bd883fb
+  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
+    quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:56:20Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: fetch from codeparrot/code-trans-py-js and bigcode/evaluation via datasets
+    library
+  claim_id: c_f20be0ea
+  context: Implementation for User Story 1 - T013 [US1] Implement `src/ingestion/download_datasets.py`
+    to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets`
+    library
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_from_codeparrot/code-trans-py-js_and_bigcode/evaluatio
+  kind: entity_fact
+  raw_text: Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js`
+    and `bigcode/evaluation` via `datasets` library
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:57:55Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: perform Chi-square and ANOVA with Bonferroni correction
+  claim_id: c_e5f2707c
+  context: Implementation for User Story 3 - T030 [US3] Implement `src/evaluation/statistical_analysis.py`
+    to perform Chi-square (correctness) and ANOVA (quality) with Bonferroni (Wikidata
+    Q87892954, https://www.wikidata.org/wiki/Q87892954) correction
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Bonferroni
+      source_id: Q87892954
+      url: https://www.wikidata.org/wiki/Q87892954
+      value: Bonferroni
+    filled: true
+  kind: entity_fact
+  raw_text: perform Chi-square (correctness) and ANOVA (quality) with Bonferroni (Wikidata
+    Q87892954, https://www.wikidata.org/wiki/Q87892954) correction
+  resolved_value: Bonferroni
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T18:58:01Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: no local LLM training or 8-bit quantization allowed
+  claim_id: c_124885eb
+  context: 'Notes - Critical Constraint: {{claim:c_65af1cd1}} No local LLM training
+    or 8-bit quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T18:58:01Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 2
+  canonical: corpus of at least 200 Python-to-JavaScript pairs from HuggingFace without
+    exceeding 7GB RAM
+  claim_id: c_c0724ff6
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corpus_of_at_least_200_Python-to-JavaScript_pairs_from_Huggi
+  kind: magnitude
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:03:05Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: fetch from codeparrot/code-trans-py-js and bigcode/evaluation via datasets
+    library
+  claim_id: c_699ef0a0
+  context: T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from
+    `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library,
+    explicitly **caching** raw data to `data/raw/` before any processing
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_from_codeparrot/code-trans-py-js_and_bigcode/evaluatio
+  kind: entity_fact
+  raw_text: fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via
+    `datasets` library
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:03:17Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: enforcing 120s API timeouts and 10s test timeouts
+  claim_id: c_1919de34
+  context: T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts
+    and 10s test timeouts
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforcing_120s_API_timeouts_and_10s_test_timeouts
+  kind: entity_fact
+  raw_text: enforcing 120s API timeouts and 10s test timeouts
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:03:33Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: 'four prompt conditions: zero_shot_basic.txt, zero_shot_style.txt, few_shot_basic.txt,
+    few_shot_style.txt'
+  claim_id: c_4e82d6b3
+  context: 'T010 Create `data/prompts/` directory and add placeholder files for the
+    four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`,
+    `few_shot_style.txt`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Four_prompt_conditions:_zero_shot_basic.txt,_zero_shot_style
+  kind: entity_fact
+  raw_text: 'four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`,
+    `few_shot_basic.txt`, `few_shot_style.txt`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:03:53Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: Execute four distinct prompt conditions against the corpus using CodeLlama-7B
+    via HuggingFace Inference API
+  claim_id: c_33cfceb3
+  context: 'Phase 4: User Story 2 - Prompt Condition Execution (Priority: P2) Goal:
+    Execute four distinct prompt conditions against the corpus using CodeLlama-7B
+    via HuggingFace Inference API, storing outputs deterministically.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_four_distinct_prompt_conditions_against_the_corpus_u
+  kind: entity_fact
+  raw_text: Execute four distinct prompt conditions against the corpus using CodeLlama-7B
+    via HuggingFace Inference API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:03:55Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: strictly forbidding LLM-based test generation
+  claim_id: c_6f14469c
+  context: T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python
+    unit tests to JavaScript using the selected deterministic transpiler, strictly
+    forbidding LLM-based test generation (FR-003)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strictly_forbidding_LLM-based_test_generation
+  kind: entity_fact
+  raw_text: strictly forbidding LLM-based test generation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:04:19Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: No local LLM training or 8-bit quantization allowed
+  claim_id: c_82b78bad
+  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
+    quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T19:04:20Z'

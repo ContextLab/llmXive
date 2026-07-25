@@ -43,3 +43,48 @@ T022:
     \ there is no concrete artifact (e.g., modified `generate_data.py`, a new driver\
     \ script, or test logs) to confirm the integration was implemented. The required\
     \ integration artifact is missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output files were provided that demonstrate an implementation\
+    \ of the Kolmogorov\u2011Smirnov statistic comparing standard t\u2011/F\u2011\
+    test p\u2011values to a permutation\u2011based reference, nor any results (e.g.,\
+    \ tables, plots, or logs) showing the calculation on synthetic high\u2011dimensional\
+    \ data. The claim lacks the required artifact(s) to verify that the task was actually\
+    \ completed."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any code, script, notebook, or generated figure\
+    \ that creates QQ\u2011plots for the p\u2011value distributions. No artifact (e.g.,\
+    \ a function `plot_qq`, a saved PNG/SVG, or a Jupyter notebook) is present to\
+    \ demonstrate that the required visual inspection capability has been implemented.\
+    \ Consequently the task requirement is not satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report files were provided that perform the sensitivity sweep\
+    \ over the specified discrete\u202F\u03C1 values or that present the resulting\
+    \ Kolmogorov\u2011Smirnov statistics. Without these artifacts, the requirement\
+    \ to implement the analysis and report KS variations is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files or updates in a `docs/` directory were provided; the claim
+    lacks any tangible artifact showing the methodology for data generation and analysis
+    has been written or updated. The required documentation is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or analysis artifacts (e.g., synthetic data generator, test scripts,\
+    \ p\u2011value collections, KS statistics, or plots) were provided or referenced;\
+    \ therefore the required deliverables for the high\u2011dimensional p\u2011value\
+    \ validity feature are absent. The claim cannot be verified as complete."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime profiling data, logs, or benchmark results are present to show that\
+    \ the full simulation sweep was executed and completed within 6\u202Fhours on\
+    \ 2 CPU cores. The only artifact provided is a feature specification unrelated\
+    \ to the required runtime verification, so the task\u2019s core requirement is\
+    \ unmet."

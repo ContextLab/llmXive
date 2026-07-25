@@ -1,10 +1,12 @@
 # Existing dependencies
-datasets>=2.14.0
 pandas>=2.0.0
+numpy>=1.24.0
 requests>=2.31.0
+datasets>=2.14.0
 pyyaml>=6.0
-scipy>=1.11.0
+pytest>=7.4.0
+tqdm>=4.65.0
 
-# New dependencies added for T030
-# scipy is required for accurate statistical analysis (Chi-square, ANOVA, t-tests)
-# as implemented in src/evaluation/statistical_analysis.py
+# New dependency for T027: Transcrypt for deterministic Python-to-JS test translation
+# FR-003: Strictly forbids LLM-based test generation.
+transcrypt>=3.9.0

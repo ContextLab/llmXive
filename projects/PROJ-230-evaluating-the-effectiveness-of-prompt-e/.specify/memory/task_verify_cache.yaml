@@ -38,3 +38,39 @@ T018:
   r: "The required artifact `tests/contract/test_api_client.py` does not exist in\
     \ the repository, so the contract test for the API client is missing entirely.\
     \ Without this file, the task\u2019s deliverable is not provided."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, configuration, or log files were provided that demonstrate seeds\
+    \ being pinned or the required logging of prompt text, model version, and seed\
+    \ for each request. Without concrete artifacts showing this deterministic\u2011\
+    execution functionality, the task\u2019s requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or directory structure was provided showing that translation\
+    \ outputs are being saved under `data/evaluation/raw_translations/` with sub\u2011\
+    folders for each prompt condition. Without such artifacts, we cannot confirm the\
+    \ required storage implementation exists."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log modifications were provided to demonstrate that the\
+    \ system now records a \u201Cfailed translation\u201D entry when the LLM returns\
+    \ non\u2011code text. Without an artifact showing the added logging logic (e.g.,\
+    \ updated inference or post\u2011processing module and example log output), the\
+    \ requirement cannot be confirmed."
+T025:
+  c: false
+  h: 4137220051f97acda59a0d80b64d8c5d89dc1dbcfe5546cb6e393b13a8b32579
+  r: The required artifact `tests/contract/test_test_translation.py` does not exist
+    in the repository, so the contract test for test translation is missing. The task
+    cannot be considered completed until this file is created with appropriate test
+    content.
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the task description and project spec excerpt; there
+    is no artifact that selects a deterministic transpiler nor any documentation describing
+    its usage, configuration, or determinism guarantees. A concrete selection (e.g.,
+    `transcrypt` version) and accompanying documentation are required to satisfy T027a.

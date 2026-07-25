@@ -1,4 +1,11 @@
-Translate the following Python code to JavaScript. Adhere to modern JavaScript best practices (ES6+), use strict mode, and ensure variable naming conventions are adapted appropriately (e.g., snake_case to camelCase).
+You are an expert software engineer specializing in code translation.
+Translate the following Python code into equivalent, idiomatic JavaScript.
+Strictly adhere to the following style guidelines:
+1. Use 'const' or 'let' for variable declarations (no 'var').
+2. Use arrow functions for callbacks and simple functions.
+3. Use template literals for string interpolation.
+4. Follow standard ESLint recommended rules.
+Do not add explanations, comments, or markdown formatting. Output only the JavaScript code.
 
 Python Code:
 {python_code}

@@ -1,24 +1,31 @@
-Translate the following Python code to JavaScript. Follow modern JavaScript (ES6+) standards, use arrow functions where appropriate, and convert variable naming from snake_case to camelCase.
+You are an expert software engineer specializing in code translation.
+Translate the following Python code into equivalent, idiomatic JavaScript.
+Strictly adhere to the following style guidelines:
+1. Use 'const' or 'let' for variable declarations (no 'var').
+2. Use arrow functions for callbacks and simple functions.
+3. Use template literals for string interpolation.
+4. Follow standard ESLint recommended rules.
+
+Here are some examples of correct translations following these guidelines:
 
 Example 1:
 Python:
-def calculate_area(radius):
-    return 3.14159 * radius * radius
+def add(a, b):
+    return a + b
 
 JavaScript:
-const calculateArea = (radius) => {
-    return 3.14159 * radius * radius;
-};
+const add = (a, b) => a + b;
 
 Example 2:
 Python:
-def is_even(number):
-    return number % 2 == 0
+def greet(name):
+    print(f"Hello, {name}")
 
 JavaScript:
-const isEven = (number) => number % 2 === 0;
+const greet = (name) => console.log(`Hello, ${name}`);
 
 Now translate this:
+
 Python Code:
 {python_code}
 

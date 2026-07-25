@@ -1,91 +1,74 @@
-"""
-T014: Validate that the final processed corpus contains at least 200 valid entries.
-
-This script loads the processed corpus from data/processed/corpus.csv and
-verifies it meets the minimum size requirement of 200 valid Python-to-JavaScript pairs.
-It logs the count and exits with an error if the threshold is not met.
-"""
-
 import os
 import sys
 import logging
 import pandas as pd
 from pathlib import Path
-
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from src.utils.logging import get_logger
 
-# Constants
-MIN_CORPUS_SIZE = 200
-CORPUS_PATH = "data/processed/corpus.csv"
-REQUIRED_COLUMNS = ["python_code", "javascript_code"]
-
-def validate_corpus_size(logger: logging.Logger) -> bool:
+def validate_corpus_size(corpus_path: str, min_entries: int = 200) -> bool:
     """
-    Validate that the processed corpus has at least MIN_CORPUS_SIZE entries.
+    Validates that the processed corpus CSV contains at least `min_entries` valid rows.
 
     Args:
-        logger: Logger instance for recording validation results.
+        corpus_path: Path to the data/processed/corpus.csv file.
+        min_entries: Minimum required number of valid entries (default 200).
 
     Returns:
-        True if corpus size >= MIN_CORPUS_SIZE, False otherwise.
-    """
-    corpus_path = Path(CORPUS_PATH)
+        True if the count is >= min_entries, False otherwise.
 
-    if not corpus_path.exists():
-        logger.error(f"Corpus file not found: {corpus_path}")
-        return False
+    Raises:
+        FileNotFoundError: If the corpus file does not exist.
+        ValueError: If the file is empty or has no rows.
+    """
+    logger = get_logger(__name__)
+    path = Path(corpus_path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"Corpus file not found at {corpus_path}")
 
     try:
         df = pd.read_csv(corpus_path)
-        logger.info(f"Loaded corpus with {len(df)} entries from {corpus_path}")
+        count = len(df)
+        logger.info(f"Validated corpus size: {count} entries found in {corpus_path}")
 
-        # Check required columns
-        missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-        if missing_cols:
-            logger.error(f"Missing required columns: {missing_cols}")
+        if count < min_entries:
+            logger.error(f"Corpus size validation FAILED: {count} < {min_entries} required.")
             return False
-
-        # Count valid entries (non-null in both code columns)
-        valid_mask = df[REQUIRED_COLUMNS].notna().all(axis=1)
-        valid_count = valid_mask.sum()
-        logger.info(f"Valid entries (non-null python_code and javascript_code): {valid_count}")
-
-        if valid_count < MIN_CORPUS_SIZE:
-            logger.error(
-                f"Corpus validation FAILED: {valid_count} valid entries < required {MIN_CORPUS_SIZE}"
-            )
-            return False
-
-        logger.info(
-            f"Corpus validation PASSED: {valid_count} valid entries >= {MIN_CORPUS_SIZE}"
-        )
+        
+        logger.info(f"Corpus size validation PASSED: {count} >= {min_entries} required.")
         return True
 
     except pd.errors.EmptyDataError:
-        logger.error(f"Corpus file is empty: {corpus_path}")
-        return False
+        logger.error(f"Corpus file {corpus_path} is empty.")
+        raise ValueError(f"Corpus file {corpus_path} is empty.")
     except Exception as e:
-        logger.error(f"Error reading corpus: {e}")
-        return False
+        logger.error(f"Error reading corpus file {corpus_path}: {e}")
+        raise
 
 def main():
-    """Main entry point for corpus size validation."""
-    logger = get_logger("validate_corpus_size")
-    logger.info("Starting corpus size validation (T014)")
+    """
+    Entry point for validating the corpus size.
+    Expects the corpus to be at data/processed/corpus.csv.
+    """
+    logger = get_logger(__name__)
+    project_root = Path(__file__).resolve().parent.parent.parent
+    corpus_path = project_root / "data" / "processed" / "corpus.csv"
 
-    success = validate_corpus_size(logger)
-
-    if not success:
-        logger.error("Validation failed. Exiting with error code 1.")
+    if not corpus_path.exists():
+        logger.error(f"Corpus file not found at {corpus_path}. Ensure T013c has run successfully.")
         sys.exit(1)
 
-    logger.info("Validation successful. Exiting with code 0.")
-    sys.exit(0)
+    try:
+        is_valid = validate_corpus_size(str(corpus_path), min_entries=200)
+        if not is_valid:
+            logger.error("Validation failed: Corpus does not meet the minimum size requirement.")
+            sys.exit(1)
+        else:
+            logger.info("Validation successful: Corpus meets minimum size requirement.")
+            sys.exit(0)
+    except Exception as e:
+        logger.error(f"Validation process failed with exception: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

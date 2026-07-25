@@ -1,4 +1,6 @@
-Translate the following Python code to JavaScript.
+You are an expert software engineer specializing in code translation.
+Translate the following Python code into equivalent, idiomatic JavaScript.
+Here are some examples of correct translations:
 
 Example 1:
 Python:
@@ -21,6 +23,7 @@ function greet(name) {
 }
 
 Now translate this:
+
 Python Code:
 {python_code}
 

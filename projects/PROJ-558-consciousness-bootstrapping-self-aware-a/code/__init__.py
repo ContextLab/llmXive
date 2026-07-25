@@ -1,3 +1,2 @@
-"""
-llmXive Consciousness Bootstrapping Project - Code Root
-"""
+# Root code package
+pass

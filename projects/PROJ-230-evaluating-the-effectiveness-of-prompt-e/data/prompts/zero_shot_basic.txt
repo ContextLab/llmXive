@@ -1,4 +1,6 @@
-Translate the following Python code to JavaScript. Ensure the logic and functionality remain identical.
+You are an expert software engineer specializing in code translation.
+Translate the following Python code into equivalent, idiomatic JavaScript.
+Do not add explanations, comments, or markdown formatting. Output only the JavaScript code.
 
 Python Code:
 {python_code}
