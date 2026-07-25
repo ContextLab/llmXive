@@ -1,15 +1,4 @@
-- artifact_hash: 3f854168845a940f1b65886568f1c6772f2b9aa72c668a0797ecf58462f7aaac
-  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/Indic-Benchmark/hindi-arc-c-2.5k/resolve/main/data/train-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/657995e5b2ad12b875aff997/25ca00d9f710940b461a6c3ce2e3a1c041f74b1e2ed310af42cc111ac31c9f99?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783916706&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU3OTk1ZTViMmFkMTJiODc1YWZmOTk3LzI1Y2EwMGQ5ZjcxMDk0MGI0NjFhNmMzY2UyZTNhMWMwNDFmNzRiMWUyZWQzMTBhZjQyY2MxMTFhYzMxYzlmOTlcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkxNjcwNn19fV19&Signature=MEUCIQCl2iWZ93D%7E2YSc2tzoPSTwfMvZvFp07eWsP7x%7E1lN90gIgBfLC4D4yslums9mrkRE58DsNEOppupH3V%7EkeRzjEcpI_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-13T03:25:06.540282Z'
-- artifact_hash: eb5c4c4f11db8e15e4b919cdfb3fcaf222a571a8ec3638ccde43adccea0544ec
+- artifact_hash: c0b74b8d753e22e2bac85fef11b3df1be2e56bae134fced91f076c4733842917
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +8,26 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-24T22:29:23.032843Z'
+  verified_at: '2026-07-24T23:25:52.459448Z'
+- artifact_hash: 3ef80691cc585896b8b6640db088aef2381e4c9fadf4a308d7aac5c1a56a15e6
+  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/example
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/example
+  verified_at: '2026-07-25T00:25:19.733584Z'
+- artifact_hash: 8b4925492fc39c1e9bdecdb3cc9bd5c1d3c75d4b541cdffd124b4dd8cfd7cf4c
+  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
+  verified_at: '2026-07-25T00:25:36.269226Z'

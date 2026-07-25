@@ -68,7 +68,7 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 - **FR-001**: System MUST ingest the ARC-Bench topic subset and output a labeled dataset where each failure case is annotated with exactly one structural feature (Syntactic Error, Logical Loop, Semantic Ambiguity, Missing Context, or Unstructured) (See US-1).
 - **FR-002**: System MUST utilize a CPU-tractable small language model (e.g., Llama-3-8B-INT4 or smaller) to generate a rule library from the labeled dataset, where the rule set covers ≥90% of annotated failure patterns in a [deferred] held-out validation split (See US-1).
 - **FR-003**: System MUST implement a lightweight Python rule-matching engine that parses error logs and executes pivot actions without invoking a large language model or multi-agent debate (See US-2).
-- **FR-004**: System MUST execute both the distilled rule engine (on limited CPU resources, constrained memory, and a fixed time limit) and the full AutoResearchClaw baseline agent (on standard resources: multiple cores, sufficient memory) on a stratified random sample of 100 unseen tasks from the ARC-Bench 25-topic subset (See US-2).
+- **FR-004**: System MUST execute both the distilled rule engine (on limited CPU resources, constrained memory, and a fixed time limit) and the full AutoResearchClaw baseline agent (on standard resources: multiple cores, sufficient memory) on a stratified random sample of unseen tasks from the ARC-Bench topic subset. (See US-2).
 - **FR-005**: System MUST record "Time-to-Pivot" (seconds) and "Success Rate of First Pivot" (binary) for every task, stratified by the annotated failure feature type (See US-2).
 - **FR-006**: System MUST apply a mixed-effects logistic regression model to predict "Success Rate" based on "Failure Type," "Method," and their interaction, using "Task ID" as a random effect, tested on the held-out set to verify generalization (See US-3).
 - **FR-007**: System MUST categorize every failed pivot from the rule engine into either "Coverage Gap" (no rule matches the error log) or "Distillation Error" (a rule matches but the executed pivot action differs from the ground-truth resolution) (See US-3).
@@ -94,8 +94,8 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 ## Assumptions
 
 - The ARC-Bench dataset (25-topic subset) is accessible via the official repository linked in the *Claw AI Lab* paper and contains sufficient failure-resolution pairs for the analysis.
-- The "full-mode" baseline agent can be executed on standard resources (4 cores, 16 GB RAM) without exceeding hardware limits.
-- The small language model used for distillation (e.g., Llama-INT) will run within the 7 GB RAM limit on a 2-core CPU runner; if it exceeds this, the dataset will be sampled further to ensure feasibility.
+- The "full-mode" baseline agent can be executed on standard resources (a multi-core CPU and sufficient memory) without exceeding hardware limits.
+- The small language model used for distillation (e.g., Llama-INT) will run within the constrained RAM limit on a 2-core CPU runner.; if it exceeds this, the dataset will be sampled further to ensure feasibility.
 - The structural features (syntactic vs. semantic) are mutually exclusive and can be reliably annotated with high inter-rater agreement using the defined taxonomy.
 - The "Time-to-Pivot" metric is measurable within the CI environment without requiring external network latency or GPU acceleration.
-- The mixed-effects logistic regression model can be fitted using standard Python libraries (e.g., `statsmodels` or `lme` equivalent) within the 6-hour time limit for the given sample size.
+- The mixed-effects logistic regression model can be fitted using standard Python libraries (e.g., `statsmodels` or `lme` equivalent) within a feasible time limit for the given sample size.

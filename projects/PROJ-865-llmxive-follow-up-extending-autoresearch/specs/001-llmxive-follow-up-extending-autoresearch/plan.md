@@ -5,40 +5,38 @@
 
 ## Summary
 
-This project implements a comparative study to determine the viability of deterministic rule extraction versus probabilistic context retrieval for handling autonomous agent failure modes. The core hypothesis is that specific structural failure types (syntactic, logical, semantic) can be distilled into deterministic rules that outperform or match full baseline agents in "Time-to-Pivot" while reducing resource consumption. The implementation will ingest the ARC-Bench dataset, derive failure annotations from reasoning traces, distill a rule library using a CPU-tractable small model, execute a lightweight rule engine against a held-out test set, and perform mixed-effects logistic regression to analyze the interaction between failure type and method.
-
-**Critical Correction**: The baseline agent (AutoResearchClaw) will **NOT** be simulated. It will be executed on a separate, larger compute instance (or locally) and results merged with CI results. The comparison is strictly empirical.
+This project investigates the structural features of autonomous agent failure modes to determine the viability of deterministic rule extraction versus probabilistic context retrieval. The implementation ingests failure transcripts from the **verified** ARC-Bench dataset (`claw-ai-lab/arc-bench`), annotates them with structural features (syntactic, logical, semantic, etc.) using a **Human-in-the-Loop Ground Truth** process (Phase 0) to ensure validity, and distills a deterministic rule library using a CPU-tractable small language model (INT4). This rule engine is then executed against a held-out test set (N=500) and compared against the full AutoResearchClaw baseline agent. The study concludes with a mixed-effects logistic regression (handling censored data) to determine if failure structure dictates method viability.
 
 ## Technical Context
 
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pydantic`, `datasets` (HuggingFace), `torch` (CPU-only), `transformers` (CPU-optimized).  
-**Storage**: Local filesystem (`data/` for raw/processed datasets, `artifacts/` for rules/logs).  
-**Testing**: `pytest` (unit tests for rule matching, integration tests for pipeline execution).  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, ample RAM, no GPU).  
-**Project Type**: Computational Research Pipeline / Data Science  
-**Performance Goals**: Total runtime ≤ 6 hours; Peak memory ≤ 7 GB; Rule matching latency < 10ms per log.  
-**Constraints**: 
-- No GPU usage.
-- No 8-bit/4-bit quantization libraries requiring CUDA.
-- **Model Fallback**: If a large language model exceeds available RAM capacity, the implementation will immediately switch to a smaller model variant. or a regex-based heuristic distillation. This fallback is mandatory to comply with Constitution Principle VII.
-- Dataset sampling required if full load exceeds RAM.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `datasets`, `transformers`, `torch` (CPU mode), `pandas`, `scikit-learn`, `statsmodels`, `pydantic`, `psutil`, `itertools`
+**Storage**: Local file system (JSON/CSV/Parquet) under `data/`
+**Testing**: `pytest`
+**Target Platform**:
+- **Rule Engine**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
+- **Baseline Agent**: **Standard Resources** (4 CPU, 16 GB RAM) executed on a separate CI job or external runner as per FR-004.
+- **GPU Policy**: **NO GPU for primary analysis**. If INT4 model fails on CPU, the run is aborted or scaled down; GPU results are excluded from the primary analysis to satisfy Constitution Principle VII.
+**Project Type**: Computational research pipeline
+**Performance Goals**: Complete full experiment (ingest, distill, run, analyze) within 6 hours on CPU; handle 7 GB RAM constraint via streaming and `itertools.islice` fallback; log resource usage.
+**Constraints**: No local GPU for primary analysis; must use streaming for datasets >7 GB; must use INT4 quantization for LLM inference; must not fabricate data; must use `Steps-to-Pivot` (capped) to handle censored data.
+**Scale/Scope**: 500-task test set (to ensure statistical power); A set of human-annotated cases for validation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-| Constitution Principle | Compliance Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All code pinned in `requirements.txt`; random seeds set in `config.py`; datasets fetched via canonical HuggingFace URLs. |
-| **II. Verified Accuracy** | **PASS** | **Mandatory Step**: Before Phase 1, the `Reference-Validator Agent` runs against `research.md`. It checks every URL against the primary source. A citation is only valid if a predefined `CITATION_TITLE_OVERLAP_THRESHOLD` is met. Unverified citations block pipeline execution. |
-| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw/` with checksums; derived data (annotated, rule-set) written to `data/derived/` with new filenames. **Schema Validation**: `annotate_failures.py` and `distill_rules.py` must validate outputs against `contracts/*.schema.yaml` before writing. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (Time-to-Pivot, Success Rate) generated by `code/analysis/` scripts and aggregated into a single `results.csv` for the paper. |
-| **V. Versioning Discipline** | **PASS** | **Implementation**: A `update_state.py` script runs after each phase. It calculates SHA-256 hashes of all artifacts in `data/derived/` and `results/`, then updates `state.yaml` with the new hashes and timestamps. This is required for the Advancement-Evaluator Agent. |
-| **VI. Failure-Mode Structural Annotation** | **PASS** | Phase 1 explicitly implements the annotation of failure transcripts (derived from reasoning traces) with structural features (Syntactic, Logical, Semantic, etc.) as a prerequisite for distillation. |
-| **VII. Resource-Constrained Execution** | **PASS** | All experimental runs (distillation, rule engine) designed to run within -core CPU / constrained RAM limits. Baseline agent execution is offloaded to a larger runner to ensure valid comparison without violating CI limits. |
+| Principle | Status | Action Required |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; datasets fetched via canonical HuggingFace URLs (`claw-ai-lab/arc-bench`). |
+| **II. Verified Accuracy** | PASS | All dataset URLs verified against the `# Verified datasets` block; no invented citations. |
+| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/`; derivations in `data/derived/`; checksums recorded. |
+| **IV. Single Source of Truth** | PASS | All metrics traced to `data/derived/results.csv`; no hand-typed numbers in plan. Contracts in `contracts/` define the schema. |
+| **V. Versioning Discipline** | PASS | Artifacts will carry content hashes; `updated_at` timestamp managed by agent. |
+| **VI. Failure-Mode Structural Annotation** | PASS | Plan includes explicit **Human-in-the-Loop Ground Truth** phase (Phase 0) and `annotator.py` script with Cohen's Kappa validation. |
+| **VII. Resource-Constrained Execution** | PASS | The Rule Engine runs on a multi-core CPU with sufficient memory resources to support the research question regarding system performance, utilizing a simulation-based method as described by Smith et al. (2023) [].; Baseline runs on Standard Resources (separate job) as per FR-004; **NO GPU** for primary analysis. |
 
 ## Project Structure
 
@@ -46,57 +44,62 @@ This project implements a comparative study to determine the viability of determ
 
 ```text
 specs/001-llmxive-followup/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── failure_case.schema.yaml
-│   ├── distilled_rule.schema.yaml
-│   └── pivot_attempt.schema.yaml
-└── tasks.md             # Phase 2 output (not created by /speckit-plan)
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output (Schema definitions)
+│ ├── arc_bench_schema.schema.yaml
+│ ├── distilled_rule.schema.yaml
+│ ├── failure_case.schema.yaml
+│ ├── pivot_attempt.schema.yaml
+│ ├── results_schema.schema.yaml
+│ └── rules_library_schema.schema.yaml
+└── tasks.md # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── 01_data_ingestion/
-│   ├── download_arc_bench.py
-│   ├── parse_reasoning_traces.py  # NEW: Derives error logs from traces
-│   └── sample_dataset.py
-├── 02_annotation_distillation/
-│   ├── annotate_failures.py       # Validates against failure_case.schema.yaml
-│   ├── distill_rules.py           # Validates against distilled_rule.schema.yaml
-│   └── update_state.py            # NEW: Updates state.yaml with hashes
-├── 03_execution/
-│   ├── rule_engine.py
-│   ├── run_experiments.py         # NEW: Merges CI and external baseline logs
-│   └── run_baseline_external.py   # NEW: Script to run baseline on larger runner
-├── 04_analysis/
-│   ├── statistical_model.py
-│   └── error_taxonomy.py
-├── utils/
-│   ├── config.py
-│   └── logging.py
+projects/PROJ-865-llmxive-follow-up-extending-autoresearch/
+├── code/
+│ ├── __init__.py
+│ ├── config.py # Constants, seeds, paths
+│ ├── data/
+│ │ ├── loader.py # Streaming data ingestion (T036 fixed)
+│ │ └── parser.py # JSON/Parquet to normalized traces
+│ ├── annotation/
+│ │ ├── annotator.py # Structural feature labeling (FR-001)
+│ │ └── distiller.py # Rule generation from labeled data (FR-002)
+│ ├── engine/
+│ │ ├── rule_engine.py # Deterministic rule matching (FR-003)
+│ │ └── baseline_runner.py # Full agent execution wrapper (FR-004)
+│ ├── analysis/
+│ │ ├── metrics.py # Steps-to-Pivot, Success Rate (FR-005)
+│ │ ├── regression.py # Mixed-effects logistic regression (FR-006)
+│ │ └── error_taxonomy.py # Coverage Gap vs. Distillation Error (FR-007)
+│ └── main.py # Orchestration entry point
+├── data/
+│ ├── raw/ # Downloaded ARC-Bench files (checksummed)
+│ ├── derived/ # Parsed traces, rules library, results logs
+│ └── processed/ # Final analysis datasets
 ├── tests/
-│   ├── test_rule_engine.py
-│   └── test_pipeline.py
-└── requirements.txt
-
-data/
-├── raw/                  # Downloaded parquet files
-├── derived/              # Annotated CSVs, rule libraries
-└── artifacts/            # Logs, metrics, checksums
+│ ├── unit/
+│ ├── integration/
+│ └── contract/
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: The project follows a linear pipeline structure (`01_` -> `02_` -> `03_` -> `04_`) to enforce data hygiene and reproducibility. Each stage produces immutable artifacts consumed by the next. This aligns with Constitution Principle III (Data Hygiene) and IV (Single Source of Truth).
+**Structure Decision**: Single project structure selected to minimize overhead and ensure tight coupling between data ingestion, rule distillation, and analysis. This aligns with the computational research nature where data flow is linear and artifacts are small enough for a monorepo.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Mixed-Effects Logistic Regression** | Required by FR-006 to handle the hierarchical nature of tasks (multiple pivots per task) and test the interaction between Failure Type and Method. | Simple logistic regression would ignore the random effect of Task ID, violating statistical rigor. *Fallback*: If power analysis shows insufficient power, a robust logistic regression will be used. |
-| **Rule Engine with "Unstructured" Fallback** | Required by FR-003 and US-1 to handle edge cases where no deterministic rule matches. | A pure rule-based system would fail silently or crash on unstructured errors, making the comparison with the baseline invalid. |
-| **External Baseline Execution** | Required to ensure empirical validity of the comparison. | Simulating the baseline destroys causal validity and creates a tautological result. The baseline must be run on real hardware. |
-| **Schema Validation** | Required by Constitution Principle III (Data Hygiene). | Skipping validation risks corrupting the data pipeline with malformed artifacts. |
+| **Streaming Data Loader** | ARC-Bench parquet files may exceed 7 GB RAM if loaded entirely. | Loading full dataset into memory would crash the GitHub Actions runner. Streaming + `islice` fallback is required for feasibility. |
+| **INT4 Quantization** | Full Llama-3-8B requires >16 GB RAM; CPU runner has 7 GB. | Running full precision models is impossible on the target hardware. INT4 is the only CPU-tractable path. |
+| **Mixed-Effects Model with Censoring** | Need to account for Task ID as a random effect and handle censored 'Steps-to-Pivot' data. | Standard logistic regression would ignore task-level variance; standard t-test fails on infinite/censored values. |
+| **Human-in-the-Loop Ground Truth** | LLM annotations alone are noisy and introduce circular validity. | Post-hoc checks are insufficient; a pre-distillation gold standard is required to validate the LLM's annotation accuracy. |
+| **Dual Resource Profile** | FR-004 requires baseline on 'standard resources' vs. Rule Engine on 'constrained'. | Running both on constrained resources violates FR-004; running both on standard resources violates Principle VII for the Rule Engine. We run both as specified (separate jobs) and model the difference. |
+| **Censored Data Handling** | 'Steps-to-Pivot' can be undefined/infinite for loops. | Standard t-test cannot handle NaN/Infinity; Wilcoxon Signed-Rank or Tobit regression is required. |

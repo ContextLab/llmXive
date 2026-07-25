@@ -3,33 +3,53 @@ title: Pivot Attempt Schema
 description: Schema for recording pivot attempt metrics and outcomes in the rule engine execution phase.
 type: object
 required:
+  - attempt_id
   - task_id
   - method
-  - time_to_pivot
+  - steps_to_pivot
+  - is_censored
   - success
-  - failure_type
+  - failure_category
+  - structural_feature
 properties:
+  attempt_id:
+    type: string
+    description: Unique identifier for the attempt.
   task_id:
     type: string
-    description: Unique identifier for the task being attempted.
+    description: Reference to the task.
   method:
     type: string
-    description: The method or rule used to attempt the pivot.
-  time_to_pivot:
-    type: number
-    description: Time in seconds taken to execute the pivot action.
+    enum:
+      - "RuleEngine"
+      - "Baseline"
+    description: Method used for the pivot.
+  steps_to_pivot:
+    type: integer
+    description: Number of steps taken to pivot (capped at 50).
     minimum: 0
+    maximum: 50
+  is_censored:
+    type: boolean
+    description: True if steps_to_pivot reached the cap (50).
   success:
     type: boolean
     description: Whether the pivot attempt was successful.
-  failure_type:
+  failure_category:
     type: string
-    description: The type of failure if the pivot was unsuccessful, or 'None' if successful.
+    description: The type of failure if the pivot was unsuccessful.
     enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
+      - "Coverage Gap"
+      - "Distillation Error"
+      - "None"
+  structural_feature:
+    type: string
+    description: The root cause of the original failure (inherited from FailureCase).
+    enum:
+      - "Syntactic"
+      - "Logical"
+      - "Semantic"
       - "Missing Context"
       - "Unstructured"
-      - "None"
+      - "None (Success)"
 additionalProperties: false

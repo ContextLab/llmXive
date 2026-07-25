@@ -1,21 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Failure Case Schema
+description: Schema for parsed and annotated failure cases from ARC-Bench.
 type: object
+required:
+  - id
+  - raw_error_log
+  - task_context
+  - ground_truth_resolution
+  - structural_feature
+  - source_dataset
 properties:
-  task_id:
+  id:
     type: string
+    description: Unique identifier for the failure case.
   raw_error_log:
     type: string
+    description: Original error log from the agent.
+  task_context:
+    type: string
+    description: Context of the task when the error occurred.
   ground_truth_resolution:
     type: string
-  annotated_structural_feature:
+    description: The correct resolution path.
+  structural_feature:
     type: string
     enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
+      - "Syntactic"
+      - "Logical"
+      - "Semantic"
       - "Missing Context"
       - "Unstructured"
-required:
-  - task_id
-  - raw_error_log
-  - ground_truth_resolution
-  - annotated_structural_feature
+      - "None (Success)"
+    description: Annotated structural feature of the failure.
+  source_dataset:
+    type: string
+    description: URL of the source dataset.
+  gold_standard_label:
+    type: string
+    enum:
+      - "Syntactic"
+      - "Logical"
+      - "Semantic"
+      - "Missing Context"
+      - "Unstructured"
+      - "None (Success)"
+    description: Human-annotated label for validation (optional).
+additionalProperties: false

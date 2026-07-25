@@ -28,4 +28,15 @@ properties:
     minimum: 0.0
     maximum: 1.0
     example: 0.95
+  applicable_features:
+    type: array
+    items:
+      type: string
+      enum:
+        - "Syntactic"
+        - "Logical"
+        - "Semantic"
+        - "Missing Context"
+        - "Unstructured"
+    description: List of structural features this rule applies to
 additionalProperties: false

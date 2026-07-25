@@ -1,0 +1,13 @@
+status: none
+intent: ARC-Bench failure transcripts download dataset python package dataset
+required_fields:
+- id
+- arc_problem_id
+- failure_transcript_text
+- error_log
+- structural_feature_label
+- source_task
+- metadata_timestamp
+cache_key: 34fc3bba0d777b70352d84ba16ff20c74000be7fbb1482db61dbaec4dd3ce63a
+searched_at: '2026-07-25T00:09:10.694498+00:00'
+retry_count: 1

@@ -81,3 +81,11 @@ T029b:
     \ Moreover, the generated CSV (if it existed) would have rows with a `failure_type`\
     \ column, not separate columns like `syntactic_rate` and `semantic_rate` as the\
     \ task specifies. The expected output file is missing entirely."
+T036:
+  c: false
+  h: fd73b4585321232af74c366909a4d1469172728c9b854450c6c1ca1cc2776b76
+  r: The script does use `streaming=True` but lacks any fallback to `itertools.islice`
+    with `SAMPLE_SIZE_FALLBACK` and does not log a warning when streaming fails. It
+    also saves the fetched data to `data/raw/arc_bench.json` instead of processing
+    it into `data/derived/parsed_traces.json`, and that target file is missing. Consequently
+    the required behavior and output are not fulfilled.
