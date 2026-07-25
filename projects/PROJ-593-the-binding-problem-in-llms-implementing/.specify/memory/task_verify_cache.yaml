@@ -1,0 +1,33 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only a feature specification and user stories;\
+    \ there is no indication that the required directories (`src/`, `tests/`, `data/`)\
+    \ have been created or contain any files. The implementer must add the project\
+    \ skeleton with those three top\u2011level folders (and optionally placeholder\
+    \ files) to satisfy task T001."
+T013:
+  c: false
+  h: c5d8f33450dafc08a701b2035dfaa5747a01817dc6e5b91a5fc0db72be32240d
+  r: The `src/analysis/sdc.py` file is incomplete and contains a syntax error (unterminated
+    string in the `compute_sdc_batch` function) and is truncated, so the required
+    SDC calculation is not fully implemented. Additionally, the required `contracts/output.schema.yaml`
+    (or `schema.yaml`) file is missing, so the output cannot be verified against the
+    schema.
+T015:
+  c: false
+  h: 60363efd1e36ee0a30af93336a69232620efa6ff52c39c269b70741dec228955
+  r: The required artifact `tests/contract/test_activation_schema.py` does not exist
+    in the repository, so the contract test for the `ActivationTimeSeries` schema
+    is missing. The task cannot be considered complete until this file is created
+    with appropriate test content.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, notebook, data file, or result output that\
+    \ computes the peak power in the 38\u201142\u202FHz band, compares it to adjacent\
+    \ bands, or asserts that the SNR meets the \u2265\u202F3\u202FdB threshold using\
+    \ T021 control data. Without any tangible artifact (e.g., a script, log, or figure)\
+    \ the requirement is not satisfied. The next implementer must deliver a concrete\
+    \ implementation and evidence (e.g., a Python script/notebook and its execution\
+    \ output) showing the SNR calculation and verification."

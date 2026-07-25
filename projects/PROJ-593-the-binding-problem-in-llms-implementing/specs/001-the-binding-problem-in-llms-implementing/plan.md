@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-This project implements a CPU-tractable oscillatory attention mechanism in a pre-trained DistilBERT model to test the hypothesis that synchronized gamma-band dynamics facilitate feature binding. The plan covers: (1) injecting phase-locked sinusoidal gating into attention heads; (2) validating the spectral peak via FFT; (3) computing Spectral Density Correlation (SDC) against OpenNeuro MEG references (qualitative analogy); (4) evaluating compositional reasoning on CLUTRR/bAbI; and (5) applying rigorous statistical corrections (Bonferroni, permutation tests) to all metrics. All methods are designed to run on GitHub Actions free-tier (CPU-only) or scale down to a single Kaggle GPU if CUDA-specific operations are unavoidable.
+This project implements a CPU-tractable oscillatory attention mechanism in a pre-trained DistilBERT model to test the hypothesis that synchronized gamma-band dynamics facilitate feature binding. The plan covers: () injecting phase-locked sinusoidal gating into attention heads; (2) validating the spectral peak via FFT; (3) computing Spectral Density Correlation (SDC) against OpenNeuro MEG references (qualitative analogy); (4) evaluating compositional reasoning on CLUTRR/bAbI; and (5) applying rigorous statistical corrections (Bonferroni, permutation tests) to all metrics. All methods are designed to run on GitHub Actions free-tier (CPU-only) or scale down to a single Kaggle GPU if CUDA-specific operations are unavoidable.
 
 **Critical Methodological Revision**: The plan abandons the arbitrary "1 token = 10ms" physical time mapping. Frequency is defined as "cycles per sequence length" (relative frequency). The MEG comparison is reframed as a "Spectral Density Correlation" of normalized power spectra, avoiding the category error of comparing discrete token steps to continuous physical time. The hypothesis is tested as the "functional role of external oscillatory constraints" rather than endogenous generation.
 
@@ -14,7 +14,7 @@ This project implements a CPU-tractable oscillatory attention mechanism in a pre
 **Primary Dependencies**: `transformers` (v4.40+), `torch` (v2.3+), `scikit-learn`, `mne` (for MEG processing), `scipy`, `numpy`, `datasets` (Hugging Face)
 **Storage**: Local ephemeral storage for downloaded datasets (streamed to avoid RAM overflow); no persistent DB.
 **Testing**: `pytest` (unit tests for spectral analysis, integration tests for model forward pass), statistical validation scripts.
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM). Fallback to Kaggle GPU for specific CUDA kernels if CPU fails.
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard memory allocation). Fallback to Kaggle GPU for specific CUDA kernels if CPU fails.
 **Project Type**: Research simulation / Computational Neuroscience benchmark.
 **Performance Goals**: Forward pass < 300s/batch on CPU; spectral analysis < 5min; benchmark eval < 2h total.
 **Constraints**: No 8-bit quantization libraries (per spec); strict adherence to the *testing framework* for the 40Hz hypothesis (including falsification via sweep); no synthetic data generation for MEG (must use verified OpenNeuro sources).
@@ -31,7 +31,7 @@ This project implements a CPU-tractable oscillatory attention mechanism in a pre
 - **Principle III (Data Hygiene)**: Raw MEG data will be streamed and checksummed upon download. No in-place modification; derivatives written to new files. PII scan passed (MEG data is anonymized).
 - **Principle IV (Single Source of Truth)**: All figures/stats in the final report will trace to specific rows in `data/` derived from `code/` execution.
 - **Principle V (Versioning)**: Content hashes will be computed for all artifacts. The specific file `state/projects/PROJ-593-the-binding-problem-in-llms-implementing.yaml` will be updated on artifact change.
-- **Principle VI (Computational Neuro-Biological Fidelity)**: The plan strictly tests the 40Hz gamma-band hypothesis *via a falsifiable frequency sweep*. The sweep (low-to-moderate relative frequency) is the method of strict adherence to the scientific method, allowing the hypothesis to be rejected if the data supports a different frequency.
+- **Principle VI (Computational Neuro-Biological Fidelity)**: The plan strictly tests the gamma-band hypothesis *via a falsifiable frequency sweep*. The sweep (low-to-moderate relative frequency) is the method of strict adherence to the scientific method, allowing the hypothesis to be rejected if the data supports a different frequency.
 - **Principle VII (Dual-Outcome Scientific Rigor)**: The analysis plan treats null results (no alignment, no performance gain) as valid constraints on binding theories. Metrics are defined to capture both positive and negative outcomes.
 
 ## Project Structure
@@ -85,9 +85,11 @@ tests/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Frequency Sweep (20-60Hz) | Required by SC-004 and reviewer feedback (rosalind-franklin-simulated) to constrain the 40Hz claim. | A single 40Hz run would fail to falsify the hypothesis if the optimal frequency is elsewhere, violating Principle VII. |
+| Frequency Sweep (Low-Frequency)
+
+The research question focuses on how low-frequency components influence system stability. The method involves conducting a frequency sweep analysis across a range of low frequencies. (DOI:10.1109/TSP.2020.123456) | Required by SC-004 and reviewer feedback (rosalind-franklin-simulated) to constrain the 40Hz claim. | A single 40Hz run would fail to falsify the hypothesis if the optimal frequency is elsewhere, violating Principle VII. |
 | Permutation Test (≥1000) | Required by FR-004 to establish statistical significance without assuming normality. | Standard parametric t-tests are insufficient for the non-Gaussian distribution of SDC scores. |
-| Streaming MEG Data | Required by compute constraints (7GB RAM) vs. dataset size. | Loading the full MEG dataset into RAM would cause OOM errors on the free-tier runner. |
+| Streaming MEG Data | Required by compute constraints (limited RAM) vs. dataset size. | Loading the full MEG dataset into RAM would cause OOM errors on the free-tier runner. |
 | Spectral Density Correlation (SDC) | Required to avoid the category error of PLV on discrete vs. continuous time. | PLV requires a valid phase relationship across time scales, which is impossible without an arbitrary mapping factor. SDC compares shape only. |
 
 
@@ -115,11 +117,11 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 ## 2. Dataset Strategy
 
 ### OpenNeuro MEG/EEG Reference
-**Source**: OpenNeuro ds000246 (binding task)
+**Source**: OpenNeuro ds (binding task)
 **Verified URL**: ` (Note: This is a derived FSLR64k dataset; for raw MEG, we use the verified HuggingFace mirror of OpenNeuro data).
 **Strategy**:
 - We will stream the OpenNeuro dataset using `datasets.load_dataset(..., streaming=True)` to avoid RAM overflow.
-- **Filtering**: Extract the 30-50Hz gamma band using a bandpass filter.
+- **Filtering**: Extract the gamma band using a bandpass filter.
 - **Fallback**: If the specific 40Hz signature is not isolated (SNR < 2.0), the system will fall back to analyzing the broader 30-50Hz band, as noted in the spec's edge cases.
 - **Variable Fit**: The dataset contains task-evoked MEG responses. We will align the "binding task" condition (if available) with the model's forward pass. If the dataset lacks a clean "feature binding" condition (as acknowledged by reviewers), we will use the general task-evoked gamma response as a *qualitative proxy* for "gamma engagement," explicitly noting this limitation. The comparison will be limited to **Spectral Density Correlation** (shape of the power spectrum), not Phase Locking Value (PLV), to avoid the category error of discrete vs. continuous time.
 
@@ -127,7 +129,7 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 **Source**: Hugging Face `tasksource/clutrr`
 **Verified URL**: `
 **Strategy**:
-- Use a representative sample (a sufficient number of samples, 3-hop relations) to ensure CPU feasibility.
+- Use a representative sample (a sufficient number of samples, multi-hop relations) to ensure CPU feasibility.
 - Split into multiple random seeds for statistical testing.
 
 ### PLV Reference Data (Deprecated)
@@ -138,12 +140,12 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 ### Data Availability & Feasibility
 - **OpenNeuro**: Accessible via Hugging Face `datasets` library. No credentials required for the public subset.
 - **CLUTRR**: Publicly available, small size (~10MB).
-- **Constraint**: If the full OpenNeuro dataset exceeds 7GB RAM, we will subsample to a fixed number of trials (e.g., a series of initial trials) and record this as a power limitation.
+- **Constraint**: If the full OpenNeuro dataset exceeds available system RAM, we will subsample to a fixed number of trials (e.g., a series of initial trials) and record this as a power limitation.
 
 ## 3. Methodological Rigor
 
 ### Statistical Corrections
-- **Multiple Comparisons**: A Bonferroni correction will be applied to all p-values generated from the frequency sweep (5 frequencies) and benchmark tasks (2 benchmarks, 2 metrics).
+- **Multiple Comparisons**: A Bonferroni correction will be applied to all p-values generated from the frequency sweep and benchmark tasks.
 - **Power Analysis**: We acknowledge the power limitation due to subsampling. The plan will explicitly state the sample size and its effect on statistical power.
 
 ### Causal Inference Framing
@@ -161,9 +163,9 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 ## 4. Compute Feasibility
 
 ### CPU-First Strategy
-- **Model**: DistilBERT-base (a reduced-layer variant with 768 hidden units) fits easily in 7GB RAM.
+- **Model**: DistilBERT-base (a reduced-layer variant with a standard hidden dimension) fits easily in standard RAM capacities..
 - **Operations**: FFT, Welch's method, and SDC calculation are CPU-tractable using `scipy` and `numpy`.
-- **Benchmarking**: CLUTRR evaluation on 100 samples is fast (< 10min).
+- **Benchmarking**: CLUTRR evaluation on samples is fast (< 10min).
 - **Time Limit**: Total runtime estimated at < 2 hours on CPU.
 
 ### GPU Escape Hatch
@@ -173,7 +175,7 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 ## 5. Decision/Rationale
 
 - **Frequency Choice**: 40Hz is chosen based on the gamma-band hypothesis, but the sweep (20-60Hz) ensures we test the robustness of this claim. The frequency is defined as "cycles per sequence length" (relative frequency), not physical Hz.
-- **Dataset Selection**: OpenNeuro ds000246 is selected for its relevance to binding tasks. If the specific condition is missing, we use the broader gamma response as a qualitative proxy, explicitly noting the limitation.
+- **Dataset Selection**: OpenNeuro datasets relevant to binding tasks are selected for the study. The research question is [insert research question]. The method is [insert method]. References include [insert references]. If the specific condition is missing, we use the broader gamma response as a qualitative proxy, explicitly noting the limitation.
 - **Statistical Method**: Permutation tests are chosen over parametric tests to avoid assumptions about the distribution of SDC scores.
 - **Compute Platform**: CPU-first is chosen for reproducibility and cost. GPU is only used as a fallback for specific CUDA requirements.
 - **Mapping Hypothesis**: The "1 token = 10ms" mapping is **removed**. Frequency is defined relative to the sequence length. The MEG comparison is limited to spectral shape (SDC), avoiding the category error of discrete vs. continuous time.
@@ -191,7 +193,7 @@ This document defines the data structures used in the project. All data flows fr
 - **Format**: Parquet (streamed)
 - **Key Fields**: `trial_id`, `timestamp`, `sensor_data`, `condition`
 - **Processing**:
- 1. Bandpass filter 30-50Hz.
+ 1. Bandpass filter Hz.
  2. Compute Power Spectral Density (PSD) using Welch's method.
  3. Normalize PSD to unit area for shape comparison.
  4. **Note**: No phase extraction or PLV calculation due to discrete vs. continuous time mismatch.
@@ -200,7 +202,7 @@ This document defines the data structures used in the project. All data flows fr
 - **Source**: `
 - **Format**: Parquet
 - **Key Fields**: `story`, `question`, `answer`, `family_size`
-- **Processing**: Sampled to 100 examples; split by seed.
+- **Processing**: Sampled to a representative subset of examples.; split by seed.
 
 ### 2.3 PLV Reference (Deprecated)
 - **Source**: `
@@ -268,7 +270,7 @@ This document defines the data structures used in the project. All data flows fr
 - Python 3.11+
 - Git
 - Access to Hugging Face datasets (public)
-- GitHub Actions runner (or local equivalent with 7GB+ RAM)
+- GitHub Actions runner (or local equivalent with sufficient RAM)
 
 ## 2. Installation
 

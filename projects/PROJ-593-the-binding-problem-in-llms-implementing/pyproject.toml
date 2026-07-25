@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-binding-problem"
+version = "0.1.0"
+description = "Implementing Synchronized Oscillations for Feature Integration in LLMs"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "torch",
+    "scipy",
+    "mne",
+    "datasets",
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "black>=23.0",
+]
+
+[tool.setuptools]
+packages = ["src", "src.models", "src.data", "src.analysis", "src.benchmarks", "tests", "tests.unit", "tests.contract", "tests.integration"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--import-mode=importlib",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+    "contract: schema contract tests",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+]

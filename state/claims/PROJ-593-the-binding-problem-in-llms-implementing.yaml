@@ -1,0 +1,160 @@
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 dataset used
+  claim_id: c_f383a63c
+  context: Implement data ingestion module src/data/download_meg.py using datasets.load_dataset(...,
+    streaming=True) for OpenNeuro ds000246.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_dataset_used
+  kind: entity_fact
+  raw_text: The project utilizes the OpenNeuro ds000246 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:24:35Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Hugging Face tasksource/clutrr dataset used
+  claim_id: c_60671540
+  context: Implement data ingestion module src/data/download_clutrr.py for Hugging
+    Face tasksource/clutrr.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hugging_Face_tasksource/clutrr_dataset_used
+  kind: entity_fact
+  raw_text: The project utilizes the Hugging Face tasksource/clutrr dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:24:54Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: DistilBERT loaded in CPU-only mode
+  claim_id: c_37a7a0be
+  context: Create base model wrapper src/models/base_model.py loading DistilBERT in
+    CPU-only mode.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DistilBERT_loaded_in_CPU-only_mode
+  kind: entity_fact
+  raw_text: The base model wrapper loads DistilBERT in CPU-only mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:25:10Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Python 3.11 required
+  claim_id: c_51331ba1
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:25:28Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: transformers library used
+  claim_id: c_f80f3645
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformers_library_used
+  kind: entity_fact
+  raw_text: The project uses the transformers library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:25:52Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: torch library used
+  claim_id: c_9a8ba10d
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Torch_library_used
+  kind: entity_fact
+  raw_text: The project uses the torch library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:26:13Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: scipy library used
+  claim_id: c_e2cc2e1e
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy_library_used
+  kind: entity_fact
+  raw_text: The project uses the scipy library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:26:37Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: mne library used
+  claim_id: c_3e7ce03d
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mne_library_used
+  kind: entity_fact
+  raw_text: The project uses the mne library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:26:56Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: datasets library used
+  claim_id: c_79a9133e
+  context: Initialize Python 3.11 project with transformers, torch, scipy, mne, datasets
+    in requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_library_used
+  kind: entity_fact
+  raw_text: The project uses the datasets library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T12:27:15Z'

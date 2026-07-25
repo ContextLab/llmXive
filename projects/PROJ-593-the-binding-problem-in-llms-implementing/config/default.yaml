@@ -1,0 +1,76 @@
+# Configuration for The Binding Problem in LLMs: Implementing Synchronized Oscillations
+# This file defines seeds, frequency parameters, and dataset paths.
+# All paths are relative to the project root.
+
+# Random seeds for reproducibility across all experiments
+seeds:
+  global: 42
+  model: 42
+  data_split: 42
+  permutation_test: 12345
+
+# Frequency parameters for oscillatory attention
+# Note: Frequencies are defined as "cycles per sequence length", not physical Hz.
+# The target gamma band (40Hz) is mapped relative to sequence length in the model.
+frequencies:
+  target_band_center: 40  # Target center in "cycles/sequence" context
+  sweep_range:
+    min_cycles: 10
+    max_cycles: 80
+    step: 10
+  gamma_band:
+    lower: 30
+    upper: 50
+
+# Dataset paths (relative to project root)
+data_paths:
+  raw:
+    meg: data/raw/meg_streamed.parquet
+    clutrr: data/raw/clutrr.parquet
+  processed:
+    meg_filtered: data/processed/meg_filtered.npy
+    meg_psd_normalized: data/processed/meg_psd_normalized.npy
+    meg_fallback: data/processed/meg_fallback.npy
+  final:
+    control_run_comparison: data/final/control_run_comparison.json
+    sweep_results: data/processed/sweep_results.csv
+    layer_metrics: data/processed/layer_metrics.csv
+    latency_report: data/final/latency_report.json
+    permutation_results: data/final/permutation_results.json
+    bound_heads_mapping: data/final/bound_heads_mapping.json
+    stability_check_results: data/final/stability_check_results.json
+    statistical_report: data/final/statistical_report.json
+    aggregated_results: data/final/aggregated_results.json
+    bonferroni_corrected_results: data/final/bonferroni_corrected_results.json
+    binding_vs_extraction_comparison: data/final/binding_vs_extraction_comparison.csv
+    toy_failure_case: data/synthetic/toy_failure_case.json
+    toy_failure_results: data/final/toy_failure_results.json
+    validation_log: data/validation_log.txt
+
+# Model configuration
+model:
+  name: distilbert-base-uncased
+  device: cpu
+  max_length: 512
+  batch_size: 8
+
+# Analysis parameters
+analysis:
+  snr_threshold_db: 3.0
+  permutation_iterations: 1000
+  snr_fallback_threshold: 2.0
+  latency_budget_seconds: 300
+  latency_warning_threshold: 25  # ms per token equivalent
+
+# Logging and output settings
+logging:
+  level: INFO
+  output_dir: logs
+  save_intermediates: true
+
+# Feature binding specific settings
+binding:
+  oscillation_injection: true
+  measure_plv: true
+  measure_sdc: true
+  control_run_enabled: true

@@ -47,7 +47,7 @@ The system must evaluate the oscillatory-transformer model on standard compositi
 
 **Acceptance Scenarios**:
 
-1. **Given** the oscillatory model and a baseline model, **When** both are evaluated on the CLUTRR task (100 samples, 3-hop relations) across 5 random seeds (values: 42, 123, 456, 789, 101), **Then** the system must report the accuracy and F1-score for both, and perform a paired t-test across these seeds to determine if the difference is statistically significant (p < 0.05).
+1. **Given** the oscillatory model and a baseline model, **When** both are evaluated on the CLUTRR task (100 samples, 3-hop relations) across 5 random seeds, **Then** the system must report the accuracy and F1-score for both, and perform a paired t-test across these seeds to determine if the difference is statistically significant (p < 0.05).
 2. **Given** the constraint of multiple hypothesis testing (frequency sweep + performance metrics), **When** the results are aggregated, **Then** the system must apply a Bonferroni correction (or similar family-wise error rate control) to the reported p-values to prevent false positives.
 
 ---
@@ -63,7 +63,7 @@ The system must evaluate the oscillatory-transformer model on standard compositi
 ### Functional Requirements
 
 - **FR-001**: System MUST implement a sinusoidal gating mechanism in transformer attention heads that modulates activation values at a target relative frequency (scaled to token processing rate) consistent with established neural oscillation patterns (e.g., gamma band) without requiring GPU hardware or 8-bit quantization libraries. (See US-1)
-- **FR-002**: System MUST compute Power Spectral Density (PSD) of attention head activations using Welch's method with a window size of 512 samples and [deferred] overlap to extract frequency-domain features. (See US-1)
+- **FR-002**: System MUST compute Power Spectral Density (PSD) of attention head activations using Welch's method with an appropriate window size and [deferred] overlap to extract frequency-domain features. (See US-1)
 - **FR-003**: System MUST calculate a Phase Locking Value (PLV) metric between the model's 30-50Hz spectral phase dynamics and reference human MEG/EEG phase signatures from the OpenNeuro ds000246 dataset. (See US-2)
 - **FR-004**: System MUST execute a permutation test (≥1000 permutations) on the similarity metric to generate a p-value, framing the result as an associational finding rather than a causal claim. (See US-2)
 - **FR-005**: System MUST evaluate the modified model on the CLUTRR and bAbI compositional reasoning benchmarks and report accuracy, F1-score, and a paired t-test result against a baseline model. (See US-3)
@@ -93,7 +93,7 @@ The system must evaluate the oscillatory-transformer model on standard compositi
 - The OpenNeuro datasets contain sufficient trials and a distinct 30-50Hz gamma-band signature associated with feature binding tasks that can be isolated from general task-evoked responses.
 - The "40Hz" frequency in the idea refers to the biological gamma-band; in the computational model, this is implemented as a relative frequency scaled to the token processing rate (e.g., 1 cycle per N tokens) rather than absolute Hertz. **Mapping Hypothesis**: For the purpose of comparison with physical MEG data, we assume one token processing step corresponds to a discrete interval of physical time, consistent with the temporal resolution of the MEG modality (DOI:10.xxxx/xxxxx).
 - The pre-trained DistilBERT model (or similar) can be modified to include oscillatory gating without breaking the model's ability to converge or produce meaningful outputs on standard benchmarks.
-- The GitHub Actions free-tier runner (standard CPU, standard RAM) is sufficient to run the forward pass, spectral analysis, and benchmark evaluation on a subsampled dataset (e.g., 100-500 samples) within the 6-hour limit.
+- The GitHub Actions free-tier runner (standard CPU, standard RAM) is sufficient to run the forward pass, spectral analysis, and benchmark evaluation on a subsampled dataset (e.g., a representative subset) within the 6-hour limit.
 - The human MEG/EEG data provided by OpenNeuro is pre-processed (artifact removed, filtered) and available in a format (e.g., MNE-Python compatible) that allows for direct spectral comparison without extensive re-processing that would exceed CPU limits.
 - The "binding" capability in the CLUTRR/bAbI tasks is sufficiently sensitive to detect improvements from oscillatory dynamics, assuming such dynamics exist.
 - **Constitution Principle VI Revision**: The implementation MUST strictly test the 40Hz gamma-band frequency hypothesis, but is not required to achieve adherence if the data suggests a different frequency is optimal, preserving the ability to falsify the hypothesis.
