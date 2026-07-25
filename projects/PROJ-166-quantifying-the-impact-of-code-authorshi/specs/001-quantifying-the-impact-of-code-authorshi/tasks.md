@@ -48,10 +48,10 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project structure at repository root. Create the following directories and files: `code/`, `code/__init__.py`, `code/config.py`, `code/data/`, `code/data/__init__.py`, `code/analysis/`, `code/analysis/__init__.py`, `data/`, `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `requirements.txt`, `README.md`.
-- [ ] T002 [P] Initialize Python project with pinned dependencies compatible with Python 3.x. Create `requirements.txt` with version ranges: `pandas>=2.0.0`, `statsmodels>=0.14.0`, `scikit-learn>=1.3.0`, `requests>=2.31.0`, `gitpython>=3.1.37`, `pyyaml>=6.0.1`, `numpy>=1.24.0`, `scipy>=1.11.0`, `pytest>=7.4.0`, `psutil>=5.9.0`.
-- [ ] T002a [P] Verify Python 3.11 compatibility of dependencies. Create a script `tests/unit/test_dependency_compatibility.py` that attempts to import all dependencies in `requirements.txt` and asserts no version conflicts or missing wheels for Python 3.11.
-- [ ] T003 [P] Configure linting and formatting tools. Create `pyproject.toml` with `[tool.black]` (line-length=88) and `.flake8` (max-line-length=88, exclude=venv) files.
+- [X] T001 [P] Create project structure at repository root. Create the following directories and files: `code/`, `code/__init__.py`, `code/config.py`, `code/data/`, `code/data/__init__.py`, `code/analysis/`, `code/analysis/__init__.py`, `data/`, `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `requirements.txt`, `README.md`.
+- [X] T002 [P] Initialize Python project with pinned dependencies compatible with Python 3.x. Create `requirements.txt` with version ranges: `pandas>=2.0.0`, `statsmodels>=0.14.0`, `scikit-learn>=1.3.0`, `requests>=2.31.0`, `gitpython>=3.1.37`, `pyyaml>=6.0.1`, `numpy>=1.24.0`, `scipy>=1.11.0`, `pytest>=7.4.0`, `psutil>=5.9.0`.
+- [X] T002a [P] Verify Python 3.11 compatibility of dependencies. Create a script `tests/unit/test_dependency_compatibility.py` that attempts to import all dependencies in `requirements.txt` and asserts no version conflicts or missing wheels for Python 3.11.
+- [X] T003 [P] Configure linting and formatting tools. Create `pyproject.toml` with `[tool.black]` (line-length=88) and `.flake8` (max-line-length=88, exclude=venv) files.
 
 ---
 
@@ -61,7 +61,7 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` with paths, constants, random seeds, and NVD/GitHub API configuration. **Constants**: Define `TARGET_MIN_STARS = 1000` (static threshold). **Execution Logic**: While the query threshold is static, the execution allows proceeding with 500-599 repos (with warning) or abort if <500. **Clarification**: Repos with 500-599 stars are counted towards the SC-001 threshold only if successfully processed.
+- [X] T004 [P] Implement `code/config.py` with paths, constants, random seeds, and NVD/GitHub API configuration. **Constants**: Define `TARGET_MIN_STARS = 1000` (static threshold). **Execution Logic**: While the query threshold is static, the execution allows proceeding with 500-599 repos (with warning) or abort if <500. **Clarification**: Repos with 500-599 stars are counted towards the SC-001 threshold only if successfully processed.
 - [ ] T005 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and generate schema definitions in `contracts/`. **Deliverables**: Create `contracts/repo_metrics.schema.yaml` (defining columns: `url`, `primary_language`, `unique_authors`, `kloc`, `authorship_diversity`, `cve_count`, `project_age`, `release_count`) and `contracts/model_results.schema.yaml` (defining output structure for coefficients, SE, p-values, CIs).
 - [ ] T006 [P] Implement `code/data/generate_target_list.py` to fetch a **target list of repos** via GitHub API. **Endpoint**: `. **Query Logic**: Construct query string dynamically using the static variable `TARGET_MIN_STARS` from `code/config.py` (default 1000). **Authentication**: Requires `GITHUB_TOKEN` environment variable. **Rate Limit Handling**: Implement exponential backoff with jitter for HTTP 429 errors; abort with CRITICAL error on HTTP 403. **Max Retries**: 3 attempts per query before failing. **Output**: `data/raw/target_list.csv` with columns `url`, `primary_language`, `stars`, `age`. **Dependencies**: None.
 - [ ] T007 [P] Implement `code/data/download_nvd.py` to download, merge, and deduplicate NVD/CVE JSON feeds (historical range) with checksum verification. **Logic**: Download all yearly JSON files from the official NVD feed, merge them in-memory to deduplicate by CVE ID. **Output**: `data/raw/nvd_cve_merged.json.gz` and `data/raw/nvd_cve_merged.json.gz.sha256`.
@@ -87,8 +87,8 @@ description: "Task list template for feature implementation"
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
-- [ ] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
+- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
+- [X] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,7 +104,7 @@ The research question, method, and references remain unchanged as required for t
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
+- [X] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
 - [ ] [S] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative Binomial GLM. **Response**: `cve_count`. **Predictors**: `author_count` + controls (`project_age`, `C(primary_language)`, `release_count`). **Size Adjustment**: Use `log(kloc)` as a **free predictor** (covariate), NOT an offset, per FR-004 (which explicitly requires it as a free predictor). **Formula**: `cve_count ~ author_count + project_age + C(primary_language) + release_count + np.log(kloc)`. **Model Mandate**: **Fit ONLY a Negative Binomial GLM** as required by FR-004. Do NOT perform a Likelihood Ratio Test (LRT) to select between Poisson and Negative Binomial. **Implementation**: Use `smf.glm(formula=..., data=df, family=sm.families.NegativeBinomial())`. **Exclusions**: Exclude rows where `kloc` <= 0. **Diagnostics**: Calculate VIF for all predictors. **Input**: Explicitly use `data/processed/repo_metrics_clean.csv` (from T009) as the primary input. **Output**: `data/processed/model_results_raw.json` containing: `author_count_coefficient`, `std_err`, `p_value` (raw, uncorrected), `ci_95_lower`, `ci_95_upper`, `vif` (dict), `convergence_status` (boolean), `model_type` ("NegativeBinomial"). **Parameters**: Use `family=sm.families.NegativeBinomial()`. **Flagging**: If model fails to converge, log `ERROR`, set `convergence_status` to false, and **DO NOT** attempt a Poisson fallback. **Dependencies**: T009 (repo_metrics_clean.csv) must be complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -119,8 +119,8 @@ The research question, method, and references remain unchanged as required for t
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
-- [ ] T020 [P] [US3] Integration test for subsample, entropy, lagged, and interaction analysis in `tests/integration/test_robustness.py`.
+- [X] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
+- [X] T020 [P] [US3] Integration test for subsample, entropy, lagged, and interaction analysis in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
 
@@ -142,7 +142,7 @@ The research question, method, and references remain unchanged as required for t
 - [ ] [P] T025a Update `README.md`: Add a CLI usage section with example commands.
 - [ ] [P] T025b Update `README.md`: Add a "Methods" section explaining the GLM free predictor approach.
 - [ ] [P] T025c Update `README.md`: Add a "Data" section describing the pipeline.
-- [ ] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
+- [X] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
 - [ ] [S] T027a [P] Create benchmark harness `tests/unit/test_performance_harness.py`. **Purpose**: Create the infrastructure to measure time and success rate. **Output**: A script that can be invoked by CI to run the full pipeline. **Dependencies**: None (harness creation).
 - [ ] [S] T027b [CI] Execute benchmark on full dataset in CI environment. **Purpose**: Verify SC-001 (≥500 repositories within 6 hours). **Input**: Must use `data/raw/target_list.csv`. **Pre-check**: Validate that `data/raw/target_list.csv` contains >= 550 repos; if not, fail immediately. **Criteria**: 1) Total execution time must be <= 6 hours. 2) **Absolute Count**: The number of successfully processed repositories MUST be >= 500. 3) Success rate >= 95% (calculated as successful / total input). **Output**: JSON with `total_time_seconds`, `total_repos`, `successful_repos`, `success_rate`. **Pass/Fail**: Fail if time > 6h OR if `successful_repos` < 500. **Note**: This is a CI integration task, not a unit test.
 - [ ] [P] T028a Create unit test `tests/unit/analysis/test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.

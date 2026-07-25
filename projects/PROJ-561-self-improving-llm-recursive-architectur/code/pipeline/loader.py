@@ -1,158 +1,132 @@
+"""
+Dataset loaders for the self-improving LLM pipeline.
+
+Implements fail-fast loading for OpenWebText, GSM8K, ARC-Challenge, and Wikitext-2.
+Uses the exponential backoff wrapper for resilience against transient HuggingFace API errors.
+NO synthetic fallbacks are permitted; failures must raise exceptions.
+"""
 import time
 import random
 from functools import wraps
 from typing import Callable, Any, Optional, Dict, List
 import os
 
+from datasets import load_dataset
+
+# Import the backoff wrapper from the same module (defined below)
 from pipeline.loader import exponential_backoff
 
-# Re-export the backoff decorator defined in this file below
-__all__ = [
-    "exponential_backoff",
-    "load_openwebtext",
-    "load_gsm8k",
-    "load_arc_challenge",
-    "load_wikitext2",
-    "load_all_datasets"
-]
 
-T = TypeVar("T")
-
-def exponential_backoff(
-    initial_delay: float = 30.0,
-    max_retries: int = 5,
-    max_delay: float = 300.0
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+@exponential_backoff(initial_delay=30, max_retries=5)
+def load_openwebtext() -> Any:
     """
-    Decorator implementing exponential backoff with jitter for API calls.
-    
-    Args:
-        initial_delay: Initial delay in seconds (default 30s per T005b).
-        max_retries: Maximum number of retry attempts (default 5).
-        max_delay: Maximum delay cap in seconds.
+    Load the OpenWebText dataset from HuggingFace.
     
     Returns:
-        Decorated function with retry logic.
-    """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> T:
-            delay = initial_delay
-            last_exception = None
-            
-            for attempt in range(max_retries + 1):  # +1 to include initial attempt
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    last_exception = e
-                    if attempt == max_retries:
-                        raise e
-                    
-                    # Exponential backoff with jitter
-                    jitter = random.uniform(0.1, 0.5)
-                    sleep_time = min(delay + jitter, max_delay)
-                    print(f"Attempt {attempt + 1} failed for {func.__name__}: {e}. Retrying in {sleep_time:.2f}s...")
-                    time.sleep(sleep_time)
-                    delay *= 2
-            
-            # Should not reach here, but safe fallback
-            raise last_exception
-        return wrapper
-    return decorator
-
-@exponential_backoff(initial_delay=30.0, max_retries=5)
-def load_openwebtext(split: str = "train", streaming: bool = True) -> Any:
-    """
-    Loads the OpenWebText dataset from HuggingFace.
-    
-    Args:
-        split: Dataset split to load (default 'train').
-        streaming: If True, streams the dataset without downloading fully.
-    
-    Returns:
-        HuggingFace Dataset object.
-    
+        DatasetDict or Dataset containing the OpenWebText data.
+        
     Raises:
-        Exception: If the dataset cannot be loaded after retries (Fail-Fast).
+      Exception: If the dataset cannot be loaded after retries.
     """
-    # Using the 'openwebtext' dataset which is the standard open-source
-    # equivalent often used in research. 
-    # Note: The original OpenWebText is not directly on HF, but 'openwebtext' 
-    # from the community or 'stas/openwebtext-10k' are common proxies.
-    # We use 'stas/openwebtext-10k' as a verified small subset if full is too large,
-    # OR the standard 'openwebtext' if available. 
-    # To ensure real data and fail-fast, we attempt the primary source.
-    dataset = load_dataset("openwebtext", split=split, streaming=streaming)
-    return dataset
+    # OpenWebText is often accessed via the 'openwebtext' repo on HF
+    # Note: This dataset may require authentication or be behind a gate in some contexts.
+    # We attempt the standard load.
+    try:
+        ds = load_dataset("openwebtext", split="train", streaming=False)
+        return ds
+    except Exception as e:
+        # Re-raise to trigger backoff or final failure
+        raise e
 
-@exponential_backoff(initial_delay=30.0, max_retries=5)
-def load_gsm8k(split: str = "train", streaming: bool = True) -> Any:
+
+@exponential_backoff(initial_delay=30, max_retries=5)
+def load_gsm8k() -> Any:
     """
-    Loads the GSM8K (Grade School Math) dataset.
-    
-    Args:
-        split: Dataset split to load (default 'train').
-        streaming: If True, streams the dataset.
+    Load the GSM8K (Grade School Math) dataset.
     
     Returns:
-        HuggingFace Dataset object.
-    """
-    dataset = load_dataset("gsm8k", "main", split=split, streaming=streaming)
-    return dataset
-
-@exponential_backoff(initial_delay=30.0, max_retries=5)
-def load_arc_challenge(split: str = "train", streaming: bool = True) -> Any:
-    """
-    Loads the ARC-Challenge dataset.
-    
-    Args:
-        split: Dataset split to load (default 'train').
-        streaming: If True, streams the dataset.
-    
-    Returns:
-        HuggingFace Dataset object.
-    """
-    # ARC has 'challenge' and 'easy' subsets. We load 'challenge'.
-    dataset = load_dataset("ai2_arc", "ARC-Challenge", split=split, streaming=streaming)
-    return dataset
-
-@exponential_backoff(initial_delay=30.0, max_retries=5)
-def load_wikitext2(split: str = "train", streaming: bool = True) -> Any:
-    """
-    Loads the Wikitext-2 dataset.
-    
-    Args:
-        split: Dataset split to load (default 'train').
-        streaming: If True, streams the dataset.
-    
-    Returns:
-        HuggingFace Dataset object.
-    """
-    dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split=split, streaming=streaming)
-    return dataset
-
-def load_all_datasets(streaming: bool = True) -> dict:
-    """
-    Loads all required datasets for the pipeline.
-    
-    Args:
-        streaming: Whether to stream datasets.
-    
-    Returns:
-        Dictionary mapping dataset names to dataset objects.
-    
+        DatasetDict or Dataset containing the GSM8K data.
+        
     Raises:
-        Exception: If any dataset fails to load (Fail-Fast).
+      Exception: If the dataset cannot be loaded after retries.
+    """
+    try:
+        ds = load_dataset("gsm8k", "main", split="train", streaming=False)
+        return ds
+    except Exception as e:
+        raise e
+
+
+@exponential_backoff(initial_delay=30, max_retries=5)
+def load_arc_challenge() -> Any:
+    """
+    Load the ARC-Challenge dataset.
+    
+    Returns:
+        DatasetDict or Dataset containing the ARC-Challenge data.
+        
+    Raises:
+      Exception: If the dataset cannot be loaded after retries.
+    """
+    try:
+        ds = load_dataset("ai2_arc", "ARC-Challenge", split="train", streaming=False)
+        return ds
+    except Exception as e:
+        raise e
+
+
+@exponential_backoff(initial_delay=30, max_retries=5)
+def load_wikitext2() -> Any:
+    """
+    Load the Wikitext-2 dataset.
+    
+    Returns:
+        DatasetDict or Dataset containing the Wikitext-2 data.
+        
+    Raises:
+      Exception: If the dataset cannot be loaded after retries.
+    """
+    try:
+        ds = load_dataset("wikitext", "wikitext-2-raw-v1", split="train", streaming=False)
+        return ds
+    except Exception as e:
+        raise e
+
+
+def load_all_datasets() -> Dict[str, Any]:
+    """
+    Load all required datasets and return them in a dictionary.
+    
+    This function enforces the fail-fast policy: if any single dataset
+    fails to load, the entire operation raises an exception and no
+    synthetic data is generated.
+    
+    Returns:
+        Dict mapping dataset name to loaded dataset object.
+        
+    Raises:
+      Exception: If any dataset fails to load.
     """
     datasets = {}
-    try:
-        datasets["openwebtext"] = load_openwebtext(streaming=streaming)
-        datasets["gsm8k"] = load_gsm8k(streaming=streaming)
-        datasets["arc_challenge"] = load_arc_challenge(streaming=streaming)
-        datasets["wikitext2"] = load_wikitext2(streaming=streaming)
-    except Exception as e:
-        # Fail-Fast: Re-raise immediately if any load fails.
-        # No synthetic fallback allowed.
-        raise RuntimeError(f"Failed to load one or more datasets: {e}")
     
+    try:
+        datasets['openwebtext'] = load_openwebtext()
+    except Exception as e:
+        raise RuntimeError(f"Failed to load OpenWebText: {e}")
+        
+    try:
+        datasets['gsm8k'] = load_gsm8k()
+    except Exception as e:
+        raise RuntimeError(f"Failed to load GSM8K: {e}")
+        
+    try:
+        datasets['arc_challenge'] = load_arc_challenge()
+    except Exception as e:
+        raise RuntimeError(f"Failed to load ARC-Challenge: {e}")
+        
+    try:
+        datasets['wikitext2'] = load_wikitext2()
+    except Exception as e:
+        raise RuntimeError(f"Failed to load Wikitext-2: {e}")
+        
     return datasets

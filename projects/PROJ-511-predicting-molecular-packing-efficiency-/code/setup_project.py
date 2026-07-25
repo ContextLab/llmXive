@@ -1,11 +1,14 @@
+"""
+Project Setup Module
+Creates the required directory structure for the molecular packing efficiency project.
+"""
 import os
 import sys
+from pathlib import Path
 
 def create_directories():
     """
-    Creates the required project directory structure for the molecular packing efficiency project.
-    
-    Directories created:
+    Creates the standard project directory structure:
     - code/
     - data/
     - data/raw_cif/
@@ -17,8 +20,9 @@ def create_directories():
     Returns:
         bool: True if all directories were created successfully, False otherwise.
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    directories = [
+    base_dir = Path(__file__).parent.parent
+    
+    required_dirs = [
         "code",
         "data",
         "data/raw_cif",
@@ -29,17 +33,28 @@ def create_directories():
     ]
     
     created_count = 0
-    for directory in directories:
-        full_path = os.path.join(base_dir, directory)
-        try:
-            os.makedirs(full_path, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        except Exception as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            return False
+    existing_count = 0
+    failed_count = 0
     
-    print(f"Successfully created {created_count}/{len(directories)} directories.")
+    for dir_name in required_dirs:
+        dir_path = base_dir / dir_name
+        try:
+            if not dir_path.exists():
+                dir_path.mkdir(parents=True, exist_ok=True)
+                created_count += 1
+                print(f"Created directory: {dir_path}")
+            else:
+                existing_count += 1
+                print(f"Directory already exists: {dir_path}")
+        except OSError as e:
+            failed_count += 1
+            print(f"Failed to create directory {dir_path}: {e}", file=sys.stderr)
+    
+    if failed_count > 0:
+        print(f"\nWarning: {failed_count} directory(ies) failed to create.", file=sys.stderr)
+        return False
+        
+    print(f"\nSetup complete. Created: {created_count}, Existing: {existing_count}")
     return True
 
 if __name__ == "__main__":

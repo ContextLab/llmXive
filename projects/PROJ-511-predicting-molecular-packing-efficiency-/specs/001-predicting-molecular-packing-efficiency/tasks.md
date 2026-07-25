@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure: `code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`
-- [ ] T002 Initialize `requirements.txt` with pinned versions (rdkit, torch-cpu, scikit-learn, pandas, numpy, requests, tqdm, jinja2, statsmodels, scipy, matplotlib, seaborn, pyyaml, jsonschema)
+- [X] T002 Initialize `requirements.txt` with pinned versions (rdkit, torch-cpu, scikit-learn, pandas, numpy, requests, tqdm, jinja2, statsmodels, scipy, matplotlib, seaborn, pyyaml, jsonschema)
 - [ ] T003 Create `.gitignore` excluding `data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`
 
 ---
@@ -59,9 +59,9 @@
 - [ ] T005 [P] Create `contracts/model.schema.yaml` and `contracts/validation_report.schema.yaml`
 - [X] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
 - [ ] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
-- [~] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
-- [~] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
-- [~] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow)
+- [ ] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
+- [ ] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
+- [ ] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,7 +79,7 @@
 > **Dependency Note**: While code can be written in parallel, execution depends on T004 (schema) and T012-T018 (implementation).
 
 - [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
-- [ ] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
+- [X] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
 
 ### Implementation for User Story 1
 
@@ -146,11 +146,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_a2899dbc — status=not_enough_info] (SC-005)
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours (SC-005)
 - [ ] T052a [P] Run `black --check` on `code/` and fix formatting violations
 - [ ] T052b [P] Run `flake8` on `code/` and fix linting errors
 - [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10. Log results in `code/REFACTORING_LOG.txt`.
-- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines [UNRESOLVED-CLAIM: c_bb528aad — status=not_enough_info], docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
+- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines, docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
 - [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
 - [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
 - [ ] T055 Security hardening: sanitize external data inputs

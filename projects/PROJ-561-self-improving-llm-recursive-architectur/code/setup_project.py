@@ -1,22 +1,18 @@
 """
-Script to initialize the project directory structure for T001.
-Running this script ensures all required directories and __init__.py files exist.
+Project Structure Setup Script for llmXive.
+
+This script creates the required directory structure and initializes
+__init__.py files for all packages as specified in T001.
 """
 import os
 import sys
+from pathlib import Path
 
 def create_project_structure():
-    """
-    Creates the required directory structure and initializes __init__.py files.
-    Paths are relative to the project root.
-    """
-    # Define the root directory (assumed to be where this script is run from)
-    # In the context of the pipeline, this script is run from the project root.
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(base_dir)
-
-    # Define the directory structure to create
-    # All paths are relative to the project root (parent_dir)
+    """Create the standard project directory structure."""
+    root = Path(__file__).parent.parent
+    
+    # Define all required directories relative to project root
     directories = [
         "code",
         "code/utils",
@@ -32,66 +28,67 @@ def create_project_structure():
         "tests/unit",
         "tests/integration",
     ]
-
-    created_count = 0
-    init_count = 0
-
-    print(f"Initializing project structure in: {parent_dir}")
-
-    for dir_path in directories:
-        full_path = os.path.join(parent_dir, dir_path)
-        
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created_count += 1
-            print(f"  Created directory: {dir_path}")
-        else:
-            print(f"  Directory exists: {dir_path}")
-
-        # Create __init__.py if it doesn't exist
-        init_file = os.path.join(full_path, "__init__.py")
-        if not os.path.exists(init_file):
-            with open(init_file, "w", encoding="utf-8") as f:
-                # Add a simple comment based on the directory purpose
-                if "code" in dir_path:
-                    f.write(f"# {' '.join(dir_path.split('/'))} package\n")
-                elif "data" in dir_path:
-                    f.write(f"# {' '.join(dir_path.split('/'))} storage\n")
-                elif "tests" in dir_path:
-                    f.write(f"# {' '.join(dir_path.split('/'))} package\n")
-                elif "results" in dir_path:
-                    f.write(f"# {' '.join(dir_path.split('/'))} output package\n")
-                elif "specs" in dir_path:
-                    f.write(f"# {' '.join(dir_path.split('/'))} package\n")
-                else:
-                    f.write(f"# {' '.join(dir_path.split('/'))} package\n")
-            init_count += 1
-            print(f"  Initialized: {dir_path}/__init__.py")
-        else:
-            print(f"  Init file exists: {dir_path}/__init__.py")
-
-    print(f"\nProject structure initialization complete.")
-    print(f"  Directories created: {created_count}")
-    print(f"  __init__.py files created: {init_count}")
     
-    # Verify structure
-    print("\nVerifying structure...")
-    missing = []
+    created_count = 0
+    skipped_count = 0
+    
     for dir_path in directories:
-        full_path = os.path.join(parent_dir, dir_path)
-        if not os.path.isdir(full_path):
-            missing.append(dir_path)
-        
-        init_file = os.path.join(full_path, "__init__.py")
-        if not os.path.isfile(init_file):
-            missing.append(f"{dir_path}/__init__.py")
-
-    if missing:
-        print(f"  ERROR: Missing items: {missing}")
-        return False
-    else:
-        print("  Verification passed: All directories and init files present.")
-        return True
+        full_path = root / dir_path
+        if full_path.exists():
+            skipped_count += 1
+            print(f"[SKIP] Directory exists: {full_path}")
+        else:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"[CREATE] Directory: {full_path}")
+    
+    # Initialize __init__.py files for all package directories
+    init_files = [
+        "code/__init__.py",
+        "code/utils/__init__.py",
+        "code/pipeline/__init__.py",
+        "code/results/__init__.py",
+        "code/schemas/__init__.py",
+        "data/__init__.py",
+        "data/raw/__init__.py",
+        "data/processed/__init__.py",
+        "results/__init__.py",
+        "specs/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/integration/__init__.py",
+    ]
+    
+    init_created = 0
+    init_skipped = 0
+    
+    for init_path in init_files:
+        full_init = root / init_path
+        if full_init.exists():
+            init_skipped += 1
+            print(f"[SKIP] __init__.py exists: {full_init}")
+        else:
+            full_init.touch()
+            init_created += 1
+            print(f"[CREATE] __init__.py: {full_init}")
+    
+    print(f"\n{'='*50}")
+    print(f"Project Structure Setup Complete")
+    print(f"Directories created: {created_count}, skipped: {skipped_count}")
+    print(f"__init__.py files created: {init_created}, skipped: {init_skipped}")
+    print(f"{'='*50}")
+    
+    # Verify structure by listing all created directories
+    print("\nVerifying structure:")
+    for dir_path in directories:
+        full_path = root / dir_path
+        if full_path.exists():
+            print(f"  ✓ {dir_path}")
+        else:
+            print(f"  ✗ {dir_path} (MISSING)")
+            return False
+    
+    return True
 
 if __name__ == "__main__":
     success = create_project_structure()

@@ -1,17 +1,86 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for model training and evaluation outputs
+description: Schema for the trained model metadata and validation report reference.
 type: object
 required:
-  - model_path
+  - model_id
+  - architecture
+  - hyperparameters
+  - training_config
   - metrics
-  - validation_report
+  - data_sources
+  - created_at
 properties:
-  model_path:
+  model_id:
     type: string
-    description: Path to the saved model file
+    description: Unique identifier for the model instance.
+  architecture:
+    type: object
+    description: Description of the neural network architecture.
+    required:
+      - type
+      - layers
+      - params
+    properties:
+      type:
+        type: string
+        enum: ["mlp", "transformer", "gcn"]
+      layers:
+        type: array
+        items:
+          type: object
+          properties:
+            type:
+              type: string
+            units:
+              type: integer
+              minimum: 1
+            activation:
+              type: string
+      params:
+        type: integer
+        description: Total number of trainable parameters.
+        minimum: 1
+  hyperparameters:
+    type: object
+    description: Hyperparameters used during training.
+    required:
+      - learning_rate
+      - batch_size
+      - epochs
+      - optimizer
+    properties:
+      learning_rate:
+        type: number
+        minimum: 0.0
+      batch_size:
+        type: integer
+        minimum: 1
+      epochs:
+        type: integer
+        minimum: 1
+      optimizer:
+        type: string
+      weight_decay:
+        type: number
+        minimum: 0.0
+  training_config:
+    type: object
+    description: Configuration details of the training run.
+    properties:
+      seed:
+        type: integer
+      split_ratio:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      device:
+        type: string
   metrics:
     type: object
+    description: Performance metrics on the test set.
     required:
       - mae
       - pearson_r
@@ -19,23 +88,72 @@ properties:
     properties:
       mae:
         type: number
-        description: Mean Absolute Error
+      mse:
+        type: number
+      rmse:
+        type: number
       pearson_r:
         type: number
-        description: Pearson correlation coefficient
       spearman_rho:
         type: number
-        description: Spearman rank correlation coefficient
-      r_squared:
+      shapiro_wilk_statistic:
         type: number
-        description: R-squared value
-      shapiro_wilk_p:
+      shapiro_wilk_pvalue:
         type: number
-        description: Shapiro-Wilk test p-value for residual normality
-      permutation_p:
+      permutation_p_value:
         type: number
-        description: Permutation test p-value
-  validation_report:
+        description: P-value from the permutation test (10,000 shuffles).
+      permutation_shuffles:
+        type: integer
+        description: Number of shuffles performed.
+  data_sources:
+    type: object
+    description: References to the datasets used.
+    required:
+      - training_set
+      - test_set
+    properties:
+      training_set:
+        type: string
+        description: Path or identifier of the training dataset.
+      test_set:
+        type: string
+        description: Path or identifier of the test dataset.
+      feature_list:
+        type: array
+        items:
+          type: string
+        description: List of feature names used in the model.
+  created_at:
     type: string
-    description: Path to the validation report file
-additionalProperties: false
+    format: date-time
+  vif_results:
+    type: array
+    description: Variance Inflation Factor results for all predictors.
+    items:
+      type: object
+      required:
+        - feature
+        - vif
+      properties:
+        feature:
+          type: string
+        vif:
+          type: number
+          minimum: 1.0
+  partial_correlations:
+    type: array
+    description: Partial correlation analysis results controlling for atom-type counts.
+    items:
+      type: object
+      required:
+        - variable
+        - partial_corr
+        - p_value
+      properties:
+        variable:
+          type: string
+        partial_corr:
+          type: number
+        p_value:
+          type: number

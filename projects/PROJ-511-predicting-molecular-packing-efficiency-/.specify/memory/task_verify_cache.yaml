@@ -1,0 +1,48 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`,
+    `specs/`) actually exist; the response contains only the task description and
+    specifications, not the concrete project structure. The implementer must create
+    and show the directory hierarchy (e.g., via a tree listing or screenshots) to
+    satisfy the requirement.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file content or path was provided in the evidence, so we cannot\
+    \ confirm that a file exists, is non\u2011empty, and contains the required patterns\
+    \ (`data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`). The implementer must\
+    \ supply the actual `.gitignore` file with those entries."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, scripts, or data artifacts were provided to demonstrate that\
+    \ base data\u2011loading utilities for CIF parsing and SMILES generation exist\
+    \ in the `code/` directory. Consequently, we cannot verify that a CSV with \u2265\
+    \u202F500 rows, SMILES generation, or failure logging was implemented. The required\
+    \ implementation is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifacts were presented showing modifications in the `code/` directory
+    that implement error handling for corrupt CIF files or missing metadata. Without
+    files, functions, or logs demonstrating such handling, the requirement cannot
+    be confirmed as satisfied. The next implementer must add and provide the actual
+    code (e.g., try/except blocks, validation checks, logging of failed CIFs, fallback
+    SMILES generation flags) located in `code/`.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration file (e.g., `.env`, `config.yaml`, or similar) defining the
+    COD download URL and the HuggingFace model path was found in the `code/` directory,
+    nor any documentation or code that sets these values. The required environment
+    configuration artifact is missing.
+T013b:
+  c: false
+  h: aca080a4cfd69a0ea9ff6bf7a721ad2ae8fc2ad004f34eecebc62fd49d12b3db
+  r: "The repository contains a partially\u2011written `code/extract_physics_features.py`\
+    \ that ends abruptly (truncated, missing the core logic for H\u2011bond counting,\
+    \ aromatic fraction, solvent detection, and CSV output). Moreover, the required\
+    \ output file `data/physics_features.csv` is absent. Both the implementation and\
+    \ the produced artifact are incomplete, so the task is not satisfied."

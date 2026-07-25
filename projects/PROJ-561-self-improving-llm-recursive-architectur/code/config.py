@@ -1,3 +1,7 @@
+"""
+Configuration module for the self-improving LLM recursive architecture project.
+Defines hyperparameters, safety constraints, and path configurations.
+"""
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -5,130 +9,144 @@ import random
 import numpy as np
 import torch
 
+# --- Hyperparameters ---
 @dataclass
 class Hyperparameters:
-    """Core training hyperparameters."""
+    """Training and optimization hyperparameters."""
     learning_rate: float = 5e-5
-    
-    # Batch size (FIXED at 4 per FR-004, no auto-scaling)
     batch_size: int = 4
-    
-    # Random seed for reproducibility
     seed: int = 42
     gradient_accumulation_steps: int = 4
-    max_epochs: int = 1
+    max_epochs: int = 1  # Single epoch per cycle as per MVP
+    warmup_steps: int = 0
     weight_decay: float = 0.01
-    warmup_steps: int = 100
+    max_grad_norm: float = 1.0
 
     def set_seed(self):
-        """Set all random seeds for reproducibility."""
+        """Set random seeds for reproducibility."""
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(self.seed)
 
+# --- Safety Constraints ---
 @dataclass
 class SafetyConstraints:
     """Safety and resource constraints for the recursive loop."""
-    max_param_increase_percent: float = 30.0
-    max_ram_gb: float = 7.0
-    max_training_time_hours: float = 6.0
-    max_cycle_timeout_seconds: int = 3600
+    # Maximum allowed parameter increase (30% of baseline)
+    max_param_increase_ratio: float = 0.30
+    # RAM limit in GB (hard watchdog)
+    ram_limit_gb: float = 7.0
+    # Maximum training time per cycle in seconds (2 hours)
+    max_cycle_time_seconds: int = 7200
+    # Maximum total pipeline time in seconds (6 hours)
+    max_total_time_seconds: int = 21600
+    # Early stop threshold: degradation >= 5% from baseline
     early_stop_degradation_threshold: float = 0.05
-    max_retries: int = 2
+    # Minimum batch size before OOM termination
+    min_batch_size: int = 1
 
+# --- Path Configuration ---
 @dataclass
 class PathConfig:
-    """Project path definitions."""
-    root: str = field(default_factory=lambda: os.getcwd())
-    code_dir: str = "code"
-    data_raw_dir: str = "data/raw"
-    data_processed_dir: str = "data/processed"
-    results_dir: str = "results"
-    specs_dir: str = "specs"
-    tests_dir: str = "tests"
-    figures_dir: str = "figures"
-    checkpoints_dir: str = "data/checkpoints"
-    logs_dir: str = "results/logs"
-    trajectory_file: str = "results/trajectory.json"
-    trade_off_file: str = "results/trade_off_analysis.json"
-
+    """File system paths for project artifacts."""
+    # Root directory (assumed to be the project root where code/ resides)
+    root_dir: str = field(default_factory=lambda: os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Data directories
+    data_raw: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'raw'))
+    data_processed: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'processed'))
+    data_checkpoints: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'checkpoints'))
+    
+    # Results directories
+    results_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results'))
+    results_logs: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results', 'logs'))
+    figures_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results', 'figures'))
+    
+    # Specific output files
+    trajectory_file: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results', 'trajectory.json'))
+    trade_off_file: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results', 'trade_off_analysis.json'))
+    
+    # Code directories
+    code_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__))))
+    specs_dir: str = field(default_factory=lambda: os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'specs'))
+    
     def __post_init__(self):
-        """Ensure required directories exist."""
+        """Ensure directories exist."""
         dirs = [
-            self.data_raw_dir,
-            self.data_processed_dir,
-            self.results_dir,
-            self.specs_dir,
-            self.tests_dir,
-            self.figures_dir,
-            self.checkpoints_dir,
-            self.logs_dir
+            self.data_raw, self.data_processed, self.data_checkpoints,
+            self.results_dir, self.results_logs, self.figures_dir
         ]
         for d in dirs:
-            os.makedirs(os.path.join(self.root, d), exist_ok=True)
+            os.makedirs(d, exist_ok=True)
 
-    @property
-    def trajectory_path(self) -> str:
-        return os.path.join(self.root, self.trajectory_file)
+# --- Global Configuration ---
+_config_instance: Optional[tuple] = None
 
-    @property
-    def trade_off_path(self) -> str:
-        return os.path.join(self.root, self.trade_off_file)
+def get_config() -> tuple:
+    """
+    Returns a tuple of (Hyperparameters, SafetyConstraints, PathConfig).
+    Initializes them if not already done.
+    """
+    global _config_instance
+    if _config_instance is None:
+        hp = Hyperparameters()
+        sc = SafetyConstraints()
+        pc = PathConfig()
+        hp.set_seed()
+        _config_instance = (hp, sc, pc)
+    return _config_instance
 
-    @property
-    def checkpoints_path(self) -> str:
-        return os.path.join(self.root, self.checkpoints_dir)
+def set_config(learning_rate: float = None, batch_size: int = None, seed: int = None, ram_limit: float = None):
+    """
+    Updates the global configuration with new values.
+    Resets the instance so get_config() picks up changes.
+    """
+    global _config_instance
+    if _config_instance is not None:
+        hp, sc, pc = _config_instance
+        if learning_rate is not None:
+            hp.learning_rate = learning_rate
+        if batch_size is not None:
+            hp.batch_size = batch_size
+        if seed is not None:
+            hp.seed = seed
+            hp.set_seed()
+        if ram_limit is not None:
+            sc.ram_limit_gb = ram_limit
+        _config_instance = (hp, sc, pc)
 
-    @property
-    def logs_path(self) -> str:
-        return os.path.join(self.root, self.logs_dir)
+def get_config_summary() -> str:
+    """
+    Returns a human-readable summary of the current configuration.
+    """
+    hp, sc, pc = get_config()
+    summary = [
+        "=== Configuration Summary ===",
+        f"Learning Rate: {hp.learning_rate}",
+        f"Batch Size: {hp.batch_size}",
+        f"Seed: {hp.seed}",
+        f"Max Param Increase: {sc.max_param_increase_ratio * 100:.1f}%",
+        f"RAM Limit: {sc.ram_limit_gb} GB",
+        f"Max Cycle Time: {sc.max_cycle_time_seconds} s",
+        f"Trajectory File: {pc.trajectory_file}",
+        "============================="
+    ]
+    return "\n".join(summary)
 
-def get_config_summary() -> dict:
-    """Return a dictionary summary of current configuration."""
-    hp = Hyperparameters()
-    sc = SafetyConstraints()
-    pc = PathConfig()
-    return {
-        "hyperparameters": {
-            "learning_rate": hp.learning_rate,
-            "batch_size": hp.batch_size,
-            "seed": hp.seed,
-            "gradient_accumulation_steps": hp.gradient_accumulation_steps
-        },
-        "constraints": {
-            "max_param_increase_percent": sc.max_param_increase_percent,
-            "max_ram_gb": sc.max_ram_gb,
-            "max_training_time_hours": sc.max_training_time_hours
-        },
-        "paths": {
-            "data_raw": pc.data_raw_dir,
-            "data_processed": pc.data_processed_dir,
-            "results": pc.results_dir,
-            "checkpoints": pc.checkpoints_dir
-        }
+# Convenience accessors for common fields
+def get_learning_rate() -> float:
+    return get_config()[0].learning_rate
 
+def get_batch_size() -> int:
+    return get_config()[0].batch_size
 
-def get_config_summary() -> dict:
-    """Get a summary of the default configuration."""
-    config = Config()
-    return config.summary()
+def get_seed() -> int:
+    return get_config()[0].seed
 
+def get_ram_limit() -> float:
+    return get_config()[1].ram_limit_gb
 
-# Global default configuration instance
-_default_config: Optional[Config] = None
-
-
-def get_config() -> Config:
-    """Get the global default configuration."""
-    global _default_config
-    if _default_config is None:
-        _default_config = Config()
-    return _default_config
-
-
-def set_config(config: Config):
-    """Set the global configuration."""
-    global _default_config
-    _default_config = config
+def get_trajectory_path() -> str:
+    return get_config()[2].trajectory_file

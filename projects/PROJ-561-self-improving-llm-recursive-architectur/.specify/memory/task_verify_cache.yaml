@@ -1,39 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or file listings were provided, so there is no evidence that\
-    \ the required folders (`code/`, `data/raw/`, `data/processed/`, `results/`, `specs/`,\
-    \ `tests/`, `tests/unit/`, `tests/integration/`) and their `__init__.py` files\
-    \ actually exist. The implementer must supply a concrete file\u2011system snapshot\
-    \ (e.g., a `tree` output or a zip archive) showing these directories and the initialization\
-    \ files."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/memory.py` file is present, and there is no implementation of `check_and_terminate_if_exceeds(limit_gb:\
-    \ float)` or any of the requested features (gradient checkpointing, batch\u2011\
-    size auto\u2011scaling, RAM watchdog). The required artifact is missing, so the\
-    \ task is not satisfied."
-T005a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/loader.py` file or any code implementing dataset loaders for OpenWebText,\
-    \ GSM8K, ARC\u2011Challenge, or Wikitext\u20112 is present. Consequently the required\
-    \ fail\u2011fast logic and absence of synthetic fallbacks cannot be verified.\
-    \ The artifact is missing, so the task is not satisfied."
-T005b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/loader.py` file or code snippet showing an exponential backoff\
-    \ wrapper with the specified initial delay of 30\u202Fseconds and a maximum of\
-    \ 5 retries is provided. Without the actual implementation artifact, we cannot\
-    \ confirm that the required functionality exists or meets the task specifications."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/model.py` file or any code implementing GPT\u20112 124M checkpoint\
-    \ loading and CPU\u2011compatible weight manipulation was provided. The required\
-    \ artifact is missing, so the task is not satisfied."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,12 +26,6 @@ T010:
     2 ECE, we cannot confirm that the required functionality exists or meets the specification.\
     \ The implementer must supply a non\u2011empty `pipeline/evaluator.py` with the\
     \ three benchmark runners."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `schemas/modification_proposal.py` file or Pydantic `ModificationProposal`
-    model with the required fields was provided; the evidence lacks the requested
-    code artifact entirely.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -75,6 +33,48 @@ T014:
     the required function is missing from the provided evidence. The task cannot be
     considered fulfilled until the function exists and implements the distinctness
     check.
+T015#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline/model.py` file or method implementation was presented, and there\
+    \ is no evidence that the required parsing, JSON validation, parameter\u2011count\
+    \ check, or re\u2011prompt loop has been added. The task\u2019s core artifact\
+    \ is missing, so the requirement is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `pipeline/model.py` implementation was provided; the required\
+    \ method that reconstructs a GPT\u20112 124M model, maps existing weights, adds\
+    \ layers or changes head count, and initializes new parameters with Xavier uniform\
+    \ is missing. Without the actual code file, we cannot confirm the functionality\
+    \ or that it meets the specification."
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `pipeline/trainer.py` file or a `train_epoch` implementation\
+    \ was provided; without the actual code we cannot confirm that the required training\
+    \ loop (AdamW, batch size 4, lr\u202F5e\u20115, gradient accumulation\u202F=\u202F\
+    4, CPU offloading, periodic checkpointing) exists or works. The necessary artifact\
+    \ is missing."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code for `pipeline/trainer.py::count_flops` was provided; the artifact is
+    missing, so the FLOP counter has not been implemented as required.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline/evaluator.py` file or any code implementing the required metric\
+    \ calculations is present in the provided evidence; therefore the task\u2019s\
+    \ core deliverable is missing. The implementer must add a non\u2011empty `pipeline/evaluator.py`\
+    \ that computes GSM8K accuracy, ARC\u2011Challenge accuracy, and Wikitext\u2011\
+    2 Expected Calibration Error."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `pipeline/stats.py` file or its contents was provided; thus\
+    \ we cannot confirm that the paired bootstrap comparison logic and p\u2011value\
+    \ output were implemented. The required artifact is missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -4,82 +4,84 @@ import json
 import hashlib
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 import pytest
 
-# Add project root to path
-sys_path = Path(__file__).resolve().parent.parent.parent
-if str(sys_path) not in os.sys.path:
-    os.sys.path.insert(0, str(sys_path))
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from code.data.download_nvd import (
-    calculate_sha256, 
-    deduplicate_cves, 
-    save_and_compress, 
-    generate_checksum
+    calculate_sha256,
+    deduplicate_cves,
+    generate_checksum,
+    save_and_compress
 )
-
-def test_deduplicate_cves():
-    """Test that deduplicate_cves removes duplicates based on CVE ID."""
-    cves = [
-        {"cve": {"id": "CVE-2021-1234"}},
-        {"cve": {"id": "CVE-2021-5678"}},
-        {"cve": {"id": "CVE-2021-1234"}},  # Duplicate
-        {"cve": {"id": "CVE-2021-9999"}}
-    ]
-    result = deduplicate_cves(cves)
-    assert len(result) == 3
-    ids = [c["cve"]["id"] for c in result]
-    assert ids.count("CVE-2021-1234") == 1
-    assert "CVE-2021-5678" in ids
-    assert "CVE-2021-9999" in ids
 
 def test_calculate_sha256():
     """Test SHA256 calculation on a known string."""
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"Hello World")
+        tmp.write(b"hello world")
         tmp_path = Path(tmp.name)
     
     try:
         checksum = calculate_sha256(tmp_path)
-        # Known SHA256 for "Hello World"
-        expected = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
+        # Expected SHA256 for "hello world"
+        expected = "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
         assert checksum == expected
     finally:
         os.unlink(tmp_path)
 
-def test_save_and_compress():
-    """Test saving data as gzipped JSON."""
-    data = [{"test": "value"}]
-    with tempfile.NamedTemporaryFile(suffix=".json.gz", delete=False) as tmp:
-        tmp_path = Path(tmp.name)
+def test_deduplicate_cves():
+    """Test deduplication logic."""
+    cves = [
+        {"cve": {"id": "CVE-2021-1"}},
+        {"cve": {"id": "CVE-2021-2"}},
+        {"cve": {"id": "CVE-2021-1"}}, # Duplicate
+        {"cve": {"id": "CVE-2021-3"}},
+        {"cve": {"id": None}}, # Invalid
+    ]
     
-    try:
-        save_and_compress(data, tmp_path)
-        assert tmp_path.exists()
+    result = deduplicate_cves(cves)
+    
+    assert len(result) == 3
+    ids = [cve["cve"]["id"] for cve in result]
+    assert "CVE-2021-1" in ids
+    assert "CVE-2021-2" in ids
+    assert "CVE-2021-3" in ids
+    assert ids.count("CVE-2021-1") == 1
+
+def test_save_and_compress():
+    """Test saving and compressing JSON data."""
+    data = [{"test": "value"}]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test.json.gz"
+        save_and_compress(data, output_path)
         
-        with gzip.open(tmp_path, 'rt', encoding='utf-8') as f:
+        assert output_path.exists()
+        
+        # Verify content
+        with gzip.open(output_path, 'rt', encoding='utf-8') as f:
             loaded = json.load(f)
+        
         assert loaded == data
-    finally:
-        os.unlink(tmp_path)
 
 def test_generate_checksum():
     """Test checksum generation and file writing."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"Test Data")
-        tmp_path = Path(tmp.name)
-    
-    checksum_path = Path(str(tmp_path) + ".sha256")
-    
-    try:
-        generate_checksum(tmp_path, checksum_path)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        data_path = Path(tmpdir) / "data.json"
+        checksum_path = Path(tmpdir) / "checksum.txt"
+        
+        # Create dummy data file
+        with open(data_path, 'w') as f:
+            f.write("test content")
+        
+        generate_checksum(data_path, checksum_path)
+        
         assert checksum_path.exists()
-        
         with open(checksum_path, 'r') as f:
-            saved_checksum = f.read()
+            checksum = f.read().strip()
         
-        assert saved_checksum == calculate_sha256(tmp_path)
-    finally:
-        os.unlink(tmp_path)
-        if checksum_path.exists():
-            os.unlink(checksum_path)
+        # Verify checksum manually
+        manual_hash = hashlib.sha256(b"test content").hexdigest()
+        assert checksum == manual_hash

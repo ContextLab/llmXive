@@ -1,3 +1,1 @@
-"""
-Integration test suite initialization.
-"""
+# integration tests package

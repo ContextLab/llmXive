@@ -1,53 +1,8 @@
-T005:
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
-    \ any schema files under a `contracts/` folder is present. The implementer\u2019\
-    s claim cannot be verified because the necessary artifacts are missing."
-T007:
-  c: false
-  h: ee3c614ed36bbf25996d7299290b01e244c459e3888e4c8be887f1eda34feadb
-  r: "The `code/data/download_nvd.py` file is incomplete (truncated mid\u2011function,\
-    \ no logic to merge, deduplicate, write the gzip file, or generate the SHA256\
-    \ checksum). Moreover, the required output files `data/raw/nvd_cve_merged.json.gz`\
-    \ and its `.sha256` checksum are absent. The task\u2019s deliverables are therefore\
-    \ not present."
-T008:
-  c: false
-  h: aa1517886d6621ae608f9eac0cbecc27f814d50fe783c9e10f9be132a86f82a8
-  r: "The repository contains a partially shown `code/data/extract_github.py`, but\
-    \ the file is truncated and does not demonstrate that it actually performs the\
-    \ full clone\u2011parse\u2011merge workflow or writes the required CSV and path\
-    \ list. Moreover, the expected output files `data/processed/github_raw_metrics.csv`\
-    \ and `data/processed/tmp_clone_paths.txt` are absent. The implementer must provide\
-    \ a complete script that creates those two files with the specified columns and\
-    \ contents."
-T017:
-  c: false
-  h: 9477dde394f00537a2b30d4c11419b3175a664e4e7f0517c77aac594a08529e2
-  r: "The `fit_models.py` file is truncated and does not show any model fitting, offset\
-    \ handling, Benjamini\u2011Hochberg correction, or JSON writing logic, and the\
-    \ required output file `data/processed/model_results.json` is missing. The implementation\
-    \ therefore does not meet the task\u2019s specifications."
-T021:
-  c: false
-  h: 9caefd0f123a116c6360f9e3a3df3ce2f8f74af789488bd77daee1a934625d16
-  r: "The `robustness.py` script does not contain any implementation of language\u2011\
-    based subsampling or code that writes raw p\u2011values to `data/processed/robustness_subsample_pvalues.csv`.\
-    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
-    s core requirement is therefore unmet."
-T022:
-  c: false
-  h: 1057a6573a9e76735501284608d49d21a45c084e7895d4812912e2620a22bb55
-  r: "The provided `robustness.py` contains only placeholder stubs for entropy calculation\
-    \ and does not compute Shannon entropy, re\u2011fit a GLM with entropy as predictor,\
-    \ or compute/report the coefficient difference. Moreover, the required output\
-    \ file `data/processed/robustness_entropy_pvalues.csv` is absent."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer only provided a textual note that T038 was removed and replaced
-    by T034, but no code, data, model, or JSON output artifacts required by the functional
-    specifications are present. Consequently, there is no evidence that the required
-    lagged GLM, metric calculations, or robustness checks were implemented. The missing
-    deliverables must be supplied for the task to be considered complete.
+  h: f7ab0626a90f5b902ef6570364e1ec7a0c340486f63c0f0163c838f06f5cae5a
+  r: "The repository contains a `generate_target_list.py` file, but it is truncated\
+    \ and does not show the required exponential backoff with jitter, CSV writing\
+    \ logic, or column selection (`url`, `primary_language`, `stars`, `age`). Moreover,\
+    \ the expected output file `data/raw/target_list.csv` is absent. Consequently,\
+    \ the task\u2019s functional requirements are not satisfied."

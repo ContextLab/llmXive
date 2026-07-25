@@ -1,37 +1,48 @@
-# Data files
+# Data artifacts and large files
 data/raw_cif/
 *.pt
 *.csv
 *.json
-*.png
-*.pdf
+*.pkl
+*.h5
+*.parquet
 
-# Python cache
+# Python cache and temporary files
 __pycache__/
 *.py[cod]
-$py.class
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-# Environment
+# Environment and secrets
 .env
-.venv/
-venv/
-ENV/
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
 
-# IDE
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Logs and reports
 logs/
+*.log
+results/
+models/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

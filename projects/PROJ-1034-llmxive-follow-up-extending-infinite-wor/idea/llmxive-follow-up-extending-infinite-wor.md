@@ -9,7 +9,7 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can a deterministic, rule-based cellular automaton replace a neural network director in an infinite world simulator to maintain long-term environmental coherence and emergent complexity while operating entirely on CPU hardware?
+What are the fundamental algorithmic properties required in a generative system to sustain long-term environmental coherence and emergent complexity in infinite worlds, and can deterministic rule-based systems achieve statistical parity with neural directors under these constraints?
 
 ## Motivation
 
@@ -18,24 +18,24 @@ Current high-fidelity world simulators rely on large neural networks (e.g., 14B 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "neural world simulator vs cellular automata," "CPU-tractable generative world models," "rule-based environment synthesis for embodied AI," and "infinite world simulation without neural directors." The search returned limited results specifically comparing neural vs. rule-based directors in infinite interactive worlds, with most literature focusing on either pure neural generation or static rule-based environments.
+We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "procedural content generation vs neural world models," "deterministic rule-based infinite world simulation," "emergent complexity in cellular automata for gaming," and "statistical parity between PCG and generative AI." The search returned limited results specifically comparing the long-term coherence properties of deterministic rule-based systems against neural directors in infinite, interactive environments. Most literature focuses on either static procedural generation or neural generation without a comparative analysis of algorithmic properties for sustainability.
 
 ### What is known
-- [Generative World Explorer (2024)](https://arxiv.org/abs/2411.11844) — Establishes that planning under partial observation is a central challenge in embodied AI, often requiring agents to physically explore to update world models, but does not address replacing neural world generators with rule-based systems for efficiency.
-- [Simulating the Real World: A Unified Survey of Multimodal Generative Models (2025)](https://arxiv.org/abs/2503.04641) — Reviews existing approaches to capturing real-world dynamics via world models and multimodal generative AI, highlighting the computational cost of current neural architectures but not offering rule-based alternatives for infinite horizon simulation.
+- [Tabletop Roleplaying Games as Procedural Content Generators (2020)](https://arxiv.org/abs/2007.06108) — Establishes that rule-based systems (like TTRPGs) can effectively produce complex, coherent content, providing a theoretical foundation for viewing deterministic algorithms as viable generative engines, though it does not address the specific metrics of long-term statistical parity with neural models.
+- [Toward Co-creative Dungeon Generation via Transfer Learning (2021)](https://arxiv.org/abs/2107.12533) — Demonstrates that machine learning agents can co-create content with humans, highlighting the limitations of current PCGML approaches in maintaining long-term consistency without human intervention, but does not offer a direct comparison to pure rule-based alternatives for infinite horizons.
 
 ### What is NOT known
-No published work has empirically tested whether a deterministic cellular automaton can substitute a neural network director in a dual-agent infinite world simulator while preserving long-term coherence and emergent complexity. Specifically, there is no data on how rule-based environmental synthesis impacts pilot agent interaction quality or multi-player simulation dynamics over extended time horizons on CPU hardware.
+No published work has empirically tested whether a deterministic cellular automaton can substitute a neural network director in a dual-agent infinite world simulator while preserving long-term coherence and emergent complexity. Specifically, there is no data on how rule-based environmental synthesis impacts pilot agent interaction quality or multi-player simulation dynamics over extended time horizons on CPU hardware, nor is there a defined set of algorithmic properties that guarantee statistical parity with neural baselines.
 
 ### Why this gap matters
-Filling this gap would determine if high-fidelity, infinite-world simulations can be democratized for edge devices and standard CPUs, enabling broader deployment of interactive AI environments without reliance on expensive GPU clusters. This is critical for applications in real-time gaming, simulation-based training, and resource-constrained embodied AI research.
+Filling this gap would determine if high-fidelity, infinite-world simulations can be democratized for edge devices and standard CPUs, enabling broader deployment of interactive AI environments without reliance on expensive GPU clusters. This is critical for applications in real-time gaming, simulation-based training, and resource-constrained embodied AI research where interpretability and low latency are paramount.
 
 ### How this project addresses the gap
-This project will directly compare a neural director baseline with a custom cellular automaton "Eco-Director" in a controlled multi-player simulation, measuring coherence, diversity, and latency to establish whether rule-based synthesis can sustain infinite-world dynamics on CPU hardware.
+This project will directly compare a neural director baseline with a custom cellular automaton "Eco-Director" in a controlled multi-player simulation, measuring coherence, diversity, and latency to establish whether rule-based synthesis can sustain infinite-world dynamics on CPU hardware and identify the specific algorithmic properties necessary for statistical parity.
 
 ## Expected results
 
-We expect the cellular automaton Eco-Director to achieve comparable or superior long-term environmental coherence due to deterministic rule adherence, while reducing inference latency by over 90% on CPU hardware. However, we anticipate a potential trade-off where semantic novelty in rare, high-complexity events may be lower than the neural baseline, reflecting the inherent limitations of rule-based systems in generating unpredictable emergent behaviors.
+We expect the cellular automaton Eco-Director to achieve comparable or superior long-term environmental coherence due to deterministic rule adherence, while reducing inference latency by over 90% on CPU hardware. However, we anticipate a potential trade-off where semantic novelty in rare, high-complexity events may be lower than the neural baseline, reflecting the inherent limitations of rule-based systems in generating unpredictable emergent behaviors, thereby defining the boundary conditions for rule-based sufficiency.
 
 ## Methodology sketch
 
@@ -45,6 +45,7 @@ We expect the cellular automaton Eco-Director to achieve comparable or superior 
 - **Baseline Comparison**: Execute parallel runs with the original neural director (throttled to match CPU latency) and a static environment control to establish performance bounds.
 - **Statistical Analysis**: Apply a paired t-test or Wilcoxon signed-rank test to compare coherence and diversity metrics between the CA Eco-Director and the neural baseline, assessing significance levels (p < 0.05) to validate whether the rule-based approach maintains statistical parity in key performance indicators.
 - **Latency Measurement**: Record inference latency per time-step for both systems to quantify computational savings, ensuring the CA approach meets the target of >90% latency reduction on CPU.
+- **Independence Check**: Ensure coherence and diversity metrics are derived from distinct, independent measurements (e.g., physical law consistency vs. event entropy) rather than being mathematically coupled to the input state generation process itself, avoiding circular validation.
 
 ## Duplicate-check
 
@@ -55,7 +56,7 @@ We expect the cellular automaton Eco-Director to achieve comparable or superior 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-16T18:43:49Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-25T15:43:23Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Infinite Worlds with Versatile Interactions" computer science
 **Verified citation count**: 2
@@ -65,28 +66,28 @@ We expect the cellular automaton Eco-Director to achieve comparable or superior 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Infinite Worlds with Versatile Interactions" computer science | 0 |
-| 1 | generative world simulation with LLMs | 4 |
-| 2 | open-ended interactive narrative generation | 3 |
-| 3 | procedurally generated game worlds using large language models | 0 |
-| 4 | dynamic storytelling agents in virtual environments | 0 |
-| 5 | LLM-driven non-player character interaction systems | 0 |
-| 6 | infinite content generation for interactive fiction | 0 |
-| 7 | autonomous world simulation with natural language interfaces | 0 |
-| 8 | scalable procedural narrative generation techniques | 0 |
-| 9 | context-aware world building with transformer models | 0 |
-| 10 | interactive environment generation via language models | 0 |
-| 11 | emergent gameplay through LLM-based world logic | 0 |
-| 12 | continuous narrative expansion in virtual worlds | 0 |
-| 13 | multi-modal world generation for interactive experiences | 0 |
-| 14 | adaptive story generation in open-world games | 0 |
-| 15 | language model agents for persistent world simulation | 0 |
-| 16 | generative AI for scalable game content creation | 0 |
-| 17 | semantic world modeling with large language models | 0 |
-| 18 | interactive fiction generation with infinite scope | 0 |
-| 19 | AI-driven dynamic world state management | 0 |
-| 20 | generative text-based simulation environments | 0 |
+| 1 | procedural content generation for open-world games | 5 |
+| 2 | generative AI for dynamic game environments | 0 |
+| 3 | large language models for non-player character behavior | 0 |
+| 4 | infinite game world generation algorithms | 0 |
+| 5 | interactive narrative generation with LLMs | 0 |
+| 6 | scalable procedural storytelling systems | 0 |
+| 7 | AI-driven open-ended game mechanics | 0 |
+| 8 | real-time environment synthesis using transformer models | 0 |
+| 9 | versatile interaction systems in virtual worlds | 0 |
+| 10 | context-aware procedural game content | 0 |
+| 11 | generative agents for persistent game worlds | 0 |
+| 12 | dynamic world state management with language models | 0 |
+| 13 | automated quest and dialogue generation in games | 0 |
+| 14 | neural network approaches to game level design | 0 |
+| 15 | emergent gameplay through generative AI | 0 |
+| 16 | large-scale virtual world simulation with AI | 0 |
+| 17 | natural language interfaces for game world interaction | 0 |
+| 18 | adaptive game content generation frameworks | 0 |
+| 19 | multimodal generative models for game assets and logic | 0 |
+| 20 | self-expanding game worlds using deep learning | 0 |
 
 ### Verified citations
 
-1. **Generative World Explorer** (2024). Taiming Lu, Tianmin Shu, Alan Yuille, Daniel Khashabi, Jieneng Chen. arXiv. [2411.11844](https://arxiv.org/abs/2411.11844). PDF-sampled: No.
-2. **Simulating the Real World: A Unified Survey of Multimodal Generative Models** (2025). Yuqi Hu, Longguang Wang, Xian Liu, Ling-Hao Chen, Yuwei Guo, et al.. arXiv. [2503.04641](https://arxiv.org/abs/2503.04641). PDF-sampled: No.
+1. **Tabletop Roleplaying Games as Procedural Content Generators** (2020). Matthew Guzdial, Devi Acharya, Max Kreminski, Michael Cook, Mirjam Eladhari, et al.. arXiv. [2007.06108](https://arxiv.org/abs/2007.06108). PDF-sampled: No.
+2. **Toward Co-creative Dungeon Generation via Transfer Learning** (2021). Zisen Zhou, Matthew Guzdial. arXiv. [2107.12533](https://arxiv.org/abs/2107.12533). PDF-sampled: No.

@@ -1,3 +1,1 @@
-"""
-Results and logs storage initialization.
-"""
+# results package

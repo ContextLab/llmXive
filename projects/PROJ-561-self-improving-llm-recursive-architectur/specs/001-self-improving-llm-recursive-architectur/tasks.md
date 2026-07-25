@@ -87,12 +87,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `pipeline/model.py` method to parse model's self-prompted architectural modification proposal (using schema from T013) and validate parameter count ≤130% baseline. Prompt template must output valid JSON. If invalid or exceeds constraint, re-prompt (loop until valid or system timeout). Use prompt template: "Propose one architectural modification for GPT-2 124M. Output JSON: {modification_type: str, magnitude: int, rationale: str, estimated_param_count: int}. Allowed types: layer_add, head_count_change. Constraint: total params ≤ 130% baseline." (DEPENDS ON T013)
-- [~] T016 [US1] Implement `pipeline/model.py` method to apply architectural modification (e.g., layer addition, head count change) to GPT-2 124M weights using manual reconstruction: create new `nn.Module` subclass, map weights via state_dict, initialize new layers with `torch.nn.init.xavier_uniform_`. Allowed modifications: layer_add (add N layers), head_count_change (change heads by M). (DEPENDS ON T013)
-- [~] T017a [US1] Implement training loop in `pipeline/trainer.py::train_epoch` for a single training epoch on an OpenWebText subset (AdamW, bs=4, lr=5e-5) with CPU offloading. Use gradient accumulation steps=4 to simulate batch. Checkpoint periodically. (DEPENDS ON T008)
-- [~] T017b [US1] Implement FLOP counter in `pipeline/trainer.py::count_flops` for accurate FLOP measurement during training
-- [~] T018 [US1] Implement `pipeline/evaluator.py` logic to compute GSM8K accuracy, ARC-Challenge accuracy, and Wikitext-2 ECE
-- [~] T019 [US1] Implement `pipeline/stats.py` logic to run paired bootstrap comparison (baseline vs. post-mod) and output p-values (DEPENDS ON T007)
+- [ ] T015 [US1] Implement `pipeline/model.py` method to parse model's self-prompted architectural modification proposal (using schema from T013) and validate parameter count ≤130% baseline. Prompt template must output valid JSON. If invalid or exceeds constraint, re-prompt (loop until valid or system timeout). Use prompt template: "Propose one architectural modification for GPT-2 124M. Output JSON: {modification_type: str, magnitude: int, rationale: str, estimated_param_count: int}. Allowed types: layer_add, head_count_change. Constraint: total params ≤ 130% baseline." (DEPENDS ON T013)
+- [ ] T016 [US1] Implement `pipeline/model.py` method to apply architectural modification (e.g., layer addition, head count change) to GPT-2 124M weights using manual reconstruction: create new `nn.Module` subclass, map weights via state_dict, initialize new layers with `torch.nn.init.xavier_uniform_`. Allowed modifications: layer_add (add N layers), head_count_change (change heads by M). (DEPENDS ON T013)
+- [ ] T017a [US1] Implement training loop in `pipeline/trainer.py::train_epoch` for a single training epoch on an OpenWebText subset (AdamW, bs=4, lr=5e-5) with CPU offloading. Use gradient accumulation steps=4 to simulate batch. Checkpoint periodically. (DEPENDS ON T008)
+- [ ] T017b [US1] Implement FLOP counter in `pipeline/trainer.py::count_flops` for accurate FLOP measurement during training
+- [ ] T018 [US1] Implement `pipeline/evaluator.py` logic to compute GSM8K accuracy, ARC-Challenge accuracy, and Wikitext-2 ECE
+- [ ] T019 [US1] Implement `pipeline/stats.py` logic to run paired bootstrap comparison (baseline vs. post-mod) and output p-values (DEPENDS ON T007)
 - [~] T020 [US1] Implement `main.py::run_single_cycle()` orchestrating: load_model() → propose_modification() → validate_modification() (using T014) → apply_modification() → train_epoch() → evaluate() → compare_stats()
 - [~] T035 [US1] Implement retry logic for training failures in `main.py`: retry failed training up to 2 times with the SAME modification; if still failing, log failure, increment cycle counter, and proceed to next cycle number with a NEW modification proposal (spec Edge Cases, FR-012)
 - [ ] T036 [US1] Implement early-stop logic in `main.py`: if degradation ≥5% from baseline, record degradation cycle, log "Early Stop", increment cycle counter, and terminate gracefully. Save checkpoint to `data/checkpoints/cycle_N.pt` before termination (spec Edge Cases)
@@ -114,14 +114,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T023 [P] [US2] Integration test for 3-cycle loop in `tests/integration/test_three_cycles.py`
-- [ ] T024 [P] [US2] Unit test for decay model fitting in `tests/unit/test_decay_model.py`
+- [X] T024 [P] [US2] Unit test for decay model fitting in `tests/unit/test_decay_model.py`
 
 ### Implementation for User Story 2
 
 - [ ] T029 [US2] Implement results/trajectory.json schema and writer: Create `results/trajectory_schema.py` with Pydantic model `TrajectoryEntry` and writer function `write_trajectory()` capturing cycle_number, param_count, GSM8K, ARC, ECE, FLOPs, training_time
-- [ ] T025 [US2] Implement `main.py` loop logic to execute multiple cycles, ensuring each cycle's modification is distinct in type or magnitude from all previous cycles by tracking modification history in `main.py` state and validating new proposals against that history before application (DEPENDS ON T013, T029, T014). If not distinct, prompt model again (no hard limit specified in spec).
-- [ ] T026 [US2] Implement `pipeline/model.py` logic to track and enforce "distinct modification" constraint across cycles using schema from T013 and trajectory from T029 (DEPENDS ON T013, T029, T014)
-- [ ] T027 [US2] Implement `pipeline/stats.py` logic to fit exponential decay model (y = a * e^(-bx) + c) and identify plateau/degradation cycle
+- [~] T025 [US2] Implement `main.py` loop logic to execute multiple cycles, ensuring each cycle's modification is distinct in type or magnitude from all previous cycles by tracking modification history in `main.py` state and validating new proposals against that history before application (DEPENDS ON T013, T029, T014). If not distinct, prompt model again (no hard limit specified in spec).
+- [~] T026 [US2] Implement `pipeline/model.py` logic to track and enforce "distinct modification" constraint across cycles using schema from T013 and trajectory from T029 (DEPENDS ON T013, T029, T014)
+- [~] T027 [US2] Implement `pipeline/stats.py` logic to fit exponential decay model (y = a * e^(-bx) + c) and identify plateau/degradation cycle
 - [ ] T028 [US2] Implement `main.py` retry logic for training failures across cycles (reuses T035 logic)
 - [ ] T030 [US2] Implement logic to compute and record FLOPs for each cycle in `pipeline/model.py` (Note: FLOP counting logic is in T017b, this task focuses on trajectory aggregation)
 - [ ] T039 [US2] Implement "Early Termination on Degradation" in `main.py`: If a cycle results in performance degradation ≥5% from baseline, record the degradation cycle, log "Early Stop", increment cycle counter, and terminate the pipeline (spec Edge Cases).

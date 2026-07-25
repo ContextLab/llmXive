@@ -1,164 +1,200 @@
 """
 Memory management utilities for the self-improving LLM pipeline.
 
-Provides:
-- Gradient checkpointing utilities
-- Batch size auto-scaling
-- Hard RAM watchdog (process termination on OOM risk)
+Provides gradient checkpointing, batch size auto-scaling, and a hard RAM watchdog
+to prevent Out-Of-Memory (OOM) crashes on CPU-only environments.
 """
-
 import os
 import sys
 import gc
 import time
 import psutil
-from typing import Optional, Callable, Any
-
-
-# Constants for batch scaling
-MIN_BATCH_SIZE = 1
-MAX_BATCH_SIZE = 64
-MEMORY_THRESHOLD_FACTOR = 0.85  # Trigger scaling at 85% of limit
+import torch
+import torch.nn as nn
+from typing import Optional, Callable, Any, Tuple
 
 
 def get_memory_usage_gb() -> float:
     """
-    Returns the current RAM usage of the current process in Gigabytes.
-    Uses psutil for cross-platform compatibility.
+    Get the current RAM usage of the current process in gigabytes.
+    
+    Returns:
+        float: Memory usage in GB.
     """
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
-    # Convert bytes to GB
     return mem_info.rss / (1024 ** 3)
 
 
-
-def check_and_terminate_if_exceeds(limit_gb: float = 7.0) -> None:
+def check_and_terminate_if_exceeds(limit_gb: float) -> None:
     """
-    Hard RAM watchdog.
+    Hard RAM watchdog: checks current memory usage and terminates the process
+    if it exceeds the specified limit.
     
-    Checks the current process's RAM usage. If it exceeds `limit_gb`,
-    the process is terminated immediately with a non-zero exit code
-    and a descriptive error message to stderr.
-    
-    This function never returns if the limit is exceeded.
+    This function is designed to be called periodically during training loops
+    to enforce strict memory constraints (SC-005).
     
     Args:
-        limit_gb: The maximum allowed RAM usage in GB.
-    
+        limit_gb (float): The maximum allowed RAM usage in gigabytes.
+        
     Raises:
-        SystemExit: If memory usage exceeds the limit.
+        SystemExit: If memory usage exceeds the limit, terminating the process.
     """
-    current_usage = get_memory_usage_gb()
-    if current_usage > limit_gb:
-        error_msg = (
-            f"CRITICAL: RAM usage {current_usage:.2f} GB exceeds limit {limit_gb:.2f} GB. "
-            "Terminating process to prevent system instability."
-        )
-        sys.stderr.write(error_msg + "\n")
-        # Force garbage collection one last time before exit to ensure
-        # the measurement is as accurate as possible, though we are exiting.
+    current_gb = get_memory_usage_gb()
+    if current_gb > limit_gb:
+        print(f"[MEMORY WATCHDOG] CRITICAL: RAM usage {current_gb:.2f}GB exceeds limit {limit_gb:.2f}GB. Terminating process.", file=sys.stderr)
+        # Force garbage collection one last time before exit attempt
         gc.collect()
-        sys.exit(1)
+        if get_memory_usage_gb() > limit_gb:
+            sys.exit(1)
 
 
 def enable_gradient_checkpointing(model: nn.Module) -> None:
     """
-    Recursively enables gradient checkpointing on a PyTorch model.
+    Enable gradient checkpointing for a model to reduce memory usage.
     
-    Gradient checkpointing trades compute for memory, allowing larger
-    models or batch sizes to fit in RAM by recomputing activations
-    during the backward pass.
-    
-    Note: Only works for models where the underlying layers support it
-    (e.g., transformers). For generic models, this may have no effect
-    or require specific module overrides.
+    This function attempts to enable gradient checkpointing on all modules
+    within the model that support it (e.g., transformers, custom modules with
+    a `gradient_checkpointing_enable` method).
     
     Args:
-        model: The PyTorch model to modify.
+        model (nn.Module): The model to modify.
     """
-    if hasattr(model, "gradient_checkpointing_enable"):
+    if hasattr(model, 'gradient_checkpointing_enable'):
         try:
             model.gradient_checkpointing_enable()
+            print("[MEMORY] Gradient checkpointing enabled for model.")
         except Exception as e:
-            sys.stderr.write(f"Warning: Could not enable gradient checkpointing on model: {e}\n")
-    
-    # Recursively try to enable on sub-modules if the main model didn't have the method
-    for name, module in model.named_modules():
-        if module is not model and hasattr(module, "gradient_checkpointing_enable"):
-            try:
-                module.gradient_checkpointing_enable()
-            except Exception:
-                pass
+            print(f"[MEMORY] Warning: Could not enable gradient checkpointing: {e}")
+    else:
+        # Fallback: try to set attribute if it exists but isn't a method
+        if hasattr(model, 'gradient_checkpointing'):
+            model.gradient_checkpointing = True
+            print("[MEMORY] Gradient checkpointing enabled via attribute.")
+        else:
+            print("[MEMORY] Model does not support gradient checkpointing.")
 
 
 def auto_scale_batch_size(
-    current_batch_size: int, 
-    limit_gb: float, 
-    safety_margin_gb: float = 1.0
-) -> int:
+    current_batch_size: int,
+    current_memory_gb: float,
+    limit_gb: float,
+    min_batch_size: int = 1
+) -> Tuple[int, bool]:
     """
-    Auto-scales the batch size down if memory usage is approaching the limit.
+    Auto-scale batch size based on current memory usage.
     
-    This function checks current memory usage. If usage + safety_margin exceeds
-    the limit, it halves the batch size until it fits or hits MIN_BATCH_SIZE.
+    If current memory usage is approaching the limit, reduces the batch size
+    by half. If memory is well within limits, keeps the batch size as is.
     
     Args:
-        current_batch_size: The batch size attempted in the current epoch.
-        limit_gb: The maximum allowed RAM in GB.
-        safety_margin_gb: Extra GB to reserve for overhead (default 1.0).
-    
+        current_batch_size (int): The current batch size.
+        current_memory_gb (float): Current memory usage in GB.
+        limit_gb (float): The memory limit in GB.
+        min_batch_size (int): Minimum allowed batch size.
+        
     Returns:
-        The new batch size (guaranteed to be >= MIN_BATCH_SIZE).
-    
-    Raises:
-        RuntimeError: If even MIN_BATCH_SIZE cannot fit within the limit.
+        Tuple[int, bool]: (new_batch_size, was_scaled_down)
     """
-    check_and_terminate_if_exceeds(limit_gb)  # Hard fail if already over
+    # Safety margin: if we are above 80% of the limit, scale down
+    threshold = limit_gb * 0.80
     
-    effective_limit = limit_gb - safety_margin_gb
-    new_batch_size = current_batch_size
+    if current_memory_gb > threshold:
+        new_batch_size = current_batch_size // 2
+        if new_batch_size < min_batch_size:
+            print(f"[MEMORY] CRITICAL: Batch size {current_batch_size} would drop below min {min_batch_size}. Cannot scale further. Terminating.")
+            sys.exit(1)
+        print(f"[MEMORY] High memory usage ({current_memory_gb:.2f}GB > {threshold:.2f}GB). Reducing batch size from {current_batch_size} to {new_batch_size}.")
+        return new_batch_size, True
     
-    # Check current usage against effective limit
-    # We assume memory usage scales roughly linearly with batch size.
-    # We estimate current usage. If it's already high, we scale down.
-    current_usage = get_memory_usage_gb()
+    return current_batch_size, False
+
+
+def run_epoch_with_memory_monitoring(
+    epoch_func: Callable[[int], Any],
+    limit_gb: float,
+    check_interval_seconds: float = 5.0
+) -> Any:
+    """
+    Wrapper to run an epoch function with periodic memory checks.
     
-    # If current usage is already dangerously high relative to the effective limit,
-    # we must scale down.
-    while new_batch_size > MIN_BATCH_SIZE:
-        # Estimate usage if we were to run with new_batch_size
-        # This is a heuristic: we assume current_usage corresponds to current_batch_size
-        # and we want to find a size where usage <= effective_limit
+    Args:
+        epoch_func (Callable): The function to run (e.g., train_epoch).
+        limit_gb (float): Memory limit in GB.
+        check_interval_seconds (float): How often to check memory.
         
-        # Simple heuristic: if current usage > effective limit, halve batch size.
-        # A more robust way would be to measure, but we are in a loop.
-        if current_usage > effective_limit:
-            new_batch_size = new_batch_size // 2
-            if new_batch_size < MIN_BATCH_SIZE:
-                new_batch_size = MIN_BATCH_SIZE
-                # Re-check with min size
-                estimated_min_usage = current_usage * (MIN_BATCH_SIZE / current_batch_size)
-                if estimated_min_usage > effective_limit:
-                    raise RuntimeError(
-                        f"OOM: Even batch size {MIN_BATCH_SIZE} estimated to use "
-                        f"{estimated_min_usage:.2f} GB, exceeding effective limit {effective_limit:.2f} GB."
-                    )
-            # Force a check to ensure we don't loop infinitely if logic is flawed
-            if new_batch_size == current_batch_size:
-                break
-            current_batch_size = new_batch_size
-            # In a real training loop, we would actually run a forward pass to measure,
-            # but here we rely on the heuristic to reduce until safe.
-            # We re-evaluate the "current_usage" assumption by halving the estimate
-            current_usage = current_usage * 0.5 
-        else:
-            break
+    Returns:
+        Any: The return value of epoch_func.
+    """
+    import threading
+    import time as time_mod
     
-    if new_batch_size < MIN_BATCH_SIZE:
-        raise RuntimeError(
-            f"Cannot scale batch size below {MIN_BATCH_SIZE}. "
-            "System memory is insufficient for the minimum required batch size."
-        )
-        
-    return new_batch_size
+    stop_flag = threading.Event()
+    result = [None]
+    exception = [None]
+    
+    def monitor():
+        while not stop_flag.is_set():
+            try:
+                check_and_terminate_if_exceeds(limit_gb)
+            except SystemExit:
+                raise
+            time_mod.sleep(check_interval_seconds)
+    
+    monitor_thread = threading.Thread(target=monitor, daemon=True)
+    monitor_thread.start()
+    
+    try:
+        result[0] = epoch_func(0) # Assuming epoch_func takes epoch index
+    except Exception as e:
+        exception[0] = e
+    finally:
+        stop_flag.set()
+        monitor_thread.join(timeout=1.0)
+    
+    if exception[0]:
+        raise exception[0]
+    
+    return result[0]
+
+
+class MemoryWatchdog:
+    """
+    A context manager and utility class for memory monitoring.
+    """
+    def __init__(self, limit_gb: float):
+        self.limit_gb = limit_gb
+        self.start_gb = 0.0
+        self.peak_gb = 0.0
+    
+    def __enter__(self):
+        gc.collect()
+        self.start_gb = get_memory_usage_gb()
+        self.peak_gb = self.start_gb
+        print(f"[MEMORY WATCHDOG] Started. Limit: {self.limit_gb}GB, Start: {self.start_gb:.2f}GB")
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        current = get_memory_usage_gb()
+        self.peak_gb = max(self.peak_gb, current)
+        print(f"[MEMORY WATCHDOG] Finished. Peak: {self.peak_gb:.2f}GB")
+        check_and_terminate_if_exceeds(self.limit_gb)
+        return False
+    
+    def check(self) -> bool:
+        """
+        Check current memory and update peak. Returns True if safe.
+        """
+        current = get_memory_usage_gb()
+        self.peak_gb = max(self.peak_gb, current)
+        if current > self.limit_gb:
+            print(f"[MEMORY WATCHDOG] EXCEEDED: {current:.2f}GB > {self.limit_gb}GB")
+            return False
+        return True
+
+
+def enforce_ram_limit(limit_gb: float) -> None:
+    """
+    Immediate enforcement of RAM limit. Checks once and exits if exceeded.
+    """
+    check_and_terminate_if_exceeds(limit_gb)

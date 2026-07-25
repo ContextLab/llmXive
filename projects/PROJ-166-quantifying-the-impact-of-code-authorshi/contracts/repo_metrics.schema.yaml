@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Repository Metrics Schema
+description: Schema for the cleaned, merged dataset used in the primary analysis.
+type: object
+properties:
+  url:
+    type: string
+    description: The exact GitHub URL of the repository.
+    pattern: "^https://github\\.com/[^/]+/[^/]+$"
+  primary_language:
+    type: string
+    description: The primary programming language of the repository.
+  unique_authors:
+    type: integer
+    description: Count of unique author emails found in git log.
+    minimum: 1
+  kloc:
+    type: number
+    description: Thousands of Lines of Code (raw lines / 1000).
+    minimum: 0
+  authorship_diversity:
+    type: number
+    description: Ratio of unique authors to kloc (unique_authors / kloc).
+    minimum: 0
+  cve_count:
+    type: integer
+    description: Number of CVEs associated with this repository URL.
+    minimum: 0
+  project_age:
+    type: number
+    description: Age of the project in years (calculated from creation date to analysis date).
+    minimum: 0
+  release_count:
+    type: integer
+    description: Total number of releases/tags for the repository.
+    minimum: 0
+required:
+  - url
+  - primary_language
+  - unique_authors
+  - kloc
+  - authorship_diversity
+  - cve_count
+  - project_age
+  - release_count

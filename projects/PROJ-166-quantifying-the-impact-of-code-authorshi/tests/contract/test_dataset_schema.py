@@ -1,7 +1,7 @@
 """
 Contract test for data schema validation.
 
-Validates that the merged dataset (repo_metrics.csv) produced by the pipeline
+Validates that the merged dataset (repo_metrics_clean.csv) produced by the pipeline
 adheres to the expected schema defined in code/data/schemas.py.
 
 This test ensures:
@@ -19,17 +19,17 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.data.schemas import get_schema, validate_dataframe
+from code.data.schemas import get_repo_metrics_schema, validate_dataframe
 from code.config import ensure_directories
 
 
 @pytest.fixture
 def expected_schema():
     """
-    Returns the expected schema for the merged dataset (repo_metrics.csv).
+    Returns the expected schema for the merged dataset (repo_metrics_clean.csv).
     Matches the definition in code/data/schemas.py.
     """
-    return get_schema("repo_metrics")
+    return get_repo_metrics_schema()
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def test_data_path():
     Returns the path to the expected merged dataset file.
     """
     ensure_directories()
-    return Path(PROJECT_ROOT) / "data" / "processed" / "repo_metrics.csv"
+    return Path(PROJECT_ROOT) / "data" / "processed" / "repo_metrics_clean.csv"
 
 
 def test_schema_columns_present(test_data_path, expected_schema):

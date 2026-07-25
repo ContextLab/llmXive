@@ -9,14 +9,3 @@
   verification_status: pending
   verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.1/
   verified_at: '2026-07-03T06:01:05.974551Z'
-- artifact_hash: da3243a1f4e8fbb5fb707b6d0a3d36e55aaa8ab678f25e4c6d1d69376e6b0143
-  artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://api.github.com/search/repositories`
-  verification_status: unreachable
-  verified_against_url: https://api.github.com/search/repositories
-  verified_at: '2026-07-24T21:45:57.679235Z'

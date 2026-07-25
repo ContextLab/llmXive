@@ -1,93 +1,115 @@
 """
-Schema definitions and validation logic for project datasets.
+Schema definitions and validation utilities.
+Implements T005 schema generation logic.
 """
 import pandas as pd
 from typing import Dict, List, Any, Optional
 import json
 from pathlib import Path
+from config import CONTRACTS_DIR
 
-# Load schema from the contract file
-_SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "data_schema.json"
+def get_repo_metrics_schema() -> Dict[str, Any]:
+    """Returns the schema for repo_metrics_clean.csv as a dict."""
+    return {
+        "url": {"type": "string", "required": True},
+        "primary_language": {"type": "string", "required": True},
+        "unique_authors": {"type": "integer", "required": True},
+        "kloc": {"type": "number", "required": True},
+        "authorship_diversity": {"type": "number", "required": True},
+        "cve_count": {"type": "integer", "required": True},
+        "project_age": {"type": "number", "required": True},
+        "release_count": {"type": "integer", "required": True},
+    }
 
-def _load_schema() -> Dict[str, Any]:
-    """Load the JSON schema definition."""
-    if not _SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found at {_SCHEMA_PATH}")
-    with open(_SCHEMA_PATH, "r") as f:
-        return json.load(f)
+def get_model_results_schema() -> Dict[str, Any]:
+    """Returns the schema for model results JSON."""
+    return {
+        "author_count_coefficient": {"type": "number", "required": True},
+        "std_err": {"type": "number", "required": True},
+        "p_value": {"type": "number", "required": True},
+        "ci_95_lower": {"type": "number", "required": True},
+        "ci_95_upper": {"type": "number", "required": True},
+        "vif": {"type": "object", "required": True},
+        "convergence_status": {"type": "boolean", "required": True},
+        "model_type": {"type": "string", "required": True},
+    }
 
-def get_schema(dataset_name: str) -> Dict[str, Any]:
+def validate_dataframe(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
-    Retrieve the schema definition for a specific dataset.
-    
-    Args:
-        dataset_name: The key name of the dataset (e.g., 'target_list', 'repo_metrics').
-        
-    Returns:
-        Dictionary containing the schema definition.
-        
-    Raises:
-        KeyError: If the dataset name is not found in the schema.
-    """
-    schema = _load_schema()
-    if dataset_name not in schema["datasets"]:
-        raise KeyError(f"Dataset '{dataset_name}' not found in schema. Available: {list(schema['datasets'].keys())}")
-    return schema["datasets"][dataset_name]
-
-def validate_dataframe(df: pd.DataFrame, dataset_name: str) -> List[str]:
-    """
-    Validate a DataFrame against a named schema.
-    
-    Args:
-        df: The DataFrame to validate.
-        dataset_name: The key name of the dataset schema to use.
-        
-    Returns:
-        A list of validation error messages. Empty if valid.
+    Validates a dataframe against a schema.
+    Returns a list of error messages. Empty list if valid.
     """
     errors = []
-    try:
-        schema = get_schema(dataset_name)
-    except KeyError as e:
-        return [str(e)]
-
-    required_cols = schema["columns"].keys()
-    actual_cols = set(df.columns)
-    missing_cols = set(required_cols) - actual_cols
-    
-    if missing_cols:
-        errors.append(f"Missing columns: {missing_cols}")
-    
-    extra_cols = actual_cols - set(required_cols)
-    if extra_cols:
-        errors.append(f"Unexpected columns: {extra_cols}")
-
-    for col_name, col_def in schema["columns"].items():
-        if col_name not in df.columns:
-            continue
-        
-        # Check nullability
-        if col_def.get("nullable") is False:
-            if df[col_name].isna().any():
-                errors.append(f"Column '{col_name}' contains null values but is marked as non-nullable.")
-        
-        # Check uniqueness
-        if col_def.get("unique") is True:
-            if df[col_name].duplicated().any():
-                errors.append(f"Column '{col_name}' contains duplicate values but is marked as unique.")
-        
-        # Basic type check (pandas often infers mixed types, so we check for object vs expected)
-        expected_type = col_def.get("type")
-        if expected_type == "integer":
-            if not pd.api.types.is_integer_dtype(df[col_name]):
-                # Allow float if it has no decimals, but warn if it's object
-                if not (pd.api.types.is_float_dtype(df[col_name]) and (df[col_name] % 1 == 0).all()):
-                    errors.append(f"Column '{col_name}' expected integer, got {df[col_name].dtype}")
-        elif expected_type == "float":
-            if not (pd.api.types.is_float_dtype(df[col_name]) or pd.api.types.is_integer_dtype(df[col_name])):
-                errors.append(f"Column '{col_name}' expected float, got {df[col_name].dtype}")
-        elif expected_type == "string":
-            if not pd.api.types.is_string_dtype(df[col_name]) and not pd.api.types.is_object_dtype(df[col_name]):
-                errors.append(f"Column '{col_name}' expected string, got {df[col_name].dtype}")
-
+    for col, specs in schema.items():
+        if specs.get("required", False) and col not in df.columns:
+            errors.append(f"Missing required column: {col}")
+        elif col in df.columns:
+            # Basic type checking
+            if specs["type"] == "integer":
+                if not pd.api.types.is_integer_dtype(df[col]) and not pd.api.types.is_numeric_dtype(df[col]):
+                    errors.append(f"Column {col} should be integer but is {df[col].dtype}")
+            elif specs["type"] == "number":
+                if not pd.api.types.is_numeric_dtype(df[col]):
+                    errors.append(f"Column {col} should be number but is {df[col].dtype}")
     return errors
+
+def generate_yaml_schemas():
+    """
+    Generates the YAML schema files in the contracts directory.
+    This function is called by T005 to create the artifacts.
+    """
+    import yaml
+    
+    # Repo Metrics Schema
+    repo_schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Repository Metrics Schema",
+        "description": "Schema for the cleaned, merged dataset used in the primary analysis.",
+        "type": "object",
+        "properties": {
+            "url": {"type": "string", "pattern": "^https://github\\\\.com/[^/]+/[^/]+$"},
+            "primary_language": {"type": "string"},
+            "unique_authors": {"type": "integer", "minimum": 1},
+            "kloc": {"type": "number", "minimum": 0},
+            "authorship_diversity": {"type": "number", "minimum": 0},
+            "cve_count": {"type": "integer", "minimum": 0},
+            "project_age": {"type": "number", "minimum": 0},
+            "release_count": {"type": "integer", "minimum": 0},
+        },
+        "required": ["url", "primary_language", "unique_authors", "kloc", "authorship_diversity", "cve_count", "project_age", "release_count"]
+    }
+
+    # Model Results Schema
+    model_schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Model Results Schema",
+        "description": "Schema for the output of the Negative Binomial GLM analysis.",
+        "type": "object",
+        "properties": {
+            "author_count_coefficient": {"type": "number"},
+            "std_err": {"type": "number"},
+            "p_value": {"type": "number", "minimum": 0, "maximum": 1},
+            "ci_95_lower": {"type": "number"},
+            "ci_95_upper": {"type": "number"},
+            "vif": {"type": "object", "additionalProperties": {"type": "number"}},
+            "convergence_status": {"type": "boolean"},
+            "model_type": {"type": "string", "enum": ["NegativeBinomial"]},
+            "high_collinearity_warning": {"type": "boolean", "default": False},
+            "fallback_model_used": {"type": "boolean", "default": False},
+        },
+        "required": ["author_count_coefficient", "std_err", "p_value", "ci_95_lower", "ci_95_upper", "vif", "convergence_status", "model_type"]
+    }
+
+    # Ensure contracts dir exists
+    CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    with open(CONTRACTS_DIR / "repo_metrics.schema.yaml", "w") as f:
+        yaml.dump(repo_schema, f, default_flow_style=False, sort_keys=False)
+    
+    with open(CONTRACTS_DIR / "model_results.schema.yaml", "w") as f:
+        yaml.dump(model_schema, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Generated schemas in {CONTRACTS_DIR}")
+
+if __name__ == "__main__":
+    generate_yaml_schemas()
