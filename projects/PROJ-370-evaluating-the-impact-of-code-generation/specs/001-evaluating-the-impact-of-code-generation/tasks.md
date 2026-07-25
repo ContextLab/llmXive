@@ -44,10 +44,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directories: `src/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`
-- [ ] T002 Create `requirements.txt` with pinned versions: `datasets`, `transformers`, `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`
-- [ ] T003 [P] Create virtualenv and install dependencies from `requirements.txt`
+- [X] T002 Create `requirements.txt` with pinned versions: `datasets`, `transformers`, `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`
+- [X] T003 [P] Create virtualenv and install dependencies from `requirements.txt`
 - [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T005 Create `config/settings.py` for hyperparameters, paths, and random seeds
+- [X] T005 Create `config/settings.py` for hyperparameters, paths, and random seeds
 
 ---
 
@@ -58,11 +58,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T006 Define data classes in `src/extraction/schema.py` (PullRequest, BugDetection, AlignmentResult)
-- [~] T007 Define data classes in `src/detection/schema.py` (LLMCodeDetectionResult)
-- [~] T008 Define data classes in `src/inference/schema.py` (InferenceRequest, InferenceResponse)
+- [ ] T007 Define data classes in `src/detection/schema.py` (LLMCodeDetectionResult)
+- [ ] T008 Define data classes in `src/inference/schema.py` (InferenceRequest, InferenceResponse)
 - [ ] T009 Implement `src/utils/timeout_wrapper.py` to enforce global 6h runtime limit (FR-013). **Deliverable**: Must log a warning to `logs/timeout.log` and exit with code 143 if limit exceeded, gracefully skipping remaining PRs.
 - [ ] T010 Setup logging infrastructure in `src/utils/logger.py` with runtime tracking
-- [~] T011 Create `contracts/` YAML schemas for PR data, BugDetection, and AlignmentResult
+- [ ] T011 Create `contracts/` YAML schemas for PR data, BugDetection, and AlignmentResult
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

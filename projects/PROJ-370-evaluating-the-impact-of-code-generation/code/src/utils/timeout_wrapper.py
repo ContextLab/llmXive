@@ -1,242 +1,218 @@
 """
 Timeout wrapper to enforce global 6h runtime limit (FR-013).
 
-This module provides a decorator and a context manager to enforce a global
-runtime limit for the pipeline. If the limit is exceeded, it logs a warning
-to logs/timeout.log and exits with code 143, gracefully skipping remaining PRs.
+This module provides functionality to:
+1. Set a global timeout for the entire pipeline execution
+2. Check if the timeout has been exceeded
+3. Handle timeout events gracefully (log warning, exit with code 143)
+4. Allow skipping remaining PRs when timeout is reached
 """
+
 import os
 import signal
 import sys
 import time
 import logging
 from datetime import datetime
-from functools import wraps
-from typing import Callable, Optional, Any
-from pathlib import Path
+from typing import Optional, Callable, Any
 
-# Constants
-DEFAULT_TIMEOUT_HOURS = 6
-EXIT_CODE_TIMEOUT = 143
-LOG_FILE_NAME = "timeout.log"
+# Global timeout configuration
+GLOBAL_TIMEOUT_SECONDS = 6 * 60 * 60  # 6 hours in seconds
+TIMEOUT_LOG_FILE = "logs/timeout.log"
 
-# Global start time tracking
+# Global state
 _start_time: Optional[float] = None
-_timeout_seconds: int = DEFAULT_TIMEOUT_HOURS * 3600
+_logger: Optional[logging.Logger] = None
+_timeout_handler_installed = False
 
-def setup_timeout_logging(log_dir: Optional[str] = None) -> logging.Logger:
+
+def setup_timeout_logging() -> logging.Logger:
     """
-    Setup the timeout logger.
+    Setup logging for timeout events.
     
-    Args:
-        log_dir: Directory for log files. Defaults to 'logs' relative to project root.
-        
     Returns:
-        Configured logger instance.
+        logging.Logger: Configured logger for timeout events
     """
-    if log_dir is None:
-        # Default to 'logs' relative to project root
-        # Assuming project root is two levels up from this file (code/src/utils/)
-        project_root = Path(__file__).resolve().parent.parent.parent.parent
-        log_dir = project_root / "logs"
-    else:
-        log_dir = Path(log_dir)
+    global _logger
     
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / LOG_FILE_NAME
+    if _logger is not None:
+        return _logger
     
-    logger = logging.getLogger("timeout_monitor")
-    logger.setLevel(logging.WARNING)
+    # Ensure logs directory exists
+    logs_dir = "logs"
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
     
-    # Avoid adding duplicate handlers if called multiple times
-    if not logger.handlers:
-        handler = logging.FileHandler(log_path)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+    # Create logger
+    _logger = logging.getLogger("timeout")
+    _logger.setLevel(logging.WARNING)
     
-    return logger
+    # Remove existing handlers to avoid duplicates
+    _logger.handlers = []
+    
+    # File handler for timeout.log
+    file_handler = logging.FileHandler(TIMEOUT_LOG_FILE)
+    file_handler.setLevel(logging.WARNING)
+    file_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(file_format)
+    _logger.addHandler(file_handler)
+    
+    # Also log to console at WARNING level
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.WARNING)
+    console_handler.setFormatter(file_format)
+    _logger.addHandler(console_handler)
+    
+    return _logger
 
-def set_global_timeout(timeout_hours: float = DEFAULT_TIMEOUT_HOURS) -> None:
+
+def set_global_timeout() -> None:
     """
-    Set the global timeout duration.
+    Set the global timeout start time.
     
-    Args:
-        timeout_hours: Duration in hours before timeout.
+    This should be called once at the beginning of the pipeline execution.
     """
-    global _timeout_seconds, _start_time
-    _timeout_seconds = int(timeout_hours * 3600)
+    global _start_time
     _start_time = time.time()
+    logger = setup_timeout_logging()
+    logger.info(f"Global timeout set to {GLOBAL_TIMEOUT_SECONDS} seconds (6 hours)")
+    logger.info(f"Pipeline started at {datetime.now().isoformat()}")
 
-def check_timeout(logger: Optional[logging.Logger] = None) -> bool:
+
+def check_timeout() -> bool:
     """
     Check if the global timeout has been exceeded.
     
-    Args:
-        logger: Logger instance to use for warnings.
-        
     Returns:
-        True if timeout exceeded, False otherwise.
+        bool: True if timeout has been exceeded, False otherwise
     """
     if _start_time is None:
+        # If timeout wasn't initialized, assume no timeout
         return False
-        
+    
     elapsed = time.time() - _start_time
-    if elapsed > _timeout_seconds:
-        if logger is None:
-            logger = setup_timeout_logging()
-        logger.warning(
-            f"Global timeout exceeded: {elapsed:.2f}s > {_timeout_seconds}s. "
-            f"Exiting with code {EXIT_CODE_TIMEOUT}."
-        )
+    if elapsed > GLOBAL_TIMEOUT_SECONDS:
         return True
     return False
 
-def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    logger = setup_timeout_logging()
-    logger.warning(
-        f"Timeout signal received. Exiting with code {EXIT_CODE_TIMEOUT}."
-    )
-    sys.exit(EXIT_CODE_TIMEOUT)
 
-def enforce_timeout(timeout_hours: float = DEFAULT_TIMEOUT_HOURS):
+def timeout_handler(signum: int, frame: Any) -> None:
     """
-    Decorator to enforce timeout on a function.
-    
-    This sets up a signal handler that will trigger after the specified duration.
-    If the timeout is exceeded, the function will be interrupted and the process
-    will exit with code 143.
+    Signal handler for timeout events.
     
     Args:
-        timeout_hours: Duration in hours before timeout.
-        
-    Returns:
-        Decorator function.
+        signum: Signal number
+        frame: Current stack frame
     """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            # Set global start time if not already set
-            global _start_time
-            if _start_time is None:
-                _start_time = time.time()
-                _timeout_seconds = int(timeout_hours * 3600)
-            
-            # Register signal handler (Unix only)
-            if hasattr(signal, 'SIGALRM'):
-                old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(_timeout_seconds)
-                try:
-                    result = func(*args, **kwargs)
-                finally:
-                    signal.alarm(0)  # Cancel the alarm
-                    signal.signal(signal.SIGALRM, old_handler)  # Restore old handler
-                return result
-            else:
-                # Fallback for non-Unix systems: check timeout periodically
-                logger = setup_timeout_logging()
-                start = time.time()
-                result = func(*args, **kwargs)
-                elapsed = time.time() - start
-                if elapsed > _timeout_seconds:
-                    logger.warning(
-                        f"Global timeout exceeded: {elapsed:.2f}s > {_timeout_seconds}s. "
-                        f"Exiting with code {EXIT_CODE_TIMEOUT}."
-                    )
-                    sys.exit(EXIT_CODE_TIMEOUT)
-                return result
-        return wrapper
-    return decorator
+    logger = setup_timeout_logging()
+    logger.warning(f"TIMEOUT EXCEEDED: Pipeline execution exceeded {GLOBAL_TIMEOUT_SECONDS} seconds")
+    logger.warning(f"Timeout occurred at {datetime.now().isoformat()}")
+    logger.warning("Gracefully skipping remaining PRs and exiting with code 143")
+    
+    # Log runtime stats before exiting
+    if _start_time:
+        elapsed = time.time() - _start_time
+        logger.warning(f"Total runtime: {elapsed:.2f} seconds ({elapsed/3600:.2f} hours)")
+    
+    # Exit with code 143 (128 + 15, where 15 is SIGTERM)
+    sys.exit(143)
+
+
+def enforce_timeout() -> None:
+    """
+    Enforce the global timeout by setting up signal handlers and checking elapsed time.
+    
+    This function:
+    1. Sets up SIGALRM signal handler (Unix only)
+    2. Sets a timer for the global timeout
+    3. Checks if timeout has been exceeded
+    """
+    global _timeout_handler_installed
+    
+    if _timeout_handler_installed:
+        return
+    
+    logger = setup_timeout_logging()
+    
+    # Set up signal handler for Unix systems
+    if hasattr(signal, 'SIGALRM'):
+        signal.signal(signal.SIGALRM, timeout_handler)
+        # Set alarm for GLOBAL_TIMEOUT_SECONDS
+        signal.alarm(GLOBAL_TIMEOUT_SECONDS)
+        _timeout_handler_installed = True
+        logger.info("SIGALRM timeout handler installed")
+    else:
+        # For non-Unix systems (Windows), we'll rely on periodic checks
+        logger.warning("SIGALRM not available (Windows), using periodic timeout checks")
+        _timeout_handler_installed = True
+    
+    # Also check elapsed time immediately
+    if check_timeout():
+        logger.warning("Timeout exceeded at startup!")
+        timeout_handler(0, None)
+
 
 class TimeoutContext:
     """
-    Context manager to enforce timeout within a block.
+    Context manager for timeout-aware operations.
     
     Usage:
-        with TimeoutContext(hours=6):
+        with TimeoutContext():
             # Your code here
-            pass
+            # If timeout is exceeded, this will be skipped
+            process_pr(pr)
     """
-    def __init__(self, hours: float = DEFAULT_TIMEOUT_HOURS):
-        self.timeout_seconds = int(hours * 3600)
-        self.logger = setup_timeout_logging()
-        
-    def __enter__(self):
-        global _start_time
-        if _start_time is None:
-            _start_time = time.time()
-        
-        # Register signal handler (Unix only)
-        if hasattr(signal, 'SIGALRM'):
-            self.old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(self.timeout_seconds)
+    
+    def __enter__(self) -> 'TimeoutContext':
         return self
+    
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool:
+        # Don't suppress exceptions
+        return False
+    
+    def is_timeout_reached(self) -> bool:
+        """
+        Check if timeout has been reached within this context.
         
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if hasattr(signal, 'SIGALRM'):
-            signal.alarm(0)  # Cancel the alarm
-            signal.signal(signal.SIGALRM, self.old_handler)  # Restore old handler
-        
-        # Check timeout even on exit
-        if exc_type is None:
-            elapsed = time.time() - _start_time if _start_time else 0
-            if elapsed > self.timeout_seconds:
-                self.logger.warning(
-                    f"Global timeout exceeded: {elapsed:.2f}s > {self.timeout_seconds}s. "
-                    f"Exiting with code {EXIT_CODE_TIMEOUT}."
-                )
-                sys.exit(EXIT_CODE_TIMEOUT)
+        Returns:
+            bool: True if timeout exceeded, False otherwise
+        """
+        if check_timeout():
+            logger = setup_timeout_logging()
+            logger.warning("Timeout reached during operation")
+            return True
         return False
 
-def main():
+
+def main() -> None:
     """
-    Main function to demonstrate timeout enforcement.
+    Main function to demonstrate timeout wrapper usage.
     
-    This function simulates a long-running process that checks timeout.
+    This sets up the global timeout and provides an example of how to use it.
     """
-    import argparse
+    # Set up global timeout
+    set_global_timeout()
+    enforce_timeout()
     
-    parser = argparse.ArgumentParser(description="Timeout wrapper for pipeline execution")
-    parser.add_argument(
-        "--timeout-hours", 
-        type=float, 
-        default=DEFAULT_TIMEOUT_HOURS,
-        help=f"Timeout duration in hours (default: {DEFAULT_TIMEOUT_HOURS})"
-    )
-    parser.add_argument(
-        "--simulate-long-run",
-        action="store_true",
-        help="Simulate a long-running process for testing"
-    )
-    
-    args = parser.parse_args()
-    
-    # Initialize timeout
-    set_global_timeout(args.timeout_hours)
     logger = setup_timeout_logging()
-    logger.info(f"Timeout set to {args.timeout_hours} hours ({_timeout_seconds} seconds)")
+    logger.info("Timeout wrapper initialized")
     
-    if args.simulate_long_run:
-        logger.info("Simulating long-running process...")
-        try:
-            with TimeoutContext(hours=args.timeout_hours):
-                # Simulate work with periodic timeout checks
-                for i in range(100):
-                    time.sleep(0.1)  # Simulate work
-                    if check_timeout(logger):
-                        logger.warning("Timeout detected during work simulation.")
-                        sys.exit(EXIT_CODE_TIMEOUT)
-                logger.info("Work completed within timeout.")
-        except SystemExit as e:
-            if e.code == EXIT_CODE_TIMEOUT:
-                raise
-            logger.info(f"Process exited normally with code {e.code}")
-    else:
-        logger.info("Timeout wrapper initialized. Use --simulate-long-run to test.")
+    # Example usage
+    example_prs = [f"PR-{i}" for i in range(1, 11)]
+    
+    for pr in example_prs:
+        if check_timeout():
+            logger.warning(f"Timeout exceeded before processing {pr}")
+            logger.warning("Skipping remaining PRs")
+            break
+        
+        logger.info(f"Processing {pr}")
+        # Simulate processing
+        time.sleep(0.1)
+    
+    logger.info("Pipeline completed or timed out")
 
 if __name__ == "__main__":
     main()

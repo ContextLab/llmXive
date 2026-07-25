@@ -1,6 +1,7 @@
 """
-Simulation module for llmXive project.
-Contains physics simulation logic.
+Simulation module for llmXive physics-constrained visual generation pipeline.
+
+This module contains the physics engine and related simulation logic
+used to generate physics constraints from scene descriptions.
 """
-from .physics_engine import run_physics_simulation, main
-__all__ = ['run_physics_simulation', 'main']
+pass

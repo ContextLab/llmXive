@@ -1,101 +1,60 @@
-"""
-Setup script for the Memory Load-Adaptive Text Presentation project.
-
-Creates the required directory structure as defined in the implementation plan:
-- data/raw: For raw downloaded datasets
-- data/derived: For processed and derived data artifacts
-- code: For Python modules and scripts
-- tests: For unit and integration tests
-- results: For analysis outputs and reports
-- data/metadata: For dataset metadata and configuration
-- figures: For generated plots and visualizations
-- specs: For specification documents
-- docs: For project documentation
-"""
-
 import os
 import sys
 from pathlib import Path
 
 def create_directory_structure(root_path: Path) -> None:
     """
-    Create the project directory structure.
+    Creates the required project directory structure for the Memory Load-Adaptive Text Presentation project.
     
-    Args:
-        root_path: The root directory where the structure will be created.
+    Directories created:
+    - data/raw: For raw, unprocessed data downloads (e.g., from OpenNeuro)
+    - data/derived: For processed, cleaned, and feature-engineered data
+    - code: For all Python source modules
+    - tests: For unit and integration tests
+    - results: For final analysis outputs, reports, and figures
     """
     directories = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests/unit",
-        "tests/integration",
-        "results",
-        "data/metadata",
-        "figures",
-        "specs",
-        "docs",
-        "code/utils",
-        "code/report_assets",
+        root_path / "data" / "raw",
+        root_path / "data" / "derived",
+        root_path / "code",
+        root_path / "tests",
+        root_path / "results",
     ]
     
-    created = []
-    for dir_path in directories:
-        full_path = root_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    if not created:
-        print("All directories already exist.")
-    else:
-        print(f"\nSuccessfully created {len(created)} directories.")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
 def create_gitkeep_files(root_path: Path) -> None:
     """
-    Create .gitkeep files in all directories to ensure they are tracked by git.
-    
-    Args:
-        root_path: The root directory of the project.
+    Creates .gitkeep files in all data directories to ensure they are tracked by git
+    even when empty.
     """
-    directories = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests/unit",
-        "tests/integration",
-        "results",
-        "data/metadata",
-        "figures",
-        "specs",
-        "docs",
-        "code/utils",
-        "code/report_assets",
+    data_dirs = [
+        root_path / "data" / "raw",
+        root_path / "data" / "derived",
     ]
     
-    for dir_path in directories:
-        full_path = root_path / dir_path
-        gitkeep_path = full_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            print(f"Created .gitkeep in: {dir_path}")
+    for directory in data_dirs:
+        gitkeep_path = directory / ".gitkeep"
+        gitkeep_path.touch()
+        print(f"Created .gitkeep in: {directory}")
 
-def main():
-    """Main entry point for the setup script."""
-    # Determine the root path (project root where this script is located)
-    script_dir = Path(__file__).parent
-    root_path = script_dir.parent  # Go up one level from code/
+def main() -> None:
+    """
+    Main entry point for project structure setup.
+    Creates all required directories and initializes git tracking for data folders.
+    """
+    # Determine the project root (assumed to be the directory containing this script's parent)
+    # or use current working directory if run directly.
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
     
-    print(f"Setting up project structure in: {root_path}")
-    print("-" * 50)
+    print(f"Setting up project structure at: {project_root}")
     
-    create_directory_structure(root_path)
-    create_gitkeep_files(root_path)
+    create_directory_structure(project_root)
+    create_gitkeep_files(project_root)
     
-    print("-" * 50)
     print("Project structure setup complete.")
 
 if __name__ == "__main__":

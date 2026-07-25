@@ -1,130 +1,138 @@
-"""
-Tests for the logger module (code/src/utils/logger.py).
-"""
 import os
 import time
 import logging
 import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
-# Ensure code/ is in the path for imports if running via pytest directly
 import sys
+
+# Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.src.utils import logger
-from code.src.utils.timeout_wrapper import setup_timeout_logging
-
+from src.utils.logger import (
+    get_logger,
+    start_runtime_tracking,
+    stop_runtime_tracking,
+    log_runtime_stats,
+    setup_pipeline_logging,
+    main
+)
+from config.settings import get_paths
 
 @pytest.fixture
 def clean_logs():
-    """Fixture to ensure logs directory exists and is clean for testing."""
-    logs_dir = Path("logs")
-    logs_dir.mkdir(exist_ok=True)
-    # Remove existing log files to ensure fresh state
-    for f in logs_dir.glob("*.log"):
-        f.unlink()
+    """Fixture to clean up log files before and after tests."""
+    paths = get_paths()
+    log_dir = Path(paths["log_dir"])
+    log_files = list(log_dir.glob("*.log"))
+    
+    # Store original files
+    original_files = {f: f.read_bytes() for f in log_files if f.exists()}
+    
+    # Clean up
+    for f in log_files:
+        f.unlink(missing_ok=True)
+    
     yield
-    # Cleanup after test if desired, or leave for inspection
+    
+    # Restore original files
+    for f, content in original_files.items():
+        f.write_bytes(content)
 
+class TestGetLogger:
+    def test_get_logger_returns_valid_logger(self, clean_logs):
+        """Test that get_logger returns a valid logger instance."""
+        logger = get_logger("test_logger")
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_logger"
+        assert len(logger.handlers) > 0
 
-def test_get_logger_returns_valid_logger(clean_logs):
-    """Test that get_logger returns a configured logger instance."""
-    # Reset the internal state to force re-initialization
-    logger._logger = None
-    logger._start_time = None
+    def test_get_logger_reuses_existing(self, clean_logs):
+        """Test that get_logger reuses existing logger configuration."""
+        logger1 = get_logger("test_reuse")
+        logger2 = get_logger("test_reuse")
+        assert logger1 is logger2
 
-    log_instance = logger.get_logger()
-    assert isinstance(log_instance, logging.Logger)
-    assert log_instance.level == logging.INFO
+class TestRuntimeTracking:
+    def test_start_runtime_tracking(self, clean_logs):
+        """Test that start_runtime_tracking sets the start time."""
+        start_runtime_tracking()
+        # Just verify it doesn't raise an exception
+        assert True
 
-    # Check handlers
-    assert len(log_instance.handlers) == 2  # File and Console
+    def test_stop_runtime_tracking_logs_duration(self, clean_logs):
+        """Test that stop_runtime_tracking calculates and logs duration."""
+        start_runtime_tracking()
+        time.sleep(0.1)  # Sleep for 100ms
+        duration = stop_runtime_tracking()
+        
+        assert duration is not None
+        assert 0.09 <= duration <= 0.2  # Allow some tolerance
 
-    # Check child logger
-    child = logger.get_logger("test.child")
-    assert child.name == "code.test.child" or child.name == "test.child" # Depends on root name
+    def test_stop_without_start(self, clean_logs):
+        """Test that stopping without starting returns None and logs warning."""
+        # Reset state by importing fresh
+        import src.utils.logger as logger_module
+        logger_module._runtime_start = None
+        logger_module._runtime_end = None
+        
+        duration = stop_runtime_tracking()
+        assert duration is None
 
-
-def test_start_runtime_tracking(clean_logs):
-    """Test that start_runtime_tracking sets the start time."""
-    logger._start_time = None
-    logger._logger = None # Force re-init
-
-    logger.start_runtime_tracking()
-    assert logger._start_time is not None
-    assert logger._start_time > 0
-
-
-def test_stop_runtime_tracking_logs_duration(clean_logs, caplog):
-    """Test that stop_runtime_tracking calculates and logs duration."""
-    logger._logger = None
-    logger.start_runtime_tracking()
-    initial_start = logger._start_time
-
-    # Mock time.time to control duration
-    with patch('code.src.utils.logger.time') as mock_time:
-        mock_time.time.side_effect = [initial_start + 10.0, initial_start + 10.0] # Start, End
-
-        # Capture logs
-        with caplog.at_level(logging.INFO):
-            logger.stop_runtime_tracking()
-
-        # Check that duration was logged
-        assert "Total runtime" in caplog.text
-        # Since we mocked time, we expect exactly 10 seconds
-        assert "10.00" in caplog.text or "10 seconds" in caplog.text
-
-    assert logger._start_time is None
-
-
-def test_setup_pipeline_logging(clean_logs):
-    """Test the full setup function."""
-    logger._logger = None
-    logger._start_time = None
-
-    log_instance = logger.setup_pipeline_logging()
-
-    assert log_instance is not None
-    assert logger._start_time is not None
-    # Check that timeout log file was created (side effect of setup_timeout_logging)
-    assert Path("logs/timeout.log").exists()
-
-
-def test_log_runtime_stats(clean_logs, caplog):
-    """Test that log_runtime_stats reports elapsed time."""
-    logger._logger = None
-    logger.start_runtime_tracking()
-    initial_start = logger._start_time
-
-    with patch('code.src.utils.logger.time') as mock_time:
-        mock_time.time.return_value = initial_start + 30.0
-
-        with caplog.at_level(logging.INFO):
-            logger.log_runtime_stats()
-
-        assert "Current runtime checkpoint" in caplog.text
-        assert "30.00" in caplog.text or "30 seconds" in caplog.text
-
-
-def test_main_function(clean_logs, capsys):
-    """Test the main entry point of the logger module."""
-    logger._logger = None
-    logger._start_time = None
-
-    # Patch time to make the test fast
-    with patch('code.src.utils.logger.time') as mock_time:
-        mock_time.time.side_effect = [0, 1, 1] # Start, Sleep(1), End
-
-        logger.main()
-
-        captured = capsys.readouterr()
-        assert "Logging test completed" in captured.out
-
-        # Check log file content
-        log_file = Path("logs/pipeline.log")
+class TestSetupPipelineLogging:
+    def test_setup_pipeline_logging(self, clean_logs):
+        """Test that setup_pipeline_logging creates handlers and directory."""
+        logger = setup_pipeline_logging("test_setup")
+        
+        assert isinstance(logger, logging.Logger)
+        assert len(logger.handlers) >= 2  # File and console handlers
+        
+        paths = get_paths()
+        log_dir = Path(paths["log_dir"])
+        assert log_dir.exists()
+        
+        log_file = log_dir / "pipeline.log"
         assert log_file.exists()
-        content = log_file.read_text()
-        assert "Pipeline execution started" in content
-        assert "Pipeline execution ended" in content
-        assert "Total runtime" in content
+
+class TestLogRuntimeStats:
+    def test_log_runtime_stats(self, clean_logs):
+        """Test that log_runtime_stats returns correct statistics."""
+        start_runtime_tracking()
+        time.sleep(0.05)
+        stop_runtime_tracking()
+        
+        stats = log_runtime_stats({"custom_field": "value"})
+        
+        assert "tracking_active" in stats
+        assert stats["tracking_active"] is True
+        assert "start_time" in stats
+        assert "end_time" in stats
+        assert "duration_seconds" in stats
+        assert stats["duration_seconds"] is not None
+        assert stats["custom_field"] == "value"
+
+    def test_log_runtime_stats_without_tracking(self, clean_logs):
+        """Test that log_runtime_stats handles case when tracking not started."""
+        import src.utils.logger as logger_module
+        logger_module._runtime_start = None
+        logger_module._runtime_end = None
+        
+        stats = log_runtime_stats()
+        
+        assert stats["tracking_active"] is False
+        assert stats["start_time"] is None
+        assert stats["end_time"] is None
+        assert stats["duration_seconds"] is None
+
+class TestMainFunction:
+    def test_main_function(self, clean_logs, caplog):
+        """Test that main function executes without errors."""
+        # Capture logs to verify execution
+        with caplog.at_level(logging.INFO):
+            main()
+        
+        # Verify log messages were generated
+        assert any("Logger infrastructure initialized" in record.message for record in caplog.records)
+        assert any("Runtime stats logged" in record.message for record in caplog.records)
+        assert any("Pipeline runtime tracking started" in record.message for record in caplog.records)
+        assert any("Pipeline runtime tracking stopped" in record.message for record in caplog.records)

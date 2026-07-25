@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains no evidence of the required folder hierarchy (`data/raw`,
+    `data/derived`, `code`, `tests`, `results`) being created; no directory listings,
+    file paths, or screenshots are provided. Consequently, we cannot verify that the
+    project structure exists as specified. The implementer must create and show the
+    actual directory layout.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.ruff.toml`, or pre\u2011commit hooks) are present, nor any evidence\
+    \ that ruff and black have been set up and run. The provided artifacts relate\
+    \ only to the memory\u2011load\u2011adaptive text feature and do not address the\
+    \ linting/formatting task. The required configuration is missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `preprocessing.py` file or any code implementing the required functions (`remove_blinks`,
+    `low_pass_filter`, `baseline_correct`, `normalize_luminance`) was provided. The
+    claim lacks the actual artifact, so the task is not satisfied.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `cli_engine.py` file or implementations of `compute_moving_average_zscore`
+    and `identify_high_load_windows` were presented. The evidence consists only of
+    the task description and specifications, without any code, tests, or output confirming
+    that the required functions exist and work as described. The missing artifact
+    must be supplied and verified.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `cli_engine.py` is provided, nor any code, tests,\
+    \ or documentation showing that windows exceeding 3\u202FSD from the mean are\
+    \ flagged for exclusion. The required artifact is missing, so the task is not\
+    \ satisfied."
+T021a:
+  c: false
+  h: 0c96e44ea6087bd5858cf9a14e1cfab1c663d098bec0a1b575a1accb43d71535
+  r: "The repository contains a partially\u2011implemented `code/simulation.py` with\
+    \ a stubbed `extract_passage_data` function that is truncated and does not actually\
+    \ read or write any data. Moreover, the required output file `data/derived/passage_data.parquet`\
+    \ is missing entirely. The task\u2019s core deliverable\u2014producing a real\
+    \ Parquet file of passage text\u2014is therefore not satisfied."

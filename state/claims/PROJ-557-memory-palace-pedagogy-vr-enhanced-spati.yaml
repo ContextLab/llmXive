@@ -1,24 +1,5 @@
 - artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
   attempts: 1
-  canonical: Pupil Labs Reading dataset ds004041 lacks simplified text
-  claim_id: c_e525e502
-  context: Create data model schema... explicitly define simplified_text attribute
-    as nullable to reflect dataset limitations... Create data/metadata.yaml entry
-    to flag that the source dataset lacks simplified text for all passages
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pupil_Labs_Reading_dataset_ds004041_lacks_simplified_text
-  kind: entity_fact
-  raw_text: The source dataset lacks simplified text for all passages.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T15:07:41Z'
-- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
-  attempts: 1
   canonical: Dataset ds004041 Pupil Labs Reading used
   claim_id: c_a790258c
   context: Implement data download script in code/download.py using openneuro-py to
@@ -146,3 +127,58 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T15:10:55Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Source dataset lacks simplified text
+  claim_id: c_fe3ec27d
+  context: 'Simplified Text: The dataset lacks simplified text. T021b generates the
+    necessary counterfactuals to create a distinct ''Adaptive'' condition.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_dataset_lacks_simplified_text
+  kind: entity_fact
+  raw_text: The dataset lacks simplified text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:36:43Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Analysis uses the real Pupil Labs Reading dataset
+  claim_id: c_2227ca6d
+  context: 'Data Integrity: No fabrication of data. All analysis must use the real
+    Pupil Labs Reading dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_the_real_Pupil_Labs_Reading_dataset
+  kind: entity_fact
+  raw_text: All analysis must use the real Pupil Labs Reading dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:36:51Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 2
+  canonical: Pupil Labs Reading dataset ds004041 lacks simplified text
+  claim_id: c_e525e502
+  context: Create data model schema... explicitly define simplified_text attribute
+    as nullable to reflect dataset limitations... Create data/metadata.yaml entry
+    to flag that the source dataset lacks simplified text for all passages
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pupil_Labs_Reading_dataset_ds004041_lacks_simplified_text
+  kind: entity_fact
+  raw_text: The source dataset lacks simplified text for all passages.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:46:10Z'

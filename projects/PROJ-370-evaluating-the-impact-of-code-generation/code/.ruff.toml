@@ -1,25 +1,31 @@
-# Explicit configuration for Ruff to ensure consistent behavior
-# This file is referenced by pyproject.toml but provided separately for IDE support
-line-length = 88
+# Standalone Ruff config for CLI usage if pyproject.toml is not found in cwd
+# This mirrors the settings in pyproject.toml for consistency.
+
+line-length = 100
 target-version = "py39"
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
+
+[lint]
+select = ["E", "F", "I", "W", "N", "B", "C90", "UP", "ANN", "S", "BLE", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "RUF"]
 ignore = [
-    "E501",
-    "B008",
+    "ANN101",
+    "ANN102",
+    "S101",
+    "S113",
+    "RUF012",
 ]
-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
+
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+"tests/*" = ["ANN", "S", "ARG"]
+"code/setup_*.py" = ["T20"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = false
+combine-as-imports = true

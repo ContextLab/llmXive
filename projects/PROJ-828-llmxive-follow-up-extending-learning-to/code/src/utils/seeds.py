@@ -1,124 +1,127 @@
 """
-Deterministic seed pinning utilities for reproducible experiments.
+Seed pinning utilities for deterministic reproducibility across all training variants.
 
-This module ensures that all random number generators (Python, NumPy, PyTorch)
-are seeded consistently across different training variants to guarantee
-reproducible results.
+This module provides functions to set and manage random seeds for Python, NumPy,
+and PyTorch to ensure reproducible results across experiments.
 """
 
 import os
 import random
 import hashlib
-from typing import Optional, Dict, Any
-
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
+import numpy as np
+import torch
+from typing import Optional, Dict, Any, Union
 
 
-def set_seed(seed: int, deterministic: bool = True) -> Dict[str, Any]:
+def set_seed(seed: int, deterministic: bool = True) -> None:
     """
-    Set seeds for all random number generators to ensure reproducibility.
-
+    Set random seeds for Python, NumPy, and PyTorch to ensure reproducibility.
+    
     Args:
-        seed (int): The random seed to use.
-        deterministic (bool): If True, enforce deterministic behavior in CuDNN
-                              (only relevant if GPU is available, but we set it anyway).
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the seed value and status of each library.
+        seed: The random seed value to use.
+        deterministic: If True, enable deterministic algorithms in PyTorch.
     """
-    results = {
-        "seed": seed,
-        "python": False,
-        "numpy": False,
-        "torch": False,
-        "deterministic_mode": False
-    }
-
     # Set Python random seed
     random.seed(seed)
-    results["python"] = True
-
-    # Set NumPy seed
-    if HAS_NUMPY:
-        np.random.seed(seed)
-        results["numpy"] = True
-
-    # Set PyTorch seeds
-    if HAS_TORCH:
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            # Ensure CuDNN is deterministic
-            if deterministic:
-                torch.backends.cudnn.deterministic = True
-                torch.backends.cudnn.benchmark = False
-            results["deterministic_mode"] = deterministic
-        results["torch"] = True
-
-    # Set environment variable for reproducibility
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-    return results
+    
+    # Set NumPy random seed
+    np.random.seed(seed)
+    
+    # Set PyTorch random seeds
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    
+    # Set environment variables for determinism
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    if deterministic:
+        # Enable deterministic behavior in PyTorch
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        
+        # Set environment variable for CuDNN
+        os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
+        os.environ['CUDNN_DETERMINISTIC'] = '1'
 
 
 def generate_seed_from_string(seed_string: str, offset: int = 0) -> int:
     """
     Generate a deterministic integer seed from a string input.
-
-    This is useful for generating unique but reproducible seeds for
-    different experiment variants based on their configuration names.
-
+    
     Args:
-        seed_string (str): The string to hash.
-        offset (int): An integer offset to add to the generated seed.
-
+        seed_string: The string to generate a seed from.
+        offset: An optional offset to add to the generated seed.
+        
     Returns:
-        int: A deterministic integer seed.
+        An integer seed value in the range [0, 2^31 - 1].
     """
-    hash_obj = hashlib.sha256(seed_string.encode('utf-8'))
-    hash_int = int(hash_obj.hexdigest(), 16)
-    return (hash_int + offset) % (2**32 - 1)
+    # Hash the string using SHA-256
+    hash_object = hashlib.sha256(seed_string.encode('utf-8'))
+    hash_bytes = hash_object.digest()
+    
+    # Convert first 4 bytes to an integer
+    seed_value = int.from_bytes(hash_bytes[:4], byteorder='big')
+    
+    # Apply offset and ensure it's in valid range for 32-bit integers
+    seed_value = (seed_value + offset) % (2**31 - 1)
+    
+    return seed_value
 
 
-def get_seed_config(seed: int) -> Dict[str, Any]:
+def get_seed_config(base_seed: int, variant_name: str, run_index: int = 0) -> Dict[str, Any]:
     """
-    Create a comprehensive seed configuration dictionary.
-
+    Generate a seed configuration dictionary for a specific variant and run.
+    
     Args:
-        seed (int): The base seed.
-
+        base_seed: The base seed value for the experiment.
+        variant_name: The name of the variant (e.g., 'opd', 'low_rank_rl').
+        run_index: The index of the run within the variant (for multiple seeds).
+        
     Returns:
-        Dict[str, Any]: Configuration dictionary with seed and related settings.
+        A dictionary containing the seed configuration.
     """
-    return {
-        "base_seed": seed,
-        "deterministic": True,
-        "torch_deterministic": True,
-        "torch_cudnn_benchmark": False
+    # Generate a unique seed for this variant and run
+    seed_string = f"{base_seed}_{variant_name}_{run_index}"
+    variant_seed = generate_seed_from_string(seed_string)
+    
+    config = {
+        'base_seed': base_seed,
+        'variant_name': variant_name,
+        'run_index': run_index,
+        'variant_seed': variant_seed,
+        'deterministic': True,
     }
+    
+    return config
 
 
-def apply_seed_config(config: Dict[str, Any]) -> Dict[str, Any]:
+def apply_seed_config(config: Dict[str, Any]) -> None:
     """
-    Apply a seed configuration dictionary to the environment.
-
+    Apply a seed configuration dictionary to set all random seeds.
+    
     Args:
-        config (Dict[str, Any]): Configuration dictionary from get_seed_config.
-
-    Returns:
-        Dict[str, Any]: Results from set_seed with the applied seed.
+        config: A dictionary containing seed configuration (must have 'variant_seed').
     """
-    seed = config.get("base_seed", 42)
-    deterministic = config.get("deterministic", True)
-    return set_seed(seed, deterministic)
+    if 'variant_seed' not in config:
+        raise ValueError("Config must contain 'variant_seed' key")
+    
+    seed = config['variant_seed']
+    deterministic = config.get('deterministic', True)
+    
+    set_seed(seed, deterministic)
+
+def get_seed_environment() -> Optional[int]:
+    """
+    Check if a seed is provided via environment variable.
+    
+    Returns:
+        The seed value if set, None otherwise.
+    """
+    seed_str = os.environ.get('LLMXIVE_SEED')
+    if seed_str is not None:
+        try:
+            return int(seed_str)
+        except ValueError:
+            return None
+    return None

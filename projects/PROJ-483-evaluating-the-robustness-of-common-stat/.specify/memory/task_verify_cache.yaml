@@ -30,6 +30,20 @@ T014:
     \ the file ends with a broken placeholder function. Moreover, the required output\
     \ file `results/aggregated.csv` is absent, so the task\u2019s consumption and\
     \ modification of that file cannot have been performed."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the original task description and no concrete artifacts\
+    \ such as simulation code, result tables, confidence intervals, or visualizations\
+    \ required by the user stories. Consequently, the required Monte\u202FCarlo outputs,\
+    \ comparative plots, and power\u2011analysis results are missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or result file was supplied that implements the threshold\u2011\
+    detection logic or reports the specific correlation\u202F$r$ at which the simulated\
+    \ Type\u202FI error rate first exceeds\u202F\u03B1\u202F=\u202F0.10. The required\
+    \ artifact is missing, so the task is not satisfied."
 T035:
   c: false
   h: 22447444bc8259e07890ec0b91b5fcfef2425a77f5c46fea8d9dd37fa7ffccba
@@ -39,12 +53,20 @@ T035:
     \ datasets fail. Moreover, the required `results/validation_report.json` file\
     \ does not exist. The task\u2019s core requirements (logging violations to the\
     \ JSON report and raising the critical error) are therefore not satisfied."
+T040:
+  c: false
+  h: 95a209fdcf01fa1f8f320545620b0e26944ebb2a1533a5895a365d181b2308ca
+  r: "The required `results/edge_case_report.json` file does not exist, and the `code/simulation_runner.py`\
+    \ file lacks a complete implementation of the edge\u2011case handling logic (the\
+    \ snippet ends abruptly and does not define the behavior for \u201Cnull hypothesis\
+    \ cannot be cleanly constructed\u201D or \u201Cinjected dependency violates normality\
+    \ assumptions\u201D). Both artifacts needed to satisfy the task are missing or\
+    \ incomplete."
 T041:
   c: false
-  h: 056181ff1836a015849b41d8201f0212b9e247f50da49dd49f934d9408de3446
-  r: "The repository contains a `code/dependency_injector.py` file, but it only implements\
-    \ AR(1) injection, validation of that injection, and partial block\u2011bootstrap\
-    \ logic; it does not include validation for the \u201Cfeature\u2011space clustering\
-    \ proxy\u201D nor does it write any report to `data/manifests/spatial_proxy_validation.json`.\
-    \ Moreover, the required JSON manifest file is absent. The task\u2019s core requirement\u2014\
-    producing a validation report for the proxy\u2014is therefore unmet."
+  h: 9c53297bcf14550c3aba58a9ab69f565f6d15b82a488b5914729cc9c4d51cf54
+  r: "The `code/dependency_injector.py` file is truncated and contains a syntax error\
+    \ (`if seed` line), and it only implements AR(1) injection/validation\u2014not\
+    \ the required feature\u2011space clustering proxy validation nor the generation\
+    \ of a JSON report. Moreover, the required output file `data/manifests/spatial_proxy_validation.json`\
+    \ does not exist. The task\u2019s core requirements are therefore unmet."

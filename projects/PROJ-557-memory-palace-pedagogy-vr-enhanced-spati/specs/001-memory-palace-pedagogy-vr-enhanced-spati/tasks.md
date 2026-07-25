@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`data/raw`, `data/derived`, `code`, `tests`, `results`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `pandas`, `numpy`, `scipy`, `statsmodels`, `pyarrow`, `openneuro-py`, `pytest`, `transformers`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `pandas`, `numpy`, `scipy`, `statsmodels`, `pyarrow`, `openneuro-py`, `pytest`, `transformers`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -38,8 +38,8 @@
 
 **Execution Order Note**: T004 (Download) MUST precede T005 (Schema) to ensure the schema validates against the actual fetched data. T005b/c depend on T004 to confirm dataset characteristics.
 
-- [ ] T004 [US1] Implement data download script in `code/download.py` using `openneuro-py` to fetch **ds004041** (Pupil Labs Reading) to `data/raw/`, explicitly verifying the dataset version hash against `data/metadata.yaml` (Constitution Principle I)
-- [ ] T005 [US1] Create data model schema in `code/data_model.py` defining `Participant`, `Passage`, `Window`, and `AdaptationLabel` entities; **explicitly define `simplified_text` attribute as nullable** to reflect dataset limitations
+- [X] T004 [US1] Implement data download script in `code/download.py` using `openneuro-py` to fetch **ds004041** (Pupil Labs Reading) to `data/raw/`, explicitly verifying the dataset version hash against `data/metadata.yaml` (Constitution Principle I)
+- [X] T005 [US1] Create data model schema in `code/data_model.py` defining `Participant`, `Passage`, `Window`, and `AdaptationLabel` entities; **explicitly define `simplified_text` attribute as nullable** to reflect dataset limitations
 - [X] T005b [US1] Define luminance normalization algorithm in `code/preprocessing.py` (not data_model.py) as a function or constant, and document the ingestion method for screen luminance logs from `ds004041`
 - [X] T005c [US1] Create `data/metadata.yaml` entry to flag that the source dataset **lacks simplified text** for all passages, ensuring this is traceable for downstream graceful degradation logic (or counterfactual generation)
 - [X] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with structured JSON output for pipeline steps
@@ -84,14 +84,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Unit test for text selection logic (high-CLI -> simplified if exists, else original) in `tests/unit/test_simulation.py`
-- [ ] T017 [P] [US2] Unit test for graceful degradation (missing paraphrase -> original) in `tests/unit/test_simulation.py`
-- [ ] T018 [P] [US2] Integration test for US-2 simulation on full dataset in `tests/integration/test_us2_simulation.py`
+- [X] T016 [P] [US2] Unit test for text selection logic (high-CLI -> simplified if exists, else original) in `tests/unit/test_simulation.py`
+- [X] T017 [P] [US2] Unit test for graceful degradation (missing paraphrase -> original) in `tests/unit/test_simulation.py`
+- [X] T018 [P] [US2] Integration test for US-2 simulation on full dataset in `tests/integration/test_us2_simulation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T021a [US2] **Extract Passage Text Data**: Implement `code/simulation.py` function to ingest raw passage text (original) from `ds004041` and prepare it for joining with CLI data. Output `data/derived/passage_data.parquet`.
-- [ ] T021b [US2] **Generate Counterfactual Text**: Implement `code/simulation.py` function to generate a "simplified" version of the original text for each passage using a CPU-tractable method (e.g., T5-small in 16-bit or rule-based simplification) to create the necessary "Adaptive" condition data. Output `data/derived/counterfactual_text.parquet`.
+- [~] T021b [US2] **Generate Counterfactual Text**: Implement `code/simulation.py` function to generate a "simplified" version of the original text for each passage using a CPU-tractable method (e.g., T5-small in 16-bit or rule-based simplification) to create the necessary "Adaptive" condition data. Output `data/derived/counterfactual_text.parquet`.
 - [ ] T019 [US2] Implement `simulation.py` function: `select_text_version` (logic: if CLI > 0.5 SD -> use generated `counterfactual_text` from T021b, **else** -> use `original_text` from T021a; explicitly handle cases where generation fails by defaulting to original)
 - [ ] T020 [US2] Implement `simulation.py` function: `generate_adaptation_labels` to create binary `AdaptationLabel` per window (flagging "adaptive" vs "control" conditions)
 - [ ] T021 [US2] Create `code/us2_main.py` to join CLI data (from T015) with passage data (T021a) and counterfactual text (T021b), outputting `data/derived/adaptation_labels.parquet`

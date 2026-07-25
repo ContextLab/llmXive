@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim only provides a feature specification and no visible evidence that
+    the required directories (`src/`, `data/raw/`, `data/derived/`, `data/annotations/`,
+    `results/`, `tests/`, `specs/`) actually exist in the repository. Without directory
+    listings or files confirming their creation, the task is not satisfied. The implementer
+    must create the specified folders and provide proof (e.g., a directory tree listing).
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or similar) were presented, nor any evidence (scripts,
+    documentation, CI integration) showing that ruff and black have been configured
+    for the project. Consequently the required artifact is missing.
+T006:
+  c: false
+  h: 03d06d2f39e3234aaa4e6a6621519cf47e770d90cb272b7f04b0209c5d1169df
+  r: The required file `src/extraction/schema.py` does not exist, so the data classes
+    PullRequest, BugDetection, and AlignmentResult are not defined. The implementer
+    must create this file and implement the specified data classes.
+T007:
+  c: false
+  h: 7c5b4ad7af8936ae0b17dbe4cf0f5400796700ae1145e264c107637fe3163720
+  r: The required file `src/detection/schema.py` does not exist, so no data class
+    (LLMCodeDetectionResult) is defined. The implementer must add the missing file
+    with the appropriate data class implementation.
+T008:
+  c: false
+  h: f2edb5c1adff61902411b7e854c18368d920554505851eeabb62e595612308ac
+  r: The required file `src/inference/schema.py` does not exist, so the data classes
+    `InferenceRequest` and `InferenceResponse` are not defined. The implementer must
+    add this file with the appropriate data class definitions.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim mentions creating `contracts/` YAML schemas, but no YAML files (e.g.,
+    `contracts/pr_data.yaml`, `contracts/bug_detection.yaml`, `contracts/alignment_result.yaml`)
+    are present or referenced in the provided evidence. Without the actual schema
+    files, we cannot verify that the required artifacts exist or contain the correct
+    structure. The implementer must add the YAML schema files in the `contracts/`
+    directory.

@@ -1,171 +1,123 @@
 """
-update_state.py
+Module to update the project state by calculating SHA-256 hashes of artifacts.
 
-Calculates SHA-256 hashes of artifacts in the project's data directories
-and updates the corresponding state YAML files under state/projects/.
-
-Usage:
-    python code/utils/update_state.py
+This script scans specified directories, calculates hashes for all files,
+and updates the state YAML files in `state/projects`.
 """
+
 import os
 import sys
 import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+import yaml # Assuming yaml is available via requirements.txt
 
-import yaml
-
-# Project root is assumed to be the parent of 'code'
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-STATE_DIR = PROJECT_ROOT / "state"
-PROJECT_STATE_DIR = STATE_DIR / "projects"
-
-# Directories to scan for artifacts (relative to DATA_DIR)
-ARTIFACT_DIRS = [
-    "raw",
-    "derived/physics_constraints",
-    "derived/prompts",
-    "derived/generated_images",
-    "derived/evaluation_results",
-    "processed",
-]
-
-# Mapping of directory names to state file names (without extension)
-STATE_FILE_MAP = {
-    "raw": "raw_state",
-    "derived/physics_constraints": "physics_constraints_state",
-    "derived/prompts": "prompts_state",
-    "derived/generated_images": "generated_images_state",
-    "derived/evaluation_results": "evaluation_results_state",
-    "processed": "processed_state",
-}
 
 def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA-256 hash of a file."""
+    """
+    Calculate the SHA-256 hash of a file.
+    
+    Args:
+        file_path: Path to the file.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}", file=sys.stderr)
-        return ""
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def scan_directory(dir_path: Path) -> Dict[str, Any]:
+
+def scan_directory(directory: Path) -> List[Dict[str, Any]]:
     """
-    Scan a directory recursively for files and compute their hashes.
-    Returns a dict with 'files' (list of {path, hash, size}) and 'total_files'.
+    Recursively scan a directory and collect file metadata and hashes.
+    
+    Args:
+        directory: Path to the directory to scan.
+        
+    Returns:
+        List of dictionaries containing relative path, absolute path, and hash.
     """
-    if not dir_path.exists():
-        return {"files": [], "total_files": 0, "status": "missing"}
-
-    files_info = []
-    total_files = 0
-
-    for root, _, files in os.walk(dir_path):
-        for file_name in files:
-            file_path = Path(root) / file_name
-            # Skip hidden files or non-data files if necessary
-            if file_name.startswith('.'):
+    if not directory.exists():
+        return []
+    
+    artifacts = []
+    for path in directory.rglob("*"):
+        if path.is_file():
+            # Skip hidden files or specific patterns if needed
+            if path.name.startswith(".") or path.suffix in [".pyc", ".pyo"]:
                 continue
-
-            file_size = file_path.stat().st_size
-            file_hash = calculate_sha256(file_path)
-
-            # Store relative path from data directory
-            rel_path = file_path.relative_to(DATA_DIR)
-
-            files_info.append({
+            
+            rel_path = path.relative_to(directory)
+            file_hash = calculate_sha256(path)
+            artifacts.append({
                 "path": str(rel_path),
+                "absolute_path": str(path),
                 "hash": file_hash,
-                "size": file_size
+                "size": path.stat().st_size
             })
-            total_files += 1
+    
+    return artifacts
 
-    return {
-        "files": files_info,
-        "total_files": total_files,
-        "status": "ok" if total_files > 0 else "empty",
-        "directory": str(dir_path.relative_to(PROJECT_ROOT))
+
+def update_state_file(project_id: str, artifacts: List[Dict[str, Any]], output_dir: Path) -> None:
+    """
+    Update or create the state file for a project with the calculated artifacts.
+    
+    Args:
+        project_id: The ID of the project (e.g., 'PROJ-820').
+        artifacts: List of artifact metadata.
+        output_dir: Directory where the state file should be saved.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    state_file = output_dir / f"{project_id}_state.json"
+    
+    state_data = {
+        "project_id": project_id,
+        "last_updated": str(Path().resolve()), # Or use datetime if needed
+        "artifacts": artifacts
     }
+    
+    with open(state_file, "w", encoding="utf-8") as f:
+        json.dump(state_data, f, indent=2)
+    
+    print(f"State file updated: {state_file}")
 
-def update_state_file(state_key: str, scan_result: Dict[str, Any]) -> None:
+
+def main():
     """
-    Update or create the state YAML file for a given directory.
-    State files are stored in state/projects/
+    Main entry point for updating the project state.
+    
+    Scans the 'data' and 'code' directories and updates the state file.
     """
-    state_file_name = f"{state_key}.yaml"
-    state_file_path = PROJECT_STATE_DIR / state_file_name
+    project_root = Path(__file__).parent.parent.parent
+    state_dir = project_root / "state" / "projects"
+    
+    # Define directories to scan
+    dirs_to_scan = [
+        project_root / "data",
+        project_root / "code",
+        project_root / "tests",
+        project_root / "specs"
+    ]
+    
+    all_artifacts = []
+    for d in dirs_to_scan:
+        if d.exists():
+            print(f"Scanning {d}...")
+            artifacts = scan_directory(d)
+            all_artifacts.extend(artifacts)
+        else:
+            print(f"Directory not found: {d}, skipping.")
+    
+    # Project ID from task description
+    project_id = "PROJ-820"
+    
+    update_state_file(project_id, all_artifacts, state_dir)
 
-    # Ensure state directory exists
-    PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Load existing state if it exists
-    existing_state = {}
-    if state_file_path.exists():
-        try:
-            with open(state_file_path, "r", encoding="utf-8") as f:
-                existing_state = yaml.safe_load(f) or {}
-        except yaml.YAMLError as e:
-            print(f"Warning: Could not parse existing state file {state_file_path}: {e}", file=sys.stderr)
-
-    # Update with new scan result
-    existing_state["last_updated"] = scan_result.get("directory", "unknown") # Placeholder for timestamp logic if needed
-    existing_state["scan_result"] = scan_result
-    existing_state["status"] = "updated"
-
-    # Write back to file
-    try:
-        with open(state_file_path, "w", encoding="utf-8") as f:
-            yaml.dump(existing_state, f, default_flow_style=False, sort_keys=False)
-        print(f"Updated state file: {state_file_path}")
-    except Exception as e:
-        print(f"Error writing state file {state_file_path}: {e}", file=sys.stderr)
-
-def main() -> int:
-    """Main entry point."""
-    print(f"Project Root: {PROJECT_ROOT}")
-    print(f"Data Directory: {DATA_DIR}")
-    print(f"State Directory: {PROJECT_STATE_DIR}")
-
-    if not DATA_DIR.exists():
-        print(f"Error: Data directory {DATA_DIR} does not exist.", file=sys.stderr)
-        return 1
-
-    if not PROJECT_STATE_DIR.exists():
-        PROJECT_STATE_DIR.mkdir(parents=True, exist_ok=True)
-        print(f"Created state directory: {PROJECT_STATE_DIR}")
-
-    success = True
-
-    for dir_name in ARTIFACT_DIRS:
-        dir_path = DATA_DIR / dir_name
-        state_key = STATE_FILE_MAP.get(dir_name, f"{dir_name}_state")
-
-        print(f"\nScanning: {dir_path}")
-        scan_result = scan_directory(dir_path)
-
-        if scan_result["status"] == "missing":
-            print(f"  -> Directory does not exist. Creating empty state.")
-            # Create empty state for missing dirs
-            scan_result = {
-                "files": [],
-                "total_files": 0,
-                "status": "missing",
-                "directory": str(dir_path.relative_to(PROJECT_ROOT))
-            }
-
-        update_state_file(state_key, scan_result)
-
-        if scan_result["status"] == "missing" and dir_path.exists() is False:
-            # This is expected for initial runs, but we log it
-            pass
-
-    print("\nState update complete.")
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

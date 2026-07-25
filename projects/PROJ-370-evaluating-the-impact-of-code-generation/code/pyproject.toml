@@ -1,69 +1,82 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-eval-impact"
+name = "llmxive-eval-llm-review-quality"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
 requires-python = ">=3.9"
-dependencies = [
-    "datasets",
-    "transformers",
-    "scikit-learn",
-    "scipy",
-    "pandas",
-    "pyyaml",
-    "pytest",
-    "numpy",
-    "ruff",
-    "black",
-]
+dependencies = []
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | venv
 )/
 '''
 
 [tool.ruff]
-line-length = 88
+# Same as Black
+line-length = 100
 target-version = "py39"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+
+# Exclude a few directories
 exclude = [
     ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
     ".venv",
-    "venv",
-    "__pycache__",
+    "_build",
+    "buck-out",
     "build",
     "dist",
+    "venv",
+    "data",
+    "results",
+    "logs"
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "W", "N", "B", "C90", "UP", "ANN", "S", "BLE", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "RUF"]
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "S101",   # Use of `assert` detected (often useful in tests)
+    "S113",   # Probable use of requests call without timeout (handled by our timeout wrapper)
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar` (dataclasses handle this)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN", "S", "ARG"] # Tests often don't need type annotations or strict security checks
+"code/setup_*.py" = ["T20"] # Setup scripts often print to stdout intentionally
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a threshold of 10 instead of 15
+max-complexity = 10
+
+[tool.ruff.lint.isort]
 known-first-party = ["code"]
 force-sort-within-sections = false
-lines-after-imports = 2
+combine-as-imports = true

@@ -736,3 +736,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T03:01:38Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: GSM8K subset of at least 1000 problems from HuggingFace datasets
+  claim_id: c_7ac1a726
+  context: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GSM8K_subset_of_at_least_1000_problems_from_HuggingFace_data
+  kind: magnitude
+  raw_text: "fetch GSM8K subset (\u22651,000 problems) from HuggingFace datasets"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:33:49Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: pruned TinyLlama model has hidden size 512 and approximately 300 million
+    parameters
+  claim_id: c_a89704a2
+  context: 'Implement src/models/config.py to programmatically prune TinyLlama to
+    a reduced parameter scale. Logic: Detect source model layer count. If a reduced
+    number of layers, remove the final subset (indices 6-10). If 24 layers, remove
+    last 18. Verify hidden_size=512 and final param count ~300M.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify hidden_size=512 and final param count ~300M
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:37:57Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: select k for cumulative explained variance of at least 80 percent with
+    default k of 10
+  claim_id: c_81cf948f
+  context: "Implement logic to select k such that cumulative explained variance \u2265\
+    \ 80% (default k=10 if none)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_k_for_cumulative_explained_variance_of_at_least_80_pe
+  kind: magnitude
+  raw_text: "select k such that cumulative explained variance \u2265 80% (default\
+    \ k=10 if none)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:06Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: SVD memory usage must be less than 7 GB
+  claim_id: c_1c2316f6
+  context: Log memory usage during SVD to ensure < 7GB limit
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SVD_memory_usage_must_be_less_than_7_GB
+  kind: magnitude
+  raw_text: log memory usage during SVD to ensure < 7GB limit
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:12Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: update direction cosine similarity with subspace basis must be at least
+    0.99
+  claim_id: c_2ee575ab
+  context: "Independent Test: Run PPO training with projection active, verify update\
+    \ direction cosine similarity with subspace basis \u2265 0.99."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Update_direction_cosine_similarity_with_subspace_basis_must
+  kind: magnitude
+  raw_text: "verify update direction cosine similarity with subspace basis \u2265\
+    \ 0.99"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:18Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: cosine similarity between applied update and subspace basis must be at
+    least 0.99
+  claim_id: c_5bf47204
+  context: "Log cosine similarity between applied update and subspace basis (must\
+    \ be \u2265 0.99)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_between_applied_update_and_subspace_basis
+  kind: magnitude
+  raw_text: "Log cosine similarity between applied update and subspace basis (must\
+    \ be \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:24Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test with minimum sample size of 3
+  claim_id: c_1301d2d3
+  context: Implement Wilcoxon signed-rank test logic in src/analysis/metrics.py (N=3
+    minimum) with dynamic power calculation and conditional re-run flagging.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wilcoxon signed-rank test logic (N=3 minimum)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:30Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: initial training runs for 4 variants with 3 seeds
+  claim_id: c_291cc6e2
+  context: Orchestrate initial training runs for 4 variants (OPD, Low-Rank RL, Standard
+    RL, Random Projection) with N=3 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate initial training runs for 4 variants with N=3 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:36Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: conditional re-run for 4 variants with 10 seeds
+  claim_id: c_ea17b6df
+  context: Orchestrate conditional re-run for 4 variants with N=10 seeds if T048c
+    triggers (Managed by T042-b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: re-run for 4 variants with N=10 seeds if T048c triggers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:38Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: trigger re-runs if effect size is less than 0.5 up to 10 seeds
+  claim_id: c_d75d5f6f
+  context: Implement adaptive sample size logic in src/analysis/power_analysis.py
+    to trigger re-runs if effect size < 0.5 (up to N=10) OR flag for human review
+    if time limit is exceeded.
+  evidence:
+    candidates:
+    - - ''
+      - 10.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-runs_if_effect_size_is_less_than_0.5_up_to_10_see
+  kind: magnitude
+  raw_text: trigger re-runs if effect size < 0.5 (up to N=10)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-25T21:38:45Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: training must run on 2 vCPU and 7 GB RAM within 6 hours
+  claim_id: c_d58e1812
+  context: 'CRITICAL: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6
+    hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:47Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: early window defined as minimum 50 training steps
+  claim_id: c_b1fa6787
+  context: Implement logic in src/analysis/metrics.py to define the 'early' window
+    (first [deferred] of training steps, minimum 50 steps) and write it to results/early_window_config.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define the 'early' window (first [deferred] of training steps, minimum
+    50 steps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:38:51Z'

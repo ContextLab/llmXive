@@ -389,3 +389,95 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T04:53:33Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Datasets manifest includes verified UCI/OpenML URLs for UCI Adult, UCI
+    Wine, and OpenML example datasets
+  claim_id: c_84abc3d3
+  context: 'Phase 2: Foundational - T005a Create data/manifests/datasets.yaml with
+    verified UCI/OpenML URLs'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_manifest_includes_verified_UCI/OpenML_URLs_for_UCI
+  kind: entity_fact
+  raw_text: 'T005a Create data/manifests/datasets.yaml with verified UCI/OpenML URLs
+    for datasets containing continuous or categorical variables suitable for t-tests,
+    ANOVA, or chi-squared tests. Must include specific URLs: e.g., (UCI Adult), (UCI
+    Wine), and (OpenML example).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:09:14Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: AR(1) resampling function has tunable strength r in range [0, 0.9] with
+    5% tolerance for injected autocorrelation
+  claim_id: c_5f75669a
+  context: 'Phase 2: Foundational - T006a Implement code/dependency_injector.py (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T006a Vectorized AR(1) resampling function with tunable strength r in
+    [0, 0.9]. Validation: Verify injected autocorrelation matches target r within
+    5% tolerance.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:10:22Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap function supports tunable block size up to 50
+  claim_id: c_4c77ae96
+  context: 'Phase 2: Foundational - T006b Implement code/dependency_injector.py (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006b Block bootstrap function for hierarchical dependency with tunable
+    block size (range starting from a small lower bound up to 50) and strength parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:14:56Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Independent test for US3 injects true effects with mean shift delta=1.0
+    sigma
+  claim_id: c_7e520709
+  context: 'Phase 5: User Story 3 - Independent Test description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Inject true effects (mean shift delta=1.0 sigma) into
+    dependency-injected data and measure proportion of significant results vs. baseline.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:20:07Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Optimization target ensures 10,000 replications complete in less than
+    6 hours
+  claim_id: c_b7ff7052
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032a'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimization_target_ensures_10,000_replications_complete_in
+  kind: magnitude
+  raw_text: T032a Profile code/simulation_runner.py and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:22:11Z'

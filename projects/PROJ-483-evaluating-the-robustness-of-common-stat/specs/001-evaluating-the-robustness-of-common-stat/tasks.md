@@ -65,7 +65,7 @@
 - [X] T006c [P] Implement `code/dependency_injector.py` (FR-003): **Spatial kernel smoothing** function for spatial dependency with tunable bandwidth (range low to high). **Requirement**: Must use a **validated feature-space clustering proxy** (provided by T037) for datasets lacking explicit coordinates.
 - [X] T037 [P] Implement `code/dependency_injector.py` (FR-003): **Feature-space clustering proxy** logic to generate spatial proxies for datasets lacking explicit coordinates. Output a proxy generation report to `data/manifests/spatial_proxy_report.json`.
 - [ ] T041 [P] Implement `code/dependency_injector.py` (FR-003): **Validation logic** for the feature-space clustering proxy. Ensure the proxy is validated as per FR-003 requirements. Output a validation report to `data/manifests/spatial_proxy_validation.json`.
-- [ ] T035 [P] Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset validation logic** to verify $N \ge 50$. If $N < 50$, skip the dataset and log a violation to `results/validation_report.json`. **If all fetched datasets fail this check, raise a `CriticalValidationError`** to prevent pipeline deadlock. **Note**: This task applies to ALL user stories.
+- [X] T035 [P] Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset validation logic** to verify $N \ge 50$. If $N < 50$, skip the dataset and log a violation to `results/validation_report.json`. **If all fetched datasets fail this check, raise a `CriticalValidationError`** to prevent pipeline deadlock. **Note**: This task applies to ALL user stories.
 - [X] T007 [P] **Library Definition**: Create `code/metrics.py` (FR-005, SC-001). **Define** functions `calculate_type1_error`, `calculate_power`, `clopper_pearson_ci`, and `train_logistic_model`. **Do NOT run the simulation here**. Ensure all functions are designed to accept aggregated p-values and return metrics with **Clopper-Pearson confidence intervals**.
 - [ ] T016-logistic [P] **Library Definition**: Extend `code/metrics.py` (Constitution Principle VII): **Define** the logic to train and save logistic regression models relating **error rate to dependency strength** to `results/logistic_models.pkl`. **Verification**: Ensure model convergence and AUC > 0.5 logic is defined. **Execution** of this training will occur in Phase 3 after data generation.
 - [X] T008 [P] **Library Definition**: Implement `code/visualizer.py` (FR-006). **Define** plot generation logic for error rate curves and power comparisons. **Do NOT generate plots here**.
@@ -90,10 +90,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] **Execution**: Implement `code/simulation_runner.py` (FR-004, FR-005): Implement **"Generate-then-Inject"** Monte Carlo loop for t-test and ANOVA. **Algorithm**: 1) Generate synthetic data under true null (Normal(0,1)), 2) Inject dependency structure (AR(1)/Block Bootstrap) with strength $r$, 3) Apply statistical test, 4) Record p-value. **Note**: This implements the paradigm defined in `plan.md` Summary to ensure a true null hypothesis. Ensure a sufficient number of replications per config to achieve statistical robustness. **Output**: Save raw p-values to `results/simulation_raw.csv`. **This task is the PRODUCER of data for T007/T008 functions.**
+- [X] T012 [US1] **Execution**: Implement `code/simulation_runner.py` (FR-004, FR-005): Implement **"Generate-then-Inject"** Monte Carlo loop for t-test and ANOVA. **Algorithm**: 1) Generate synthetic data under true null (Normal(0,1)), 2) Inject dependency structure (AR(1)/Block Bootstrap) with strength $r$, 3) Apply statistical test, 4) Record p-value. **Note**: This implements the paradigm defined in `plan.md` Summary to ensure a true null hypothesis. Ensure a sufficient number of replications per config to achieve statistical robustness. **Output**: Save raw p-values to `results/simulation_raw.csv`. **This task is the PRODUCER of data for T007/T008 functions.**
 - [ ] T013 [US1] **Execution**: Implement sensitivity analysis sweep in `code/main.py`: Sweep $r$ across a range of values including zero and positive increments. **Depends on T012 completion**. Aggregate results using functions defined in T007 to `results/aggregated.csv`.
 - [ ] T014 [US1] **Execution**: Implement trend verification logic in `code/metrics.py`: Calculate **trend test (e.g., Spearman rank correlation)** to verify monotonic increase of error rates with $r$ (p < 0.05) as per US-1 AC-2. **This task consumes `results/aggregated.csv` from T013**. Output `trend_status` column to `results/aggregated.csv`.
-- [~] T040 [US1] **Execution**: Implement edge case handling logic in `code/simulation_runner.py`: Define and implement behavior for datasets where the **null hypothesis cannot be cleanly constructed** (e.g., all variables highly correlated) or when **injected dependency violates normality assumptions** beyond non-independence, as defined in **spec.md Edge Cases**. Log specific edge case failures to `results/edge_case_report.json`. **Note**: This task applies to all user stories.
+- [ ] T040 [US1] **Execution**: Implement edge case handling logic in `code/simulation_runner.py`: Define and implement behavior for datasets where the **null hypothesis cannot be cleanly constructed** (e.g., all variables highly correlated) or when **injected dependency violates normality assumptions** beyond non-independence, as defined in **spec.md Edge Cases**. Log specific edge case failures to `results/edge_case_report.json`. **Note**: This task applies to all user stories.
 - [ ] T016-logistic [US1] **Execution**: **Run** the logistic regression training defined in T016-logistic (Phase 2) using the aggregated data from T013. Save model to `results/logistic_models.pkl`. **Verification**: Ensure model convergence and AUC > 0.5.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -113,12 +113,12 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] (Removed: Covered by T006c)
+- [ ] T019 [US2] (Removed: Covered by T006c)
 - [X] T020a [US2] Extend `code/simulation_runner.py` to include **Chi-squared test logic** and block bootstrap for hierarchical structures.
 - [X] T020b [US2] Extend `code/metrics.py` to implement **Chi-squared error rate calculation and reporting** as required by FR-005.
 - [X] T021 [US2] Implement aggregation logic in `code/main.py` to group results by test type and dependency structure
 - [X] T022 [US2] Update `code/visualizer.py` to generate comparative line plots (x=dependency strength, y=error rate, hue=test type) per AC-1
-- [~] T023 [US2] Implement threshold detection logic to report specific $r$ where error rate exceeds $\alpha=0.10$ per AC-2
+- [ ] T023 [US2] Implement threshold detection logic to report specific $r$ where error rate exceeds $\alpha=0.10$ per AC-2
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

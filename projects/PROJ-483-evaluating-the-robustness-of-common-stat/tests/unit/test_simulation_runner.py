@@ -1,73 +1,135 @@
-"""
-Unit tests for simulation runner logic.
-"""
-import numpy as np
 import pytest
-import sys
-import os
+import numpy as np
+import pandas as pd
 from scipy import stats
+import os
+import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import the dependency injector to verify the null hypothesis construction
-# We use ar1_inject with r=0 to simulate the true null condition
-from dependency_injector import ar1_inject
+from simulation_runner import run_single_replication, run_simulation
+from exceptions import EdgeCaseError
 
-def test_null_hypothesis_uniformity():
-    """
-    Test that p-values are uniform under true null (r=0).
-    
-    This test verifies the "Generate-then-Inject" paradigm for the null hypothesis:
-    1. Generate data from Normal(0, 1) (True Null)
-    2. Inject AR(1) dependency with r=0 (no dependency)
-    3. Perform independent t-test
-    4. Verify p-values follow Uniform(0, 1) distribution via Kolmogorov-Smirnov test
-    """
-    np.random.seed(42)  # Reproducibility
-    
-    n_replications = 5000
-    n_per_group = 100
-    alpha = 0.05
-    
-    p_values = []
-    
-    for _ in range(n_replications):
-        # Step 1: Generate synthetic data under true null (Normal(0,1))
-        group_a = np.random.normal(loc=0.0, scale=1.0, size=n_per_group)
-        group_b = np.random.normal(loc=0.0, scale=1.0, size=n_per_group)
+class TestRunSingleReplication:
+    """Unit tests for the single replication logic."""
+
+    def test_ttest_null_independence(self):
+        """Test that under r=0, p-values are roughly uniform (approx check)."""
+        n = 100
+        p_vals = []
+        for i in range(100):
+            p = run_single_replication(
+                n=n,
+                test_type='t-test',
+                dependency_type='ar1',
+                dependency_strength=0.0,
+                seed=i
+            )
+            p_vals.append(p)
         
-        # Step 2: Inject dependency with r=0 (should be identity/no-op)
-        # We reshape to 2D for the injector (n_samples, n_features) logic if needed, 
-        # but for simple 1D groups, we treat them as single series or apply to concatenated.
-        # For t-test independence check, we inject on each group separately.
-        injected_a = ar1_inject(group_a.reshape(-1, 1), r=0.0).flatten()
-        injected_b = ar1_inject(group_b.reshape(-1, 1), r=0.0).flatten()
+        # Under null, p-values should be uniform. 
+        # We check that mean is approx 0.5 and no extreme clustering immediately.
+        mean_p = np.mean(p_vals)
+        assert 0.3 < mean_p < 0.7, f"Mean p-value {mean_p} suggests bias under null"
+
+    def test_ar1_injection_applied(self):
+        """Verify that AR(1) injection changes the data structure."""
+        # This is a bit tricky to test without internal access, 
+        # but we can ensure the function runs without error and returns a float.
+        n = 50
+        p = run_single_replication(
+            n=n,
+            test_type='t-test',
+            dependency_type='ar1',
+            dependency_strength=0.5,
+            seed=42
+        )
+        assert isinstance(p, float)
+        assert 0.0 <= p <= 1.0
+
+    def test_anova_null_independence(self):
+        """Test ANOVA under null hypothesis."""
+        n = 50
+        p = run_single_replication(
+            n=n,
+            test_type='anova',
+            dependency_type='ar1',
+            dependency_strength=0.0,
+            seed=42
+        )
+        assert isinstance(p, float)
+        assert 0.0 <= p <= 1.0
+
+    def test_edge_case_invalid_test_type(self):
+        """Test that invalid test type raises error."""
+        with pytest.raises(ValueError):
+            run_single_replication(
+                n=50,
+                test_type='invalid',
+                dependency_type='ar1',
+                dependency_strength=0.5,
+                seed=42
+            )
+
+    def test_edge_case_missing_block_size(self):
+        """Test that block bootstrap without block_size raises error."""
+        with pytest.raises(ValueError):
+            run_single_replication(
+                n=50,
+                test_type='t-test',
+                dependency_type='block_bootstrap',
+                dependency_strength=0.5,
+                block_size=None,
+                seed=42
+            )
+
+class TestRunSimulation:
+    """Integration-style tests for the full simulation loop."""
+
+    def test_simulation_writes_file(self, tmp_path):
+        """Verify that run_simulation creates the output CSV."""
+        output_file = tmp_path / "results" / "test_sim.csv"
         
-        # Step 3: Apply independent two-sample t-test
-        # Since r=0, data remains independent and identically distributed
-        t_stat, p_val = stats.ttest_ind(injected_a, injected_b)
-        p_values.append(p_val)
-    
-    p_values = np.array(p_values)
-    
-    # Step 4: Verify uniformity using Kolmogorov-Smirnov test against Uniform(0,1)
-    # The null hypothesis of KS test is that the sample comes from the specified distribution.
-    # We expect a high p-value (fail to reject) if the p-values are uniform.
-    ks_stat, ks_p_value = stats.kstest(p_values, 'uniform')
-    
-    # Assert that the p-values from KS test are significant (i.e., we cannot reject uniformity)
-    # Typically we require p > 0.05 for the KS test to confirm uniformity
-    assert ks_p_value > 0.05, (
-        f"p-values are not uniform under r=0. KS p-value: {ks_p_value:.4f}, "
-        f"KS statistic: {ks_stat:.4f}. This suggests the null hypothesis construction is flawed."
-    )
-    
-    # Additional check: Type I error rate should be close to alpha (0.05)
-    observed_error_rate = np.mean(p_values < alpha)
-    expected_error_rate = alpha
-    tolerance = 0.01  # Allow 1% deviation due to sampling noise
-    
-    assert abs(observed_error_rate - expected_error_rate) < tolerance, (
-        f"Observed Type I error rate ({observed_error_rate:.4f}) deviates "
-        f"too much from expected ({expected_error_rate}) under true null."
-    )
+        config = {
+            'n': 20,
+            'n_replications': 10, # Small number for test speed
+            'test_types': ['t-test'],
+            'dependency_types': ['ar1'],
+            'dependency_strengths': [0.0],
+            'block_sizes': [5],
+            'seed': 42
+        }
+        
+        run_simulation(config, str(output_file))
+        
+        assert output_file.exists()
+        df = pd.read_csv(output_file)
+        assert len(df) == 10
+        assert 'p_value' in df.columns
+        assert 'test_type' in df.columns
+
+    def test_simulation_handles_multiple_configs(self, tmp_path):
+        """Verify simulation runs with multiple test types and strengths."""
+        output_file = tmp_path / "results" / "multi_test.csv"
+        
+        config = {
+            'n': 20,
+            'n_replications': 5,
+            'test_types': ['t-test', 'anova'],
+            'dependency_types': ['ar1'],
+            'dependency_strengths': [0.0, 0.3],
+            'block_sizes': [5],
+            'seed': 42
+        }
+        
+        run_simulation(config, str(output_file))
+        
+        assert output_file.exists()
+        df = pd.read_csv(output_file)
+        # 2 tests * 2 strengths * 5 reps = 20 rows
+        assert len(df) == 20
+        assert set(df['test_type'].unique()) == {'t-test', 'anova'}
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

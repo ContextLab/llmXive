@@ -203,3 +203,157 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T01:57:24Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: dataset size of 100 scene descriptions
+  claim_id: c_05432813
+  context: T011 [US1] Create data/raw/scene_descriptions.csv with a curated set of
+    100 scene descriptions (N=100 scope).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:56:54Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis parameters effect size 0.2 alpha 0.05 power target 0.8
+  claim_id: c_83f9b4b2
+  context: 'Implement code/analysis/statistics.py Power Analysis: Perform power analysis
+    (effect_size=0.2, alpha=0.05, power_target=0.8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:39Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test switch threshold cell counts less than 5
+  claim_id: c_799f7d34
+  context: check expected cell counts. If cell counts < 5, switch to Fisher's Exact
+    Test; otherwise, use two-proportion z-test.
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_switch_threshold_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: If cell counts < 5, switch to Fisher's Exact Test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-25T22:01:20Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: object confidence violation threshold 0.7
+  claim_id: c_efac43fe
+  context: 'Implement violation logic: Count floating objects/interpenetration; default
+    to violation if object confidence < 0.7 (Edge Case).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to violation if object confidence < 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:20Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: scope reduction from 500 to 100
+  claim_id: c_f0c1212d
+  context: Create scope_justification.md artifact explaining the deviation from N=500
+    to N=100 due to compute constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: deviation from N=500 to N=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:26Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n model used on CPU
+  claim_id: c_dae10f79
+  context: 'Implement code/evaluation/detector.py: Load YOLOv8n (CPU), detect objects'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_model_used_on_CPU
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:33Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: latent-consistency/lcm-lora-sdv1-5 model used
+  claim_id: c_5dbbdd21
+  context: 'Implement code/generation/diffusion_runner.py: Load CPU-optimized model
+    (''latent-consistency/lcm-lora-sdv1-5'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:36Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: dataset fetch from coco-captions train split
+  claim_id: c_79280ea2
+  context: Fetch from a real, physics-inferable source (e.g., datasets.load_dataset('coco-captions',
+    split='train', trust_remote_code=True) filtered for object interaction scenes).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetch_from_coco-captions_train_split
+  kind: entity_fact
+  raw_text: Fetch from a real, physics-inferable source (e.g., datasets.load_dataset('coco-captions',
+    split='train', trust_remote_code=True))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:46Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Python version 3.11 used
+  claim_id: c_de4c8cbf
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:50Z'

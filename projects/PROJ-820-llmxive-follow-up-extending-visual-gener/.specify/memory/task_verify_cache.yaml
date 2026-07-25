@@ -1,0 +1,41 @@
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `code/simulation` directory exists in the repository;
+    the response contains no listing, screenshot, or description confirming its creation
+    or contents. The required artifact is missing, so the setup task is not satisfied.
+T001h:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence that a `code/generation` directory actually exists
+    in the repository; no file list, screenshots, or other artifacts were supplied
+    to confirm its creation. Without such proof, the required setup task cannot be
+    verified as completed.
+T001i:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `code/evaluation` directory exists in the repository;
+    the implementer did not supply a directory listing, file manifest, or any content
+    showing the folder was created. The required artifact is therefore missing.
+T001j:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the `code/analysis` directory was provided; without a listing,
+    screenshot, or other proof of its existence, we cannot confirm the directory was
+    actually created. The implementer must supply evidence (e.g., a directory tree
+    dump) that the `code/analysis` folder now exists.
+T001k:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/utils` directory was provided; the claim cannot be verified
+    because the artifact (the directory) is missing from the supplied information.
+    The implementer must create the directory (and optionally add a placeholder file)
+    and present proof that it exists.
+T001l:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that a `tests/contract` directory exists in
+    the repository (e.g., a directory listing, file paths, or contents). Without such
+    proof, we cannot confirm the required setup step was performed. The implementer
+    must add the `tests/contract` folder (with at least one file or placeholder) and
+    provide evidence of its presence.
