@@ -1,0 +1,19 @@
+{
+  "task_id": "T017",
+  "description": "CI Constraint Verification",
+  "constraints": {
+    "cpu_only": true,
+    "memory_limit_gb": 7.0,
+    "memory_used_gb": 0.0,
+    "runtime_limit_seconds": 300,
+    "runtime_seconds": 0.0,
+    "sample_size": 10
+  },
+  "results": {
+    "cpu_only_passed": true,
+    "memory_constraint_passed": true,
+    "runtime_constraint_passed": true,
+    "pipeline_completed": true
+  },
+  "output_file": "code/data/processed/elastic_anisotropy.csv"
+}

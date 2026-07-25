@@ -1,8 +1,8 @@
 """
-Feature engineering module for computing compositional descriptors.
+Feature Engineering Module for Elastic Anisotropy Prediction.
 
-Computes atomic radius variance, electronegativity standard deviation,
-and valence electron concentration (VEC) for FCC alloys using mendeleev.
+Computes compositional descriptors (atomic radius variance, electronegativity std dev,
+valence electron concentration) from chemical formulas using the mendeleev library.
 """
 import sys
 import logging
@@ -11,278 +11,274 @@ import pandas as pd
 import numpy as np
 from mendeleev import element as mendeleev_element
 
-from src.utils.logging import get_logger
+# Import local config for paths if needed, though standard paths are used here
+# from src.utils.config import get_path
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-# Mendeleev property names mapping to standard descriptors
-# We use covalent radius for atomic size, Pauling scale for electronegativity
-# and group number (valence electrons) for VEC.
-PROP_ATOMIC_RADIUS = "covalent_radius_pyy"
-PROP_ELECTRONEGATIVITY = "electronegativity"
-PROP_VALENCE_ELECTRONS = "group"  # Mendeleev group number corresponds to valence for main group; transition metals need adjustment
+# Constants for element property retrieval
+# Mendeleev uses 'atomic_radius' (empirical) or 'covalent_radius' (calculated).
+# We use 'atomic_radius' (empirical) as it's standard for metallic descriptors.
+# We use 'electronegativity' (Pauling scale).
+# We use 'n_electrons' and 'atomic_number' to derive valence electrons for main group/transition metals.
+# For transition metals, valence is often defined as group number or specific oxidation state.
+# A common heuristic in materials science for VEC is: sum(valence_i * fraction_i).
+# We will use the group number (1-18) mapped to typical valence electrons for metals:
+# Group 1: 1, Group 2: 2, Group 3-12: Group number - 10 (e.g. Sc=3, Ti=4... Zn=12 -> 2? No, Zn is often 2).
+# Actually, a robust method for VEC in alloys (like FCC) often uses:
+# VEC = sum(c_i * v_i) where v_i is the number of valence electrons.
+# For transition metals, v_i is often taken as the number of s+d electrons.
+# Mendeleev doesn't have a direct "valence_electrons" property that is consistent across all oxidation states.
+# We will use a heuristic:
+# - For Groups 1, 2: Group number
+# - For Groups 3-12: Group number (e.g. Sc=3, Ti=4, V=5, Cr=6, Mn=7, Fe=8, Co=9, Ni=10, Cu=11, Zn=12).
+#   *Note*: Some literature uses 2 for Zn, but 12 is the total s+d count.
+#   Let's stick to the Group Number as the valence count for transition metals in alloy contexts (e.g. Cantor alloys).
+# - For Groups 13-18: Group number - 10 (e.g. Al=3, Ga=3).
 
-def _get_valence_electrons(symbol: str) -> int:
+def get_valence_electrons(symbol: str) -> int:
     """
-    Determine valence electron count for an element.
-    For transition metals (d-block), we use the number of s + d electrons.
-    For main group, we use group number logic or s+p count.
-    Mendeleev's 'group' attribute is 1-18.
+    Heuristic to estimate valence electrons for alloy composition calculations.
+    Uses Mendeleev data.
     """
     try:
         el = mendeleev_element(symbol)
-        # Mendeleev 'group' is 1-18.
-        # For VEC in alloys, we typically count outer shell electrons.
-        # Transition metals (groups 3-12): usually valence = group - 10 + 2 (s) ?
-        # Actually, standard practice for VEC in HEAs: sum of (s+d) electrons.
-        # Mendeleev has 'electron_configuration'. Let's parse it or use a heuristic.
-        # Simpler: use the 'valence_electrons' property if available, else compute.
-        if hasattr(el, 'valence_electrons') and el.valence_electrons is not None:
-            return int(el.valence_electrons)
-        
-        # Fallback: use group number logic for common cases
         group = el.group
         if group is None:
-            # Unknown, default to 1
+            # Fallback for elements not in a standard group (rare)
+            logger.warning(f"Element {symbol} has no group. Defaulting to 1.")
             return 1
         
         if 1 <= group <= 2:
             return group
         elif 3 <= group <= 12:
-            # Transition metals: usually group number - 10 + 2 (s) ?
-            # Actually, VEC for transition metals is often taken as group number - 10 (d) + 2 (s) = group - 8?
-            # Let's check standard VEC definitions: Sc (3) -> 3, Ti (4) -> 4, V (5) -> 5, Cr (6) -> 6, Mn (7) -> 7, Fe (8) -> 8, Co (9) -> 9, Ni (10) -> 10, Cu (11) -> 11, Zn (12) -> 12.
-            # Wait, for VEC in HEAs, Cu is often 11, Zn is 12.
-            # So for transition metals, VEC = group number - 10 + 2? No.
-            # Let's just use the group number directly for 1-2, and for 3-12, it's often group number.
-            # But Zn (12) has full d10 s2 -> 2 valence? No, in alloys it's 12?
-            # Standard VEC calculation in literature: sum of (ns + (n-1)d) electrons.
-            # Mendeleev 'group' for Zn is 12. Valence is 2.
-            # Let's try to get electron config.
-            try:
-                config = el.electron_configuration
-                # This is a string like '1s2 2s2 2p6 3s2 3p6 3d10 4s1'
-                # We need to sum s and d electrons in the outermost shells?
-                # This is complex. Let's use a simpler heuristic based on group.
-                # For 3-12: VEC = group - 10 + 2? No.
-                # Let's use a lookup for common transition metals if needed.
-                # Actually, many papers use: VEC = sum(valence) where valence is s+d.
-                # For Fe (group 8): 8 valence? Yes.
-                # For Ni (group 10): 10 valence? Yes.
-                # For Cu (group 11): 11 valence? Yes.
-                # For Zn (group 12): 12 valence? No, Zn is 2.
-                # So groups 3-11 are group number. Group 12 is 2?
-                if group <= 11:
-                    return group
-                else:
-                    # Group 12 (Zn, Cd, Hg): 2 valence electrons (s2)
-                    return 2
-            except Exception:
-                return group
+            # Transition metals: typically use group number as valence count in alloys
+            return group
         elif 13 <= group <= 18:
-            # Main group: group - 10
             return group - 10
         else:
+            # Fallback
             return 1
     except Exception as e:
-        logger.warning(f"Could not determine valence electrons for {symbol}: {e}")
+        logger.error(f"Error retrieving valence for {symbol}: {e}")
         return 1
 
-def get_element_properties(symbol: str) -> Dict[str, float]:
+def get_element_properties(symbol: str) -> Dict[str, Any]:
     """
-    Fetch atomic properties for a single element symbol.
+    Retrieve atomic radius and electronegativity for a given element symbol.
     
     Args:
-        symbol: Element symbol (e.g., 'Fe', 'Ni')
+        symbol: Chemical symbol (e.g., 'Fe', 'Cu').
         
     Returns:
-        Dictionary with 'radius', 'electronegativity', 'valence_electrons'
-        
-    Raises:
-        ValueError: If element symbol is invalid or properties missing
+        Dict with 'radius' (Angstrom), 'electronegativity' (Pauling), 'valence'.
+        Returns None if element not found or properties missing.
     """
-    symbol = symbol.strip().title()
     try:
         el = mendeleev_element(symbol)
+        
+        # Atomic radius (empirical) in Angstroms
+        # Mendeleev stores this as 'atomic_radius'
+        radius = el.atomic_radius
+        if radius is None:
+            # Try covalent radius as fallback
+            radius = el.covalent_radius
+            if radius is None:
+                logger.warning(f"Missing atomic/covalent radius for {symbol}")
+                return None
+        
+        # Electronegativity (Pauling)
+        electronegativity = el.electronegativity
+        if electronegativity is None:
+            logger.warning(f"Missing electronegativity for {symbol}")
+            return None
+        
+        valence = get_valence_electrons(symbol)
+        
+        return {
+            'radius': float(radius),
+            'electronegativity': float(electronegativity),
+            'valence': valence
+        }
     except Exception as e:
-        raise ValueError(f"Invalid element symbol '{symbol}': {e}")
+        logger.error(f"Failed to get properties for {symbol}: {e}")
+        return None
 
-    radius = el.covalent_radius_pyy
-    if radius is None:
-        radius = el.covalent_radius  # Fallback
-    
-    if radius is None:
-        raise ValueError(f"Missing covalent radius for {symbol}")
-
-    electroneg = el.electronegativity
-    if electroneg is None:
-        raise ValueError(f"Missing electronegativity for {symbol}")
-
-    valence = _get_valence_electrons(symbol)
-
-    return {
-        "radius": float(radius),
-        "electronegativity": float(electroneg),
-        "valence_electrons": float(valence)
-    }
-
-def compute_compositional_features(
-    df: pd.DataFrame,
-    composition_col: str = "composition",
-    atomic_fraction_col: str = "atomic_fractions"
-) -> pd.DataFrame:
+def parse_formula(formula: str) -> Dict[str, float]:
     """
-    Compute compositional features for a DataFrame of alloys.
+    Parse a simple chemical formula (e.g., 'Fe', 'Al0.5CoCrFeNi') into element fractions.
+    Assumes no complex nested parentheses for this MVP.
+    Handles formulas like 'Fe', 'Cu', 'Al0.5Co0.5'.
+    """
+    import re
     
-    Features computed:
-    - radius_variance: Variance of atomic radii weighted by atomic fraction
-    - electronegativity_std: Standard deviation of electronegativity weighted by atomic fraction
-    - vec: Valence electron concentration (weighted average)
+    # Pattern to match element symbol followed by optional number
+    # Elements are [A-Z][a-z]?
+    pattern = r'([A-Z][a-z]?)(\d*\.?\d*)'
+    matches = re.findall(pattern, formula)
+    
+    fractions = {}
+    total_atoms = 0.0
+    
+    for symbol, count_str in matches:
+        count = float(count_str) if count_str else 1.0
+        fractions[symbol] = count
+        total_atoms += count
+    
+    # Normalize to fractions
+    if total_atoms == 0:
+        return {}
+        
+    return {k: v / total_atoms for k, v in fractions.items()}
+
+def compute_compositional_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute compositional descriptors for the dataframe.
+    
+    Adds columns:
+    - atomic_radius_variance: Variance of atomic radii weighted by composition.
+    - electronegativity_std: Standard deviation of electronegativity weighted by composition.
+    - valence_electron_concentration (VEC): Weighted average of valence electrons.
     
     Args:
-        df: DataFrame with 'composition' (list of symbols) and 'atomic_fractions' (list of floats)
-        composition_col: Name of column containing list of element symbols
-        atomic_fraction_col: Name of column containing list of atomic fractions
+        df: DataFrame with a 'formula' column and potentially other columns.
         
     Returns:
-        DataFrame with original columns plus new feature columns
+        DataFrame with new feature columns added.
     """
-    if composition_col not in df.columns or atomic_fraction_col not in df.columns:
-        raise ValueError(f"Columns '{composition_col}' and '{atomic_fraction_col}' required in input DataFrame")
-
+    logger.info("Starting feature computation...")
+    
+    radius_list = []
+    electronegativity_list = []
+    valence_list = []
+    skipped_rows = 0
+    
     results = []
-    total_processed = 0
-    total_skipped = 0
-
+    
     for idx, row in df.iterrows():
+        formula = row.get('formula')
+        if not formula or pd.isna(formula):
+            logger.warning(f"Row {idx}: Missing formula. Skipping features.")
+            skipped_rows += 1
+            # Append NaNs or keep original? Let's keep original with NaN features
+            results.append({
+                'atomic_radius_variance': np.nan,
+                'electronegativity_std': np.nan,
+                'valence_electron_concentration': np.nan
+            })
+            continue
+        
         try:
-            symbols = row[composition_col]
-            fractions = row[atomic_fraction_col]
+            fractions = parse_formula(str(formula))
+            if not fractions:
+                raise ValueError("Could not parse formula")
             
-            if not isinstance(symbols, list) or not isinstance(fractions, list):
-                logger.warning(f"Row {idx}: Invalid composition or fractions format, skipping.")
-                total_skipped += 1
+            radii = []
+            en_values = []
+            valences = []
+            weights = []
+            
+            valid_element = True
+            for elem, frac in fractions.items():
+                props = get_element_properties(elem)
+                if props is None:
+                    valid_element = False
+                    logger.warning(f"Row {idx}: Missing properties for {elem}. Skipping row.")
+                    break
+                radii.append(props['radius'])
+                en_values.append(props['electronegativity'])
+                valences.append(props['valence'])
+                weights.append(frac)
+            
+            if not valid_element:
+                results.append({
+                    'atomic_radius_variance': np.nan,
+                    'electronegativity_std': np.nan,
+                    'valence_electron_concentration': np.nan
+                })
+                skipped_rows += 1
                 continue
             
-            if len(symbols) != len(fractions):
-                logger.warning(f"Row {idx}: Mismatched lengths in composition ({len(symbols)}) and fractions ({len(fractions)}), skipping.")
-                total_skipped += 1
-                continue
+            # Calculate weighted mean
+            weights = np.array(weights)
+            radii = np.array(radii)
+            en_values = np.array(en_values)
+            valences = np.array(valences)
             
-            # Normalize fractions
-            total_frac = sum(fractions)
-            if total_frac == 0:
-                logger.warning(f"Row {idx}: Zero total atomic fraction, skipping.")
-                total_skipped += 1
-                continue
+            mean_radius = np.average(radii, weights=weights)
+            mean_en = np.average(en_values, weights=weights)
+            mean_valence = np.average(valences, weights=weights)
             
-            fractions = [f / total_frac for f in fractions]
-            
-            # Fetch properties for each element
-            props_list = []
-            for sym, frac in zip(symbols, fractions):
-                try:
-                    props = get_element_properties(sym)
-                    props['fraction'] = frac
-                    props_list.append(props)
-                except ValueError as e:
-                    logger.warning(f"Row {idx}: Skipping element {sym} due to {e}")
-                    # Skip this element? Or fail the row?
-                    # For robustness, we skip the element and recalculate with remaining
-                    pass
-            
-            if not props_list:
-                logger.warning(f"Row {idx}: No valid elements found, skipping row.")
-                total_skipped += 1
-                continue
-            
-            # Compute weighted mean and variance
-            radii = [p['radius'] for p in props_list]
-            fracs = [p['fraction'] for p in props_list]
-            en_vals = [p['electronegativity'] for p in props_list]
-            vec_vals = [p['valence_electrons'] for p in props_list]
-            
-            # Weighted mean
-            mean_radius = sum(r * f for r, f in zip(radii, fracs))
-            mean_en = sum(e * f for e, f in zip(en_vals, fracs))
-            mean_vec = sum(v * f for v, f in zip(vec_vals, fracs))
-            
-            # Weighted variance for radius
-            variance_radius = sum(f * (r - mean_radius) ** 2 for r, f in zip(radii, fracs))
-            
-            # Weighted std for electronegativity (population std)
-            variance_en = sum(f * (e - mean_en) ** 2 for e, f in zip(en_vals, fracs))
-            std_en = np.sqrt(variance_en)
+            # Calculate weighted variance/std
+            # Variance = sum(w * (x - mean)^2)
+            radius_variance = np.average((radii - mean_radius)**2, weights=weights)
+            en_std = np.sqrt(np.average((en_values - mean_en)**2, weights=weights))
             
             results.append({
-                "radius_variance": variance_radius,
-                "electronegativity_std": std_en,
-                "vec": mean_vec
+                'atomic_radius_variance': radius_variance,
+                'electronegativity_std': en_std,
+                'valence_electron_concentration': mean_valence
             })
-            total_processed += 1
             
         except Exception as e:
-            logger.error(f"Error processing row {idx}: {e}")
-            total_skipped += 1
-
-    logger.info(f"Feature computation complete. Processed: {total_processed}, Skipped: {total_skipped}")
+            logger.error(f"Row {idx}: Error processing formula '{formula}': {e}")
+            results.append({
+                'atomic_radius_variance': np.nan,
+                'electronegativity_std': np.nan,
+                'valence_electron_concentration': np.nan
+            })
+            skipped_rows += 1
     
-    if not results:
-        # Return empty DataFrame with correct columns
-        return pd.DataFrame(columns=["radius_variance", "electronegativity_std", "vec"])
-    
+    # Create new dataframe with features
     features_df = pd.DataFrame(results)
-    return features_df
+    combined_df = pd.concat([df.reset_index(drop=True), features_df], axis=1)
+    
+    logger.info(f"Feature computation complete. Skipped {skipped_rows} rows.")
+    return combined_df
 
 def main():
     """
-    CLI entry point for feature computation.
-    Expects a cleaned CSV with 'composition' and 'atomic_fractions' columns.
+    Main entry point for running feature engineering on the processed dataset.
+    Reads from data/processed/elastic_anisotropy.csv (cleaned) and writes to data/processed/elastic_anisotropy_features.csv.
     """
-    import argparse
-    from pathlib import Path
-    from src.utils.config import get_path
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    parser = argparse.ArgumentParser(description="Compute compositional features")
-    parser.add_argument("--input", type=str, default=None, help="Input CSV path (default: data/processed/elastic_anisotropy_cleaned.csv)")
-    parser.add_argument("--output", type=str, default=None, help="Output CSV path (default: data/processed/elastic_anisotropy_features.csv)")
-    args = parser.parse_args()
+    # Define paths
+    # Assuming project root is 'code' relative to where this runs, or we use absolute paths from config
+    # Since we don't have the full config loaded here, we assume standard paths relative to script location
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent
     
-    input_path = Path(args.input) if args.input else get_path("data_processed") / "elastic_anisotropy_cleaned.csv"
-    output_path = Path(args.output) if args.output else get_path("data_processed") / "elastic_anisotropy_features.csv"
+    input_path = project_root / 'data' / 'processed' / 'elastic_anisotropy.csv'
+    output_path = project_root / 'data' / 'processed' / 'elastic_anisotropy_features.csv'
     
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
     
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
+    logger.info(f"Reading input from {input_path}")
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        logger.error(f"Failed to read input CSV: {e}")
+        sys.exit(1)
     
-    # Check if we need to parse composition strings or if they are already lists
-    # Assuming the cleaned data has a 'composition' column with comma-separated strings or lists
-    # If it's a string like "Fe,Ni,Cr", we need to split.
-    # If it's already a list (from JSON), we use it.
-    if 'composition' in df.columns:
-        if isinstance(df['composition'].iloc[0], str):
-            df['composition'] = df['composition'].apply(lambda x: [s.strip() for s in x.split(',') if s.strip()])
+    # Check for formula column
+    if 'formula' not in df.columns:
+        logger.error("Input CSV must contain a 'formula' column.")
+        sys.exit(1)
     
-    if 'atomic_fractions' in df.columns:
-        if isinstance(df['atomic_fractions'].iloc[0], str):
-            # Try to parse as JSON list or comma-separated
-            import json
-            try:
-                df['atomic_fractions'] = df['atomic_fractions'].apply(json.loads)
-            except json.JSONDecodeError:
-                df['atomic_fractions'] = df['atomic_fractions'].apply(lambda x: [float(v) for v in x.split(',') if v.strip()])
+    logger.info(f"Processing {len(df)} rows...")
+    df_features = compute_compositional_features(df)
     
-    features = compute_compositional_features(df)
+    logger.info(f"Writing output to {output_path}")
+    df_features.to_csv(output_path, index=False)
     
-    # Merge features back into the original dataframe
-    result_df = pd.concat([df.reset_index(drop=True), features.reset_index(drop=True)], axis=1)
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Features saved to {output_path}")
+    logger.info("Feature engineering completed successfully.")
 
 if __name__ == "__main__":
     main()

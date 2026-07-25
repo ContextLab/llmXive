@@ -1,3 +1,6 @@
+"""
+Unit tests for the data cleaning module.
+"""
 import os
 import tempfile
 import logging
@@ -8,137 +11,154 @@ import pandas as pd
 import numpy as np
 
 from src.data.clean import clean_elastic_data
-from src.utils.logging import get_logger
+from src.utils.config import get_path
+
+# Configure logger for tests
+logger = logging.getLogger("test_clean")
+logger.setLevel(logging.DEBUG)
 
 @pytest.fixture
-def sample_fcc_data(tmp_path):
-    """Create a temporary CSV with sample FCC data including edge cases."""
+def sample_fcc_data():
+    """Create a sample DataFrame mimicking ingested elastic data."""
     data = {
-        'id': ['MP-1', 'MP-2', 'MP-3', 'MP-4', 'MP-5'],
-        'formula': ['Al', 'Cu', 'Au', 'Ag', 'Fe'], # Fe is BCC usually, but we test logic
-        'phase': ['FCC', 'fcc', 'Face-Centered Cubic', 'BCC', 'FCC'],
-        'C11': [100.0, 168.0, 192.0, 120.0, 230.0],
-        'C12': [50.0, 121.0, 163.0, 90.0, 135.0],
-        'C44': [28.0, 75.0, 42.0, 30.0, 116.0],
+        'material_id': ['MP-123', 'MP-456', 'MP-789', 'MP-101', 'MP-102'],
+        'formula': ['Al', 'Cu', 'Fe', 'Ni', 'Ag'],
+        'crystal_system': ['cubic', 'cubic', 'cubic', 'tetragonal', 'cubic'],
+        'C11': [100.0, 168.0, 226.0, 180.0, 90.0],
+        'C12': [50.0, 121.0, 140.0, 140.0, 80.0],
+        'C44': [28.0, 75.0, 116.0, 90.0, 40.0],
+        'structure': [
+            {'symmetry': {'crystal_system': 'cubic'}},
+            {'symmetry': {'crystal_system': 'cubic'}},
+            {'symmetry': {'crystal_system': 'cubic'}},
+            {'symmetry': {'crystal_system': 'tetragonal'}},
+            {'symmetry': {'crystal_system': 'cubic'}}
+        ]
     }
-    df = pd.DataFrame(data)
-    csv_path = tmp_path / "raw_input.csv"
-    df.to_csv(csv_path, index=False)
-    return str(csv_path)
+    return pd.DataFrame(data)
 
 @pytest.fixture
-def logger():
-    return get_logger("test_clean")
+def temp_csv_file(sample_fcc_data):
+    """Create a temporary CSV file with sample data."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        sample_fcc_data.to_csv(f, index=False)
+        return f.name
 
-def test_clean_fcc_filter(sample_fcc_data, tmp_path, logger):
-    """Test that only FCC entries are kept."""
-    output_path = tmp_path / "output_clean.csv"
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for output."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
+
+def test_clean_fcc_filter(sample_fcc_data, temp_csv_file, temp_output_dir):
+    """Test that non-cubic entries are filtered out."""
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
     
-    df_result = clean_elastic_data(
-        input_path=sample_fcc_data,
-        output_path=str(output_path),
-        logger=logger
+    df_clean = clean_elastic_data(
+        input_path=temp_csv_file,
+        output_path=output_path,
+        force_cubic=True
     )
     
-    assert len(df_result) == 4, "Should keep 4 FCC entries (MP-1, MP-2, MP-3, MP-5)"
-    assert 'BCC' not in df_result['phase'].values, "BCC entry should be removed"
-    assert all(df_result['phase'].astype(str).str.lower().str.contains('fcc'))
+    # Check that tetragonal entry (MP-101) is removed
+    assert 'MP-101' not in df_clean['material_id'].values
+    # Check that cubic entries remain
+    assert len(df_clean) == 4
+    assert all(df_clean['crystal_system'] == 'cubic')
 
-def test_clean_division_by_zero(tmp_path, logger):
-    """Test that entries where C11 == C12 are excluded."""
+def test_clean_division_by_zero(temp_output_dir):
+    """Test that entries where C11 == C12 are removed."""
     data = {
-        'id': ['MP-6', 'MP-7'],
-        'phase': ['FCC', 'FCC'],
-        'C11': [100.0, 100.0],
-        'C12': [50.0, 100.0], # MP-7 has C11 == C12
-        'C44': [28.0, 28.0],
+        'material_id': ['MP-OK', 'MP-ZERO'],
+        'crystal_system': ['cubic', 'cubic'],
+        'C11': [100.0, 50.0],
+        'C12': [50.0, 50.0],  # C11 == C12 for MP-ZERO
+        'C44': [20.0, 30.0]
     }
-    input_path = tmp_path / "input_div_zero.csv"
-    pd.DataFrame(data).to_csv(input_path, index=False)
-    output_path = tmp_path / "output_div_zero.csv"
-
-    df_result = clean_elastic_data(
-        input_path=str(input_path),
-        output_path=str(output_path),
-        logger=logger
-    )
+    df_input = pd.DataFrame(data)
     
-    assert len(df_result) == 1, "Should exclude the row where C11 == C12"
-    assert df_result.iloc[0]['id'] == 'MP-6'
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        df_input.to_csv(f, index=False)
+        input_path = f.name
+    
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
+    
+    df_clean = clean_elastic_data(input_path=input_path, output_path=output_path)
+    
+    assert 'MP-ZERO' not in df_clean['material_id'].values
+    assert len(df_clean) == 1
+    assert 'MP-OK' in df_clean['material_id'].values
 
-def test_clean_a1_calculation(tmp_path, logger):
-    """Test that A1 is calculated correctly: A1 = 2*C44 / (C11 - C12)"""
+def test_clean_a1_calculation(temp_output_dir):
+    """Test that A1 is calculated correctly."""
+    # A1 = 2*C44 / (C11 - C12)
+    # Example: C11=100, C12=50, C44=28 -> A1 = 56 / 50 = 1.12
     data = {
-        'id': ['MP-8'],
-        'phase': ['FCC'],
+        'material_id': ['MP-CALC'],
+        'crystal_system': ['cubic'],
         'C11': [100.0],
         'C12': [50.0],
-        'C44': [25.0],
+        'C44': [28.0]
     }
-    input_path = tmp_path / "input_calc.csv"
-    pd.DataFrame(data).to_csv(input_path, index=False)
-    output_path = tmp_path / "output_calc.csv"
-
-    df_result = clean_elastic_data(
-        input_path=str(input_path),
-        output_path=str(output_path),
-        logger=logger
-    )
+    df_input = pd.DataFrame(data)
     
-    # Expected: 2 * 25 / (100 - 50) = 50 / 50 = 1.0
-    expected_a1 = 1.0
-    assert abs(df_result.iloc[0]['A1'] - expected_a1) < 1e-6
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        df_input.to_csv(f, index=False)
+        input_path = f.name
+    
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
+    
+    df_clean = clean_elastic_data(input_path=input_path, output_path=output_path)
+    
+    expected_a1 = (2 * 28.0) / (100.0 - 50.0)
+    assert abs(df_clean['A1'].iloc[0] - expected_a1) < 1e-6
 
-def test_clean_missing_columns_raises(tmp_path, logger):
-    """Test that missing C11, C12, or C44 raises an error."""
+def test_clean_missing_columns_raises(temp_output_dir):
+    """Test that missing required columns raise an error."""
     data = {
-        'id': ['MP-9'],
-        'phase': ['FCC'],
-        'C11': [100.0],
+        'material_id': ['MP-NO-COLS'],
+        'crystal_system': ['cubic'],
+        'C11': [100.0]
         # Missing C12 and C44
     }
-    input_path = tmp_path / "input_missing.csv"
-    pd.DataFrame(data).to_csv(input_path, index=False)
-    output_path = tmp_path / "output_missing.csv"
+    df_input = pd.DataFrame(data)
+    
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        df_input.to_csv(f, index=False)
+        input_path = f.name
+    
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
+    
+    with pytest.raises(ValueError):
+        clean_elastic_data(input_path=input_path, output_path=output_path)
 
-    with pytest.raises(ValueError, match="Missing required columns"):
-        clean_elastic_data(
-            input_path=str(input_path),
-            output_path=str(output_path),
-            logger=logger
-        )
-
-def test_clean_handles_nan_values(tmp_path, logger):
-    """Test that rows with NaN in elastic constants are excluded."""
+def test_clean_handles_nan_values(temp_output_dir):
+    """Test that rows with NaN in elastic constants are dropped."""
     data = {
-        'id': ['MP-10', 'MP-11'],
-        'phase': ['FCC', 'FCC'],
+        'material_id': ['MP-NaN', 'MP-OK'],
+        'crystal_system': ['cubic', 'cubic'],
         'C11': [100.0, np.nan],
         'C12': [50.0, 50.0],
-        'C44': [25.0, 25.0],
+        'C44': [28.0, 28.0]
     }
-    input_path = tmp_path / "input_nan.csv"
-    pd.DataFrame(data).to_csv(input_path, index=False)
-    output_path = tmp_path / "output_nan.csv"
-
-    df_result = clean_elastic_data(
-        input_path=str(input_path),
-        output_path=str(output_path),
-        logger=logger
-    )
+    df_input = pd.DataFrame(data)
     
-    assert len(df_result) == 1
-    assert df_result.iloc[0]['id'] == 'MP-10'
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        df_input.to_csv(f, index=False)
+        input_path = f.name
+    
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
+    
+    df_clean = clean_elastic_data(input_path=input_path, output_path=output_path)
+    
+    assert 'MP-NaN' not in df_clean['material_id'].values
+    assert len(df_clean) == 1
 
-def test_clean_output_file_created(sample_fcc_data, tmp_path, logger):
+def test_clean_output_file_created(sample_fcc_data, temp_csv_file, temp_output_dir):
     """Test that the output file is actually created on disk."""
-    output_path = tmp_path / "test_output.csv"
+    output_path = os.path.join(temp_output_dir, "cleaned.csv")
     
-    clean_elastic_data(
-        input_path=sample_fcc_data,
-        output_path=str(output_path),
-        logger=logger
-    )
+    clean_elastic_data(input_path=temp_csv_file, output_path=output_path)
     
-    assert output_path.exists(), "Output file should be created"
-    assert output_path.stat().st_size > 0, "Output file should not be empty"
+    assert os.path.exists(output_path)
+    assert Path(output_path).stat().st_size > 0

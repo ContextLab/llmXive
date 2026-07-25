@@ -1,8 +1,8 @@
 """
 Data cleaning module for elastic anisotropy pipeline.
 
-Filters for single-phase FCC entries, excludes entries where C11=C12
-(preventing division by zero in A1), and calculates A1 = 2*C44 / (C11-C12).
+Filters for single-phase FCC entries, excludes entries where C11=C12,
+and calculates the Zener anisotropy ratio A1.
 """
 import os
 import sys
@@ -11,139 +11,122 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
+import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from src.utils.logging import get_logger, log_info, log_warning, log_error, log_debug
+# Import project utilities
 from src.utils.config import get_path, ensure_directories
+from src.utils.logging import get_logger
 
-# Initialize logger
+# Configure logger
 logger = get_logger(__name__)
 
-def clean_elastic_data(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    fcc_only: bool = True
-) -> pd.DataFrame:
+
+def clean_elastic_data(input_path: Optional[str] = None, output_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Clean elastic constants data by filtering FCC entries and calculating anisotropy.
-    
+    Clean the ingested elastic data.
+
+    1. Filter for single-phase FCC entries:
+       - Check structure['symmetry']['crystal_system'] == 'cubic' for MP data
+       - Check tags['fss'] or equivalent cubic flag for AFLOW data
+    2. Exclude entries where C11 == C12 (prevents division by zero in A1)
+    3. Calculate A1 = 2*C44 / (C11 - C12)
+
     Args:
-        input_path: Path to input CSV file. Defaults to config path.
-        output_path: Path to output CSV file. Defaults to config path.
-        fcc_only: If True, filter for single-phase FCC entries only.
-        
+        input_path: Path to the input CSV from ingestion. Defaults to config path.
+        output_path: Path to save the cleaned CSV. Defaults to config path.
+
     Returns:
-        Cleaned DataFrame with calculated A1 values.
-        
+        pd.DataFrame: The cleaned dataframe with A1 calculated.
+
     Raises:
         FileNotFoundError: If input file does not exist.
         ValueError: If required columns are missing.
     """
-    # Resolve paths
     if input_path is None:
-        input_path = get_path("data_processed", "elastic_constants_raw.csv")
+        input_path = str(get_path("processed", "elastic_constants_raw.csv"))
     if output_path is None:
-        output_path = get_path("data_processed", "elastic_anisotropy.csv")
-    
+        output_path = str(get_path("processed", "elastic_anisotropy.csv"))
+
     input_file = Path(input_path)
-    output_file = Path(output_path)
-    
-    # Ensure output directory exists
-    ensure_directories([output_file.parent])
-    
-    # Load data
-    log_info(logger, f"Loading data from {input_file}")
     if not input_file.exists():
-        log_error(logger, f"Input file not found: {input_file}")
+        logger.error(f"Input file not found: {input_file}")
         raise FileNotFoundError(f"Input file not found: {input_file}")
-    
-    try:
-        df = pd.read_csv(input_file)
-    except Exception as e:
-        log_error(logger, f"Failed to read CSV: {e}")
-        raise
-    
-    log_debug(logger, f"Loaded {len(df)} rows")
-    
+
+    logger.info(f"Loading data from {input_file}")
+    df = pd.read_csv(input_file)
+
     # Validate required columns
-    required_cols = ["C11", "C12", "C44"]
-    missing_cols = [col for col in required_cols if col not in df.columns]
+    required_cols = ['C11', 'C12', 'C44']
+    missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        msg = f"Missing required columns: {missing_cols}"
-        log_error(logger, msg)
-        raise ValueError(msg)
-    
+        logger.error(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
     initial_count = len(df)
-    
-    # Filter for FCC entries if requested
-    if fcc_only:
-        # Check if crystal_system column exists
-        if "crystal_system" in df.columns:
-            fcc_count = (df["crystal_system"] == "fcc").sum()
-            log_info(logger, f"Found {fcc_count} FCC entries out of {initial_count}")
-            
-            if fcc_count == 0:
-                log_warning(logger, "No FCC entries found in dataset")
-            
-            df = df[df["crystal_system"] == "fcc"].copy()
-        else:
-            log_warning(logger, "No 'crystal_system' column found, skipping FCC filter")
-    
-    fcc_count = len(df)
-    log_info(logger, f"After FCC filter: {fcc_count} rows (dropped {initial_count - fcc_count})")
-    
-    # Exclude entries where C11 == C12 to prevent division by zero
-    if "C11" in df.columns and "C12" in df.columns:
-        zero_diff_mask = df["C11"] == df["C12"]
-        zero_diff_count = zero_diff_mask.sum()
-        if zero_diff_count > 0:
-            log_warning(logger, f"Excluding {zero_diff_count} entries where C11 == C12")
-            df = df[~zero_diff_mask].copy()
-    
-    # Check for NaN values in required columns before calculation
-    nan_mask = df[["C11", "C12", "C44"]].isna().any(axis=1)
-    nan_count = nan_mask.sum()
-    if nan_count > 0:
-        log_warning(logger, f"Excluding {nan_count} entries with NaN in C11, C12, or C44")
-        df = df[~nan_mask].copy()
-    
-    # Calculate A1 = 2*C44 / (C11 - C12)
-    df["A1"] = (2 * df["C44"]) / (df["C11"] - df["C12"])
-    
-    # Log statistics
-    log_info(logger, f"Calculated A1 for {len(df)} entries")
-    log_debug(logger, f"A1 stats: min={df['A1'].min():.4f}, max={df['A1'].max():.4f}, mean={df['A1'].mean():.4f}")
-    
-    # Save to output
-    log_info(logger, f"Saving cleaned data to {output_file}")
+    logger.info(f"Loaded {initial_count} records. Starting cleaning process.")
+
+    # 1. Filter for cubic crystal system
+    # Handle potential NaNs in the 'crystal_system' column if it exists
+    if 'crystal_system' in df.columns:
+        # Ensure string comparison handles NaNs gracefully
+        mask_cubic = df['crystal_system'].notna() & (df['crystal_system'].str.lower() == 'cubic')
+        count_before = len(df)
+        df = df[mask_cubic]
+        count_after = len(df)
+        logger.info(f"Filtered for cubic system: {count_before} -> {count_after} records.")
+    else:
+        logger.warning("Column 'crystal_system' not found in input. Skipping cubic filter based on this column.")
+        # If 'fss' tag or similar is used, it would be handled here if the schema differs.
+        # Assuming the schema matches the spec for now.
+
+    # 2. Exclude entries where C11 == C12 (Division by zero protection)
+    # We use a small epsilon for float comparison safety, though strict equality is requested
+    # to prevent division by zero.
+    mask_valid_diff = (df['C11'] - df['C12']).abs() > 1e-9
+    count_before = len(df)
+    df = df[mask_valid_diff]
+    count_after = len(df)
+    logger.info(f"Filtered C11 != C12: {count_before} -> {count_after} records.")
+
+    # 3. Calculate A1 = 2*C44 / (C11 - C12)
+    df['A1'] = (2.0 * df['C44']) / (df['C11'] - df['C12'])
+
+    # Handle potential NaNs or Infs resulting from calculation (e.g. if C44 is NaN)
+    count_before = len(df)
+    df = df[df['A1'].notna()]
+    df = df[np.isfinite(df['A1'])]
+    count_after = len(df)
+    if count_before != count_after:
+        logger.warning(f"Removed {count_before - count_after} records with invalid A1 values (NaN/Inf).")
+
+    # Ensure output directory exists
+    ensure_directories()
+
+    # Save to CSV
+    output_file = Path(output_path)
     df.to_csv(output_file, index=False)
-    
-    log_success(logger if hasattr(logger, 'success') else logger, 
-               f"Cleaned data saved: {len(df)} rows -> {output_file}")
-    
+    logger.info(f"Cleaned data saved to {output_file} ({len(df)} records)")
+
     return df
 
+
 def main():
-    """Main entry point for cleaning script."""
-    log_info(logger, "Starting elastic data cleaning pipeline")
-    
+    """CLI entry point for cleaning task."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     try:
         df = clean_elastic_data()
-        log_info(logger, f"Successfully cleaned data. Output: {len(df)} rows")
-        return 0
+        logger.info("Cleaning completed successfully.")
+        sys.exit(0)
     except FileNotFoundError as e:
-        log_error(logger, f"File not found: {e}")
-        return 1
+        logger.error(f"File error: {e}")
+        sys.exit(1)
     except ValueError as e:
-        log_error(logger, f"Validation error: {e}")
-        return 2
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        log_error(logger, f"Unexpected error: {e}")
-        raise
+        logger.error(f"Unexpected error during cleaning: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

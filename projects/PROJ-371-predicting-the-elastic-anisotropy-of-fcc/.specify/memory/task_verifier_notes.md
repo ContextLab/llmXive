@@ -2,17 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The claim only states the intended command; no actual directory tree or file listing is provided to confirm that `src/data`, `src/models`, `src/utils`, `src/cli`, `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, and `output` were created. Without concrete evidence of these folders existing, the task requirement is not satisfied.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts are present in the provided evidence, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration artifacts.
-- **T004** — declared artifact(s) missing/empty/invalid: src/utils/config.py
-- **T005** — declared artifact(s) missing/empty/invalid: src/utils/logging.py
-- **T007** — No evidence of the required `data/raw/` and `data/processed/` directories or accompanying `.gitkeep` files is provided; the implementer’s claim cannot be verified against any actual artifacts. The task remains undone until those directories with non‑empty `.gitkeep` placeholders are present in the repository.
-- **T012** — declared artifact(s) missing/empty/invalid: src/data/ingest.py
-- **T013** — declared artifact(s) missing/empty/invalid: src/data/clean.py
-- **T014** — declared artifact(s) missing/empty/invalid: src/data/features.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/utils/config.py
+- **T014b** — declared artifact(s) missing/empty/invalid: src/data/group_elements.py, data/processed/element_groups.json
 - **T015** — declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py, data/processed/elastic_anisotropy.csv
 - **T016** — declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py
-- **T017** — No artifacts (e.g., CI logs, script output CSV/JSON, performance metrics, or a report) were provided to demonstrate that the data pipeline was executed on a free‑tier CI runner with CPU‑only resources and a sample subset of entries. Without such evidence the claim cannot be verified.
-- **T018** — declared artifact(s) missing/empty/invalid: tests/unit/test_train.py
-- **T019** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate.py
-- **T020** — declared artifact(s) missing/empty/invalid: src/models/train.py
+- **T019#1** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/models/evaluate.py, data/processed/residuals_and_flags.json
+- **T023** — No timing logs, benchmark results, or execution evidence were provided to demonstrate that the model training script actually finishes within 1 hour on a standard CPU environment. Without such artifacts, we cannot confirm the acceptance criterion for US‑2. The implementer must supply concrete run logs or a reproducible benchmark showing the training duration.
+- **T024** — No `output/metrics.json` file or any evidence of logging hyperparameters and performance metrics is present; without this artifact the task requirement is not satisfied. The implementer must create the JSON file in the specified path containing the model’s hyperparameter settings and the evaluation metrics (e.g., R², MAE, RMSE) for traceability.
+- **T025** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate.py
+- **T026** — declared artifact(s) missing/empty/invalid: tests/unit/test_sensitivity.py

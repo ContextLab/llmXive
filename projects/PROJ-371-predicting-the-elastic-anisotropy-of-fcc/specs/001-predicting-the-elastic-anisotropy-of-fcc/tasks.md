@@ -20,32 +20,12 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p src/{data,models,utils,cli} tests/{unit,integration} data/{raw,processed} output` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T002 Create `pyproject.toml` with dependencies: `pandas, scikit-learn, mendeleev, requests, pyyaml, matplotlib, python-dotenv, ruff, black, pytest`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001-new [P] Create project directory structure: `mkdir -p src/{data,models,utils,cli} tests/{unit,integration} data/{raw,processed} output`
+- [ ] T003-new [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml` and `.ruff.toml`
 
 ---
 
@@ -55,13 +35,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
-
-- [ ] T004 Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (42), and constants
-- [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and error tracking
-- [X] T006 Create `tests/unit/test_config.py` to verify configuration loading and seed reproducibility
-- [ ] T007 Setup `data/raw/` and `data/processed/` directory structures with `.gitkeep`
-- [X] T008 Create `tests/unit/test_logging.py` to verify log output formats
+- [ ] T002-new [P] **Implement LOEO Splitter Function**: Implement the core Leave-One-Element-Out (LOEO) *algorithm* (function logic) in `src/models/loeo_split.py`. This task creates the reusable function that accepts a list of element groups and returns train/test indices. **Note**: This task implements the *logic* only; it does NOT generate split artifacts. The execution of this logic to create artifacts is handled in T021. (Plan: Complexity Tracking, Constitution Principle VII Mitigation)
+- [ ] T004-new [P] Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (fixed for reproducibility), constants, and **configurable sensitivity analysis thresholds** (default: [2.5, 3.0, 3.5] std devs).
+- [ ] T005-new [P] Implement `src/utils/logging.py` for structured logging and error tracking
+- [ ] T006-new [P] [US1] Add `tests/unit/test_config.py` to verify configuration loading and seed reproducibility (Depends on T004-new)
+- [ ] T007-new [P] Setup `data/raw/` and `data/processed/` directory structures with `.gitkeep`
+- [ ] T008-new [P] [US1] Add `tests/unit/test_logging.py` to verify log output formats (Depends on T005-new)
+- [ ] T019-new [US1] Implement API key loading via `python-dotenv` in `src/utils/config.py`; add validation for `MP_API_KEY` presence; raise explicit error if missing. **Dependency**: Must run after T004-new (config.py creation). (FR-001, Constitution Principle I)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,24 +51,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Fetch elastic constants from public databases and compute compositional descriptors automatically.
 
-**Independent Test**: Can be fully tested by running the data pipeline script against a static subset of known FCC entries and verifying the output CSV contains the required columns (C11, C12, C44, A1, descriptors).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T009 [P] [US1] Add `tests/unit/test_features.py::test_descriptor_variance_handles_empty_input` to verify descriptor calculation handles empty input without crashing
-- [X] T010 [P] [US1] Add `tests/unit/test_ingest.py::test_ingest_handles_missing_C11` to verify the ingest script skips entries with missing C11 and logs the ID
-- [X] T011 [P] [US1] Add `tests/integration/test_pipeline.py::test_pipeline_end_to_end_static` using a static manifest `data/raw/manifest_subset.json` containing a list of known FCC material IDs (e.g., MP-123, AFLOW-456) to verify the full pipeline runs on a known subset
+**Independent Test**: Can be fully tested by running the data pipeline script (`T015`) against a static subset of known FCC entries (via `--test-mode`) and verifying the output CSV contains the required columns (C11, C12, C44, A1, descriptors).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/ingest.py` to fetch C11, C12, C44 from Materials Project and AFLOWlib APIs for a curated list of FCC IDs; validate `MP_API_KEY` environment variable; handle missing values by skipping and logging ID; verify ≥50 unique entries (SC-001) (FR-001, Edge Case 1) <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `src/data/clean.py` to filter for single-phase FCC entries, exclude entries where C11=C12 (preventing division by zero in A1), and calculate A1 = 2*C44 / (C11-C12) (Edge Case 2, Edge Case 3)
+- [ ] T011-new [P] [US1] Create and populate `data/raw/manifest.json` with a curated list of known FCC material IDs (e.g., MP-123, AFLOW-456) to serve as the input source for the ingestion script. This task ensures T012a/b have a defined input artifact. (FR-001, SC-001, F001)
+- [ ] T012a [US1] Implement `src/data/ingest_mp.py` to fetch C11, C12, C44 from Materials Project API (endpoint: `/materials/v1/elasticity`) for IDs in `manifest.json`. **CRITICAL**: Do NOT implement fallback to synthetic/mock data. If API key missing or fetch fails, raise explicit error. For `--test-mode`, load static fixtures from `data/raw/manifest.json` (real data subset), NOT synthetic mocks. (FR-001, Edge Case 1)
+- [ ] T012b [US1] Implement `src/data/ingest_aflow.py` to fetch C11, C12, C44 from AFLOWlib API for IDs in `manifest.json`. **CRITICAL**: If API key missing or fetch fails, raise explicit error. For `--test-mode`, load static fixtures. (FR-001, Edge Case 1)
+- [ ] T012c [US1] Implement `src/data/validate_ingest.py` to merge MP/AFLOW results, verify ≥50 unique entries (SC-001), and log skipped IDs. (FR-001, SC-001)
+- [ ] T013 [US1] Implement `src/data/clean.py` to filter for single-phase FCC entries (check `structure['symmetry']['crystal_system'] == 'cubic'` for MP; check `tags['fss']` or equivalent cubic flag for AFLOW), exclude entries where C11=C12 (preventing division by zero in A1), and calculate A1 = 2*C44 / (C11-C12) (Edge Case 2, Edge Case 3)
 - [ ] T014 [US1] Implement `src/data/features.py` to compute atomic radius variance, electronegativity standard deviation, and valence electron concentration using `mendeleev` or `pymatgen` (FR-002)
-- [ ] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`
+- [ ] T014b [US1] Implement `src/data/group_elements.py` to parse chemical formulas from the cleaned dataset and generate `data/processed/element_groups.json` (mapping element -> list of material IDs) required for LOEO cross-validation. **Dependency**: Must not start until T002-new is complete. (Dependency for T021)
+- [ ] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`. **Must support `--test-mode` flag**: if set, bypass live API calls (T012a/b) and load static fixtures from `data/raw/manifest.json` to enable offline testing. **Verification**: Verify output CSV exists at `data/processed/elastic_anisotropy.csv` with >0 rows. (FR-001, US-1 Acceptance 2, executability-41ed0ce7)
 - [ ] T016 [US1] Add validation in `src/cli/run_pipeline.py` to ensure output CSV has no null values in descriptor columns (US-1 Acceptance 2)
-- [ ] T017 [US1] Verify pipeline execution on free-tier CI constraints (CPU only, <7GB RAM) by running with a sample subset of entries
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,20 +75,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: Can be fully tested by executing the training script on the preprocessed dataset and verifying the output JSON contains R², MAE, and RMSE metrics for each model type.
 
-**⚠️ Dependency**: This phase depends on the completion of T015 (Data Pipeline) which produces the cleaned dataset required for LOEO splitting.
+**⚠️ Dependency**: This phase depends on the completion of T011-new (Manifest), T014b (Element Grouping), and T015 (Data Pipeline). **Crucially**, it depends on T002-new (LOEO Logic) for the splitter function and T021 (LOEO Execution) for the split artifacts.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T018 [P] [US2] Add `tests/unit/test_train.py::test_loeo_split_no_element_overlap` to verify the LOEO split logic ensures no element overlap between train and test sets
-- [ ] T019 [P] [US2] Add `tests/unit/test_evaluate.py::test_metrics_calculation_matches_scikit_learn` to verify R², MAE, and RMSE calculations match scikit-learn standards
+- [ ] T040 [P] [US2] Add `tests/unit/test_evaluate.py::test_metrics_calculation_matches_scikit_learn` to verify R², MAE, and RMSE calculations match scikit-learn standards. **Also verify**: This task must check if R² >= 0.5 and log the result as 'benchmark_status' in `output/metrics.json` to satisfy SC-004. (SC-004, US-2 Acceptance 2)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `src/models/train.py` to train Random Forest, Gradient Boosting, and Linear Regression models using CPU-only resources (no GPU/CUDA) with Leave-One-Element-Out (LOEO) cross-validation. **Note**: This deviates from Spec's "random 80/20 split" assumption; justification: Plan.md "Complexity Tracking" and Constitution Principle VII mitigation to prevent chemical similarity leakage. Requires data pre-grouped by element (produced by T014) (FR-003, Constitution Principle VII Mitigation, US-2 Acceptance 1)
-- [ ] T021 [US2] Implement LOEO cross-validation logic in `src/models/train.py` to mitigate chemical similarity leakage; document trade-off between LOEO and Spec's random split assumption (Plan: Constitution Principle VII Mitigation)
-- [ ] T022 [US2] Implement `src/models/evaluate.py` to compute R², MAE, and RMSE on the held-out test set and save results to `output/metrics.json` (US-2 Acceptance 2)
-- [ ] T023 [US2] Ensure training completes within 1 hour on standard CPU environment (US-2 Acceptance 1)
-- [ ] T024 [US2] Log model hyperparameters and performance metrics to `output/metrics.json` for traceability (Constitution Principle IV)
+- [ ] T021 [US2] **Execute LOEO Splitting**: Import the LOEO splitter function implemented in T002-new (`src/models/loeo_split.py`). Execute this function using `data/processed/element_groups.json` (from T014b) as input to generate train/test indices. Save the resulting split indices to `data/processed/loeo_splits.json`. **Dependency**: Must run after T002-new (logic) and T014b (groups). **Verification**: Verify `data/processed/loeo_splits.json` exists and contains valid indices. (Plan: Constitution Principle VII Mitigation, executability-6a227e3d)
+- [ ] T020 [US2] Implement `src/models/train.py` to train Random Forest, Gradient Boosting, and Linear Regression models using CPU-only resources (no GPU/CUDA). **Dependency**: Must consume `data/processed/loeo_splits.json` from T021. **Logic**: Load pre-computed splits; do NOT re-calculate splits. **Verification**: Ensure no CUDA imports; log hyperparameters. (FR-003, Constitution Principle VII Mitigation, coverage-e7c20276)
+- [ ] T022 [US2] Implement `src/models/evaluate.py` to compute R², MAE, and RMSE on the held-out test set, **save residuals and outlier-flagged dataset** to `data/processed/residuals_and_flags.json`, and save metrics to `output/metrics.json`. **Verification**: Verify `data/processed/residuals_and_flags.json` exists and contains data. (US-2 Acceptance 2, Dependency for T027, executability-6a227e3d)
+- [ ] T037 [US2] Implement timing instrumentation in `src/cli/run_pipeline.py` to measure total runtime and **log the result to `output/timing.json`**. If runtime > 1 hour, log a **warning** (do not crash/assert) and flag the run as 'timeout_warning'. This task verifies US-2 Acceptance 1. (coverage-b92b8fbe, coverage-d3940482, constraint_preservation-f8033372)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,20 +97,23 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Verify predictions adhere to physical bounds, perform sensitivity analysis, and generate reports.
 
-**Independent Test**: Can be tested by running the validation script on model predictions and verifying the report flags any values outside the theoretical range (0 < A₁ < 3) and includes the sensitivity analysis.
+**Independent Test**: Can be tested by running the validation script on the model predictions and verifying the report flags any values outside the theoretical range (0 < A₁ < 3) and includes the sensitivity analysis.
+
+**⚠️ Dependency**: This phase depends on the completion of T022 (Metrics & Residuals). **Ordering Note**: T028 (Physical Check) must precede T027 (Sensitivity) to ensure physical consistency is checked before sensitivity sweeps on the data.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T025 [P] [US3] Add `tests/unit/test_evaluate.py::test_physical_bounds_flags_out_of_range` to verify the consistency check flags predictions outside 0 < A₁ < 3
-- [ ] T026 [P] [US3] Add `tests/unit/test_sensitivity.py::test_sensitivity_sweep_variance_calculation` to verify the variance calculation across the sweep {2.5, 3.0, 3.5} and the threshold check (<= 0.1)
+- [ ] T026 [P] [US3] Add `tests/unit/test_sensitivity.py::test_sensitivity_sweep_variance_calculation` to verify the variance calculation across the sweep and the threshold check (<= 0.1)
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `src/models/sensitivity.py` to sweep outlier removal thresholds over a range of standard deviations (FR-005), calculate the variance of R² across these three sweeps, and log a warning if variance > 0.1 (US-3 Acceptance 2, Merged T031 logic)
-- [ ] T028 [US3] Implement `src/models/evaluate.py` physical consistency check to flag predictions where A1 <= 0 or A1 >= 3 (SC-003, US-3 Acceptance 1)
-- [ ] T029 [US3] Generate `output/validation_report.md` including feature importance, sensitivity analysis results (variance <= 0.1 check), and explicit associational framing (FR-004, US-3 Acceptance 2)
+- [ ] T028 [US3] Implement `src/models/evaluate.py` physical consistency check to flag predictions where A1 <= 0 or A1 >= 3 (SC-003, US-3 Acceptance 1). **Output**: Update `data/processed/residuals_and_flags.json` with physical violation flags.
+- [ ] T028b [US3] Implement logic in `src/models/evaluate.py` to **calculate the aggregate violation rate percentage** and compare it against a predefined significance threshold defined in SC-003; log a warning if rate > 5% (SC-003, coverage-a9a2778d)
+- [ ] T027 [US3] Implement `src/models/sensitivity.py` to sweep outlier removal thresholds over a **configurable range of standard deviation values** (loaded from `src/utils/config.py`, default: [2.5, 3.0, 3.5]). Calculate the variance of R² across these sweeps using the residuals from T022, **save the variance value to `output/sensitivity.json` and `output/metrics.json`**, and log a warning if variance > 0.1 (US-3 Acceptance 2, FR-005, coverage-f3d78a40, coverage-6955ef8c, coverage-4e26fac5)
+- [ ] T029 [US3] Generate `output/validation_report.md` including feature importance, sensitivity analysis results (variance <= 0.1 check), explicit **associational framing** (FR-004: "findings reflect correlations, not causal mechanisms"), and the violation rate percentage from T028b. **Verification**: Ensure report contains the exact phrase "associational, not causal". (FR-004, US-3 Acceptance 2, coverage-e01bcda2)
 - [ ] T030 [US3] Implement Verification Gate logic in `src/cli/run_pipeline.py` to ensure all citations in the report are resolvable and metrics match `output/metrics.json` (Constitution Principle II)
-- [ ] T031 [US3] **REMOVED**: Logic merged into T027.
+- [ ] T041 [US2] Implement logic in `output/metrics.json` generation (or `src/models/evaluate.py`) to explicitly check if R² >= 0.5 and log a boolean `benchmark_met` and a string `benchmark_status` (e.g., "Met", "Not Met") to satisfy SC-004. (SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,11 +124,10 @@ Examples of foundational tasks (adjust based on your project):
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T032 [P] Update `README.md` (installation, CLI usage) and create `docs/quickstart.md`
-- [ ] T033 Run `ruff check` and `black --check`; fix any violations found in `src/` and `tests/`
-- [ ] T034 Implement API key loading via `python-dotenv` in `src/utils/config.py`; add validation for `MP_API_KEY` presence (Replaces removed timing task)
-- [ ] T035 [P] If tests requested: Add missing coverage for edge cases in `tests/unit/`; otherwise, skip
-- [ ] T036 Execute `python -m src.cli.run_pipeline --validate` and verify exit code 0
-- [ ] T037 Verify full pipeline runtime < 1 hour on CPU-only CI; log timing breakdown in `output/timing.json` (Optional manual check, not automated artifact)
+- [ ] T033 [P] Run `ruff check` and `black --check`; fix any violations found in `src/` and `tests/`
+- [ ] T035a [P] Add `tests/unit/test_ingest.py::test_ingest_handles_missing_C11` to verify skipping and logging (Edge Case 1)
+- [ ] T035b [P] Add `tests/unit/test_clean.py::test_clean_excludes_C11_equals_C12` to verify division-by-zero handling (Edge Case 2)
+- [ ] T036 [P] Execute `python -m src.cli.run_pipeline --validate` and verify exit code 0
 
 ---
 
@@ -169,8 +145,8 @@ Examples of foundational tasks (adjust based on your project):
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T015)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T015), Element Grouping (T014b), **Manifest (T011-new)**, **LOEO Logic (T002-new)**, and **LOEO Execution (T021)**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output (T022, T028)
 
 ### Within Each User Story
 

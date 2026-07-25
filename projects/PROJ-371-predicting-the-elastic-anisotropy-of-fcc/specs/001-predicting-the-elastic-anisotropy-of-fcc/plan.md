@@ -13,7 +13,7 @@ This project implements a CPU-only data pipeline and regression modeling framewo
 **Primary Dependencies**: `pandas`, `scikit-learn`, `mendeleev`, `requests`, `pyyaml`, `matplotlib`, `huggingface_hub`  
 **Storage**: Local CSV/Parquet files (data/), JSON reports (output/)  
 **Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, 7GB RAM, no GPU)  
 **Project Type**: Data Science / Scientific Computing CLI  
 **Performance Goals**: Complete full pipeline (ingest → train → validate) within 6 hours on free-tier CPU.  
 **Constraints**: No GPU usage; strict adherence to physical bounds for $A_1$; associational framing only; API key required for Materials Project.  
