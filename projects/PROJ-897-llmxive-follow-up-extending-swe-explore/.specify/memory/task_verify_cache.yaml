@@ -15,3 +15,17 @@ T046:
     \ feature specification unrelated to the statistical test. The required artifact\
     \ (e.g., a script, notebook, or results showing the Bonferroni adjustment applied\
     \ and validated) is missing."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or results implementing a permutation test sensitivity\
+    \ check were provided; the only evidence is the high\u2011level feature description,\
+    \ which does not contain the required artifact. The task remains undone."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or data artifacts (e.g., dataset curation scripts, iterative
+    agent implementation, or metric calculation tools) are present in the repository;
+    the task required concrete implementations for static analysis error handling
+    and neutral signal generation, which are missing. The claim cannot be verified
+    because the required artifacts do not exist.

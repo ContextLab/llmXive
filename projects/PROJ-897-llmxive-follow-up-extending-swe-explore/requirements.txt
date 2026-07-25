@@ -1,29 +1,16 @@
-# Core dependencies
-numpy>=1.24.0
-pandas>=2.0.0
-matplotlib>=3.7.0
-jinja2>=3.1.0
-pyyaml>=6.0
-
-# Dataset handling
-datasets>=2.14.0
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.11.0
-matplotlib>=3.7.0
-jinja2>=3.1.0
-pyyaml>=6.0.0
-
-# Statistical analysis
-lifelines>=0.27.0
-scipy>=1.11.0
-
-# Code analysis
-pylint>=3.0.0
-
-# Testing
-pytest>=7.4.0
-
-# Formatting/Linting (dev)
-black>=23.0.0
-ruff>=0.1.0
+# Existing dependencies
+datasets
+pandas
+numpy
+matplotlib
+jinja2
+pyyaml
+pytest
+ruff
+black
+libcst
+llama-cpp-python
+# New dependency for stats (if not already present)
+# Note: The task assumes stats.py uses numpy/scipy. If lifelines is required, add it here.
+# lifelines
+# scipy

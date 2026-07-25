@@ -1,84 +1,49 @@
-"""
-Configuration module for llmXive project.
-Defines paths, seeds, model configurations, and critical thresholds.
-"""
 import os
 from pathlib import Path
 from typing import Final, Dict, Any
 from datetime import datetime
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Project root
-PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
-
-# Configuration defaults
-DEFAULT_CONFIG: Final = {
-    "RANDOM_SEED": 42,
-    "CPU_ONLY": True,
-    "MAX_WORKERS": 2,
-    # Critical Thresholds
-    "COMPLEXITY_THRESHOLD": 10,  # For hard instance selection (diagnostic)
-    "HARD_INSTANCE_PERCENTILE": 0.20,  # Bottom 20% of coverage scores
-    "MAX_SYNTHETIC_ISSUES": 50,  # Fixed size for synthetic generation
-    "VALIDATION_SAMPLE_SIZE": 20,  # For validation report (T015)
-    # Model Config
-    "MODEL_QUANTIZATION": "q4_0",
-    "N_GPU_LAYERS": 0,
-    "N_CTX": 2048,
-    # Execution Limits
-    "TURN_LIMIT_DEFAULT": 3,
-    "SWEEP_SAMPLE_SIZE": 100,
-    "SWEEP_TURN_LIMIT": 4,
-    "TIMEOUT_HOURS": 6.0,
-    "SYNTHETIC_COUNT": 50,
-    "timestamp": datetime.now().isoformat()
+PATHS: Dict[str, Path] = {
+    "data_raw": BASE_DIR / "data" / "raw",
+    "data_curated": BASE_DIR / "data" / "curated",
+    "data_results": BASE_DIR / "data" / "results",
+    "tests_unit": BASE_DIR / "tests" / "unit",
+    "tests_contract": BASE_DIR / "tests" / "contract",
+    "contracts": BASE_DIR / "contracts",
+    "docs": BASE_DIR / "docs",
+    "paper": BASE_DIR / "paper",
+    "code": BASE_DIR / "code",
 }
 
-
-def get_path(*subdirs: str) -> Path:
-    """
-    Get a path relative to the project root.
-    
-    Args:
-        *subdirs: Subdirectory components.
-    
-    Returns:
-        Path object.
-    """
-    return PROJECT_ROOT / "data" / Path(*subdirs)
-
+CONFIG: Dict[str, Any] = {
+    "random_seed": 42,
+    "cpu_only": True,
+    "complexity_threshold": 50,
+    "hard_instance_percentile": 0.20,
+    "min_synthetic_issues": 10,
+    "validation_sample_size": 5,
+    "max_turns": 3,
+    "force_quantization": True,
+}
 
 def ensure_directories() -> None:
     """Ensure all required directories exist."""
-    dirs = [
-        "raw",
-        "curated",
-        "results",
-        "agent_logs",
-        "figures",
-        "paper"
-    ]
-    
-    for d in dirs:
-        (PROJECT_ROOT / "data" / d).mkdir(parents=True, exist_ok=True)
-    
-    (PROJECT_ROOT / "code" / "utils").mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "tests").mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "contracts").mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "docs").mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "paper").mkdir(parents=True, exist_ok=True)
+    for path in PATHS.values():
+        path.mkdir(parents=True, exist_ok=True)
 
+def get_path(key: str) -> Path:
+    """Get a specific path by key."""
+    if key not in PATHS:
+        raise KeyError(f"Path key '{key}' not found in PATHS")
+    return PATHS[key]
 
 def get_config_summary() -> Dict[str, Any]:
-    """
-    Get a summary of the current configuration.
-    
-    Returns:
-        Dictionary of configuration values.
-    """
-    return DEFAULT_CONFIG.copy()
-
-
-if __name__ == "__main__":
-    print("Project Root:", PROJECT_ROOT)
-    print("Config Summary:", get_config_summary())
+    """Return a summary of the current configuration."""
+    return {
+        "base_dir": str(BASE_DIR),
+        "timestamp": datetime.now().isoformat(),
+        "config": CONFIG,
+        "paths": {k: str(v) for k, v in PATHS.items()}
+    }

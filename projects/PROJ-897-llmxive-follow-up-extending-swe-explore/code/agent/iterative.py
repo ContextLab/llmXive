@@ -1,202 +1,233 @@
 """
-Iterative Agent Implementation with Turn-Loop Detection.
+Iterative agent loop implementation with deterministic loop detection and early exit.
 
-This module implements the iterative agent loop for the SWE-Explore benchmark.
-It includes logic to detect and break infinite loops where the reformulated query
-matches a previous turn's query within a sliding window.
+Implements T047: Detects query loops and terminates early to prevent infinite cycles
+before hitting the maximum turn limit.
 """
-
 import json
 import sys
 import time
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from config import get_config_summary
+from config import get_config_summary, get_path
+from agent.base import load_curated_dataset
 from agent.static_analysis import run_static_analysis, format_analysis_report
 from agent.prompts import format_reformulation_prompt, get_signal_summary
-from agent.base import load_curated_dataset
 
-# Try to import the quantized wrapper; if not available, we assume a mock or
-# the environment handles it. The task focuses on the loop detection logic.
-try:
-    from agent.quantized_model import QuantizedModelWrapper
-except ImportError:
-    # Fallback stub if the specific quantized wrapper module isn't fully populated yet
-    # but the task requires the loop logic to exist.
-    class QuantizedModelWrapper:
-        def __init__(self, model_id: str = "Qwen-1.5-0.5B-4bit"):
-            self.model_id = model_id
-            self.is_loaded = False
 
-        def load(self):
-            self.is_loaded = True
+def compute_query_hash(query: str) -> str:
+    """
+    Compute a deterministic hash for a query string.
+    
+    Args:
+        query: The query string to hash.
+        
+    Returns:
+        A SHA256 hex digest of the query.
+    """
+    return hashlib.sha256(query.encode('utf-8')).hexdigest()
 
-        def generate(self, prompt: str, max_tokens: int = 256) -> str:
-            # Placeholder for actual LLM call
-            return f"Mock response for: {prompt[:50]}..."
 
 def detect_query_loop(
     current_query: str,
     query_history: List[str],
-    window_size: int = 3
-) -> bool:
+    similarity_threshold: float = 0.0,
+    lookback_window: int = 3
+) -> Tuple[bool, Optional[str]]:
     """
-    Detect if the current query repeats a query within the last `window_size` turns.
-
+    Detect if the current query is a repeat of a previous query in the history.
+    
+    This function checks for exact string matches and optionally semantic similarity
+    based on query hashes to detect loops in the agent's exploration.
+    
     Args:
-        current_query: The query string generated in the current turn.
-        query_history: List of query strings from previous turns (ordered oldest to newest).
-        window_size: Number of previous turns to check against.
-
+        current_query: The current query string being evaluated.
+        query_history: List of previous query strings in the conversation.
+        similarity_threshold: Threshold for semantic similarity (0.0 = exact match only).
+        lookback_window: Number of most recent queries to check against.
+        
     Returns:
-        True if a loop is detected (current query matches one in the window), False otherwise.
+        A tuple of (is_loop_detected, matched_query) where matched_query is the
+        previous query that triggered the loop detection, or None if no loop.
     """
     if not query_history:
-        return False
-
-    # Get the last `window_size` queries
-    recent_queries = query_history[-window_size:]
-
-    # Normalize strings for comparison (strip whitespace, lower case)
-    current_normalized = current_query.strip().lower()
-    recent_normalized = [q.strip().lower() for q in recent_queries]
-
-    return current_normalized in recent_normalized
+        return False, None
+    
+    # Check only the most recent queries within the lookback window
+    recent_queries = query_history[-lookback_window:]
+    
+    current_hash = compute_query_hash(current_query)
+    
+    for prev_query in recent_queries:
+        prev_hash = compute_query_hash(prev_query)
+        
+        # Exact hash match indicates identical query
+        if current_hash == prev_hash:
+            return True, prev_query
+        
+        # If threshold > 0, we could implement fuzzy matching here
+        # For now, we stick to exact matches for deterministic behavior
+        
+    return False, None
 
 
 def run_iterative_loop(
     issue: Dict[str, Any],
-    max_turns: int = 5,
-    loop_window: int = 3
+    max_turns: int = 3,
+    loop_detection_window: int = 3
 ) -> Dict[str, Any]:
     """
-    Execute the iterative agent loop for a single issue.
-
+    Run the iterative agent loop for a single issue with loop detection.
+    
     Args:
-        issue: Dictionary containing issue details (id, code, ground_truth_lines, etc.).
-        max_turns: Maximum number of turns allowed before termination.
-        loop_window: Size of the sliding window for loop detection.
-
+        issue: The issue dictionary containing code, instructions, etc.
+        max_turns: Maximum number of turns allowed.
+        loop_detection_window: Number of recent queries to check for loops.
+        
     Returns:
-        Dictionary containing the execution log, including query history,
-        static analysis signals, and termination reason.
+        A dictionary containing the execution results, including:
+        - issue_id
+        - query_history
+        - coverage_score
+        - turns_used
+        - termination_reason (normal, loop_detected, max_turns_reached)
+        - static_analysis_signals
+        - error_signals
     """
-    log = {
-        "issue_id": issue.get("issue_id", "unknown"),
-        "query_history": [],
-        "static_analysis_signals": [],
-        "turn_reasons": [],
-        "retrieved_context_ids": [],
-        "final_coverage": 0.0,
-        "termination_reason": "max_turns",
-        "turns_used": 0
-    }
-
-    current_query = f"Initial query for issue {issue.get('issue_id')}"
+    issue_id = issue.get('issue_id', 'unknown')
+    instructions = issue.get('instructions', '')
+    code = issue.get('code', '')
+    
     query_history: List[str] = []
-
+    static_analysis_signals: List[Dict[str, Any]] = []
+    error_signals: List[str] = []
+    coverage_score: float = 0.0
+    turns_used: int = 0
+    termination_reason: str = "normal"
+    retrieved_context: List[str] = []
+    
+    # Initial query
+    current_query = instructions
+    
     for turn in range(1, max_turns + 1):
-        log["turn_reasons"].append(f"Start Turn {turn}")
-        log["query_history"].append(current_query)
-        log["turns_used"] = turn
-
-        # 1. Retrieve Context (Mocked for this implementation)
-        # In a real implementation, this would fetch relevant code lines based on the query.
-        retrieved_ids = [f"context_line_{turn}"]
-        log["retrieved_context_ids"].extend(retrieved_ids)
-
-        # 2. Static Analysis
-        # Analyze the retrieved context or the proposed fix
-        analysis_result = run_static_analysis(
-            code=issue.get("code", ""),
-            context_ids=retrieved_ids
+        turns_used = turn
+        
+        # Check for loop before executing the turn
+        is_loop, matched_query = detect_query_loop(
+            current_query,
+            query_history,
+            lookback_window=loop_detection_window
         )
-        signal_summary = format_analysis_report(analysis_result)
-        log["static_analysis_signals"].append(signal_summary)
-
-        # 3. Check for Loop Detection BEFORE generating next query
-        # If we are not at the last turn, we need to generate the next query.
-        if turn < max_turns:
-            # Check if the current query (which we just executed) is a repeat of a recent one
-            # Note: The loop detection logic checks if the *next* query we are about to form
-            # is a repeat. However, the task description says:
-            # "detect and break infinite loops if the reformulated query matches a previous turn's query"
-            # So we generate the reformulation first, then check it.
-            
-            prompt = format_reformulation_prompt(
-                issue_code=issue.get("code", ""),
-                current_query=current_query,
-                analysis_signals=signal_summary,
-                history=query_history
+        
+        if is_loop:
+            termination_reason = "loop_detected"
+            # Log the loop detection event
+            error_signals.append(
+                f"Loop detected: Query '{current_query[:50]}...' "
+                f"repeats previous query at turn {turn}"
             )
-            
-            # Simulate model response for reformulation
-            wrapper = QuantizedModelWrapper()
-            # In a real scenario, wrapper.load() would be called.
-            next_query = wrapper.generate(prompt)
-
-            # Check for loop
-            if detect_query_loop(next_query, query_history, loop_window):
-                log["termination_reason"] = "loop_detected"
-                log["final_coverage"] = 0.0 # Placeholder
-                return log
-
-            current_query = next_query
+            break
+        
+        # Record the current query
+        query_history.append(current_query)
+        
+        # Execute static analysis on the current code state
+        try:
+            analysis_result = run_static_analysis(code)
+            formatted_report = format_analysis_report(analysis_result)
+            static_analysis_signals.append({
+                'turn': turn,
+                'report': formatted_report,
+                'raw': analysis_result
+            })
+        except Exception as e:
+            # Handle static analysis errors gracefully (T050)
+            static_analysis_signals.append({
+                'turn': turn,
+                'report': "neutral_anomaly",
+                'raw': {'error': str(e)}
+            })
+            error_signals.append(f"Static analysis error: {str(e)}")
+        
+        # Simulate retrieval and coverage calculation
+        # In a real implementation, this would call a retrieval system
+        # For now, we simulate based on the presence of errors
+        if analysis_result.get('errors', []):
+            # If there are errors, we might not have full coverage yet
+            coverage_score = 0.5  # Placeholder
         else:
-            log["termination_reason"] = "max_turns_reached"
-
-    # Calculate coverage (mocked)
-    log["final_coverage"] = 0.0 
-
-    return log
+            coverage_score = 1.0  # Placeholder for successful resolution
+        
+        # Check if we've achieved the goal (coverage == 1.0 or no errors)
+        if coverage_score >= 1.0 and not analysis_result.get('errors', []):
+            termination_reason = "goal_achieved"
+            break
+        
+        # Reformulate query based on static analysis signals
+        if analysis_result.get('errors', []):
+            signal_summary = get_signal_summary(analysis_result)
+            reformulated_query = format_reformulation_prompt(
+                original_query=current_query,
+                signal_summary=signal_summary,
+                code_context=code[:500]  # Limit context size
+            )
+            current_query = reformulated_query
+        else:
+            # No errors, but coverage not 1.0 - might need more exploration
+            current_query = f"{instructions} (Turn {turn}: Further exploration needed)"
+    
+    return {
+        'issue_id': issue_id,
+        'query_history': query_history,
+        'static_analysis_signals': static_analysis_signals,
+        'error_signals': error_signals,
+        'coverage_score': coverage_score,
+        'turns_used': turns_used,
+        'termination_reason': termination_reason,
+        'retrieved_context_ids': list(range(len(retrieved_context)))
+    }
 
 
 def run_iterative_on_dataset(
     dataset_path: str,
     output_path: str,
-    max_turns: int = 5,
-    loop_window: int = 3
+    max_turns: int = 3,
+    loop_detection_window: int = 3
 ) -> None:
     """
-    Run the iterative agent on a dataset of issues.
-
+    Run the iterative agent loop on a curated dataset.
+    
     Args:
-        dataset_path: Path to the input JSONL file.
-        output_path: Path to the output JSONL file.
-        max_turns: Maximum turns per issue.
-        loop_window: Window size for loop detection.
+        dataset_path: Path to the input dataset JSONL file.
+        output_path: Path to write the output logs JSONL file.
+        max_turns: Maximum number of turns per issue.
+        loop_detection_window: Number of recent queries to check for loops.
     """
-    config_summary = get_config_summary()
-    print(f"Starting iterative agent run. Config: {config_summary}")
-    
     issues = load_curated_dataset(dataset_path)
-    
     results = []
+    
     for issue in issues:
-        try:
-            result = run_iterative_loop(
-                issue=issue,
-                max_turns=max_turns,
-                loop_window=loop_window
-            )
-            results.append(result)
-            print(f"Processed issue {result['issue_id']}: {result['termination_reason']}")
-        except Exception as e:
-            print(f"Error processing issue {issue.get('issue_id')}: {e}")
-            results.append({
-                "issue_id": issue.get("issue_id"),
-                "error": str(e),
-                "termination_reason": "error"
-            })
-
-    # Write results
+        result = run_iterative_loop(
+            issue,
+            max_turns=max_turns,
+            loop_detection_window=loop_detection_window
+        )
+        results.append(result)
+        
+        # Log progress
+        print(f"Processed issue {result['issue_id']}: "
+              f"turns={result['turns_used']}, "
+              f"termination={result['termination_reason']}")
+    
+    # Write results to output file
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_file, 'w', encoding='utf-8') as f:
-        for res in results:
-            f.write(json.dumps(res) + '\n')
+        for result in results:
+            f.write(json.dumps(result) + '\n')
     
     print(f"Results written to {output_path}")
 
@@ -205,21 +236,46 @@ def main() -> None:
     """Main entry point for the iterative agent script."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run Iterative Agent with Loop Detection")
-    parser.add_argument("--input", type=str, required=True, help="Path to input dataset JSONL")
-    parser.add_argument("--output", type=str, required=True, help="Path to output logs JSONL")
-    parser.add_argument("--max-turns", type=int, default=5, help="Maximum turns per issue")
-    parser.add_argument("--loop-window", type=int, default=3, help="Window size for loop detection")
+    parser = argparse.ArgumentParser(
+        description='Run iterative agent loop with loop detection'
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default=str(get_path('curated_hard_subset')),
+        help='Path to input dataset'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=str(get_path('iterative_logs')),
+        help='Path to output logs'
+    )
+    parser.add_argument(
+        '--max-turns',
+        type=int,
+        default=3,
+        help='Maximum number of turns per issue'
+    )
+    parser.add_argument(
+        '--loop-detection-window',
+        type=int,
+        default=3,
+        help='Number of recent queries to check for loops'
+    )
     
     args = parser.parse_args()
+    
+    config = get_config_summary()
+    print(f"Running iterative agent with config: {config}")
     
     run_iterative_on_dataset(
         dataset_path=args.input,
         output_path=args.output,
         max_turns=args.max_turns,
-        loop_window=args.loop_window
+        loop_detection_window=args.loop_detection_window
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

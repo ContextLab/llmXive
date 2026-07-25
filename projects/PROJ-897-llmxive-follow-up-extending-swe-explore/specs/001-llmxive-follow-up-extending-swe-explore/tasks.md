@@ -46,7 +46,7 @@
 - [ ] T000 [P] **Plan Amendment: Methodology Alignment**.
  - **Action**: Edit `plan.md` (Section 'Phase 0: Data Curation') to explicitly adopt `initial_coverage` for "hard" instance selection as per Spec FR-001, removing the "Cyclomatic Complexity" mandate and the prohibition of `initial_coverage`.
  - **Action**: Edit `plan.md` (Section 'Phase 2: Metric Calculation') to remove "Survival Analysis" and replace with "Exact Permutation Test" for censored data, aligning with Spec FR-006.
- - **Action**: Edit `plan.md` (Section 'Compute Feasibility') to explicitly state that float32 is likely infeasible and the primary strategy is 8-bit quantization.
+ - **Action**: Edit `plan.md` (Section 'Compute Feasibility') to explicitly state that float32 is likely infeasible and the primary strategy is 8-bit (2110.02861, https://arxiv.org/abs/2110.02861) quantization.
  - **Output**: Updated `plan.md`.
  - **Dependency**: Must be completed before T002 and T012.
  - **Traceability**: Resolves Spec vs Plan contradiction (FR-001 vs Plan Phase 0) and Plan vs Spec contradiction (Survival Analysis vs FR-006).
@@ -125,9 +125,9 @@
  - **Input**: `data/curated/non_hard_subset.jsonl` (T012c output).
  - **Logic**: Apply mutations to generate a set of issues.
  - **Mutation Strategies**:
-   1. **Variable Rename**: Rename all local variables using a deterministic hash-based mapping.
-   2. **Comment Removal**: Strip all comments (single-line and multi-line).
-   3. **Structural Obfuscation**: Use `libcst` to reorder independent `if`/`else` blocks and rename function arguments (API signature changes).
+ 1. **Variable Rename**: Rename all local variables using a deterministic hash-based mapping.
+ 2. **Comment Removal**: Strip all comments (single-line and multi-line).
+ 3. **Structural Obfuscation**: Use `libcst` to reorder independent `if`/`else` blocks and rename function arguments (API signature changes).
  - **Constraint**: **Dynamic Generation**: Generate ALL valid mutations from the input pool. **DO NOT** use a fixed cap (e.g., 50).
  - **Hard Fail Logic**: If the total count of valid mutations is 0, the script MUST fail loudly with a `ValueError`. If the count is > 0 but < `MIN_SYNTHETIC_ISSUES` (default 10), log a `CRITICAL` warning with the exact count and **proceed** with the available set.
  - **Safety**: If the pool is smaller than `MIN_SYNTHETIC_ISSUES`, generate all possible valid mutations.
@@ -192,8 +192,8 @@
 - [X] T043-Execution [US2] **Implement CPU-Quantized Model Execution**.
  - **Requirement**: Create `code/agent/quantized_llm.py` to use `llama-cpp-python` with a **strict binary decision** based on T043-MemCheck output.
  - **Logic**: Read `data/results/memory_profile.json`.
-   1. If `force_quantization` is **True**: Load **8-bit quantized** model immediately.
-   2. If `force_quantization` is **False**: Load **float32** model. **Do not fallback** to quantization inside this task; the pre-flight check is the sole decision maker.
+ 1. If `force_quantization` is **True**: Load **8-bit quantized** model immediately.
+ 2. If `force_quantization` is **False**: Load **float32** model. **Do not fallback** to quantization inside this task; the pre-flight check is the sole decision maker.
  - **Constraint**: Explicitly use `n_gpu_layers=0` and optimized `n_ctx` for CPU inference. Add runtime check to fail if memory > 7GB.
  - **Traceability**: Implements FR-014 and SC-005, aligning with Plan's risk mitigation strategy (updated by T000).
  - **Dependency**: Depends on T043-MemCheck completion.
@@ -278,7 +278,7 @@
  - **Output**: `data/results/final_metrics.json`.
  - **Dependency**: Depends on T030-Primary or T030-Permutation.
 - [X] T031 [US3] Implement `code/analysis/plots.py` for visualization of coverage and permutation curves
-- [ ] T032 [US3] Integrate `hash_artifacts.py` to hash final `data/results/final_metrics.json`
+- [ ] T032 [US3] Integrate `hash_artifacts.py` to hash final `data/results/final_metrics.json` <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T033-Zero [US3] **Create Report Template**.
  - **Action**: Create `code/analysis/report_template.j2` with sections: Abstract, Methods, Results, Discussion.
  - **Logic**: Define sections: Abstract, Methods, Results, Discussion.

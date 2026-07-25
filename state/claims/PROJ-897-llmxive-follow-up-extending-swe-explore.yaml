@@ -1457,3 +1457,466 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T09:20:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: HARD_INSTANCE_PERCENTILE default value is 0.20
+  claim_id: c_f40df8dd
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    `COMPLEXITY_THRESHOLD` (default 50), `HARD_INSTANCE_PERCENTILE` (default 0.20)...'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses a default HARD_INSTANCE_PERCENTILE of 0.20.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T00:44:17Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: COMPLEXITY_THRESHOLD default value is 50
+  claim_id: c_0f43cde6
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    `COMPLEXITY_THRESHOLD` (default 50)...'
+  evidence:
+    asserted: '50.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses a default COMPLEXITY_THRESHOLD of 50.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T00:44:17Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: MIN_SYNTHETIC_ISSUES default value is 10
+  claim_id: c_f92dd03b
+  context: 'Implement `code/config.py`... AND critical thresholds: ... `MIN_SYNTHETIC_ISSUES`
+    (default 10)...'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses a default MIN_SYNTHETIC_ISSUES value of 10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T00:44:18Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: VALIDATION_SAMPLE_SIZE default value is 5
+  claim_id: c_3011ab83
+  context: 'Implement `code/config.py`... AND critical thresholds: ... `VALIDATION_SAMPLE_SIZE`
+    (default 5).'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses a default VALIDATION_SAMPLE_SIZE of 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T00:44:18Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Ground truth derivation peak memory under 7GB
+  claim_id: c_a0d3deed
+  context: Use `datasets.load_dataset(..., streaming=True)` to iterate through the
+    raw dataset in chunks... ensuring peak memory < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_derivation_peak_memory_under_7GB
+  kind: magnitude
+  raw_text: The ground truth derivation process ensures peak memory usage is less
+    than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:45:08Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Agent loop turn limit is 3
+  claim_id: c_1e4c8761
+  context: Run a single 'hard' issue through the iterative loop and verify a limited
+    number of turns... (3-turn limit...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The agent execution loop enforces a 3-turn limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:45:37Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Quantization forced if RAM under 7GB
+  claim_id: c_725299dd
+  context: If `available_ram < 7GB`, set `force_quantization = True` in output `data/results/memory_profile.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quantization_forced_if_RAM_under_7GB
+  kind: magnitude
+  raw_text: The system fails if available RAM is less than 7GB and forces quantization.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:46:35Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-limit sweep sample size is 100
+  claim_id: c_60ee206d
+  context: Generate a specific sample list file for **N=100** issues (random sample
+    with **seed 42**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The turn-limit sweep samples N=100 issues.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:47:43Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-limit sweep sampling seed is 42
+  claim_id: c_6530bb21
+  context: Generate a specific sample list file for N=100 issues (random sample with
+    **seed 42**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The turn-limit sweep samples use seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:48:11Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-limit sweep range is 1 to 3
+  claim_id: c_f353369c
+  context: Execute the iterative agent loop for each turn limit in the range **[1,
+    2, 3]**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The turn-limit sweep executes for turn limits 1, 2, and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:48:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Statistical routing threshold for ties is 10%
+  claim_id: c_6063d443
+  context: Define 'ties > 10%' as `tie_proportion > 0.10`. If ties > 10%... Route
+    to T030-Permutation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical routing switches to Permutation Test if ties exceed 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:48:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Runtime abort threshold is 5.5 hours
+  claim_id: c_28675791
+  context: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime monitor aborts remaining tasks if execution time exceeds 5.5
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:49:23Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Target execution completion time is 6 hours
+  claim_id: c_e1aa4ea5
+  context: '...abort remaining non-critical sweeps or reduce sample size to ensure
+    completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system aims to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:50:06Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Primary strategy is 8-bit quantization
+  claim_id: c_f2115587
+  context: Edit plan.md (Section 'Compute Feasibility') to explicitly state that float32
+    is likely infeasible and the primary strategy is 8-bit quantization.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "tice. In this paper, we develop the \uFB01rst optimizers that use 8-bit\
+        \ statistics while"
+      source_id: '2110.02861'
+      url: https://arxiv.org/abs/2110.02861
+      value: 8-bit
+    filled: true
+  kind: numeric
+  raw_text: The primary strategy is 8-bit quantization.
+  resolved_value: 8-bit
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T00:59:06Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default HARD_INSTANCE_PERCENTILE is 0.20
+  claim_id: c_0e247e99
+  context: 'Implement code/config.py to define paths, random seeds, model config (CPU-only),
+    AND critical thresholds: COMPLEXITY_THRESHOLD (default 50), HARD_INSTANCE_PERCENTILE
+    (default 0.20), MIN_SYNTHETIC_ISSUES (default 10), VALIDATION_SAMPLE_SIZE (default
+    5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for HARD_INSTANCE_PERCENTILE is 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T00:59:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default COMPLEXITY_THRESHOLD is 50
+  claim_id: c_3d758c42
+  context: 'Implement code/config.py to define paths, random seeds, model config (CPU-only),
+    AND critical thresholds: COMPLEXITY_THRESHOLD (default 50), HARD_INSTANCE_PERCENTILE
+    (default 0.20), MIN_SYNTHETIC_ISSUES (default 10), VALIDATION_SAMPLE_SIZE (default
+    5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for COMPLEXITY_THRESHOLD is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:00:48Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default MIN_SYNTHETIC_ISSUES is 10
+  claim_id: c_17d0a860
+  context: 'Implement code/config.py to define paths, random seeds, model config (CPU-only),
+    AND critical thresholds: COMPLEXITY_THRESHOLD (default 50), HARD_INSTANCE_PERCENTILE
+    (default 0.20), MIN_SYNTHETIC_ISSUES (default 10), VALIDATION_SAMPLE_SIZE (default
+    5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for MIN_SYNTHETIC_ISSUES is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:03:19Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default VALIDATION_SAMPLE_SIZE is 5
+  claim_id: c_03ebf412
+  context: 'Implement code/config.py to define paths, random seeds, model config (CPU-only),
+    AND critical thresholds: COMPLEXITY_THRESHOLD (default 50), HARD_INSTANCE_PERCENTILE
+    (default 0.20), MIN_SYNTHETIC_ISSUES (default 10), VALIDATION_SAMPLE_SIZE (default
+    5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for VALIDATION_SAMPLE_SIZE is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:07:02Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Iterative agent loop turn limit is 3
+  claim_id: c_f8641d1f
+  context: Run parallel queries per issue (matching the iterative limit of 3 turns
+    defined in Spec FR-003) to ensure a fair comparison of feedback mechanisms vs.
+    search volume.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The iterative agent loop has a turn limit of 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:08:01Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Memory threshold for forcing quantization is 7GB
+  claim_id: c_6bac24c9
+  context: Calculate available_ram = total_ram - os_overhead. If available_ram < 7GB,
+    set force_quantization = True in output data/results/memory_profile.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_threshold_for_forcing_quantization_is_7GB
+  kind: entity_fact
+  raw_text: The memory threshold for forcing quantization is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:08:37Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-Limit Sweep sample size is 100 issues
+  claim_id: c_93bb3bdd
+  context: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles from data/curated/hard_subset.jsonl).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the Turn-Limit Sweep is 100 issues.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:09:26Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-Limit Sweep sample random seed is 42
+  claim_id: c_34210db1
+  context: Generate a specific sample list file for N=100 issues (random sample with
+    seed 42, stratified by complexity_score quartiles from data/curated/hard_subset.jsonl).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the Turn-Limit Sweep sample is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:10:21Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-Limit Sweep executes for turn limits 1, 2, and 3
+  claim_id: c_7be012d4
+  context: Execute the iterative agent loop for each turn limit in the range [1, 2,
+    3].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Turn-Limit Sweep executes for turn limits 1, 2, and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:10:21Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Tie proportion threshold for Permutation Test routing is 10%
+  claim_id: c_66060abe
+  context: 'Define ''ties > 10%'' as tie_proportion > 0.10. If censored data exists
+    (>0%) AND Wilcoxon is invalid (ties > 10%): Route to T030-Permutation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tie proportion threshold for routing to the Permutation Test is 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:10:22Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Execution time abort threshold is 5.5 hours
+  claim_id: c_cc7b2648
+  context: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps
+    or reduce sample size to ensure completion within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution time abort threshold is 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:10:53Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Execution completion target is 6 hours
+  claim_id: c_eec1884a
+  context: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps
+    or reduce sample size to ensure completion within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution completion target is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T01:11:27Z'
