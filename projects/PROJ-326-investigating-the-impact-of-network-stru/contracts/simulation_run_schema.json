@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SimulationRun",
-  "description": "Schema for a single simulation run result, ensuring data hygiene and provenance (Constitution Principle VI).",
+  "description": "Schema for a single simulation run result, validating data hygiene and provenance as per Constitution Principle VI.",
   "type": "object",
   "required": [
     "network_id",
@@ -21,38 +21,48 @@
     },
     "seed": {
       "type": "integer",
-      "description": "Random seed used for the simulation run."
+      "description": "The random seed used for this specific simulation run."
     },
     "diffusion_rate": {
       "type": "number",
       "format": "float",
-      "description": "Calculated rate of energy diffusion (change in spatial variance per step)."
+      "description": "Calculated rate of change of spatial variance (finite difference)."
     },
     "topology_class": {
       "type": "string",
-      "enum": ["erdos_renyi", "watts_strogatz", "barabasi_albert"],
-      "description": "The class of network topology generated."
+      "description": "The class of network topology (e.g., 'Erdos-Renyi', 'Watts-Strogatz', 'Barabasi-Albert').",
+      "enum": [
+        "Erdos-Renyi",
+        "Watts-Strogatz",
+        "Barabasi-Albert"
+      ]
     },
     "steps_run": {
       "type": "integer",
-      "description": "Number of simulation time steps executed."
+      "description": "Number of time steps executed in the simulation."
     },
     "status": {
       "type": "string",
-      "description": "Final status of the run (e.g., 'SUCCESS', 'SIMULATION_DIVERGENCE', 'DISCONNECTED_NETWORK_FAILURE')."
+      "description": "Final status of the simulation run.",
+      "enum": [
+        "SUCCESS",
+        "SIMULATION_DIVERGENCE",
+        "RUNTIME_EXCEEDED",
+        "DISCONNECTED_NETWORK_FAILURE"
+      ]
     },
     "runtime_duration_seconds": {
       "type": "number",
       "format": "float",
-      "description": "Wall-clock execution time in seconds."
+      "description": "Wall-clock execution duration in seconds."
     },
     "generation_algorithm": {
       "type": "string",
-      "description": "Name of the algorithm used to generate the graph (e.g., 'erdos_renyi', 'watts_strogatz')."
+      "description": "Name of the algorithm used to generate the network graph (e.g., 'erdos_renyi', 'watts_strogatz', 'barabasi_albert')."
     },
     "parameter_values": {
       "type": "object",
-      "description": "Dictionary of parameters used during graph generation.",
+      "description": "Dictionary of parameters used during graph generation and simulation.",
       "additionalProperties": true
     }
   },

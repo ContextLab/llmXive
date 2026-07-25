@@ -1,308 +1,349 @@
 """
-Numerical stability checks for spin system simulations.
-
-Implements divergence detection to ensure the simulation does not
-produce NaN, Inf, or unbounded energy values.
+Stability checks and runtime monitoring for spin simulations.
+Implements divergence detection, numerical stability checks, and runtime logging.
 """
 
-import numpy as np
+import json
 import logging
-from typing import Dict, Any, Optional, Tuple, List
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+from code.src.utils.logging import log_metric, get_run_log, log_run
+from code.src.utils.reproducibility import ensure_data_directory
 
 logger = logging.getLogger(__name__)
 
-# Default thresholds for stability checks
-DEFAULT_MAX_ENERGY_VALUE = 1e10
-DEFAULT_MAX_SPATIAL_VARIANCE = 1e10
-DEFAULT_ABS_TOLERANCE = 1e-9
-DEFAULT_REL_TOLERANCE = 1e-6
 
-class StabilityError(RuntimeError):
-    """Custom exception for simulation stability failures."""
+class StabilityError(Exception):
+    """Custom exception for stability check failures."""
     pass
 
-def check_for_nan_inf(
-    array: np.ndarray, 
-    name: str = "array", 
-    raise_on_error: bool = True
-) -> bool:
+
+def check_for_nan_inf(values: np.ndarray, context: str = "simulation") -> bool:
     """
-    Check if an array contains NaN or Inf values.
-    
+    Check if values contain NaN or Inf.
+
     Args:
-        array: The numpy array to check.
-        name: Name of the array for logging purposes.
-        raise_on_error: If True, raise StabilityError on detection.
-        
+        values: Array of values to check
+        context: Context for logging (default: "simulation")
+
     Returns:
-        True if array is clean (no NaN/Inf), False otherwise.
-        
-    Raises:
-        StabilityError: If NaN/Inf is detected and raise_on_error is True.
+        True if NaN/Inf found, False otherwise
     """
-    has_nan = np.any(np.isnan(array))
-    has_inf = np.any(np.isinf(array))
-    
-    if has_nan or has_inf:
-        msg = f"Numerical instability detected in {name}: NaN={has_nan}, Inf={has_inf}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    logger.debug(f"Stability check passed for {name}: no NaN/Inf")
-    return True
+    if np.any(np.isnan(values)) or np.any(np.isinf(values)):
+        logger.error(f"[{context}] NaN or Inf detected in values")
+        return True
+    return False
+
 
 def check_value_bounds(
-    value: float, 
-    max_value: float, 
-    name: str = "value", 
-    raise_on_error: bool = True
+    values: np.ndarray,
+    min_val: float = -1e10,
+    max_val: float = 1e10,
+    context: str = "simulation"
 ) -> bool:
     """
-    Check if a scalar value exceeds a maximum threshold.
-    
+    Check if values are within acceptable bounds.
+
     Args:
-        value: The scalar value to check.
-        max_value: The maximum allowed absolute value.
-        name: Name of the variable for logging.
-        raise_on_error: If True, raise StabilityError on violation.
-        
+        values: Array of values to check
+        min_val: Minimum acceptable value
+        max_val: Maximum acceptable value
+        context: Context for logging
+
     Returns:
-        True if value is within bounds, False otherwise.
-        
-    Raises:
-        StabilityError: If value exceeds bounds and raise_on_error is True.
+        True if values out of bounds, False otherwise
     """
-    if abs(value) > max_value:
-        msg = f"Value overflow detected in {name}: |{value}| > {max_value}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    logger.debug(f"Stability check passed for {name}: {value} <= {max_value}")
-    return True
+    if np.any(values < min_val) or np.any(values > max_val):
+        logger.warning(f"[{context}] Values out of bounds: [{values.min()}, {values.max()}]")
+        return True
+    return False
+
 
 def check_spatial_variance_stability(
     variance_history: List[float],
-    max_variance: float = DEFAULT_MAX_SPATIAL_VARIANCE,
-    raise_on_error: bool = True
+    threshold: float = 1e6,
+    context: str = "simulation"
 ) -> bool:
     """
-    Check if spatial variance values are within stable bounds.
-    
+    Check if spatial variance is growing unreasonably.
+
     Args:
-        variance_history: List of spatial variance values over time steps.
-        max_variance: Maximum allowed variance threshold.
-        raise_on_error: If True, raise StabilityError on violation.
-        
+        variance_history: List of variance values over time
+        threshold: Maximum acceptable variance
+        context: Context for logging
+
     Returns:
-        True if all variance values are stable, False otherwise.
+        True if variance is unstable, False otherwise
     """
     if not variance_history:
-        logger.warning("Empty variance history provided for stability check")
+        return False
+
+    max_variance = max(variance_history)
+    if max_variance > threshold:
+        logger.warning(f"[{context}] Spatial variance exceeded threshold: {max_variance} > {threshold}")
         return True
-        
-    for idx, var in enumerate(variance_history):
-        if not check_value_bounds(var, max_variance, f"variance[t={idx}]", raise_on_error):
-            return False
-    return True
+    return False
+
 
 def check_energy_density_stability(
-    energy_profile: np.ndarray,
-    max_energy: float = DEFAULT_MAX_ENERGY_VALUE,
-    raise_on_error: bool = True
+    energy_history: List[float],
+    initial_energy: float,
+    max_deviation_factor: float = 1e3,
+    context: str = "simulation"
 ) -> bool:
     """
-    Check if energy density profile is within stable bounds.
-    
+    Check if energy density is within acceptable deviation from initial.
+
     Args:
-        energy_profile: Array of energy density values.
-        max_energy: Maximum allowed energy density value.
-        raise_on_error: If True, raise StabilityError on violation.
-        
+        energy_history: List of energy values over time
+        initial_energy: Initial energy value
+        max_deviation_factor: Maximum allowed deviation factor
+        context: Context for logging
+
     Returns:
-        True if energy profile is stable, False otherwise.
+        True if energy is unstable, False otherwise
     """
-    if not check_for_nan_inf(energy_profile, "energy_profile", raise_on_error):
+    if not energy_history or initial_energy == 0:
         return False
-        
-    return check_value_bounds(
-        np.max(np.abs(energy_profile)), 
-        max_energy, 
-        "energy_profile_max", 
-        raise_on_error
-    )
+
+    max_energy = max(abs(e) for e in energy_history)
+    deviation = max_energy / abs(initial_energy)
+
+    if deviation > max_deviation_factor:
+        logger.warning(f"[{context}] Energy deviation exceeded: {deviation:.2e} > {max_deviation_factor:.2e}")
+        return True
+    return False
+
 
 def detect_divergence(
-    current_state: np.ndarray,
-    previous_state: np.ndarray,
-    abs_tol: float = DEFAULT_ABS_TOLERANCE,
-    rel_tol: float = DEFAULT_REL_TOLERANCE,
-    raise_on_error: bool = True
+    metrics: Dict[str, Any],
+    initial_energy: float,
+    variance_history: List[float],
+    energy_history: List[float]
 ) -> bool:
     """
-    Detect if the system is diverging by comparing state changes.
-    
-    A system is considered diverging if the relative change between
-    consecutive states exceeds tolerance thresholds.
-    
+    Detect if simulation has diverged based on multiple criteria.
+
     Args:
-        current_state: Current state vector (spins or energies).
-        previous_state: Previous state vector.
-        abs_tol: Absolute tolerance for small values.
-        rel_tol: Relative tolerance for larger values.
-        raise_on_error: If True, raise StabilityError on divergence.
-        
+        metrics: Current simulation metrics
+        initial_energy: Initial energy value
+        variance_history: History of spatial variance
+        energy_history: History of energy values
+
     Returns:
-        True if system is stable (no divergence), False if diverging.
-        
-    Raises:
-        StabilityError: If divergence is detected and raise_on_error is True.
+        True if divergence detected, False otherwise
     """
-    if current_state.shape != previous_state.shape:
-        msg = f"State shape mismatch: {current_state.shape} vs {previous_state.shape}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    # Calculate relative difference
-    diff = np.abs(current_state - previous_state)
-    scale = np.maximum(np.abs(current_state), np.abs(previous_state))
-    
-    # Handle zero-scale case
-    scale = np.where(scale < abs_tol, abs_tol, scale)
-    relative_diff = diff / scale
-    
-    max_relative_change = np.max(relative_diff)
-    
-    if max_relative_change > rel_tol:
-        msg = f"System divergence detected: max relative change {max_relative_change:.2e} > {rel_tol:.2e}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    logger.debug(f"Stability check passed: max relative change {max_relative_change:.2e}")
-    return True
+    # Check for NaN/Inf
+    if check_for_nan_inf(np.array(list(metrics.values())), "divergence"):
+        logger.error("[SIMULATION_DIVERGENCE] NaN/Inf detected in metrics")
+        return True
+
+    # Check variance stability
+    if check_spatial_variance_stability(variance_history, threshold=1e6, context="divergence"):
+        logger.error("[SIMULATION_DIVERGENCE] Spatial variance instability detected")
+        return True
+
+    # Check energy stability
+    if check_energy_density_stability(energy_history, initial_energy, max_deviation_factor=1e3, context="divergence"):
+        logger.error("[SIMULATION_DIVERGENCE] Energy density instability detected")
+        return True
+
+    return False
+
 
 def run_full_stability_check(
-    energy_profile: np.ndarray,
-    variance_history: List[float],
-    current_state: Optional[np.ndarray] = None,
-    previous_state: Optional[np.ndarray] = None,
-    max_energy: float = DEFAULT_MAX_ENERGY_VALUE,
-    max_variance: float = DEFAULT_MAX_SPATIAL_VARIANCE,
-    abs_tol: float = DEFAULT_ABS_TOLERANCE,
-    rel_tol: float = DEFAULT_REL_TOLERANCE,
-    raise_on_error: bool = True
-) -> Dict[str, bool]:
-    """
-    Run a comprehensive suite of stability checks.
-    
-    Args:
-        energy_profile: Current energy density profile.
-        variance_history: List of spatial variance values.
-        current_state: Current system state (optional, for divergence check).
-        previous_state: Previous system state (optional, for divergence check).
-        max_energy: Maximum allowed energy value.
-        max_variance: Maximum allowed variance value.
-        abs_tol: Absolute tolerance for divergence check.
-        rel_tol: Relative tolerance for divergence check.
-        raise_on_error: If True, raise on first failure.
-        
-    Returns:
-        Dictionary with check names and pass/fail status.
-    """
-    results = {
-        "energy_profile_nan_inf": True,
-        "energy_profile_bounds": True,
-        "variance_stability": True,
-        "divergence_detection": True
-    }
-    
-    # Check energy profile for NaN/Inf
-    try:
-        results["energy_profile_nan_inf"] = check_for_nan_inf(
-            energy_profile, "energy_profile", raise_on_error=False
-        )
-    except StabilityError:
-        results["energy_profile_nan_inf"] = False
-    
-    # Check energy profile bounds
-    if results["energy_profile_nan_inf"]:
-        try:
-            results["energy_profile_bounds"] = check_energy_density_stability(
-                energy_profile, max_energy, raise_on_error=False
-            )
-        except StabilityError:
-            results["energy_profile_bounds"] = False
-    
-    # Check variance history
-    try:
-        results["variance_stability"] = check_spatial_variance_stability(
-            variance_history, max_variance, raise_on_error=False
-        )
-    except StabilityError:
-        results["variance_stability"] = False
-    
-    # Check divergence if states provided
-    if current_state is not None and previous_state is not None:
-        try:
-            results["divergence_detection"] = detect_divergence(
-                current_state, previous_state, abs_tol, rel_tol, raise_on_error=False
-            )
-        except StabilityError:
-            results["divergence_detection"] = False
-    
-    # Log summary
-    all_passed = all(results.values())
-    if not all_passed:
-        failed_checks = [k for k, v in results.items() if not v]
-        logger.error(f"Stability check failed for: {', '.join(failed_checks)}")
-        if raise_on_error:
-            raise StabilityError(f"Stability checks failed: {failed_checks}")
-    else:
-        logger.debug("All stability checks passed")
-    
-    return results
-
-def validate_metrics_stability(
     metrics: Dict[str, Any],
-    raise_on_error: bool = True
-) -> bool:
+    initial_energy: float,
+    variance_history: List[float],
+    energy_history: List[float],
+    threshold: float = 1e6
+) -> Tuple[bool, str]:
     """
-    Validate stability of computed simulation metrics.
-    
+    Run comprehensive stability checks.
+
     Args:
-        metrics: Dictionary containing simulation metrics.
-        raise_on_error: If True, raise StabilityError on failure.
-        
+        metrics: Current simulation metrics
+        initial_energy: Initial energy value
+        variance_history: History of spatial variance
+        energy_history: History of energy values
+        threshold: Variance threshold
+
     Returns:
-        True if all metrics are stable, False otherwise.
+        Tuple of (is_stable, status_message)
     """
-    energy_profile = metrics.get("energy_profile")
-    variance_history = metrics.get("variance_history", [])
-    current_state = metrics.get("current_state")
-    previous_state = metrics.get("previous_state")
-    
-    if energy_profile is None:
-        logger.warning("No energy profile found in metrics for stability check")
-        return True
-    
-    if not isinstance(variance_history, list):
-        variance_history = [variance_history] if variance_history is not None else []
-    
+    is_divergent = detect_divergence(metrics, initial_energy, variance_history, energy_history)
+
+    if is_divergent:
+        return False, "[SIMULATION_DIVERGENCE]"
+
+    # Additional checks
+    if check_for_nan_inf(np.array(list(metrics.values())), "stability"):
+        return False, "[STABILITY_NAN_INF]"
+
+    if check_value_bounds(np.array(list(metrics.values())), context="stability"):
+        return False, "[STABILITY_BOUNDS]"
+
+    return True, "STABLE"
+
+
+def validate_metrics_stability(metrics: Dict[str, Any]) -> bool:
+    """
+    Validate that metrics are numerically stable.
+
+    Args:
+        metrics: Metrics dictionary to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
     try:
-        results = run_full_stability_check(
-            energy_profile,
-            variance_history,
-            current_state,
-            previous_state,
-            raise_on_error=raise_on_error
-        )
-        return all(results.values())
-    except StabilityError:
+        for key, value in metrics.items():
+            if isinstance(value, (int, float)):
+                if np.isnan(value) or np.isinf(value):
+                    logger.error(f"Invalid metric value for {key}: {value}")
+                    return False
+        return True
+    except Exception as e:
+        logger.error(f"Error validating metrics: {e}")
         return False
+
+
+class RuntimeLogger:
+    """
+    Manages runtime duration logging for simulation runs.
+    Records runtime_duration_seconds to data/run_log.json (FR-009).
+    """
+
+    def __init__(self, run_id: str, config: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the runtime logger.
+
+        Args:
+            run_id: Unique identifier for the simulation run
+        """
+        self.run_id = run_id
+        self.start_time: Optional[float] = None
+        self.end_time: Optional[float] = None
+        self.duration_seconds: float = 0.0
+        self.config = config or {}
+        self.log_path = Path("data/run_log.json")
+
+    def start(self) -> None:
+        """Start the runtime timer."""
+        self.start_time = time.time()
+        logger.info(f"[RuntimeLogger] Run {self.run_id} started at {datetime.now().isoformat()}")
+
+    def stop(self) -> None:
+        """Stop the runtime timer and calculate duration."""
+        if self.start_time is None:
+            logger.warning(f"[RuntimeLogger] Attempted to stop without starting run {self.run_id}")
+            return
+
+        self.end_time = time.time()
+        self.duration_seconds = self.end_time - self.start_time
+        logger.info(f"[RuntimeLogger] Run {self.run_id} completed in {self.duration_seconds:.4f} seconds")
+
+        # Log to run_log.json
+        self._log_duration()
+
+    def _log_duration(self) -> None:
+        """
+        Log the runtime duration to data/run_log.json.
+        This implements FR-009: explicit runtime logging infrastructure.
+        """
+        ensure_data_directory(self.log_path)
+
+        # Load existing log or create new
+        try:
+            with open(self.log_path, 'r') as f:
+                log_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            log_data = {"runs": []}
+
+        # Create run entry
+        run_entry = {
+            "run_id": self.run_id,
+            "start_time": datetime.fromtimestamp(self.start_time).isoformat() if self.start_time else None,
+            "end_time": datetime.fromtimestamp(self.end_time).isoformat() if self.end_time else None,
+            "runtime_duration_seconds": self.duration_seconds,
+            "status": "COMPLETED"
+        }
+
+        # Append to runs list
+        if "runs" not in log_data:
+            log_data["runs"] = []
+        log_data["runs"].append(run_entry)
+
+        # Write back
+        with open(self.log_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
+
+        logger.debug(f"[RuntimeLogger] Logged duration {self.duration_seconds:.4f}s for run {self.run_id} to {self.log_path}")
+
+
+def log_runtime_duration(
+    run_id: str,
+    duration_seconds: float,
+    status: str = "COMPLETED",
+    config: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Convenience function to log runtime duration directly.
+
+    Args:
+        run_id: Unique identifier for the run
+        duration_seconds: Duration in seconds
+        status: Status of the run (default: "COMPLETED")
+    """
+    ensure_data_directory(Path("data/run_log.json"))
+
+    log_path = Path("data/run_log.json")
+    try:
+        with open(log_path, 'r') as f:
+            log_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        log_data = {"runs": []}
+
+    run_entry = {
+        "run_id": run_id,
+        "runtime_duration_seconds": duration_seconds,
+        "status": status,
+        "logged_at": datetime.now().isoformat()
+    }
+
+    if "runs" not in log_data:
+        log_data["runs"] = []
+    log_data["runs"].append(run_entry)
+
+    with open(log_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.info(f"Logged runtime {duration_seconds:.4f}s for run {run_id} to {log_path}")
+
+
+def main() -> None:
+    """
+    Main entry point for stability module testing.
+    Demonstrates runtime logging functionality.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Stability module CLI")
+    parser.add_argument("--run-id", type=str, default="test_run", help="Run ID for logging")
+    parser.add_argument("--duration", type=float, default=1.0, help="Simulated duration in seconds")
+    args = parser.parse_args()
+
+    logger.info(f"Testing stability module with run_id={args.run_id}")
+
+    # Test runtime logging
+    logger = RuntimeLogger(args.run_id)
+    logger.start()
+    time.sleep(args.duration)
+    logger.stop()
+
+    print(f"Runtime logged for run {args.run_id}: {logger.duration_seconds:.4f}s")

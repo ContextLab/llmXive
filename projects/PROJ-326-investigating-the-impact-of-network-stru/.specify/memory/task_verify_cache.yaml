@@ -1,11 +1,3 @@
-T004b:
-  c: false
-  h: 57e632337789c2b36540056393e527ea2194e3230bbdca5320d5c5ac753b35ba
-  r: "The `data/run_log.json` file exists but only contains a generic `global_seed`\
-    \ entry and no verification logs checking that the seed matches a value from `config.yaml`.\
-    \ Moreover, `config.yaml` is missing entirely, so the required verification step\
-    \ cannot be performed. The task\u2019s requirement to inject seeds and verify\
-    \ them against the config is not satisfied."
 T005:
   c: false
   h: ff62d8687f350bb375e09fa57b5b0c1bc5965238762da4a6500f62ab9bd7c859
@@ -22,14 +14,23 @@ T018c:
     \ completed main logic) and does not actually write the required `data/raw/global_batch_manifest.json`.\
     \ Moreover, the manifest file is missing from the repository. The task\u2019s\
     \ required output and full script implementation are therefore not present."
-T037a:
+T026b:
   c: false
-  h: be43a8ff21e50415930fed63a8db3fe8ebc3adb65c40882c5d481e36990a7922
-  r: "The required data file `data/analysis/simulation_results.json` is absent, and\
-    \ the expected output `data/analysis/aggregated_results.json` was not generated.\
-    \ Moreover, the provided `aggregate_results.py` snippet does not show any code\
-    \ that writes the aggregated metrics to the output file. Without the input data\
-    \ and a produced output file, the task\u2019s requirement is not satisfied."
+  h: 3fb975f290efd92a93e014e3f75a373cf88284cb1f02dfb96531543f8f2a5e15
+  r: "The provided `stability.py` does not show any code that measures a simulation\u2019\
+    s runtime and writes a `runtime_duration_seconds` entry to `data/run_log.json`,\
+    \ and the required `data/run_log.json` file is absent. Consequently the explicit\
+    \ runtime\u2011logging infrastructure and verification log demanded by FR\u2011\
+    009 are not present."
+T035b:
+  c: false
+  h: 82e520c71e34bf2d95279de1d4aadad6db0472b74b4be7347402f84924dc6efb
+  r: The `sensitivity.py` file is truncated and does not contain logic to generate
+    multiple clustering thresholds, run the analysis, or write `data/analysis/sensitivity_sweep.json`.
+    The required JSON output file is absent, and the provided test suite (`code/tests/test_analysis.py`)
+    does not include a `test_sensitivity_sweep_thresholds` unit test. The implementer
+    must add the sweep implementation, ensure at least five distinct cutoffs are saved
+    to the JSON file, and create the specified unit test.
 T037d:
   c: false
   h: 2489a67e1e375936652412ed2753ecf23934600bd888fe66366119af289cd19d
@@ -88,3 +89,20 @@ T055:
     \ etc.) and the required `data/analysis/simulation_results.json` file is missing,\
     \ so the explicit validation against the real wall\u2011clock data is not demonstrably\
     \ implemented or tested."
+T056:
+  c: false
+  h: aca6038ccd018d6e0b7bfc8511fa157c92bc6a12efb41240602632b2512d7898
+  r: "The provided `batch_runner.py` shows only generator setup and single\u2011graph\
+    \ generation; it contains no code that computes a clustering\u2011target rejection\
+    \ rate, adjusts the batch size, or writes a \u201CSample Size Adjustment\u201D\
+    \ entry to `data/run_log.json`. Moreover, the required `data/run_log.json` file\
+    \ does not exist. Both the functional change and the log artifact are missing."
+T059:
+  c: false
+  h: b52dd161c7e8f9375ab3a6174f25aa0b9b4e962b0f0a96efc780fb0db8d1148a
+  r: "The repository contains a modified `aggregate_results.py` with loader functions\
+    \ for ridge and partial\u2011correlation results, but the file is truncated before\
+    \ any aggregation or write\u2011out logic, and the required output `data/analysis/aggregated_results.json`\
+    \ does not exist. Consequently the advanced statistical outputs are not actually\
+    \ merged into the final JSON as the task demands. The missing aggregation implementation\
+    \ and the absent output file must be added."

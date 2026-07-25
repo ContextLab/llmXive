@@ -1,19 +1,16 @@
 status: none
-intent: "networkx synthetic graph generators Erd\u0151s-R\xE9nyi Watts-Strogatz Barab\xE1\
-  si\u2013Albert python package dataset"
+intent: synthetic graph generation library networKit python package dataset synthetic
+  graph datasets Network Repository Stanford SNAP python package dataset
 required_fields:
 - graph_id
+- edge_list
+- node_count
+- edge_count
 - graph_type
-- num_nodes
-- num_edges
-- edge_source
-- edge_target
-- avg_clustering_coefficient
-- degree_exponent_gamma
-- rewiring_probability
-- edge_probability
-- is_connected
-- node_id
-cache_key: 2521627ad9c152c9a999b31b6d564320a5db56d15f7a70f7f0d012f1315f49a7
-searched_at: '2026-07-23T13:14:51.710272+00:00'
+- degree_distribution_parameters
+- target_clustering_coefficient
+- actual_clustering_coefficient
+- random_seed
+cache_key: 8f5056321daa955e2c75373efee3a424ab1b2dc0f66060c8109bb40bf750057e
+searched_at: '2026-07-25T08:10:52.914045+00:00'
 retry_count: 1

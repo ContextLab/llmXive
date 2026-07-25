@@ -1,50 +1,30 @@
-# Global Configuration for Network Topology Energy Transfer Study
-# This file serves as the immutable source of truth for all simulation parameters.
-
-# Reproducibility
-random_seed: 42
 global_seed: 42
-generator_seed: 42
-simulation_seed: 42
+simulation_timeout_seconds: 3600
 
-# Logging
-log_level: INFO
-
-# Topology Targets (User Story 1)
 topology_targets:
   erdos_renyi:
-    n: 100
-    p: [0.05, 0.1]
-    batch_size: 10
+    n_nodes: 100
+    edge_probability: 0.1
   watts_strogatz:
-    n: 100
-    k: [4, 6]
-    p: [0.1, 0.2]
-    batch_size: 10
+    n_nodes: 100
+    k_neighbors: 4
+    p_rewire: 0.1
   barabasi_albert:
-    n: 100
-    m: [2, 3]
-    batch_size: 10
-
-# Simulation Parameters (User Story 2)
+    n_nodes: 100
+    m_edges: 2
+    
 simulation_params:
-  temperature: 1.0
   steps: 100
-  initial_excitation_ratio: 0.1
-  tolerance: 1e-6
-  max_attempts: 10
-
-# Analysis Parameters (User Story 3)
-analysis_params:
-  sensitivity_thresholds: [0.0, 0.2, 0.4, 0.6, 0.8]
-  regression_models: ["linear", "polynomial"]
-  anova_groups: ["erdos_renyi", "watts_strogatz", "barabasi_albert"]
-
-# Timeouts and Limits
-simulation_timeout_seconds: 3600
-max_batch_size: 100
-
-# Paths (relative to project root)
-data_dir: data
-figures_dir: paper
-results_dir: data/analysis
+  temperature: 1.0
+  initial_energy: 1.0
+  transient_steps: 10
+  
+analysis:
+  sensitivity_thresholds: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+  regression_alpha: 1.0
+  power_target: 0.8
+  significance_level: 0.05
+output:
+  base_dir: data
+  figures_dir: paper
+  analysis_dir: data/analysis

@@ -1,229 +1,188 @@
-"""
-Data aggregation and filtering module for User Story 3.
-
-This module loads simulation results, filters out invalid runs (divergence,
-disconnected networks), and aggregates metrics for downstream analysis.
-"""
-
 import json
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
-import pandas as pd
+# Ensure project root is in path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from code.src.utils.logging import log_metric
+from code.src.analysis.sensitivity import load_simulation_data
+from code.src.utils.io import load_json_file
 
 logger = logging.getLogger(__name__)
 
-# Constants for status filtering
-STATUS_EXCLUDED = [
-    "[SIMULATION_DIVERGENCE]",
-    "[DISCONNECTED_NETWORK_FAILURE]"
-]
+# --- File Loading Helpers ---
 
-def load_simulation_results(file_path: str) -> pd.DataFrame:
-    """
-    Load simulation results from a JSON file into a pandas DataFrame.
-
-    Args:
-        file_path: Path to the simulation_results.json file.
-
-    Returns:
-        DataFrame containing the simulation results.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
-    """
+def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
+    """Safely load a JSON file."""
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Simulation results file not found: {file_path}")
+        logger.error(f"File not found: {file_path}")
+        return None
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {file_path}: {e}")
+        return None
 
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+def load_simulation_results() -> Optional[List[Dict[str, Any]]]:
+    """Load simulation results from data/analysis/simulation_results.json."""
+    return load_json_file("data/analysis/simulation_results.json")
 
-    if not isinstance(data, list):
-        # Handle case where data might be wrapped in a dict, e.g., {"results": [...]}
-        if isinstance(data, dict) and 'results' in data:
-            data = data['results']
-        else:
-            raise ValueError(f"Expected list of results in {file_path}, got {type(data)}")
+def load_sensitivity_correlation() -> Optional[List[Dict[str, Any]]]:
+    """Load sensitivity correlation results from data/analysis/sensitivity_correlation.json."""
+    return load_json_file("data/analysis/sensitivity_correlation.json")
 
-    if len(data) == 0:
-        raise ValueError(f"Simulation results file is empty: {file_path}")
+def load_partial_correlation() -> Optional[Dict[str, Any]]:
+    """Load partial correlation results from data/analysis/partial_correlation_results.json."""
+    return load_json_file("data/analysis/partial_correlation_results.json")
 
-    df = pd.DataFrame(data)
-    logger.info(f"Loaded {len(df)} simulation results from {file_path}")
-    return df
+def load_ridge_results() -> Optional[Dict[str, Any]]:
+    """Load Ridge regression results from data/analysis/ridge_results.json."""
+    return load_json_file("data/analysis/ridge_results.json")
 
-def filter_valid_runs(df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
+def load_regression_results() -> Optional[Dict[str, Any]]:
+    """Load standard regression results from data/analysis/regression_corrected.json."""
+    return load_json_file("data/analysis/regression_corrected.json")
+
+def load_anova_results() -> Optional[Dict[str, Any]]:
+    """Load ANOVA results from data/analysis/anova_corrected.json."""
+    return load_json_file("data/analysis/anova_corrected.json")
+
+# --- Filtering Logic ---
+
+def filter_valid_runs(simulation_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter out runs with excluded status codes.
-
-    Args:
-        df: DataFrame of simulation results.
-
-    Returns:
-        Tuple of (filtered DataFrame, count of excluded runs).
+    Filter out runs with status [SIMULATION_DIVERGENCE] or [DISCONNECTED_NETWORK_FAILURE].
     """
-    if 'status' not in df.columns:
-        logger.warning("No 'status' column found in simulation results. Assuming all valid.")
-        return df, 0
-
-    initial_count = len(df)
-    # Filter rows where status is NOT in the excluded list
-    # Handle potential NaN values in status column
-    mask = df['status'].apply(lambda x: x not in STATUS_EXCLUDED if isinstance(x, str) else True)
-    filtered_df = df[mask]
-    excluded_count = initial_count - len(filtered_df)
-
+    excluded_statuses = ["[SIMULATION_DIVERGENCE]", "[DISCONNECTED_NETWORK_FAILURE]"]
+    valid_runs = [
+        run for run in simulation_results
+        if run.get("status", "") not in excluded_statuses
+    ]
+    excluded_count = len(simulation_results) - len(valid_runs)
     if excluded_count > 0:
-        logger.info(f"Filtered out {excluded_count} runs with excluded status: {STATUS_EXCLUDED}")
-    else:
-        logger.info("No runs excluded based on status.")
+        logger.info(f"Filtered out {excluded_count} invalid runs.")
+    return valid_runs
 
-    return filtered_df, excluded_count
+# --- Aggregation Logic ---
 
-def aggregate_metrics(df: pd.DataFrame) -> Dict[str, Any]:
+def aggregate_metrics(runs: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Compute aggregated metrics (mean, median, variance) for numeric columns.
-
-    Args:
-        df: Filtered DataFrame of simulation results.
-
-    Returns:
-        Dictionary containing aggregated metrics per numeric column.
+    Calculate mean, median, and variance for diffusion rates and runtime.
     """
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    if not numeric_cols:
-        logger.warning("No numeric columns found to aggregate.")
-        return {}
-
-    aggregated = {}
-    for col in numeric_cols:
-        values = df[col].dropna()
-        if len(values) == 0:
-            continue
-
-        aggregated[col] = {
-            "count": int(len(values)),
-            "mean": float(values.mean()),
-            "median": float(values.median()),
-            "variance": float(values.var()),
-            "std": float(values.std()),
-            "min": float(values.min()),
-            "max": float(values.max())
+    if not runs:
+        return {
+            "diffusion_rate": {"mean": 0.0, "median": 0.0, "variance": 0.0},
+            "runtime": {"mean": 0.0, "median": 0.0, "variance": 0.0}
         }
 
-    logger.info(f"Aggregated metrics for {len(numeric_cols)} numeric columns.")
-    return aggregated
+    diffusion_rates = [r.get("diffusion_rate", 0.0) for r in runs]
+    runtimes = [r.get("runtime_duration_seconds", 0.0) for r in runs]
 
-def aggregate_results(
-    input_path: str,
-    output_path: str,
-    config: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Main function to load, filter, and aggregate simulation results.
+    import numpy as np
 
-    Args:
-        input_path: Path to simulation_results.json.
-        output_path: Path to save aggregated_results.json.
-        config: Optional configuration dictionary.
+    def safe_stats(values: List[float]) -> Dict[str, float]:
+        arr = np.array(values)
+        return {
+            "mean": float(np.mean(arr)),
+            "median": float(np.median(arr)),
+            "variance": float(np.var(arr))
+        }
 
-    Returns:
-        Dictionary containing the full aggregated result structure.
-    """
-    logger.info(f"Starting aggregation for {input_path}")
-
-    # Load data
-    df = load_simulation_results(input_path)
-
-    # Filter data
-    valid_df, excluded_count = filter_valid_runs(df)
-
-    if len(valid_df) == 0:
-        logger.error("No valid runs remaining after filtering. Aborting aggregation.")
-        raise ValueError("No valid runs found after filtering. Check input data and status codes.")
-
-    # Aggregate metrics
-    metrics = aggregate_metrics(valid_df)
-
-    # Group by topology class if available
-    topology_groups = {}
-    if 'topology_class' in valid_df.columns:
-        for topo in valid_df['topology_class'].unique():
-            if pd.isna(topo):
-                continue
-            topo_df = valid_df[valid_df['topology_class'] == topo]
-            topo_metrics = aggregate_metrics(topo_df)
-            topology_groups[str(topo)] = topo_metrics
-        logger.info(f"Grouped metrics by {len(topology_groups)} topology classes.")
-
-    # Construct final result
-    result = {
-        "total_input_records": len(df),
-        "valid_records": len(valid_df),
-        "excluded_records": excluded_count,
-        "excluded_statuses": STATUS_EXCLUDED,
-        "aggregated_metrics": metrics,
-        "topology_specific_metrics": topology_groups,
-        "status": "SUCCESS"
+    return {
+        "diffusion_rate": safe_stats(diffusion_rates),
+        "runtime": safe_stats(runtimes)
     }
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+def aggregate_results() -> Dict[str, Any]:
+    """
+    Main aggregation function.
+    Loads simulation results, sensitivity correlation, partial correlation, and Ridge results.
+    Merges them into a single output structure.
+    """
+    logger.info("Starting aggregation of results...")
 
-    # Save to file
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
+    # 1. Load Simulation Results
+    sim_results = load_simulation_results()
+    if not sim_results:
+        raise FileNotFoundError("Missing data/analysis/simulation_results.json")
 
-    logger.info(f"Aggregated results saved to {output_path}")
-    return result
+    valid_runs = filter_valid_runs(sim_results)
+    metrics_summary = aggregate_metrics(valid_runs)
+
+    # 2. Load Sensitivity Correlation (Required by T035c/T061)
+    sens_corr = load_sensitivity_correlation()
+    if not sens_corr:
+        raise FileNotFoundError(
+            "Missing data/analysis/sensitivity_correlation.json. "
+            "T035c must be completed before aggregation."
+        )
+
+    # 3. Load Partial Correlation (T057)
+    partial_corr = load_partial_correlation()
+    if not partial_corr:
+        logger.warning("Partial correlation results missing. Skipping integration.")
+        partial_corr = {}
+
+    # 4. Load Ridge Regression (T058)
+    ridge_res = load_ridge_results()
+    if not ridge_res:
+        logger.warning("Ridge regression results missing. Skipping integration.")
+        ridge_res = {}
+
+    # 5. Load Standard Regression and ANOVA for completeness
+    reg_res = load_regression_results() or {}
+    anova_res = load_anova_results() or {}
+
+    # 6. Construct Final Aggregated Output
+    # This structure merges standard stats with the advanced statistical outputs (Ridge/Partial)
+    aggregated_output = {
+        "summary_statistics": metrics_summary,
+        "total_valid_runs": len(valid_runs),
+        "sensitivity_correlation": sens_corr,
+        "partial_correlation": partial_corr,
+        "ridge_regression": ridge_res,
+        "standard_regression": reg_res,
+        "anova_results": anova_res,
+        "metadata": {
+            "generated_at": str(Path(__file__).resolve()),
+            "version": "1.0.0"
+        }
+    }
+
+    return aggregated_output
 
 def main():
-    """Entry point for command-line execution."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Aggregate simulation results")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/analysis/simulation_results.json",
-        help="Path to simulation_results.json"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/analysis/aggregated_results.json",
-        help="Path to save aggregated_results.json"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="code/config.yaml",
-        help="Path to config file (optional)"
-    )
-
-    args = parser.parse_args()
-
-    # Setup basic logging
+    """Entry point for the aggregation script."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
     try:
-        result = aggregate_results(args.input, args.output)
-        print(f"Aggregation complete. Valid records: {result['valid_records']}")
-    except Exception as e:
+        result = aggregate_results()
+        output_path = "data/analysis/aggregated_results.json"
+        
+        # Ensure directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+
+        logger.info(f"Aggregation complete. Results saved to {output_path}")
+        return 0
+
+    except FileNotFoundError as e:
         logger.error(f"Aggregation failed: {e}")
-        raise
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error during aggregation: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

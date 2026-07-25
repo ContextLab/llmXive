@@ -1,82 +1,75 @@
 """
-Reproducibility utilities for seed management and run logging.
+Utilities for reproducibility: seed management, run ID generation, and data directory handling.
 """
-import json
-import logging
 import os
-import random
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, Optional
-import numpy as np
-
-from code.src.utils.config import load_config
-
-logger = logging.getLogger(__name__)
-
-def ensure_data_directory(path: str) -> Path:
-    """Ensure the directory for the given path exists."""
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    return p
+from typing import Optional
 
 def generate_run_id() -> str:
-    """Generate a unique run ID based on timestamp."""
-    return datetime.now().strftime("%Y%m%d_%H%M%S")
+    """
+    Generate a unique run ID based on timestamp and a UUID.
+    Format: YYYYMMDD_HHMMSS_uuid4
+    """
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    unique_id = str(uuid.uuid4())[:8]
+    return f"{timestamp}_{unique_id}"
 
-def inject_seed_to_log(config_path: str, log_path: str) -> Dict[str, Any]:
+def ensure_data_directory(file_path: Path) -> None:
     """
-    Read the global seed from config.yaml and inject it into the run log.
-    Validates that the config contains the required 'random_seed' key.
-    
-    Args:
-        config_path: Path to config.yaml
-        log_path: Path to data/run_log.json
-        
-    Returns:
-        Dict containing the run log data
-        
-    Raises:
-        ValueError: If config does not contain 'random_seed'
+    Ensure the directory for the given file path exists.
     """
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-        
-    config = load_config(config_path)
-    
-    if 'random_seed' not in config:
-        raise ValueError("Config must contain 'random_seed' key for reproducibility.")
-    
-    seed = config['random_seed']
-    run_id = generate_run_id()
-    
-    # Set seeds globally
+    directory = file_path.parent
+    if not directory.exists():
+        directory.mkdir(parents=True, exist_ok=True)
+
+def set_global_seed(seed: int) -> None:
+    """
+    Set global random seeds for reproducibility.
+    This function should be called at the start of any script.
+    """
+    import random
+    import numpy as np
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass # PyTorch not installed
+
     random.seed(seed)
     np.random.seed(seed)
-    
-    # Construct log entry
-    log_entry = {
-        "run_id": run_id,
-        "timestamp": datetime.now().isoformat(),
-        "seeds": {
-            "global": seed,
-            "generator": seed,
-            "simulation": seed
-        },
-        "verification_status": "PASS",
-        "config_path": config_path
-    }
-    
-    # Write to log
-    log_file = ensure_data_directory(log_path)
-    with open(log_file, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-        
-    logger.info(f"Seeds injected into {log_path} with run_id: {run_id}")
-    return log_entry
 
-def get_seed_from_config(config: Dict[str, Any]) -> int:
-    """Extract seed from config, raising error if missing."""
-    if 'random_seed' not in config:
-        raise ValueError("Config must contain 'random_seed' key.")
-    return config['random_seed']
+def inject_seed_to_log(log_path: Path, seed_info: dict) -> None:
+    """
+    Inject seed information into an existing run log.
+    
+    Args:
+        log_path: Path to the run log JSON file.
+        seed_info: Dictionary containing seed information to inject.
+    """
+    import json
+    
+    ensure_data_directory(log_path)
+    
+    if log_path.exists():
+        with open(log_path, 'r') as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = []
+    else:
+        data = []
+    
+    if not isinstance(data, list):
+        data = []
+        
+    data.append({
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "seeds": seed_info
+    })
+    
+    with open(log_path, 'w') as f:
+        json.dump(data, f, indent=2)

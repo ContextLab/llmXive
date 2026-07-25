@@ -39,8 +39,16 @@ def validate_sc_002(simulation_results_path: str, max_runtime_seconds: float = 3
     """
     Validate SC-002: Runtime per network <= 60 minutes (3600 seconds).
     Checks runtime_duration_seconds field in simulation_results.json.
+    Explicitly extracts generation_algorithm and parameter_values for provenance.
     """
-    result = {"status": "PASS", "details": {"max_runtime_found": 0, "violations": 0}}
+    result = {
+        "status": "PASS", 
+        "details": {
+            "max_runtime_found": 0, 
+            "violations": 0,
+            "sample_records": []
+        }
+    }
     
     p = Path(simulation_results_path)
     if not p.exists():
@@ -53,17 +61,34 @@ def validate_sc_002(simulation_results_path: str, max_runtime_seconds: float = 3
         
     records = data if isinstance(data, list) else data.get("results", [])
     
+    if not records:
+        result["status"] = "FAIL"
+        result["details"]["error"] = "No simulation records found"
+        return result
+    
     max_runtime = 0
     violations = 0
+    sample_data = []
+    
     for r in records:
         runtime = r.get("runtime_duration_seconds", 0)
         if runtime > max_runtime:
             max_runtime = runtime
         if runtime > max_runtime_seconds:
             violations += 1
+        
+        # Extract provenance fields as required by task description
+        if len(sample_data) < 3:
+            sample_data.append({
+                "network_id": r.get("network_id"),
+                "runtime_duration_seconds": runtime,
+                "generation_algorithm": r.get("generation_algorithm"),
+                "parameter_values": r.get("parameter_values")
+            })
             
     result["details"]["max_runtime_found"] = max_runtime
     result["details"]["violations"] = violations
+    result["details"]["sample_records"] = sample_data
     
     if violations > 0:
         result["status"] = "FAIL"
@@ -85,7 +110,16 @@ def validate_sc_005(sensitivity_path: str, min_thresholds: int = 5) -> Dict[str,
     with open(p, 'r') as f:
         data = json.load(f)
         
-    thresholds = data.get("sweep_parameters", {}).get("thresholds", [])
+    # Handle both potential schema variations based on implementation
+    thresholds = []
+    if "sweep_parameters" in data:
+        thresholds = data.get("sweep_parameters", {}).get("thresholds", [])
+    elif "cutoffs" in data:
+        thresholds = data.get("cutoffs", [])
+    elif "results" in data and isinstance(data["results"], list):
+        # Extract thresholds from results if stored there
+        thresholds = [r.get("threshold") for r in data["results"] if r.get("threshold") is not None]
+        
     distinct_count = len(set(thresholds))
     
     result["details"]["thresholds_found"] = thresholds
@@ -148,6 +182,8 @@ def main():
         logger.info("All validations PASSED")
     else:
         logger.warning("Some validations FAILED")
+        # Exit with non-zero code if validation fails
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

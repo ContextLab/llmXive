@@ -3,8 +3,6 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from code.src.utils.reproducibility import ensure_data_directory
-
 logger = logging.getLogger(__name__)
 
 class SchemaError(Exception):
@@ -13,132 +11,183 @@ class SchemaError(Exception):
 
 def get_schema() -> Dict[str, Any]:
     """
-    Loads the SimulationRun schema from the contracts directory.
+    Returns the JSON Schema definition for the SimulationRun entity.
+    This schema is defined in T029a.
     """
-    schema_path = Path(__file__).parent.parent.parent / "contracts" / "simulation_run_schema.json"
-    if not schema_path.exists():
-        # Fallback to inline schema if file is missing during dev, though task T029a creates the file
-        return {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "SimulationRun",
-            "type": "object",
-            "required": [
-                "network_id", "seed", "diffusion_rate", "topology_class",
-                "steps_run", "status", "runtime_duration_seconds",
-                "generation_algorithm", "parameter_values"
-            ],
-            "properties": {
-                "network_id": {"type": "string"},
-                "seed": {"type": "integer"},
-                "diffusion_rate": {"type": "number"},
-                "topology_class": {"type": "string"},
-                "steps_run": {"type": "integer"},
-                "status": {"type": "string"},
-                "runtime_duration_seconds": {"type": "number"},
-                "generation_algorithm": {"type": "string"},
-                "parameter_values": {"type": "object"}
+    return {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "required": [
+            "network_id",
+            "seed",
+            "diffusion_rate",
+            "topology_class",
+            "steps_run",
+            "status",
+            "runtime_duration_seconds",
+            "generation_algorithm",
+            "parameter_values"
+        ],
+        "properties": {
+            "network_id": {
+                "type": "string",
+                "description": "Unique identifier for the network graph."
+            },
+            "seed": {
+                "type": "integer",
+                "description": "Random seed used for simulation."
+            },
+            "diffusion_rate": {
+                "type": "number",
+                "description": "Calculated rate of energy diffusion."
+            },
+            "topology_class": {
+                "type": "string",
+                "enum": ["ErdosRenyi", "WattsStrogatz", "BarabasiAlbert"],
+                "description": "The topology class of the generated network."
+            },
+            "steps_run": {
+                "type": "integer",
+                "description": "Number of simulation steps executed."
+            },
+            "status": {
+                "type": "string",
+                "description": "Status of the simulation run (e.g., 'SUCCESS', '[SIMULATION_DIVERGENCE]')."
+            },
+            "runtime_duration_seconds": {
+                "type": "number",
+                "description": "Wall-clock execution time in seconds."
+            },
+            "generation_algorithm": {
+                "type": "string",
+                "description": "Name of the algorithm used to generate the graph."
+            },
+            "parameter_values": {
+                "type": "object",
+                "description": "Dictionary of parameters used for graph generation."
             }
-        }
-    
-    try:
-        with open(schema_path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        raise SchemaError(f"Invalid schema JSON at {schema_path}: {e}")
+        },
+        "additionalProperties": False
+    }
 
 def get_results_schema() -> Dict[str, Any]:
     """
-    Returns the schema for the simulation results file (list of SimulationRun).
+    Returns the schema for a list of simulation results.
     """
-    base = get_schema()
     return {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "array",
-        "items": base
+        "items": get_schema()
     }
 
-def validate_simulation_run(record: Dict[str, Any]) -> bool:
+def validate_simulation_run(data: Dict[str, Any], schema: Optional[Dict[str, Any]] = None) -> None:
     """
-    Validates a single record against the SimulationRun schema.
-    Raises SchemaError if invalid.
-    """
-    schema = get_schema()
+    Validates a single simulation result against the schema.
     
-    # Check required fields
-    required = schema.get("required", [])
-    missing = [field for field in required if field not in record]
-    if missing:
-        raise SchemaError(f"Missing required fields: {missing}")
+    Raises:
+        SchemaError: If validation fails.
+    """
+    if schema is None:
+        schema = get_schema()
     
-    # Type checking for critical fields
-    if not isinstance(record.get("network_id"), str):
-        raise SchemaError("network_id must be a string")
-    if not isinstance(record.get("seed"), int):
-        raise SchemaError("seed must be an integer")
-    if not isinstance(record.get("diffusion_rate"), (int, float)):
-        raise SchemaError("diffusion_rate must be a number")
-    if not isinstance(record.get("steps_run"), int):
-        raise SchemaError("steps_run must be an integer")
-    if not isinstance(record.get("runtime_duration_seconds"), (int, float)):
-        raise SchemaError("runtime_duration_seconds must be a number")
-    if not isinstance(record.get("generation_algorithm"), str):
-        raise SchemaError("generation_algorithm must be a string")
-    if not isinstance(record.get("parameter_values"), dict):
-        raise SchemaError("parameter_values must be a dict")
-    
-    # Check enum for topology_class if present
-    topology_class = record.get("topology_class")
-    if topology_class and topology_class not in ["erdos_renyi", "watts_strogatz", "barabasi_albert"]:
-        logger.warning(f"Unknown topology_class: {topology_class}. Allowed: erdos_renyi, watts_strogatz, barabasi_albert")
-
-    return True
-
-def validate_results_file(records: List[Dict[str, Any]]) -> bool:
-    """
-    Validates a list of records against the results schema.
-    """
-    for i, record in enumerate(records):
-        try:
-            validate_simulation_run(record)
-        except SchemaError as e:
-            raise SchemaError(f"Validation failed for record {i}: {e}")
-    return True
-
-def save_results(records: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Validates and saves the simulation results to a JSON file.
-    Ensures the output directory exists.
-    """
-    if not records:
-        logger.warning("No results to save.")
-        return
-
+    # Manual validation to avoid external dependency if jsonschema is not installed
+    # but the project requirements include it. Using jsonschema is safer.
     try:
-        validate_results_file(records)
-    except SchemaError as e:
-        raise SchemaError(f"Cannot save invalid results: {e}")
+        import jsonschema
+        jsonschema.validate(instance=data, schema=schema)
+    except ImportError:
+        # Fallback manual validation if jsonschema is missing (though requirements.txt should have it)
+        logger.warning("jsonschema library not found. Performing manual validation.")
+        required_fields = schema.get("required", [])
+        for field in required_fields:
+            if field not in data:
+                raise SchemaError(f"Missing required field: {field}")
+        
+        # Type checking for critical fields
+        if not isinstance(data.get("network_id"), str):
+            raise SchemaError("network_id must be a string")
+        if not isinstance(data.get("seed"), int):
+            raise SchemaError("seed must be an integer")
+        if not isinstance(data.get("diffusion_rate"), (int, float)):
+            raise SchemaError("diffusion_rate must be a number")
+        if not isinstance(data.get("topology_class"), str):
+            raise SchemaError("topology_class must be a string")
+        if not isinstance(data.get("steps_run"), int):
+            raise SchemaError("steps_run must be an integer")
+        if not isinstance(data.get("status"), str):
+            raise SchemaError("status must be a string")
+        if not isinstance(data.get("runtime_duration_seconds"), (int, float)):
+            raise SchemaError("runtime_duration_seconds must be a number")
+        if not isinstance(data.get("generation_algorithm"), str):
+            raise SchemaError("generation_algorithm must be a string")
+        if not isinstance(data.get("parameter_values"), dict):
+            raise SchemaError("parameter_values must be an object")
+        
+        # Check enum for topology_class
+        allowed_classes = ["ErdosRenyi", "WattsStrogatz", "BarabasiAlbert"]
+        if data.get("topology_class") not in allowed_classes:
+            raise SchemaError(f"topology_class must be one of {allowed_classes}")
+            
+    except jsonschema.ValidationError as e:
+        raise SchemaError(f"Schema validation failed: {e.message}")
+    except jsonschema.SchemaError as e:
+        raise SchemaError(f"Invalid schema definition: {e.message}")
 
-    path = Path(output_path)
-    ensure_data_directory(path)
-
-    with open(path, 'w') as f:
-        json.dump(records, f, indent=2)
+def validate_results_file(file_path: Path) -> bool:
+    """
+    Validates a JSON file containing a list of simulation results.
     
-    logger.info(f"Saved {len(records)} simulation results to {output_path}")
-
-def load_results(input_path: str) -> List[Dict[str, Any]]:
+    Returns:
+        True if valid, raises SchemaError if invalid.
     """
-    Loads and validates simulation results from a JSON file.
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Results file not found: {input_path}")
-
-    with open(path, 'r') as f:
-        data = json.load(f)
-
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    with open(file_path, 'r') as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            raise SchemaError(f"Invalid JSON format: {e}")
+    
     if not isinstance(data, list):
-        raise SchemaError("Results file must contain a JSON array")
+        raise SchemaError("Root element must be a list of results.")
+    
+    schema = get_results_schema()
+    try:
+        import jsonschema
+        jsonschema.validate(instance=data, schema=schema)
+    except ImportError:
+        # Manual validation for list
+        for i, item in enumerate(data):
+            if not isinstance(item, dict):
+                raise SchemaError(f"Item {i} is not an object.")
+            validate_simulation_run(item)
+    except jsonschema.ValidationError as e:
+        raise SchemaError(f"Schema validation failed for item {e.instance_path}: {e.message}")
+    
+    return True
 
-    validate_results_file(data)
-    return data
+def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Saves a list of results to a JSON file after validating them.
+    """
+    # Validate first
+    schema = get_results_schema()
+    for i, result in enumerate(results):
+        try:
+            validate_simulation_run(result, schema)
+        except SchemaError as e:
+            raise SchemaError(f"Result at index {i} failed validation: {e}")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Saved {len(results)} results to {output_path}")
+
+def load_results(file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Loads and validates results from a JSON file.
+    """
+    validate_results_file(file_path)
+    with open(file_path, 'r') as f:
+        return json.load(f)
