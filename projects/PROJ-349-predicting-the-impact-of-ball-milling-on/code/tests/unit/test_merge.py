@@ -1,120 +1,183 @@
+"""
+Unit tests for merge.py functionality, specifically the fallback logic.
+"""
 import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 import pandas as pd
 import pytest
 
-from src.ingest.merge import merge_datasets, run_merge_pipeline, calculate_row_hash
-from src.exceptions import DataIngestionError
+from src.ingest.merge import run_merge_pipeline, merge_datasets
+from src.ingest.fallback_aggregator import load_fallback_data
 
 @pytest.fixture
 def sample_df_1():
     return pd.DataFrame({
-        "material_type": ["Al", "Cu"],
-        "milling_speed": [300, 400],
-        "milling_time": [10, 20],
-        "ball_to_powder_ratio": [2.0, 3.0],
-        "youngs_modulus": [70, 110],
-        "density": [2.7, 8.9],
-        "d10": [1.0, 2.0],
-        "d50": [5.0, 10.0],
-        "d90": [10.0, 20.0],
-        "source": ["mp", "nist"]
+        'experiment_id': ['1', '2'],
+        'source': ['NIST', 'NIST'],
+        'material_type': ['Steel', 'Aluminum'],
+        'milling_speed': [500, 600],
+        'milling_time': [10, 20],
+        'ball_to_powder_ratio': [5.0, 10.0],
+        'youngs_modulus': [200.0, 70.0],
+        'density': [7.8, 2.7],
+        'd10': [10.0, 15.0],
+        'd50': [50.0, 60.0],
+        'd90': [100.0, 120.0],
+        'process_duration': [24.0, 48.0]
     })
 
 @pytest.fixture
 def sample_df_2():
-    # Duplicate of first row in df1, different source
     return pd.DataFrame({
-        "material_type": ["Al", "Ti"],
-        "milling_speed": [300, 500],
-        "milling_time": [10, 30],
-        "ball_to_powder_ratio": [2.0, 4.0],
-        "youngs_modulus": [70, 115],
-        "density": [2.7, 4.5],
-        "d10": [1.1, 3.0],  # Slightly different d10 for Al
-        "d50": [5.1, 15.0],
-        "d90": [10.1, 30.0],
-        "source": ["arxiv", "nist"]
+        'experiment_id': ['3', '4'],
+        'source': ['MP', 'MP'],
+        'material_type': ['Copper', 'Titanium'],
+        'milling_speed': [700, 800],
+        'milling_time': [30, 40],
+        'ball_to_powder_ratio': [15.0, 20.0],
+        'youngs_modulus': [110.0, 115.0],
+        'density': [8.9, 4.5],
+        'd10': [20.0, 25.0],
+        'd50': [70.0, 80.0],
+        'd90': [140.0, 160.0],
+        'process_duration': [72.0, 96.0]
     })
 
 @pytest.fixture
 def empty_df():
-    return pd.DataFrame(columns=["material_type", "d50"])
+    return pd.DataFrame()
+
+@pytest.fixture
+def mock_fallback_data():
+    return pd.DataFrame({
+        'experiment_id': ['5', '6', '7'],
+        'source': ['UCI', 'UCI', 'UCI'],
+        'material_type': ['Zinc', 'Lead', 'Iron'],
+        'milling_speed': [900, 1000, 1100],
+        'milling_time': [50, 60, 70],
+        'ball_to_powder_ratio': [25.0, 30.0, 35.0],
+        'youngs_modulus': [100.0, 15.0, 200.0],
+        'density': [7.1, 11.3, 7.8],
+        'd10': [30.0, 35.0, 40.0],
+        'd50': [90.0, 100.0, 110.0],
+        'd90': [180.0, 200.0, 220.0],
+        'process_duration': [120.0, 144.0, 168.0]
+    })
 
 def test_merge_no_duplicates(sample_df_1, sample_df_2):
-    """Test merging when there are no duplicates."""
-    # Modify df2 to remove the duplicate row
-    df2_no_dup = sample_df_2.iloc[1:].reset_index(drop=True)
-    
-    result = merge_datasets([sample_df_1, df2_no_dup])
-    
-    assert len(result) == 3  # 2 from df1 + 1 from df2
-    assert "source" in result.columns
-
-def test_merge_with_duplicates(sample_df_1, sample_df_2):
-    """Test merging with duplicates (first row of df1 and df2 are same keys)."""
+    """Test merging two non-overlapping DataFrames."""
     result = merge_datasets([sample_df_1, sample_df_2])
-    
-    # Should be 3 rows: 1 merged (Al), 1 Cu, 1 Ti
-    assert len(result) == 3
-    
-    # Check that the merged row has averaged values for d10, d50, d90
-    al_row = result[result["material_type"] == "Al"].iloc[0]
-    assert abs(al_row["d10"] - 1.05) < 0.01  # (1.0 + 1.1) / 2
-    assert abs(al_row["d50"] - 5.05) < 0.01  # (5.0 + 5.1) / 2
+    assert len(result) == 4
+    assert result['experiment_id'].tolist() == ['1', '2', '3', '4']
+
+def test_merge_with_duplicates(sample_df_1):
+    """Test merging DataFrames with duplicate rows."""
+    # Create a duplicate of the first row
+    duplicate_df = sample_df_1.copy()
+    result = merge_datasets([sample_df_1, duplicate_df])
+    # Should have only 2 unique rows
+    assert len(result) == 2
 
 def test_merge_empty_dataframe_list():
-    """Test that empty list raises error."""
-    with pytest.raises(DataIngestionError):
-        merge_datasets([])
+    """Test merging an empty list of DataFrames."""
+    result = merge_datasets([])
+    assert result.empty
 
 def test_merge_all_empty_dfs(empty_df):
-    """Test that all empty dataframes raises error."""
-    with pytest.raises(DataIngestionError):
-        merge_datasets([empty_df, empty_df])
+    """Test merging all empty DataFrames."""
+    result = merge_datasets([empty_df, empty_df])
+    assert result.empty
 
-def test_merge_missing_columns(sample_df_1):
-    """Test that missing required columns raises error."""
-    bad_df = pd.DataFrame({"material_type": ["Al"], "d50": [5.0]})
-    with pytest.raises(DataIngestionError):
-        merge_datasets([sample_df_1, bad_df])
-
-def test_calculate_row_hash(sample_df_1):
-    """Test hash calculation."""
-    hashes = calculate_row_hash(sample_df_1, ["material_type", "milling_speed"])
-    assert len(hashes) == 2
-    assert hashes.iloc[0] != hashes.iloc[1]
-
-def test_run_merge_pipeline(tmp_path):
-    """Test the full pipeline function with file I/O."""
-    df1 = pd.DataFrame({
-        "material_type": ["Al"],
-        "milling_speed": [300],
-        "milling_time": [10],
-        "ball_to_powder_ratio": [2.0],
-        "youngs_modulus": [70],
-        "density": [2.7],
-        "d10": [1.0],
-        "d50": [5.0],
-        "d90": [10.0],
-        "source": ["mp"]
+def test_run_merge_pipeline_with_fallback(mock_fallback_data):
+    """Test that run_merge_pipeline correctly uses fallback when count < 150."""
+    # Create a small primary dataset (2 rows)
+    primary_df = pd.DataFrame({
+        'experiment_id': ['1', '2'],
+        'source': ['NIST', 'NIST'],
+        'material_type': ['Steel', 'Aluminum'],
+        'milling_speed': [500, 600],
+        'milling_time': [10, 20],
+        'ball_to_powder_ratio': [5.0, 10.0],
+        'youngs_modulus': [200.0, 70.0],
+        'density': [7.8, 2.7],
+        'd10': [10.0, 15.0],
+        'd50': [50.0, 60.0],
+        'd90': [100.0, 120.0],
+        'process_duration': [24.0, 48.0]
     })
-    
-    input_file = tmp_path / "input1.parquet"
-    output_file = tmp_path / "output.parquet"
-    
-    df1.to_parquet(input_file)
-    
-    result = run_merge_pipeline([input_file], output_file, source_labels=["mp"])
-    
-    assert result is not None
-    assert len(result) == 1
-    assert output_file.exists()
-    
-    # Verify output content
-    loaded = pd.read_parquet(output_file)
-    assert len(loaded) == 1
-    assert loaded.iloc[0]["source"] == "mp"
+
+    # Mock load_fallback_data to return our mock data
+    with patch('src.ingest.merge.load_fallback_data', return_value=mock_fallback_data):
+        # Run merge with threshold 150
+        result = run_merge_pipeline(
+            materials_project_df=primary_df,
+            nist_df=None,
+            arxiv_df=None,
+            fallback_threshold=150
+        )
+        
+        # Should have primary (2) + fallback (3) = 5 rows
+        assert len(result) == 5
+        # Check that fallback source is present
+        assert 'UCI Fallback' in result['source'].tolist()
+
+def test_run_merge_pipeline_no_fallback_needed():
+    """Test that run_merge_pipeline skips fallback when count >= 150."""
+    # Create a large primary dataset (150 rows)
+    large_df = pd.DataFrame({
+        'experiment_id': [str(i) for i in range(150)],
+        'source': ['NIST'] * 150,
+        'material_type': ['Steel'] * 150,
+        'milling_speed': [500] * 150,
+        'milling_time': [10] * 150,
+        'ball_to_powder_ratio': [5.0] * 150,
+        'youngs_modulus': [200.0] * 150,
+        'density': [7.8] * 150,
+        'd10': [10.0] * 150,
+        'd50': [50.0] * 150,
+        'd90': [100.0] * 150,
+        'process_duration': [24.0] * 150
+    })
+
+    with patch('src.ingest.merge.load_fallback_data') as mock_load:
+        result = run_merge_pipeline(
+            materials_project_df=large_df,
+            nist_df=None,
+            arxiv_df=None,
+            fallback_threshold=150
+        )
+        
+        # Should have 150 rows
+        assert len(result) == 150
+        # Fallback should not be called
+        mock_load.assert_not_called()
+
+def test_run_merge_pipeline_fallback_unavailable():
+    """Test behavior when fallback is needed but unavailable."""
+    small_df = pd.DataFrame({
+        'experiment_id': ['1'],
+        'source': ['NIST'],
+        'material_type': ['Steel'],
+        'milling_speed': [500],
+        'milling_time': [10],
+        'ball_to_powder_ratio': [5.0],
+        'youngs_modulus': [200.0],
+        'density': [7.8],
+        'd10': [10.0],
+        'd50': [50.0],
+        'd90': [100.0],
+        'process_duration': [24.0]
+    })
+
+    with patch('src.ingest.merge.load_fallback_data', return_value=None):
+        result = run_merge_pipeline(
+            materials_project_df=small_df,
+            nist_df=None,
+            arxiv_df=None,
+            fallback_threshold=150
+        )
+        
+        # Should return only the small primary data
+        assert len(result) == 1

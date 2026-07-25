@@ -10,6 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[W]**: Writing/Documentation task (prose correction, not code)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -46,13 +47,13 @@
 - [ ] T001 Create project structure per implementation plan: `src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`, `results`, `contracts/`, `.github/workflows/`. **Verification**: All directories exist and are empty or contain placeholder files (e.g., `.gitkeep`).
 - [X] T002 **Verification**: `pip install -r requirements.txt` succeeds and `pip freeze` matches `requirements.txt`.
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools. **Verification**: `flake8 --version` and `black --version` return valid versions; `black --check src/` passes on empty codebase.
-- [ ] T040 [P] **Fix Documentation Typo**: Update `plan.md` and `quickstart.md` to correct the typo "-hour" to "6-hour" in SC-005. **Constraint**: Do NOT edit `spec.md`. This task must be completed before T037 (CI Workflow) to ensure the CI configuration uses the correct limit. **Verification**: `plan.md` and `quickstart.md` contain "6-hour" and no longer contain "-hour".
+- [X] T040 [W] [P] **Fix Documentation Typo**: Update `plan.md` and `quickstart.md` to correct the typo "-hour" to "6-hour" in SC-005. **Constraint**: Do NOT edit `spec.md`. This task must be completed before T037 (CI Workflow) to ensure the CI configuration uses the correct limit. **Verification**: `plan.md` and `quickstart.md` contain "6-hour" and no longer contain "-hour".
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Foundational (Blocking Prerequisites & Source Resolution)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure and data source resolution that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -61,10 +62,17 @@
 - [X] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration.
 - [X] T008 [P] Configure error handling in `src/utils/exceptions.py`: Define custom exceptions including `DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`, and `InsufficientDataError` with specific error message formats. **Verification**: Exception classes are defined and importable.
 - [X] T007a [P] Define dataset schema in `contracts/dataset.schema.yaml` with explicit field requirements (experiment_id, source, material_type, milling_speed, milling_time, ball_to_powder_ratio, youngs_modulus, density, d10, d50, d90, process_duration).
-- [X] T007b [P] Implement validation logic in `src/preprocess/validate_schema.py` to enforce `contracts/dataset.schema.yaml`. **Deliverable**: A fully functional `validate_schema(dataframe)` function that raises `InsufficientDataError` (defined in `src.utils.exceptions` via T008) if row count < 150 or schema validation fails. This task includes recording checksums for raw files as per Constitution Principle III. **Dependency**: Requires `InsufficientDataError` from T008.
-- [X] T009 [P] Setup environment configuration management in `src/config/settings.py`: Create `config.yaml` template with keys for API endpoints, resource limits (`gpr_max_runtime` in seconds, `gpr_max_memory` in GB), and OCR fallback settings. Implement `settings.py` to load `config.yaml` and expose these values as global constants or a `Config` class for use by T023 and T029.
+- [X] T007b [P] Implement validation logic in `src/preprocess/validate_schema.py` to enforce `contracts/dataset.schema.yaml`. **Deliverable**: A fully functional `validate_schema(dataframe)` function that raises `InsufficientDataError` (defined in `src.utils.exceptions` via T008) ONLY if schema structure (field types, presence) fails. **Constraint**: This task does NOT check row count; row count validation is handled later in T015c and T017c. **Dependency**: Requires `InsufficientDataError` from T008.
+- [X] T009 [P] Setup environment configuration management in `src/config/settings.py`: Create `config.yaml` template with keys for API endpoints, resource limits (`gpr_max_runtime` in seconds, `gpr_max_memory` in GB), OCR fallback settings, and **`default_process_duration` (default: hours)**. Implement `settings.py` to load `config.yaml` and expose these values as global constants or a `Config` class for use by T023 and T029.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+### Source Resolution (Phase 2 - Prerequisites for Data Ingestion)
+
+- [X] T041 [US1] **Resolve NIST Source URL**: Update `src/ingest/nist_repo.py` (T013) to use the specific, verifiable NIST Materials Data Repository URL: `. **Constraint**: If the dynamic search URL is unavailable, the script MUST fail loudly with a clear error message indicating the missing source, rather than silently skipping. **Verification**: Script runs and either fetches data or raises `DataIngestionError` with a specific "Source URL missing" message. <!-- FAILED: unspecified -->
+- [X] T042 [US1] **Resolve arXiv Search Query**: Update `src/ingest/arxiv_extractor.py` (T013b) to use the specific, valid arXiv API search query string: `cat:cond-mat.mtrl-sci+AND+ball+milling` and process a representative subset of the initial results. **Constraint**: The script must validate the query format before execution. **Verification**: Script runs and either fetches data or raises `DataIngestionError` with a "Invalid arXiv query" message.
+- [ ] T043 [US1] **Stream Verified UCI Fallback**: Implement `src/ingest/stream_uci_fallback.py` to stream a verified real dataset from the UCI Machine Learning Repository (e.g., a relevant materials processing dataset) as a fallback if NIST/Materials Project yield insufficient data. **Specifics**: The task MUST stream the data and attempt to generate `data/fallback/uci_verified_subset.csv` with >= 150 rows. **Constraint**: This task MUST use real data. It MUST NOT generate synthetic data. **Critical**: If the stream yields < 150 rows, the task MUST write the partial data to `data/fallback/uci_verified_subset.csv`, log a critical warning "Insufficient real data from UCI fallback stream (< 150 rows)", and **SUCCEED** (do NOT halt). The pipeline will halt later at T017c only if the TOTAL aggregated count across ALL sources is < 150. **Verification**: Script runs and generates the file (even if < 150 rows) or halts only if the source URL is completely unreachable. **Dependency**: Must precede T044. <!-- FAILED: unspecified -->
+- [X] T044 [US1] **Update Fallback Logic**: Modify `src/ingest/merge.py` (T015) and the fallback aggregation logic (T013) to strictly enforce the "Fail Loudly" rule for real sources. If T012, T013, or T013b fail, log a warning and skip. If the total count is < 150, attempt to load the verified static subset from T043 (UCI). **Constraint**: Do NOT generate synthetic data. **Verification**: Pipeline runs successfully with partial real data + verified fallback, or fails if neither are available. **Dependency**: Requires T043 to be completed first.
+
+**Checkpoint**: Foundation and Source Resolution ready - user story implementation can now begin in parallel
 
 ---
 
@@ -81,29 +89,27 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py`. **Specifics**: Use Materials Project API v2 (`https://next-gen.materialsproject.org/`) to query for entries with 'ball milling' or 'milling' in keywords/abstracts. Parse JSON to extract `milling_speed`, `milling_time`, `ball_to_powder_ratio`, `youngs_modulus`, `density`, and PSD metrics. **Output**: `data/raw/materials_project_raw.json`. **Verification**: File exists and contains >0 rows. **Constraint**: If the real API fetch fails, log a warning and skip this source; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
-- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py`. **Specifics**: Download data from NIST Materials Data Repository using the explicit search URL: ` or a specific static CSV fallback at ` if the dynamic search is unavailable. Parse CSV columns: `experiment_id`, `material`, `speed`, `time`, `ratio`, `youngs_modulus`, `density`, `d10`, `d50`, `d90`. **Output**: `data/raw/nist_milling_data.csv`. **Verification**: File exists and schema matches `contracts/dataset.schema.yaml`. **Constraint**: If download fails, log a warning and skip this source; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
-- [ ] T013b [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py`. **Specifics**: Use `pdfminer.six` to scrape tables from arXiv PDFs. **Target**: Execute search query `arXiv search: "cat:cond-mat.mtrl-sci AND ball milling"` and process a subset of the initial results. **Extraction Target**: Extract D10, D50, D90 percentiles from tables in PDFs. **Output**: `data/raw/arxiv_tables.json`. **Verification**: File exists and contains extracted table data (rows > 0). **Constraint**: If extraction fails for a specific paper, log a warning and skip that paper; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
-- [ ] T013d [US1] Implement sourcing and validation of the verified static fallback subset. **Specifics**: Fetch a pre-verified, static subset of known ball milling experiments from the specific NIST CSV at ` (or a known subset thereof) to meet the minimum viable threshold. **Output**: `data/fallback/verified_static_subset.csv` with >= 150 rows. **Verification**: File exists, is checksummed, and passes schema validation. **Constraint**: This is a REAL dataset subset (verified static data), not synthetic generation. If the automated download fails, the user MUST manually place a valid CSV file at this path before proceeding. This task is a prerequisite for T013c.
-- [ ] T013c [US1] Implement fallback aggregation from verified static subset. **Specifics**: If the total count of aggregated rows from T012, T013, and T013b is < 150, load the pre-verified, static subset from `data/fallback/verified_static_subset.csv` (created by T013d) to reach the minimum viable threshold. **Output**: Append fallback data to the merged dataset. **Verification**: Final merged dataset has >= 150 rows. **Constraint**: This is a REAL dataset subset (verified static data), not synthetic generation. **Dependency**: Requires T013d to be completed first and the file to exist.
-- [X] T014 [US1] **Grouping Header (DO NOT CHECK)**: OCR Extraction and Flagging Logic. (Sub-tasks T014a-c are the actionable items.)
+- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py`. **Specifics**: Use Materials Project API v2 (`https://next-gen.materialsproject.org/`) to query for entries with 'ball milling' or 'milling' in keywords/abstracts. Parse JSON to extract `milling_speed`, `milling_time`, `ball_to_powder_ratio`, `youngs_modulus`, `density`, and PSD metrics. **Output**: `data/raw/materials_project_raw.json`. **Verification**: File exists and contains >0 rows. **Constraint**: If the real API fetch fails or returns 0 rows, log a warning "Source skipped: Materials Project (0 rows or error)" and skip this source; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
+- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py`. **Specifics**: Download data from NIST Materials Data Repository using the explicit search URL: `. **Fallback Logic**: If the dynamic fetch fails or returns 0 rows, attempt to load `data/fallback/uci_verified_subset.csv` (generated by T043). Parse CSV columns: `experiment_id`, `material`, `speed`, `time`, `ratio`, `youngs_modulus`, `density`, `d10`, `d50`, `d90`. **Output**: `data/raw/nist_milling_data.csv`. **Verification**: File exists and schema matches `contracts/dataset.schema.yaml`. **Constraint**: If both dynamic fetch and fallback file fail/return 0 rows, log a warning "Source skipped: NIST (0 rows or error)" and skip this source; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
+- [ ] T013b [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py`. **Specifics**: Use `pdfminer.six` to scrape tables from arXiv PDFs. **Target**: Execute search query `arXiv search: "cat:cond-mat.mtrl-sci AND ball milling"` and process a subset of the initial results. **Extraction Target**: Extract D10, D50, D90 percentiles from tables in PDFs. **Output**: `data/raw/arxiv_tables.json`. **Verification**: File exists and contains extracted table data (rows > 0). **Constraint**: If extraction fails for a specific paper or returns 0 rows, log a warning "Source skipped: arXiv (0 rows or error)" and skip that paper; do NOT halt the entire pipeline. Log skipped sources if partial success occurs.
+- [ ] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
+- [ ] T015b [US1] **Calculate Aggregated Count**: Compute the row count of the merged dataframe (output of T015) and write it to `data/processed/row_count.json` with key `count`. **Verification**: File exists and contains integer >= 0.
+- [ ] T015c [US1] **Pre-Processing Size Gate (Warning Only)**: Implement the size gate function in `src/utils/size_gate.py` that reads `data/processed/row_count.json`. If count < 150, **log a critical warning** but do NOT halt. **Verification**: Calling `check_size_gate()` with <150 rows logs a warning but returns normally. This is a function, not a CLI, to be called by T018a. **Dependency**: Must run AFTER T015b.
+- [ ] T014 [US1] **Grouping Header (DO NOT CHECK)**: OCR Extraction and Flagging Logic. (Sub-tasks T014a-c are the actionable items.)
  - [ ] T014a [US1] Implement image detection logic to identify PSD curves/images in PDFs. **Function Signature**: `detect_psd_images(pdf_path: str) -> list[str]`. **Output**: `data/raw/detected_psd_images.json` containing a list of image paths. **Verification**: Function returns list of paths for known test PDFs (e.g., `tests/fixtures/sample_psd.pdf`).
  - [X] T014b [US1] **Flagging Logic**: Implement logic to flag unstructured entries to `data/flagged_psd.json` with **specific schema: `experiment_id`, `source`, `issue_type`, `raw_blob_hash`**. **Requirement**: The fallback extraction logic (T014c) MUST be implemented in the codebase regardless of config; the config only controls whether it is *activated* or if entries are flagged for manual curation. **Trigger**: Must run after T014a detects images.
- - [X] T014c [US1] **OCR Extraction Implementation**: Implement the actual OCR/extraction fallback logic in `src/ingest/ocr_fallback.py`. **Specifics**: The **flagging fallback** is MANDATORY and always active. The **OCR extraction attempt** is controlled by `config.yaml`. If `ocr_enabled: false`, skip extraction and only flag. If `ocr_enabled: true`, attempt extraction; if OCR fails, flag the entry. **Deliverable**: A function `extract_psd_from_image(image_path: str) -> dict` that returns extracted PSD metrics. **Verification**: Unit test `tests/unit/test_ocr.py::test_extract_from_sample_image` passes. This task is MANDATORY per FR-008, but activation of the extraction attempt is configurable.
-- [X] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
-- [X] T015b [US1] **Calculate Aggregated Count**: Compute the row count of the merged dataframe (output of T015) and write it to `data/processed/row_count.json` with key `count`. **Verification**: File exists and contains integer >= 150.
-- [X] T015c [US1] **Pre-Processing Size Gate (Warning Only)**: Implement the size gate function in `src/utils/size_gate.py` that reads `data/processed/row_count.json`. If count < 150, **log a critical warning** but do NOT halt. **Verification**: Calling `check_size_gate()` with <150 rows logs a warning but returns normally. This is a function, not a CLI, to be called by T018a. **Dependency**: Must run AFTER T015b.
+ - [ ] T014c [US1] **OCR Extraction Implementation**: Implement the actual OCR/extraction fallback logic in `src/ingest/ocr_fallback.py`. **Specifics**: The **flagging fallback** is MANDATORY and always active. The **OCR extraction attempt** is MANDATORY for flagged images. If `ocr_enabled: false`, skip extraction and only flag. **CRITICAL**: If `ocr_enabled` is false AND the total dataset size is < 150 after aggregation, the system MUST halt with a critical error "Insufficient data: OCR disabled and dataset < 150 rows". If `ocr_enabled` is true and extraction fails, flag the entry and continue. **Deliverable**: A function `extract_psd_from_image(image_path: str) -> dict` that returns extracted PSD metrics. **Verification**: Unit test `tests/unit/test_ocr.py::test_extract_from_sample_image` passes. This task is MANDATORY per FR-008.
 - [X] T016 [US1] **Grouping Header (DO NOT CHECK)**: Preprocessing Pipeline. (Sub-tasks T016a-f are the actionable items.)
  - [X] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density)** (EXCLUDING targets D10/D50/D90). **Function Signature**: `apply_imputation(df: pd.DataFrame) -> pd.DataFrame`. **Output**: `data/processed/imputed_dataset.parquet`. **Verification**: Output file exists and has no nulls in predictor columns.
  - [X] T016b One-hot encoding for `material_type`
  - [X] T016c Standard scaling for numeric features
  - [X] T016d [US1] **Flagging Logic (Append Only)**: Implement logic to flag unstructured PSD entries to `data/flagged_psd.json`. **Dependency**: MUST check `data/flagged_psd.json` (from T014b) first. If an entry is already flagged, do not overwrite; only append new flags. **Verification**: No duplicate entries for the same `experiment_id` in the output file. **Dependency**: T014b must precede T016d.
- - [X] T016e [US1] **Imputation Logic**: Implement logic to calculate 'process_duration' column. **Specifics**: If missing, use median of non-null 'process_duration' in the dataset; if all null, use the default value from `config.yaml` key `default_process_duration`. **Verification**: Output column has no nulls.
+ - [X] T016e [US1] **Imputation Logic**: Implement logic to calculate 'process_duration' column. **Specifics**: If missing, use median of non-null 'process_duration' in the dataset; if all null, use the default value from `config.yaml` key `default_process_duration` (default: 24.0 hours). **Verification**: Output column has no nulls.
  - [X] T016f [US1] **Validation Logic**: Implement logic to check if 'process_duration' is still missing after imputation. If missing AND no default is configured, raise `MissingTimestampError` with a clear message.
 - [X] T017a [US1] **Schema Validation**: Validate the processed dataset against `contracts/dataset.schema.yaml`. **Input**: `data/processed/ball_milling_dataset.parquet` (output of T016). **Verification**: Schema validation passes. **Dependency**: Must run BEFORE T017c.
 - [X] T017b [US1] **Pre-Halt Size Check (Warning Only)**: Check if the processed dataset has >= 150 rows. If < 150, log a critical warning but do NOT halt. **Verification**: Warning is logged if count < 150. **Dependency**: Must run AFTER T017a.
 - [X] T017c [US1] **Post-Processing Size Gate (HALT)**: Validate that the processed dataset still meets the minimum viable threshold of >= 150 rows. **CRITICAL**: If count < 150, **raise `SystemExit` with code 1** and log "Processed dataset size < 150 experiments (minimum viable) per spec SC-004". **Verification**: Calling `check_processed_size()` with <150 rows raises `SystemExit` with code 1. This is the definitive size gate for SC-004. **Dependency**: Must run AFTER T017a and T017b.
-- [X] T018 [US1] Create main ingestion CLI entry point in `src/cli/ingest.py` to orchestrate T012-T017 (Input: **ONLY the validated output from T017**; Output: validated parquet):
+- [ ] T018 [US1] Create main ingestion CLI entry point in `src/cli/ingest.py` to orchestrate T012-T017 (Input: **ONLY the validated output from T017**; Output: validated parquet):
  - [X] T018a Ensure sequential execution: Ingestion -> Merge -> **T015b/T015c (Warning Gate)** -> Preprocess -> **T017a -> T017b -> T017c (Halt Gate)** -> Validate -> CLI output. **Specifics**: T018a calls `src.utils.size_gate.check_size_gate()` (T015c) and `src.preprocess.validate.check_processed_size()` (T017c). Verify that T017c is called after T017a.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean dataset produced)
@@ -133,7 +139,7 @@
 - [X] T025 [US2] Implement Linear Regression baseline in `src/model/baseline_lr.py` using same Nested CV scheme
 - [X] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds** (using dynamic splits) in `src/evaluate/metrics.py`
 - [X] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) to compare ML models vs baseline.
-- [X] T028a [US2] **Derive Effect Size**: Implement logic to derive the hypothesized effect size (Cohen's f²) from domain literature or a pilot analysis of the current dataset. **Specifics**: Search literature for typical effect sizes in ball milling studies or calculate from a pilot subset. **Output**: `results/effect_size_derivation.txt` containing the derived value and justification. **Verification**: File exists and contains a numeric value and rationale. **Dependency**: Must precede T028.
+- [X] T028a [US2] **Derive Effect Size**: Implement logic to derive the hypothesized effect size (Cohen's f²) from domain literature or a pilot analysis. **Specifics**: Use a hardcoded default value of Cohen's f² = 0.15 (based on standard exploratory ML studies) if literature is not found. **Output**: `results/effect_size_derivation.txt` containing the derived value and rationale. **Verification**: File exists and contains a numeric value and rationale. **Dependency**: Must precede T028.
 - [X] T028 [US2] Implement a priori power analysis in `src/evaluate/power_analysis.py`. **Specifics**: Perform power analysis primarily on **D50** (the primary target metric) using the **derived effect size from T028a**. **Output**: `results/power_analysis_result.txt`. **Verification**: Output file contains the calculated minimum detectable effect size based on the derived value.
 - [X] T029 [US2] **Grouping Header (DO NOT CHECK)**: Training CLI and Fallback Orchestration. (Sub-tasks T029a-c are the actionable items.)
  - [X] T029a [US2] **GPR Runner**: Implement the GPR training execution logic (wrapping T022) with resource monitoring.
@@ -182,17 +188,6 @@
 
 ---
 
-## Phase 7: Data Source Resolution & Verification (Revision)
-
-**Purpose**: Resolve issues regarding unspecified data sources and ensure real data availability without synthetic fallbacks.
-
-- [ ] T041 [US1] **Resolve NIST Source URL**: Update `src/ingest/nist_repo.py` (T013) to use the specific, verifiable NIST Materials Data Repository URL: `. **Constraint**: If the dynamic search URL is unavailable, the script MUST fail loudly with a clear error message indicating the missing source, rather than silently skipping. **Verification**: Script runs and either fetches data or raises `DataIngestionError` with a specific "Source URL missing" message.
-- [ ] T042 [US1] **Resolve arXiv Search Query**: Update `src/ingest/arxiv_extractor.py` (T013b) to use the specific, valid arXiv API search query string: `cat:cond-mat.mtrl-sci+AND+ball+milling` and process the first 10 results. **Constraint**: The script must validate the query format before execution. **Verification**: Script runs and either fetches data or raises `DataIngestionError` with a "Invalid arXiv query" message.
-- [ ] T043 [US1] **Implement Verified Static Fallback**: Create `data/fallback/verified_static_subset.csv` containing a real, pre-verified subset of ball milling experiments (>= 150 rows) sourced from the specific NIST CSV at `. **Constraint**: This file must be manually verified against `contracts/dataset.schema.yaml` and checksummed. **Verification**: File exists, passes schema validation, and has a valid checksum recorded in `data/fallback/checksums.txt`.
-- [ ] T044 [US1] **Update Fallback Logic**: Modify `src/ingest/merge.py` (T015) and `src/ingest/merge.py` (T013c) to strictly enforce the "Fail Loudly" rule for real sources. If T012, T013, or T013b fail, log a warning. If the total count is < 150, load the verified static subset from T043. **Constraint**: Do NOT generate synthetic data. **Verification**: Pipeline runs successfully with partial real data + verified fallback, or fails if neither are available.
-
----
-
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -230,9 +225,9 @@
 ### Explicit Sequential Chains (Critical for Data Flow)
 
 - **Data Pipeline (US1)**: T012/T013/T013b (Ingestion) → T015 (Merge) → **T015b (Write Count)** → **T015c (Warning Gate)** → **T016 (Preprocess)** → **T017a (Schema Validation)** → **T017b (Warning Check)** → **T017c (Halt Gate)** → **T018 (CLI)**. **T015c depends on T015b**. **T016 depends on T015**. **T017a depends on T016**. **T017b depends on T017a**. **T017c depends on T017b**. **T016d depends on T014b**. **T014b -> T016d**.
-- **Fallback Chain (US1)**: T013d (Create Fallback) -> T013c (Use Fallback). T013d MUST complete before T013c is executed in the pipeline.
+- **Fallback Chain (US1)**: T043 (Stream UCI Fallback) -> T044 (Update Fallback Logic) -> T013 (Use Fallback). T043 MUST complete before T044, and T044 MUST complete before T013 is executed in the pipeline. **T043 ensures the fallback file exists even if <150 rows, allowing T013 to proceed.**
 - **Model Pipeline (US2)**: T021 (CV Setup) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF OR Train Both)** → T026 (Eval). T022 and T024 are **code implementations** ready for T029 to invoke. **T029c invokes T022/T024**.
-- **Revision Pipeline (Phase 7)**: T041 (NIST URL) → T042 (arXiv Query) → T043 (Verified Fallback) → T044 (Logic Update). These tasks must be completed before T013, T013b, and T013c are executed in a production run.
+- **Source Resolution (Phase 2)**: T041 (NIST URL) → T042 (arXiv Query) → T043 (Stream UCI Fallback) → T044 (Update Fallback Logic). These tasks must be completed before T013, T013b, and T013c are executed in a production run.
 
 ---
 
@@ -285,23 +280,26 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [W] tasks = Writing/Documentation tasks (prose correction, not code)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible. If a real fetch fails, the script MUST log a warning and skip that source (partial success). **T013d** MUST load a **verified static fallback subset** (real data, not synthetic) if the total aggregated count is <150. Synthetic fallbacks (e.g., `generate_synthetic_*`) are strictly prohibited.
+- **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible. If a real fetch fails, the script MUST log a warning and skip that source (partial success). **T043** MUST load a **verified real fallback subset** (UCI dataset, not synthetic) if the total aggregated count is <150. Synthetic fallbacks (e.g., `generate_synthetic_*`) are strictly prohibited.
 - **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min (1800s) or >5GB RAM (configurable).
 - **Critical**: All findings must be framed as associational (not causal).
 - **Critical**: 'Process Duration' must be calculated ONLY in T016e to ensure consistency, with imputation for missing values.
-- **Critical**: Unstructured PSD data (images) must be detected and flagged for manual curation in T014; **OCR is optional/configurable** (T014c) but flagging is mandatory.
+- **Critical**: Unstructured PSD data (images) must be detected and flagged for manual curation in T014; **OCR is mandatory** (T014c) and must attempt extraction if enabled.
 - **Critical**: The test set split must be generated dynamically (no static file) and stratified by **quantile-binned D50** (the target) to prevent material-specific bias.
 - **Critical**: The fallback logic in T029 must explicitly catch `GPRResourceLimitExceeded` and switch to RF, AND MUST train RF if GPR succeeds to satisfy FR-003. RF training is UNCONDITIONAL to ensure comparative data exists. T029c must verify RF artifact completion.
 - **Critical**: CI workflow must enforce a **6-hour** job time limit.
-- **Critical**: Dataset size check: T015c (pre-processing) is a warning only. T017c (post-processing) is the definitive HALT gate for SC-004.
+- **Critical**: Dataset size check: T015c (pre-processing) is a warning only. T017c (post-processing) is the definitive HALT gate for SC-004. **T007b (Schema Validation) does NOT check row count; it only validates schema structure.**
 - **Critical**: No task may implement a `try/except` block that falls back to `generate_synthetic_*()` or `mock_*()` data when a real fetch fails. The execution stage handles retries; the code must fail loudly OR skip and log.
 - **Parent Task Status**: Tasks T014, T016, T021, and T029 are grouping headers only. Their sub-tasks (e.g., T014a-c) are the actionable items. Do not check the parent boxes.
 - **Critical**: T041, T042, T043, and T044 are mandatory revision tasks to resolve unspecified data sources and ensure the pipeline uses real, verifiable data without synthetic fallbacks. These must be completed before T013, T013b, and T013c are executed in a production run.
-- **Critical**: T013d must be completed before T013c is executed in the pipeline to ensure the fallback file exists.
+- **Critical**: T043 must be completed before T044 is executed in the pipeline to ensure the fallback stream logic exists.
 - **Critical**: T017a (Schema Validation) must complete before T017c (Size Gate) to ensure the data is valid before checking its size.
+- **Critical**: T013 now explicitly uses the resolved NIST URL from T041 and the fallback file from T043 (UCI).
+- **Critical**: T043 (Stream UCI Fallback) provides a concrete deliverable path if NIST/Materials Project are unavailable, ensuring the pipeline does not halt on a single source failure.

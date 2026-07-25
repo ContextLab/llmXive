@@ -1,74 +1,69 @@
-"""
-Setup data directory structure for the ball milling prediction project.
-Creates the required directories under the data/ folder and ensures
-placeholder files exist for verification.
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def setup_directories(base_dir: str = None) -> bool:
+def setup_directories():
     """
-    Create the required data directory structure.
-
-    Args:
-        base_dir: The root directory of the project. If None, uses the
-                  current working directory.
-
+    Creates the required data directory structure for the project.
+    
+    Creates the following directories relative to the project root:
+    - data/raw
+    - data/processed
+    - data/splits
+    - results
+    
+    Also creates .gitkeep files in each directory to ensure they are tracked
+    by version control even when empty.
+    
     Returns:
         bool: True if all directories were created successfully, False otherwise.
     """
-    if base_dir is None:
-        base_dir = Path.cwd()
-    else:
-        base_dir = Path(base_dir)
-
-    # Define the required data directories
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/splits",
-        "results",
-        "data/fallback",
-        "figures"
+    # Define the directory structure relative to project root
+    # Assuming the script is run from the project root or code/ directory
+    # We'll determine the project root by looking for the parent of 'data'
+    
+    current_file = Path(__file__).resolve()
+    # Try to find the project root by going up until we find 'data' or 'specs'
+    project_root = current_file.parent
+    while project_root != project_root.parent:
+        if (project_root / 'data').exists() or (project_root / 'specs').exists():
+            break
+        project_root = project_root.parent
+    
+    # Define directories to create
+    directories = [
+        'data/raw',
+        'data/processed',
+        'data/splits',
+        'results'
     ]
-
+    
     success = True
-
-    for dir_path in data_dirs:
-        full_path = base_dir / dir_path
+    for dir_path in directories:
+        full_path = project_root / dir_path
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            # Create a .gitkeep file to ensure the directory is tracked by git
-            gitkeep_path = full_path / ".gitkeep"
+            print(f"✓ Created directory: {full_path}")
+            
+            # Create .gitkeep file to ensure directory is tracked by git
+            gitkeep_path = full_path / '.gitkeep'
             if not gitkeep_path.exists():
                 gitkeep_path.touch()
-            print(f"Created directory: {full_path}")
-        except OSError as e:
-            print(f"Error creating directory {full_path}: {e}")
+                print(f"  → Created .gitkeep in {full_path}")
+            
+        except Exception as e:
+            print(f"✗ Failed to create directory {full_path}: {e}")
             success = False
-
-    # Verify the structure
+    
     if success:
-        print("\nDirectory structure verification:")
-        for dir_path in data_dirs:
-            full_path = base_dir / dir_path
-            if full_path.exists() and full_path.is_dir():
-                print(f"  [OK] {dir_path}")
-            else:
-                print(f"  [FAIL] {dir_path}")
-                success = False
-
-    return success
-
+        print("\n✓ All required directories created successfully.")
+        print(f"  Base path: {project_root}")
+    else:
+        print("\n✗ Some directories failed to create. Check errors above.")
+        return False
+    
+    return True
 
 if __name__ == "__main__":
-    # Allow running with an optional base directory argument
-    base = sys.argv[1] if len(sys.argv) > 1 else None
-    if setup_directories(base):
-        print("\nSetup completed successfully.")
-        sys.exit(0)
-    else:
-        print("\nSetup failed.")
-        sys.exit(1)
+    success = setup_directories()
+    sys.exit(0 if success else 1)

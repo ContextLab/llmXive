@@ -1,3 +1,7 @@
+"""
+Merge and deduplicate datasets from multiple sources.
+Implements strict 'Fail Loudly' rule for real sources and fallback logic.
+"""
 import hashlib
 import json
 import logging
@@ -5,225 +9,168 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
-import numpy as np
 
-from src.exceptions import DataIngestionError, SchemaValidationError
-from src.utils.exceptions import InsufficientDataError
+from src.exceptions import DataIngestionError, InsufficientDataError
+from src.ingest.fallback_aggregator import load_fallback_data, append_fallback_if_needed
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration for deduplication
-# These are the columns used to identify unique experiments
-DEDUP_KEY_COLUMNS = [
-    "material_type",
-    "milling_speed",
-    "milling_time",
-    "ball_to_powder_ratio",
-    "youngs_modulus",
-    "density",
-]
+def calculate_row_hash(row: pd.Series) -> str:
+    """Calculate a unique hash for a row to detect duplicates."""
+    # Create a string representation of the row's values
+    # Ensure consistent ordering and formatting
+    values = [str(v) if pd.notna(v) else "" for v in row]
+    content = "|".join(values)
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-# Columns used for averaging if duplicates are found
-# We prioritize target metrics and process duration
-AGGREGATION_RULES = {
-    "d10": "mean",
-    "d50": "mean",
-    "d90": "mean",
-    "process_duration": "mean",
-    "experiment_id": "first",  # Keep the first encountered ID
-    "source": "first",
-}
-
-def calculate_row_hash(df: pd.DataFrame, key_columns: List[str]) -> pd.Series:
+def merge_datasets(dfs: List[pd.DataFrame], source_names: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Calculate a hash for each row based on key columns to identify duplicates.
-    Handles NaN values by replacing them with a sentinel string.
-    """
-    if not all(col in df.columns for col in key_columns):
-        raise DataIngestionError(
-            f"Missing required columns for deduplication. "
-            f"Expected: {key_columns}, Found: {list(df.columns)}"
-        )
-
-    # Create a string representation of the key columns for hashing
-    # Replace NaN with a specific string to ensure consistent hashing
-    hash_input = df[key_columns].fillna("__NaN__").astype(str)
-    
-    # Combine columns into a single string per row
-    combined = hash_input.apply(lambda row: "|".join(row), axis=1)
-    
-    # Calculate MD5 hash
-    return combined.apply(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest())
-
-def merge_datasets(
-    dataframes: List[pd.DataFrame], 
-    output_path: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Merge multiple DataFrames from different sources (Materials Project, NIST, arXiv),
-    perform deduplication based on experimental parameters, and handle conflicting
-    PSD measurements.
+    Merge multiple DataFrames and remove duplicates based on a calculated row hash.
 
     Args:
-        dataframes: List of DataFrames from different ingestion sources.
-        output_path: Optional path to write the merged parquet file.
+        dfs: List of DataFrames to merge.
+        source_names: Optional list of source names for logging.
 
     Returns:
-        Merged and deduplicated DataFrame.
-
-    Raises:
-        DataIngestionError: If input list is empty or contains invalid types.
-        SchemaValidationError: If required columns are missing in any DataFrame.
+        Merged DataFrame with duplicates removed.
     """
-    if not dataframes:
-        raise DataIngestionError("No dataframes provided for merging.")
+    if not dfs:
+        logger.warning("No DataFrames provided for merging.")
+        return pd.DataFrame()
 
-    # Validate inputs
-    for i, df in enumerate(dataframes):
-        if not isinstance(df, pd.DataFrame):
-            raise DataIngestionError(f"Item at index {i} is not a DataFrame.")
-        if df.empty:
-            logger.warning(f"Empty DataFrame provided at index {i}, skipping.")
+    # Filter out empty DataFrames
+    non_empty_dfs = [df for df in dfs if not df.empty]
 
-    # Filter out empty dataframes
-    valid_dfs = [df for df in dataframes if not df.empty]
+    if not non_empty_dfs:
+        logger.warning("All provided DataFrames are empty.")
+        return pd.DataFrame()
 
-    if not valid_dfs:
-        raise DataIngestionError("All provided DataFrames were empty.")
-
-    # Check for required columns in all dataframes
-    required_cols = set(DEDUP_KEY_COLUMNS) | {"d10", "d50", "d90"}
-    for i, df in enumerate(valid_dfs):
-        missing = required_cols - set(df.columns)
-        if missing:
-            raise DataIngestionError(
-                f"DataFrame at index {i} missing required columns: {missing}"
-            )
-
-    # Concatenate all dataframes
-    logger.info(f"Merging {len(valid_dfs)} datasets...")
-    combined_df = pd.concat(valid_dfs, ignore_index=True)
-    logger.info(f"Combined dataset size: {len(combined_df)} rows")
-
-    # Identify duplicates
-    combined_df["_dedup_hash"] = calculate_row_hash(combined_df, DEDUP_KEY_COLUMNS)
-    
-    # Count duplicates to log
-    dup_counts = combined_df["_dedup_hash"].value_counts()
-    num_duplicates = (dup_counts > 1).sum()
-    total_dup_rows = dup_counts[dup_counts > 1].sum()
-    
-    logger.info(f"Found {num_duplicates} groups of duplicates ({total_dup_rows} total rows).")
-
-    if num_duplicates > 0:
-        logger.info("Deduplicating based on experimental parameters...")
-        
-        # Group by hash and aggregate
-        # We use the aggregation rules defined above
-        agg_dict = {col: rule for col, rule in AGGREGATION_RULES.items() if col in combined_df.columns}
-        # Ensure all non-key columns are handled (drop or mean)
-        for col in combined_df.columns:
-            if col not in agg_dict and col != "_dedup_hash":
-                # If it's a numeric column, take mean; otherwise, take first
-                if pd.api.types.is_numeric_dtype(combined_df[col]):
-                    agg_dict[col] = "mean"
-                else:
-                    agg_dict[col] = "first"
-
-        deduplicated_df = combined_df.groupby("_dedup_hash").agg(agg_dict).reset_index(drop=True)
-        
-        # Drop the temporary hash column
-        if "_dedup_hash" in deduplicated_df.columns:
-            deduplicated_df.drop(columns=["_dedup_hash"], inplace=True)
-        
-        logger.info(f"Deduplicated dataset size: {len(deduplicated_df)} rows")
+    # Concatenate all non-empty DataFrames
+    if len(non_empty_dfs) == 1:
+        merged = non_empty_dfs[0].copy()
     else:
-        deduplicated_df = combined_df.drop(columns=["_dedup_hash"])
-        logger.info("No duplicates found.")
+        merged = pd.concat(non_empty_dfs, ignore_index=True)
 
-    # Log conflicting measurements (where std dev of targets is high)
-    # This is a heuristic to flag potential data quality issues
-    if num_duplicates > 0:
-        # Re-calculate on the original grouped data to find conflicts
-        # We need to look at the original combined_df before dropping hash
-        combined_df["_dedup_hash"] = calculate_row_hash(combined_df, DEDUP_KEY_COLUMNS)
-        conflict_report = []
-        
-        for hash_val, group in combined_df.groupby("_dedup_hash"):
-            if len(group) > 1:
-                # Check variance in target variables
-                for target in ["d10", "d50", "d90"]:
-                    if target in group.columns:
-                        std_val = group[target].std()
-                        mean_val = group[target].mean()
-                        if mean_val > 0 and (std_val / mean_val) > 0.2: # 20% variance threshold
-                            conflict_report.append({
-                                "key_hash": hash_val,
-                                "target": target,
-                                "mean": mean_val,
-                                "std": std_val,
-                                "variance_pct": (std_val / mean_val) * 100,
-                                "source_count": len(group["source"].unique())
-                            })
-        
-        if conflict_report:
-            logger.warning(f"Found {len(conflict_report)} potential conflicts with >20% variance in target measurements.")
-            # Log first few conflicts
-            for i, conflict in enumerate(conflict_report[:3]):
-                logger.warning(f"Conflict {i+1}: {conflict['target']} variance {conflict['variance_pct']:.1f}%")
+    if merged.empty:
+        logger.warning("Merged result is empty.")
+        return merged
 
-    # Final validation: ensure no NaN in critical target columns
-    critical_targets = ["d10", "d50", "d90"]
-    nan_counts = deduplicated_df[critical_targets].isna().sum()
-    if nan_counts.any():
-        logger.error(f"Found NaN values in critical target columns after merge: {nan_counts.to_dict()}")
-        # We do not raise an error here to allow the pipeline to continue to the size check,
-        # but we log it heavily. The size check or schema validation downstream might catch it.
+    # Calculate row hashes
+    logger.info(f"Calculating row hashes for {len(merged)} rows...")
+    merged['_row_hash'] = merged.apply(calculate_row_hash, axis=1)
 
-    # Write output if path provided
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        deduplicated_df.to_parquet(output_path, index=False)
-        logger.info(f"Merged dataset written to {output_path}")
+    # Drop duplicates based on hash
+    initial_count = len(merged)
+    merged = merged.drop_duplicates(subset=['_row_hash'])
+    final_count = len(merged)
+    duplicates_removed = initial_count - final_count
 
-    return deduplicated_df
+    if duplicates_removed > 0:
+        logger.info(f"Removed {duplicates_removed} duplicate rows.")
+    else:
+        logger.info("No duplicate rows found.")
+
+    # Drop the temporary hash column
+    merged = merged.drop(columns=['_row_hash'])
+
+    return merged
 
 def run_merge_pipeline(
-    raw_data_paths: List[Path],
-    output_path: Path,
-    source_labels: Optional[List[str]] = None
+    materials_project_df: Optional[pd.DataFrame] = None,
+    nist_df: Optional[pd.DataFrame] = None,
+    arxiv_df: Optional[pd.DataFrame] = None,
+    output_path: str = "data/processed/merged_dataset.csv",
+    fallback_threshold: int = 150
 ) -> pd.DataFrame:
     """
-    Orchestrate the loading, merging, and deduplication of raw data files.
+    Orchestrate the merging of data from various sources with strict fallback logic.
+
+    This function enforces the 'Fail Loudly' rule:
+    - If a primary source (T012, T013, T013b) fails or returns 0 rows, it logs a warning and skips.
+    - If the total count from primary sources is < 150, it attempts to load verified fallback data (T043).
+    - It does NOT generate synthetic data.
 
     Args:
-        raw_data_paths: List of paths to parquet/CSV files from ingestion steps.
-        output_path: Path to write the final merged dataset.
-        source_labels: Optional list of labels to tag the source of each file.
+        materials_project_df: DataFrame from Materials Project (T012).
+        nist_df: DataFrame from NIST (T013).
+        arxiv_df: DataFrame from arXiv (T013b).
+        output_path: Path to save the merged dataset.
+        fallback_threshold: Minimum row count required to skip fallback.
 
     Returns:
-        The merged DataFrame.
+        The final merged DataFrame.
     """
-    dataframes = []
-    
-    for i, path in enumerate(raw_data_paths):
-        if not path.exists():
-            raise DataIngestionError(f"Input file not found: {path}")
-        
-        logger.info(f"Loading data from {path}...")
-        if path.suffix == ".parquet":
-            df = pd.read_parquet(path)
-        elif path.suffix == ".csv":
-            df = pd.read_csv(path)
-        else:
-            raise DataIngestionError(f"Unsupported file format: {path.suffix}")
-        
-        # Tag source if labels provided
-        if source_labels and i < len(source_labels):
-            df["source"] = source_labels[i]
-        elif "source" not in df.columns:
-            df["source"] = f"unknown_source_{i}"
-        
-        dataframes.append(df)
+    sources = []
+    source_names = []
+    counts = {}
 
-    return merge_datasets(dataframes, output_path)
+    # Process Materials Project
+    if materials_project_df is not None and not materials_project_df.empty:
+        sources.append(materials_project_df)
+        source_names.append("Materials Project")
+        counts["Materials Project"] = len(materials_project_df)
+        logger.info(f"Loaded {len(materials_project_df)} rows from Materials Project.")
+    else:
+        logger.warning("Source skipped: Materials Project (0 rows or error)")
+        counts["Materials Project"] = 0
+
+    # Process NIST
+    if nist_df is not None and not nist_df.empty:
+        sources.append(nist_df)
+        source_names.append("NIST")
+        counts["NIST"] = len(nist_df)
+        logger.info(f"Loaded {len(nist_df)} rows from NIST.")
+    else:
+        logger.warning("Source skipped: NIST (0 rows or error)")
+        counts["NIST"] = 0
+
+    # Process arXiv
+    if arxiv_df is not None and not arxiv_df.empty:
+        sources.append(arxiv_df)
+        source_names.append("arXiv")
+        counts["arXiv"] = len(arxiv_df)
+        logger.info(f"Loaded {len(arxiv_df)} rows from arXiv.")
+    else:
+        logger.warning("Source skipped: arXiv (0 rows or error)")
+        counts["arXiv"] = 0
+
+    # Merge primary sources
+    merged_df = merge_datasets(sources, source_names)
+    total_count = len(merged_df)
+
+    logger.info(f"Total rows from primary sources: {total_count}")
+
+    # Check if fallback is needed
+    if total_count < fallback_threshold:
+        logger.warning(f"Total count ({total_count}) is below threshold ({fallback_threshold}). Attempting to load verified fallback data.")
+        try:
+            fallback_df = load_fallback_data()
+            if fallback_df is not None and not fallback_df.empty:
+                logger.info(f"Loaded {len(fallback_df)} rows from verified fallback.")
+                # Merge with existing data
+                final_df = merge_datasets([merged_df, fallback_df], source_names + ["UCI Fallback"])
+                final_count = len(final_df)
+                logger.info(f"Total rows after fallback: {final_count}")
+                
+                # Ensure output directory exists
+                Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+                final_df.to_csv(output_path, index=False)
+                logger.info(f"Merged dataset saved to {output_path}")
+                
+                return final_df
+            else:
+                logger.warning("Fallback data source returned empty or invalid data.")
+                # Proceed with partial data, but log critical warning
+                logger.critical("Insufficient real data available. Pipeline may halt later at size gate.")
+        except Exception as e:
+            logger.error(f"Failed to load fallback data: {e}")
+            # Proceed with partial data, but log critical warning
+            logger.critical("Insufficient real data available. Pipeline may halt later at size gate.")
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(output_path, index=False)
+    logger.info(f"Merged dataset saved to {output_path}")
+
+    return merged_df
