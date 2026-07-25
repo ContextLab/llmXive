@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): The two required files exist, but the source template `docs/ethics/gdpr_consent_template.md` is missing, so the artifacts could not be created “using the template as the base.” Additionally, the consent form does not clearly contain a detailed “GDPR‑compliant Anonymization Workflow” clause as mandated. The next implementer must provide the missing template and regenerate the consent document from it, ensuring the full anonymization workflow clause is present.
+- `T012` (rejected 1x): The claim provides no evidence that a `research.md` file exists with a new section citing the source for the Cohen's f = 0.25 effect size. No file content or diff is shown, so we cannot verify that the required documentation was added. The implementer must supply the updated `research.md` containing the citation and justification.
 
 ## Required change
 

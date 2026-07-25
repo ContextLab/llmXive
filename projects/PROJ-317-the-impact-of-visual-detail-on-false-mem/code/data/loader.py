@@ -1,293 +1,257 @@
+"""
+Data loading utilities for the Visual Detail and False Memory project.
+
+This module handles fetching real datasets (COCO 2017), loading metadata,
+and processing images with robust error handling.
+"""
+
 import json
 import logging
 import math
 import os
 import random
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Dict, List, Optional, Any, Iterator
 
-from PIL import Image as PILImage
-import numpy as np
+# Import logging utilities from the project's utils
+from utils.logging import get_logger, log_error
+from config import get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir
 
-from config import get_dataset_source, get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir, get_config
-from utils.logging import get_logger, get_manipulation_error_log_path, sanitize_message
+# Import Image entity
 from data.image import Image
 
+# Configure module logger
 logger = get_logger(__name__)
 
-# Mock object pool for fallback generation if real data is unavailable
-# This is used ONLY for generating synthetic placeholders if the real source is unreachable
-# as per the constraint to fail loudly if real data is not available.
-MOCK_OBJECTS = [
-    "red_car.png", "blue_car.png", "chair.png", "table.png", "lamp.png",
-    "book.png", "plant.png", "clock.png", "vase.png", "cup.png"
-]
+# Constants
+MISSING_METADATA_ERROR = "Metadata file missing for image ID: {}"
+FETCH_FAILED_ERROR = "Failed to fetch image ID: {} from dataset source"
+PROCESSING_FAILED_ERROR = "Failed to process image ID: {}"
+LOG_FILE_PATH = None  # Will be initialized dynamically
 
-def _generate_mock_image_with_complexity(
-    output_path: Path,
-    complexity_score: float,
-    width: int = 512,
-    height: int = 512
-) -> Path:
+def _get_manipulation_error_log_path() -> Path:
+    """Get the path to the manipulation error log file."""
+    global LOG_FILE_PATH
+    if LOG_FILE_PATH is None:
+        logs_dir = get_logs_dir()
+        LOG_FILE_PATH = logs_dir / "manipulation_errors.log"
+        # Ensure the directory exists
+        LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    return LOG_FILE_PATH
+
+def generate_mock_visual_genome(count: int = 10) -> List[Dict[str, Any]]:
     """
-    Generates a synthetic image with a specific complexity score.
-    Complexity is simulated by the density of random noise and geometric shapes.
-    """
-    if not (0.0 <= complexity_score <= 1.0):
-        raise ValueError(f"Complexity score must be between 0.0 and 1.0, got {complexity_score}")
-
-    img_array = np.zeros((height, width, 3), dtype=np.uint8) + 128  # Gray background
-
-    # Determine number of objects based on complexity
-    # Low complexity (0.1) -> ~1 object, High complexity (0.9) -> ~20 objects
-    num_objects = max(1, int(complexity_score * 20))
-    random.seed(int(complexity_score * 10000))
-
-    for _ in range(num_objects):
-        x = random.randint(0, width - 50)
-        y = random.randint(0, height - 50)
-        w = random.randint(20, 100)
-        h = random.randint(20, 100)
-        color = tuple(random.randint(0, 255) for _ in range(3))
-        
-        # Draw random rectangle
-        img_array[y:y+h, x:x+w] = color
-
-    pil_img = PILImage.fromarray(img_array)
-    pil_img.save(output_path)
-    logger.info(f"Generated mock image at {output_path} with complexity {complexity_score:.2f}")
-    return output_path
-
-def generate_mock_visual_genome(
-    count: int = 10,
-    output_dir: Optional[Path] = None,
-    seed: int = 42
-) -> List[Image]:
-    """
-    Generates a set of mock images with calibrated complexity scores.
-    Complexity scores are drawn from a normal distribution (mean=0.5, std=0.15)
-    ensuring the Q1-Q3 range is >= 0.3 as per T006 requirements.
-    """
-    if output_dir is None:
-        output_dir = get_stimuli_dir()
+    Generate a small set of mock Visual Genome-like metadata for testing.
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    random.seed(seed)
-    np.random.seed(seed)
-
-    images = []
+    Args:
+        count: Number of mock items to generate.
+        
+    Returns:
+        List of dictionaries containing mock image metadata.
+    """
+    mock_data = []
+    categories = ["vehicle", "animal", "furniture", "food", "electronics"]
+    
     for i in range(count):
-        # Generate complexity score
-        score = np.random.normal(0.5, 0.15)
-        score = float(np.clip(score, 0.1, 0.9))  # Keep within reasonable bounds
+        item = {
+            "image_id": f"mock_{i:04d}",
+            "width": 512,
+            "height": 512,
+            "objects": [
+                {
+                    "name": f"mock_object_{i}",
+                    "category": random.choice(categories),
+                    "bbox": [50, 50, 100, 100],
+                    "confidence": 0.9
+                }
+            ],
+            "complexity_score": random.uniform(0.3, 0.7)
+        }
+        mock_data.append(item)
+        
+    return mock_data
 
-        img_path = output_dir / f"mock_img_{i:04d}.png"
-        _generate_mock_image_with_complexity(img_path, score)
-
-        img_obj = Image(
-            id=f"mock_{i:04d}",
-            path=img_path,
-            complexity_score=score,
-            metadata_path=None
-        )
-        images.append(img_obj)
-        logger.info(f"Created mock image {img_obj.id} with complexity {score:.3f}")
-
-    return images
-
-def fetch_real_dataset_image(
-    dataset_id: str,
-    image_id: str,
-    output_path: Path
-) -> Optional[Path]:
+def fetch_real_dataset_image(image_id: str) -> Optional[Dict[str, Any]]:
     """
-    Attempts to fetch a real image from a specified dataset source.
+    Fetch a single image and its metadata from the real dataset source (COCO 2017).
     
-    Currently, this implementation checks for a 'verified' source in the config.
-    If a verified URL or dataset ID is provided, it attempts to download.
-    If the fetch fails or the source is not verified, it returns None to trigger
-    the 'skip and log' logic in the caller, adhering to the 'fail loudly' constraint.
+    This function attempts to retrieve image data. If the fetch fails for an 
+    individual image, it logs the error and returns None, allowing the pipeline
+    to continue processing other images.
     
-    NOTE: This function does NOT fall back to synthetic data. If the real fetch fails,
-    it returns None, and the caller must log the error and skip the image.
+    Args:
+        image_id: The unique identifier for the image in the dataset.
+        
+    Returns:
+        A dictionary containing image metadata if successful, None otherwise.
+        
+    Raises:
+        SystemExit: If the entire dataset fetch mechanism fails (not individual images).
     """
-    config = get_config()
-    source = get_dataset_source()
-    
-    if not source or source == "mock":
-        logger.warning(f"Dataset source is 'mock'. Skipping real fetch for {image_id}.")
-        return None
-
-    if source == "visual_genome":
-        # Implementation for Visual Genome
-        # Visual Genome images are typically accessed via their ID or URL structure.
-        # Since we cannot guarantee a live connection to the full VG dataset in this environment,
-        # we simulate the fetch logic by checking a local mirror or attempting a direct download
-        # if a base URL is configured.
-        
-        # For the purpose of this task, we assume a 'verified' source would provide a base URL.
-        # If the config doesn't have a valid base URL for VG, we fail loudly.
-        base_url = config.get("dataset", {}).get("base_url")
-        if not base_url:
-            logger.error("No base_url configured for Visual Genome dataset. Cannot fetch real image.")
-            return None
-
-        # Construct URL (example structure)
-        # Visual Genome IDs are often large integers.
-        # We attempt to fetch from a known mirror or the official CDN if available.
-        # Since we cannot rely on external connectivity for the 'real' data in this specific
-        # restricted environment, we will simulate the failure if the file doesn't exist locally.
-        
-        # In a real production run with internet access:
-        # url = f"{base_url}/images/{image_id}.jpg"
-        # response = requests.get(url)
-        # if response.status_code == 200: ...
-        
-        # For this implementation, we check if a local copy exists (simulating a cache)
-        # or attempt a fetch. If we cannot verify the source or fetch fails, return None.
-        
-        logger.info(f"Attempting to fetch real image {image_id} from {source}...")
-        
-        # Simulating a fetch attempt that might fail if no real source is available
-        # In a real scenario, this would use requests or huggingface_hub
-        import urllib.request
-        import urllib.error
-        
-        # We construct a hypothetical URL. If it fails, we return None.
-        # This satisfies the "fail loudly" requirement.
+    try:
+        # Attempt to load the dataset in streaming mode
+        # Using datasets library to access COCO 2017
         try:
-            # Using a placeholder URL structure for Visual Genome
-            # Real VG images are often at: http://images.cocodataset.org/... or similar mirrors
-            # We will try a generic fetch. If it fails, we return None.
-            url = f"{base_url}/{image_id}.jpg"
-            logger.debug(f"Fetching URL: {url}")
+            from datasets import load_dataset
+        except ImportError:
+            logger.error("The 'datasets' library is not installed. Please install it via pip.")
+            raise SystemExit("Dependency 'datasets' not found. Cannot fetch real data.")
+
+        logger.info(f"Attempting to fetch image {image_id} from COCO 2017...")
+        
+        # Load the dataset in streaming mode to handle large sizes
+        dataset = load_dataset("coco_2017", split="train", streaming=True)
+        
+        # Iterate to find the specific image
+        # Note: In a real streaming scenario, we might need to filter by ID
+        # For this implementation, we assume the image_id corresponds to an index or specific filter
+        # If the dataset structure requires a different lookup, it should be adjusted here.
+        
+        # Since COCO 2017 in HuggingFace might not have a direct 'id' filter in streaming
+        # without loading the whole index, we implement a robust fetch strategy:
+        # 1. Try to find the image by iterating (for small subsets) or by index if ID is numeric.
+        # 2. If the ID is not found, we log and return None.
+        
+        found_image = None
+        count = 0
+        
+        # Limit iteration to avoid hanging if ID is not found (safety break)
+        # In a production system, we would use a dataset index or map function.
+        max_iter = 10000 
+        
+        for item in dataset:
+            if count >= max_iter:
+                logger.warning(f"Stopped searching for image {image_id} after {max_iter} items.")
+                break
             
-            # We use a timeout to avoid hanging
-            req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-Researcher/1.0'})
-            with urllib.request.urlopen(req, timeout=10) as response:
-                if response.status == 200:
-                    with open(output_path, 'wb') as f:
-                        f.write(response.read())
-                    logger.info(f"Successfully fetched real image {image_id} to {output_path}")
-                    return output_path
-                else:
-                    logger.error(f"Failed to fetch image {image_id}: HTTP {response.status}")
-                    return None
-                    
-        except (urllib.error.URLError, urllib.error.HTTPError, Exception) as e:
-            logger.error(f"Failed to fetch real image {image_id} from {source}: {str(e)}")
+            # Check if this item matches the requested ID
+            # COCO images usually have an 'id' field
+            if str(item.get("id", "")) == image_id or str(item.get("image_id", "")) == image_id:
+                found_image = item
+                break
+            
+            count += 1
+        
+        if found_image:
+            logger.info(f"Successfully fetched image {image_id}")
+            return found_image
+        else:
+            logger.warning(f"Image {image_id} not found in the dataset stream.")
             return None
-    
-    elif source == "coco":
-        # Similar logic for COCO
-        logger.error("COCO dataset fetch not implemented in this mock runner.")
-        return None
-    
-    else:
-        logger.error(f"Unknown dataset source: {source}")
+
+    except Exception as e:
+        # Log the specific error
+        error_msg = FETCH_FAILED_ERROR.format(image_id)
+        log_error(str(e), log_file_path=_get_manipulation_error_log_path())
+        logger.error(f"{error_msg}: {str(e)}")
         return None
 
 def load_image_metadata(image_id: str) -> Optional[Dict[str, Any]]:
     """
-    Loads metadata for an image from the metadata directory.
-    Returns None if metadata is missing.
+    Load metadata for a specific image from the generated YAML files.
+    
+    Args:
+        image_id: The unique identifier for the image.
+        
+    Returns:
+        A dictionary containing the metadata if found, None otherwise.
+        
+    Raises:
+        Logs error and returns None if metadata is missing.
     """
     metadata_dir = get_stimuli_metadata_dir()
     metadata_path = metadata_dir / f"{image_id}.yaml"
     
     if not metadata_path.exists():
+        error_msg = MISSING_METADATA_ERROR.format(image_id)
+        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+        logger.warning(error_msg)
         return None
     
-    # Simple YAML loading (assuming PyYAML is available as per T002)
-    import yaml
     try:
+        import yaml
         with open(metadata_path, 'r') as f:
-            return yaml.safe_load(f)
+            metadata = yaml.safe_load(f)
+        return metadata
     except Exception as e:
-        logger.error(f"Error loading metadata for {image_id}: {e}")
+        error_msg = f"Failed to parse metadata for image {image_id}: {str(e)}"
+        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+        logger.error(error_msg)
         return None
 
-def process_image_with_error_handling(
-    image_id: str,
-    output_dir: Path,
-    fetch_real: bool = True
-) -> Optional[Image]:
+def process_image_with_error_handling(image_id: str, process_func, *args, **kwargs) -> Optional[Image]:
     """
-    Orchestrates the fetching of a real image or generation of a mock one,
-    handling errors by skipping and logging as per T019 and T021 requirements.
+    Wrapper function to process an image with comprehensive error handling.
     
-    If fetch_real is True and the fetch fails, returns None.
-    If fetch_real is False, generates a mock image.
-    """
-    output_path = output_dir / f"{image_id}.png"
+    This function attempts to load metadata and fetch the image. If any step fails,
+    it logs the error and returns None, allowing the pipeline to continue.
     
-    if fetch_real:
-        # Try to fetch real image
-        fetched_path = fetch_real_dataset_image(dataset_id="visual_genome", image_id=image_id, output_path=output_path)
+    Args:
+        image_id: The unique identifier for the image.
+        process_func: A callable that takes the image data and returns an Image object.
+        *args: Additional positional arguments for process_func.
+        **kwargs: Additional keyword arguments for process_func.
         
-        if fetched_path is None:
-            # Fetch failed -> Skip and Log (T019, T021)
-            error_log_path = get_manipulation_error_log_path()
-            error_log_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            error_msg = f"SKIP: Failed to fetch real image {image_id}. Source unavailable or fetch error."
-            logger.error(error_msg)
-            
-            with open(error_log_path, 'a') as f:
-                f.write(f"{error_msg}\n")
-            
+    Returns:
+        An Image object if successful, None otherwise.
+    """
+    # Step 1: Load Metadata
+    metadata = load_image_metadata(image_id)
+    if metadata is None:
+        # Metadata missing is a fatal error for this specific image
+        logger.warning(f"Skipping image {image_id} due to missing metadata.")
+        return None
+    
+    # Step 2: Fetch Real Image Data (if needed by process_func)
+    # In many cases, process_func might just need the ID and metadata, 
+    # but if it needs the actual image bytes, we fetch here.
+    # For this generic wrapper, we assume process_func handles the fetch if needed,
+    # or we pass the metadata which contains paths.
+    
+    try:
+        # Execute the processing function
+        result = process_func(image_id, metadata, *args, **kwargs)
+        
+        if result is None:
+            error_msg = PROCESSING_FAILED_ERROR.format(image_id)
+            log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+            logger.warning(error_msg)
             return None
+            
+        return result
         
-        # Calculate complexity for the real image (simple placeholder logic)
-        # In a real scenario, this would be a more sophisticated analysis
-        try:
-            with PILImage.open(output_path) as img:
-                img_array = np.array(img)
-                # Simple variance as a proxy for complexity
-                complexity = float(np.var(img_array) / 255.0**2)
-                # Normalize roughly to 0-1 range (this is a heuristic)
-                complexity = min(1.0, max(0.0, complexity * 2)) 
-        except Exception as e:
-            logger.error(f"Error calculating complexity for {image_id}: {e}")
-            complexity = 0.5
-        
-        return Image(
-            id=image_id,
-            path=output_path,
-            complexity_score=complexity,
-            metadata_path=None
-        )
-    else:
-        # Generate mock image
-        score = random.uniform(0.3, 0.7)
-        _generate_mock_image_with_complexity(output_path, score)
-        return Image(
-            id=image_id,
-            path=output_path,
-            complexity_score=score,
-            metadata_path=None
-        )
+    except Exception as e:
+        error_msg = f"Processing error for image {image_id}: {str(e)}"
+        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+        logger.error(error_msg)
+        return None
 
 def main():
     """
-    Main entry point for testing the loader.
+    Main entry point for testing the loader module.
+    Demonstrates fetching and processing logic.
     """
-    setup_logging()
-    logger.info("Running loader main...")
+    logger.info("Starting loader module test...")
     
-    # Test mock generation
-    mock_images = generate_mock_visual_genome(count=2)
-    for img in mock_images:
-        logger.info(f"Mock Image: {img.id}, Path: {img.path}, Complexity: {img.complexity_score}")
+    # Example: Try to load metadata for a known mock ID or a real one if available
+    # Since we don't have a guaranteed real ID without running the downloader first,
+    # we test the error handling path.
     
-    # Test real fetch (will likely fail in this environment without config)
-    # This demonstrates the 'fail loudly' behavior
-    logger.info("Attempting real fetch (expected to fail if no config)...")
-    result = process_image_with_error_handling("12345", get_stimuli_dir(), fetch_real=True)
-    if result is None:
-        logger.info("Real fetch correctly skipped and logged.")
-    else:
-        logger.info(f"Real fetch succeeded: {result.id}")
+    test_ids = ["non_existent_id_12345", "another_fake_id"]
+    
+    for tid in test_ids:
+        logger.info(f"Testing fetch for: {tid}")
+        img_data = fetch_real_dataset_image(tid)
+        if img_data:
+            logger.info(f"Found: {img_data.get('id')}")
+        else:
+            logger.info("Fetch returned None (expected for fake IDs)")
+        
+        meta = load_image_metadata(tid)
+        if meta:
+            logger.info(f"Metadata loaded: {meta}")
+        else:
+            logger.info("Metadata missing (expected for fake IDs)")
 
 if __name__ == "__main__":
     main()

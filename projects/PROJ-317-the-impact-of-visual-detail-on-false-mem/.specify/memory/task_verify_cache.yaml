@@ -1,11 +1,11 @@
-T012:
+T012#1:
   c: false
-  h: 9a61b00e314dac1e688eeea1eda05728bcb77cf4fe8564ddeee198bffcd6b51d
-  r: "The `stats.py` implementation does not produce the required JSON keys (`n_per_group`,\
-    \ `total_n`, `effect_size`, `power`, `alpha`), lacks the check that raises an\
-    \ error when N\u202F<\u202F50, and writes to a different directory (`get_processed_dir()`)\
-    \ instead of `data/analysis/`. Moreover, the expected `data/analysis/power_report.json`\
-    \ file is missing."
+  h: 306cc997c1467a1e01e8b6685cb66730d4d3cee76081691aaeafe8a9f34b465f
+  r: "The `calculate_anova_power` function computes the sample size but does not implement\
+    \ the required check to raise `SystemExit` when `total_n < 50`, and the script\
+    \ never calls `save_power_analysis` to create `data/analysis/power_report.json`\
+    \ (the file is missing). The implementation must add the power\u2011threshold\
+    \ guard and ensure the JSON report is written (with only the required keys)."
 T032:
   c: false
   h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
@@ -18,14 +18,6 @@ T033:
   r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
     \ no unit test for multiple-comparison correction is present. The task\u2019s\
     \ primary deliverable is missing."
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence only contains a feature specification for image manipulation\
-    \ and participant testing, with no code, configuration, logs, or documentation\
-    \ related to security hardening or preventing PII leakage. Consequently, the required\
-    \ security\u2011hardening artifact is missing and the task\u2019s requirement\
-    \ is not addressed."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

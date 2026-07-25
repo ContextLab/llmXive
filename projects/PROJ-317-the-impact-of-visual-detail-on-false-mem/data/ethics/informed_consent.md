@@ -46,7 +46,7 @@ If you have questions about this research, please contact:
 - [Institutional Review Board]: [Email/Phone]
 
 ## GDPR-compliant Anonymization Workflow
-We employ a multi-stage anonymization process to protect your privacy. This includes removing all direct identifiers (e.g., name, address), replacing them with unique participant IDs, and encrypting sensitive data. We regularly audit our anonymization procedures to ensure compliance with GDPR Art. 6 & 7.
+I consent to participate in this study (Project ID: PROJ-317). I understand my data will be anonymized (GDPR Art. 6 & 7). **Anonymization Workflow**: All PII (names, emails, IPs) is stripped from the dataset *at the moment of ingestion* by the `code/participants/session.py` script. The resulting raw data stored in `data/responses/` contains only pseudonymous IDs and is checksummed. I have the right to withdraw at any time, and I can contact the PI at [email]. Data Usage: Responses will be used for statistical analysis only.
 
 ## Consent Statement
 By proceeding, you confirm that:

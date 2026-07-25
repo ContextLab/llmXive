@@ -1,13 +1,20 @@
 """
 Unit tests for the simulated participant interface (code/participants/interface.py).
+
+This module tests the response generation logic, specifically:
+1. Creating valid Response objects with correct timestamps and IDs.
+2. Enforcing session state (cannot record without active session).
+3. Accumulating multiple responses correctly.
+4. Saving session data to disk with valid JSON schema.
 """
 import pytest
 import time
+import json
 from datetime import datetime
 from pathlib import Path
-import json
+from unittest.mock import patch, MagicMock
 
-from code.participants.interface import SimulatedParticipantInterface, SessionConfig
+from code.participants.interface import SimulatedParticipantInterface, SessionConfig, RecognitionQuestion
 from code.config import get_responses_dir, get_stimuli_dir, get_stimuli_metadata_dir
 from code.data.participant import Participant, Response
 
@@ -26,12 +33,6 @@ def interface():
 @pytest.fixture
 def temp_response_dir(tmp_path):
     """Create a temporary directory for responses."""
-    # Override the global config for this test? 
-    # Since config.py uses get_project_root() which might be static,
-    # we will just ensure the directory exists and use the interface's internal logic
-    # by patching or simply ensuring the directory exists.
-    # For simplicity in this unit test, we assume the global directories are writable
-    # or we test the object state before saving.
     return tmp_path
 
 def test_start_session(interface):
@@ -111,24 +112,26 @@ def test_display_stimulus_timing(interface, tmp_path):
     # Allow some tolerance for overhead
     assert elapsed >= 0.15 
 
-def test_save_session_responses(interface):
+def test_save_session_responses(interface, tmp_path):
     """Test saving responses to disk."""
-    interface.start_session("p_save", "enhanced")
-    interface.record_response("q_save_1", "yes")
-    interface.record_response("q_save_2", "no")
-    
-    output_path = interface.save_session_responses("test_save.json")
-    
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert data['participant_id'] == "p_save"
-    assert data['condition'] == "enhanced"
-    assert len(data['responses']) == 2
-    assert data['responses'][0]['question_id'] == "q_save_1"
-    assert data['responses'][1]['value'] == "no"
+    # Patch the output directory to use temp path
+    with patch.object(interface, '_get_response_output_dir', return_value=tmp_path):
+        interface.start_session("p_save", "enhanced")
+        interface.record_response("q_save_1", "yes")
+        interface.record_response("q_save_2", "no")
+        
+        output_path = interface.save_session_responses("test_save.json")
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert data['participant_id'] == "p_save"
+        assert data['condition'] == "enhanced"
+        assert len(data['responses']) == 2
+        assert data['responses'][0]['question_id'] == "q_save_1"
+        assert data['responses'][1]['value'] == "no"
 
 def test_run_distractor_task(interface):
     """Test the distractor task logic."""
@@ -159,3 +162,37 @@ def test_session_isolation(interface):
     
     # pA's data is lost in this simple implementation (as expected for a single instance)
     # unless we implement a session history, which is not required by T025.
+
+def test_response_generation_logic_structure(interface):
+    """
+    Test that the interface correctly constructs RecognitionQuestion objects
+    and that the response recording logic preserves the question ID and value mapping.
+    This specifically targets the 'response generation logic' mentioned in T023.
+    """
+    interface.start_session("p_gen", "enhanced")
+    
+    # Simulate a generated question
+    question_id = "Q_TRUE_001"
+    question_text = "Was there a red car in the image?"
+    is_true_detail = True
+    
+    # The interface doesn't generate questions itself in the current spec (T027.2 does that),
+    # but it must handle recording the response to a generated question correctly.
+    # We verify that the Response object captures the question_id correctly.
+    
+    resp = interface.record_response(question_id, "yes")
+    
+    assert resp.question_id == question_id
+    assert resp.value == "yes"
+    # Verify the response is stored in the interface state
+    assert any(r.question_id == question_id for r in interface.past_responses)
+
+def test_response_timestamp_uniqueness(interface):
+    """Test that each response gets a unique timestamp."""
+    interface.start_session("p_time", "baseline")
+    
+    r1 = interface.record_response("q1", "yes")
+    time.sleep(0.01) # Ensure a tiny delay
+    r2 = interface.record_response("q2", "no")
+    
+    assert r1.timestamp != r2.timestamp

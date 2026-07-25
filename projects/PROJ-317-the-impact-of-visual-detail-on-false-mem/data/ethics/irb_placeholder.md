@@ -28,12 +28,19 @@ Participants will be recruited via [method, e.g., university participant pool, o
 - Confidentiality will be maintained in accordance with GDPR and institutional policies.
 - The study has been designed to minimize any potential psychological discomfort.
 
-## IRB Approval
-This document serves as a placeholder for the official IRB approval letter. **The research team MUST obtain formal IRB approval before recruiting participants or collecting data.** Verification of IRB approval will be conducted prior to study launch. If no IRB doc is found, the task must fail and the pipeline halted.
+## IRB Approval Verification
+**CRITICAL**: This document serves as a placeholder for the official IRB approval letter. The research team MUST obtain formal IRB approval before recruiting participants or collecting data. Verification of IRB approval will be conducted prior to study launch. If no IRB approval document is found, the pipeline must halt and recruitment cannot proceed.
 
-**IRB Approval Number:** [To be assigned]
-**Approval Date:** [To be assigned]
-**Expiration Date:** [To be assigned]
+**Current Status**: IRB Approval Pending.
+**Required Documents for Submission**:
+1. Informed Consent Form (`data/ethics/informed_consent.md`)
+2. Data Management Plan
+3. Recruitment Script
+4. Risk Assessment
+
+**IRB Approval Number:** [To be assigned upon approval]
+**Approval Date:** [To be assigned upon approval]
+**Expiration Date:** [To be assigned upon approval]
 
 ---
 *This placeholder must be replaced with the official IRB approval documentation prior to study initiation.*
