@@ -1,1 +1,2 @@
-# This file ensures the data/eval directory is tracked by git.
+# This directory is for evaluation data and results.
+# Contains benchmark scores, statistical test results, and baseline comparisons.

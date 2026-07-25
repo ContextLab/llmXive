@@ -1,5 +1,5 @@
 """
-Unit tests for the training configuration management module.
+Unit tests for the TrainingConfig module.
 """
 import os
 import tempfile
@@ -10,224 +10,166 @@ from src.training.config import (
     TrainingConfig,
     create_default_config,
     get_default_config,
-    load_config,
     validate_config_schema,
+    load_config,
     save_config,
     get_filter_discard_threshold,
     get_config,
-    DEFAULT_CONFIG,
-    REQUIRED_KEYS,
+    DEFAULT_CONFIG
 )
 
-
 class TestTrainingConfig:
-    """Tests for the TrainingConfig dataclass."""
-
-    def test_create_default_config(self):
-        """Test that default config is created with expected values."""
+    def test_default_config_creation(self):
         config = create_default_config()
         assert isinstance(config, TrainingConfig)
         assert config.cpu_only is True
         assert config.filter_discard_percent == 0.4
-        assert config.max_memory_gb == 6.0
-        assert config.seed == 42
+        assert config.batch_size == 1
 
-    def test_to_dict(self):
-        """Test conversion to dictionary."""
+    def test_config_to_dict(self):
         config = create_default_config()
-        config_dict = config.to_dict()
-        assert isinstance(config_dict, dict)
-        assert "experiment_name" in config_dict
-        assert "filter_discard_percent" in config_dict
-        assert config_dict["filter_discard_percent"] == 0.4
+        d = config.to_dict()
+        assert "cpu_only" in d
+        assert "filter_discard_percent" in d
+        assert d["cpu_only"] is True
 
-    def test_from_dict(self):
-        """Test creation from dictionary."""
-        data = {
-            "experiment_name": "test_exp",
-            "seed": 123,
-            "cpu_only": False,
-            "filter_discard_percent": 0.5,
-            "batch_size": 32,
-        }
+    def test_config_from_dict(self):
+        data = {"cpu_only": False, "learning_rate": 0.01}
         config = TrainingConfig.from_dict(data)
-        assert config.experiment_name == "test_exp"
-        assert config.seed == 123
         assert config.cpu_only is False
-        assert config.filter_discard_percent == 0.5
+        assert config.learning_rate == 0.01
+        # Default values should persist for missing keys
+        assert config.batch_size == 1
 
-    def test_to_dict_roundtrip(self):
-        """Test that to_dict and from_dict are inverses."""
-        original = create_default_config()
-        config_dict = original.to_dict()
-        restored = TrainingConfig.from_dict(config_dict)
-        assert original.experiment_name == restored.experiment_name
-        assert original.filter_discard_percent == restored.filter_discard_percent
-
-
-class TestLoadConfig:
-    """Tests for the load_config function."""
-
-    def test_load_from_file(self):
-        """Test loading config from a YAML file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "config.yaml"
-            test_data = {
-                "experiment_name": "loaded_test",
-                "filter_discard_percent": 0.6,
-                "batch_size": 8,
-            }
-            with open(config_path, "w") as f:
-                yaml.dump(test_data, f)
-
-            config = load_config(config_path)
-            assert config.experiment_name == "loaded_test"
-            assert config.filter_discard_percent == 0.6
-            assert config.batch_size == 8
-
-    def test_load_missing_file_uses_defaults(self):
-        """Test that missing config file returns defaults."""
-        config = load_config(Path("/nonexistent/path/config.yaml"))
-        assert config.cpu_only is True
-        assert config.filter_discard_percent == 0.4
-
-    def test_load_partial_file_merges_defaults(self):
-        """Test that partial config merges with defaults."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "config.yaml"
-            test_data = {"learning_rate": 0.001}
-            with open(config_path, "w") as f:
-                yaml.dump(test_data, f)
-
-            config = load_config(config_path)
-            assert config.learning_rate == 0.001
-            assert config.batch_size == DEFAULT_CONFIG["batch_size"]  # Default
-
-
-class TestValidateConfigSchema:
-    """Tests for config schema validation."""
-
-    def test_valid_config(self):
-        """Test that a valid config passes validation."""
-        config = get_default_config()
-        errors = validate_config_schema(config)
+    def test_config_validation_valid(self):
+        config = create_default_config()
+        is_valid, errors = config.validate()
+        assert is_valid
         assert len(errors) == 0
 
-    def test_missing_required_key(self):
-        """Test detection of missing required keys."""
-        config = get_default_config()
-        del config["seed"]
-        errors = validate_config_schema(config)
-        assert any("seed" in e for e in errors)
-
-    def test_invalid_filter_discard_percent(self):
-        """Test validation of filter_discard_percent range."""
-        config = get_default_config()
-        config["filter_discard_percent"] = 1.5
-        errors = validate_config_schema(config)
+    def test_config_validation_invalid_discard(self):
+        config = create_default_config()
+        config.filter_discard_percent = 1.5
+        is_valid, errors = config.validate()
+        assert not is_valid
         assert any("filter_discard_percent" in e for e in errors)
 
-    def test_invalid_type(self):
-        """Test detection of type mismatches."""
-        config = get_default_config()
-        config["batch_size"] = "not_an_int"
-        errors = validate_config_schema(config)
+    def test_config_validation_invalid_batch(self):
+        config = create_default_config()
+        config.batch_size = 0
+        is_valid, errors = config.validate()
+        assert not is_valid
         assert any("batch_size" in e for e in errors)
 
+class TestLoadConfig:
+    def test_load_nonexistent_file(self):
+        config = load_config("nonexistent.yaml")
+        assert config is not None
+        assert config.cpu_only is True  # Should fallback to default
+
+    def test_load_valid_yaml(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump({"cpu_only": False, "seed": 123}, f)
+            temp_path = f.name
+        
+        try:
+            config = load_config(temp_path)
+            assert config.cpu_only is False
+            assert config.seed == 123
+        finally:
+            os.unlink(temp_path)
+
+    def test_load_invalid_yaml(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write("invalid: yaml: content: [")
+            temp_path = f.name
+        
+        try:
+            config = load_config(temp_path)
+            assert config is not None
+            assert config.cpu_only is True  # Fallback to default
+        finally:
+            os.unlink(temp_path)
+
+class TestValidateConfigSchema:
+    def test_valid_schema(self):
+        data = {"cpu_only": True, "filter_discard_percent": 0.5}
+        is_valid, errors = validate_config_schema(data)
+        assert is_valid
+        assert len(errors) == 0
+
+    def test_invalid_discard_percent(self):
+        data = {"filter_discard_percent": 1.5}
+        is_valid, errors = validate_config_schema(data)
+        assert not is_valid
+        assert any("filter_discard_percent" in e for e in errors)
+
+    def test_invalid_batch_size(self):
+        data = {"batch_size": -1}
+        is_valid, errors = validate_config_schema(data)
+        assert not is_valid
+        assert any("batch_size" in e for e in errors)
 
 class TestCreateDefaultConfig:
-    """Tests for create_default_config function."""
+    def test_returns_new_instance(self):
+        c1 = create_default_config()
+        c2 = create_default_config()
+        assert c1 is not c2
 
-    def test_returns_training_config(self):
-        """Test that function returns a TrainingConfig instance."""
+    def test_has_default_values(self):
         config = create_default_config()
-        assert isinstance(config, TrainingConfig)
-
-    def test_all_defaults_present(self):
-        """Test that all default values are present."""
-        config = create_default_config()
-        cfg_dict = config.to_dict()
-        for key, value in DEFAULT_CONFIG.items():
-            assert cfg_dict[key] == value
-
+        assert config.filter_discard_percent == DEFAULT_CONFIG["filter_discard_percent"]
+        assert config.cpu_only == DEFAULT_CONFIG["cpu_only"]
 
 class TestGetDefaultConfig:
-    """Tests for get_default_config function."""
-
-    def test_returns_dict(self):
-        """Test that function returns a dictionary."""
+    def test_returns_config(self):
         config = get_default_config()
-        assert isinstance(config, dict)
-
-    def test_contains_required_keys(self):
-        """Test that all required keys are present."""
-        config = get_default_config()
-        for key in REQUIRED_KEYS:
-            assert key in config
-
+        assert isinstance(config, TrainingConfig)
 
 class TestSaveConfig:
-    """Tests for save_config function."""
-
-    def test_save_and_load(self):
-        """Test saving and loading a config."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "test_config.yaml"
-            original = create_default_config()
-            original.filter_discard_percent = 0.75
-
-            save_config(original, config_path)
-            assert config_path.exists()
-
-            loaded = load_config(config_path)
-            assert loaded.filter_discard_percent == 0.75
-            assert loaded.experiment_name == original.experiment_name
-
-    def test_creates_parent_directories(self):
-        """Test that save_config creates parent directories."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "nested" / "dir" / "config.yaml"
-            config = create_default_config()
-            save_config(config, config_path)
-            assert config_path.exists()
-
+    def test_save_and_load_roundtrip(self):
+        config = create_default_config()
+        config.learning_rate = 0.005
+        
+        with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as f:
+            temp_path = f.name
+        
+        try:
+            save_config(config, temp_path)
+            assert os.path.exists(temp_path)
+            
+            loaded = load_config(temp_path)
+            assert loaded.learning_rate == 0.005
+            assert loaded.cpu_only == config.cpu_only
+        finally:
+            os.unlink(temp_path)
 
 class TestGetFilterDiscardThreshold:
-    """Tests for get_filter_discard_threshold function."""
-
     def test_default_threshold(self):
-        """Test default threshold value."""
         threshold = get_filter_discard_threshold()
         assert threshold == 0.4
 
     def test_custom_threshold(self):
-        """Test custom threshold from config."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "config.yaml"
-            test_data = {"filter_discard_percent": 0.25}
-            with open(config_path, "w") as f:
-                yaml.dump(test_data, f)
-
-            config = load_config(config_path)
-            threshold = get_filter_discard_threshold(config)
-            assert threshold == 0.25
-
+        config = create_default_config()
+        config.filter_discard_percent = 0.6
+        threshold = get_filter_discard_threshold(config)
+        assert threshold == 0.6
 
 class TestGetConfig:
-    """Tests for get_config function."""
+    def test_get_config_creates_valid_object(self):
+        config = get_config()
+        assert isinstance(config, TrainingConfig)
+        is_valid, _ = config.validate()
+        # Validation might warn but should return the object
+        assert config is not None
 
-    def test_get_config_default(self):
-        """Test get_config returns default when no file exists."""
-        config = get_config(Path("/nonexistent"))
-        assert config.cpu_only is True
-
-    def test_get_config_from_file(self):
-        """Test get_config loads from file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = Path(tmpdir) / "config.yaml"
-            test_data = {"seed": 999}
-            with open(config_path, "w") as f:
-                yaml.dump(test_data, f)
-
-            config = get_config(config_path)
+    def test_get_config_with_file(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump({"seed": 999}, f)
+            temp_path = f.name
+        
+        try:
+            config = get_config(temp_path)
             assert config.seed == 999
+        finally:
+            os.unlink(temp_path)

@@ -5,15 +5,40 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-physisforcin"
 version = "0.1.0"
-description = "Physics Filter pipeline for llmXive automated science"
-requires-python = ">=3.11"
-dependencies = []
+description = "Extended PhysisForcing pipeline for synthetic robotic video generation and filtering"
+requires-python = ">=3.9"
+dependencies = [
+    "torch",
+    "pybullet",
+    "mujoco",
+    "diffusers",
+    "transformers",
+    "scikit-learn",
+    "opencv-python",
+    "pandas",
+    "numpy",
+    "requests",
+    "datasets",
+    "pyyaml",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
     | \.hg
@@ -24,15 +49,54 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
 )/
 '''
 
 [tool.ruff]
-# Inherit settings from .ruff.toml but can override here if needed
-line-length = 88
-target-version = "py311"
+target-version = "py39"
+line-length = 100
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = false
+lines-after-imports = 2
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
 addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "cpu_only: marks tests that must run on CPU only",
+]

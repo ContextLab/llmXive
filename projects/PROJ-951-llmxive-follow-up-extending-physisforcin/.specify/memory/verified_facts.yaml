@@ -1,0 +1,16 @@
+'|availability model verify wan2':
+  quote: In November 2024, QwQ-32B-Preview, a model focusing on reasoning similar
+    to OpenAI's o1, was released under the Apache 2.0 License, although only the weights
+    were released, not the dataset or training method.  This model, developed by Alibaba's
+    Qwen team, can process prompts up to 32,000 words long and features a unique self-fact-checking
+    mechanism that allows it to solve complex logic puzzles and mathematical problems.
+    The model is not without limitations, as it may unexpectedly switch languages,
+    get stuck in reasoning loops, and struggle with common sense reasoning. Notably,
+    the model is available under an Apache 2.0 license on Hugging Face, making it
+    commercially accessible, though only certain components have been released. Its
+    development comes amid growing skepticism about traditional AI scaling laws and
+    represents a new approach to AI reasoning that involves giving models more processing
+    time to complete tasks.
+  source_id: Alibaba Group
+  url: https://en.wikipedia.org/wiki/Alibaba_Group
+  value: Apache 2.0

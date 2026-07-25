@@ -1,1 +1,2 @@
-# This file ensures the data/curated directory is tracked by git.
+# This directory is for curated data after physics filtering.
+# Contains videos that passed the continuity and contact score thresholds.

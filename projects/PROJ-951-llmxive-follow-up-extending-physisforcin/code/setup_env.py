@@ -1,6 +1,6 @@
 """
-Environment setup script for llmXive Physics Filter project.
-Verifies Python 3.11+ and installs/validates CPU-only dependencies.
+Environment setup script for llmXive project.
+Verifies Python version, installs dependencies, and ensures CPU-only execution.
 """
 import sys
 import subprocess
@@ -14,18 +14,17 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("setup_env")
+logger = logging.getLogger(__name__)
 
-REQUIRED_PYTHON_VERSION = (3, 11)
-
-def check_python_version():
-    """Verify Python version is >= 3.11."""
-    if sys.version_info < REQUIRED_PYTHON_VERSION:
-        logger.error(f"Python {REQUIRED_PYTHON_VERSION[0]}.{REQUIRED_PYTHON_VERSION[1]}+ is required. "
-                     f"Current version: {sys.version}")
-        return False
+def check_python_version(min_version=(3, 10)):
+    """Check if current Python version meets minimum requirements."""
+    current = sys.version_info[:2]
+    if current < min_version:
+        raise RuntimeError(
+            f"Python {min_version[0]}.{min_version[1]}+ is required. "
+            f"Found {sys.version_info.major}.{sys.version_info.minor}."
+        )
     logger.info(f"Python version check passed: {sys.version}")
-    return True
 
 def check_package_installed(package_name):
     """Check if a package is installed."""
@@ -35,101 +34,94 @@ def check_package_installed(package_name):
     except ImportError:
         return False
 
-def install_packages(requirements_path: Path):
-    """Install packages from requirements.txt."""
+def install_packages(requirements_path):
+    """Install packages from a requirements.txt file."""
     if not requirements_path.exists():
-        logger.error(f"Requirements file not found: {requirements_path}")
-        return False
+        raise FileNotFoundError(f"Requirements file not found: {requirements_path}")
 
     logger.info(f"Installing packages from {requirements_path}...")
     try:
-        # Use --no-cache-dir to save space on constrained runners
         subprocess.check_call([
             sys.executable, "-m", "pip", "install", "-r", str(requirements_path),
-            "--no-cache-dir", "--upgrade"
+            "--upgrade", "--no-cache-dir"
         ])
         logger.info("Package installation successful.")
-        return True
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to install packages: {e}")
-        return False
+        raise
 
 def verify_cpu_only():
-    """Verify that CUDA is not detected and packages are running in CPU mode."""
-    logger.info("Verifying CPU-only environment...")
+    """
+    Verify that CUDA is not being used by PyTorch or other libraries.
+    This is a soft check; environment variables or hardware might still force GPU.
+    """
+    logger.info("Verifying CPU-only configuration...")
     
     # Check PyTorch
-    try:
+    if check_package_installed('torch'):
         import torch
         if torch.cuda.is_available():
-            logger.warning("CUDA is available. Forcing CPU usage as per project constraints.")
-            os.environ["CUDA_VISIBLE_DEVICES"] = ""
+            logger.warning("CUDA is available. Forcing CPU usage via environment variable.")
+            os.environ['CUDA_VISIBLE_DEVICES'] = ''
+            # Re-import to ensure it picks up the change (might not work in all cases)
+            import importlib
+            importlib.reload(torch)
+            if torch.cuda.is_available():
+                logger.error("Failed to disable CUDA. Please run with CUDA_VISIBLE_DEVICES=''")
+                raise RuntimeError("CUDA detected and could not be disabled.")
         else:
-            logger.info("PyTorch: CUDA not available (CPU mode).")
-    except ImportError:
-        logger.error("PyTorch not installed. Cannot verify CPU mode.")
-        return False
-
-    # Check PyBullet (headless by default usually, but verify)
-    try:
-        import pybullet
-        # PyBullet doesn't have a direct 'is_cuda' flag in standard usage,
-        # but we ensure we don't try to load GPU plugins.
-        logger.info("PyBullet: Imported successfully (headless/CPU).")
-    except ImportError:
-        logger.error("PyBullet not installed.")
-        return False
-
-    # Check MuJoCo
-    try:
-        import mujoco
-        logger.info("MuJoCo: Imported successfully.")
-    except ImportError:
-        logger.error("MuJoCo not installed.")
-        return False
-
-    return True
+            logger.info("PyTorch CPU-only mode confirmed.")
+    
+    # Check other potential GPU libraries
+    if check_package_installed('mujoco'):
+        # MuJoCo usually defaults to CPU unless GL rendering is forced
+        logger.info("MuJoCo check: Ensure headless rendering is used.")
 
 def verify_imports():
-    """Verify all critical imports from requirements.txt."""
+    """Verify that all critical packages can be imported."""
     critical_packages = [
-        "torch", "diffusers", "transformers", "pybullet", "mujoco",
-        "opencv", "pandas", "numpy", "requests", "sklearn", "yaml"
+        'torch', 'diffusers', 'transformers', 'pybullet', 'mujoco',
+        'pandas', 'numpy', 'requests', 'datasets', 'sklearn', 'cv2'
     ]
     
     missing = []
     for pkg in critical_packages:
-        try:
-            importlib.import_module(pkg)
-            logger.debug(f"Package {pkg} imported successfully.")
-        except ImportError:
+        # Handle sklearn vs scikit-learn
+        import_name = 'sklearn' if pkg == 'sklearn' else pkg
+        if not check_package_installed(import_name):
             missing.append(pkg)
     
     if missing:
-        logger.error(f"Missing critical packages: {missing}")
-        return False
+        raise ImportError(f"Missing critical packages: {missing}")
     
-    logger.info("All critical packages verified.")
-    return True
+    logger.info("All critical packages imported successfully.")
 
 def main():
     """Main entry point for environment setup."""
-    project_root = Path(__file__).parent
-    requirements_path = project_root / "requirements.txt"
-
-    if not check_python_version():
-        sys.exit(1)
-
-    if not install_packages(requirements_path):
-        sys.exit(1)
-
-    if not verify_cpu_only():
-        sys.exit(1)
-
-    if not verify_imports():
-        sys.exit(1)
-
-    logger.info("Environment setup completed successfully.")
+    logger.info("Starting environment setup...")
+    
+    # 1. Check Python version
+    check_python_version()
+    
+    # 2. Locate requirements file
+    # Assume script is in code/ and requirements.txt is in code/
+    script_dir = Path(__file__).parent.resolve()
+    requirements_path = script_dir / "requirements.txt"
+    
+    # 3. Install packages
+    if not requirements_path.exists():
+        logger.warning(f"Requirements file not found at {requirements_path}. Skipping installation.")
+        logger.warning("Please ensure requirements.txt exists and run 'pip install -r requirements.txt' manually.")
+    else:
+        install_packages(requirements_path)
+    
+    # 4. Verify CPU-only
+    verify_cpu_only()
+    
+    # 5. Verify imports
+    verify_imports()
+    
+    logger.info("Environment setup complete.")
 
 if __name__ == "__main__":
     main()

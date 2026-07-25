@@ -1,411 +1,502 @@
 """
 I/O Utilities for llmXive project.
-
-Provides functions for directory management, file checksums,
-integrity verification, and data statistics.
+Provides directory management, checksumming, and integrity verification.
 """
-
 import os
 import hashlib
 import json
 import shutil
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple, Union
+from typing import Dict, List, Optional, Any, Union
 
-# Configure logging for this module
+# Configure logger
 logger = logging.getLogger(__name__)
 
+# Data directories to be managed
+DATA_DIRS = [
+    "data/raw",
+    "data/curated",
+    "data/eval",
+    "data/validation",
+]
 
-def ensure_dirs(base_path: Union[str, Path]) -> Path:
+def ensure_dirs(base_path: Optional[Union[str, Path]] = None) -> List[Path]:
     """
-    Ensure that the data directory structure exists.
-    Creates: data/raw, data/curated, data/eval
+    Ensure all required data directories exist.
     
     Args:
-        base_path: The root directory to start from (e.g., project root)
+        base_path: Base project path. Defaults to current working directory.
         
     Returns:
-        The Path object for the base directory
+        List of created directory paths.
     """
-    base = Path(base_path)
-    data_dirs = ['data/raw', 'data/curated', 'data/eval']
-    
-    for dir_path in data_dirs:
-        full_path = base / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {full_path}")
+    if base_path is None:
+        base_path = Path.cwd()
+    else:
+        base_path = Path(base_path)
         
-    return base
+    created_dirs = []
+    for dir_name in DATA_DIRS:
+        full_path = base_path / dir_name
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(full_path)
+            logger.info(f"Ensured directory: {full_path}")
+        except PermissionError as e:
+            logger.error(f"Permission denied creating directory {full_path}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+    
+    return created_dirs
 
-
-def calculate_file_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> str:
+def calculate_file_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
     Calculate the checksum of a file.
     
     Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm to use (default: sha256)
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
         
     Returns:
-        Hexadecimal checksum string
+        Hexadecimal checksum string.
         
     Raises:
-        FileNotFoundError: If the file does not exist
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the algorithm is not supported.
     """
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-        
-    hash_obj = hashlib.new(algorithm)
     
-    with open(path, 'rb') as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b''):
-            hash_obj.update(chunk)
-            
-    return hash_obj.hexdigest()
-
+    try:
+        hash_func = hashlib.new(algorithm)
+    except ValueError as e:
+        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from e
+    
+    try:
+        with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_func.update(chunk)
+        return hash_func.hexdigest()
+    except PermissionError as e:
+        logger.error(f"Permission denied reading file {file_path}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating checksum for {file_path}: {e}")
+        raise
 
 def calculate_directory_checksums(dir_path: Union[str, Path], 
-                                  algorithm: str = 'sha256') -> Dict[str, str]:
+                                  algorithm: str = "sha256",
+                                  recursive: bool = True) -> Dict[str, str]:
     """
-    Calculate checksums for all files in a directory recursively.
+    Calculate checksums for all files in a directory.
     
     Args:
-        dir_path: Path to the directory
-        algorithm: Hash algorithm to use
+        dir_path: Path to the directory.
+        algorithm: Hash algorithm to use.
+        recursive: Whether to include subdirectories.
         
     Returns:
-        Dictionary mapping relative file paths to their checksums
-    """
-    path = Path(dir_path)
-    if not path.is_dir():
-        raise NotADirectoryError(f"Not a directory: {dir_path}")
+        Dictionary mapping relative file paths to their checksums.
         
+    Raises:
+        NotADirectoryError: If path is not a directory.
+    """
+    dir_path = Path(dir_path)
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {dir_path}")
+    
     checksums = {}
     
-    for file_path in path.rglob('*'):
+    if recursive:
+        pattern = "**/*"
+    else:
+        pattern = "*"
+        
+    for file_path in dir_path.glob(pattern):
         if file_path.is_file():
-            rel_path = str(file_path.relative_to(path))
-            checksums[rel_path] = calculate_file_checksum(file_path, algorithm)
-            
+            try:
+                rel_path = file_path.relative_to(dir_path)
+                checksums[str(rel_path)] = calculate_file_checksum(file_path, algorithm)
+            except Exception as e:
+                logger.warning(f"Skipping file {file_path} during checksum calculation: {e}")
+    
     return checksums
 
-
-def save_checksums(checksums: Dict[str, str], output_path: Union[str, Path]) -> None:
+def save_checksums(checksums: Dict[str, str], 
+                   output_path: Union[str, Path],
+                   algorithm: str = "sha256") -> None:
     """
     Save checksums to a JSON file.
     
     Args:
-        checksums: Dictionary of relative paths to checksums
-        output_path: Path to the output JSON file
+        checksums: Dictionary of file paths to checksums.
+        output_path: Path to the output JSON file.
+        algorithm: Algorithm used for the checksums.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_path)
+    data = {
+        "algorithm": algorithm,
+        "checksums": checksums
+    }
     
-    with open(path, 'w') as f:
-        json.dump(checksums, f, indent=2)
-        
-    logger.info(f"Saved checksums to {output_path}")
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Saved checksums to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save checksums to {output_path}: {e}")
+        raise
 
-
-def load_checksums(input_path: Union[str, Path]) -> Dict[str, str]:
+def load_checksums(checksum_path: Union[str, Path]) -> Dict[str, str]:
     """
     Load checksums from a JSON file.
     
     Args:
-        input_path: Path to the input JSON file
+        checksum_path: Path to the checksum JSON file.
         
     Returns:
-        Dictionary of relative paths to checksums
+        Dictionary of file paths to checksums.
         
     Raises:
-        FileNotFoundError: If the file does not exist
-        json.JSONDecodeError: If the file is not valid JSON
+        FileNotFoundError: If the checksum file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Checksum file not found: {input_path}")
+    checksum_path = Path(checksum_path)
+    if not checksum_path.exists():
+        raise FileNotFoundError(f"Checksum file not found: {checksum_path}")
+    
+    try:
+        with open(checksum_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
         
-    with open(path, 'r') as f:
-        return json.load(f)
-
+        algorithm = data.get("algorithm", "sha256")
+        checksums = data.get("checksums", {})
+        
+        logger.info(f"Loaded checksums ({len(checksums)} files) from {checksum_path}")
+        return checksums
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in checksum file {checksum_path}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to load checksums from {checksum_path}: {e}")
+        raise
 
 def verify_directory_integrity(dir_path: Union[str, Path], 
-                               checksums: Dict[str, str]) -> Tuple[bool, List[str]]:
+                               checksum_path: Union[str, Path],
+                               strict: bool = True) -> Dict[str, bool]:
     """
-    Verify the integrity of a directory against stored checksums.
+    Verify directory integrity against stored checksums.
     
     Args:
-        dir_path: Path to the directory to verify
-        checksums: Dictionary of expected checksums (relative path -> checksum)
+        dir_path: Path to the directory to verify.
+        checksum_path: Path to the checksum file.
+        strict: If True, fail if files are missing from checksums.
         
     Returns:
-        Tuple of (is_valid, list_of_failed_files)
+        Dictionary mapping file paths to verification status (True/False).
     """
-    path = Path(dir_path)
-    failed_files = []
+    dir_path = Path(dir_path)
+    stored_checksums = load_checksums(checksum_path)
+    results = {}
     
-    for rel_file, expected_checksum in checksums.items():
-        file_path = path / rel_file
+    # Check files in stored checksums
+    for rel_path_str, expected_checksum in stored_checksums.items():
+        file_path = dir_path / rel_path_str
         
         if not file_path.exists():
-            failed_files.append(f"{rel_file} (missing)")
+            results[rel_path_str] = False
+            logger.warning(f"Missing file during verification: {file_path}")
             continue
             
         try:
             actual_checksum = calculate_file_checksum(file_path)
-            if actual_checksum != expected_checksum:
-                failed_files.append(f"{rel_file} (checksum mismatch)")
-        except Exception as e:
-            failed_files.append(f"{rel_file} (error: {str(e)})")
+            is_valid = actual_checksum == expected_checksum
+            results[rel_path_str] = is_valid
             
-    is_valid = len(failed_files) == 0
-    return is_valid, failed_files
-
+            if not is_valid:
+                logger.warning(f"Checksum mismatch for {file_path}")
+        except Exception as e:
+            results[rel_path_str] = False
+            logger.error(f"Error verifying {file_path}: {e}")
+    
+    # Check for new files if not strict
+    if not strict:
+        current_files = set(str(p.relative_to(dir_path)) 
+                          for p in dir_path.rglob("*") if p.is_file())
+        stored_files = set(stored_checksums.keys())
+        
+        new_files = current_files - stored_files
+        for new_file in new_files:
+            results[new_file] = True
+            logger.info(f"New file detected (non-strict mode): {new_file}")
+    
+    # Report missing files if strict
+    if strict:
+        current_files = set(str(p.relative_to(dir_path)) 
+                          for p in dir_path.rglob("*") if p.is_file())
+        stored_files = set(stored_checksums.keys())
+        missing_files = stored_files - current_files
+        
+        if missing_files:
+            logger.warning(f"Files missing in strict mode: {missing_files}")
+    
+    return results
 
 def update_checksums(dir_path: Union[str, Path], 
-                     checksum_file: Union[str, Path]) -> Dict[str, str]:
+                     checksum_path: Union[str, Path],
+                     algorithm: str = "sha256") -> None:
     """
-    Update the checksum file for a directory.
+    Update checksums for a directory.
     
     Args:
-        dir_path: Path to the directory
-        checksum_file: Path to the checksum file to update
-        
-    Returns:
-        The updated checksums dictionary
+        dir_path: Path to the directory.
+        checksum_path: Path to the checksum file.
+        algorithm: Hash algorithm to use.
     """
-    new_checksums = calculate_directory_checksums(dir_path)
-    save_checksums(new_checksums, checksum_file)
-    return new_checksums
-
+    dir_path = Path(dir_path)
+    checksums = calculate_directory_checksums(dir_path, algorithm)
+    save_checksums(checksums, checksum_path, algorithm)
+    logger.info(f"Updated checksums for {dir_path}")
 
 def get_file_size(file_path: Union[str, Path]) -> int:
     """
     Get the size of a file in bytes.
     
     Args:
-        file_path: Path to the file
+        file_path: Path to the file.
         
     Returns:
-        File size in bytes
+        File size in bytes.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
-    return Path(file_path).stat().st_size
-
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return file_path.stat().st_size
 
 def get_total_size(dir_path: Union[str, Path]) -> int:
     """
     Get the total size of a directory in bytes.
     
     Args:
-        dir_path: Path to the directory
+        dir_path: Path to the directory.
         
     Returns:
-        Total size in bytes
+        Total size in bytes.
     """
-    path = Path(dir_path)
+    dir_path = Path(dir_path)
     total = 0
-    
-    for file_path in path.rglob('*'):
+    for file_path in dir_path.rglob("*"):
         if file_path.is_file():
             total += file_path.stat().st_size
-            
     return total
-
 
 def cleanup_empty_dirs(dir_path: Union[str, Path]) -> int:
     """
     Remove empty directories recursively.
     
     Args:
-        dir_path: Path to the directory to clean
+        dir_path: Path to the directory to clean.
         
     Returns:
-        Number of directories removed
+        Number of directories removed.
     """
-    path = Path(dir_path)
-    count = 0
+    dir_path = Path(dir_path)
+    removed_count = 0
     
-    # Sort by depth (deepest first) to remove children before parents
-    dirs = sorted([d for d in path.rglob('*') if d.is_dir()], 
-                 key=lambda x: len(x.parts), reverse=True)
-                 
-    for dir_to_remove in dirs:
-        try:
-            if not any(dir_to_remove.iterdir()):
-                dir_to_remove.rmdir()
-                count += 1
-                logger.debug(f"Removed empty directory: {dir_to_remove}")
-        except Exception as e:
-            logger.warning(f"Could not remove directory {dir_to_remove}: {e}")
-            
-    return count
-
+    # Sort by depth (deepest first)
+    dirs_to_check = sorted(dir_path.rglob("*"), key=lambda p: len(p.parts), reverse=True)
+    
+    for dir_to_check in dirs_to_check:
+        if dir_to_check.is_dir():
+            try:
+                if not any(dir_to_check.iterdir()):
+                    dir_to_check.rmdir()
+                    removed_count += 1
+                    logger.debug(f"Removed empty directory: {dir_to_check}")
+            except PermissionError:
+                logger.warning(f"Permission denied removing {dir_to_check}")
+            except Exception as e:
+                logger.warning(f"Error removing {dir_to_check}: {e}")
+    
+    return removed_count
 
 def move_files_with_checksums(source_dir: Union[str, Path], 
                               dest_dir: Union[str, Path],
                               files: List[str],
-                              checksum_file: Optional[Union[str, Path]] = None) -> Dict[str, str]:
+                              algorithm: str = "sha256") -> Dict[str, bool]:
     """
-    Move files from source to destination and optionally update checksums.
+    Move files and verify checksums.
     
     Args:
-        source_dir: Source directory
-        dest_dir: Destination directory
-        files: List of relative file paths to move
-        checksum_file: Optional path to checksum file to update
+        source_dir: Source directory.
+        dest_dir: Destination directory.
+        files: List of relative file paths to move.
+        algorithm: Hash algorithm to use.
         
     Returns:
-        Dictionary of relative paths to their checksums
+        Dictionary mapping file paths to success status.
     """
-    src = Path(source_dir)
-    dst = Path(dest_dir)
-    dst.mkdir(parents=True, exist_ok=True)
+    source_dir = Path(source_dir)
+    dest_dir = Path(dest_dir)
+    results = {}
     
-    checksums = {}
+    dest_dir.mkdir(parents=True, exist_ok=True)
     
-    for file_rel in files:
-        src_file = src / file_rel
-        dst_file = dst / file_rel
+    for rel_path_str in files:
+        src_file = source_dir / rel_path_str
+        dest_file = dest_dir / rel_path_str
         
-        if src_file.exists():
-            # Calculate checksum before moving
-            checksums[file_rel] = calculate_file_checksum(src_file)
+        if not src_file.exists():
+            results[rel_path_str] = False
+            logger.warning(f"Source file missing: {src_file}")
+            continue
+        
+        try:
+            # Calculate checksum before move
+            checksum = calculate_file_checksum(src_file, algorithm)
+            
+            # Ensure destination directory exists
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
             
             # Move file
-            dst_file.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(src_file), str(dst_file))
-            logger.info(f"Moved {src_file} to {dst_file}")
-        else:
-            logger.warning(f"File not found for moving: {src_file}")
+            shutil.move(str(src_file), str(dest_file))
             
-    if checksum_file:
-        save_checksums(checksums, checksum_file)
-        
-    return checksums
+            # Verify checksum after move
+            actual_checksum = calculate_file_checksum(dest_file, algorithm)
+            
+            if actual_checksum == checksum:
+                results[rel_path_str] = True
+                logger.info(f"Moved and verified: {rel_path_str}")
+            else:
+                results[rel_path_str] = False
+                logger.error(f"Checksum mismatch after move: {rel_path_str}")
+                
+        except Exception as e:
+            results[rel_path_str] = False
+            logger.error(f"Error moving {rel_path_str}: {e}")
+    
+    return results
 
-
-def validate_project_structure(base_path: Union[str, Path]) -> Tuple[bool, List[str]]:
+def validate_project_structure(base_path: Union[str, Path]) -> Dict[str, bool]:
     """
-    Validate that the project directory structure is correct.
+    Validate that the project structure matches expected directories.
     
     Args:
-        base_path: Root path of the project
+        base_path: Base project path.
         
     Returns:
-        Tuple of (is_valid, list_of_missing_components)
+        Dictionary mapping directory names to existence status.
     """
-    base = Path(base_path)
-    required_dirs = [
-        'data/raw', 'data/curated', 'data/eval',
-        'src/generation', 'src/filtering', 'src/training', 
-        'src/evaluation', 'src/utils',
-        'tests/unit', 'tests/integration'
-    ]
+    base_path = Path(base_path)
+    results = {}
     
-    missing = []
+    for dir_name in DATA_DIRS:
+        dir_path = base_path / dir_name
+        exists = dir_path.exists() and dir_path.is_dir()
+        results[dir_name] = exists
+        
+        if not exists:
+            logger.warning(f"Missing expected directory: {dir_path}")
+        else:
+            logger.debug(f"Validated directory: {dir_path}")
     
-    for dir_path in required_dirs:
-        if not (base / dir_path).exists():
-            missing.append(dir_path)
-            
-    is_valid = len(missing) == 0
-    return is_valid, missing
-
+    return results
 
 def get_data_stats(base_path: Union[str, Path]) -> Dict[str, Any]:
     """
     Get statistics about the data directories.
     
     Args:
-        base_path: Root path of the project
+        base_path: Base project path.
         
     Returns:
-        Dictionary with statistics for each data directory
+        Dictionary with directory statistics.
     """
-    base = Path(base_path)
+    base_path = Path(base_path)
     stats = {}
     
-    for dir_name in ['raw', 'curated', 'eval']:
-        dir_path = base / 'data' / dir_name
-        
-        if dir_path.exists():
-            file_count = sum(1 for _ in dir_path.rglob('*') if _.is_file())
+    for dir_name in DATA_DIRS:
+        dir_path = base_path / dir_name
+        if dir_path.exists() and dir_path.is_dir():
+            file_count = sum(1 for _ in dir_path.rglob("*") if _.is_file())
             total_size = get_total_size(dir_path)
-            
             stats[dir_name] = {
-                'path': str(dir_path),
-                'file_count': file_count,
-                'total_size_bytes': total_size,
-                'total_size_mb': total_size / (1024 * 1024),
-                'total_size_gb': total_size / (1024 * 1024 * 1024)
+                "exists": True,
+                "file_count": file_count,
+                "total_bytes": total_size,
+                "total_mb": total_size / (1024 * 1024)
             }
         else:
             stats[dir_name] = {
-                'path': str(dir_path),
-                'exists': False
+                "exists": False,
+                "file_count": 0,
+                "total_bytes": 0,
+                "total_mb": 0
             }
-            
+    
     return stats
 
-
 def main():
-    """
-    Main function to demonstrate I/O utilities.
-    """
+    """Main entry point for CLI usage."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='llmXive I/O Utilities')
-    parser.add_argument('--base-path', type=str, default='.', 
-                      help='Base project path')
-    parser.add_argument('--ensure-dirs', action='store_true',
-                      help='Ensure data directories exist')
-    parser.add_argument('--validate', action='store_true',
-                      help='Validate project structure')
-    parser.add_argument('--stats', action='store_true',
-                      help='Get data statistics')
-    parser.add_argument('--checksum-dir', type=str,
-                      help='Calculate checksums for a directory')
-    parser.add_argument('--verify-dir', type=str,
-                      help='Verify a directory against checksums')
-    parser.add_argument('--checksum-file', type=str,
-                      help='Path to checksum file for verification')
-                      
+    parser = argparse.ArgumentParser(description="I/O Utilities for llmXive")
+    subparsers = parser.add_subparsers(dest="command", help="Commands")
+    
+    # Ensure dirs command
+    parser_ensure = subparsers.add_parser("ensure", help="Ensure data directories exist")
+    parser_ensure.add_argument("--base", type=str, default=".", help="Base path")
+    
+    # Checksum command
+    parser_checksum = subparsers.add_parser("checksum", help="Calculate checksums")
+    parser_checksum.add_argument("path", type=str, help="Path to file or directory")
+    parser_checksum.add_argument("--output", type=str, help="Output file for directory checksums")
+    
+    # Verify command
+    parser_verify = subparsers.add_parser("verify", help="Verify directory integrity")
+    parser_verify.add_argument("dir", type=str, help="Directory to verify")
+    parser_verify.add_argument("checksum_file", type=str, help="Checksum file")
+    parser_verify.add_argument("--strict", action="store_true", help="Strict mode")
+    
+    # Stats command
+    parser_stats = subparsers.add_parser("stats", help="Get data statistics")
+    parser_stats.add_argument("--base", type=str, default=".", help="Base path")
+    
     args = parser.parse_args()
     
-    base = Path(args.base_path)
-    
-    if args.ensure_dirs:
-        ensure_dirs(base)
-        print(f"Data directories ensured at {base / 'data'}")
-        
-    if args.validate:
-        is_valid, missing = validate_project_structure(base)
-        if is_valid:
-            print("Project structure is valid.")
+    if args.command == "ensure":
+        ensure_dirs(args.base)
+    elif args.command == "checksum":
+        path = Path(args.path)
+        if path.is_file():
+            print(calculate_file_checksum(path))
+        elif path.is_dir():
+            checksums = calculate_directory_checksums(path)
+            if args.output:
+                save_checksums(checksums, args.output)
+            else:
+                print(json.dumps(checksums, indent=2))
         else:
-            print(f"Project structure is INVALID. Missing: {missing}")
-            
-    if args.stats:
-        stats = get_data_stats(base)
+            parser.error(f"Path does not exist: {args.path}")
+    elif args.command == "verify":
+        results = verify_directory_integrity(args.dir, args.checksum_file, args.strict)
+        passed = sum(1 for v in results.values() if v)
+        total = len(results)
+        print(f"Verification: {passed}/{total} files passed")
+    elif args.command == "stats":
+        stats = get_data_stats(args.base)
         print(json.dumps(stats, indent=2))
-        
-    if args.checksum_dir:
-        checksums = calculate_directory_checksums(args.checksum_dir)
-        print(json.dumps(checksums, indent=2))
-        
-    if args.verify_dir and args.checksum_file:
-        checksums = load_checksums(args.checksum_file)
-        is_valid, failed = verify_directory_integrity(args.verify_dir, checksums)
-        if is_valid:
-            print(f"Directory {args.verify_dir} integrity verified.")
-        else:
-            print(f"Directory {args.verify_dir} integrity check FAILED:")
-            for f in failed:
-                print(f"  - {f}")
+    else:
+        parser.print_help()
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,26 +1,32 @@
+"""
+Logging configuration for llmXive project.
+Provides file rotation, JSON logging for metrics, and standard loggers.
+"""
 import logging
 import logging.handlers
 import json
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, Union
+from datetime import datetime
 
-# Constants for log paths relative to project root
-LOG_DIR = Path("data/logs")
-LOG_FILE_NAME = "pipeline.log"
-METRICS_FILE_NAME = "metrics.jsonl"
-MAX_BYTES = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
+# Constants
+DEFAULT_LOG_DIR = Path("data/logs")
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+DEFAULT_BACKUP_COUNT = 5
 
 
 class JSONFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs log records as JSON lines.
-    Includes standard fields plus extra context if available.
-    """
+    """Custom formatter that outputs log records as JSON."""
+
+    def __init__(self, include_extra: bool = True):
+        super().__init__()
+        self.include_extra = include_extra
+
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": self.formatTime(record),
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -28,190 +34,266 @@ class JSONFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno,
         }
-        
-        if hasattr(record, "extra_data"):
-            log_data["extra"] = record.extra_data
-        
+
+        if self.include_extra:
+            # Add extra fields if present
+            extra_fields = {
+                k: v for k, v in record.__dict__.items()
+                if k not in ("name", "msg", "args", "created", "filename",
+                             "funcName", "levelname", "levelno", "lineno",
+                             "module", "msecs", "pathname", "process",
+                             "processName", "relativeCreated", "stack_info",
+                             "exc_info", "exc_text", "thread", "threadName",
+                             "message", "taskName")
+            }
+            if extra_fields:
+                log_data["extra"] = extra_fields
+
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
-        
+
         return json.dumps(log_data)
 
 
 class MetricsHandler(logging.Handler):
     """
-    A logging handler that writes specific metric logs to a JSONL file.
-    Expects log messages to be JSON-serializable dictionaries or objects
-    with a __dict__ attribute, or a string that is parsed as JSON.
+    Custom handler that extracts metric values from log records and stores them.
+    Expected log format: log_metric("metric_name", value, extra={...})
     """
-    def __init__(self, metrics_path: Path):
-        super().__init__()
-        self.metrics_path = metrics_path
-        self.metrics_path.parent.mkdir(parents=True, exist_ok=True)
-        # Set formatter to just output the message as is (assuming it's JSON)
-        self.setFormatter(logging.Formatter("%(message)s"))
 
-    def emit(self, record: logging.LogRecord) -> None:
+    def __init__(self, metrics_store: Optional[Path] = None):
+        super().__init__()
+        self.metrics_store = metrics_store
+        self.metrics: Dict[str, list] = {}
+        self.setFormatter(JSONFormatter())
+
+    def emit(self, record: logging.LogRecord):
         try:
-            msg = record.getMessage()
-            # If the message is already a dict (passed via extra or directly), serialize it
-            if isinstance(record.msg, dict):
-                log_entry = record.msg
-                log_entry["timestamp"] = self.formatTime(record)
-                log_entry["level"] = record.levelname
-                log_entry["metric_name"] = getattr(record, "metric_name", "unknown")
-                with open(self.metrics_path, "a", encoding="utf-8") as f:
-                    f.write(json.dumps(log_entry) + "\n")
-            elif isinstance(msg, str):
-                # Try to parse as JSON if it looks like one, otherwise just dump the string
-                try:
-                    parsed = json.loads(msg)
-                    parsed["timestamp"] = self.formatTime(record)
-                    parsed["level"] = record.levelname
-                    with open(self.metrics_path, "a", encoding="utf-8") as f:
-                        f.write(json.dumps(parsed) + "\n")
-                except json.JSONDecodeError:
-                    # Fallback: treat as a simple string metric
-                    entry = {
-                        "timestamp": self.formatTime(record),
-                        "level": record.levelname,
-                        "message": msg
-                    }
-                    with open(self.metrics_path, "a", encoding="utf-8") as f:
-                        f.write(json.dumps(entry) + "\n")
+            # Check if this is a metric log
+            if hasattr(record, "is_metric") and record.is_metric:
+                metric_name = getattr(record, "metric_name", "unknown")
+                metric_value = getattr(record, "metric_value", None)
+
+                if metric_name not in self.metrics:
+                    self.metrics[metric_name] = []
+
+                self.metrics[metric_name].append({
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                    "value": metric_value,
+                    "level": record.levelname,
+                })
+
+                # Save to file if store path is provided
+                if self.metrics_store:
+                    self._save_metrics()
+
         except Exception:
             self.handleError(record)
+
+    def _save_metrics(self):
+        """Save metrics to JSON file."""
+        if self.metrics_store:
+            self.metrics_store.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.metrics_store, "w") as f:
+                json.dump(self.metrics, f, indent=2)
+
+    def get_metrics(self) -> Dict[str, list]:
+        """Return collected metrics."""
+        return self.metrics.copy()
 
 
 def get_logger(
     name: str,
-    log_dir: Optional[Path] = None,
-    metrics_path: Optional[Path] = None,
-    level: int = logging.INFO
+    log_file: Optional[Union[str, Path]] = None,
+    metrics_file: Optional[Union[str, Path]] = None,
+    level: int = DEFAULT_LOG_LEVEL,
+    max_bytes: int = DEFAULT_MAX_BYTES,
+    backup_count: int = DEFAULT_BACKUP_COUNT,
+    json_format: bool = False
 ) -> logging.Logger:
     """
-    Configures and returns a logger with file rotation and optional JSON metrics handler.
-    
+    Create and configure a logger with optional file rotation and JSON formatting.
+
     Args:
-        name: Logger name (usually __name__)
-        log_dir: Directory for log files (defaults to LOG_DIR)
-        metrics_path: Path for JSONL metrics file (defaults to LOG_DIR / METRICS_FILE_NAME)
+        name: Logger name
+        log_file: Path to log file (optional)
+        metrics_file: Path to metrics JSON file (optional)
         level: Logging level
-        
+        max_bytes: Max bytes before rotation
+        backup_count: Number of backup files to keep
+        json_format: If True, use JSONFormatter
+
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
 
-    base_dir = log_dir or LOG_DIR
-    base_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_file = base_dir / LOG_FILE_NAME
-    metrics_file = metrics_path or (base_dir / METRICS_FILE_NAME)
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    if json_format:
+        console_handler.setFormatter(JSONFormatter())
+    else:
+        console_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+
+    logger.addHandler(console_handler)
 
     # File handler with rotation
-    file_handler = logging.handlers.RotatingFileHandler(
-        log_file,
-        maxBytes=MAX_BYTES,
-        backupCount=BACKUP_COUNT,
-        encoding="utf-8"
-    )
-    file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    ))
-    
-    # JSON metrics handler
-    json_handler = MetricsHandler(metrics_file)
-    json_handler.setLevel(logging.INFO)
-    json_handler.setFormatter(JSONFormatter())
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.addHandler(file_handler)
-    logger.addHandler(json_handler)
-    
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_path,
+            maxBytes=max_bytes,
+            backupCount=backup_count
+        )
+        file_handler.setLevel(level)
+
+        if json_format:
+            file_handler.setFormatter(JSONFormatter())
+        else:
+            file_handler.setFormatter(logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            ))
+
+        logger.addHandler(file_handler)
+
+    # Metrics handler
+    if metrics_file:
+        metrics_handler = MetricsHandler(Path(metrics_file))
+        metrics_handler.setLevel(level)
+        logger.addHandler(metrics_handler)
+
     return logger
 
 
 def log_metric(
     logger: logging.Logger,
-    metric_name: str,
-    value: Union[float, int, Dict[str, Any]],
+    name: str,
+    value: float,
+    level: int = logging.INFO,
     **kwargs
 ) -> None:
     """
-    Logs a metric value to the JSON metrics file.
-    
+    Log a metric value with special handling for metrics tracking.
+
     Args:
-        logger: The logger instance
-        metric_name: Name of the metric
-        value: The metric value (float, int, or dict of values)
-        **kwargs: Additional context to include
+        logger: Logger instance
+        name: Metric name
+        value: Metric value
+        level: Logging level
+        **kwargs: Additional extra fields to include
     """
-    if isinstance(value, (float, int)):
-        payload = {"metric_name": metric_name, "value": value}
-    else:
-        payload = {"metric_name": metric_name, **value}
-    
-    payload.update(kwargs)
-    logger.info(payload, extra={"metric_name": metric_name})
+    extra = {
+        "is_metric": True,
+        "metric_name": name,
+        "metric_value": value,
+        **kwargs
+    }
+    logger.log(level, f"Metric: {name} = {value}", extra=extra)
 
 
 def log_metric_value(
     logger: logging.Logger,
-    metric_name: str,
-    value: Union[float, int],
+    name: str,
+    value: float,
     **kwargs
 ) -> None:
     """
-    Convenience wrapper for log_metric with a single numeric value.
+    Convenience function to log a metric value at INFO level.
+
+    Args:
+        logger: Logger instance
+        name: Metric name
+        value: Metric value
+        **kwargs: Additional extra fields
     """
-    log_metric(logger, metric_name, value, **kwargs)
+    log_metric(logger, name, value, logging.INFO, **kwargs)
 
 
-def setup_default_loggers() -> None:
+# Global logger instances
+_loggers: Dict[str, logging.Logger] = {}
+_metrics_handler: Optional[MetricsHandler] = None
+
+
+def setup_default_loggers(
+    log_dir: Optional[Union[str, Path]] = None,
+    metrics_file: Optional[Union[str, Path]] = None,
+    level: int = DEFAULT_LOG_LEVEL,
+    json_format: bool = True
+) -> None:
     """
-    Initializes the root logger with a console handler for the project.
+    Set up default loggers for the project.
+
+    Args:
+        log_dir: Directory for log files
+        metrics_file: Path to metrics JSON file
+        level: Logging level
+        json_format: Use JSON formatting
     """
-    root_logger = logging.getLogger()
-    if not root_logger.handlers:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        ))
-        root_logger.addHandler(console_handler)
-        root_logger.setLevel(logging.INFO)
+    global _loggers, _metrics_handler
+
+    if log_dir is None:
+        log_dir = DEFAULT_LOG_DIR
+    else:
+        log_dir = Path(log_dir)
+
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create default logger
+    default_logger = get_logger(
+        name="llmXive",
+        log_file=log_dir / "app.log",
+        metrics_file=metrics_file,
+        level=level,
+        json_format=json_format
+    )
+
+    _loggers["default"] = default_logger
+    _metrics_handler = None
+    for handler in default_logger.handlers:
+        if isinstance(handler, MetricsHandler):
+            _metrics_handler = handler
+            break
 
 
 def get_default_logger() -> logging.Logger:
-    """
-    Returns the default project logger.
-    """
-    setup_default_loggers()
-    return logging.getLogger("llmxive")
+    """Get the default project logger."""
+    global _loggers
+    if "default" not in _loggers:
+        setup_default_loggers()
+    return _loggers["default"]
 
 
-# Convenience functions for quick logging
-def info(msg: str, *args, **kwargs) -> None:
-    get_default_logger().info(msg, *args, **kwargs)
+# Convenience functions using default logger
+def info(msg: str, **kwargs) -> None:
+    """Log info message."""
+    get_default_logger().info(msg, **kwargs)
 
 
-def debug(msg: str, *args, **kwargs) -> None:
-    get_default_logger().debug(msg, *args, **kwargs)
+def debug(msg: str, **kwargs) -> None:
+    """Log debug message."""
+    get_default_logger().debug(msg, **kwargs)
 
 
-def warning(msg: str, *args, **kwargs) -> None:
-    get_default_logger().warning(msg, *args, **kwargs)
+def warning(msg: str, **kwargs) -> None:
+    """Log warning message."""
+    get_default_logger().warning(msg, **kwargs)
 
 
-def error(msg: str, *args, **kwargs) -> None:
-    get_default_logger().error(msg, *args, **kwargs)
+def error(msg: str, **kwargs) -> None:
+    """Log error message."""
+    get_default_logger().error(msg, **kwargs)
 
 
-def critical(msg: str, *args, **kwargs) -> None:
-    get_default_logger().critical(msg, *args, **kwargs)
+def critical(msg: str, **kwargs) -> None:
+    """Log critical message."""
+    get_default_logger().critical(msg, **kwargs)
