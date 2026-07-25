@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-868-llmxive-follow-up-extending-domainshuttl",
+  "ok": false,
+  "reason": "5 command(s) failed: python src/cli.py --phase data_prep (rc=1); python src/cli.py --phase compress (rc=1); python src/cli.py --phase evaluate (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python src/cli.py --phase data_prep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/src/cli.py\", line 17, in <module>\n    from src.data.loaders import load_webvid_subjects\nModuleNotFoundError: No module named 'src.data.loaders'",
+    "python src/cli.py --phase compress -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/src/cli.py\", line 17, in <module>\n    from src.data.loaders import load_webvid_subjects\nModuleNotFoundError: No module named 'src.data.loaders'",
+    "python src/cli.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/src/cli.py\", line 17, in <module>\n    from src.data.loaders import load_webvid_subjects\nModuleNotFoundError: No module named 'src.data.loaders'",
+    "python src/cli.py --phase analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/src/cli.py\", line 17, in <module>\n    from src.data.loaders import load_webvid_subjects\nModuleNotFoundError: No module named 'src.data.loaders'",
+    "python src/cli.py --phase all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/src/cli.py\", line 17, in <module>\n    from src.data.loaders import load_webvid_subjects\nModuleNotFoundError: No module named 'src.data.loaders'"
+  ],
+  "fix_rounds": 7,
+  "model_tier": 0,
+  "total_attempts": 7,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-25T06:28:04Z"
+}

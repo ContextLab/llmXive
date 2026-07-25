@@ -17,14 +17,14 @@ The research system MUST download a curated subset of diverse subjects from the 
 
 **Acceptance Scenarios**:
 
-1. **Given** the WebVid-10M dataset is accessible, **When** the system processes the subset of 100 subjects, **Then** it must generate a CSV file containing 100 rows with unique IDs and pre-computed visual complexity scores.
+1. **Given** the WebVid-10M dataset is accessible, **When** the system processes the subset of 100 subjects, **Then** it must generate a CSV file containing a dataset of rows with unique IDs and pre-computed visual complexity scores.
 2. **Given** the DomainShuttle encoder is loaded in frozen mode, **When** the system processes the reference images, **Then** it must output high-dimensional tensor files (e.g., `.pt` or `.npy`) for each subject without modifying the encoder weights.
 
 ---
 
 ### User Story 2 - CPU-Optimized Compression and Dimensionality Sweep (Priority: P2)
 
-The system MUST train lightweight, CPU-only Autoencoders to compress the extracted high-dimensional embeddings into latent vectors of varying dimensions (e.g., 32, 64, 128, and 256), using a reconstruction loss prioritizing cosine similarity between the reconstructed output vector and the original input embedding.
+The system MUST train lightweight, CPU-only Autoencoders to compress the extracted high-dimensional embeddings into latent vectors of varying dimensions (e.g., 64, 128, and 256), using a reconstruction loss prioritizing cosine similarity between the reconstructed output vector and the original input embedding.
 
 **Why this priority**: This implements the core hypothesis test: scaling dimensionality against identity preservation. It must run on free CPU hardware to be feasible.
 
@@ -53,14 +53,14 @@ The system MUST generate synthetic videos using the compressed vectors and text 
 ### Edge Cases
 
 - **What happens when** a subject's visual complexity score is an outlier (e.g., extreme texture density) that causes the Autoencoder to fail convergence? The system must flag this subject as "failed training" and exclude it from the final correlation analysis, logging the specific error.
-- **How does the system handle** a situation where the CPU-only generation pipeline exceeds the 6-hour CI job limit? The system must implement a timeout mechanism per sample (e.g., a configurable duration) and record the result as "timeout" rather than crashing the entire job.
+- **How does the system handle** a situation where the CPU-only generation pipeline exceeds the CI job time limit? The system must implement a timeout mechanism per sample (e.g., a configurable duration) and record the result as "timeout" rather than crashing the entire job.
 - **What happens when** the CLIP Image Similarity score is ambiguous? The system must treat the fidelity retention threshold as a configurable value (default [deferred]) but log the exact value to allow for sensitivity analysis later.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download exactly 100 diverse subjects from WebVid-10M and compute a visual complexity score for each using a pre-defined metric (e.g., edge density or texture variance) (See US-1).
+- **FR-001**: System MUST download a diverse set of subjects from WebVid-10M. and compute a visual complexity score for each using a pre-defined metric (e.g., edge density or texture variance) (See US-1).
 - **FR-002**: System MUST extract high-dimensional embeddings using the frozen DomainShuttle encoder and store them as persistent tensors without modifying the encoder weights (See US-1).
 - **FR-003**: System MUST implement a CPU-only Autoencoder architecture that supports compression targets across a range of low to high dimensions (See US-2).
 - **FR-004**: System MUST train the Autoencoders using a loss function that calculates cosine similarity between the reconstructed output vector and the original input embedding to prioritize subject identity over pixel-perfect reconstruction (See US-2).

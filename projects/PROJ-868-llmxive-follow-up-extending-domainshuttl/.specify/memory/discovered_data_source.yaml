@@ -1,0 +1,12 @@
+status: none
+intent: download WebVid-10M subset python package dataset DomainShuttle encoder
+required_fields:
+- subject_id
+- video_id
+- video_url
+- frames_path
+- visual_complexity_score
+- embedding_vector
+cache_key: 0c3720c215b8d9a446f01e9a5991443b7a44d7605662cc653c41fd2bfd099121
+searched_at: '2026-07-25T06:28:52.214749+00:00'
+retry_count: 1

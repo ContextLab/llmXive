@@ -5,11 +5,11 @@
 
 ## Summary
 
-This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [,,,, 48, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
+This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [,,,,, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10  
+**Language/Version**: Python  
 **Primary Dependencies**: PyTorch (CPU-only), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`)  
 **Testing**: pytest (contract tests against YAML schemas)  

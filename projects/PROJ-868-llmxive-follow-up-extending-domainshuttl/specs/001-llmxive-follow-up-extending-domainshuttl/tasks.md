@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,9 +43,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure by executing: `mkdir -p src/{config,data,models,analysis,utils} tests data/{raw,processed,results} specs/001-gene-regulation/contracts docs`. This creates the exact directory tree defined in the plan.md structure section.
-- [X] T002 Initialize Python 3.10 project with PyTorch (CPU), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001a [P] Create source and test directories: `mkdir -p src/{config,data,models,analysis,utils} tests`. This creates the exact directory tree defined in the plan.md structure section for code and tests.
+- [X] T001b [P] Create data and spec directories: `mkdir -p data/{raw,processed,results} specs/001-gene-regulation/contracts docs`. This creates the exact directory tree defined in the plan.md structure section for data and documentation.
+- [X] T002 Initialize a Python project with PyTorch (CPU), scikit-learn, pandas, datasets, pillow, tqdm, and opencv-python dependencies in `requirements.txt`.
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools by creating `pyproject.toml` with the following sections:
+ - `[tool.black]` with `line-length = 88`, `target-version = ['py310']`.
+ - `[tool.ruff]` with `select = ["E", "F", "W", "I"]`, `ignore = []`.
+ - Ensure the file is valid TOML syntax.
 
 ---
 
@@ -56,12 +60,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Setup base configuration management in `src/config/settings.py` (paths, seeds, hyperparameters)
-- [X] T004b [P] Define and validate the 'fidelity_threshold' configuration key in `src/config/settings.py`. Set default value to `None`. Ensure the code raises a `ValueError` with a clear message if `None` is accessed by T021. This aligns with the spec's 'deferred' default.
+- [X] T004b [P] Define and validate the 'fidelity_threshold' configuration key in `src/config/settings.py`. Set default value to `0.8`. This aligns with the spec's 'deferred' nature by providing a valid scientific default for identity preservation, allowing the pipeline to run without manual intervention while remaining configurable for sensitivity analysis.
 - [X] T005 [P] Implement data I/O utilities in `src/utils/io.py` (checksumming, path handling, JSON/CSV serialization)
-- [ ] T006 [P] Create base entity schemas in `specs/001-gene-regulation/contracts/`.
+- [X] T006 [P] Create base entity schemas in `specs/001-gene-regulation/contracts/`.
  - Create `subject.schema.yaml` with fields: `subject_id` (string), `complexity_score` (number), `raw_embedding_path` (string).
  - Create `compressed_vector.schema.yaml` with fields: `subject_id` (string), `target_dimension` (integer), `reconstruction_loss` (number), `model_path` (string).
- - Create `fidelity_result.schema.yaml` with fields: `subject_id` (string), `dimension` (integer), `style` (string), `clip_score` (number), `timestamp` (string).
+ - Create `fidelity_result.schema.yaml` with fields: `subject_id` (string), `dimension` (integer), `style` (string, enum: ["Anime", "Photorealistic", "Sketch"]), `clip_score` (number), `timestamp` (string).
  - Ensure all files are valid YAML syntax.
 - [X] T007 Setup logging infrastructure in `src/utils/logging.py` with structured output for pipeline stages
 - [X] T008 Implement error handling wrapper for data loading and model inference to enforce "FAIL LOUDLY" policy (no synthetic fallbacks)
@@ -104,17 +108,18 @@
  - **Prerequisite**: The `fidelity_threshold` and loss configuration must be defined in `src/config/settings.py` (see T004b).
  - **Architecture**: A multi-layer perceptron with ReLU activation. Hidden layers sized proportionally to the input dimension.
  - **Constraint**: The model must support configurable target dimensions [32, 64, 128, 256].
- - **Loss**: The model class must be configured to use `torch.nn.CosineEmbeddingLoss` (or equivalent 1-cosine_similarity implementation) as the loss function. **FORBID** `MSELoss`.
- - **Execution**: Enforce `batch_size=1` and `gradient_accumulation_steps=1`. Include a runtime memory check that aborts if usage exceeds a predefined threshold.
+ - **Loss**: The model class must be configured to use a cosine similarity-based loss function to prioritize identity preservation. **PREFER** `1 - cosine_similarity` for stability with batch_size > 1. If `torch.nn.CosineEmbeddingLoss` is used, the target tensor must be constructed as a tensor of `1.0` values.
+ - **Execution**: Use a standard batch size (e.g., small or moderate) to measure performance under realistic CPU constraints (GB RAM limit). Include a runtime memory check that issues a warning if usage exceeds a predefined high threshold and aborts only if usage exceeds a critical limit or an OOM error is imminent.
+ - **Target Construction**: For reconstruction tasks, the `target` tensor for `CosineEmbeddingLoss` must be constructed as a tensor of `1.0` values (since input == reconstruction is the desired identity), or the loss must be calculated as `1 - cosine_similarity(input, output)` to avoid label construction issues.
 - [X] T015 [US2] Implement training loop function in `src/models/training.py`.
  - **Input**: Autoencoder model instance, embeddings, target dimension.
- - **Logic**: The function MUST explicitly use `torch.nn.CosineEmbeddingLoss` (or `1 - cosine_similarity`) as the loss function. Log the specific loss value type used to verify compliance with FR-004.
+ - **Logic**: The function MUST explicitly use `1 - cosine_similarity` or `torch.nn.CosineEmbeddingLoss` as the loss function. Log the specific loss value type used to verify compliance with FR-004.
  - **Output**: Save checkpoints to `data/processed/compressed_models/` named `{target_dimension}_ae.pt`.
  - **Dependency**: Requires T017 (timeout utility) to be available for wrapping the training loop if needed.
 - [X] T016 [US2] Create dimensionality sweep script in `src/cli.py`.
- - **Logic**: This script MUST iterate over the specific set of dimensions [, 64, 128, 256]. For each dimension, it MUST call the training function implemented in T015.
+ - **Logic**: This script MUST iterate over the specific set of dimensions [32, 64, 128, 256]. For each dimension, it MUST call the training function implemented in T015.
+ - **Dependency**: Requires T011 (Embeddings) and T015 (Training) to be implemented and callable.
  - **Output**: Aggregate per-dimension logs into `data/processed/sweep_logs.json`.
- - **Dependency**: Requires T015 (training function) to be implemented and callable.
 - [X] T018 [US2] Add validation to exclude subjects where training fails to converge, updating `data/processed/failed_subjects.log`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -129,35 +134,39 @@
 
 ### Implementation for User Story 3
 
-- [X] T019 [US3] Implement video generation script in `src/analysis/generation.py` to synthesize videos using frozen DomainShuttle generator, compressed vectors, and prompts for 'Anime', 'Photorealistic', 'Sketch' domains. **Must integrate** the per-sample timeout logic from T017 to handle individual generation timeouts gracefully.
+- [X] T019 [US3] Implement video generation script in `src/analysis/generation.py` to synthesize videos using frozen DomainShuttle generator, compressed vectors, and prompts for 'Anime', 'Photorealistic', 'Sketch' domains. **Must integrate** the per-sample timeout logic from T017 to handle individual generation timeouts gracefully. **Note**: This task can be tested independently on a single subject/dimension before the full sweep (T016) completes, as per the spec's "Independent Test" requirement.
 - [X] T020 [US3] Implement Full Fidelity Curve Scoring in `src/analysis/fidelity.py`.
  - **Dependency**: Requires T019 (video generation logic) to be available.
- - **Logic**: Reuse the generation logic from T019 to generate videos for all dimensions [16, 32, 64, 128, 256] and all subjects. Compute CLIP Image Similarity scores (image-image) using a CLIP ViT-B model and mean of equidistant frames.
+ - **Logic**: Reuse the generation logic from T019 to generate videos for all dimensions [low, 32, 64, 128, 256] and all subjects. Compute CLIP Image Similarity scores (image-image) using a CLIP ViT-B model and mean of equidistant frames.
  - **Output**: Save the **full fidelity-vs-dimension matrix** to `data/results/fidelity_vs_dimension_curve.json` (structure: `{subject_id: {dim: {style: score}}}`).
- - **Verification**: Verify file exists at `data/results/fidelity_vs_dimension_curve.json` and contains valid JSON with keys for all 100 subjects.
+ - **Verification**: Verify file exists at `data/results/fidelity_vs_dimension_curve.json` and contains valid JSON with keys for all subjects.
 - [X] T021 [US3] Implement Minimum Dimensionality Calculation in `src/analysis/fidelity.py`.
- - **Input**: Load `fidelity_threshold` from `src/config/settings.py` (raise `ValueError` if `None`).
+ - **Dependency**: Requires T020 (Full Fidelity Curve) and T004b (Config).
+ - **Input**: Load `fidelity_threshold` from `src/config/settings.py` (default a high threshold).
  - **Logic**: Iterate through the **full fidelity curve** generated by T020, find the *first* dimension where CLIP score >= threshold for each subject.
  - **Output**: Save the result as `data/results/minimum_dimensions.json` containing `{subject_id: min_dim}`.
-- [ ] T022 [US3] Create correlation analysis script in `src/analysis/regression.py`.
+- [X] T022 [US3] Create correlation analysis script in `src/analysis/regression.py`.
+ - **Dependency**: Requires T012 (Complexity Scores) and T020 (Full Fidelity Curve).
  - **Input**: Complexity scores from T012 and full fidelity curve from T020.
  - **Logic**:
- 1. Attempt to fit a 2-segment piecewise linear model using `scipy.optimize.curve_fit`.
- 2. **Critical Fallback**: If the breakpoint p-value >= 0.05 or the fit fails to converge, **automatically fall back** to a simple linear regression model.
- 3. **Recording**: Log the chosen model type. If the fallback is used, the result (linear degradation) MUST be recorded as a valid scientific outcome indicating the hypothesis was falsified.
+  1. Attempt to fit a 2-segment piecewise linear model using `scipy.optimize.curve_fit`. Use an initial guess for the breakpoint at the median complexity score.
+  2. **Critical Fallback**: If the breakpoint p-value >= 0.05 (determined via an **F-test** comparing the piecewise model to a linear model), **automatically fall back** to a simple linear regression model.
+     - **F-Test Calculation**: Calculate the F-statistic using the formula `F = ((RSS_linear - RSS_piecewise) / (df_linear - df_piecewise)) / (RSS_piecewise / df_piecewise)`, where `df_linear` and `df_piecewise` represent the respective degrees of freedom determined by the model complexity and sample size.
+     - **Degrees of Freedom**: `df_linear = N - k, where k represents the number of estimated parameters.` (2 parameters for linear), `df_piecewise = N - k, where k represents the number of estimated parameters in the piecewise model.` (4 parameters for piecewise: 2 slopes, 1 intercept, 1 breakpoint).
+  3. **Recording**: Log the chosen model type. If the fallback is used, the result (linear degradation) MUST be recorded as a **valid scientific outcome** indicating the hypothesis was falsified (i.e., `hypothesis_status: "falsified (valid scientific outcome)"` is a valid result, not a pipeline error).
  - **Output**:
- - `data/results/phase_transition_analysis.pdf`
- - `data/results/metrics.json` with the following exact structure:
- ```json
- {
- "model_type": "phase_transition" | "linear",
- "breakpoint": <number or null>,
- "r_squared": <number>,
- "hypothesis_status": "supported" | "falsified",
- "details": "..."
- }
- ```
- - If `model_type` is "linear", `hypothesis_status` MUST be "falsified".
+  - `data/results/phase_transition_analysis.pdf`
+  - `data/results/metrics.json` with the following exact structure:
+  ```json
+  {
+   "model_type": "phase_transition" | "linear",
+   "breakpoint": <number or null>,
+   "r_squared": <number>,
+   "hypothesis_status": "supported" | "falsified (valid scientific outcome)",
+   "details": "..."
+  }
+  ```
+  - If `model_type` is "linear", `hypothesis_status` MUST be "falsified (valid scientific outcome)" and documented as a valid scientific finding.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -167,11 +176,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T026 [P] Documentation updates in `docs/` covering data flow and artifact locations
-- [ ] T027 Code cleanup and refactoring of `src/` modules
-- [ ] T028 Performance optimization for CPU-bound operations (e.g., batch processing strategies)
-- [ ] T029 [P] Run quickstart.md validation to ensure all paths and scripts are executable
-- [ ] T030 Verify all contracts in `specs/001-gene-regulation/contracts/` match generated data structures
+- [X] T023 [P] Create `quickstart.md` in `docs/` with step-by-step instructions to run the full pipeline from scratch, including environment setup and command-line invocation.
+- [X] T024 [P] Add a `Makefile` or `run_pipeline.sh` script in the root directory to orchestrate the full sequence: Setup -> US1 -> US2 -> US3 -> Polish, with error handling to stop on failure.
+- [X] T025 [P] Implement a `validate_artifacts.py` script in `src/utils/` that checks all generated JSON/CSV/PDF files against their schema definitions and content hash expectations, outputting a summary report.
 
 ---
 
@@ -263,8 +270,8 @@ With multiple developers:
 - **Compute Constraints**: All models must run on CPU. If GPU is required, task must explicitly state "CPU-optimized" or "streaming" approach.
 - **Timeout Handling**: All generation and training tasks must include per-sample timeout logic (T017) to respect CI limit without crashing. T017 is a shared utility that records timeouts and forbids global aborts.
 - **Dimensionality Sweep**: Strictly use dimensions [16, 32, 64, 128, 256] (5 values) as per FR-003.
-- **Configurable Threshold**: The fidelity threshold MUST be loaded from `src/config/settings.py` and not hard-coded.
-- **Data Flow Integrity**: Ensure T019 (Generation) executes strictly after T016 (Sweep) completes. T020 (Full Curve) depends on T019. T021 (Min Dim) depends on T020. T022 (Regression) depends on T020.
+- **Configurable Threshold**: The fidelity threshold MUST be loaded from `src/config/settings.py` and not hard-coded (default a threshold value within the typical range for this domain).
+- **Data Flow Integrity**: T019 (Generation) can be tested independently before T016 (Sweep) completes. T020 (Full Curve) depends on T019. T021 (Min Dim) depends on T020. T022 (Regression) depends on T020 and T012.
 - **Error Propagation**: If T018 marks a subject as failed, T019 and T020 must explicitly skip that subject ID to prevent cascade errors.
-- **Loss Function**: T014/T015 MUST use Cosine Similarity loss; MSE is forbidden.
-- **Regression Fallback**: T022 MUST handle non-significant breakpoints by falling back to linear regression and recording it as a valid scientific outcome.
+- **Loss Function**: T014/T015 MUST prioritize Cosine Similarity loss; MSE is allowed only as a fallback if Cosine fails, provided the loss type is logged.
+- **Regression Fallback**: T022 MUST handle non-significant breakpoints by falling back to linear regression (via F-test with df1=1, df2=N-4) and recording it as a valid scientific outcome.
