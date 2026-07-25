@@ -1,11 +1,11 @@
 T008a:
-  c: false
-  h: 2944a4e112b8cae3fac654fac7dddf9f1f2646af01feff97aafeb3e3a7b14bdd
-  r: "The integration test file exists but its implementation is truncated and appears\
-    \ to \u201Csimulate\u201D pipeline processing rather than run the real T013d data\
-    \ loading pipeline, and it never creates the required `data/results/memory_test.log`.\
-    \ Consequently the test does not fulfill the memory\u2011usage verification or\
-    \ logging requirements."
+  c: true
+  h: 4fa0eb289237a7e3125ce7a335b4c9d6b13e398183914519e8a8fd76b6f23745
+  r: "The repository contains the required `tests/integration/test_memory_full_pipeline.py`\
+    \ (6\u202FKB) which loads a real sample from `graphs_v1.parquet`, reads `split_indices.json`,\
+    \ runs the pipeline, and is set up to log memory statistics to `data/results/memory_test.log`.\
+    \ The missing log file is expected to be created when the test is executed, not\
+    \ beforehand."
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -14,22 +14,37 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
+T013f:
+  c: false
+  h: a9aae10023f9868cc7fee98faec623d48acfd5a4c85dfacf5fbcd1fc151fbb37
+  r: "The repository lacks the required `data/processed/split_indices.json` output\
+    \ file, and the provided `code/ingest/split_generator.py` is truncated and does\
+    \ not fully implement the StructureMatcher\u2011based family grouping or the runtime\
+    \ assertion guaranteeing disjoint families between train and test sets. Consequently\
+    \ the task\u2019s core requirements are not satisfied."
 T018b:
   c: false
-  h: c4a4ba8816075f3c595347719656554eff6b1bbe1bbe1eeb7ddd961e00f17e49
-  r: "The `code/model/train.py` file is present but the visible portion does not show\
-    \ the required `tracemalloc` usage, CPU\u2011only enforcement, dynamic batch\u2011\
-    size reduction, or saving of `data/processed/model_v1.pt`. Moreover, the expected\
-    \ `data/processed/model_v1.pt` file is missing, and there is no evidence that\
-    \ a `predictions.json` file is generated. These core requirements are not satisfied."
-T018c:
+  h: 892da4c4c177bb0c90757d9219552b4ae661be536fcb38f843491fd551356aad
+  r: 'The repository contains a `train.py` script with the required imports, disclaimer,
+    and placeholders for the required functionality, but the expected output artifacts
+    are absent: `data/processed/model_v1.pt` does not exist, and no `predictions.json`
+    file is present. Consequently the training loop has not demonstrably saved model
+    weights or produced predictions, so the task requirements are not met.'
+T020a:
   c: false
-  h: 2188559b27a8f2bf6ff201e79ac6f3dc8adc021a4d4cd95d9f88c791411ffd49
-  r: "The provided `train_logger.py` is truncated (ends with an incomplete method)\
-    \ and does not contain any code that actually writes to `data/results/training_logs.json`.\
-    \ Moreover, the disclaimer text does not match the required exact string. The\
-    \ required JSON log file is missing entirely. These issues mean the task\u2019\
-    s logging and checkpointing requirements are not satisfied."
+  h: bb65e1b7f238bb74f77af57566727f50e0d33f61885a94e5d7a5f98e7403e3b0
+  r: "The repository contains a partially shown `code/analysis/ablation.py`, but the\
+    \ file is truncated and does not demonstrate that it writes the required `data/results/intra_family_baseline.json`.\
+    \ Moreover, that JSON file is absent from the project directory. Without the output\
+    \ artifact, the task\u2019s primary requirement is unmet."
+T021a:
+  c: false
+  h: 413d0d7bb74c65951bd0b89c5cd456f7862afe8f78d1f10292b3bfdce85931a7
+  r: "The repository contains `code/model/generalization_test.py`, but the file is\
+    \ truncated and does not show loading `split_indices.json`, performing the disjoint\u2011\
+    family assertion, or writing `data/results/generalization_metrics.json`. Moreover,\
+    \ the expected output file `data/results/generalization_metrics.json` is absent.\
+    \ The required runtime check and result generation are therefore not present."
 T021b:
   c: false
   h: 9282178fbea83f2ac8b1e4a77c02908199cfc1490c2a965ced933d1f46d5e4a7

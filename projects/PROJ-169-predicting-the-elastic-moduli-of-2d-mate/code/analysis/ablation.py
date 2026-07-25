@@ -1,3 +1,9 @@
+"""
+Ablation study runner for intra-family baseline metric generation.
+
+This module computes MAPE/RMSE on random splits within families to establish
+a baseline for SC-002 (inter-family generalization).
+"""
 from __future__ import annotations
 
 import argparse
@@ -5,347 +11,328 @@ import json
 import logging
 import os
 import random
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader as PyGDataLoader
-from torch_geometric.nn import GCNConv, global_mean_pool
-import torch.nn as nn
-import torch.nn.functional as F
+from sklearn.model_selection import train_test_split
 
-# --- Local Imports (Matching API Surface) ---
-# We assume these exist in sibling files as per the project structure
-# If they are not fully implemented in other files, we provide minimal stubs here
-# to ensure this module runs independently for the task at hand,
-# but we prioritize importing from the project surface if available.
-# However, since the prompt says "extend" and "import real names",
-# we will attempt imports first. If the project files are incomplete (as per T018b rejection),
-# we must implement the missing logic HERE to make this task runnable.
-# Given the "FAILED" status of T018b (no model file), we must handle the missing model gracefully
-# or generate a synthetic one for the baseline calculation if the task implies
-# establishing a baseline *conceptually* or if a dummy model is required for the metric.
-# BUT, the task says "compute MAPE/RMSE on random splits within families".
-# This requires a model. If the real model doesn't exist, we cannot compute real metrics.
-# However, the task is "Implement intra-family baseline metric generation".
-# We will implement the logic to:
-# 1. Load data (or synthetic if real data missing, but task says REAL data only).
-# 2. If real data exists, split by family, then split randomly within families.
-# 3. Train a small model (or load existing) on the intra-family split.
-# 4. Compute metrics.
+# Import existing project modules
+from model.gnn import LightweightGNN, create_model
+from utils.config import get_config
 
-# Attempting to import from project surface first
-try:
-    from data_models.material_graph import MaterialGraph
-except ImportError:
-    # Fallback definition if not found
-    @dataclass
-    class MaterialGraph:
-        node_features: np.ndarray
-        edge_index: np.ndarray
-        edge_features: np.ndarray
-        target_moduli: Dict[str, float]
-        family_id: str
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-try:
-    from utils.config import get_config
-except ImportError:
-    def get_config():
-        return type('Config', (), {'paths': type('Paths', (), {'data_processed': 'data/processed'})()})()
+# Constants
+RANDOM_STATE = 42
+INTRA_FAMILY_TEST_FRACTION = 0.2
+TRAIN_EPOCHS = 5  # Small number for baseline estimation
+BATCH_SIZE = 32
 
-try:
-    from model.gnn import LightweightGNN
-except ImportError:
-    # Minimal GNN implementation if not found
-    class LightweightGNN(nn.Module):
-        def __init__(self, in_dim, hidden_dim, out_dim):
-            super().__init__()
-            self.conv1 = GCNConv(in_dim, hidden_dim)
-            self.conv2 = GCNConv(hidden_dim, hidden_dim)
-            self.lin = nn.Linear(hidden_dim, out_dim)
+class AblationResult:
+    """Container for ablation study results."""
+    def __init__(
+        self,
+        family_id: str,
+        train_mape: float,
+        test_mape: float,
+        train_rmse: float,
+        test_rmse: float,
+        n_train: int,
+        n_test: int
+    ):
+        self.family_id = family_id
+        self.train_mape = train_mape
+        self.test_mape = test_mape
+        self.train_rmse = train_rmse
+        self.test_rmse = test_rmse
+        self.n_train = n_train
+        self.n_test = n_test
 
-        def forward(self, x, edge_index, batch):
-            x = F.relu(self.conv1(x, edge_index))
-            x = F.relu(self.conv2(x, edge_index))
-            x = global_mean_pool(x, batch)
-            return self.lin(x)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "family_id": self.family_id,
+            "train_mape": self.train_mape,
+            "test_mape": self.test_mape,
+            "train_rmse": self.train_rmse,
+            "test_rmse": self.test_rmse,
+            "n_train": self.n_train,
+            "n_test": self.n_test
+        }
 
-# --- Data Loading Helper ---
-def load_graphs_from_parquet(path: str) -> List[MaterialGraph]:
-    """
-    Loads graphs from a parquet file.
-    If the file does not exist, we cannot proceed with REAL data.
-    Per constraint: "If no real source is reachable, return verdict: failed".
-    However, for this specific task implementation, we must write the code that DOES this.
-    If the file is missing, the script will fail, which is the correct behavior
-    to indicate the prerequisite (T013d) is not met.
-    """
-    import pandas as pd
+class BaselineReport:
+    """Aggregated baseline report for intra-family performance."""
+    def __init__(self):
+        self.results: List[AblationResult] = []
+        self.avg_test_mape: float = 0.0
+        self.avg_test_rmse: float = 0.0
+        self.total_families: int = 0
+
+    def add_result(self, result: AblationResult):
+        self.results.append(result)
+
+    def compute_aggregates(self):
+        if not self.results:
+            return
+        mape_values = [r.test_mape for r in self.results]
+        rmse_values = [r.test_rmse for r in self.results]
+        self.avg_test_mape = float(np.mean(mape_values))
+        self.avg_test_rmse = float(np.mean(rmse_values))
+        self.total_families = len(self.results)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "summary": {
+                "total_families": self.total_families,
+                "avg_test_mape": self.avg_test_mape,
+                "avg_test_rmse": self.avg_test_rmse
+            },
+            "per_family": [r.to_dict() for r in self.results]
+        }
+
+def load_graphs_from_parquet(path: str) -> pd.DataFrame:
+    """Load graphs from parquet file."""
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Data file not found: {path}. Prerequisite T013d (graphs_v1.parquet) not met.")
-    
+        raise FileNotFoundError(f"Graphs file not found: {path}")
     df = pd.read_parquet(path)
-    graphs = []
-    # Assuming the parquet has columns: node_features, edge_index, edge_features, target_moduli, family_id
-    # We need to reconstruct the objects.
-    # This is a simplified reconstruction assuming the parquet stores lists/arrays correctly.
-    # In a real scenario, we might need to deserialize JSON strings if not stored as arrays.
-    
-    # Note: PyArrow/Pandas might store numpy arrays as objects or lists.
-    # We handle basic reconstruction.
-    for _, row in df.iterrows():
-        # Handle potential stringified arrays if not stored as native types
-        node_feat = row['node_features']
-        if isinstance(node_feat, str):
-            node_feat = json.loads(node_feat)
-        node_feat = np.array(node_feat)
-        
-        edge_idx = row['edge_index']
-        if isinstance(edge_idx, str):
-            edge_idx = json.loads(edge_idx)
-        edge_idx = np.array(edge_idx)
-        
-        edge_feat = row['edge_features']
-        if isinstance(edge_feat, str):
-            edge_feat = json.loads(edge_feat)
-        edge_feat = np.array(edge_feat)
-        
-        target = row['target_moduli']
-        if isinstance(target, str):
-            target = json.loads(target)
-        
-        graphs.append(MaterialGraph(
-            node_features=node_feat,
-            edge_index=edge_idx,
-            edge_features=edge_feat,
-            target_moduli=target,
-            family_id=row['family_id']
-        ))
-    return graphs
+    # Ensure required columns exist
+    required_cols = ["node_features", "edge_features", "target_moduli", "family_id"]
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column in graphs: {col}")
+    return df
 
-# --- Conversion to PyG Data ---
-def convert_to_pyg_graph(graph: MaterialGraph) -> Data:
-    """Converts our MaterialGraph to a torch_geometric.data.Data object."""
-    x = torch.tensor(graph.node_features, dtype=torch.float)
-    edge_index = torch.tensor(graph.edge_index, dtype=torch.long)
-    y = torch.tensor(list(graph.target_moduli.values()), dtype=torch.float) # Assuming ordered or specific keys
-    # Note: target_moduli is a dict. We need a consistent ordering or specific keys.
-    # For simplicity, we assume the dict values are ordered or we extract specific keys.
-    # Let's assume we predict [Young, Shear, Poisson] in that order if present.
-    # If not, we might just take the first value or average.
-    # For this task, we'll assume the dict has a key 'Youngs_Modulus' or similar.
-    # Let's just use the first value for the baseline metric to keep it simple, 
-    # or better, average them.
-    if isinstance(y, torch.Tensor) and y.dim() == 0:
-        y = y.unsqueeze(0)
-    
-    # Create a simple batch
-    batch = torch.zeros(x.size(0), dtype=torch.long)
-    return Data(x=x, edge_index=edge_index, y=y, batch=batch)
+def convert_to_pyg_graph(row: Any) -> Data:
+    """Convert a dataframe row to a PyTorch Geometric Data object."""
+    node_features = torch.tensor(row["node_features"], dtype=torch.float32)
+    edge_features = torch.tensor(row["edge_features"], dtype=torch.float32)
+    # Reconstruct edge_index from edge_features if needed, or assume standard format
+    # For this baseline, we assume edge_features contains [src, dst, weight] or similar
+    # If edge_features is just a list of floats, we need a mapping.
+    # Based on typical GNN data, we assume edge_index is derived or stored.
+    # If not, we create a dummy fully connected or simple graph structure for baseline.
+    # However, the spec says edge_features is List[List[float32]].
+    # We need an edge_index. If not present, we cannot build a valid graph.
+    # Assumption: The parquet schema includes an 'edge_index' or we derive it.
+    # Since the task description doesn't specify edge_index in the row, we check for it.
+    # If missing, we might need to reconstruct from node count or use a dummy.
+    # Let's assume the parquet has 'edge_index' as well, or we derive it from 'edge_features' structure.
+    # For robustness, we check for 'edge_index'. If missing, we raise an error or create dummy.
+    # Given the strict constraints, we assume the data loader (T013d4) produced a valid 'edge_index'.
+    # If the column is missing, we try to infer or fail loudly.
+    if "edge_index" in row:
+        edge_index = torch.tensor(row["edge_index"], dtype=torch.long).t().contiguous()
+    else:
+        # Fallback: create a dummy star graph or fail.
+        # To avoid silent fabrication, we fail if edge_index is missing.
+        raise ValueError("Edge index not found in graph row. Cannot build PyG Data.")
 
-# --- Metrics Calculation ---
-def calculate_metrics(predictions: np.ndarray, targets: np.ndarray) -> Dict[str, float]:
-    """Calculates MAPE and RMSE."""
-    if len(targets) == 0:
-        return {"mape": 0.0, "rmse": 0.0}
-    
+    # Target: Young's modulus from target_moduli dict
+    target = float(row["target_moduli"].get("Young", row["target_moduli"].get("E", 0.0)))
+
+    return Data(
+        x=node_features,
+        edge_index=edge_index,
+        edge_attr=edge_features,
+        y=torch.tensor([target], dtype=torch.float32),
+        family_id=row["family_id"]
+    )
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
+    """Calculate MAPE and RMSE."""
     # Avoid division by zero
-    mask = targets != 0
-    if np.sum(mask) == 0:
-        return {"mape": 0.0, "rmse": float(np.sqrt(np.mean((predictions - targets) ** 2)))}
-    
-    mape = np.mean(np.abs((predictions[mask] - targets[mask]) / targets[mask])) * 100
-    rmse = np.sqrt(np.mean((predictions - targets) ** 2))
-    return {"mape": float(mape), "rmse": float(rmse)}
+    mask = y_true != 0
+    if not np.any(mask):
+        return 0.0, 0.0
+    y_true_mask = y_true[mask]
+    y_pred_mask = y_pred[mask]
 
-# --- Training & Evaluation Loop ---
-def train_epoch(model: nn.Module, loader: PyGDataLoader, optimizer: torch.optim.Optimizer, device: torch.device) -> float:
+    mape = np.mean(np.abs((y_true_mask - y_pred_mask) / y_true_mask)) * 100
+    rmse = np.sqrt(np.mean((y_true_mask - y_pred_mask) ** 2))
+    return float(mape), float(rmse)
+
+def train_epoch(model: LightweightGNN, loader: PyGDataLoader, optimizer: torch.optim.Optimizer, device: torch.device) -> float:
+    """Train for one epoch."""
     model.train()
-    total_loss = 0
+    total_loss = 0.0
     for batch in loader:
         batch = batch.to(device)
         optimizer.zero_grad()
-        out = model(batch.x, batch.edge_index, batch.batch)
-        loss = F.mse_loss(out, batch.y)
+        out = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+        loss = torch.nn.functional.mse_loss(out.squeeze(), batch.y)
         loss.backward()
         optimizer.step()
-        total_loss += loss.item()
-    return total_loss / len(loader)
+        total_loss += loss.item() * batch.num_graphs
+    return total_loss / len(loader.dataset)
 
-def evaluate_model(model: nn.Module, loader: PyGDataLoader, device: torch.device) -> Tuple[np.ndarray, np.ndarray]:
+def evaluate_model(model: LightweightGNN, loader: PyGDataLoader, device: torch.device) -> Tuple[np.ndarray, np.ndarray]:
+    """Evaluate model and return predictions and targets."""
     model.eval()
-    preds, truths = [], []
+    preds = []
+    targets = []
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
-            out = model(batch.x, batch.edge_index, batch.batch)
-            preds.extend(out.cpu().numpy())
-            truths.extend(batch.y.cpu().numpy())
-    return np.array(preds), np.array(truths)
+            out = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            preds.extend(out.squeeze().cpu().numpy().tolist())
+            targets.extend(batch.y.squeeze().cpu().numpy().tolist())
+    return np.array(preds), np.array(targets)
 
-# --- Baseline Logic ---
-@dataclass
-class AblationResult:
-    family_id: str
-    train_indices: List[int]
-    test_indices: List[int]
-    mape: float
-    rmse: float
-    model_type: str = "Intra-Family Random Split"
+def run_ablation_study_for_family(
+    family_graphs: List[Dict],
+    family_id: str,
+    device: torch.device
+) -> Optional[AblationResult]:
+    """Run intra-family baseline for a single family."""
+    if len(family_graphs) < 4:  # Need at least 4 for split
+        logger.warning(f"Family {family_id} too small ({len(family_graphs)}). Skipping.")
+        return None
 
-@dataclass
-class BaselineReport:
-    results: List[AblationResult] = field(default_factory=list)
-    average_mape: float = 0.0
-    average_rmse: float = 0.0
+    # Convert to PyG
+    pyg_graphs = [convert_to_pyg_graph(row) for row in family_graphs]
+
+    # Split within family
+    train_idx, test_idx = train_test_split(
+        list(range(len(pyg_graphs))),
+        test_size=INTRA_FAMILY_TEST_FRACTION,
+        random_state=RANDOM_STATE
+    )
+
+    train_data = [pyg_graphs[i] for i in train_idx]
+    test_data = [pyg_graphs[i] for i in test_idx]
+
+    if not train_data or not test_data:
+        return None
+
+    train_loader = PyGDataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
+    test_loader = PyGDataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False)
+
+    # Create model
+    # Assuming node_features dim is 128, edge_features dim is 64 as per spec
+    model = create_model(node_dim=128, edge_dim=64, hidden_dim=32, out_dim=1)
+    model = model.to(device)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+    # Train
+    for epoch in range(TRAIN_EPOCHS):
+        train_epoch(model, train_loader, optimizer, device)
+
+    # Evaluate
+    y_pred, y_true = evaluate_model(model, test_loader, device)
+
+    mape, rmse = calculate_metrics(y_true, y_pred)
+
+    # Also evaluate on train for reference
+    train_pred, train_true = evaluate_model(model, train_loader, device)
+    train_mape, train_rmse = calculate_metrics(train_true, train_pred)
+
+    return AblationResult(
+        family_id=family_id,
+        train_mape=train_mape,
+        test_mape=mape,
+        train_rmse=train_rmse,
+        test_rmse=rmse,
+        n_train=len(train_data),
+        n_test=len(test_data)
+    )
 
 def run_ablation_study(
-    data_path: str,
-    split_indices_path: str,
-    output_path: str,
-    num_folds: int = 5,
-    epochs: int = 10,
-    device: str = "cpu"
+    graphs_path: str,
+    split_path: str,
+    output_path: str
 ) -> BaselineReport:
     """
-    Computes MAPE/RMSE on random splits WITHIN families to establish a baseline.
-    This satisfies SC-002 by comparing inter-family drop against this intra-family baseline.
+    Run full intra-family baseline study.
+
+    This function:
+    1. Loads graphs and split indices.
+    2. Groups graphs by family_id.
+    3. For each family, performs a random train/test split.
+    4. Trains a small GNN on the train split.
+    5. Evaluates on the test split.
+    6. Aggregates results.
     """
-    logging.info(f"Loading data from {data_path}")
-    graphs = load_graphs_from_parquet(data_path)
-    
-    # Group by family
-    families = {}
-    for i, g in enumerate(graphs):
-        fid = g.family_id
-        if fid not in families:
-            families[fid] = []
-        families[fid].append(i)
-    
-    logging.info(f"Found {len(families)} families.")
-    
-    results = []
-    all_mapes = []
-    all_rmses = []
-    
-    # For each family, perform random splits
-    for fid, indices in families.items():
-        if len(indices) < 2:
-            continue # Need at least 2 for split
-        
-        # Shuffle
-        random.shuffle(indices)
-        
-        # Simple split: 80/20
-        split_idx = int(0.8 * len(indices))
-        train_idx = indices[:split_idx]
-        test_idx = indices[split_idx:]
-        
-        if len(train_idx) == 0 or len(test_idx) == 0:
-            continue
-        
-        # Prepare data for this family
-        train_graphs = [graphs[i] for i in train_idx]
-        test_graphs = [graphs[i] for i in test_idx]
-        
-        # Convert to PyG
-        train_data = [convert_to_pyg_graph(g) for g in train_graphs]
-        test_data = [convert_to_pyg_graph(g) for g in test_graphs]
-        
-        train_loader = PyGDataLoader(train_data, batch_size=min(32, len(train_data)), shuffle=True)
-        test_loader = PyGDataLoader(test_data, batch_size=min(32, len(test_data)), shuffle=False)
-        
-        # Model
-        input_dim = train_data[0].x.size(1) if len(train_data) > 0 else 10 # Fallback
-        hidden_dim = 32
-        output_dim = 1 # Predicting one scalar (e.g., Young's Modulus)
-        model = LightweightGNN(input_dim, hidden_dim, output_dim).to(device)
-        
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-        
-        # Train
-        for epoch in range(epochs):
-            train_epoch(model, train_loader, optimizer, device)
-        
-        # Evaluate
-        preds, truths = evaluate_model(model, test_loader, device)
-        metrics = calculate_metrics(preds, truths)
-        
-        result = AblationResult(
-            family_id=fid,
-            train_indices=train_idx,
-            test_indices=test_idx,
-            mape=metrics["mape"],
-            rmse=metrics["rmse"]
+    logger.info(f"Loading graphs from {graphs_path}")
+    df = load_graphs_from_parquet(graphs_path)
+
+    # Verify split indices if needed, but for intra-family we use all families
+    # We group by family_id
+    families = df.groupby("family_id")
+
+    device = torch.device("cpu")  # Enforce CPU as per project constraints
+
+    report = BaselineReport()
+
+    for family_id, group in families:
+        logger.info(f"Processing family: {family_id} (n={len(group)})")
+        result = run_ablation_study_for_family(
+            group.to_dict(orient="records"),
+            family_id,
+            device
         )
-        results.append(result)
-        all_mapes.append(metrics["mape"])
-        all_rmses.append(metrics["rmse"])
-    
-    avg_mape = np.mean(all_mapes) if all_mapes else 0.0
-    avg_rmse = np.mean(all_rmses) if all_rmses else 0.0
-    
-    report = BaselineReport(
-        results=results,
-        average_mape=avg_mape,
-        average_rmse=avg_rmse
-    )
-    
-    # Write output
-    output_data = {
-        "average_mape": avg_mape,
-        "average_rmse": avg_rmse,
-        "per_family_results": [
-            {
-                "family_id": r.family_id,
-                "mape": r.mape,
-                "rmse": r.rmse,
-                "train_count": len(r.train_indices),
-                "test_count": len(r.test_indices)
-            }
-            for r in results
-        ]
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    logging.info(f"Baseline report written to {output_path}")
+        if result:
+            report.add_result(result)
+
+    report.compute_aggregates()
+
+    # Save report
+    logger.info(f"Saving baseline report to {output_path}")
+    with open(output_path, "w") as f:
+        json.dump(report.to_dict(), f, indent=2)
+
     return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Intra-Family Baseline Metric Generation")
-    parser.add_argument("--data-path", type=str, default="data/processed/graphs_v1.parquet", help="Path to processed graphs")
-    parser.add_argument("--split-path", type=str, default="data/processed/split_indices.json", help="Path to split indices (for reference, though we re-split here)")
-    parser.add_argument("--output", type=str, default="data/results/intra_family_baseline.json", help="Output path for baseline metrics")
-    parser.add_argument("--epochs", type=int, default=20, help="Training epochs")
-    parser.add_argument("--device", type=str, default="cpu", help="Device to use")
-    
+    parser = argparse.ArgumentParser(
+        description="Generate intra-family baseline metrics."
+    )
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default="data/processed/graphs_v1.parquet",
+        help="Path to graphs parquet file."
+    )
+    parser.add_argument(
+        "--split-path",
+        type=str,
+        default="data/processed/split_indices.json",
+        help="Path to split indices JSON (optional for intra-family)."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/results/intra_family_baseline.json",
+        help="Output path for baseline report JSON."
+    )
+
     args = parser.parse_args()
-    
-    logging.basicConfig(level=logging.INFO)
-    
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
     try:
-        report = run_ablation_study(
-            data_path=args.data_path,
-            split_indices_path=args.split_path,
-            output_path=args.output,
-            epochs=args.epochs,
-            device=args.device
+        run_ablation_study(
+            graphs_path=args.data_path,
+            split_path=args.split_path,
+            output_path=args.output
         )
-        print(f"Baseline MAPE: {report.average_mape:.2f}%")
-        print(f"Baseline RMSE: {report.average_rmse:.4f}")
+        logger.info("Intra-family baseline generation completed successfully.")
     except FileNotFoundError as e:
-        logging.error(str(e))
-        print(f"Error: {e}")
-        print("Ensure T013d (graphs_v1.parquet) has been completed successfully.")
-        exit(1)
+        logger.error(f"Data file not found: {e}")
+        raise SystemExit(1)
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        exit(1)
+        logger.error(f"Error during ablation study: {e}")
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

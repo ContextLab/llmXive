@@ -7,6 +7,8 @@ between the pipeline and various data sources (e.g., Materials Project, AFLOW).
 WARNING: This model is a surrogate interpolator trained on pre-computed DFT data. 
 It does NOT solve the Schrödinger equation or perform first-principles calculations.
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 import logging
@@ -22,16 +24,6 @@ class DataLoader(ABC):
     from this base.
     """
 
-    def __init__(self, source: str):
-        """
-        Initialize the data loader.
-        
-        Args:
-            source: The data source identifier ('materials_project' or 'aflow').
-        """
-        self.source = source
-        logger.info(f"Initializing DataLoader for source: {source}")
-
     def __init__(self, source: str, output_dir: Optional[str] = None):
         """
         Initialize the loader.
@@ -45,7 +37,7 @@ class DataLoader(ABC):
         logger.info(f"Initialized {self.__class__.__name__} for source: {source}")
 
     @abstractmethod
-    def fetch_data(self, output_dir, limit: Optional[int] = None) -> Any:
+    def fetch_data(self, output_dir: str, limit: Optional[int] = None) -> Any:
         """
         Fetch data from the source.
         

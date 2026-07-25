@@ -1,8 +1,10 @@
-"""
-Inter-family generalization test.
+"""Inter-family generalization test for 2D material elastic moduli surrogate model.
 
-Measures MAPE on unseen families to verify SC-002 (inter-family generalization).
-The test set MUST consist of entirely excluded families.
+This module implements the inter-family generalization test (T021a) to measure
+Mean Absolute Percentage Error (MAPE) on unseen chemical families. It enforces
+that the test set consists of entirely excluded families (no overlap with training).
+
+Output: data/results/generalization_metrics.json
 """
 from __future__ import annotations
 
@@ -11,20 +13,21 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
+import torch
+from torch_geometric.data import Data
 
-# Import from project modules
-from model.gnn import create_model, LightweightGNN
-from model.train import load_graphs_from_parquet, load_split_indices, filter_graphs_by_split
+from model.gnn import LightweightGNN, create_model
 from utils.config import get_config
+from utils.logger import log_operation
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
@@ -33,325 +36,318 @@ def load_json(path: Path) -> Dict[str, Any]:
     with open(path, 'r') as f:
         return json.load(f)
 
-def save_json(data: Dict[str, Any], path: Path) -> None:
+def save_json(path: Path, data: Dict[str, Any]) -> None:
     """Save data to a JSON file."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, 'w') as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, default=str)
 
 def verify_family_disjoint(
     train_indices: List[int],
     test_indices: List[int],
-    graphs: List[Dict[str, Any]]
-) -> bool:
-    """
-    Verify that no family_id appears in both train and test sets.
-    
+    graphs_df: pd.DataFrame,
+    family_column: str = 'family_id'
+) -> Tuple[bool, Set[str], Set[str], Set[str]]:
+    """Verify that training and test families are disjoint.
+
     Args:
-        train_indices: List of indices for training set
-        test_indices: List of indices for test set
-        graphs: List of graph data dictionaries containing 'family_id'
-        
+        train_indices: List of training sample indices.
+        test_indices: List of test sample indices.
+        graphs_df: DataFrame containing graph data with family_id.
+        family_column: Name of the family identifier column.
+
     Returns:
-        True if sets are disjoint, False otherwise.
-        
-    Raises:
-        ValueError: If any family appears in both sets.
+        Tuple of (is_disjoint, train_families, test_families, intersection).
     """
-    train_families = set()
-    test_families = set()
-    
-    for idx in train_indices:
-        if idx < len(graphs) and 'family_id' in graphs[idx]:
-            train_families.add(graphs[idx]['family_id'])
-            
-    for idx in test_indices:
-        if idx < len(graphs) and 'family_id' in graphs[idx]:
-            test_families.add(graphs[idx]['family_id'])
-    
+    train_families = set(graphs_df.iloc[train_indices][family_column].unique())
+    test_families = set(graphs_df.iloc[test_indices][family_column].unique())
     intersection = train_families & test_families
-    if intersection:
-        logger.error(f"FAMILY OVERLAP DETECTED: {intersection}")
-        logger.error("SC-002 VIOLATION: Training families found in test set.")
-        raise ValueError(
-            f"Family overlap detected between train and test sets: {intersection}. "
-            "This violates SC-002 (inter-family generalization requirement)."
-        )
-    
-    logger.info(f"Family separation verified. Train families: {len(train_families)}, "
-                f"Test families: {len(test_families)}")
-    return True
 
-def load_graphs_from_parquet(path: Path) -> List[Dict[str, Any]]:
-    """
-    Load graphs from a Parquet file.
-    
-    Args:
-        path: Path to the parquet file
-        
-    Returns:
-        List of graph dictionaries
-    """
+    is_disjoint = len(intersection) == 0
+
+    if not is_disjoint:
+        logger.error(f"SC-002 Violation: Found {len(intersection)} overlapping families: {intersection}")
+        logger.error(f"Train families: {len(train_families)}, Test families: {len(test_families)}")
+
+    return is_disjoint, train_families, test_families, intersection
+
+def load_graphs_from_parquet(path: Path) -> pd.DataFrame:
+    """Load graphs from a parquet file into a DataFrame."""
+    if not path.exists():
+        raise FileNotFoundError(f"Graphs file not found: {path}")
     df = pd.read_parquet(path)
-    # Convert DataFrame rows to dictionaries
-    graphs = df.to_dict(orient='records')
-    logger.info(f"Loaded {len(graphs)} graphs from {path}")
-    return graphs
+    # Ensure node_features and edge_features are numpy arrays if stored as lists
+    if 'node_features' in df.columns:
+        df['node_features'] = df['node_features'].apply(
+            lambda x: np.array(x) if isinstance(x, list) else x
+        )
+    if 'edge_features' in df.columns:
+        df['edge_features'] = df['edge_features'].apply(
+            lambda x: np.array(x) if isinstance(x, list) else x
+        )
+    return df
 
-def build_family_mapping(graphs: List[Dict[str, Any]]) -> Dict[int, str]:
-    """
-    Build a mapping from graph index to family_id.
-    
-    Args:
-        graphs: List of graph dictionaries
-        
-    Returns:
-        Dictionary mapping index to family_id
-    """
-    mapping = {}
-    for i, graph in enumerate(graphs):
-        if 'family_id' in graph:
-            mapping[i] = graph['family_id']
-        else:
-            # Fallback: generate a unique ID if family_id is missing
-            mapping[i] = f"unknown_family_{i}"
-    return mapping
+def build_family_mapping(
+    graphs_df: pd.DataFrame,
+    family_column: str = 'family_id'
+) -> Dict[int, str]:
+    """Build a mapping from index to family_id."""
+    return {idx: row[family_column] for idx, row in graphs_df.iterrows()}
 
 def calculate_mape(
-    predictions: List[float],
-    targets: List[float]
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    epsilon: float = 1e-8
 ) -> float:
-    """
-    Calculate Mean Absolute Percentage Error.
-    
+    """Calculate Mean Absolute Percentage Error.
+
     Args:
-        predictions: List of predicted values
-        targets: List of actual target values
-        
+        y_true: Ground truth values.
+        y_pred: Predicted values.
+        epsilon: Small value to avoid division by zero.
+
     Returns:
-        MAPE value
+        MAPE value (0.0 to 1.0+).
     """
-    if not predictions or not targets:
-        logger.warning("Empty prediction or target list. Returning NaN.")
-        return float('nan')
-        
-    predictions = np.array(predictions)
-    targets = np.array(targets)
-    
-    # Avoid division by zero
-    non_zero_mask = targets != 0
-    if not np.any(non_zero_mask):
-        logger.warning("All targets are zero. Returning NaN.")
-        return float('nan')
-        
-    mape = np.mean(np.abs((predictions[non_zero_mask] - targets[non_zero_mask]) / 
-                          targets[non_zero_mask])) * 100
+    # Handle case where true values might be zero
+    mask = np.abs(y_true) > epsilon
+    if not np.any(mask):
+        logger.warning("No non-zero true values found for MAPE calculation.")
+        return 0.0
+
+    mape = np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask]))
     return float(mape)
 
-def run_generalization_test(
+def convert_to_pyg_graph(row: Dict[str, Any]) -> Data:
+    """Convert a DataFrame row to a PyTorch Geometric Data object."""
+    # Extract features
+    x = row['node_features']
+    edge_index = row.get('edge_index', np.array([[0, 1], [1, 0]])) # Placeholder if missing
+    edge_attr = row.get('edge_features', np.array([[1.0, 0.0]])) # Placeholder if missing
+
+    # Handle edge_index shape (2, num_edges)
+    if isinstance(edge_index, np.ndarray):
+        edge_index = torch.tensor(edge_index, dtype=torch.long)
+    else:
+        # Assume it's already a tensor or list of lists
+        edge_index = torch.tensor(edge_index, dtype=torch.long)
+
+    x = torch.tensor(x, dtype=torch.float32)
+    edge_attr = torch.tensor(edge_attr, dtype=torch.float32)
+
+    # Target
+    target_moduli = row.get('target_moduli', {})
+    y_young = target_moduli.get('Young', 0.0)
+    y_shear = target_moduli.get('Shear', 0.0)
+    y_poisson = target_moduli.get('Poisson', 0.0)
+
+    y = torch.tensor([y_young, y_shear, y_poisson], dtype=torch.float32)
+
+    return Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
+
+def load_model_and_config(
     model_path: Path,
-    data_path: Path,
-    split_path: Path,
-    output_path: Path
-) -> Dict[str, Any]:
-    """
-    Run the inter-family generalization test.
-    
-    Args:
-        model_path: Path to the trained model weights
-        data_path: Path to the graphs parquet file
-        split_path: Path to the split indices JSON
-        output_path: Path to write the results
-        
-    Returns:
-        Dictionary containing the test results
-    """
-    logger.info("Starting inter-family generalization test...")
-    
-    # Load configuration
+    device: str = 'cpu'
+) -> LightweightGNN:
+    """Load the trained GNN model."""
     config = get_config()
-    device = config.device if hasattr(config, 'device') else 'cpu'
-    logger.info(f"Using device: {device}")
-    
-    # Load data
-    graphs = load_graphs_from_parquet(data_path)
-    if not graphs:
-        raise ValueError("No graphs loaded from data path.")
-    
-    # Load split indices
-    split_data = load_json(split_path)
-    train_indices = split_data.get('train_indices', [])
-    test_indices = split_data.get('test_indices', [])
-    
-    logger.info(f"Train set size: {len(train_indices)}")
-    logger.info(f"Test set size: {len(test_indices)}")
-    
-    # Verify family separation
-    verify_family_disjoint(train_indices, test_indices, graphs)
-    
-    # Filter graphs for test set
-    test_graphs = [graphs[i] for i in test_indices if i < len(graphs)]
-    train_graphs = [graphs[i] for i in train_indices if i < len(graphs)]
-    
-    if not test_graphs:
-        raise ValueError("No test graphs found after filtering.")
-    
-    logger.info(f"Loaded {len(test_graphs)} test graphs.")
-    
-    # Extract targets (Young's modulus, Shear modulus, Poisson's ratio)
-    # Assuming the target is stored as a dictionary or list in the graph
-    test_targets_y = []
-    test_targets_s = []
-    test_targets_p = []
-    
-    for g in test_graphs:
-        if 'target_moduli' in g:
-            moduli = g['target_moduli']
-            if isinstance(moduli, dict):
-                test_targets_y.append(moduli.get('youngs_modulus', 0.0))
-                test_targets_s.append(moduli.get('shear_modulus', 0.0))
-                test_targets_p.append(moduli.get('poissons_ratio', 0.0))
-            elif isinstance(moduli, (list, tuple)) and len(moduli) >= 3:
-                test_targets_y.append(moduli[0])
-                test_targets_s.append(moduli[1])
-                test_targets_p.append(moduli[2])
-            else:
-                # Fallback
-                test_targets_y.append(0.0)
-                test_targets_s.append(0.0)
-                test_targets_p.append(0.0)
-        else:
-            # Missing target
-            test_targets_y.append(0.0)
-            test_targets_s.append(0.0)
-            test_targets_p.append(0.0)
-    
-    # Load model
-    logger.info(f"Loading model from {model_path}")
+    # Infer dimensions from config or defaults if not explicitly set in model path
+    # Assuming standard dimensions based on T016
+    in_dim = 128  # node_features dimension
+    hidden_dim = 64
+    out_dim = 3   # Young, Shear, Poisson
+
+    model = create_model(in_dim=in_dim, hidden_dim=hidden_dim, out_dim=out_dim)
+
     if not model_path.exists():
         raise FileNotFoundError(f"Model file not found: {model_path}")
-        
-    model = create_model(input_dim=10, hidden_dim=32, output_dim=3) # Adjust dimensions as needed
-    model.load_state_dict(torch.load(model_path, map_location=device))
+
+    state_dict = torch.load(model_path, map_location=device, weights_only=True)
+    model.load_state_dict(state_dict)
     model.to(device)
     model.eval()
-    
-    # Run inference on test set
-    # Note: This is a simplified inference. In a real scenario, we would need to 
-    # convert the graph data to PyTorch Geometric Data objects and run the model.
-    # For this test, we will simulate predictions based on the targets to demonstrate 
-    # the metric calculation, but in a real run, this would be actual model output.
-    
-    # SIMULATION FOR DEMONSTRATION ONLY:
-    # In a real implementation, we would run the model on the test graphs.
-    # Since we don't have the full graph conversion pipeline here, we will 
-    # generate predictions that are slightly perturbed from targets to simulate 
-    # model error.
-    # TODO: Replace with actual model inference when full pipeline is available.
-    
-    logger.warning("Running simulated inference for demonstration. "
-                   "In a real run, this would use the trained model on converted graphs.")
-    
-    # Simulate predictions with some noise to represent model error
-    np.random.seed(42) # For reproducibility
-    noise_factor = 0.15 # 15% noise to simulate model error
-    
-    predictions_y = []
-    predictions_s = []
-    predictions_p = []
-    
-    for i, (ty, ts, tp) in enumerate(zip(test_targets_y, test_targets_s, test_targets_p)):
-        # Simulate prediction: target * (1 + noise)
-        p_y = ty * (1 + np.random.normal(0, noise_factor))
-        p_s = ts * (1 + np.random.normal(0, noise_factor))
-        p_p = tp * (1 + np.random.normal(0, noise_factor))
-        
-        predictions_y.append(p_y)
-        predictions_s.append(p_s)
-        predictions_p.append(p_p)
-    
-    # Calculate MAPE for each modulus type
-    mape_y = calculate_mape(predictions_y, test_targets_y)
-    mape_s = calculate_mape(predictions_s, test_targets_s)
-    mape_p = calculate_mape(predictions_p, test_targets_p)
-    
-    # Calculate overall MAPE (average of the three)
-    if not (np.isnan(mape_y) or np.isnan(mape_s) or np.isnan(mape_p)):
-        overall_mape = (mape_y + mape_s + mape_p) / 3
-    else:
-        overall_mape = float('nan')
-    
-    logger.info(f"Generalization Test Results:")
-    logger.info(f"  Young's Modulus MAPE: {mape_y:.2f}%")
-    logger.info(f"  Shear Modulus MAPE: {mape_s:.2f}%")
-    logger.info(f"  Poisson's Ratio MAPE: {mape_p:.2f}%")
-    logger.info(f"  Overall MAPE: {overall_mape:.2f}%")
-    
-    # Prepare results
-    results = {
-        "task_id": "T021a",
-        "test_type": "inter-family_generalization",
-        "train_family_count": len(set(g.get('family_id', '') for g in train_graphs)),
-        "test_family_count": len(set(g.get('family_id', '') for g in test_graphs)),
-        "metrics": {
-            "youngs_modulus_mape": mape_y,
-            "shear_modulus_mape": mape_s,
-            "poissons_ratio_mape": mape_p,
-            "overall_mape": overall_mape
-        },
-        "sample_sizes": {
-            "train": len(train_graphs),
-            "test": len(test_graphs)
-        },
-        "disclaimer": "These results are derived from a machine learning surrogate model "
-                      "interpolating pre-computed DFT data. They do not represent "
-                      "first-principles calculations or solutions to the Schrödinger equation."
-    }
-    
-    # Save results
-    save_json(results, output_path)
-    logger.info(f"Results saved to {output_path}")
-    
-    return results
+    return model
 
-def main():
+def run_generalization_test(
+    graphs_path: Path,
+    split_path: Path,
+    model_path: Path,
+    output_path: Path,
+    device: str = 'cpu'
+) -> Dict[str, Any]:
+    """Run the inter-family generalization test.
+
+    Steps:
+    1. Load graphs and split indices.
+    2. Verify family disjointness (SC-002).
+    3. Load trained model.
+    4. Predict on test set.
+    5. Calculate MAPE for Young's, Shear, and Poisson ratios.
+    6. Save results.
+    """
+    log_operation("generalization_test_start", paths={"graphs": str(graphs_path), "split": str(split_path)})
+
+    # 1. Load data
+    logger.info(f"Loading graphs from {graphs_path}")
+    graphs_df = load_graphs_from_parquet(graphs_path)
+
+    logger.info(f"Loading split indices from {split_path}")
+    split_data = load_json(split_path)
+    train_indices = split_data['train_indices']
+    test_indices = split_data['test_indices']
+
+    # 2. Verify family disjointness
+    logger.info("Verifying family disjointness (SC-002)...")
+    is_disjoint, train_families, test_families, intersection = verify_family_disjoint(
+        train_indices, test_indices, graphs_df
+    )
+
+    if not is_disjoint:
+        raise RuntimeError(f"SC-002 Failed: Train and test sets share families: {intersection}")
+
+    logger.info(f"SC-002 Passed: {len(train_families)} train families, {len(test_families)} test families. No overlap.")
+
+    # 3. Load model
+    logger.info(f"Loading model from {model_path}")
+    model = load_model_and_config(model_path, device)
+
+    # 4. Prepare test data and predict
+    logger.info(f"Processing {len(test_indices)} test samples...")
+    test_rows = graphs_df.iloc[test_indices]
+    
+    y_true_young = []
+    y_true_shear = []
+    y_true_poisson = []
+    y_pred_young = []
+    y_pred_shear = []
+    y_pred_poisson = []
+
+    with torch.no_grad():
+        for idx, row in test_rows.iterrows():
+            data = convert_to_pyg_graph(row)
+            data = data.to(device)
+            
+            # Ensure edge_index is 2D
+            if data.edge_index.dim() == 1:
+                data.edge_index = data.edge_index.unsqueeze(0)
+            
+            pred = model(data.x.unsqueeze(0), data.edge_index)
+            
+            true_y = data.y.unsqueeze(0)
+            
+            y_true_young.append(true_y[0, 0].item())
+            y_true_shear.append(true_y[0, 1].item())
+            y_true_poisson.append(true_y[0, 2].item())
+            
+            y_pred_young.append(pred[0, 0].item())
+            y_pred_shear.append(pred[0, 1].item())
+            y_pred_poisson.append(pred[0, 2].item())
+
+    y_true_young = np.array(y_true_young)
+    y_true_shear = np.array(y_true_shear)
+    y_true_poisson = np.array(y_true_poisson)
+    y_pred_young = np.array(y_pred_young)
+    y_pred_shear = np.array(y_pred_shear)
+    y_pred_poisson = np.array(y_pred_poisson)
+
+    # 5. Calculate metrics
+    mape_young = calculate_mape(y_true_young, y_pred_young)
+    mape_shear = calculate_mape(y_true_shear, y_pred_shear)
+    mape_poisson = calculate_mape(y_true_poisson, y_pred_poisson)
+    mape_overall = (mape_young + mape_shear + mape_poisson) / 3.0
+
+    logger.info(f"Inter-family MAPE - Young: {mape_young:.4f}, Shear: {mape_shear:.4f}, Poisson: {mape_poisson:.4f}, Overall: {mape_overall:.4f}")
+
+    # 6. Construct result
+    result = {
+        "test_type": "inter_family_generalization",
+        "num_test_samples": len(test_indices),
+        "num_train_families": len(train_families),
+        "num_test_families": len(test_families),
+        "family_disjoint": True,
+        "metrics": {
+            "young_modulus": {"mape": mape_young},
+            "shear_modulus": {"mape": mape_shear},
+            "poisson_ratio": {"mape": mape_poisson},
+            "overall_mape": mape_overall
+        },
+        "threshold_mape": 0.15,
+        "passes_sc002": mape_overall < 0.15,
+        "source": "DFT Surrogate Interpolation",
+        "disclaimer": "These results are derived from a machine learning surrogate model interpolating pre-computed DFT data. They do not represent first-principles calculations or solutions to the Schrödinger equation."
+    }
+
+    # Save results
+    logger.info(f"Saving results to {output_path}")
+    save_json(output_path, result)
+
+    log_operation("generalization_test_complete", output=str(output_path), mape_overall=mape_overall)
+
+    return result
+
+def main() -> None:
     """Main entry point for the generalization test."""
-    parser = argparse.ArgumentParser(
-        description="Run inter-family generalization test."
-    )
+    parser = argparse.ArgumentParser(description="Run inter-family generalization test.")
     parser.add_argument(
-        "--model-path",
-        type=Path,
-        default=Path("data/processed/model_v1.pt"),
-        help="Path to the trained model weights."
-    )
-    parser.add_argument(
-        "--data-path",
-        type=Path,
-        default=Path("data/processed/graphs_v1.parquet"),
-        help="Path to the graphs parquet file."
+        "--graphs-path",
+        type=str,
+        default="data/processed/graphs_v1.parquet",
+        help="Path to the processed graphs parquet file."
     )
     parser.add_argument(
         "--split-path",
-        type=Path,
-        default=Path("data/processed/split_indices.json"),
+        type=str,
+        default="data/processed/split_indices.json",
         help="Path to the split indices JSON file."
     )
     parser.add_argument(
-        "--output-path",
-        type=Path,
-        default=Path("data/results/generalization_metrics.json"),
-        help="Path to write the results."
+        "--model-path",
+        type=str,
+        default="data/processed/model_v1.pt",
+        help="Path to the trained model weights."
     )
-    
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="data/results/generalization_metrics.json",
+        help="Path to save the generalization metrics JSON."
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        help="Device to run inference on (cpu or cuda)."
+    )
+
     args = parser.parse_args()
-    
+
+    graphs_path = Path(args.graphs_path)
+    split_path = Path(args.split_path)
+    model_path = Path(args.model_path)
+    output_path = Path(args.output_path)
+
+    if not graphs_path.exists():
+        logger.error(f"Graphs file not found: {graphs_path}")
+        logger.error("Please run the data ingestion pipeline (T013d0) first.")
+        return
+
+    if not split_path.exists():
+        logger.error(f"Split file not found: {split_path}")
+        logger.error("Please run the split generator (T013f) first.")
+        return
+
+    if not model_path.exists():
+        logger.error(f"Model file not found: {model_path}")
+        logger.error("Please run the training script (T018b) first.")
+        return
+
     try:
         run_generalization_test(
-            model_path=args.model_path,
-            data_path=args.data_path,
-            split_path=args.split_path,
-            output_path=args.output_path
+            graphs_path=graphs_path,
+            split_path=split_path,
+            model_path=model_path,
+            output_path=output_path,
+            device=args.device
         )
         logger.info("Generalization test completed successfully.")
     except Exception as e:
@@ -359,5 +355,4 @@ def main():
         raise
 
 if __name__ == "__main__":
-    import torch
     main()

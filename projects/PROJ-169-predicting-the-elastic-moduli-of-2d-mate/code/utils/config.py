@@ -6,6 +6,13 @@ import numpy as np
 import torch
 
 
+# Constants required by Constitution Principle VI and SC-001/SC-004
+MIN_ENTRY_THRESHOLD = 1000
+MAX_MEMORY_GB = 7.0
+BOOTSTRAP_ITERATIONS = 1000
+PERMUTATION_SHUFFLES = 1000
+
+
 class Config:
     """Global configuration manager with tolerant attribute access."""
 
@@ -22,10 +29,13 @@ class Config:
         }
         self.min_family_size: int = 5
         self.cpu_limit: int = 4
-        self.max_memory_gb: float = 7.0
+        self.max_memory_gb: float = MAX_MEMORY_GB
 
     def set_seed(self, seed: int) -> None:
-        """Set global random seeds for reproducibility."""
+        """Set global random seeds for reproducibility.
+
+        Enforces pinning for `torch`, `numpy`, and `random` across all modules.
+        """
         self.seed = seed
         random.seed(seed)
         np.random.seed(seed)
