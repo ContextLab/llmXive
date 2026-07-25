@@ -1,124 +1,120 @@
 # Research: Predicting Material Strength from Microstructure Images
 
-## 1. Dataset Strategy
+## Overview
 
-### 1.1 Verified Source Selection
-The project utilizes the **EBSD Synthetic** dataset, which contains paired 2D EBSD images and material properties. This is the only dataset in the verified list that matches the domain (microstructure images) and format (image + metadata).
+This research phase validates the feasibility of predicting material yield strength from 2D EBSD microstructure images using lightweight CNNs on CPU-only hardware. It identifies the specific dataset strategy (synthetic generation), defines the statistical methodology, and outlines the computational strategy to meet the project's constraints.
 
-* **Source Name**: EBSD Synthetic
-* **Verified URL**: `
-* **Format**: ZIP archive containing images and a manifest (CSV/JSON).
-* **Rationale**: Directly provides the "MicrostructureImage" entity required by the spec.
+## Dataset Strategy
 
-### 1.2 Dataset Variable Fit Verification & Label Generation
-* **Required Variables**:
- * **Predictor**: 2D EBSD Image (pixel data).
- * **Outcome**: Yield Strength (scalar, MPa).
- * **Covariates**: Grain size, orientation.
-* **Fit Confirmation**: The `data_synth_ebsd.zip` contains synthetic EBSD maps.
-* **Critical Gap & Resolution**:
- * *Gap*: The dataset does **not** contain a "Yield Strength" column in its manifest. It provides crystallographic orientation and grain boundaries, but not mechanical properties.
- * *Resolution*: The plan implements a **Physics-Based Label Generation** step.
- 1. **Extract Grain Size**: For every image, grain size ($d$) is extracted via image segmentation (OpenCV) to measure equivalent circular diameter. **This satisfies FR-009.**
- 2. **Generate Label**: Yield Strength ($\\sigma_y$) is computed using the Hall-Petch relationship: $\\sigma_y = \\sigma_0 + k d^{-1/2}$.
- 3. **Constants**: $\\sigma_0$ and $k$ are set to standard values for the simulated material (e.g., Aluminum or Steel) as defined in the `config.py` defaults, ensuring physical consistency.
- * *Usage of Grain Size Features*:
- 1. **Label Generation**: Used to create the ground truth target.
- 2. **Baseline Model**: Used to train a physics-based baseline predictor (Hall-Petch directly).
- 3. **Interpretability Proxy**: Used to validate the CNN's attention maps (correlation analysis).
- * *Action*: This derived variable serves as the ground truth for the regression task. The model is trained to predict this physically derived value from the image, validating that the image contains the morphological signal required by the physics.
+### Primary Data Source: Synthetic Generation
 
-### 1.3 Data Preprocessing & Splitting
-* **Resizing**: All images resized to 224×224 (FR-001).
-* **Normalization**: Pixel values normalized to a standard range or using ImageNet statistics..
-* **Splitting**: Random split into Train/Validation/Test (e.g., majority/minority/minority).
-* **Handling Edge Cases**:
- * *Aspect Ratio*: Images resized via center-crop + resize to 224×224.
- * *Bit Depth*: Converted to 8-bit or normalized float32.
- * *Corruption*: Script checks for NaN values and missing pairs; aborts if invalid ratio > 1% (US-1).
+**Dataset Name**: Physics-Informed Synthetic EBSD Dataset  
+**Source**: Local Algorithm (Voronoi Tessellation + Hall-Petch Relation)  
+**URL**: N/A (Generated locally via `code/data/generate.py`)  
+**Content**: 2D EBSD-like maps of polycrystalline materials with associated yield strength values calculated via the Hall-Petch equation.  
+**Sample Size**: N = [deferred] (Configurable via generation parameters).  
+**Format**: ZIP archive containing images and a manifest (CSV) mapping filenames, specimen IDs, and strength values.
 
-## 2. Model Strategy
+**Rationale**:
+1.  **Availability**: No public real-world dataset exists with paired EBSD maps and ground-truth yield strength. A synthetic generator ensures reproducibility and control over the physical relationship.
+2.  **Relevance**: The generator explicitly models the Hall-Petch relation ($ \sigma_y = \sigma_0 + k d^{-1/2} $), ensuring the target variable is physically grounded in the microstructure features (grain size).
+3.  **Size**: The sample size is configurable to fit within the available CPU time and memory constraints.
 
-### 2.1 Architecture Selection
-* **Candidate**: MobileNetV2 (or ResNet-18).
-* **Rationale**:
- * **CPU Feasibility**: MobileNetV is designed for mobile/edge devices, making it the most viable option for a multi-core CPU runner with limited RAM..
- * **Transfer Learning**: Backbone weights are frozen (loaded from ImageNet). Only the final regression head is trained.
- * **Constraint Adherence**: Avoids GPU/CUDA requirements (FR-002).
-* **Decision**: Primary: MobileNetV2. Fallback: ResNet-18.
+### Data Labeling Strategy & Specimen Logic
 
-### 2.2 Training Strategy
-* **Optimizer**: SGD or AdamW.
-* **Loss Function**: Mean Squared Error (MSE).
-* **Augmentation**: Random rotation (±15°), horizontal/vertical flip, brightness adjustment (US-2, FR-003). Applied *only* to training set.
-* **Ablation Mechanism**: Training run with `--no-augmentation` flag to disable augmentation for the ablation study (Constitution Principle VII).
-* **Early Stopping**: Patience=5 epochs on validation loss.
-* **Batch Size**: Dynamically determined to fit within 7GB RAM (likely 8-16).
-* **Epochs**: Max 50, or until early stopping.
+**Mapping**: Many-to-One (Images to Specimen).
+- **Specimen**: A single material sample with a unique global yield strength.
+- **Images**: Multiple 2D EBSD maps are generated from the *same* specimen (simulating different regions of the same sample).
+- **Label Assignment**: All images generated from a single specimen share the *same* yield strength label.
+- **Leakage Prevention**: The data split (Train/Validation/Test) is performed at the **Specimen Level**. All images belonging to one specimen must be assigned to the same split. This prevents the model from "memorizing" a specimen's strength by seeing one of its images in training and another in testing.
 
-### 2.3 Baseline Strategy
-* **Naive Predictor**: Predicts the mean of the training set yield strength for all test samples.
-* **Physics-Based Baseline**: Predicts yield strength using the extracted grain size and the Hall-Petch equation directly (without CNN). This serves as a stronger, physically grounded comparator than the naive mean.
+**Validation Logic**:
+- The validation script (`code/data/validate.py`) will check that no `specimen_id` appears in both the training and test sets.
+- Invalid pairs (missing metadata or NaN values) are rejected if the ratio exceeds a negligible threshold.
 
-## 3. Evaluation & Statistical Rigor
+## Methodology
 
-### 3.1 Metrics
-* **Primary**: MSE (Mean Squared Error), R² (Coefficient of Determination).
-* **Reference**: Measured on the held-out test set (SC-001).
-* **Null Threshold**: R² < 0.2 indicates insufficient signal (Constitution Principle VI).
+### Model Architecture
 
-### 3.2 Statistical Significance
-* **Test**: **Paired t-test** on the per-sample squared errors.
- * *Hypothesis*: H0: Mean(CNN_error_i - Baseline_error_i) = 0.
- * *Method*: Calculate $e_{cnn, i} = (y_i - \\hat{y}_{cnn, i})^2$ and $e_{base, i} = (y_i - \\hat{y}_{base, i})^2$. Test the mean of the difference $d_i = e_{cnn, i} - e_{base, i}$.
- * *Rationale*: A single-sample t-test is invalid here because the baseline error is a constant scalar for all samples, but the *difference* in errors forms a distribution. A paired test correctly accounts for the correlation between errors on the same sample.
-* **Alpha**: 0.05 (FR-005).
-* **Multiple Comparisons**: If multiple architectures are tested, Bonferroni correction applied.
+**Base Architecture**: MobileNetV2 (Pre-trained on ImageNet)  
+**Strategy**: Transfer Learning with Frozen Backbone.
+- **Frozen Layers**: All convolutional layers up to the final global average pooling.
+- **Trainable Head**: A single fully connected layer (Linear) mapping the feature vector to a scalar yield strength value.
+- **Rationale**: MobileNetV2 is computationally efficient, designed for mobile/edge devices, and performs well on CPU. Freezing the backbone drastically reduces the number of trainable parameters, preventing overfitting on the relatively small dataset and ensuring training completes within the 6-hour limit.
 
-### 3.3 Power & Sample Size
-* **Pre-Study Calculation**: Before splitting, calculate the minimum N required to detect an effect size (R² improvement from 0 to 0.2) with Power=0.8 at α=0.05.
-* **Protocol**:
- * If N < Required: The study is labeled "Exploratory". The hypothesis test is performed but interpreted with the explicit caveat that low power may lead to Type II errors.
- * If N ≥ Required: Standard interpretation.
-* **Mitigation**: Use of transfer learning and data augmentation to maximize effective sample size.
+**Alternative**: ResNet-18 (if MobileNetV2 fails to converge), but MobileNetV2 is the primary choice due to its lightweight nature.
 
-### 3.4 Interpretability (FR-006, SC-005)
-* **Method**: Grad-CAM (Gradient-weighted Class Activation Mapping).
-* **Validation (Proxy for IoU)**:
- * Since manual annotations are not available, we use a **Quantitative Proxy**.
- * **Metric**: Pearson Correlation Coefficient between the mean Grad-CAM activation intensity (in the region of interest) and the extracted grain size feature.
- * **Hypothesis**: If the model learns morphology, regions with high activation should correlate with grain boundary density/size.
- * **Threshold**: Correlation > 0.3 (or p < 0.05) is considered evidence of morphological reliance.
- * **Artifact**: `results/interpretability_report.json` containing correlation scores and sample heatmaps.
-* **Collinearity**: Grain size is extracted from the image, so the CNN and the physics baseline are not independent in a causal sense, but the comparison validates if the CNN captures the same signal as the physics model.
+### Training Protocol
 
-### 3.5 Sensitivity Analysis (FR-007, SC-003)
-* **Threshold Definition**: Median of the **Ground Truth** (generated) yield strength values in the test set. (NOT the predicted median).
-* **Binarization**: Samples with $y_{true} > Median$ are "High Strength", others "Low".
-* **Sweep**: Thresholds at {0.01, 0.05, 0.1} relative to the median.
-* **Output**: False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold.
-* **Robustness**: If performance degrades sharply with small threshold changes, the model is deemed unstable.
+1.  **Preprocessing**:
+    - Resize images to 224×224 pixels.
+    - Normalize pixel values using ImageNet mean/std or dataset-specific statistics.
+    - Split into Train/Validation/Test (e.g., 70/15/15) with a fixed random seed, **enforcing specimen-level separation**.
+2.  **Augmentation**:
+    - **Allowed**: Horizontal/Vertical flips, brightness/contrast adjustment.
+    - **Restricted**: Random rotation is **excluded** to preserve the physical orientation of the EBSD maps relative to the sample frame (crystallographic direction).
+    - Applied on-the-fly during training to increase effective dataset size (FR-003).
+3.  **Optimization**:
+    - Loss Function: Mean Squared Error (MSE).
+    - Optimizer: Adam (lr=1e-3, weight_decay=1e-5).
+    - Scheduler: ReduceLROnPlateau.
+    - Early Stopping: Patience=5 epochs on validation loss.
+4.  **Constraints**:
+    - Batch size: Tuned to fit within 7 GB RAM (likely 16-32).
+    - Max Epochs: A predefined upper limit (or until early stopping).
 
-## 4. Computational Feasibility
+### Evaluation Metrics
 
-* **Hardware**: GitHub Actions Free Tier (multiple CPU cores, ample RAM).
-* **Software**: PyTorch CPU build (`torch==2.x+cpu`). No CUDA.
-* **Memory Management**:
- * Dataset loaded via `DataLoader` with `batch_size` tuned to fit RAM.
- * Intermediate tensors cleaned explicitly.
- * No large model loading (frozen backbone is ~-15MB).
-* **Runtime**:
- * Data Preprocessing & Feature Extraction: < 30 mins.
- * Training (multiple epochs, small batch): several hours.
- * Evaluation & Interpretability: < 1 hour.
- * Total: < 6 hours.
+1.  **Primary Metrics**:
+    - **MSE**: Mean Squared Error on the test set.
+    - **R²**: Coefficient of Determination on the test set.
+2.  **Baseline Comparison**:
+    - **Naive Baseline**: Constant predictor using the mean of the training set yield strengths.
+    - **Statistical Test**: **Paired t-test** (α=0.05) on the squared errors of the *same* test samples (error_cnn_i^2 vs error_baseline_i^2).
+    - **Null Hypothesis**: The mean difference in squared errors (CNN - Baseline) is not significantly less than zero.
+    - **Failure Criterion**: R² < 0.5 indicates insufficient signal (Constitution Principle VI).
 
-## 5. Risks & Mitigations
+### Interpretability & Sensitivity
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Dataset Mismatch** | Fatal | Preprocessing script validates column names. If Yield Strength missing, Hall-Petch generation is triggered. |
-| **OOM on CPU** | High | Dynamic batch size; `pin_memory=False`; use of `torch.no_grad()` during eval. |
-| **Model Convergence Failure** | Medium | Early stopping; fallback to simpler ResNet-18 if MobileNetV2 fails. |
-| **No Signal (R² < 0.2)** | Expected Outcome | Documented as a valid scientific result (null hypothesis accepted) via specific protocol. |
-| **Low Statistical Power** | Medium | Pre-study power calculation; "Exploratory" label if N is insufficient. |
+1.  **Grad-CAM**:
+    - Generate heatmaps for test images to visualize which microstructure features (grain boundaries, orientations) drive predictions (FR-006).
+    - **Validation**: **Expert Review Protocol**. A domain expert will visually inspect heatmaps to confirm they align with known strengthening mechanisms (e.g., grain boundaries, precipitates). This replaces the impossible IoU calculation against non-existent manual annotations (SC-005).
+    - **Secondary Metric**: Correlation between Grad-CAM activation intensity and extracted grain size.
+2.  **Sensitivity Analysis**:
+    - Define "High Strength" threshold as the **median predicted strength** of the test set (per FR-007).
+ - **Sweep Range**: Thresholds from [median - 15%, median + [deferred]] in **[deferred] increments** (e.g., -15%, -10%, -5%, [deferred], +[deferred], +[deferred], +[deferred]).
+    - Report variation in False Positive and False Negative rates relative to the median.
+    - *Note*: If a fixed physical threshold (e.g., 250 MPa) exists in the dataset metadata, a secondary analysis will be performed using that value.
+3.  **Uncertainty Quantification**:
+    - **Method**: Monte Carlo Dropout (MC Dropout) at inference time.
+    - **Process**: Run multiple forward passes with dropout enabled for each test sample.
+    - **Output**: Mean prediction ± 95% Confidence Interval (CI) (FR-008).
+
+## Statistical Rigor
+
+- **Multiple Comparisons**: Not applicable for the primary t-test (single comparison). If multiple architectures are tested, Bonferroni correction will be applied.
+- **Power Analysis**: With N = [deferred] (configurable), the study has >90% power to detect an R² improvement of 0.05 over the baseline at α=0.05, assuming a medium effect size. This confirms the sample size is sufficient for the planned hypothesis.
+- **Causal Inference**: This is an observational study (predictive modeling). Claims will be framed as associational ("microstructure features predict strength") rather than causal.
+- **Collinearity**: Not applicable as the input is an image tensor; however, the model will be inspected for reliance on artifacts (e.g., image borders) via Grad-CAM.
+
+## Compute Feasibility
+
+- **CPU-First**: The entire pipeline (download, preprocessing, training, evaluation) is designed to run on a multi-core, limited-RAM CPU instance.
+- **Memory Management**:
+    - Batch loading with `DataLoader` and `num_workers=0` or `1` to avoid memory spikes.
+    - Gradient accumulation if batch size is too small for convergence.
+- **GPU Escape Hatch**: Not required for this specific lightweight CNN task. If the model fails to converge on CPU within 6 hours, the plan will switch to a smaller sample size (e.g., 500 images) rather than offloading to a GPU, as the spec prioritizes CPU feasibility for reproducibility.
+
+## Decision/Rationale
+
+| Decision | Rationale |
+| :--- | :--- |
+| **MobileNetV2** | Optimal balance of accuracy and computational cost for CPU inference. |
+| **Frozen Backbone** | Reduces trainable parameters, preventing overfitting and speeding up convergence on small datasets. |
+| **MC Dropout** | Provides a robust, model-agnostic method for uncertainty quantification without requiring ensemble training. |
+| **Synthetic Generation** | Necessary due to the lack of public real-world paired EBSD-Yield datasets; ensures reproducibility. |
+| **Specimen-Level Split** | Prevents data leakage when multiple images share a single yield strength label. |
+| **Paired t-test** | Statistically valid for comparing paired errors (same image, two models) against a constant baseline. |
+| **Expert Review** | Necessary validation method for Grad-CAM in the absence of pixel-level ground truth annotations. |
+| **No Rotation** | Preserves physical orientation integrity of EBSD maps. |
+| **Median Threshold** | Adheres to spec FR-007 while acknowledging the data-dependent nature of the threshold. |

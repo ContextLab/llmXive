@@ -2,84 +2,95 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to GitHub Actions (for CI) or a local environment with 7GB+ RAM and 2+ CPU cores.
+- Python 3.11 or higher
+- Git
+- GB free disk space
+- GB RAM (minimum)
 
 ## Installation
 
-1.  **Clone the Repository**:
+1.  **Clone the Repository**
     ```bash
-    git clone <repo-url>
+    git clone <repository-url>
     cd projects/PROJ-477-predicting-material-strength-from-micros
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Create Virtual Environment**
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install Dependencies**:
+3.  **Install Dependencies**
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: Ensure `torch` is installed with the CPU-only flag (e.g., `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu`).*
 
-## Data Setup
+## Data Preparation
 
-The project will automatically download the verified dataset from HuggingFace upon first run.
-
-1.  **Run the Data Download & Preprocessing Script**:
+1.  **Download and Validate Data**
     ```bash
-    python code/main.py --stage download
+    python code/data/download.py
+    python code/data/validate.py
     ```
-    *This will:*
-    *   Download `data_synth_ebsd.zip` from the verified URL.
-    *   Verify the checksum.
-    *   Preprocess images (resize to 224x224, normalize).
-    *   Split into train/val/test sets.
-    *   Generate `manifest.json`.
-    *   *Output*: `data/processed/` directory.
+    This will download the EBSD dataset from the verified Zenodo source and verify its checksum.
+
+2.  **Preprocess Data**
+    ```bash
+    python code/data/preprocess.py
+    ```
+    This will resize images to 224×224, normalize them, split them into train/validation/test sets, and extract grain size features.
 
 ## Training
 
-1.  **Run the Training Pipeline**:
-    ```bash
-    python code/main.py --stage train
-    ```
-    *This will:*
-    *   Initialize MobileNetV2 with frozen weights.
-    *   Train for max 50 epochs with early stopping.
-    *   Save the best checkpoint to `results/artifacts/`.
-    *   *Output*: Model checkpoint and training logs.
+Run the training script:
+```bash
+python code/models/trainer.py
+```
+This will train the MobileNetV2 model with early stopping and save the best checkpoint to `code/models/checkpoints/best_model.pth`.
 
-## Evaluation & Interpretability
+## Evaluation
 
-1.  **Run the Evaluation Pipeline**:
+Run the evaluation script:
+```bash
+python code/eval/evaluator.py
+```
+This will compute MSE, R², perform the paired t-test against the baseline, and generate `results/null_hypothesis_report.json`.
+
+## Interpretability & Sensitivity
+
+1.  **Generate Grad-CAM Heatmaps**
     ```bash
-    python code/main.py --stage eval
+    python code/eval/interpretability.py --mode gradcam
     ```
-    *This will:*
-    *   Load the best checkpoint.
-    *   Compute MSE and R² against the naive baseline.
-    *   Perform the t-test.
-    *   Generate Grad-CAM heatmaps.
-    *   Run sensitivity analysis.
-    *   *Output*: `results/metrics.json`, `results/figures/`, `results/sensitivity_report.json`.
+    Heatmaps will be saved to `results/heatmaps/`.
+
+2.  **Sensitivity Analysis**
+    ```bash
+    python code/eval/interpretability.py --mode sensitivity
+    ```
+    Results will be saved to `results/sensitivity_report.json`.
+
+3.  **Confidence Intervals**
+    ```bash
+    python code/eval/predictor.py
+    ```
+    Predictions with confidence intervals will be saved to `results/predictions.csv` (FR-008).
 
 ## Verification
 
-To ensure reproducibility, run the full pipeline from scratch:
+1.  **Run Unit Tests**
+    ```bash
+    pytest tests/unit/
+    ```
 
-```bash
-python code/main.py --stage full
-```
+2.  **Lint Code**
+    ```bash
+    ruff check code/ --fix
+    ```
 
-This executes `download` -> `train` -> `eval` in sequence.
-
-## Troubleshooting
-
-*   **OOM Error**: Reduce `BATCH_SIZE` in `code/utils/config.py`.
-*   **CUDA Error**: Ensure you installed the CPU version of PyTorch.
-*   **Missing Data**: Check `data/raw/` for the downloaded zip. If missing, re-run the download stage.
+3.  **Check Memory Profile**
+    ```bash
+    python code/utils/memory_profiler.py --stress-test
+    ```
+    Ensure peak memory usage remains within acceptable system constraints.

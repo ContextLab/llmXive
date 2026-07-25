@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+description: "Schema for the aggregated evaluation metrics and null hypothesis test results."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the trained model architecture."
+  test_set_size:
+    type: "integer"
+    description: "Number of samples in the test set."
+  metrics:
+    type: "object"
+    properties:
+      mse:
+        type: "number"
+        description: "Mean Squared Error on the test set."
+      r2:
+        type: "number"
+        description: "Coefficient of Determination on the test set."
+      baseline_mse:
+        type: "number"
+        description: "MSE of the naive mean predictor."
+    required:
+      - mse
+      - r2
+      - baseline_mse
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        const: "paired t-test"
+      t_statistic:
+        type: "number"
+        description: "t-statistic from the paired t-test on squared errors."
+      p_value:
+        type: "number"
+        description: "p-value from the paired t-test."
+      null_hypothesis_status:
+        type: "string"
+        enum:
+          - rejected
+          - accepted
+        description: "Outcome of the null hypothesis test."
+      alpha:
+        type: "number"
+        description: "Significance level used for the test."
+    required:
+      - test_type
+      - t_statistic
+      - p_value
+      - null_hypothesis_status
+      - alpha
+  interpretability:
+    type: "object"
+    properties:
+      validation_method:
+        type: "string"
+        const: "expert_review"
+      iou_score:
+        type: "number"
+        description: "Optional: IoU score if available (usually null)."
+      sensitivity_analysis_file:
+        type: "string"
+        description: "Path to the sensitivity analysis report."
+    required:
+      - validation_method
+      - sensitivity_analysis_file
+required:
+  - model_name
+  - test_set_size
+  - metrics
+  - statistical_test
+  - interpretability
+additionalProperties: false

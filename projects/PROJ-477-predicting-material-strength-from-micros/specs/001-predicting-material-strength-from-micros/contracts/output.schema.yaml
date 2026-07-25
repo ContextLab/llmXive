@@ -118,7 +118,7 @@ properties:
         type: "array"
         items:
           type: "number"
-        description: "List of relative thresholds tested."
+        description: "List of relative thresholds tested (e.g., -0.15, -0.10, ...)."
       results:
         type: "array"
         items:

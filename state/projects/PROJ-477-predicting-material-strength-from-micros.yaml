@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-477-predicting-material-strength-from-micros
-last_run_id: 0f07f00b-b8be-4711-abb4-281b5cee866f
+last_run_id: 0817c2be-87f0-4b2f-b2a2-f66f1a4bf79d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros
 title: Predicting Material Strength from Microstructure Images with Convolutional
   Neural Networks
-updated_at: '2026-07-17T19:17:47.875261Z'
+updated_at: '2026-07-25T21:04:16.367389Z'

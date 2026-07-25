@@ -1,93 +1,82 @@
 # Data Model: Predicting Material Strength from Microstructure Images
 
-## 1. Entity Definitions
+## Overview
 
-### 1.1 MicrostructureImage
-Represents a single 2D EBSD map.
-*   **Attributes**:
-    *   `image_id`: String (UUID or filename).
-    *   `path`: String (relative path to image file).
-    *   `width`: Integer (224).
-    *   `height`: Integer (224).
-    *   `channels`: Integer (3, normalized RGB or grayscale converted).
-    *   `metadata_raw`: JSON (Original metadata from dataset).
+This document defines the data structures, schemas, and storage formats used throughout the project. It ensures consistency between data ingestion, model training, evaluation, and result reporting.
 
-### 1.2 GrainSizeFeature
-Derived feature extracted from the image (FR-009). **Mandatory 1:1 relationship.**
-*   **Attributes**:
-    *   `image_id`: String (Foreign key to MicrostructureImage).
-    *   `grain_size_mean`: Float (Average grain size in micrometers).
-    *   `grain_boundary_count`: Integer.
-    *   `extraction_method`: String (e.g., "OpenCV_Threshold").
+## Entities
 
-### 1.3 YieldStrengthValue
-The target variable associated with a microstructure image.
-*   **Attributes**:
-    *   `image_id`: String (Foreign key to MicrostructureImage).
-    *   `value_mpa`: Float (Yield strength in MPa).
-    *   `source`: String (e.g., "hall_petch_derived").
-    *   `unit`: String ("MPa").
+### 1. Specimen
 
-### 1.4 PredictionResult
-Output of the model inference.
-*   **Attributes**:
-    *   `image_id`: String.
-    *   `predicted_value`: Float.
-    *   `confidence_lower`: Float (95% CI lower bound).
-    *   `confidence_upper`: Float (95% CI upper bound).
-    *   `error_mse`: Float (Squared error for this sample).
-    *   `heatmap_path`: String (Path to Grad-CAM image).
+Represents a single material sample with a global mechanical property.
+- **specimen_id**: Unique identifier (string).
+- **yield_strength**: Measured or calculated yield strength in MPa (float, **required**).
+- **grain_size_mean**: Average grain size of the specimen (float, optional).
 
-### 1.5 ModelArtifact
-The trained model state.
-*   **Attributes**:
-    *   `model_id`: String.
-    *   `architecture`: String (e.g., "MobileNetV2").
-    *   `epoch`: Integer.
-    *   `val_loss`: Float.
-    *   `weights_path`: String.
-    *   `config`: JSON (Hyperparameters, seed).
+### 2. MicrostructureImage
 
-## 2. Relationships
+Represents a single 2D EBSD image and its associated metadata.
+- **image_id**: Unique identifier (string, e.g., filename without extension).
+- **specimen_id**: Reference to the parent specimen (string, **required**).
+- **image_path**: Relative path to the image file.
+- **width**: Original width in pixels (integer).
+- **height**: Original height in pixels (integer).
+- **grain_size**: Average grain size for this specific image (float, **required**). Extracted via OpenCV/Watershed.
+- **orientation**: Crystallographic orientation data (string, optional).
+- **yield_strength**: **Inherited** from the parent specimen (float, **required**).
+- **split**: Data split assignment (`train`, `validation`, `test`).
 
-*   **MicrostructureImage** `1:1` **GrainSizeFeature**
-    *   Every image has exactly one set of extracted grain features. **Mandatory.**
-*   **MicrostructureImage** `1:1` **YieldStrengthValue**
-    *   Every image has exactly one yield strength value (derived from grain size).
-*   **MicrostructureImage** `1:1` **PredictionResult**
-    *   Every image in the test set generates one prediction result.
-*   **ModelArtifact** `1:N` **PredictionResult**
-    *   One trained model generates predictions for the test set.
+*Note*: The `yield_strength` in `MicrostructureImage` is a denormalized copy of the value from the `Specimen` entity. All images sharing a `specimen_id` must have the same `yield_strength`.
 
-## 3. Data Flow
+### 3. PredictionResult
 
-1.  **Ingestion**: Raw ZIP -> `data/raw/` (Checksummed).
-2.  **Preprocessing**:
-    *   Extract -> Validate (Image count).
-    *   Resize (224x224) -> Normalize.
-    *   Split -> `data/processed/train/`, `data/processed/val/`, `data/processed/test/`.
-    *   Generate `manifest.json` (maps image filenames to IDs).
-3.  **Feature Extraction (FR-009)**:
-    *   Execute `code/data/extract_features.py` on all images.
-    *   Output `grain_features.csv` (image_id, grain_size_mean).
-4.  **Label Generation**:
-    *   Join `manifest.json` with `grain_features.csv`.
-    *   Compute `value_mpa` via Hall-Petch equation.
-    *   Save `labels.csv`.
-5.  **Training**:
-    *   Read `manifest.json` + `labels.csv` -> `DataLoader`.
-    *   Apply Augmentation -> Forward Pass -> Backward Pass.
-    *   Save `ModelArtifact` to `results/artifacts/`.
-6.  **Evaluation**:
-    *   Load `ModelArtifact` -> `DataLoader` (Test, no augmentation).
-    *   Compute MSE, R².
-    *   **Execute `code/eval/interpret.py`**: Generate Grad-CAM and compute correlation with grain size. Output `results/interpretability_report.json`.
-    *   **Execute `code/eval/sensitivity.py`**: Compute FPR/FNR using ground truth median. Output `results/sensitivity_report.json`.
-    *   Save `results/metrics.json`.
+Represents the output of the model for a single image.
+- **image_id**: Reference to the input image.
+- **predicted_strength**: Predicted yield strength (float).
+- **ci_lower**: Lower bound of the 95% confidence interval (float).
+- **ci_upper**: Upper bound of the 95% confidence interval (float).
+- **grad_cam_path**: Path to the generated heatmap image (string).
+- **uncertainty_score**: Standard deviation of MC Dropout samples (float).
 
-## 4. Constraints
+### 4. EvaluationMetrics
 
-*   **Image Dimensions**: Fixed at 224x224.
-*   **Value Range**: Yield strength > 0.
-*   **Missing Data**: Images with missing strength values are excluded (max negligible tolerance).
-*   **File Format**: Input images (JPG/PNG), Output heatmaps (PNG), Manifest/Labels (JSON/CSV).
+Aggregated metrics for the model performance.
+- **model_name**: Name of the architecture (e.g., `MobileNetV2`).
+- **mse**: Mean Squared Error on the test set (float).
+- **r2**: Coefficient of Determination on the test set (float).
+- **baseline_mse**: MSE of the naive mean predictor (float).
+- **t_statistic**: t-statistic from the paired t-test (float).
+- **p_value**: p-value from the paired t-test (float).
+- **null_hypothesis_status**: `rejected` or `accepted` (string).
+- **r2_threshold**: Threshold for null result (0.5).
+
+## Storage Format
+
+### Raw Data
+- **Format**: ZIP archive.
+- **Contents**: `images/` directory and `manifest.csv`.
+- **Location**: `data/raw/`
+
+### Processed Data
+- **Format**: CSV (manifest) + PNG/JPG (images).
+- **Location**: `data/processed/`
+- **Structure**:
+  ```text
+  data/processed/
+  ├── train/
+  ├── validation/
+  └── test/
+  ```
+
+### Results
+- **Format**: JSON and CSV.
+- **Location**: `results/`
+
+## Data Flow
+
+1.  **Ingestion**: Synthetic data generated to `data/raw/`. Checksum verified.
+2.  **Preprocessing**: Images resized to 224×224, normalized, and split **by specimen**. Manifest updated with `specimen_id`.
+3.  **Feature Extraction**: Grain size extracted and added to manifest.
+4.  **Training**: Data loaded via `DataLoader` from `data/processed/`.
+5.  **Evaluation**: Predictions saved to `results/predictions.csv`. Metrics saved to `results/metrics.json`.
+6.  **Interpretability**: Heatmaps saved to `results/heatmaps/`.

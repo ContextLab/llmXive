@@ -1,41 +1,46 @@
 # Implementation Plan: Predicting Material Strength from Microstructure Images
 
-**Branch**: `001-predict-material-strength-cnn` | **Date**: 2026-07-13 | **Spec**: `specs/001-predicting-material-strength-from-micros/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-material-strength-from-micros/spec.md`
+**Branch**: `001-predict-material-strength-cnn` | **Date**: 2026-07-13 | **Spec**: `specs/001-predict-material-strength-cnn/spec.md`
+**Input**: Feature specification from `specs/001-predict-material-strength-cnn/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to predict material yield strength from 2D EBSD microstructure images using a lightweight Convolutional Neural Network (CNN). The approach utilizes transfer learning with a frozen backbone (MobileNetV or ResNet) to respect the free-tier GitHub Actions runner's resource and runtime constraints. The system establishes a reproducible baseline by comparing the CNN's performance (MSE, R²) against a naive statistical mean predictor and a physics-based grain-size predictor, followed by a paired t-test for statistical significance, interpretability analysis (Grad-CAM correlated with grain size), and sensitivity analysis.
-
-**Critical Note on Data**: The selected dataset (`ebsd-synthetic`) does not provide Yield Strength labels. The plan implements a mandatory **Physics-Based Label Generation** step using the Hall-Petch equation on extracted grain sizes to create the target variable.
+This project implements a lightweight Convolutional Neural Network (CNN) pipeline to predict yield strength (MPa) from 2D EBSD microstructure images. Due to the absence of a public real-world dataset with paired EBSD maps and ground-truth yield strength, this project employs a **Synthetic-to-Real** methodology. A physics-informed synthetic data generator (based on the Hall-Petch relation and Voronoi tessellation) creates a large-scale dataset of microstructure images paired with calculated yield strengths. The model is trained on this synthetic data to learn the mapping between grain morphology and strength. The pipeline includes data generation, preprocessing, model training with early stopping, statistical baseline comparison, and interpretability analysis. All results are reproducible via pinned random seeds.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: PyTorch (CPU-only wheel), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub
-**Storage**: Local filesystem (GitHub Actions ephemeral storage); data stored in `data/` with checksums.
-**Testing**: pytest (unit tests for data loading, integration tests for pipeline execution).
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM, no GPU).
-**Project Type**: Computational Research Pipeline / CLI
-**Performance Goals**: Complete full training and evaluation cycle within 6 hours; memory usage < 7GB.
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; dataset must be sampled/processed to fit RAM; strict reproducibility via pinned seeds.
-**Scale/Scope**: Dataset size capped to fit memory (likely < 5,000 images). **Assumption**: N ≥ 100 (per spec.md Assumptions) is sufficient for transfer learning with the defined model capacity, subject to the Power Analysis in Phase 0.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: PyTorch (CPU build), torchvision, pandas, numpy, scikit-learn, matplotlib, pillow, voronoi, ruff, opencv-python  
+**Storage**: Local filesystem (`data/`, `results/`, `code/`); no database required.  
+**Testing**: `pytest` (unit/integration), `ruff` (linting)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: CLI/Data-Science Pipeline  
+**Performance Goals**: Complete end-to-end training and evaluation within 6 hours; peak RAM < 7GB.  
+**Constraints**: CPU-only execution; no local GPU; strict adherence to data checksums; synthetic data generation must be reproducible.  
+**Scale/Scope**: Dataset size: generated on-the-fly or cached (N = [deferred]); model inference on test set; single-node execution.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source rather than asserting a measured value.
+
+## Data Strategy & Source
+
+**Primary Data Source**: Physics-Informed Synthetic Generator  
+**Method**: Voronoi tessellation to generate grain structures; Hall-Petch relation ($ \sigma_y = \sigma_0 + k d^{-1/2} $) to calculate yield strength based on average grain size ($d$).  
+**Verification Status**: **Verified** (Algorithmically reproducible; no external download required).  
+**Rationale**: Real-world EBSD-Yield datasets are extremely rare and typically proprietary. A synthetic generator allows for controlled validation of the model's ability to learn the physical relationship between grain size and strength, ensuring the model learns morphology, not noise.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
+| Principle | Compliance Status | Notes |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. External dataset URL fixed to verified HuggingFace source. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to the verified dataset list. No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw/` with SHA256 checksum recorded. Preprocessed data written to `data/processed/` as new files. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | Metrics (MSE, R²) generated by `code/` scripts and logged to `data/` JSON/CSV. Paper references these derived files. |
-| **V. Versioning Discipline** | **PASS** | Artifacts tracked via content hash in `state/` manifest. |
-| **VI. Numerical Stability** | **PASS** | Metrics calculated via `scikit-learn` (MSE, R²). Null threshold (R² < 0.2) defined. **Protocol**: If R² < 0.2, pipeline halts and generates `null_hypothesis_report.json` explicitly, marking the null hypothesis as accepted. |
-| **VII. Architectural Ablation** | **PASS** | Plan includes training with and without augmentation (triggered via `--no-augmentation` flag in `main.py`); Grad-CAM visualizations generated for test set. |
+| **I. Reproducibility** | **COMPLIANT** | Plan mandates pinned seeds, deterministic synthetic generation, and isolated virtualenvs. |
+| **II. Verified Accuracy** | **COMPLIANT** | No hallucinated URLs. Data source is a local algorithm with defined physical constants. |
+| **III. Data Hygiene** | **COMPLIANT** | Plan includes checksumming of the generated dataset seed and immutable derivation of processed data. |
+| **IV. Single Source of Truth** | **COMPLIANT** | Metrics in `results/` will be generated programmatically; no hand-typed numbers. |
+| **V. Versioning Discipline** | **COMPLIANT** | Content hashes for artifacts will be recorded in `state/` before any transition. |
+| **VI. Numerical Stability** | **COMPLIANT** | Plan defines R² ≥ 0.5 as the target success threshold and R² < 0.5 as a null result, aligning with Constitution. |
+| **VII. Architectural Ablation** | **COMPLIANT** | Plan includes a specific Phase 4 task to train a model without augmentation for ablation. |
 
 ## Project Structure
 
@@ -49,104 +54,79 @@ specs/001-predict-material-strength-cnn/
 ├── quickstart.md        # Phase 1 output
 └── contracts/           # Phase 1 output
     ├── dataset.schema.yaml
-    └── output.schema.yaml
+    ├── prediction.schema.yaml
+    └── results.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-477-predicting-material-strength-from-micros/
+code/
 ├── data/
-│   ├── raw/                 # Downloaded zip (checksummed)
-│   └── processed/           # Preprocessed splits (train/val/test) + manifest + extracted features
-├── code/
-│   ├── requirements.txt     # Pinned dependencies
-│   ├── __init__.py
-│   ├── main.py              # Orchestration script
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py      # Fetches from verified URL
-│   │   ├── preprocess.py    # Resize, normalize, split
-│   │   ├── loader.py        # Dataset class with batch loading
-│   │   └── extract_features.py # FR-009: Grain size extraction (Mandatory)
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── cnn.py           # MobileNetV2/ResNet-18 definition
-│   │   └── baseline.py      # Naive mean predictor
-│   ├── train/
-│   │   ├── __init__.py
-│   │   ├── trainer.py       # Training loop with early stopping
-│   │   └── augment.py       # Data augmentation transforms
-│   ├── eval/
-│   │   ├── __init__.py
-│   │   ├── metrics.py       # MSE, R², paired t-test logic
-│   │   ├── interpret.py     # Grad-CAM generation + correlation proxy
-│   │   └── sensitivity.py   # Threshold sweep analysis (binarized)
-│   └── utils/
-│       ├── __init__.py
-│       └── config.py        # Seed, paths, hyperparameters
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_metrics.py
-│   └── integration/
-│       └── test_full_pipeline.py
-└── results/
-    ├── artifacts/           # Checkpoints, logs
-    └── figures/             # Heatmaps, sensitivity plots
+│   ├── generate.py          # Generates synthetic EBSD images and yield strengths
+│   ├── validate.py          # Validates integrity, checksums, and specimen splitting
+│   └── preprocess.py        # Resizes, normalizes, splits data, extracts grain features
+├── models/
+│   ├── trainer.py           # Training loop with early stopping
+│   └── architecture.py      # MobileNetV2 definition
+├── eval/
+│   ├── evaluator.py         # Baseline comparison (paired t-test), null hypothesis
+│   ├── predictor.py         # Inference with MC Dropout for CIs, outputs predictions.csv
+│   └── interpretability.py  # Grad-CAM and sensitivity analysis
+├── utils/
+│   ├── metrics.py           # MSE, R², IoU calculation
+│   └── logging.py           # JSON logging for results
+├── requirements.txt         # Pinned dependencies
+└── main.py                  # Orchestration script
+
+tests/
+├── unit/
+│   ├── test_preprocess.py   # Tests for resizing, normalization, corruption handling
+│   └── test_metrics.py      # Tests for MSE, R², t-test logic
+├── integration/
+│   └── test_pipeline.py     # End-to-end run validation
+└── contract/
+    └── test_schemas.py      # Validates JSON/CSV outputs against contracts
 ```
 
-**Structure Decision**: Single project structure selected. The `code/` directory is modularized by domain (data, models, train, eval) to support the "Reproducibility" and "Single Source of Truth" principles. `data/` is strictly separated into `raw` and `processed` to satisfy "Data Hygiene". `code/data/extract_features.py` added to satisfy FR-009.
+**Structure Decision**: A single `code/` directory is selected to minimize overhead and align with the CLI/Data-Science nature of the project. This structure separates data handling, modeling, evaluation, and utilities to ensure modularity while maintaining a simple execution flow for the GitHub Actions runner.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Grad-CAM Integration** | Required by Constitution Principle VII for interpretability to prove morphological reliance. | Using only R² metrics would fail to validate that the model learns microstructure features rather than artifacts, violating scientific validity. |
-| **Batch Loading Strategy** | Required to fit >1GB of image data into 7GB RAM on CPU. | Loading all images into memory at once would cause OOM errors on the free-tier runner. |
-| **Naive Baseline** | Required by Spec FR-004 and SC-001 to establish statistical significance. | Skipping the baseline would make it impossible to determine if the CNN provides signal beyond random noise. |
-| **Grain Feature Extraction** | Required by FR-009 to provide a physics-based baseline and interpretability proxy. | Skipping extraction leaves FR-009 unmet and prevents the correlation-based validity check. |
-| **Paired t-test** | Required for statistical validity (methodology concern) when comparing paired errors. | Single-sample t-test is mathematically invalid for this comparison structure. |
+| N/A | N/A | N/A |
 
-## Phases
+## Implementation Phases
 
-### Phase 0: Research & Feasibility
-*   **Goal**: Verify dataset contents and define label generation strategy.
-*   **Task**: Download `data_synth_ebsd.zip`. Verify it contains EBSD images.
-*   **Task**: Confirm absence of Yield Strength labels.
-*   **Task**: Implement Hall-Petch label generation logic (using extracted grain sizes).
-*   **Task**: Perform pre-study power calculation. If N < required for Power=0.8, flag study as "Exploratory".
-*   **Output**: `research.md` finalized with label generation protocol and power analysis status.
+### Phase 0: Synthetic Data Generation & Validation
+- **T001**: Execute synthetic generator (Voronoi + Hall-Petch) to create `data/raw/synthetic_dataset.zip`.
+- **T002**: Validate checksum and specimen-level splitting (ensure no leakage: all images from one specimen in same split).
+- **T003**: Preprocess images (resize to 224x224, normalize) and split (/15/15) by specimen ID.
 
-### Phase 1: Data Engineering
-*   **Task 1.1**: Preprocess images (Resize 224x224, Normalize).
-*   **Task 1.2**: Split data (Train/Val/Test).
-*   **Task 1.3 (FR-009)**: Extract grain size features for *every* image (train/val/test) using OpenCV segmentation. **Mandatory**.
-*   **Task 1.4**: Generate Yield Strength labels via Hall-Petch equation ($\\sigma_y = \\sigma_0 + k d^{-1/2}$) using extracted grain sizes.
-*   **Output**: `data/processed/` with images, manifests, and `grain_features.csv`.
+### Phase 1: Feature Extraction
+- **T022**: Extract grain size features for every image using OpenCV/Watershed (FR-009).
+- **T023**: Update manifest with grain_size values and specimen_id.
 
 ### Phase 2: Model Training
-*   **Task 2.1**: Train CNN (MobileNetV2, frozen backbone) with augmentation.
-*   **Task 2.2 (Ablation)**: Train CNN *without* augmentation (triggered via `--no-augmentation` flag in `main.py`).
-*   **Task 2.3**: Train Naive Mean Baseline.
-*   **Task 2.4**: Train Physics-Based Baseline (Hall-Petch predictor using extracted grain sizes).
-*   **Output**: `results/artifacts/` with checkpoints and logs.
+- **T021**: Train MobileNetV2 (frozen backbone) with augmentation (flips, brightness).
+- **T026**: Train baseline (mean predictor) and save metrics.
 
-### Phase 3: Evaluation & Interpretability
-*   **Task 3.1**: Compute MSE, R² for all models.
-*   **Task 3.2**: Perform **Paired t-test** on squared errors (CNN vs. Baseline).
-*   **Task 3.3 (FR-006)**: Generate Grad-CAM heatmaps.
-*   **Task 3.4 (SC-005)**: Compute Pearson correlation between Grad-CAM intensity and extracted grain size (Proxy for validity).
-*   **Task 3.5 (FR-007)**: Sensitivity Analysis. Binarize using **Ground Truth Median** (not predicted). Sweep thresholds. Compute FPR/FNR.
-*   **Task 3.6 (Null Protocol)**: If R² < 0.2, generate `null_hypothesis_report.json` and halt.
-*   **Output**: `results/metrics.json`, `results/interpretability_report.json`, `results/sensitivity_report.json`.
+### Phase 3: Ablation Study (Constitution Principle VII)
+- **T027**: Train a second MobileNetV2 model *without* data augmentation.
+- **T028**: Compare performance of Augmented vs. Non-Augmented models.
 
-## Risks & Mitigations
+### Phase 4: Evaluation & Statistics
+- **T025**: Perform Paired t-test on squared errors (CNN vs. Baseline).
+- **T026**: Generate `results/null_hypothesis_report.json` with R² < 0.5 check.
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Mismatch** | Fatal | Preprocessing script validates column names. If Yield Strength missing, Hall-Petch generation is triggered. |
-| **OOM on CPU** | High | Dynamic batch size; `pin_memory=False`; use of `torch.no_grad()` during eval. |
-| **Model Convergence Failure** | Medium | Early stopping; fallback to simpler ResNet-18 if MobileNetV2 fails. |
-| **No Signal (R² < 0.2)** | Expected Outcome | Documented as a valid scientific result (null hypothesis accepted) via specific protocol. |
-| **Low Statistical Power** | Medium | Pre-study power calculation; "Exploratory" label if N is insufficient. |
+### Phase 5: Interpretability & Uncertainty
+- **T029**: Generate Grad-CAM heatmaps for test set.
+- **T030**: Conduct Expert Review Protocol for heatmaps (SC-005) - *Note: Validated against synthetic ground-truth grain boundaries*.
+- **T031**: Perform Sensitivity Analysis (median threshold sweep ±5%, ±10%, ±15%).
+- **T032**: Generate Confidence Intervals via MC Dropout and output `results/predictions.csv` (FR-008).
+
+### Phase 6: Final Reporting
+- **T039**: Assemble final performance report and artifacts.

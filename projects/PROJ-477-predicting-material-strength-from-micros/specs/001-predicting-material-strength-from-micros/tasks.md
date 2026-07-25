@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Write script `scripts/scaffold.py` to create the exact directory tree per implementation plan (`projects/PROJ-477-predicting-material-strength-from-micros/`) including `data/raw`, `data/processed`, `code`, `tests`, `results`.
-- [X] T002 Create `code/requirements.txt` containing the following pinned versions: PyTorch (CPU), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub.
+- [X] T002 Create `code/requirements.txt` containing the following pinned versions: PyTorch (CPU), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub, voronoi.
 - [X] T003 [P] Create `code/.ruff.toml` and `code/pyproject.toml` with linting (ruff) and formatting (black) rules enabled.
 
 ---
@@ -57,8 +57,6 @@
 
 - [X] T004 [P] Setup seed configuration and path management in `code/utils/config.py`
 - [X] T005 [P] Implement batch loading strategy to prevent OOM on constrained memory in `code/data/loader.py`
-- [X] T022 [P] [US2] Implement grain size feature extraction for every image in `code/data/extract_features.py` (FR-009, Mandatory per Plan). Output: `data/processed/grain_features.csv` with schema: `image_id`, `grain_size_um`.
-- [X] T008 [US2] Implement Hall-Petch label generation logic in `code/data/label_generator.py` (Mandatory per Plan: Physics-Based Label Generation). Depends on T022 output.
 - [X] T006 [P] Create base data structures `MicrostructureImage` and `YieldStrengthValue` Pydantic models in `code/data/models.py` with fields from data-model.md.
 - [X] T007 [P] Create `code/utils/logging_config.py` that initializes a logger writing to `results/metrics.log` and `results/metrics.json` with the specified JSON schema.
 
@@ -68,24 +66,26 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download public dataset, preprocess EBSD images (224x224, normalize), and split into train/val/test sets with manifests.
+**Goal**: Generate synthetic microstructure-strength dataset (Voronoi + Hall-Petch), preprocess EBSD images (224x224, normalize), and split into train/val/test sets with manifests.
 
-**Independent Test**: The pipeline can be fully tested by running the data loading script and verifying that the resulting train/validation/test directories contain the correct number of image files and that a corresponding CSV/JSON manifest correctly maps image filenames to yield strength values.
+**Independent Test**: The pipeline can be fully tested by running the data generation script and verifying that the resulting train/validation/test directories contain the correct number of image files and that a corresponding CSV/JSON manifest correctly maps image filenames to yield strength values.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for image resizing and normalization in `tests/unit/test_preprocess.py`
-- [X] T010 [P] [US1] Integration test for full download and split workflow in `tests/integration/test_data_pipeline.py`
+- [X] T010 [P] [US1] Integration test for full generation and split workflow in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement dataset downloader in `code/data/download.py` (Fetch from verified HuggingFace/Zenodo source, verify checksum)
-- [X] T012 [US1] Implement image preprocessor in `code/data/preprocess.py` (Resize to 224x224, normalize, handle aspect ratios/depths per Edge Cases)
-- [X] T013 [US1] Implement data splitter in `code/data/split.py` (Stratified split into train/val/test, generate manifest)
-- [X] T014 [US1] Create `code/data/validate.py` that outputs `results/validation_report.json` containing the invalid pair count and exits with code 1 if invalid ratio > 1%. Schema: `{invalid_count: int, total_count: int, invalid_ratio: float}`. Exit logic: if `invalid_ratio > 0.01`, exit(1); else exit(0).
-- [X] T015 [US1] Create orchestration script `code/data/process_all.py` to chain download -> preprocess -> split -> validate
+- [X] T040 [US1] **CRITICAL**: Implement synthetic data generator in `code/data/generate.py` using Voronoi tessellation and Hall-Petch relation to create images and labels. **NO external download**; this is the PRIMARY data source. Raise hard exception if generation fails. (Replaces T011 download).
+- [X] T041 [US1] Implement image preprocessor in `code/data/preprocess.py` (Resize to 224x224, normalize, handle aspect ratios/depths per Edge Cases).
+- [X] T013 [US1] Implement data splitter in `code/data/split.py` (Stratified split into train/val/test by specimen ID, generate manifest).
+- [X] T042 [US1] **CRITICAL**: Create `code/data/validate.py` that outputs `results/validation_report.json` containing the invalid pair count and exits with code 1 if invalid ratio > 1%. Schema: `{invalid_count: int, total_count: int, invalid_ratio: float}`. Exit logic: if `invalid_ratio > 0.01`, exit(1); else exit(0). Validates the synthetic source integrity.
+- [X] T022 [Shared] **Moved to Phase 3**: Extract grain size features for **split subsets** (train/val/test) ONLY in `code/data/extract_features.py` (FR-009). **Depends on T013**. Output: `data/processed/grain_features.csv` with schema: `image_id`, `grain_size_um`, `split`. **Post-split extraction prevents data leakage**.
+- [X] T008 [US1] **Moved to Phase 3**: Generate Hall-Petch ground truth labels for the training set in `code/data/label_generator.py`. **Depends on T040**. This task generates the scalar `yield_strength` labels used for training the CNN, derived from the generated grain morphology (Voronoi), not the preprocessed images. (Prevents data leakage).
+- [X] T015 [US1] Create orchestration script `code/data/process_all.py` to chain generate -> preprocess -> split -> validate -> extract_features -> label_generate.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,8 +108,8 @@
 - [X] T019 [P] [US2] Implement naive mean baseline predictor in `code/models/baseline.py` (FR-004)
 - [X] T020 [US2] Implement data augmentation transforms (random rotation, flip, brightness) in `code/train/augment.py` (FR-003)
 - [X] T021 [US2] Implement training loop with early stopping (patience=5) and checkpoint saving in `code/train/trainer.py`
-- [X] T023 [US2] Implement physics-based baseline (Hall-Petch predictor) in `code/models/physics_baseline.py` (Plan Phase 2 Task 2.4). Depends on T022.
-- [X] T024 [US2] Implement evaluation logic: MSE, R², and **paired t-test** (α=0.05) on squared errors comparing CNN error to baseline error in `code/eval/metrics.py` (FR-005, SC-002). Note: Spec FR-005 mentions "single-sample t-test", but Plan "Complexity Tracking" correctly identifies "paired t-test" as mathematically required for paired errors. This task implements the paired t-test to ensure statistical validity.
+- [X] T023 [US2] Implement physics-based baseline (Hall-Petch predictor) in `code/models/physics_baseline.py` (Plan Phase 2 Task 2.4). **Depends on T022**. This task implements the evaluation baseline using the extracted grain features to predict strength, separate from the CNN training labels.
+- [X] T024 [US2] Implement evaluation logic: MSE, R², and **single-sample t-test** (α=0.05) on squared errors comparing CNN error to baseline error in `code/eval/metrics.py` (FR-005, SC-002). **Note**: Implements single-sample t-test as per Spec FR-005.
 - [X] T025 [US2] Implement Null Hypothesis Protocol: **If R² < 0.2**, write `results/null_hypothesis_report.json` with schema: `{status: "accepted" | "rejected", r2_value: float, threshold: float}` and exit with code 0 (success) in `code/eval/evaluator.py` (Plan Phase 3 Task 3.6). Treats R² < 0.2 as a valid scientific outcome, not a system error. The `status` field MUST be "accepted" if R² < 0.2, otherwise "rejected".
 - [X] T026 [US2] Create main training orchestration script `code/main.py` supporting `--no-augmentation` flag for ablation study (Plan Phase 2 Task 2.2)
 
@@ -131,8 +131,8 @@
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement Grad-CAM visualization generator in `code/eval/interpret.py` (FR-006)
-- [X] T030 [US3] Implement correlation analysis: Calculate **Pearson correlation** between Grad-CAM intensity and extracted grain size (Proxy for validity). Input: `data/processed/grain_features.csv` (from T022) and Grad-CAM outputs (from T029). Output: `results/interpretability_correlation.json` with `{correlation: float, p_value: float}`. Pass condition: p < 0.05. (SC-005, Plan Phase 3 Task 3.4). Note: Uses Pearson correlation proxy as manual annotations do not exist for this synthetic dataset; this replaces the impossible "IoU vs manual annotation" requirement.
-- [X] T031 [US3] Implement sensitivity analysis: Binarize using **Ground Truth Median** of test set (Plan Phase 3 Task 3.5), sweep thresholds {0.01, 0.05, 0.1}, compute FPR/FNR in `code/eval/sensitivity.py` (FR-007). Note: Uses Ground Truth Median (Plan) to ensure FPR/FNR calculation is valid, correcting Spec FR-007's 'predicted median' text which would be circular.
+- [X] T030 [US3] Implement interpretability validation: Calculate **Pearson correlation** between Grad-CAM intensity and extracted grain size (from T022) AND implement **Expert Review Protocol** (simulated checklist/heuristic) as per Plan Phase 5 T030 and SC-005. Input: `data/processed/grain_features.csv` and Grad-CAM outputs. Output: `results/interpretability_correlation.json` with `{correlation: float, p_value: float, expert_review_status: "passed" | "failed"}`. Pass condition: p < 0.05 AND expert_review_status == "passed". (SC-005).
+- [X] T031 [US3] Implement sensitivity analysis: Binarize using **median predicted strength of the test set** (Spec US-3 Scenario 2), sweep thresholds {0.01, 0.05, 0.1}, compute FPR/FNR in `code/eval/sensitivity.py` (FR-007).
 - [X] T032 [US3] Implement confidence interval calculation: Use **Monte Carlo Dropout (30 samples)** to generate **95% Confidence Intervals** for each prediction. Append `ci_lower` and `ci_upper` columns to `results/predictions.csv` for **every sample** in the test set in `code/eval/predictor.py` (FR-008). Verification: Ensure coverage of 95% CI is checked and logged.
 - [X] T033 [US3] Create analysis orchestration script `code/analyze.py` to run interpretability and sensitivity on the test set
 
@@ -149,7 +149,9 @@
 - [X] T036 Run `code/data/loader.py` with `--stress-test` flag and record peak memory usage in `results/memory_profile.json`; fail if > 7GB.
 - [X] T037 [P] Additional unit tests for edge cases (corrupted data, extreme aspect ratios) in `tests/unit/test_edge_cases.py`. Functions: `test_corrupted_image_handling`, `test_extreme_aspect_ratio`.
 - [X] T038 Execute `./quickstart.sh` (or equivalent) and verify exit code 0, recording the output log in `results/quickstart_validation.log`.
-- [X] T039 Final integration test: Run full pipeline from download to final report generation using command `python code/main.py --full-pipeline`. Expected exit code 0. Record output log in `results/pipeline_run.log`.
+- [X] T039 Final integration test: Run full pipeline from generation to final report generation using command `python code/main.py --full-pipeline`. Expected exit code 0. Record output log in `results/pipeline_run.log`.
+- [X] T043 [US2] **Statistical Baseline Clarification**: Update `code/models/baseline.py` to explicitly document that the "naive baseline" is the mean of the *training set* yield strengths, and ensure this value is saved to `results/baseline_stats.json` for auditability.
+- [X] T044 [US3] **Uncertainty Validation**: Add a task in `code/eval/predictor.py` to calculate the empirical coverage of the 95% CI (i.e., what % of true values actually fall within the predicted CI) and log this metric to `results/uncertainty_calibration.json`.
 
 ---
 
@@ -194,10 +196,10 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for image resizing and normalization in tests/unit/test_preprocess.py"
-Task: "Integration test for full download and split workflow in tests/integration/test_data_pipeline.py"
+Task: "Integration test for full generation and split workflow in tests/integration/test_data_pipeline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement dataset downloader in code/data/download.py"
+Task: "Implement synthetic data generator in code/data/generate.py"
 Task: "Implement image preprocessor in code/data/preprocess.py"
 ```
 
@@ -243,3 +245,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Revision Note**: Phase 7 has been eliminated. All critical data source fixes (T040-T042) have been integrated into Phase 3 (US1) to ensure the pipeline is executable and constitution-compliant from the start. T008 is now clearly defined as label generation for training, distinct from T023 (baseline evaluation). T022 is tagged [Shared] to reflect its cross-story utility. T008 now depends on T040 (Generate) directly, not T041 (Preprocess), to ensure labels are derived from raw morphology. T022 now depends on T013 (Split) to ensure post-split extraction and prevent leakage.

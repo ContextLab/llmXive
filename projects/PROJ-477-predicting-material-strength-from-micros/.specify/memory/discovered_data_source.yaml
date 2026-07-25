@@ -1,0 +1,9 @@
+status: none
+intent: download EBSD microstructure strength dataset from Zenodo or HuggingFace python
+  package dataset
+required_fields:
+- image_filename
+- yield_strength
+cache_key: ec9db91d0a4e83bc2d2a60c3da4a62be7bcab4c64844c7637de5f66eb57dc1fd
+searched_at: '2026-07-25T20:29:40.367463+00:00'
+retry_count: 1
