@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Fork Point Gene Output Schema
+description: Schema for the output of fork-point gene identification analysis.
+
+type: object
+properties:
+  gene_symbol:
+    type: string
+    description: Official gene symbol (e.g., 'TOX', 'NR4A1')
+  branch_id:
+    type: string
+    description: Unique identifier for the branch point (e.g., 'branch_001')
+  timing_rank:
+    type: integer
+    description: Ranking of gene expression timing relative to branch (1 = earliest)
+  divergence_score:
+    type: number
+    description: Statistical divergence score above null distribution
+  confidence:
+    type: string
+    enum: [high, medium, low]
+    description: Confidence level of the fork-point identification
+
+required:
+  - gene_symbol
+  - branch_id
+  - timing_rank
+  - divergence_score
+  - confidence

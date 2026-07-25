@@ -1,0 +1,37 @@
+# PROJ-003 Configuration
+# Environment and path settings
+
+project:
+  name: "PROJ-003-single-cell-trajectories-of-t-cell-exhau"
+  root: "."
+  data_dir: "data"
+  code_dir: "code"
+  tests_dir: "tests"
+  specs_dir: "specs"
+
+random_seed: 42
+
+datasets:
+  - id: "GSE136103"
+    name: "T-cell exhaustion in melanoma"
+    source: "GEO"
+  - id: "GSE127465"
+    name: "CD8+ T cell differentiation"
+    source: "GEO"
+  - id: "GSE111075"
+    name: "Tumor-infiltrating lymphocytes"
+    source: "GEO"
+  - id: "GSE138852"
+    name: "Response to immunotherapy"
+    source: "GEO"
+
+processing:
+  min_cells: 1000
+  max_mitochondrial_percent: 20.0
+  convergence_retries: 3
+
+output:
+  velocity_file: "velocity_graph.h5ad"
+  unified_trajectory_file: "unified_trajectory.h5ad"
+  fork_point_file: "fork_point_genes.csv"
+  validation_report: "validation_report.pdf"

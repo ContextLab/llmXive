@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a reproducible computational pipeline to reconstruct RNA velocity trajectories of T-cell exhaustion across four public scRNA-seq datasets (GSE, GSE127465, GSE111075, GSE138852). The system will download raw count matrices via SRA Toolkit, preprocess them using Seurat parameters (via R subprocess), estimate RNA velocity using scVelo on CPU, identify statistically significant fork-points via vector field rotation null models, rank regulatory genes by timing, and validate findings against therapy response signatures using patient-level block bootstrapping. The implementation prioritizes CPU-first execution within GitHub Actions free-tier constraints (limited CPU, 7 GB RAM, 6h limit).
+This feature implements a reproducible computational pipeline to reconstruct RNA velocity trajectories of T-cell exhaustion across four public scRNA-seq datasets (GSE, GSE127465, GSE111075, GSE138852). The system will download raw count matrices via SRA Toolkit, preprocess them using Seurat parameters (via R subprocess), estimate RNA velocity using scVelo on CPU, identify statistically significant fork-points via vector field rotation null models, rank regulatory genes by timing, and validate findings against therapy response signatures using patient-level block bootstrapping. The implementation prioritizes CPU-first execution within GitHub Actions free-tier constraints (limited CPU, constrained RAM, time limit).
 
 **Critical Spec Note**: The source spec (FR-001) lists an incomplete accession 'GSE'. This plan explicitly corrects this to 'GSE136103' to ensure the download task matches the intended requirement. The spec file requires a kickback update to correct this typo.
 
@@ -18,7 +18,7 @@ This feature implements a reproducible computational pipeline to reconstruct RNA
 **Target Platform**: Linux (GitHub Actions runner)  
 **Performance Goals**: Complete single-dataset scVelo run within 45 minutes; full cross-dataset analysis within 6 hours; memory usage < 7 GB  
 **Constraints**: CPU-only execution; no GPU/CUDA; no manual authentication for data download (uses SRA Toolkit for public runs); datasets must be streamable or downloadable via public API  
-**Scale/Scope**: Multiple datasets, ~10k-50k cells total; A sufficient number of bootstrap iterations (patient-level); generation of a final report and 4 trajectory graphs
+**Scale/Scope**: Multiple datasets, ~10k-50k cells total; A sufficient number of bootstrap iterations (patient-level); generation of a final report and multiple trajectory graphs
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -108,7 +108,7 @@ projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
 5. **Phase 4: Cross-Dataset Validation** (FR-006, FR-007, FR-008, SC-002, SC-003, SC-006)
    - **Discovery/Validation Split**: Derive fork-point genes from GSE136103, GSE127465, GSE111075 (Discovery). Validate against therapy response labels in GSE138852 (Validation).
    - **Patient-Level Aggregation**: Map patient-level labels to single-cell trajectories by calculating mean pseudotime and mean fork-point gene expression per patient.
-   - **Block Bootstrapping**: Perform 1000 bootstrap iterations resampling *patients* (not cells) to preserve correlation structure.
+   - **Block Bootstrapping**: Perform a sufficient number of bootstrap iterations resampling *patients* (not cells) to preserve correlation structure.
    - Test enrichment against therapy response signatures.
    - Report p-values: p < 0.01 (SC-002/003) and p < 0.05 (SC-006).
    - Generate heatmap with confidence intervals.
