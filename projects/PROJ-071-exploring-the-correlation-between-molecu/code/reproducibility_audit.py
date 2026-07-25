@@ -1,13 +1,11 @@
 """
-Automated Reproducibility Audit Script (T056a).
+Automated Reproducibility Audit Script (Task T056/T056a).
 
 This script programmatically compares the SHA256 hashes stored in
-`data/reproducibility_log.json` against the actual SHA256 hashes of the
-corresponding files in the `data/` directory.
+`reproducibility_log.json` against the actual files in the `data/` directory.
 
-If any hash mismatch is found, or if a file referenced in the log is missing,
-the script will exit with a non-zero status code (1) and log the failure.
-This blocks the `research_accepted` transition as per the task requirements.
+If a mismatch is found, or if the log is missing, this script exits with
+a non-zero status code to fail the build and block `research_accepted`.
 """
 import os
 import sys
@@ -15,177 +13,158 @@ import json
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, Optional, Tuple
 
-# Configure logging to match project standards
+# Add project root to path to ensure imports work if run from root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+REPRODUCIBILITY_LOG_PATH = PROJECT_ROOT / "reproducibility_log.json"
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/logs/audit_reproducibility.log', mode='a')
+        logging.FileHandler(PROJECT_ROOT / "data" / "audit.log")
     ]
 )
 logger = logging.getLogger(__name__)
 
+
 def get_project_root() -> Path:
-    """Returns the root directory of the project."""
-    # Assuming the script is run from the project root or code/
-    current = Path.cwd()
-    # Traverse up to find the root (where data/ and code/ exist)
-    while not (current / 'data').exists() or not (current / 'code').exists():
-        parent = current.parent
-        if parent == current:
-            raise FileNotFoundError("Could not find project root. Expected 'data/' and 'code/' directories.")
-        current = parent
-    return current
+    """Returns the project root directory."""
+    return PROJECT_ROOT
+
 
 def calculate_file_hash(file_path: Path) -> str:
     """
     Calculates the SHA256 hash of a file.
-    Reads in chunks to handle large files efficiently.
+    
+    Args:
+        file_path: Path to the file.
+        
+    Returns:
+        Hexadecimal string of the SHA256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
+            # Read in chunks to handle large files
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found for hashing: {file_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error calculating hash for {file_path}: {e}")
+    except IOError as e:
+        logger.error(f"IO Error reading {file_path}: {e}")
         raise
 
-def load_reproducibility_log(project_root: Path) -> Dict[str, Any]:
+
+def load_reproducibility_log() -> Dict[str, Any]:
     """
-    Loads the reproducibility log JSON file.
+    Loads the reproducibility log from disk.
+    
+    Returns:
+        Dictionary containing the log data.
+        
+    Raises:
+        FileNotFoundError: If the log file is missing.
+        json.JSONDecodeError: If the log file is malformed.
     """
-    log_path = project_root / 'data' / 'reproducibility_log.json'
-    if not log_path.exists():
+    if not REPRODUCIBILITY_LOG_PATH.exists():
         raise FileNotFoundError(
-            f"Reproducibility log not found at {log_path}. "
-            "Ensure T035b and T035c have been executed successfully."
+            f"Reproducibility log not found at {REPRODUCIBILITY_LOG_PATH}. "
+            "The pipeline must run successfully to generate this file before auditing."
         )
     
-    with open(log_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        with open(REPRODUCIBILITY_LOG_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in reproducibility log: {e}")
+        raise
 
-def audit_hashes(project_root: Path) -> Tuple[bool, List[str]]:
+
+def audit_hashes() -> Tuple[bool, str]:
     """
     Compares logged hashes against actual file hashes.
     
     Returns:
-        Tuple[bool, List[str]]: (success, list_of_failure_messages)
-        success=True if all hashes match and files exist.
-        success=False if any mismatch or missing file.
+        Tuple of (success: bool, message: str)
     """
-    log_data = load_reproducibility_log(project_root)
-    failures = []
+    logger.info("Starting automated reproducibility audit...")
     
-    # The log structure is expected to have a 'data_files' or similar key containing the mapping.
-    # Based on T035b, the log contains versions, URLs, and SHA256 hashes.
-    # We look for a section that maps file paths to hashes.
-    # Assuming the structure from T035b: { "data_files": { "path": "hash", ... } }
-    # or simply { "files": { ... } } or top-level keys if flattened.
-    # We will scan for a dictionary that looks like file mappings.
+    try:
+        log_data = load_reproducibility_log()
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        return False, f"Failed to load reproducibility log: {e}"
     
-    data_files = log_data.get('data_files', log_data.get('files', {}))
+    if "file_hashes" not in log_data:
+        return False, "Reproducibility log missing 'file_hashes' key."
     
-    if not data_files:
-        # Fallback: check if top level has keys that look like file paths (unlikely but possible)
-        # Or if the log structure is different.
-        # For robustness, we assume the standard structure generated by T035b.
-        logger.warning("No 'data_files' or 'files' key found in reproducibility log. Attempting top-level scan.")
-        data_files = {k: v for k, v in log_data.items() if isinstance(v, str) and len(v) == 64}
-
-    if not data_files:
-        failures.append("Could not locate file hash mapping in reproducibility log.")
-        return False, failures
-
-    logger.info(f"Auditing {len(data_files)} files...")
-
-    for relative_path, expected_hash in data_files.items():
-        # Handle both relative paths from root and paths relative to data/
-        # The log usually stores paths relative to project root or data/
-        # We try to resolve relative to project root first.
-        full_path = project_root / relative_path
+    logged_hashes = log_data["file_hashes"]
+    all_passed = True
+    failure_details = []
+    
+    for relative_path, expected_hash in logged_hashes.items():
+        # Construct absolute path relative to project root
+        # Ensure the path is relative to DATA_DIR or root as appropriate
+        # The log usually stores paths relative to project root or data dir
+        # We assume the paths in the log are relative to PROJECT_ROOT for safety
+        file_path = PROJECT_ROOT / relative_path
         
-        if not full_path.exists():
-            # Try relative to data/ if the path didn't resolve
-            if not relative_path.startswith('data/'):
-                alt_path = project_root / 'data' / relative_path
-                if alt_path.exists():
-                    full_path = alt_path
-                else:
-                    failures.append(f"MISSING: File '{relative_path}' not found in data directory.")
-                    continue
-            else:
-                failures.append(f"MISSING: File '{relative_path}' not found.")
-                continue
-
-        try:
-            actual_hash = calculate_file_hash(full_path)
-        except Exception as e:
-            failures.append(f"ERROR: Could not hash '{relative_path}': {e}")
+        if not file_path.exists():
+            msg = f"File missing: {relative_path}"
+            logger.error(msg)
+            all_passed = False
+            failure_details.append(msg)
             continue
-
+        
+        try:
+            actual_hash = calculate_file_hash(file_path)
+        except Exception as e:
+            msg = f"Failed to hash {relative_path}: {e}"
+            logger.error(msg)
+            all_passed = False
+            failure_details.append(msg)
+            continue
+        
         if actual_hash != expected_hash:
-            failures.append(
-                f"MISMATCH: File '{relative_path}'\n"
+            msg = (
+                f"Hash Mismatch for {relative_path}:\n"
                 f"  Expected: {expected_hash}\n"
                 f"  Actual:   {actual_hash}"
             )
+            logger.error(msg)
+            all_passed = False
+            failure_details.append(msg)
         else:
-            logger.info(f"PASS: {relative_path}")
+            logger.info(f"Verified: {relative_path} (OK)")
+    
+    if all_passed:
+        return True, "All file hashes verified successfully."
+    else:
+        return False, f"Audit failed. Details:\n" + "\n".join(failure_details)
 
-    return len(failures) == 0, failures
 
 def main():
-    """Main entry point for the audit."""
-    logger.info("Starting Automated Reproducibility Audit (T056a)...")
+    """Main entry point for the audit script."""
+    success, message = audit_hashes()
     
-    try:
-        project_root = get_project_root()
-        success, failures = audit_hashes(project_root)
-        
-        if success:
-            logger.info("AUDIT PASSED: All file hashes match.")
-            # Write a success marker to the log for downstream gates
-            audit_log_path = project_root / 'data' / 'audit_reproducibility.json'
-            with open(audit_log_path, 'w') as f:
-                json.dump({
-                    "status": "PASSED",
-                    "timestamp": str(Path.cwd()), # Simplified for now, usually datetime
-                    "message": "All hashes verified."
-                }, f, indent=2)
-            sys.exit(0)
-        else:
-            logger.error("AUDIT FAILED: Hash mismatches or missing files detected.")
-            for failure in failures:
-                logger.error(failure)
-            
-            # Write failure report
-            audit_log_path = project_root / 'data' / 'audit_reproducibility.json'
-            with open(audit_log_path, 'w') as f:
-                json.dump({
-                    "status": "FAILED",
-                    "reasons": failures
-                }, f, indent=2)
-            
-            # CRITICAL: Fail loudly to block research_accepted
-            sys.exit(1)
-            
-    except FileNotFoundError as e:
-        logger.critical(f"CRITICAL ERROR: {e}")
+    if success:
+        logger.info("AUDIT PASSED: " + message)
+        sys.exit(0)
+    else:
+        logger.error("AUDIT FAILED: " + message)
+        # Explicitly fail the build as per T035c and T056a requirements
         sys.exit(1)
-    except json.JSONDecodeError as e:
-        logger.critical(f"CRITICAL ERROR: Invalid JSON in reproducibility log: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.critical(f"UNEXPECTED ERROR: {e}")
-        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

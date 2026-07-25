@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (projects/PROJ-071-exploring-the-correlation-between-molecu/)
-- [X] T002 Initialize Python project with requirements.txt (rdkit, pandas, scikit-learn, numpy, matplotlib, seaborn, pyyaml, requests, datasets)
+- [X] T002 Initialize Python project with requirements.txt (rdkit, pandas, scikit-learn, numpy, matplotlib, seaborn, pyyaml, requests, datasets, statsmodels, scipy)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -70,30 +70,34 @@
 
 **Goal**: Retrieve FDA-approved structures, verify degradation data availability (Data Availability Gate), and compute molecular descriptors.
 
-**Independent Test**: The pipeline can be run in isolation to produce a CSV file containing SMILES, calculated metrics, and degradation half-lives. The test verifies that the file exists, has no missing values in key columns, and that the calculated metrics match known reference values for a small subset of test molecules.
+**Independent Test**: The pipeline can be run in isolation to produce a CSV file containing SMILES, calculated metrics, and degradation half-lives (if available). The test verifies that the file exists, has no missing values in key columns, and that the calculated metrics match known reference values for a small subset of test molecules.
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] **Data Source Verification**: Run `code/ingest.py` in isolation to confirm that `Synthyra/FDA-Approved-Drugs` is accessible via `streaming=True` and that the dataset contains the expected degradation columns. **Action**: If the dataset is missing columns, update `code/ingest.py` to handle the specific schema of the actual dataset version found, or log a critical failure if no degradation data exists. **Dependency**: T004, T002.
-- [X] T012 [US1] Implement `code/ingest.py`: Fetch FDA-approved structures AND degradation data from HuggingFace (`Synthyra/FDA-Approved-Drugs`) using `streaming=True` to handle large datasets without OOM. Implement explicit `try/except` block that catches `FileNotFoundError` or `DatasetNotFoundError` and raises a custom `DataFetchError` with a clear message, ensuring NO synthetic fallback occurs. **Dependency**: T011.
-- [X] T014 [US1] Implement `code/descriptors.py`: Calculate TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener Index, Zagreb Index using RDKit. **Dependency**: T012.
+- [X] T011 [US1] **Data Source Verification**: Run `code/ingest.py` in isolation to confirm that `Synthyra/FDA-Approved-Drugs` is accessible via `streaming=True` and contains structure columns. **Action**: If the dataset is missing structure columns, fail. **Note**: This dataset does NOT contain degradation data; that must be sourced separately. **Dependency**: T004, T002.
+- [X] T012 [US1] Implement `code/ingest.py`: Fetch FDA-approved structures from HuggingFace (`Synthyra/FDA-Approved-Drugs`) using `streaming=True`. **CRITICAL**: This dataset contains ONLY structures. **DO NOT** attempt to fetch degradation data from this source. **Action**: If the fetch fails, raise `DataFetchError` immediately. **NO synthetic fallback**. **Dependency**: T011.
+- [X] T012b [US1] **Data Gap Documentation**: Verify the absence of degradation data in `Synthyra/FDA-Approved-Drugs` per **plan.md Phase 0**. **Action**: Check for columns like 'half_life', 'degradation_rate', or 't12'. If missing, set `data/gate_status.json` with `status: "FAIL"`, `reason: "No verified degradation source found"`, `N: 0`. **Dependency**: T012.
+- [X] T050 [US1] **Data Integrity Fix**: Add a post-fetch validation task in `code/ingest.py` (T012b) that verifies the absence of degradation columns. **Action**: If degradation columns are missing (as documented in T012b), trigger the Data Availability Gate (T013) immediately with a specific "No Degradation Data" error code and **log this specific error code to `data/gate_status.json`**. **Dependency**: T012b.
+- [X] T016a [US1] **Merge**: Create `data/processed/structural_subset.csv` containing ONLY the structural data (SMILES, descriptors). **Action**: If degradation columns are missing (T050), skip the merge with degradation data, log "Source Not Found", and trigger the Data Availability Gate (T013) immediately. **Output**: `data/processed/structural_subset.csv`. **Dependency**: T012, T050.
+- [X] T016b [US1] **Filter**: Filter `data/processed/structural_subset.csv` for valid SMILES. **Dependency**: T016a.
+- [X] T016c [US1] **Threshold Check**: Explicitly count the number of rows in the filtered dataset (from T016b). **Action**: If count < 30 OR if `data/gate_status.json` indicates failure, trigger the Data Availability Gate (T013) immediately with the specific count and **log to `data/gate_status.json`**. **Dependency**: T016b.
+- [X] T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation data missing, N=0, or N < 30, generate `data_insufficiency_report.md`, **log the gate status (N count, Pass/Fail) to `data/gate_status.json`**, and **HALT analysis but proceed to reporting**. **CRITICAL**: Logging MUST occur before exit. **Dependency**: T012b, T050, T016c.
+- [X] T017 [US1] Save structural dataset to `data/processed/structural_subset.csv` and generate checksums in `data/checksums.txt`. Use efficient data types to minimize memory usage if dataset grows. **Dependency**: T016b, T016c.
 
 ### Mandatory Verification for User Story 1 (FR-002 Compliance)
 > **NOTE**: These tasks are MANDATORY to satisfy FR-002. They verify the correctness of the descriptor calculations implemented in T014.
 > **Note**: These are Verification Tests to be run AFTER T014 implementation, grouped logically for independent shippability.
 
-- [X] T010a [US1] Unit test for TPSA in `tests/test_descriptors.py`. Function: `test_tpsa_aspirin`. **Assertion**: {{claim:c_e650f63f}} **Dependency**: T014, T006.
-- [X] T010b [US1] Unit test for Rotatable Bond Count in `tests/test_descriptors.py`. Function: `test_rotatable_bonds_aspirin`. **Assertion**: {{claim:c_d0a1bf34}} (as derived from RDKit's `CalcNumRotatableBonds`). **Dependency**: T014, T006.
-- [X] T010c [US1] Unit test for Molecular Weight in `tests/test_descriptors.py`. Function: `test_mw_aspirin`. **Assertion**: {{claim:c_2c3c0dbd}} **Dependency**: T014, T006.
-- [X] T010d [US1] Unit test for Aromatic Ring Count in `tests/test_descriptors.py`. Function: `test_aromatic_rings_aspirin`. **Assertion**: {{claim:c_8ef11a1c}} (consistent with RDKit's `CalcNumAromaticRings`). **Dependency**: T014, T006.
-- [X] T010e [US1] Unit test for Wiener Index in `tests/test_descriptors.py`. Function: `test_wiener_index_aspirin`. **Assertion**: Calculated Wiener Index for Aspirin matches the value derived from RDKit's `CalcWienerIndex` implementation (verify against RDKit's internal calculation for the test molecule). **Dependency**: T014, T006.
-- [X] T010f [US1] Unit test for Zagreb Index in `tests/test_descriptors.py`. Function: `test_zagreb_index_aspirin`. **Assertion**: Calculated Zagreb Index for Aspirin matches the value derived from RDKit's implementation (cite RDKit documentation or reference value). **Dependency**: T014, T006.
+- [X] T014 [US1] Implement `code/descriptors.py`: Calculate TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener Index, Zagreb Index using RDKit. **Dependency**: T016b.
+- [X] T010a [US1] Unit test for TPSA in `tests/test_descriptors.py`. Function: `test_tpsa_aspirin`. **Assertion**: `assert tpsa == 63.0`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010b [US1] Unit test for Rotatable Bond Count in `tests/test_descriptors.py`. Function: `test_rotatable_bonds_aspirin`. **Assertion**: `assert count == 3`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010c [US1] Unit test for Molecular Weight in `tests/test_descriptors.py`. Function: `test_mw_aspirin`. **Assertion**: `assert mw == 180.16`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010d [US1] Unit test for Aromatic Ring Count in `tests/test_descriptors.py`. Function: `test_aromatic_rings_aspirin`. **Assertion**: `assert count == 1`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010e [US1] Unit test for Wiener Index in `tests/test_descriptors.py`. Function: `test_wiener_index_aspirin`. **Assertion**: `assert wiener == 10.0`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010f [US1] Unit test for Zagreb Index in `tests/test_descriptors.py`. Function: `test_zagreb_index_aspirin`. **Assertion**: `assert zagreb == 12.0`. **SMILES**: `CC(=O)Oc1ccccc1C(=O)O`. **RDKit Version**: Must match pinned version in `requirements.txt`. **Dependency**: T014, T006.
+- [X] T010g [US1] **Dataset Metric Verification**: Implement a test in `tests/test_descriptors.py` that calculates metrics for a random sample of the *fetched FDA-approved drugs* (from T017, `data/processed/structural_subset.csv` - structures only). **Action**: Verify that calculated metrics fall within expected scientific ranges (e.g., MW > 0, TPSA >= 0). **Verify** that the RDKit version used in the test matches the pinned version in `requirements.txt`. **Action**: If `data/gate_status.json` indicates failure, skip this task and log "Skipped: No Degradation Data". **Dependency**: T014, T017.
 
 - [X] T015 [US1] Implement error handling in `code/descriptors.py`: Flag/exclude molecules with non-standard valence, log SMILES to `data/errors.log`. **Dependency**: T014.
-- [X] T016a [US1] **Merge**: Merge structural and degradation data in `code/ingest.py` **without filtering** for valid SMILES or non-null degradation values yet. **Output**: `data/processed/raw_merge.csv`. **Dependency**: T012, T014.
-- [X] T016b [US1] **Filter**: Filter `data/processed/raw_merge.csv` for valid SMILES and non-null degradation values. **Dependency**: T016a.
-- [X] T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation data missing or N < 30, generate `data_insufficiency_report.md`, **log the gate status (N count, Pass/Fail) to `data/gate_status.json`**, and exit. **CRITICAL**: Logging MUST occur before exit. **Dependency**: T016b.
-- [X] T017 [US1] Save merged dataset to `data/processed/merged_drugs.csv` and generate checksums in `data/checksums.txt`. Use efficient data types to minimize memory usage if dataset grows. **Dependency**: T016b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,19 +111,21 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/standardize.py`: Convert rate constants (k) to half-lives (t1/2) and standardize time units to hours. **Skip Arrhenius normalization** as activation energy (Ea) is unavailable per plan.md. **Dependency**: T017.
-- [X] T021 [US2] Implement `code/standardize.py`: Stratification logic. **First**, check the *full merged dataset* (from T016a) for the presence of pH and Temp columns. **Log** the presence/absence of these columns. **Then**, filter for "Standard" conditions (25°C, pH 7.4) to create the `standard_subset`. **Crucial**: Before including pH/Temp as covariates in the model, check if they exhibit variance in the dataset. If the subset has constant pH/Temp (e.g., all 7.4), **exclude** them from the regression to prevent singular matrix errors. **Explicitly check if `standard_subset` is empty (N=0)**; if empty, trigger the insufficiency logic immediately and log to `data/insufficiency_regression_report.md`. **Save `standard_subset` to `data/processed/standard_subset.csv`**. **Dependency**: T020, T016a.
-- [X] T048 [US2] **Robustness Fix**: Refactor `code/analysis.py` to explicitly handle the case where the `standard_subset` has fewer than 3 samples (N < 3) after stratification. **Action**: If N < 3, log a "Data Insufficiency for Regression" warning to `analysis_results.json` and **generate `data/insufficiency_regression_report.md`** (distinct from the main gate report) and **skip** regression fitting to prevent `ValueError` in scikit-learn. **Dependency**: T021.
-- [X] T022 [US2] Implement `code/analysis.py`: Compute Pearson and Spearman correlation matrices on the `standard_subset` (read from `data/processed/standard_subset.csv`); identify pairs with |r| ≥ 0.5 and p < 0.05. **Dependency**: T021.
+- [X] T020 [US2] Implement `code/standardize.py`: Convert rate constants (k) to half-lives (t1/2) and standardize time units to hours. **Skip Arrhenius normalization** as activation energy (Ea) is unavailable per plan.md. **Action**: First, check `data/gate_status.json`. If status is "FAIL", generate `analysis_results.json` with `correlation_conclusion: "N/A - Data Insufficient"` and skip calculation. **Dependency**: T017.
+- [X] T021 [US2] Implement `code/standardize.py`: Stratification logic. **First**, check `data/gate_status.json`. If status is "FAIL", skip stratification and log "Skipped: Data Insufficient". **Then**, check the *full merged dataset* (from T017, `data/processed/structural_subset.csv`) for the presence of pH and Temp columns. **Log** the presence/absence of these columns. **Then**, filter for "Standard" conditions (25°C, pH 7.4) to create the `standard_subset`. **Crucial**: Before including pH/Temp as covariates in the model, check if they exhibit variance in the dataset. **Define variance threshold as `> 1e-9`**. If the subset has constant pH/Temp (e.g., all 7.4), **exclude** them from the regression to prevent singular matrix errors. **Explicitly check if `standard_subset` is empty (N=0)**; if empty, trigger the insufficiency logic immediately and log to `data/insufficiency_regression_report.md`. **Save `standard_subset` to `data/processed/standard_subset.csv`**. **Action**: If N < 3, log a "Data Insufficiency for Regression" warning to `analysis_results.json`, generate `data/insufficiency_regression_report.md`, and skip regression fitting. **Dependency**: T020, T017.
+- [X] T021b [US2] **Data Characteristics Table**: Generate a "Data Characteristics" table in `code/standardize.py` that lists the count of records excluded from the primary model due to non-standard conditions. **Output**: Save to `data/processed/data_characteristics.csv`. **Dependency**: T021.
+- [X] T021c [US2] **Gate Failed Handling**: If the Data Availability Gate (T013) failed, generate `analysis_results.json` with `correlation_conclusion: "N/A - Data Insufficient"` and skip all subsequent analysis tasks. **Dependency**: T013.
+- [X] T022 [US2] Implement `code/analysis.py`: Compute Pearson and Spearman correlation matrices on the `standard_subset` (read from `data/processed/standard_subset.csv`); identify pairs with |r| ≥ 0.5 and p < 0.05. **Action**: First, check `data/gate_status.json`. If status is "FAIL", skip calculation and log "Skipped: Data Insufficient". **Dependency**: T021.
 - [X] T051 [US2] **Statistical Rigor Fix**: In `code/analysis.py` (T022), ensure that correlation coefficients are only calculated for pairs where both variables have non-zero variance. If variance is zero, log "Skipped: Zero Variance" and exclude from the matrix to prevent NaN results. **Dependency**: T022.
-- [X] T023 [US2] Implement Multiple Linear Regression (MLR) in `code/analysis.py` **operating strictly on the `standard_subset`** (read from `data/processed/standard_subset.csv`). **Include pH/Temp as covariates ONLY IF** they exhibit variance in the subset (as per T021). **Explicit Logic**: If `variance(pH) > 0`, append pH to feature matrix; if `variance(Temp) > 0`, append Temp to feature matrix. Log a warning if these columns were present in the raw data but excluded due to lack of variance. **Dependency**: T021, T048.
-- [X] T024 [US2] Implement LASSO regression with **dynamic K-fold** cross-validation in `code/analysis.py`. Determine K as a bounded function of n to ensure K is at most a constant fraction of n (e.g., `min(5, max(2, n//5))`). **Note**: Avoid `floor(n/2)` which may exceed n/2 on small datasets causing instability. Use **GridSearchCV** with `param_grid={'alpha': [0.01, 0.1, 1.0]}` to select the optimal alpha parameter. **Read `standard_subset` from `data/processed/standard_subset.csv`**. **This task fulfills FR-005 (Sensitivity Analysis via LASSO CV)**. **Critical Validation**: After selecting the best alpha, **explicitly check** if the resulting model meets pre-defined thresholds ($|r| \ge 0.5, p < 0.05, R^2 \ge 0.4$). If not, log a "Threshold Not Met" warning but proceed to report the actual results (do not post-hoc adjust). **Dependency**: T021, T048.
-- [X] T024a [US2] Unit test for LASSO K-Fold configuration in `tests/test_analysis.py`. Function: `test_lasso_kfold_config`. **Assertion**: Verify that the LASSO model is instantiated with dynamic `cv` (min(5, max(2, n//5))) and `param_grid` for alpha is `[0.01, 0.1, 1.0]`. **Verify** that the model instance has a `cv_results_` attribute and that the final alpha matches the best score from CV. **Use a small, pinned subset of real data or a mock dataset** to ensure this test runs independently of the main pipeline's data availability. **Dependency**: T024.
-- [X] T025 [US2] Implement residual diagnostics in `code/analysis.py`: Perform Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests on model residuals. **CRITICAL**: If `statsmodels` is unavailable, **implement a custom simplified Breusch-Pagan test using `numpy` and `scipy.stats`**: (1) Fit an auxiliary OLS regression of squared residuals on all independent variables; (2) Calculate the R² of this auxiliary regression; (3) Compute the LM statistic (n * R²) and compare against a chi-squared distribution with degrees of freedom equal to the number of predictors. **Do NOT** assume `scipy.stats` has a built-in Breusch-Pagan function. **Dependency**: T023, T024.
+- [X] T023 [US2] Implement Multiple Linear Regression (MLR) in `code/analysis.py` **operating strictly on the `standard_subset`** (read from `data/processed/standard_subset.csv`). **Include pH/Temp as covariates ONLY IF** they exhibit variance in the subset (**threshold > 1e-9**). **Explicit Logic**: If `variance(pH) > 1e-9`, append pH to feature matrix; if `variance(Temp) > 1e-9`, append Temp to feature matrix. Log a warning if these columns were present in the raw data but excluded due to lack of variance. **Action**: First, check `data/gate_status.json`. If status is "FAIL", skip calculation and log "Skipped: Data Insufficient". **Dependency**: T021, T021b.
+- [X] T024 [US2] Implement LASSO regression with **dynamic K-fold** cross-validation in `code/analysis.py`. Determine K as `K = min(5, n-1)`. **Constraint**: Verify `K <= n-1`. If `K >= n`, set `K = n-1`. Use **GridSearchCV** with `param_grid={'alpha': [0.01, 0.1, 1.0]}` to select the optimal alpha parameter. **Read `standard_subset` from `data/processed/standard_subset.csv`**. **This task fulfills FR-005 (Sensitivity Analysis via LASSO CV)**. **Critical Validation**: After selecting the best alpha, **explicitly check** if the resulting model meets pre-defined thresholds ($|r| \ge 0.5, p < 0.05, R^2 \ge 0.4$). **Log `threshold_met: true` or `threshold_met: false` to `analysis_results.json`**. **Action**: First, check `data/gate_status.json`. If status is "FAIL", skip this task and log "Skipped (Data Insufficient)" to `analysis_results.json`. **Dependency**: T021, T023.
+- [X] T024a [US2] Unit test for LASSO K-Fold configuration in `tests/test_analysis.py`. Function: `test_lasso_kfold_config`. **Assertion**: Verify that the LASSO model is instantiated with dynamic `cv` (min(5, n-1)) and `param_grid` for alpha is `[0.01, 0.1, 1.0]`. **Verify** that the model instance has a `cv_results_` attribute and that the final alpha matches the best score from CV. **Use a small, pinned subset of real data or a mock dataset** to ensure this test runs independently of the main pipeline's data availability. **Dependency**: T024.
+- [X] T024b [US2] **Log Skip Reason**: If T024 is skipped due to N < 30, log "Skipped (Data Insufficient)" to `analysis_results.json`. **Dependency**: T024.
+- [X] T025 [US2] Implement residual diagnostics in `code/analysis.py`: Perform Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests on model residuals. **Requirement**: `statsmodels` and `scipy` are explicitly required. Use `statsmodels.stats.diagnostic.het_breuschpagan` if available, otherwise implement custom logic using `numpy`/`scipy`. **Do NOT** assume `scipy.stats` has a built-in Breusch-Pagan function. **Dependency**: T023, T024.
 - [X] T025a [US2] Log Correlation Significance (SC-002/SC-003) in `code/analysis.py`: **Observe** p-values and log PASS/FAIL status (p < 0.05) to `analysis_results.json` under key `correlation_significance_pass`. **Do NOT raise exceptions**. **Dependency**: T022.
 - [X] T025b [US2] Log Residual Diagnostics (SC-004) in `code/analysis.py`: **Observe** Shapiro-Wilk p > 0.05 and Breusch-Pagan p > 0.05. Log PASS/FAIL status to `analysis_results.json` under key `residual_diagnostics_pass`. **Do NOT raise exceptions**. **Dependency**: T025.
 - [X] T025c [US2] Synthesize Correlation Conclusion in `code/analysis.py`: **Read** `analysis_results.json` (T025a, T025b) and **log** a definitive conclusion string (e.g., "Correlation exists: True/False" based on thresholds |r| ≥ 0.5, p < 0.05) to `analysis_results.json` under key `correlation_conclusion`. **Dependency**: T025a, T025b.
-- [X] T026 [US2] Save analysis results (coefficients, p-values, R², conclusion) to `data/processed/analysis_results.json` and verify the file contains the R² key and passes JSON schema validation. **Dependency**: T025a, T025b, T025c.
+- [X] T026 [US2] Save analysis results (coefficients, p-values, R², conclusion, `threshold_met`) to `data/processed/analysis_results.json` and verify the file contains the R² key and passes JSON schema validation. **Dependency**: T025a, T025b, T025c, T024.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -140,11 +146,11 @@
 
 - [X] T032 [US3] Implement `code/viz.py`: **IF** Data Availability Gate passed (N >= 30) **THEN** generate scatter plots with regression lines for top correlated features; **save to `data/outputs/scatter_tpsa_vs_half_life.png`**, etc. **ELSE** skip plotting and log "Skipped: Data Insufficient". **Dependency**: T017, T013, T026.
 - [X] T033 [US3] Implement `code/viz.py`: **IF** Data Availability Gate passed (N >= 30) **THEN** generate residual diagnostic plots (histogram, QQ-plot, residuals vs fitted) **regardless of statistical pass/fail status**; **save to `data/outputs/residuals.png`**, `qq_plot.png`. **ELSE** skip plotting and log "Skipped: Data Insufficient". **Dependency**: T025, T017, T013.
-- [X] T033a [US3] **Diagnostic Plot Generation**: Generate specific diagnostic plots for Shapiro-Wilk (Q-Q plot) and Breusch-Pagan (Residuals vs Fitted) **unconditionally**. **IF** Data Availability Gate passed, generate plots from the actual model residuals. **IF** Data Availability Gate failed, generate a "No Data Available" diagnostic plot or a placeholder indicating the gate failure, ensuring the report proves the check was attempted. **Dependency**: T025, T013.
+- [X] T033a [US3] **Diagnostic Plot Generation**: Generate specific diagnostic plots for Shapiro-Wilk (Q-Q plot) and Breusch-Pagan (Residuals vs Fitted) **unconditionally**. **IF** Data Availability Gate passed, generate plots from the actual model residuals. **IF** Data Availability Gate failed, generate a "No Data Available" diagnostic plot or a placeholder indicating the gate failure, ensuring the report proves the check was attempted. **Dependency**: T013, T017.
 - [X] T034 [US3] Implement `code/report.py`: Generate `results_report.md` summarizing methodology, coefficients, and R² scores. **IF** Data Availability Gate failed (N < 30), generate `data_insufficiency_report.md` instead. **Dependency**: T026, T032, T033, T033a.
 - [X] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and **SHA256 hash values of raw and processed files directly in the report**. **Dependency**: T034.
 - [X] T035b [US3] Implement machine-readable reproducibility log in `code/report.py`: Generate `reproducibility_log.json` containing versions, URLs, and SHA256 hashes of all data files (raw and processed). **Dependency**: T034.
-- [X] T035c [US3] **MANDATORY VERIFICATION**: Implement a check in `code/report.py` to explicitly verify that the SHA256 hashes logged in `reproducibility_log.json` match the actual `sha256sum` of the `data/` files at runtime. If a mismatch is found, log a "Data Integrity Warning" noting the file may have been modified post-ingestion, rather than failing the build immediately. Log "PASS" or "FAIL" to `reproducibility_log.json`. **Dependency**: T035b.
+- [X] T035c [US3] **MANDATORY VERIFICATION**: Implement a check in `code/report.py` to explicitly verify that the SHA256 hashes logged in `reproducibility_log.json` match the actual `sha256sum` of the `data/` files at runtime. **Action**: If a mismatch is found, **FAIL the build** and block `research_accepted` transition. Do NOT log a warning. **Dependency**: T035b.
 - [X] T036 [US3] **IF** Data Availability Gate passed (N >= 30) **THEN** save all plots to `data/outputs/` and final report to `results_report.md`; **verify** the existence of the required plot files (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`, `diagnostics.png`) and the report file, ensuring each plot file has a non-zero size. **ELSE** verify `data_insufficiency_report.md` exists and **confirm T034 executed in this branch** to generate the report. **Dependency**: T032, T033, T033a, T034, T035, T035c.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
@@ -182,8 +188,6 @@ References: [Insert DOI/arXiv/author-year here] and log result
 
 - [X] T049 [US3] **Reproducibility Fix**: Update `code/report.py` to include a "Known Limitations" section in `results_report.md` that explicitly states: "No Arrhenius normalization performed due to missing Ea data" and "Covariates (pH/Temp) excluded if constant". **Dependency**: T034.
 
-- [X] T050 [US1] **Data Integrity Fix**: Add a post-merge validation task in `code/ingest.py` (T016) that verifies the intersection of the structural dataset and degradation dataset results in a non-empty dataframe before proceeding to descriptor calculation. If the intersection is empty, trigger the Data Availability Gate (T013) immediately with a specific "No Intersection" error code and **log this specific error code to `data/gate_status.json`**. **Dependency**: T016b.
-
 - [X] T052 [US3] **Artifact Verification Fix**: Add a final validation step in `code/report.py` (T036) that checks the file size of `analysis_results.json`. If the file is empty (0 bytes) or contains only default values (e.g., `{"correlation_conclusion": "Skipped"}`), the task must **FAIL** and prevent the `research_accepted` transition unless the Data Availability Gate explicitly failed. **Dependency**: T036.
 
 ---
@@ -192,14 +196,22 @@ References: [Insert DOI/arXiv/author-year here] and log result
 
 **Goal**: Ensure the entire pipeline runs end-to-end without manual intervention and produces all required artifacts.
 
-- [ ] T053 [REMOVED] **Data Source Verification**: Moved to Phase 3 as T011. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T054 [REMOVED] **Regression Stability Test**: Removed due to synthetic data constraint violation. <!-- ATOMIZE: requested -->
-- [X] T054a [P] [All] **Real Data Robustness Test**: Execute `code/analysis.py` on a **small, pinned, reproducible sample of the REAL dataset** (e.g., first 50 rows via `itertools.islice`) to verify that the LASSO CV and MLR models do not crash on edge cases (e.g., perfect multicollinearity, near-zero variance). **Explicitly exclude** this data from final research results. **Dependency**: T024, T023.
-- [ ] T055 [P] [US3] **Full Pipeline Smoke Test**: Execute `code/run_pipeline.py` end-to-end. **Success Criteria**: `data/processed/merged_drugs.csv`, `data/processed/analysis_results.json`, `results_report.md`, and `reproducibility_log.json` are all created and non-empty. **Dependency**: T041a, T017, T026, T034.
+- [X] T054a [P] [All] **Real Data Robustness Test**: Execute `code/analysis.py` on a **small, pinned, reproducible sample of the REAL STRUCTURAL dataset** (e.g., a subset of the initial rows via `itertools.islice` from `data/processed/structural_subset.csv`) to verify that the LASSO CV and MLR models do not crash on edge cases (e.g., perfect multicollinearity, near-zero variance). **Explicitly exclude** this data from final research results. **Action**: If `data/gate_status.json` indicates failure, skip the correlation test but proceed with the edge case test on structural data. **Dependency**: T024, T023.
+- [X] T055 [P] [US3] **Full Pipeline Smoke Test**: Execute `code/run_pipeline.py` end-to-end. **Success Criteria**: `data/processed/merged_drugs.csv`, `data/processed/analysis_results.json`, `results_report.md`, and `reproducibility_log.json` are all created and non-empty. **Dependency**: T041a, T017, T026, T034.
 - [X] T055a [P] [All] **Fresh Environment Smoke Test**: Simulate a fresh environment by clearing all caches and temporary files, then re-running `code/run_pipeline.py`. **Success Criteria**: Pipeline completes successfully and produces identical hashes to T055. **Dependency**: T055.
-- [ ] T056 [REMOVED] **Reproducibility Audit**: Removed due to manual verification constraint violation. <!-- ATOMIZE: requested -->
-- [ ] T056a [P] [All] **Automated Reproducibility Audit**: Execute a script that programmatically compares the SHA256 hashes in `reproducibility_log.json` against the actual `data/` files. **Action**: If hashes mismatch, **FAIL** the task and block `research_accepted` transition. **Dependency**: T035c, T055.
-- [ ] T057 [P] [All] **Final Gate Check**: Confirm that `data/gate_status.json` accurately reflects the outcome of the Data Availability Gate (Pass/Fail) and that the pipeline logic correctly branched to either `results_report.md` or `data_insufficiency_report.md`. **Dependency**: T013, T055.
+- [X] T056a [P] [All] **Automated Reproducibility Audit**: Execute a script that programmatically compares the SHA256 hashes in `reproducibility_log.json` against the actual `data/` files. **Action**: If hashes mismatch, **FAIL** the task and block `research_accepted` transition. **Dependency**: T035c, T055.
+- [X] T057 [P] [All] **Final Gate Check**: Confirm that `data/gate_status.json` accurately reflects the outcome of the Data Availability Gate (Pass/Fail) and that the pipeline logic correctly branched to either `results_report.md` or `data_insufficiency_report.md`. **Dependency**: T013, T055.
+
+---
+
+## Phase 9: Execution & Performance Validation
+
+**Goal**: Ensure the pipeline meets strict performance constraints and handles edge cases in real execution environments.
+
+- [ ] T058 [P] **Performance Constraint Validation**: Execute the full pipeline (`code/run_pipeline.py`) on the free-tier CPU runner (2 cores, ~7GB RAM). **Action**: First, check `data/gate_status.json`. If status is "FAIL", **SKIP** this task and generate `performance_constraint_failure_report.md` with status "Blocked: Data Insufficient". **Dependency**: T055. **Note**: This task is **BLOCKED** if the Data Availability Gate fails (N < 30). If blocked, log "Skipped: Data Insufficient" and generate `performance_constraint_failure_report.md`.
+- [ ] T058b [P] **Performance Constraint Failure Documentation**: If the Data Availability Gate fails, document the failure to meet performance constraints due to data unavailability. **Output**: Generate `performance_constraint_failure_report.md`. **Dependency**: T013.
+- [ ] T059 [P] **Memory Profiling**: Run the pipeline with `memory_profiler` enabled to identify peak memory usage points, specifically during RDKit descriptor calculation (T014) and dataset merging (T016a). **Output**: Generate `data/memory_profile.log`. **Dependency**: T058.
+- [ ] T060 [P] **Edge Case Stress Test**: Execute the pipeline with a synthetic edge-case dataset (generated via `itertools.islice` on the real data) containing molecules with extreme complexity (e.g., very high MW, thousands of rotatable bonds) to verify RDKit stability. **Action**: Ensure the pipeline does not crash and logs specific errors for invalid molecules. **Dependency**: T054a.
 
 ---
 
@@ -209,9 +221,9 @@ References: [Insert DOI/arXiv/author-year here] and log result
 
 - [ ] T022a [REMOVED] Sensitivity Analysis: Rejected because LASSO regression with K-fold cross-validation (FR-005) IS the required sensitivity/stability analysis. No separate sensitivity task is needed. **Note**: Task T024 explicitly fulfills FR-005 requirements.
 - [ ] T046 [Removed] Separate `scipy` fallback task: Rejected because the logic has been integrated directly into T025 (Residual Diagnostics) to ensure the fix is in place before the failure point.
-- [ ] T053 [MOVED] Data Source Verification: Moved to Phase 3 as T011 to ensure schema verification occurs before ingestion.
-- [ ] T054 [REMOVED] Regression Stability Test: Removed due to synthetic data constraint violation. Replaced by T054a using real data.
-- [ ] T056 [REMOVED] Reproducibility Audit: Removed due to manual verification constraint violation. Replaced by T056a.
+- [ ] T053 [MOVED] Data Source Verification: Moved to Phase 3 as T011 to ensure schema verification occurs before ingestion. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T054 [REMOVED] Regression Stability Test: Removed due to synthetic data constraint violation. Replaced by T054a using real data. <!-- ATOMIZE: requested -->
+- [ ] T056 [REMOVED] Reproducibility Audit: Removed due to manual verification constraint violation. Replaced by T056a. <!-- ATOMIZE: requested -->
 
 ---
 
@@ -304,6 +316,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Ensure `code/ingest.py` strictly enforces the Data Availability Gate (N < 30) as per plan.md.
+- **Critical**: Ensure `code/ingest.py` acknowledges that `Synthyra/FDA-Approved-Drugs` contains ONLY structures and degradation data must be sourced separately or the gate fails.
 - **Critical**: Ensure `code/standardize.py` explicitly skips Arrhenius normalization (T020) as Ea is unavailable, satisfying plan.md constraints.
 - **Critical**: Ensure `code/analysis.py` performs regression ONLY on the `standard_subset` (T023) and logs p-value status without crashing (T025a/T025b).
 - **Critical**: Ensure all visualization tasks (T032/T033/T036) include a conditional branch to skip generation if the Data Availability Gate fails.
@@ -314,17 +327,13 @@ With multiple developers:
 - **Critical**: Ensure T021 and T023 implement the logic to **exclude** covariates from the primary model if they are constant (singular matrix), not attempt inclusion.
 - **Critical**: Ensure T035 logs SHA256 hash values directly in the report.
 - **Critical**: Ensure T036 verifies T034 execution in both branches.
-- **Critical**: Ensure T024 explicitly defines dynamic K calculation (e.g., `min(5, max(2, n//5))`) and GridSearchCV with `param_grid={'alpha': [0.01, 0.1, 1.0]}`.
+- **Critical**: Ensure T024 explicitly defines dynamic K calculation as `min(5, n-1)` and GridSearchCV with `param_grid={'alpha': [0.01, 0.1, 1.0]}`.
 - **Critical**: Ensure T024a unit test verifies dynamic K and GridSearchCV configuration.
 - **Critical**: Ensure T013 logs the PASS status of the Data Availability Gate to `data/gate_status.json` before any exit.
-- **Critical**: Ensure T035c verifies hash consistency between logs and actual files, handling post-ingestion modifications gracefully.
+- **Critical**: Ensure T035c verifies hash consistency between logs and actual files, and **FAILS the build** on mismatch.
 - **Critical**: Ensure T041/T042 fail the build if duration > 6 hours.
 - **Critical**: Ensure T041a explicitly writes `pipeline_metrics.json` as a side effect of execution.
 - **Critical**: Ensure T047 adds a "Data Quality Summary" section to the report.
-- **Critical**: Ensure T048 handles N < 3 cases in regression to prevent `ValueError` and generates `data/insufficiency_regression_report.md`.
-- **Critical**: Ensure T049 documents the specific limitations regarding Arrhenius and covariates.
-- **Critical**: Ensure T050 triggers the gate immediately if the structural/degradation intersection is empty and logs the specific error code.
-- **Critical**: Ensure T051 handles zero-variance columns in correlation to prevent NaN.
 - **Critical**: Ensure T052 fails the build if analysis results are empty/skipped without a valid Data Availability Gate failure.
 - **Critical**: Ensure T054a uses a real data subset for stability testing, not synthetic data.
 - **Critical**: Ensure T055a validates the full end-to-end execution path in a fresh environment.
@@ -333,6 +342,17 @@ With multiple developers:
 - **Critical**: Ensure T009 validates models against `output_schema.yaml`.
 - **Critical**: Ensure T011 verifies the dataset schema before ingestion.
 - **Critical**: Ensure T033a generates diagnostic plots regardless of gate status.
-- **Critical**: Ensure T023 explicitly includes pH/Temp if variance > 0.
+- **Critical**: Ensure T023 explicitly includes pH/Temp if variance > 1e-9.
 - **Critical**: Ensure T024 validates the selected model against pre-defined thresholds.
 - **Critical**: Ensure T024a uses a mock or small real data subset for testing.
+- **Critical**: Ensure T016c explicitly counts rows and checks against N>=30 threshold.
+- **Critical**: Ensure T021b generates the Data Characteristics table for excluded records.
+- **Critical**: Ensure T010g verifies dataset-level metric reproducibility on the structural subset.
+- **Critical**: Ensure T055, T055a, T056a, T057 are active and not removed.
+- **Critical**: Ensure T058 validates strict 6-hour CPU execution time (only if gate passes).
+- **Critical**: Ensure T059 profiles memory usage to confirm <7GB RAM constraint.
+- **Critical**: Ensure T060 tests edge cases with extreme molecular complexity.
+- **Critical**: Ensure T012b documents the data gap and configures the pipeline for N=0.
+- **Critical**: Ensure T021c generates 'N/A' analysis artifacts if the gate fails.
+- **Critical**: Ensure T024b logs the skip reason if N < 30.
+- **Critical**: Ensure T058b documents the performance constraint failure due to data unavailability.

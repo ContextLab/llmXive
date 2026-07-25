@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T03:17:55.666659Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-071-exploring-the-correlation-between-molecu
-last_run_id: 620192f7-73e9-4a11-a0f6-5b3fb7ca5a37
+last_run_id: e0dccbd5-d59f-4aec-ba41-9d71577d2431
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu
 title: Exploring the Correlation Between Molecular Complexity and Degradation Rates
   in Pharmaceuticals
-updated_at: '2026-07-22T11:40:02.221825Z'
+updated_at: '2026-07-25T14:27:13.267335Z'

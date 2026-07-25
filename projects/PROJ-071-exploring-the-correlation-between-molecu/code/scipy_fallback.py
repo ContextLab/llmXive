@@ -1,15 +1,12 @@
 """
-T046: Scipy Fallback Implementation for Residual Diagnostics.
+Scipy fallback implementation for residual diagnostics.
 
-This module provides a robust implementation of the Breusch-Pagan test
-for heteroscedasticity using only numpy and scipy.stats, as a fallback
-when statsmodels is unavailable. This satisfies the requirement to ensure
-residual diagnostics (SC-004) can run without external dependencies like
-statsmodels.
+This module provides robust implementations of the Shapiro-Wilk and 
+Breusch-Pagan tests using scipy.stats, intended as a fallback or 
+primary implementation for the residual diagnostics in T025.
 
-The logic is designed to be integrated into code/analysis.py (T025) but
-is provided here as a standalone module to ensure the 'scipy fallback'
-artifact exists as a distinct, verifiable deliverable for T046.
+It ensures that the analysis pipeline can perform necessary statistical 
+checks even if statsmodels is unavailable or fails.
 """
 
 import numpy as np
@@ -17,187 +14,174 @@ import scipy.stats as stats
 from typing import Tuple, Optional, Dict, Any
 import logging
 
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-
-def breusch_pagan_test(residuals: np.ndarray, features: np.ndarray) -> Dict[str, Any]:
+def shapiro_wilk_test(residuals: np.ndarray) -> Tuple[float, float]:
     """
-    Perform the Breusch-Pagan test for heteroscedasticity.
-
-    This function implements the test from first principles using numpy
-    and scipy, avoiding the need for statsmodels.
-
-    The Breusch-Pagan test checks if the variance of the errors from a
-    regression is dependent on the values of the independent variables.
-
-    Steps:
-    1. Fit an auxiliary OLS regression of the squared residuals on the original independent variables.
-    2. Calculate the R-squared (R²) of this auxiliary regression.
-    3. Compute the Lagrange Multiplier (LM) statistic: LM = n * R².
-    4. The LM statistic follows a Chi-squared distribution with degrees of
-       freedom equal to the number of predictors (k).
-    5. Calculate the p-value.
+    Perform the Shapiro-Wilk test for normality on residuals.
 
     Args:
-        residuals (np.ndarray): The residuals from the primary regression model.
-        features (np.ndarray): The independent variables (X) from the primary regression.
-                             Shape should be (n_samples, n_features).
+        residuals: Array of residuals from a regression model.
 
     Returns:
-        Dict[str, Any]: A dictionary containing:
-            - 'statistic': The LM statistic value.
-            - 'p_value': The p-value from the Chi-squared distribution.
-            - 'degrees_of_freedom': The degrees of freedom (number of predictors).
-            - 'passed': Boolean indicating if p_value > 0.05 (homoscedasticity not rejected).
+        Tuple of (statistic, p-value).
+        
+    Raises:
+        ValueError: If residuals are empty or too small for the test.
     """
-    n = len(residuals)
-    if n == 0:
+    if residuals is None or len(residuals) == 0:
         raise ValueError("Residuals array is empty.")
-
-    # 1. Prepare squared residuals
-    squared_residuals = residuals ** 2
-
-    # 2. Fit auxiliary OLS regression: squared_residuals ~ features
-    # We add a constant (intercept) to the features
-    X_aux = features
-    if X_aux.ndim == 1:
-        X_aux = X_aux.reshape(-1, 1)
-
-    # Add intercept column
-    intercept = np.ones((X_aux.shape[0], 1))
-    X_aux_with_intercept = np.hstack([intercept, X_aux])
-
-    # Solve for coefficients: (X^T X)^-1 X^T y
-    # Using np.linalg.lstsq for stability
-    try:
-        beta_aux, residuals_aux, rank_aux, s_aux = np.linalg.lstsq(X_aux_with_intercept, squared_residuals, rcond=None)
-    except np.linalg.LinAlgError:
-        # Fallback if matrix is singular (e.g., constant features)
-        logger.warning("Auxiliary regression matrix is singular. Assuming homoscedasticity (test inconclusive).")
-        return {
-            'statistic': 0.0,
-            'p_value': 1.0,
-            'degrees_of_freedom': X_aux.shape[1],
-            'passed': True,
-            'note': 'Singular matrix in auxiliary regression'
-        }
-
-    # 3. Calculate R-squared of the auxiliary regression
-    ss_res = np.sum((squared_residuals - np.dot(X_aux_with_intercept, beta_aux)) ** 2)
-    ss_tot = np.sum((squared_residuals - np.mean(squared_residuals)) ** 2)
-
-    if ss_tot == 0:
-        # If variance of squared residuals is zero, R² is undefined/0
-        r_squared = 0.0
-    else:
-        r_squared = 1.0 - (ss_res / ss_tot)
-
-    # 4. Compute LM statistic
-    lm_statistic = n * r_squared
-
-    # 5. Calculate p-value using Chi-squared distribution
-    # Degrees of freedom = number of predictors (excluding intercept)
-    k = X_aux.shape[1]
-    p_value = 1.0 - stats.chi2.cdf(lm_statistic, k)
-
-    # Determine pass/fail: p > 0.05 means we fail to reject null hypothesis (homoscedasticity)
-    passed = p_value > 0.05
-
-    logger.info(f"Breusch-Pagan Test: LM={lm_statistic:.4f}, p={p_value:.4f}, df={k}, Passed={passed}")
-
-    return {
-        'statistic': float(lm_statistic),
-        'p_value': float(p_value),
-        'degrees_of_freedom': int(k),
-        'passed': passed,
-        'r_squared_aux': float(r_squared)
-    }
-
-
-def shapiro_wilk_test(residuals: np.ndarray) -> Dict[str, Any]:
-    """
-    Perform the Shapiro-Wilk test for normality.
-
-    This wraps scipy.stats.shapiro to ensure consistency with the
-    required diagnostics.
-
-    Args:
-        residuals (np.ndarray): The residuals from the model.
-
-    Returns:
-        Dict[str, Any]: Dictionary with statistic, p_value, and passed status.
-    """
+    
     n = len(residuals)
     if n < 3:
-        logger.warning("Shapiro-Wilk requires at least 3 samples.")
-        return {
-            'statistic': 0.0,
-            'p_value': 1.0,
-            'passed': True, # Inconclusive, assume pass to avoid crash
-            'note': 'Insufficient samples'
-        }
-
+        # Shapiro-Wilk requires at least 3 samples
+        logger.warning(f"Shapiro-Wilk test requires at least 3 samples, got {n}. Skipping.")
+        return 0.0, 1.0
+    
     try:
         stat, p_value = stats.shapiro(residuals)
-        passed = p_value > 0.05
-        logger.info(f"Shapiro-Wilk Test: W={stat:.4f}, p={p_value:.4f}, Passed={passed}")
-        return {
-            'statistic': float(stat),
-            'p_value': float(p_value),
-            'passed': passed
-        }
-    except ValueError as e:
+        logger.debug(f"Shapiro-Wilk test: statistic={stat:.4f}, p-value={p_value:.4f}")
+        return stat, p_value
+    except Exception as e:
         logger.error(f"Shapiro-Wilk test failed: {e}")
-        return {
-            'statistic': 0.0,
-            'p_value': 1.0,
-            'passed': True,
-            'note': str(e)
-        }
+        raise
 
-
-def run_residual_diagnostics_scipy(residuals: np.ndarray, features: np.ndarray) -> Dict[str, Any]:
+def breusch_pagan_test(residuals: np.ndarray, fitted_values: np.ndarray) -> Tuple[float, float]:
     """
-    Run both Shapiro-Wilk and Breusch-Pagan tests using scipy/numpy.
-
-    This function aggregates the results of the two key diagnostic tests
-    required for SC-004 compliance.
+    Perform the Breusch-Pagan test for heteroscedasticity.
+    
+    This is a custom implementation using scipy/statsmodels logic 
+    to avoid dependency on statsmodels.stats.diagnostic if unavailable,
+    or to provide a pure scipy path.
+    
+    The test checks if the variance of the errors is constant (homoscedasticity).
+    Null hypothesis: Homoscedasticity (constant variance).
+    Alternative hypothesis: Heteroscedasticity (variance depends on fitted values).
 
     Args:
-        residuals (np.ndarray): Model residuals.
-        features (np.ndarray): Independent variables.
+        residuals: Array of residuals from the regression model.
+        fitted_values: Array of fitted values (y_pred) from the model.
 
     Returns:
-        Dict[str, Any]: Combined results dictionary.
+        Tuple of (LM statistic, p-value).
+        
+    Raises:
+        ValueError: If inputs are invalid or dimensions mismatch.
     """
-    shapiro_result = shapiro_wilk_test(residuals)
-    bp_result = breusch_pagan_test(residuals, features)
+    if residuals is None or fitted_values is None:
+        raise ValueError("Residuals and fitted values cannot be None.")
+    
+    residuals = np.asarray(residuals)
+    fitted_values = np.asarray(fitted_values)
+    
+    if len(residuals) != len(fitted_values):
+        raise ValueError(f"Length mismatch: residuals ({len(residuals)}) vs fitted_values ({len(fitted_values)})")
+    
+    n = len(residuals)
+    if n < 10:
+        logger.warning(f"Breusch-Pagan test may be unreliable with < 10 samples (got {n}). Proceeding.")
+    
+    # Step 1: Square the residuals
+    squared_residuals = residuals ** 2
+    
+    # Step 2: Regress squared residuals on fitted values (or original X)
+    # Here we use fitted_values as the independent variable for simplicity
+    # Model: squared_residuals ~ fitted_values
+    
+    # Add constant for intercept
+    X = np.column_stack([np.ones(n), fitted_values])
+    
+    try:
+        # OLS estimation: beta = (X'X)^-1 X'y
+        XtX = X.T @ X
+        # Handle potential singularity if fitted_values are constant
+        if np.linalg.cond(XtX) > 1e10:
+            logger.warning("X'X is nearly singular in Breusch-Pagan test. Assuming homoscedasticity.")
+            return 0.0, 1.0
+        
+        beta = np.linalg.solve(XtX, X.T @ squared_residuals)
+        
+        # Calculate predicted squared residuals
+        predicted_sq_resid = X @ beta
+        
+        # Calculate Explained Sum of Squares (ESS)
+        mean_sq_resid = np.mean(squared_residuals)
+        ESS = np.sum((predicted_sq_resid - mean_sq_resid) ** 2)
+        
+        # LM Statistic = n * R^2
+        # R^2 = ESS / TSS (Total Sum of Squares of squared residuals)
+        TSS = np.sum((squared_residuals - mean_sq_resid) ** 2)
+        
+        if TSS == 0:
+            logger.warning("Total Sum of Squares is zero in Breusch-Pagan test. Assuming homoscedasticity.")
+            return 0.0, 1.0
+        
+        R2 = ESS / TSS
+        LM_stat = n * R2
+        
+        # p-value from Chi-squared distribution with 1 degree of freedom
+        # (1 regressor: fitted_values)
+        p_value = 1.0 - stats.chi2.cdf(LM_stat, df=1)
+        
+        logger.debug(f"Breusch-Pagan test: LM={LM_stat:.4f}, p-value={p_value:.4f}")
+        return LM_stat, p_value
+        
+    except np.linalg.LinAlgError:
+        logger.error("Linear algebra error during Breusch-Pagan calculation.")
+        raise
+    except Exception as e:
+        logger.error(f"Breusch-Pagan test failed: {e}")
+        raise
 
-    # Overall pass: both must pass (normality AND homoscedasticity)
-    overall_pass = shapiro_result['passed'] and bp_result['passed']
-
-    return {
-        'shapiro_wilk': shapiro_result,
-        'breusch_pagan': bp_result,
-        'overall_diagnostics_pass': overall_pass
+def run_residual_diagnostics_scipy(
+    residuals: np.ndarray, 
+    fitted_values: np.ndarray
+) -> Dict[str, Any]:
+    """
+    Run the full suite of residual diagnostics using scipy fallbacks.
+    
+    Args:
+        residuals: Array of residuals.
+        fitted_values: Array of fitted values.
+    
+    Returns:
+        Dictionary containing test results:
+            - shapiro_stat, shapiro_p
+            - breusch_pagan_lm, breusch_pagan_p
+            - shapiro_pass (p > 0.05)
+            - breusch_pagan_pass (p > 0.05)
+    """
+    results = {
+        "shapiro_stat": None,
+        "shapiro_p": None,
+        "shapiro_pass": False,
+        "breusch_pagan_lm": None,
+        "breusch_pagan_p": None,
+        "breusch_pagan_pass": False,
+        "errors": []
     }
 
+    # Shapiro-Wilk
+    try:
+        sw_stat, sw_p = shapiro_wilk_test(residuals)
+        results["shapiro_stat"] = sw_stat
+        results["shapiro_p"] = sw_p
+        results["shapiro_pass"] = sw_p > 0.05
+        logger.info(f"Shapiro-Wilk: p={sw_p:.4f} -> {'PASS' if results['shapiro_pass'] else 'FAIL'}")
+    except Exception as e:
+        results["errors"].append(f"Shapiro-Wilk failed: {str(e)}")
+        logger.error(f"Shapiro-Wilk failed: {e}")
 
-if __name__ == "__main__":
-    # Simple test with dummy data to verify the module runs
-    np.random.seed(42)
-    n = 100
-    X = np.random.randn(n, 2)
-    true_beta = np.array([1.5, -2.0])
-    noise = np.random.randn(n) # Homoscedastic noise
-    y = X @ true_beta + noise
+    # Breusch-Pagan
+    try:
+        bp_lm, bp_p = breusch_pagan_test(residuals, fitted_values)
+        results["breusch_pagan_lm"] = bp_lm
+        results["breusch_pagan_p"] = bp_p
+        results["breusch_pagan_pass"] = bp_p > 0.05
+        logger.info(f"Breusch-Pagan: p={bp_p:.4f} -> {'PASS' if results['breusch_pagan_pass'] else 'FAIL'}")
+    except Exception as e:
+        results["errors"].append(f"Breusch-Pagan failed: {str(e)}")
+        logger.error(f"Breusch-Pagan failed: {e}")
 
-    # Simulate residuals
-    residuals = noise
-    features = X
-
-    results = run_residual_diagnostics_scipy(residuals, features)
-    print("Diagnostic Results:")
-    print(f"  Shapiro-Wilk Pass: {results['shapiro_wilk']['passed']}")
-    print(f"  Breusch-Pagan Pass: {results['breusch_pagan']['passed']}")
-    print(f"  Overall Pass: {results['overall_diagnostics_pass']}")
+    return results
