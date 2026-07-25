@@ -1,36 +1,45 @@
-# Environment and Reproducibility Configuration
-# This file controls random seeds and execution paths for the pipeline.
+# Environment Configuration and Reproducibility Settings
+# This file controls global random seeds and runtime parameters for the pipeline.
+# All scripts in code/ should load this file to ensure deterministic execution.
 
-# Reproducibility Settings
-# All random number generators (numpy, random, torch if available) use this seed.
-random_seed: 42
+# Reproducibility: Random Seeds
+# Setting these ensures that all random operations (numpy, python random, torch if used)
+# produce identical results across runs.
+random_seeds:
+  python: 42
+  numpy: 42
+  global: 42
 
-# Paths (relative to project root)
+# Data Paths (relative to project root)
 paths:
-  data_raw: data/raw
-  data_derived: data/derived
-  data_processed: data/processed
-  figures: figures
-  state: state
-  logs: logs
+  raw_data: "data/raw"
+  derived_data: "data/derived"
+  processed_data: "data/processed"
+  state: "state"
+  figures: "figures"
+  config: "code/config.yaml"
 
 # Logging Configuration
 logging:
-  level: INFO
+  level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: logs/pipeline.log
+  file: "state/pipeline.log"
 
-# Algorithm Defaults (fallbacks if not specified in task-specific configs)
-algorithms:
-  ivt:
-    velocity_threshold: 30  # degrees/second
-    min_duration: 60        # milliseconds
-  idt:
-    dispersion_threshold: 100 # pixels
-    min_duration: 100       # milliseconds
+# Analysis Parameters
+analysis:
+  # Fixation detection thresholds (used by utils/fixation_detection.py)
+  ivt_duration_threshold: 60  # milliseconds
+  idt_dispersion_threshold: 35  # pixels
+  idt_duration_threshold: 100  # milliseconds
 
-# Data Processing
-processing:
-  outlier_cap_percentile_low: 1
-  outlier_cap_percentile_high: 99
-  min_roi_duration: 0 # Allow zero duration fixations on ROI as valid (T017)
+  # Data quality thresholds
+  max_data_loss_percent: 20  # Exclude participants with >20% data loss
+
+  # Regression settings
+  outlier_cap_percentiles: [1, 99]  # Percentiles for outlier capping
+
+# Lexicon Settings (used by utils/valence_calculation.py)
+valence:
+  primary_lexicon: "NRC"
+  fallback_lexicon: "VADER"
+  coverage_threshold: 0.50  # Switch if coverage < 50%

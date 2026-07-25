@@ -15,6 +15,9 @@ properties:
   coefficient_crt:
     type: number
     description: "Coefficient for cognitive reflection score."
+  coefficient_total_fixation:
+    type: number
+    description: "Coefficient for total fixation duration (control variable)."
   coefficient_interaction_3way:
     type: number
     description: "Coefficient for the three-way interaction (fixation * valence * CRT)."

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-435-the-impact-of-visual-attention-patterns-",
+  "tasks": [
+    {
+      "task_key": "T009",
+      "reject_count": 1,
+      "last_reason": "No environment configuration files (e.g., `requirements.txt`, `environment.yml`, Dockerfile, or similar) or code that sets and documents a random seed for reproducibility are present. Consequently, the task of setting up reproducible environment and seed management is not demonstrated.",
+      "first_seen": "2026-07-25T16:30:22.535541+00:00",
+      "last_seen": "2026-07-25T16:30:22.535541+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "No code, script, or documentation implementing the ROI mapping logic is present; the provided project excerpt only describes higher\u2011level user stories and testing criteria, but there is no artifact that actually assigns gaze points to the \u201csource attribution\u201d or other bounding boxes. The required implementation artifact is missing.",
+      "first_seen": "2026-07-25T16:30:24.422920+00:00",
+      "last_seen": "2026-07-25T16:30:24.422920+00:00"
+    }
+  ],
+  "updated_at": "2026-07-25T16:30:24.422920+00:00"
+}

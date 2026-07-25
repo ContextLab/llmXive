@@ -1,207 +1,113 @@
-"""
-Setup script for linting (Ruff) and formatting (Black) tools.
-Creates configuration files (.ruff.toml, pyproject.toml for Black)
-and provides a command to verify installation.
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> bool:
-    """Run a shell command and return True if successful."""
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        return result.returncode == 0
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {' '.join(cmd)}")
-        print(f"Error: {e.stderr}")
-        return False
-    except FileNotFoundError:
-        print(f"Command not found: {cmd[0]}")
-        return False
+def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and return the result."""
+    print(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, check=check)
+    return result
 
-def create_ruff_config() -> Path:
+def create_ruff_config(project_root: Path) -> None:
     """Create a .ruff.toml configuration file."""
-    content = """[lint]
-# Select rules: E (pyflakes), F (pycodestyle), W (warnings), I (isort), N (pep8-naming), UP (pyupgrade)
-select = ["E", "F", "W", "I", "N", "UP"]
-ignore = []
+    config_content = """
+    [lint]
+    select = [
+        "E",  # pycodestyle errors
+        "W",  # pycodestyle warnings
+        "F",  # Pyflakes
+        "I",  # isort
+        "C",  # flake8-comprehensions
+        "B",  # flake8-bugbear
+    ]
+    ignore = [
+        "E501", # line too long (handled by black)
+        "B008", # do not perform function calls in argument defaults
+        "C901", # too complex
+    ]
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
+    [lint.per-file-ignores]
+    "tests/*" = ["S101"] # assert allowed in tests
 
-# Exclude specific files/directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "data",
-    "state",
-    "tests"
-]
+    [lint.isort]
+    known-first-party = ["models", "utils"]
 
-# Same as Black line length
-line-length = 88
+    [format]
+    line-length = 88
+    """
+    config_path = project_root / ".ruff.toml"
+    with open(config_path, "w") as f:
+        f.write(config_content)
+    print(f"Created {config_path}")
 
-# Allow unused variables when they start with underscore
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+def create_black_config(project_root: Path) -> None:
+    """Create a pyproject.toml with Black configuration if not present, or append."""
+    config_path = project_root / "pyproject.toml"
+    
+    black_section = """
+    [tool.black]
+    line-length = 88
+    target-version = ['py311']
+    include = '\\.pyi?$'
+    exclude = '''
+    /(
+        \\.git
+      | \\.hg
+      | \\.mypy_cache
+      | \\.tox
+      | \\.venv
+      | _build
+      | buck-out
+      | build
+      | dist
+    )/
+    '''
+    """
 
-target-version = "py311"
-
-[lint.per-file-ignores]
-# Ignore specific rules in test files if needed
-"tests/*" = ["S101"]
-
-[format]
-# Quote style for strings
-quote-style = "double"
-
-# Indent style
-indent-style = "space"
-
-# Skip magic trailing comma
-skip-magic-trailing-comma = false
-
-# Line ending
-line-ending = "auto"
-"""
-    path = Path(".ruff.toml")
-    path.write_text(content)
-    print(f"Created configuration: {path}")
-    return path
-
-def create_black_config() -> Path:
-    """Create a pyproject.toml file with Black configuration if it doesn't exist."""
-    path = Path("pyproject.toml")
-    if path.exists():
-        # Check if [tool.black] section exists
-        existing = path.read_text()
-        if "[tool.black]" in existing:
-            print("pyproject.toml already exists with Black configuration.")
-            return path
-        else:
-            # Append Black config
-            black_config = """
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.eggs
-  | \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.nox
-  | \\.pants\\.d
-  | \\.pytype
-  | \\.ruff_cache
-  | \\.svn
-  | \\.tox
-  | \\.venv
-  | __pypackages__
-  | _build
-  | buck-out
-  | build
-  | dist
-  | node_modules
-  | venv
-  | data
-  | state
-  | tests
-)/
-'''
-"""
-            path.write_text(existing + black_config)
-            print(f"Appended Black configuration to: {path}")
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            content = f.read()
+        if "[tool.black]" in content:
+            print("Black configuration already exists in pyproject.toml")
+            return
+        with open(config_path, "a") as f:
+            f.write("\n" + black_section)
     else:
-        content = """[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.eggs
-  | \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.nox
-  | \\.pants\\.d
-  | \\.pytype
-  | \\.ruff_cache
-  | \\.svn
-  | \\.tox
-  | \\.venv
-  | __pypackages__
-  | _build
-  | buck-out
-  | build
-  | dist
-  | node_modules
-  | venv
-  | data
-  | state
-  | tests
-)/
-'''
-"""
-        path.write_text(content)
-        print(f"Created configuration: {path}")
-    return path
+        with open(config_path, "w") as f:
+            f.write(black_section)
+    print(f"Updated {config_path} with Black configuration")
 
-def main() -> int:
-    """Main entry point for the setup script."""
+def main() -> None:
+    """Main entry point to setup linting and formatting."""
+    project_root = Path(__file__).resolve().parent.parent
+    
     print("Setting up linting and formatting tools...")
-    
+
+    # Install dependencies if not present
+    try:
+        run_command([sys.executable, "-m", "pip", "install", "-q", "ruff", "black"])
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: Failed to install tools automatically: {e}")
+        print("Please install manually: pip install ruff black")
+        return
+
     # Create configuration files
-    create_ruff_config()
-    create_black_config()
+    create_ruff_config(project_root)
+    create_black_config(project_root)
 
-    # Check if tools are installed
-    print("\nChecking tool installation...")
-    
-    tools_installed = True
-    
-    if not run_command(["ruff", "--version"]):
-        print("Ruff is not installed. Installing...")
-        if not run_command([sys.executable, "-m", "pip", "install", "ruff"]):
-            print("Failed to install Ruff.")
-            tools_installed = False
-    
-    if not run_command(["black", "--version"]):
-        print("Black is not installed. Installing...")
-        if not run_command([sys.executable, "-m", "pip", "install", "black"]):
-            print("Failed to install Black.")
-            tools_installed = False
+    # Verify installation by running --version
+    try:
+        run_command(["ruff", "--version"])
+        run_command(["black", "--version"])
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Could not verify tool installation: {e}")
+        return
 
-    if not tools_installed:
-        print("\nSetup incomplete due to installation errors.")
-        return 1
-
-    print("\nConfiguration files created successfully.")
-    print("To format code: black code/")
-    print("To lint code: ruff check code/")
-    return 0
+    print("Linting and formatting setup complete.")
+    print("To run linter: ruff check .")
+    print("To run formatter: black .")
+    print("To run both: ruff check . && black .")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

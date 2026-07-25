@@ -1,12 +1,13 @@
 """
-Environment configuration and random seed management for reproducibility.
+Environment Manager for Reproducibility and Configuration
 
-This module handles:
-1. Loading configuration from code/config.yaml
-2. Setting global random seeds (numpy, random, os.environ)
-3. Resolving project paths relative to the root
-4. Basic logging setup
+This module provides utilities for:
+- Loading configuration from code/config.yaml
+- Setting random seeds for reproducibility (Python, NumPy)
+- Managing file paths relative to project root
+- Setting up logging infrastructure
 """
+
 import os
 import random
 import logging
@@ -14,30 +15,48 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
-# Global project root
-# Assumes this file is at code/utils/environment_manager.py
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a YAML file.
-    Defaults to code/config.yaml relative to project root.
+
+    Args:
+        config_path: Path to the config file. If None, defaults to 'code/config.yaml'
+                     relative to the project root.
+
+    Returns:
+        Dictionary containing the configuration.
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        yaml.YAMLError: If the config file is not valid YAML.
     """
     if config_path is None:
-        config_path = _PROJECT_ROOT / "code" / "config.yaml"
-    
+        # Default to code/config.yaml relative to project root
+        project_root = Path(__file__).resolve().parent.parent.parent
+        config_path = project_root / "code" / "config.yaml"
+    else:
+        config_path = Path(config_path)
+
     if not config_path.exists():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
-    with open(config_path, "r", encoding="utf-8") as f:
+
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
-    
+
     return config
+
 
 def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Recursively merge two dictionaries.
-    Values from 'override' take precedence.
+    Recursively merge two dictionaries, with 'override' taking precedence.
+
+    Args:
+        base: The base dictionary.
+        override: The dictionary with values to override.
+
+    Returns:
+        A new merged dictionary.
     """
     result = base.copy()
     for key, value in override.items():
@@ -47,131 +66,150 @@ def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]
             result[key] = value
     return result
 
-def setup_reproducibility(seed: int) -> None:
+
+def setup_reproducibility(config: Optional[Dict[str, Any]] = None) -> None:
     """
-    Set random seeds for all relevant libraries to ensure reproducibility.
-    
+    Set random seeds for reproducibility based on configuration.
+
+    This function sets seeds for:
+    - Python's random module
+    - NumPy's random number generator
+
     Args:
-        seed: Integer seed value.
+        config: Configuration dictionary. If None, loads from default config file.
     """
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    
+    if config is None:
+        config = load_config()
+
+    seeds = config.get('random_seeds', {})
+    python_seed = seeds.get('python', 42)
+    numpy_seed = seeds.get('numpy', 42)
+
+    # Set Python random seed
+    random.seed(python_seed)
+
+    # Set NumPy random seed
     try:
         import numpy as np
-        np.random.seed(seed)
+        np.random.seed(numpy_seed)
     except ImportError:
-        pass
-    
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
-        pass
+        pass  # NumPy might not be installed, but that's okay
 
-def get_paths(config: Dict[str, Any]) -> Dict[str, Path]:
-    """
-    Resolve absolute paths for data directories based on configuration.
-    
-    Args:
-        config: Configuration dictionary containing 'paths'.
-    
-    Returns:
-        Dictionary mapping path keys to absolute Path objects.
-    """
-    path_config = config.get("paths", {})
-    resolved = {}
-    
-    # Default paths if not in config
-    defaults = {
-        "data_raw": "data/raw",
-        "data_derived": "data/derived",
-        "data_processed": "data/processed",
-        "figures": "figures",
-        "state": "state",
-        "logs": "logs"
-    }
-    
-    for key, default_rel in defaults.items():
-        rel_path = path_config.get(key, default_rel)
-        resolved[key] = _PROJECT_ROOT / rel_path
-        # Ensure directories exist
-        resolved[key].mkdir(parents=True, exist_ok=True)
-    
-    return resolved
+    logging.info(f"Reproducibility setup: Python seed={python_seed}, NumPy seed={numpy_seed}")
 
-def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
+
+def get_paths(config: Optional[Dict[str, Any]] = None) -> Dict[str, Path]:
     """
-    Retrieve a nested value from config using dot notation.
-    
+    Get standardized paths for project directories.
+
     Args:
-        config: Configuration dictionary.
-        key_path: Dot-separated path (e.g., 'algorithms.ivt.velocity_threshold').
-        default: Default value if key not found.
-    
+        config: Configuration dictionary. If None, loads from default config file.
+
     Returns:
-        The value or default.
+        Dictionary mapping path keys (e.g., 'raw_data', 'derived_data') to Path objects.
     """
-    keys = key_path.split(".")
-    current = config
-    for key in keys:
-        if isinstance(current, dict) and key in current:
-            current = current[key]
+    if config is None:
+        config = load_config()
+
+    project_root = Path(__file__).resolve().parent.parent.parent
+    path_configs = config.get('paths', {})
+
+    paths = {}
+    for key, relative_path in path_configs.items():
+        paths[key] = project_root / relative_path
+
+    return paths
+
+
+def get_config_value(key: str, default: Any = None, config: Optional[Dict[str, Any]] = None) -> Any:
+    """
+    Get a value from the configuration using dot-notation key.
+
+    Args:
+        key: Dot-notation key (e.g., 'random_seeds.python', 'analysis.ivt_duration_threshold').
+        default: Default value if the key is not found.
+        config: Configuration dictionary. If None, loads from default config file.
+
+    Returns:
+        The configuration value or the default.
+    """
+    if config is None:
+        config = load_config()
+
+    keys = key.split('.')
+    value = config
+    for k in keys:
+        if isinstance(value, dict) and k in value:
+            value = value[k]
         else:
             return default
-    return current
+    return value
 
-def setup_logging(config: Dict[str, Any]) -> logging.Logger:
+
+def setup_logging(config: Optional[Dict[str, Any]] = None) -> logging.Logger:
     """
-    Configure logging based on configuration settings.
-    
+    Set up logging infrastructure based on configuration.
+
     Args:
-        config: Configuration dictionary containing 'logging'.
-    
+        config: Configuration dictionary. If None, loads from default config file.
+
     Returns:
-        Configured root logger.
+        The root logger configured according to the specification.
     """
-    log_config = config.get("logging", {})
-    level_str = log_config.get("level", "INFO").upper()
-    log_format = log_config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_file = log_config.get("file", "logs/pipeline.log")
-    
-    log_path = _PROJECT_ROOT / log_file
+    if config is None:
+        config = load_config()
+
+    log_config = config.get('logging', {})
+    level_str = log_config.get('level', 'INFO')
+    log_format = log_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    log_file = log_config.get('file', 'state/pipeline.log')
+
+    # Ensure log directory exists
+    project_root = Path(__file__).resolve().parent.parent.parent
+    log_path = project_root / log_file
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Configure root logger
     logging.basicConfig(
-        level=getattr(logging, level_str, logging.INFO),
+        level=getattr(logging, level_str.upper(), logging.INFO),
         format=log_format,
         handlers=[
             logging.FileHandler(log_path),
             logging.StreamHandler()
         ]
     )
-    
-    return logging.getLogger(__name__)
+
+    logger = logging.getLogger(__name__)
+    logger.info("Logging infrastructure initialized.")
+    return logger
+
 
 def main():
     """
-    Entry point for testing environment setup.
+    Main function to demonstrate environment manager functionality.
     """
+    # Load configuration
     config = load_config()
-    print(f"Loaded config from: {_PROJECT_ROOT / 'code' / 'config.yaml'}")
-    print(f"Random Seed: {config.get('random_seed')}")
-    
-    setup_reproducibility(config.get("random_seed", 42))
+
+    # Set up reproducibility
+    setup_reproducibility(config)
+
+    # Get paths
     paths = get_paths(config)
-    
-    print("Resolved Paths:")
+    print("Project Paths:")
     for key, path in paths.items():
         print(f"  {key}: {path}")
-    
+
+    # Get specific config values
+    print("\nConfiguration Values:")
+    print(f"  Python Seed: {get_config_value('random_seeds.python', config=config)}")
+    print(f"  IVT Duration Threshold: {get_config_value('analysis.ivt_duration_threshold', config=config)}")
+    print(f"  Max Data Loss Percent: {get_config_value('analysis.max_data_loss_percent', config=config)}")
+
+    # Setup logging
     logger = setup_logging(config)
-    logger.info("Environment manager initialized successfully.")
+    logger.info("Environment manager demonstration complete.")
+
 
 if __name__ == "__main__":
     main()

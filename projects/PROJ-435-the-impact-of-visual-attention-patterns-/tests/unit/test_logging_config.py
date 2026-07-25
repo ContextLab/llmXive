@@ -1,189 +1,135 @@
-"""
-Unit tests for the logging infrastructure (Task T008).
-"""
 import os
 import sys
 import tempfile
 import logging
 from pathlib import Path
 import pytest
-import yaml
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code directory to path
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
 from utils.logging_config import (
     setup_logging,
-    log_quality_warning,
-    log_exclusion_count,
-    log_pipeline_status,
-    _load_config,
-    _configured_loggers
+    get_quality_logger,
+    get_exclusion_logger,
+    get_pipeline_logger,
+    log_data_quality_warning,
+    log_exclusion,
+    log_pipeline_progress,
+    log_pipeline_error,
+    _initialized,
+    _loggers
 )
 
 @pytest.fixture
-def temp_config_file(tmp_path):
-    """Create a temporary config.yaml file."""
-    config_data = {
-        "logging": {
-            "level": "DEBUG",
-            "file": str(tmp_path / "test.log"),
-            "format": "[TEST] %(levelname)s - %(message)s"
-        }
-    }
-    config_path = Path(__file__).parent.parent.parent / "code" / "config.yaml"
-    # Backup existing config if any
-    backup_path = None
-    if config_path.exists():
-        backup_path = config_path.with_suffix(".bak")
-        config_path.rename(backup_path)
+def temp_project_root():
+    """Create a temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        project_root = Path(tmpdir)
+        # Create expected directory structure
+        (project_root / "state" / "logs").mkdir(parents=True)
+        yield project_root
 
-    with open(config_path, "w") as f:
-        yaml.dump(config_data, f)
-
-    yield config_path
-
-    # Restore backup
-    if backup_path and backup_path.exists():
-        backup_path.rename(config_path)
-    elif config_path.exists():
-        config_path.unlink()
-
-@pytest.fixture
-def clean_loggers():
-    """Reset logger state before and after test."""
-    _configured_loggers.clear()
-    yield
-    _configured_loggers.clear()
-
-def test_setup_logging_creates_file(clean_loggers, tmp_path):
-    """Test that setup_logging creates the log file and directory."""
-    log_file = str(tmp_path / "subdir" / "output.log")
-    logger = setup_logging(
-        logger_name="test_logger_1",
-        log_file=log_file,
-        level="INFO"
-    )
+def test_setup_logging_creates_log_directory(temp_project_root):
+    """Test that setup_logging creates the log directory."""
+    log_dir = temp_project_root / "state" / "logs"
+    assert log_dir.exists()
     
-    assert logger is not None
+    setup_logging(temp_project_root)
+    assert log_dir.exists()
+
+def test_get_quality_logger_returns_logger(temp_project_root):
+    """Test that get_quality_logger returns a valid logger."""
+    setup_logging(temp_project_root)
+    logger = get_quality_logger()
+    
     assert isinstance(logger, logging.Logger)
-    assert logger.level == logging.INFO
-    assert Path(log_file).exists()
-
-def test_setup_logging_uses_config(temp_config_file, clean_loggers):
-    """Test that setup_logging respects config.yaml settings."""
-    # Reset to ensure it picks up the new config
-    logger = setup_logging(logger_name="test_logger_2")
-    
-    # The config specifies DEBUG level
+    assert logger.name == "data_quality"
     assert logger.level == logging.DEBUG
-    
-    # Check if file handler exists
-    handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
-    assert len(handlers) > 0
-    assert "test.log" in handlers[0].baseFilename
 
-def test_log_quality_warning(clean_loggers, tmp_path):
-    """Test that log_quality_warning writes to the log file."""
-    log_file = str(tmp_path / "warning_test.log")
-    setup_logging(
-        logger_name="test_logger_3",
-        log_file=log_file,
-        level="WARNING"
-    )
+def test_get_exclusion_logger_returns_logger(temp_project_root):
+    """Test that get_exclusion_logger returns a valid logger."""
+    setup_logging(temp_project_root)
+    logger = get_exclusion_logger()
     
-    log_quality_warning("Simulated signal loss", source="preprocessing")
-    
-    with open(log_file, "r") as f:
-        content = f.read()
-    
-    assert "DATA QUALITY WARNING" in content
-    assert "Simulated signal loss" in content
-    assert "preprocessing" in content
+    assert isinstance(logger, logging.Logger)
+    assert logger.name == "exclusions"
+    assert logger.level == logging.DEBUG
 
-def test_log_exclusion_count(clean_loggers, tmp_path):
-    """Test that log_exclusion_count records counts correctly."""
-    log_file = str(tmp_path / "exclusion_test.log")
-    setup_logging(
-        logger_name="test_logger_4",
-        log_file=log_file,
-        level="INFO"
-    )
+def test_get_pipeline_logger_returns_logger(temp_project_root):
+    """Test that get_pipeline_logger returns a valid logger."""
+    setup_logging(temp_project_root)
+    logger = get_pipeline_logger()
     
-    log_exclusion_count(5, reason=">20% data loss", source="filtering")
-    
-    with open(log_file, "r") as f:
-        content = f.read()
-    
-    assert "EXCLUSION COUNT" in content
-    assert "5" in content
-    assert ">20% data loss" in content
+    assert isinstance(logger, logging.Logger)
+    assert logger.name == "pipeline"
+    assert logger.level == logging.DEBUG
 
-def test_log_pipeline_status(clean_loggers, tmp_path):
-    """Test pipeline status logging."""
-    log_file = str(tmp_path / "status_test.log")
-    setup_logging(
-        logger_name="test_logger_5",
-        log_file=log_file,
-        level="INFO"
-    )
+def test_log_data_quality_warning(temp_project_root, caplog):
+    """Test logging data quality warnings."""
+    setup_logging(temp_project_root)
     
-    log_pipeline_status("regression", "COMPLETED", details="R-squared=0.45")
-    
-    with open(log_file, "r") as f:
-        content = f.read()
-    
-    assert "PIPELINE" in content
-    assert "REGRESSION" in content
-    assert "COMPLETED" in content
-    assert "R-squared=0.45" in content
-
-def test_no_duplicate_handlers(clean_loggers, tmp_path):
-    """Test that calling setup_logging multiple times doesn't duplicate handlers."""
-    log_file = str(tmp_path / "dup_test.log")
-    
-    logger = setup_logging(
-        logger_name="test_logger_6",
-        log_file=log_file,
-        level="INFO"
-    )
-    initial_count = len(logger.handlers)
-    
-    # Call again with same name
-    logger2 = setup_logging(
-        logger_name="test_logger_6",
-        log_file=log_file,
-        level="INFO"
-    )
-    final_count = len(logger2.handlers)
-    
-    assert initial_count == final_count
-    # Should have 2 handlers: file + console
-    assert final_count == 2
-
-def test_missing_config_falls_back_to_defaults(clean_loggers, tmp_path, monkeypatch):
-    """Test fallback to defaults when config.yaml is missing."""
-    # Temporarily move config out of the way
-    config_path = Path(__file__).parent.parent.parent / "code" / "config.yaml"
-    backup_path = None
-    if config_path.exists():
-        backup_path = config_path.with_suffix(".bak")
-        config_path.rename(backup_path)
-    
-    try:
-        log_file = str(tmp_path / "default_test.log")
-        logger = setup_logging(
-            logger_name="test_logger_7",
-            log_file=log_file,
-            level="INFO"
-        )
+    with caplog.at_level(logging.WARNING):
+        log_data_quality_warning("Test warning", participant_id="P001")
         
-        # Verify defaults were used (INFO level)
-        assert logger.level == logging.INFO
+    assert any("Test warning" in record.message for record in caplog.records)
+    assert any("participant=P001" in record.message for record in caplog.records)
+
+def test_log_exclusion(temp_project_root, caplog):
+    """Test logging exclusion events."""
+    setup_logging(temp_project_root)
+    
+    with caplog.at_level(logging.INFO):
+        log_exclusion("High data loss", participant_id="P002", count=1)
         
-        # Verify file was created
-        assert Path(log_file).exists()
-    finally:
-        # Restore config
-        if backup_path and backup_path.exists():
-            backup_path.rename(config_path)
+    assert any("Excluded participant P002" in record.message for record in caplog.records)
+    assert any("High data loss" in record.message for record in caplog.records)
+
+def test_log_pipeline_progress(temp_project_root, caplog):
+    """Test logging pipeline progress."""
+    setup_logging(temp_project_root)
+    
+    with caplog.at_level(logging.INFO):
+        log_pipeline_progress("test_step", "Processing data", {"rows": 100})
+        
+    assert any("[test_step]" in record.message for record in caplog.records)
+    assert any("Processing data" in record.message for record in caplog.records)
+    assert any("rows=100" in record.message for record in caplog.records)
+
+def test_log_pipeline_error(temp_project_root, caplog):
+    """Test logging pipeline errors."""
+    setup_logging(temp_project_root)
+    
+    with caplog.at_level(logging.ERROR):
+        try:
+            raise ValueError("Test error")
+        except Exception as e:
+            log_pipeline_error("test_step", "Something went wrong", exception=e)
+        
+    assert any("[test_step]" in record.message for record in caplog.records)
+    assert any("Something went wrong" in record.message for record in caplog.records)
+
+def test_loggers_cached(temp_project_root):
+    """Test that loggers are cached and not recreated."""
+    setup_logging(temp_project_root)
+    
+    logger1 = get_quality_logger()
+    logger2 = get_quality_logger()
+    
+    assert logger1 is logger2
+    assert "data_quality" in _loggers
+
+def test_log_file_created(temp_project_root):
+    """Test that log files are created in the correct location."""
+    setup_logging(temp_project_root)
+    
+    # Trigger logger creation
+    get_quality_logger()
+    get_exclusion_logger()
+    get_pipeline_logger()
+    
+    log_dir = temp_project_root / "state" / "logs"
+    assert (log_dir / "data_quality.log").exists()
+    assert (log_dir / "exclusions.log").exists()
+    assert (log_dir / "pipeline.log").exists()

@@ -1,17 +1,21 @@
-"""Gaze event data model."""
+"""
+GazeEvent data model.
+
+Represents a single gaze event (fixation or saccade) with its
+timestamp, duration, region of interest (ROI), and associated participant.
+"""
 from dataclasses import dataclass
 from typing import Optional
-
 
 @dataclass
 class GazeEvent:
     """
-    Represents a single gaze event (e.g., fixation or saccade).
-
+    Represents a gaze event from eye-tracking data.
+    
     Attributes:
-        timestamp: Timestamp of the event (ms or s).
-        duration: Duration of the event (ms).
-        roi: Region of Interest identifier (e.g., 'source_attribution').
+        timestamp: Timestamp of the event (in milliseconds or seconds).
+        duration: Duration of the event (in milliseconds).
+        roi: Region of Interest identifier (e.g., 'source', 'headline', 'control').
         participant_id: ID of the participant who generated this event.
     """
     timestamp: float
@@ -20,12 +24,15 @@ class GazeEvent:
     participant_id: str
 
     def __post_init__(self):
-        """Validate numeric fields."""
+        """Ensure numeric fields are floats."""
         if not isinstance(self.timestamp, (int, float)):
-            raise TypeError("timestamp must be numeric")
+            try:
+                self.timestamp = float(self.timestamp)
+            except (ValueError, TypeError):
+                raise ValueError(f"Invalid timestamp: {self.timestamp}")
+        
         if not isinstance(self.duration, (int, float)):
-            raise TypeError("duration must be numeric")
-        if not self.roi or not isinstance(self.roi, str):
-            raise ValueError("roi must be a non-empty string")
-        if not self.participant_id or not isinstance(self.participant_id, str):
-            raise ValueError("participant_id must be a non-empty string")
+            try:
+                self.duration = float(self.duration)
+            except (ValueError, TypeError):
+                raise ValueError(f"Invalid duration: {self.duration}")

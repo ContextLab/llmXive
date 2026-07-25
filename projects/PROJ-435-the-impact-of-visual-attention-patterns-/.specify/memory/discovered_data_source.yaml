@@ -1,0 +1,18 @@
+status: none
+intent: EyeTrackingNewsBeliefDataset eye tracking news headline dataset with belief
+  ratings and CRT scores python package dataset
+required_fields:
+- participant_id
+- timestamp
+- gaze_x_coordinate
+- gaze_y_coordinate
+- fixation_event_flag
+- fixation_duration_ms
+- roi_source_attribution
+- roi_headline_body
+- headline_text
+- cognitive_reflection_test_score
+- post_task_belief_rating
+cache_key: ab8a8d76a5085c4cd41c67f12a2700394c8bfa54e97b12bce24e8ae1a38fc0a1
+searched_at: '2026-07-25T15:48:51.221511+00:00'
+retry_count: 1

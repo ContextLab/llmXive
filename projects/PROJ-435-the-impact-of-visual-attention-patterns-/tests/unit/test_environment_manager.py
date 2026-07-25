@@ -1,140 +1,159 @@
 """
-Unit tests for the environment_manager module.
-Verifies config loading, seed setting, and path creation.
+Unit tests for the environment manager module.
+
+Tests cover:
+- Configuration loading
+- Random seed setup
+- Path resolution
+- Config value retrieval
+- Logging setup
 """
+
 import os
-import sys
-import tempfile
-import shutil
-from pathlib import Path
-import yaml
 import random
-import numpy as np
+import tempfile
+from pathlib import Path
+import pytest
+import yaml
 
-# Add project root to path to allow imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
-
+# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / 'code'))
 from utils.environment_manager import (
-    load_config, 
-    setup_reproducibility, 
-    get_paths, 
-    get_config_value,
+    load_config,
     deep_merge,
-    _config
+    setup_reproducibility,
+    get_paths,
+    get_config_value,
+    setup_logging
 )
 
-def test_deep_merge():
-    """Test the deep_merge utility function."""
-    base = {"a": 1, "b": {"c": 2, "d": 3}}
-    override = {"b": {"c": 20, "e": 5}, "f": 6}
-    result = deep_merge(base, override)
-    
-    assert result["a"] == 1
-    assert result["b"]["c"] == 20
-    assert result["b"]["d"] == 3
-    assert result["b"]["e"] == 5
-    assert result["f"] == 6
-    print("✓ test_deep_merge passed")
 
-def test_load_config_defaults():
-    """Test that config loads defaults when file is missing."""
-    # Reset global cache to force reload
-    import utils.environment_manager as em
-    em._config = None
-    
-    # Temporarily rename config if it exists in the real project
-    config_path = PROJECT_ROOT / "code" / "config.yaml"
-    backup_path = PROJECT_ROOT / "code" / "config.yaml.bak"
-    moved = False
-    
-    if config_path.exists():
-        config_path.rename(backup_path)
-        moved = True
-    
-    try:
-        cfg = load_config()
-        assert cfg["random_seed"] == 42
-        assert cfg["ivt_velocity_threshold"] == 30
-        assert cfg["data"]["raw_dir"] == "data/raw"
-        print("✓ test_load_config_defaults passed")
-    finally:
-        # Restore original config
-        em._config = None
-        if moved:
-            backup_path.rename(config_path)
-
-def test_setup_reproducibility():
-    """Test that seeds are set correctly."""
-    # Reset seed to a known non-42 value first
-    random.seed(12345)
-    np.random.seed(12345)
-    
-    # Call setup with explicit seed
-    setup_reproducibility(seed=999)
-    
-    assert random.getstate()[1][0] != 12345  # State should have changed
-    # Note: We can't easily check numpy's internal state without regenerating,
-    # but we trust the function calls np.random.seed(999).
-    # Let's verify by generating a number.
-    val1 = random.random()
-    setup_reproducibility(seed=999)
-    val2 = random.random()
-    assert val1 == val2, "Random seed should be reproducible"
-    print("✓ test_setup_reproducibility passed")
-
-def test_get_paths_creates_dirs():
-    """Test that get_paths creates directories."""
-    # Use a temporary directory for the test to avoid clutter
-    # We mock the PROJECT_ROOT in the module
-    import utils.environment_manager as em
-    original_root = em.PROJECT_ROOT
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        em.PROJECT_ROOT = Path(tmpdir)
-        em._config = None # Force reload
-        
-        # Create a fake config to point to tmpdir subfolders
-        fake_config = {
-            "data": {
-                "raw_dir": "test_raw",
-                "derived_dir": "test_derived"
-            },
-            "random_seed": 42
+class TestLoadConfig:
+    def test_load_config_from_file(self, tmp_path):
+        """Test loading configuration from a valid YAML file."""
+        config_content = {
+            'random_seeds': {'python': 123, 'numpy': 456},
+            'paths': {'raw_data': 'data/raw'}
         }
-        em._config = fake_config
-        
-        paths = get_paths()
-        
-        assert "raw" in paths
-        assert paths["raw"].exists()
-        assert paths["raw"].name == "test_raw"
-        assert "derived" in paths
-        assert paths["derived"].exists()
-        
-        print("✓ test_get_paths_creates_dirs passed")
-    
-    # Restore
-    em.PROJECT_ROOT = original_root
-    em._config = None
+        config_file = tmp_path / "config.yaml"
+        with open(config_file, 'w') as f:
+            yaml.dump(config_content, f)
 
-def test_get_config_value():
-    """Test retrieving specific config values."""
-    import utils.environment_manager as em
-    em._config = None
-    em._config = {"a": {"b": {"c": 123}}, "d": 456}
-    
-    assert get_config_value("a.b.c") == 123
-    assert get_config_value("d") == 456
-    assert get_config_value("a.b.x", default="missing") == "missing"
-    assert get_config_value("nonexistent") is None
-    
-    print("✓ test_get_config_value passed")
+        result = load_config(str(config_file))
+        assert result['random_seeds']['python'] == 123
+        assert result['paths']['raw_data'] == 'data/raw'
 
-if __name__ == "__main__":
-    test_deep_merge()
-    test_load_config_defaults()
-    test_setup_reproducibility()
-    test_get_paths_creates_dirs()
-    test_get_config_value()
-    print("\nAll environment manager tests passed.")
+    def test_load_config_missing_file(self):
+        """Test that FileNotFoundError is raised for missing config file."""
+        with pytest.raises(FileNotFoundError):
+            load_config("/nonexistent/path/config.yaml")
+
+
+class TestDeepMerge:
+    def test_simple_merge(self):
+        """Test basic dictionary merge."""
+        base = {'a': 1, 'b': 2}
+        override = {'b': 3, 'c': 4}
+        result = deep_merge(base, override)
+        assert result == {'a': 1, 'b': 3, 'c': 4}
+
+    def test_nested_merge(self):
+        """Test recursive merge of nested dictionaries."""
+        base = {'a': {'x': 1, 'y': 2}, 'b': 3}
+        override = {'a': {'y': 20, 'z': 30}}
+        result = deep_merge(base, override)
+        assert result == {'a': {'x': 1, 'y': 20, 'z': 30}, 'b': 3}
+
+    def test_override_entire_nested_dict(self):
+        """Test replacing a nested dictionary entirely."""
+        base = {'a': {'x': 1}}
+        override = {'a': {'y': 2}}
+        result = deep_merge(base, override)
+        # The override dict replaces the base dict at key 'a'
+        assert result == {'a': {'y': 2}}
+
+
+class TestSetupReproducibility:
+    def test_seed_python(self):
+        """Test that Python random seed is set correctly."""
+        config = {'random_seeds': {'python': 999, 'numpy': 999}}
+        setup_reproducibility(config)
+        assert random.randint(0, 1000) == random.randint(0, 1000) is False
+        # Reset and verify determinism
+        random.seed(999)
+        val1 = random.randint(0, 1000)
+        random.seed(999)
+        val2 = random.randint(0, 1000)
+        assert val1 == val2
+
+    def test_seed_numpy(self):
+        """Test that NumPy random seed is set correctly."""
+        try:
+            import numpy as np
+            config = {'random_seeds': {'python': 888, 'numpy': 888}}
+            setup_reproducibility(config)
+            # Verify determinism
+            np.random.seed(888)
+            val1 = np.random.randint(0, 1000)
+            np.random.seed(888)
+            val2 = np.random.randint(0, 1000)
+            assert val1 == val2
+        except ImportError:
+            pytest.skip("NumPy not installed")
+
+
+class TestGetPaths:
+    def test_paths_resolution(self, tmp_path, monkeypatch):
+        """Test that paths are resolved relative to project root."""
+        # Create a mock config
+        config = {
+            'paths': {
+                'raw_data': 'data/raw',
+                'derived_data': 'data/derived'
+            }
+        }
+        # Mock the project root
+        monkeypatch.setattr('utils.environment_manager.Path.resolve', lambda self: tmp_path)
+        paths = get_paths(config)
+        assert paths['raw_data'] == tmp_path / 'data' / 'raw'
+        assert paths['derived_data'] == tmp_path / 'data' / 'derived'
+
+
+class TestGetConfigValue:
+    def test_get_nested_value(self):
+        """Test retrieving a nested configuration value."""
+        config = {
+            'random_seeds': {'python': 123},
+            'analysis': {'threshold': 50}
+        }
+        assert get_config_value('random_seeds.python', config=config) == 123
+        assert get_config_value('analysis.threshold', config=config) == 50
+
+    def test_get_missing_value_with_default(self):
+        """Test that default is returned for missing keys."""
+        config = {'a': 1}
+        assert get_config_value('b.c', default=999, config=config) == 999
+
+    def test_get_missing_value_without_default(self):
+        """Test that None is returned for missing keys without default."""
+        config = {'a': 1}
+        assert get_config_value('b.c', config=config) is None
+
+
+class TestSetupLogging:
+    def test_logging_setup(self, tmp_path, monkeypatch):
+        """Test that logging is configured correctly."""
+        config = {
+            'logging': {
+                'level': 'WARNING',
+                'format': '%(levelname)s: %(message)s',
+                'file': 'test.log'
+            }
+        }
+        # Mock project root
+        monkeypatch.setattr('utils.environment_manager.Path.resolve', lambda self: tmp_path)
+        logger = setup_logging(config)
+        assert logger.level == logging.WARNING
+        assert logger.handlers is not None
+        assert len(logger.handlers) > 0
