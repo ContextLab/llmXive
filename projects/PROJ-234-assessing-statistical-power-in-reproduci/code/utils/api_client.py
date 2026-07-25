@@ -1,6 +1,5 @@
 """
-API Client for OpenML with exponential backoff retry logic.
-Handles HTTP 429 (Too Many Requests) specifically.
+OpenML API client with exponential backoff retry logic.
 """
 import time
 import requests
@@ -11,84 +10,51 @@ from urllib3.util.retry import Retry
 
 class OpenMLClient:
     """
-    A client for interacting with the OpenML API with robust retry logic.
+    A client for interacting with the OpenML API, featuring automatic retry
+    logic for HTTP 429 (Too Many Requests) errors.
     """
 
-    def __init__(
-        self,
-        base_url: str = "https://www.openml.org/api/v1",
-        max_retries: int = 5,
-        backoff_factor: float = 0.5,
-        status_forcelist: Optional[List[int]] = None
-    ):
-        """
-        Initialize the OpenML client.
-
-        Args:
-            base_url: The base URL for the OpenML API.
-            max_retries: Maximum number of retry attempts.
-            backoff_factor: Factor to increase wait time between retries.
-            status_forcelist: List of HTTP status codes to retry on. Defaults to 429, 500, 502, 503, 504.
-        """
+    def __init__(self, base_url: str = "https://www.openml.org/api/v1", timeout: int = 30):
         self.base_url = base_url
+        self.timeout = timeout
         self.session = requests.Session()
+        self._setup_retry_adapter()
 
-        if status_forcelist is None:
-            status_forcelist = [429, 500, 502, 503, 504]
-
-        # Configure Retry strategy with exponential backoff
+    def _setup_retry_adapter(self):
+        """Configure retry strategy with exponential backoff for 429 errors."""
         retry_strategy = Retry(
-            total=max_retries,
-            backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-            allowed_methods=["GET", "POST", "HEAD"]
+            total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"]
         )
-
         adapter = HTTPAdapter(max_retries=retry_strategy)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
 
-    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None, timeout: int = 30) -> Dict[str, Any]:
+    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Perform a GET request to the specified endpoint.
 
         Args:
-            endpoint: The API endpoint path (e.g., '/data/list').
-            params: Optional query parameters.
-            timeout: Request timeout in seconds.
+            endpoint: API endpoint path (e.g., 'data/list')
+            params: Query parameters
 
         Returns:
-            The JSON response as a dictionary.
+            JSON response as a dictionary.
 
         Raises:
-            requests.exceptions.RequestException: If the request fails after all retries.
-            ValueError: If the response is not valid JSON.
+            requests.exceptions.RequestException: If the request fails after retries.
         """
-        url = f"{self.base_url}{endpoint}"
-        
-        try:
-            response = self.session.get(url, params=params, timeout=timeout)
-            
-            # Explicitly handle 429 if it slips through (though Retry handles most)
-            if response.status_code == 429:
-                # Log or handle specific 429 logic if needed before raising
-                response.raise_for_status()
+        url = f"{self.base_url}/{endpoint}"
+        response = self.session.get(url, params=params, timeout=self.timeout)
+        response.raise_for_status()
+        return response.json()
 
-            response.raise_for_status()
-            
-            try:
-                return response.json()
-            except ValueError as e:
-                raise ValueError(f"Response was not valid JSON: {response.text[:200]}") from e
-
-        except requests.exceptions.RequestException as e:
-            # Re-raise to be caught by caller if needed
-            raise e
 
 def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
     """
-    Helper function to fetch top classification datasets using the OpenMLClient.
-    This wraps the client logic for easy access in ingestion scripts.
+    Fetch top classification datasets from OpenML.
 
     Args:
         limit: Maximum number of datasets to fetch.
@@ -97,16 +63,46 @@ def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
         List of dataset metadata dictionaries.
     """
     client = OpenMLClient()
-    params = {
-        'limit': limit,
-        'data_feature': 'classification',
-        'sort': 'downloads',
-        'order': 'desc'
-    }
-    
-    # OpenML API v1 endpoint for listing datasets
-    response_data = client.get('/data/list', params=params)
-    
-    if 'datasets' in response_data:
-        return response_data['datasets']
-    return []
+    try:
+        # OpenML API endpoint for listing datasets
+        # sort by number of downloads (descending) to get 'top' datasets
+        params = {
+            'limit': limit,
+            'sort': 'downloads',
+            'order': 'desc',
+            'status': 'active',
+            'tag': 'OpenML-Python' # Optional: filter for Python-tagged if desired, or remove for all
+        }
+        # Note: OpenML API v1 might require specific parameters for classification tasks.
+        # A common query is: /data/list/limit/50/sort/number_of_downloads/order/desc
+        # We'll use the standard list endpoint with filters.
+        # If 'tag' is not needed, we can remove it. The spec implies 'top' usually means downloads.
+        
+        # Correcting params for standard OpenML data list:
+        # https://openml.org/api/v1/json/data/list/limit/50/sort/number_of_downloads/order/desc
+        # We need to construct the URL manually or use the client correctly.
+        # The client's get method expects an endpoint.
+        
+        # Let's use the specific endpoint for data listing
+        # endpoint: data/list
+        # params: limit, sort, order
+        
+        # Overwriting params to match standard API usage for "top"
+        params = {
+            'limit': limit,
+            'sort': 'number_of_downloads',
+            'order': 'desc',
+            'status': 'active'
+        }
+        
+        response_data = client.get("data/list", params)
+        
+        datasets = []
+        if "datasets" in response_data:
+            for ds in response_data["datasets"]:
+                datasets.append(ds)
+        
+        return datasets
+
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to fetch datasets from OpenML: {e}")

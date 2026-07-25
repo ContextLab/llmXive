@@ -1,10 +1,3 @@
-"""
-Task T036: Generate MDES distribution histogram and summary statistics.
-
-Reads power audit results from data/processed/power_audit_results.json,
-computes MDES summary statistics (median, IQR), and generates a histogram
-saved to data/processed/mdes_histogram.png.
-"""
 import json
 import logging
 import matplotlib.pyplot as plt
@@ -12,49 +5,44 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Configure logging using project standard
 from utils.logging_config import setup_logging
-logger = setup_logging(__name__)
 
-INPUT_FILE = Path("data/processed/power_audit_results.json")
-OUTPUT_HISTOGRAM = Path("data/processed/mdes_histogram.png")
-OUTPUT_SUMMARY = Path("data/processed/mdes_summary.json")
-
-
-def load_power_results(filepath: Path) -> List[Dict[str, Any]]:
-    """Load power audit results from JSON file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Input file not found: {filepath}")
+def load_power_results(filepath: str) -> List[Dict[str, Any]]:
+    """Load power audit results from a JSON file."""
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"Power results file not found: {filepath}")
     
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     if not isinstance(data, list):
-        raise ValueError(f"Expected list of results, got {type(data)}")
+        raise ValueError(f"Expected a list in {filepath}, got {type(data)}")
     
     return data
 
-
 def extract_mdes_values(results: List[Dict[str, Any]]) -> List[float]:
-    """Extract MDES values from results, filtering out None/invalid entries."""
-    mdes_values = []
-    for entry in results:
-        mdes = entry.get('mdes')
-        if mdes is not None and isinstance(mdes, (int, float)) and not np.isnan(mdes):
-            mdes_values.append(float(mdes))
-    return mdes_values
-
+    """Extract MDES values from power audit results, filtering out None/NaN."""
+    values = []
+    for item in results:
+        if 'mdes' in item and item['mdes'] is not None:
+            try:
+                val = float(item['mdes'])
+                if not np.isnan(val):
+                    values.append(val)
+            except (TypeError, ValueError):
+                continue
+    return values
 
 def compute_summary_statistics(values: List[float]) -> Dict[str, float]:
-    """Compute median and IQR for the given values."""
+    """Compute median and IQR for a list of values."""
     if not values:
         return {
+            "median": 0.0,
+            "iqr": 0.0,
             "count": 0,
-            "median": None,
-            "iqr": None,
-            "min": None,
-            "max": None,
-            "mean": None
+            "min": 0.0,
+            "max": 0.0
         }
     
     arr = np.array(values)
@@ -64,99 +52,95 @@ def compute_summary_statistics(values: List[float]) -> Dict[str, float]:
     iqr = q3 - q1
     
     return {
-        "count": len(values),
         "median": median,
         "iqr": iqr,
+        "count": len(values),
         "min": float(np.min(arr)),
-        "max": float(np.max(arr)),
-        "mean": float(np.mean(arr))
+        "max": float(np.max(arr))
     }
 
-
 def generate_histogram(
-    values: List[float],
-    output_path: Path,
-    title: str = "Distribution of Minimum Detectable Effect Size (MDES)",
-    xlabel: str = "MDES",
+    values: List[float], 
+    output_path: str, 
+    title: str = "MDES Distribution",
+    xlabel: str = "Minimum Detectable Effect Size (Cohen's d)",
     ylabel: str = "Frequency",
     bins: int = 20,
     color: str = "steelblue"
 ) -> None:
-    """Generate and save a histogram of MDES values."""
+    """Generate and save an MDES distribution histogram."""
     if not values:
-        logger.warning("No MDES values to plot. Creating empty plot.")
-        plt.figure(figsize=(10, 6))
-        plt.text(0.5, 0.5, "No data available", ha='center', va='center', transform=plt.gca().transAxes)
-        plt.title(title)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        return
-
-    plt.figure(figsize=(10, 6))
-    plt.hist(values, bins=bins, color=color, edgecolor='black', alpha=0.7)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.grid(axis='y', alpha=0.3)
-    
-    # Add median line
-    median = np.median(values)
-    plt.axvline(median, color='red', linestyle='dashed', linewidth=2, label=f'Median: {median:.3f}')
-    plt.legend()
+        # Create an empty plot if no data
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, "No MDES data available", transform=ax.transAxes, 
+                ha='center', va='center', fontsize=14)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+    else:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.hist(values, bins=bins, color=color, edgecolor='black', alpha=0.7)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        
+        # Add median line
+        median = np.median(values)
+        ax.axvline(median, color='red', linestyle='dashed', linewidth=2, label=f'Median: {median:.3f}')
+        ax.legend()
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Histogram saved to {output_path}")
+    plt.savefig(output_path, dpi=300)
+    plt.close(fig)
 
+def save_summary_statistics(stats: Dict[str, float], output_path: str) -> None:
+    """Save summary statistics to a JSON file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(stats, f, indent=2)
 
-def save_summary_statistics(summary: Dict[str, float], output_path: Path) -> None:
-    """Save summary statistics to JSON file."""
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
-    logger.info(f"Summary statistics saved to {output_path}")
-
-
-def main() -> int:
-    """Main entry point for T036."""
+def main():
+    """Main entry point for generating MDES histogram and summary."""
+    # Setup logging
+    logger = setup_logging("mdes_histogram")
+    logger.info("Starting MDES histogram generation")
+    
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent
+    input_path = project_root / "data" / "processed" / "power_audit_results.json"
+    output_hist_path = project_root / "data" / "processed" / "mdes_histogram.png"
+    output_summary_path = project_root / "data" / "processed" / "mdes_summary.json"
+    
+    # Load data
     try:
-        logger.info(f"Loading power audit results from {INPUT_FILE}")
-        results = load_power_results(INPUT_FILE)
-        
-        logger.info(f"Loaded {len(results)} results")
-        
-        mdes_values = extract_mdes_values(results)
-        logger.info(f"Extracted {len(mdes_values)} valid MDES values")
-        
-        summary = compute_summary_statistics(mdes_values)
-        
-        logger.info(f"Computing summary statistics: {summary}")
-        
-        generate_histogram(
-            mdes_values,
-            OUTPUT_HISTOGRAM,
-            title="Distribution of Minimum Detectable Effect Size (MDES)",
-            xlabel="MDES",
-            ylabel="Frequency",
-            bins=20,
-            color="steelblue"
-        )
-        
-        save_summary_statistics(summary, OUTPUT_SUMMARY)
-        
-        logger.info("T036 completed successfully")
-        return 0
-        
+        results = load_power_results(str(input_path))
+        logger.info(f"Loaded {len(results)} power audit results")
     except FileNotFoundError as e:
-        logger.error(f"Input file not found: {e}")
-        return 1
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in input file: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        return 1
-
+        logger.error(str(e))
+        raise
+    
+    # Extract MDES values
+    mdes_values = extract_mdes_values(results)
+    logger.info(f"Extracted {len(mdes_values)} valid MDES values")
+    
+    if len(mdes_values) == 0:
+        logger.warning("No valid MDES values found. Generating empty plot and zero stats.")
+    
+    # Compute statistics
+    stats = compute_summary_statistics(mdes_values)
+    logger.info(f"Computed summary statistics: median={stats['median']:.3f}, IQR={stats['iqr']:.3f}")
+    
+    # Generate histogram
+    generate_histogram(mdes_values, str(output_hist_path))
+    logger.info(f"Saved histogram to {output_hist_path}")
+    
+    # Save summary
+    save_summary_statistics(stats, str(output_summary_path))
+    logger.info(f"Saved summary statistics to {output_summary_path}")
+    
+    print(f"MDES analysis complete. Histogram: {output_hist_path}, Summary: {output_summary_path}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

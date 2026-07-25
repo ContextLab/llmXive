@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-assessing-statistical-power/`
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+**Tests**: {{claim:c_babc8e9d}} (2302.05330, https://arxiv.org/abs/2302.05330) Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -40,8 +40,8 @@
 - [X] T004 Setup package init files: create `code/__init__.py`, `tests/__init__.py`, `contracts/.gitkeep`, `data/.gitkeep`. **Verify** files exist and are non‑empty (`test -s <file>`).
 - [X] T005 [P] Create `contracts/dataset_metadata.schema.yaml` (see spec entities) and **verify** with `yamllint` and a simple schema load test.
 - [X] T006 [P] Create `contracts/power_audit_result.schema.yaml` (see spec entities) and **verify** similarly.
-- [ ] T007 Implement `code/utils/api_client.py` with OpenML connection and exponential backoff retry logic (handles HTTP 429). **Unit test** `tests/unit/test_api_client.py::test_api_client_retry_on_429` validates backoff.
-- [ ] T008 Implement `code/utils/oa_checker.py` to validate Open Access status of publication links (uses DOI content‑type checks). **Unit test** `tests/unit/test_oa_checker.py::test_oa_status` validates behavior.
+- [X] T007 Implement `code/utils/api_client.py` with OpenML connection and exponential backoff retry logic (handles HTTP 429). **Unit test** `tests/unit/test_api_client.py::test_api_client_retry_on_429` validates backoff.
+- [X] T008 Implement `code/utils/oa_checker.py` to validate Open Access status of publication links (uses DOI content‑type checks). **Unit test** `tests/unit/test_oa_checker.py::test_oa_status` validates behavior.
 - [X] T009 Implement logging configuration in `code/utils/logging_config.py` with:
  ```python
  import logging
@@ -64,7 +64,7 @@
 
 **Independent Test**: Execute `code/01_ingest_openml.py` and verify `data/raw/openml_metadata_filtered.json` contains a list of entries (max 50) with non‑null `publication_link` **or** `task_id`.
 
-- [ ] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_api_client_retry_on_429` (already covered by T007). <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_api_client_retry_on_429` (already covered by T007). <!-- FAILED: unspecified -->
 - [ ] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_dataset_metadata_schema` validates `data/raw/openml_metadata_filtered.json` against `contracts/dataset_metadata.schema.yaml`.
 - [X] T012 [US1] Implement `code/01_ingest_openml.py` with function:
  ```python
@@ -74,11 +74,11 @@
  Save raw API response to `data/raw/openml_metadata_raw.json`.
 - [ ] T013 [US1] In the same script, filter raw metadata where `publication_link` **or** `task_id` is present. Save filtered list to `data/raw/openml_metadata_filtered.json`. **Verify** filter condition explicitly.
 - [ ] T014 [US1] Validate filtered data for duplicate `dataset_id`s, keep entry with highest `download_count`, and generate SHA‑256 checksums written to `data/raw/checksums.txt`. **Verify** checksum file exists.
-- [~] T015 [US1] Log extraction statistics as JSON to `data/ingest.log`:
+- [ ] T015 [US1] Log extraction statistics as JSON to `data/ingest.log`:
  ```json
  {"total_fetched": X, "filtered": Y, "type_distribution": {"binary": A, "multiclass": B}}
  ```
-- [~] T016 [US1] Ensure no duplicate IDs remain; raise `ValueError` if any remain after resolution.
+- [ ] T016 [US1] Ensure no duplicate IDs remain; raise `ValueError` if any remain after resolution.
 
 **Checkpoint**: US1 functional and independently testable.
 
@@ -91,13 +91,13 @@
 **Independent Test**: Run `code/02_parse_publications.py` on a known OA subset and verify `data/processed/extracted_params.json` matches schema.
 
 - [X] T018 [P] [US2] Unit test `tests/unit/test_parsers.py::test_regex_patterns` checks regexes for `N=\\d+`, `Cohen's d=\\d+\\.\\d+`, `F\\(\\d+,\\d+\\)=\\d+\\.\\d+`.
-- [~] T019 [P] [US2] Contract test `tests/contract/test_schemas.py::test_extracted_params_schema` validates `data/processed/extracted_params.json` against a new schema (`contracts/extracted_params.schema.yaml` – created in T005‑T006).
+- [ ] T019 [P] [US2] Contract test `tests/contract/test_schemas.py::test_extracted_params_schema` validates `data/processed/extracted_params.json` against a new schema (`contracts/extracted_params.schema.yaml` – created in T005‑T006).
 - [X] T020 [US2] Implement `code/utils/parsers.py` exposing:
  - `extract_sample_size(text: str) -> int`
  - `extract_effect_size(text: str) -> Tuple[float, str, Optional[Tuple[int,int]]]`
  Return includes `metric_type` (`"Cohen's d"` or `"F"`), and for F also `degrees_of_freedom`.
-- [~] T021 [US2] Implement `code/02_parse_publications.py` that iterates over `data/raw/openml_metadata_filtered.json`, fetches full‑text (see T022), and writes extracted rows to `data/processed/extracted_params.json`. Use the JSON schema defined in contracts. <!-- ATOMIZE: requested -->
-- [~] T022 [US2] Fetch full‑text from `publication_link` using `requests.get` (timeout 10 s). Before download, call `oa_checker.is_open_access(url)`; if False, mark status `"paywalled"` and skip extraction (log accordingly). **Verify** with a mock OA check in unit test.
+- [ ] T021 [US2] Implement `code/02_parse_publications.py` that iterates over `data/raw/openml_metadata_filtered.json`, fetches full‑text (see T022), and writes extracted rows to `data/processed/extracted_params.json`. Use the JSON schema defined in contracts. <!-- ATOMIZE: requested -->
+- [ ] T022 [US2] Fetch full‑text from `publication_link` using `requests.get` (timeout 10 s). Before download, call `oa_checker.is_open_access(url)`; if False, mark status `"paywalled"` and skip extraction (log accordingly). **Verify** with a mock OA check in unit test.
 - [ ] T021.1 [US2] After fetching, validate that the publication actually reports a **univariate** effect size (i.e., metric_type is one of `"Cohen's d"` or `"F"`). If not, log `"insufficient data"` and treat as `"unparseable"` – this satisfies FR‑007.
 - [~] T023 [US2] If full‑text fetch fails or is paywalled, attempt abstract retrieval via DOI metadata API; parse using same regexes. Mark source as `"abstract"` if used.
 - [~] T024 [US2] Edge‑case handling: for entries where no metric can be extracted, record status `"unparseable"` in the JSON and log a warning; **do not crash**.
@@ -138,13 +138,13 @@
  `mdes_above_threshold = count(mdes > 0.2) / total` (threshold chosen as illustrative). This provides a plan‑aligned success indicator.
 - [ ] T036 [US3] Generate MDES distribution histogram (`mdes_histogram.png`) and summary statistics (median, IQR) saved to `data/processed/mdes_summary.json`.
 - [X] T034 [US3] Implement `code/04_generate_report.py` to aggregate `power_audit_results.json`, `extraction_stats.json`, `sensitivity_delta_report.json`, and `mdes_summary.json`. Produce histogram `power_histogram.png` (bins=20, color=steelblue) and embed in markdown.
-- [ ] T035 [US3] Append mandatory disclaimer at the end of `audit_report.md`:
+- [~] T035 [US3] Append mandatory disclaimer at the end of `audit_report.md`:
  ```
  **Disclaimer:** Observed power is a monotone function of the p‑value and should not be used for post‑hoc validation (Hoenig & Heisey).
 
 The research question is to determine whether observed power is appropriate for post‑hoc validation. The method involves a theoretical analysis of the monotonic relationship between observed power and p‑values.
  ```
-- [ ] T037 [US3] Assemble final audit report (`data/processed/audit_report.md`) with sections:
+- [~] T037 [US3] Assemble final audit report (`data/processed/audit_report.md`) with sections:
  1. Overview
  2. Dataset Ingestion Summary
  3. Extraction Statistics (including sensitivity delta)
@@ -161,10 +161,10 @@ The research question is to determine whether observed power is appropriate for 
 
 **Purpose**: Improvements affecting multiple stories and final validation.
 
-- [ ] T038 [P] Update `docs/constitution.md` with markdown links to `research.md`, `plan.md`, and `quickstart.md` (format `[Research](../research.md)`, etc.).
+- [X] T038 [P] Update `docs/constitution.md` with markdown links to `research.md`, `plan.md`, and `quickstart.md` (format `[Research](../research.md)`, etc.).
 - [ ] T039.2 [P] Run full‑pipeline integration test (`pytest -m integration`) on a small representative subset (first few filtered datasets). **Success** = exit code 0 and generated `audit_report.md` matches stored checksum.
-- [ ] T040 [P] Validate `quickstart.md` by executing the documented CLI steps (`./run_pipeline.sh`) and confirming generated `audit_report.md` checksum equals the value recorded in `quickstart.md`.
-- [ ] T041 [P] Refactor `code/utils/`:
+- [~] T040 [P] Validate `quickstart.md` by executing the documented CLI steps (`./run_pipeline.sh`) and confirming generated `audit_report.md` checksum equals the value recorded in `quickstart.md`. <!-- FAILED: unspecified -->
+- [~] T041 [P] Refactor `code/utils/`:
  - Extract OA‑check logic to a shared helper.
  - Remove duplicate logging configuration (use `logging_config.py` everywhere).
  - Ensure no circular imports; run `flake8` import‑order check.

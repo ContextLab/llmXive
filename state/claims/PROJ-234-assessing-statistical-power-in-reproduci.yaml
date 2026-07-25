@@ -150,3 +150,46 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T21:22:03Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Examples include test tasks
+  claim_id: c_babc8e9d
+  context: "Tests: The examples below include test tasks. Tests are OPTIONAL \u2013\
+    \ only include them if explicitly requested in the feature specification."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: method and demonstrate substantial gains on 18 procedural
+      source_id: '2302.05330'
+      url: https://arxiv.org/abs/2302.05330
+      value: '18'
+    filled: true
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: '18'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T09:50:38Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Observed power is a monotone function of the p-value Hoenig and Heisey
+  claim_id: c_7d39a4ac
+  context: "- [X] T035 [US3] Append mandatory disclaimer at the end of audit_report.md:\
+    \ **Disclaimer:** Observed power is a monotone function of the p\u2011value and\
+    \ should not be used for post\u2011hoc validation (Hoenig & Heisey)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Observed_power_is_a_monotone_function_of_the_p-value_Hoenig
+  kind: entity_fact
+  raw_text: "The disclaimer states that observed power is a monotone function of the\
+    \ p\u2011value (Hoenig & Heisey)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T09:51:09Z'

@@ -1,93 +1,124 @@
 """
-Open Access Checker Module.
-
-Validates Open Access status of publication links using DOI content-type checks.
+Open Access checker for publication links and DOIs.
 """
 import requests
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-def is_open_access(url: str, timeout: int = 10) -> bool:
+def is_open_access(url: str) -> bool:
     """
-    Check if a publication URL is Open Access.
+    Check if a URL points to an Open Access resource.
     
-    Uses the Crossref/DOI content negotiation or a direct HEAD/GET request
-    to determine if the resource is freely accessible.
+    Uses a HEAD request to check content-type and status.
+    Falls back to a GET request if HEAD is not supported or fails.
     
     Args:
-        url: The publication URL (ideally containing a DOI).
-        timeout: Request timeout in seconds.
+        url: The URL of the publication.
         
     Returns:
-        True if the resource appears to be Open Access, False otherwise.
+        True if the resource appears to be Open Access (200 OK and appropriate content type),
+        False otherwise.
     """
     if not url:
-        logger.warning("Empty URL provided to OA checker.")
         return False
 
-    # Strategy: Try to fetch the URL with a specific Accept header for HTML.
-    # If we get a 200 OK and the content type is HTML (or text), it's likely OA.
-    # If we get 403, 401, or a redirect to a login/paywall page, it's not.
-    
     headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "User-Agent": "Mozilla/5.0 (compatible; llmXive-OA-Checker/1.0)"
+        "User-Agent": "llmXive-Research-Agent/1.0",
+        "Accept": "application/json, application/pdf, text/html, application/xml"
     }
 
     try:
-        # Use HEAD first if possible to save bandwidth, but some servers behave differently.
-        # We'll use GET with stream=True to check the response quickly.
-        logger.info(f"Checking OA status for: {url}")
+        # Try HEAD first
+        response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
         
-        # Some publishers block non-browser user agents or require specific headers.
-        # We rely on the fact that OA articles usually return 200 immediately.
-        # Paywalled articles often return 200 but redirect to a login, or return 403.
-        # A robust check often involves looking for "login" or "subscription" in the URL
-        # or response, but the primary signal here is the HTTP status and content type.
+        # If HEAD fails or returns 405 (Method Not Allowed), try GET
+        if response.status_code == 405:
+            logger.warning(f"HEAD not allowed for {url}, trying GET")
+            response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
         
-        # Let's try a GET request with a short timeout.
-        # If the URL is a DOI resolver (dx.doi.org), it redirects. We need to follow redirects.
-        response = requests.get(url, headers=headers, timeout=timeout, allow_redirects=True)
-        
-        # Check status code
         if response.status_code == 200:
-            content_type = response.headers.get('content-type', '').lower()
-            # If it's HTML or text, it's likely the article page itself (OA)
-            if 'text/html' in content_type or 'text/plain' in content_type:
-                # Additional heuristic: check for common paywall indicators in the URL
-                # or response text if we were to parse it, but for this task,
-                # a successful 200 with HTML content is a strong signal of OA availability
-                # compared to a 403 or a redirect to a login page (which usually ends in 200
-                # on the login page, but the URL changes).
-                
-                # Check if the final URL still looks like a publisher page and not a login page
-                final_url = response.url.lower()
-                if 'login' in final_url or 'signin' in final_url or 'access' in final_url:
-                    logger.info(f"URL redirected to a login/access page: {final_url}")
-                    return False
-                
-                logger.info(f"URL is accessible (Status 200, Content-Type: {content_type})")
+            content_type = response.headers.get("Content-Type", "").lower()
+            # Check for common OA indicators
+            if any(indicator in content_type for indicator in [
+                "application/pdf", 
+                "application/json", 
+                "text/html", 
+                "application/xml"
+            ]):
+                # Additional check: if it's HTML, look for OA indicators in headers or body?
+                # For now, successful 200 with reasonable content type is a good heuristic
+                # for a reachable resource. True OA often involves specific licenses,
+                # but simple accessibility is the first filter.
                 return True
             else:
-                # Might be a PDF or other file, which is also OA if accessible
-                logger.info(f"URL is accessible (Status 200, Content-Type: {content_type})")
-                return True
+                logger.debug(f"Content-Type {content_type} not recognized as OA for {url}")
+                return False
         else:
-            # 403, 401, 404 usually mean not accessible
-            logger.warning(f"OA check failed for {url}: Status {response.status_code}")
+            logger.debug(f"Non-200 status {response.status_code} for {url}")
             return False
 
-    except requests.exceptions.Timeout:
-        logger.error(f"Request timed out for {url}")
-        return False
     except requests.exceptions.RequestException as e:
         logger.error(f"Request failed for {url}: {e}")
         return False
-    except Exception as e:
-        logger.error(f"Unexpected error checking OA status for {url}: {e}")
-        return False
 
-# For testing purposes, a simple mockable function could be wrapped, 
-# but the implementation above is the real logic.
+def check_doi_oa_status(doi: str) -> Dict[str, Any]:
+    """
+    Check Open Access status for a DOI using the Unpaywall or similar API.
+    Since we don't have an API key for Unpaywall in this simple setup,
+    we will use the Crossref DOI resolution to check content type.
+    
+    Args:
+        doi: The DOI string.
+        
+    Returns:
+        A dictionary with 'status' (open_access, closed_access, unknown) and 'url'.
+    """
+    if not doi:
+        return {"status": "unknown", "url": None}
+
+    # Crossref DOI resolution
+    # https://doi.org/10.1000/182
+    url = f"https://doi.org/{doi}"
+    headers = {
+        "User-Agent": "llmXive-Research-Agent/1.0",
+        "Accept": "application/json"
+    }
+
+    try:
+        # Follow redirects to get the final URL
+        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+        final_url = response.url
+        
+        if response.status_code == 200:
+            # Check if the final URL is a known OA repository or if the content type suggests OA
+            # A more robust check would use Unpaywall API, but for this implementation:
+            # If it resolves to a PDF or a journal page that is accessible, we assume OA for the purpose of this pipeline's "fetchable" check.
+            # However, strictly speaking, we should check the "license" in Crossref metadata.
+            # Let's try to fetch Crossref metadata.
+            
+            # Alternative: Use Crossref API for metadata
+            metadata_url = f"https://api.crossref.org/works/{doi}"
+            meta_resp = requests.get(metadata_url, headers=headers, timeout=10)
+            
+            if meta_resp.status_code == 200:
+                data = meta_resp.json()
+                if "message" in data:
+                    message = data["message"]
+                    # Check for open-access field
+                    if "is-oa" in message:
+                        is_oa = message.get("is-oa", False)
+                        status = "open_access" if is_oa else "closed_access"
+                        return {
+                            "status": status,
+                            "url": final_url,
+                            "source": "crossref"
+                        }
+            return {"status": "unknown", "url": final_url}
+        else:
+            return {"status": "unknown", "url": None}
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"DOI check failed for {doi}: {e}")
+        return {"status": "unknown", "url": None}

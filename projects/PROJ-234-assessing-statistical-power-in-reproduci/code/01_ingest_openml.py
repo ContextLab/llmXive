@@ -1,153 +1,180 @@
+"""
+OpenML Dataset Ingestion Script (US1).
+
+Tasks:
+- T012: Fetch top classification datasets.
+- T013: Filter for publication_link or task_id.
+- T014: Deduplicate by dataset_id (keep highest download_count) and generate checksums.
+- T015: Log statistics.
+"""
 import json
 import os
 import sys
 import hashlib
+import logging
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from collections import defaultdict
 
-# Import from utils to ensure real API usage
-try:
-    from utils.logging_config import setup_logging
-except ImportError:
-    # Fallback for direct execution in project root context if utils not in path
-    import logging
-    def setup_logging():
-        logging.basicConfig(level=logging.INFO)
-        return logging.getLogger(__name__)
+# Import from local utils as per API surface
+from utils.api_client import fetch_top_classification_datasets
+from utils.logging_config import setup_logging
 
+# Paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+# Setup logging
 logger = setup_logging()
 
-def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
-    """
-    Fetch top classification datasets from OpenML.
-    In a real implementation, this would use the OpenML API via utils.api_client.
-    For this task, we assume the data is already fetched by T012 and saved to data/raw/openml_metadata_raw.json.
-    """
-    raw_path = Path("data/raw/openml_metadata_raw.json")
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw metadata file not found: {raw_path}. Run T012 first.")
-    
-    with open(raw_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Ensure we respect the limit if the file contains more
-    if isinstance(data, list):
-        return data[:limit]
-    return data
 
-def filter_datasets(data: List[Dict]) -> List[Dict]:
+def filter_datasets(
+    datasets: List[Dict[str, Any]], 
+    required_fields: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
     """
-    Filter datasets where publication_link or task_id is present.
+    T013: Filter datasets to keep only those with 'publication_link' OR 'task_id'.
     """
     filtered = []
-    for item in data:
-        if item.get("publication_link") or item.get("task_id"):
-            filtered.append(item)
+    for ds in datasets:
+        has_link = ds.get("publication_link") is not None and ds.get("publication_link") != ""
+        has_task = ds.get("task_id") is not None
+        
+        if has_link or has_task:
+            filtered.append(ds)
+    
+    logger.info(f"Filtered {len(datasets)} to {len(filtered)} datasets based on publication_link/task_id.")
     return filtered
 
-def deduplicate_and_checksum(data: List[Dict]) -> List[Dict]:
+
+def deduplicate_datasets(datasets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Deduplicate datasets by dataset_id, keeping the entry with the highest download_count.
-    Generates SHA-256 checksums for the final list.
-    Raises ValueError if duplicates remain after resolution (T016 requirement).
+    T014: Validate for duplicate dataset_ids.
+    Keep the entry with the highest download_count.
     """
-    if not data:
+    if not datasets:
         return []
 
     # Group by dataset_id
-    id_map: Dict[str, Dict] = {}
-    for item in data:
-        dataset_id = item.get("dataset_id")
-        if dataset_id is None:
-            logger.warning(f"Skipping item with missing dataset_id: {item}")
+    id_groups = defaultdict(list)
+    for ds in datasets:
+        ds_id = ds.get("dataset_id")
+        if ds_id is None:
+            logger.warning("Found dataset with missing dataset_id, skipping.")
             continue
+        id_groups[ds_id].append(ds)
 
-        if dataset_id in id_map:
-            existing = id_map[dataset_id]
-            current_dl = item.get("download_count", 0) or 0
-            existing_dl = existing.get("download_count", 0) or 0
-            
-            if current_dl > existing_dl:
-                id_map[dataset_id] = item
-        else:
-            id_map[dataset_id] = item
+    resolved = []
+    duplicates_found = False
 
-    # Reconstruct the list
-    deduplicated = list(id_map.values())
+    for ds_id, group in id_groups.items():
+        if len(group) > 1:
+            duplicates_found = True
+            # Sort by download_count descending (handle None as 0)
+            group.sort(
+                key=lambda x: x.get("download_count") or 0, 
+                reverse=True
+            )
+            winner = group[0]
+            logger.info(f"Duplicate dataset_id {ds_id} found ({len(group)} entries). Keeping highest download_count.")
+        
+        resolved.append(group[0])
 
-    # T016: Ensure no duplicate IDs remain
-    seen_ids = set()
-    for item in deduplicated:
-        dataset_id = item.get("dataset_id")
-        if dataset_id in seen_ids:
-            raise ValueError(f"Duplicate dataset_id '{dataset_id}' detected after resolution logic.")
-        seen_ids.add(dataset_id)
+    if duplicates_found:
+        logger.info(f"Deduplication complete. Removed {len(datasets) - len(resolved)} duplicates.")
+    else:
+        logger.info("No duplicate dataset_ids found.")
 
-    # Generate checksums
-    checksums = []
-    for item in deduplicated:
-        # Create a deterministic string representation for hashing
-        # Sort keys to ensure consistency
-        item_str = json.dumps(item, sort_keys=True, ensure_ascii=False)
-        sha256_hash = hashlib.sha256(item_str.encode('utf-8')).hexdigest()
-        checksums.append(f"{sha256_hash}  dataset_id:{item.get('dataset_id')}")
+    return resolved
 
-    # Write checksums to file
-    checksum_path = Path("data/raw/checksums.txt")
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(checksum_path, 'w', encoding='utf-8') as f:
-        f.write("\n".join(checksums))
+
+def generate_checksums(data: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    T014: Generate SHA-256 checksums for the filtered/deduplicated JSON content.
+    Writes a single checksum for the serialized JSON file content.
+    """
+    # Serialize to JSON with sorted keys for deterministic output
+    json_str = json.dumps(data, sort_keys=True, indent=2)
+    content_bytes = json_str.encode('utf-8')
     
-    logger.info(f"Checksums written to {checksum_path}")
+    sha256_hash = hashlib.sha256(content_bytes).hexdigest()
     
-    return deduplicated
+    # Write to checksum file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(f"{sha256_hash}  openml_metadata_filtered.json\n")
+    
+    logger.info(f"Checksum generated: {sha256_hash} -> {output_path}")
+
 
 def main():
-    logger.info("Starting 01_ingest_openml.py")
+    """
+    Main execution flow for T012, T013, T014, T015.
+    """
+    logger.info("Starting OpenML Ingestion Pipeline (US1).")
+
+    # T012: Fetch
+    raw_datasets = fetch_top_classification_datasets(limit=50)
     
-    # 1. Fetch (simulated via file read as per T012 completion)
-    raw_data = fetch_top_classification_datasets(limit=50)
-    logger.info(f"Fetched {len(raw_data)} raw datasets")
+    if not raw_datasets:
+        logger.error("No datasets fetched from OpenML. Aborting.")
+        sys.exit(1)
 
-    # 2. Filter
-    filtered_data = filter_datasets(raw_data)
-    logger.info(f"Filtered to {len(filtered_data)} datasets with publication_link or task_id")
+    raw_output = DATA_RAW_DIR / "openml_metadata_raw.json"
+    with open(raw_output, 'w', encoding='utf-8') as f:
+        json.dump(raw_datasets, f, indent=2, default=str)
+    logger.info(f"Raw data saved to {raw_output}")
 
-    # 3. Deduplicate and Checksum (T016 logic)
-    try:
-        final_data = deduplicate_and_checksum(filtered_data)
-    except ValueError as e:
-        logger.error(f"Duplicate ID error: {e}")
-        raise
-
-    # Save filtered result
-    output_path = Path("data/raw/openml_metadata_filtered.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_data, f, indent=2)
+    # T013: Filter
+    filtered_datasets = filter_datasets(raw_datasets)
     
-    logger.info(f"Saved filtered metadata to {output_path}")
-    logger.info(f"Total final entries: {len(final_data)}")
+    if not filtered_datasets:
+        logger.error("No datasets passed the filter (publication_link or task_id). Aborting.")
+        sys.exit(1)
 
-    # Log statistics (T015)
-    binary_count = sum(1 for d in final_data if d.get("number_of_classes") == 2)
-    multiclass_count = sum(1 for d in final_data if d.get("number_of_classes", 0) > 2)
-    
+    # T014: Deduplicate
+    final_datasets = deduplicate_datasets(filtered_datasets)
+
+    # Save filtered/deduplicated data
+    filtered_output = DATA_RAW_DIR / "openml_metadata_filtered.json"
+    with open(filtered_output, 'w', encoding='utf-8') as f:
+        json.dump(final_datasets, f, indent=2, default=str)
+    logger.info(f"Filtered/Deduplicated data saved to {filtered_output}")
+
+    # T014: Checksums
+    checksum_path = DATA_RAW_DIR / "checksums.txt"
+    generate_checksums(final_datasets, checksum_path)
+
+    # T015: Log Statistics (JSON format)
+    type_dist = {"binary": 0, "multiclass": 0, "other": 0}
+    for ds in final_datasets:
+        # Assuming 'NumberOfClasses' or similar key exists in OpenML response
+        n_classes = ds.get("NumberOfClasses")
+        if n_classes is not None:
+            if n_classes == 2:
+                type_dist["binary"] += 1
+            elif n_classes > 2:
+                type_dist["multiclass"] += 1
+            else:
+                type_dist["other"] += 1
+        else:
+            type_dist["other"] += 1
+
     stats = {
-        "total_fetched": len(raw_data),
-        "filtered": len(final_data),
-        "type_distribution": {
-            "binary": binary_count,
-            "multiclass": multiclass_count
-        }
+        "total_fetched": len(raw_datasets),
+        "filtered": len(final_datasets),
+        "type_distribution": type_dist
     }
     
-    log_path = Path("data/ingest.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'a', encoding='utf-8') as f:
+    # Append to ingest.log as JSON line (or overwrite for simplicity as requested)
+    # The task asks to log extraction statistics as JSON to data/ingest.log
+    log_stats_path = PROJECT_ROOT / "data" / "ingest.log"
+    with open(log_stats_path, 'a', encoding='utf-8') as f:
         f.write(json.dumps(stats) + "\n")
+    
+    logger.info(f"Statistics logged to {log_stats_path}")
+    logger.info(f"Pipeline complete. Output: {filtered_output}, Checksum: {checksum_path}")
 
-    logger.info("Ingestion complete.")
 
 if __name__ == "__main__":
     main()

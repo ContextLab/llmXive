@@ -1,0 +1,43 @@
+T011:
+  c: false
+  h: 8c23b03896e2e591dc2131d59e8d2622cc4266eebe0c5292d611c21bf1444543
+  r: The contract test expects a schema at `contracts/dataset_metadata.schema.yaml`,
+    but that file is missing, causing the test to fail. Additionally, the JSON data
+    file is only a placeholder empty list, not real filtered metadata. Both required
+    artifacts are absent or insufficient, so the task is not genuinely satisfied.
+T015:
+  c: false
+  h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
+  r: The required artifact `data/ingest.log` does not exist, so no JSON extraction
+    statistics are logged as specified. The implementer must create the `data/ingest.log`
+    file with the appropriate JSON content.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was provided that shows a check for duplicate\
+    \ IDs and the raising of a `ValueError` when any remain after resolution. The\
+    \ required artifact (implementation of the duplicate\u2011ID validation logic)\
+    \ is missing, so the task is not satisfied."
+T019:
+  c: false
+  h: 918c76c1d1b5a5f0d7572f41af13bdb366c21c11d0bc8eb86758d95865735da3
+  r: "The provided `tests/contract/test_schemas.py` contains a test for `openml_metadata_filtered.json`\
+    \ against `dataset_metadata.schema.yaml`, not the required `test_extracted_params_schema`\
+    \ for `data/processed/extracted_params.json`. Moreover, the `data/processed/extracted_params.json`\
+    \ file and the `contracts/extracted_params.schema.yaml` schema are both missing.\
+    \ The task\u2019s required artifacts are absent, so the requirement is not satisfied."
+T021:
+  c: false
+  h: 40efad785569eb38931520f38b48bb1c83b0de1750e2351146f8313d6f8a48db
+  r: "The `code/02_parse_publications.py` file is truncated and does not contain the\
+    \ logic to iterate over the raw JSON, invoke the full\u2011text fetch, parse results,\
+    \ and write them to `data/processed/extracted_params.json`. Moreover, the required\
+    \ output file `data/processed/extracted_params.json` is absent. The implementation\
+    \ therefore does not fulfill the task\u2019s requirements."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or unit\u2011test files were provided that demonstrate fetching\
+    \ the full\u2011text with `requests.get`, invoking `oa_checker.is_open_access`,\
+    \ handling the paywalled case, or a mock\u2011based test verifying this behavior.\
+    \ The required artifacts are missing, so the task is not satisfied."

@@ -21,3 +21,36 @@ T022:
     \ output `{spearman_r, p_value, method}` produced from a pandas DataFrame. The\
     \ claim lacks the actual code file and example output, so the task requirements\
     \ are not met."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response only shows a fragment of an updated spec, but no actual Decision
+    Record documents or a verifiable `spec.md` file are provided. Without concrete
+    artifacts confirming that the decision records were created and the spec file
+    was updated, the task requirements are not satisfied. The next implementer must
+    supply the full decision record files and the updated `spec.md` containing the
+    documented deviations.
+T036a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No markdown file at `specs/001-viq-resolution-invariance/decisions/001-chestx14-exclusion.md`\
+    \ was presented; without the file we cannot confirm it contains the required context,\
+    \ decision, and consequences. The task\u2019s core deliverable is therefore missing."
+T036b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No markdown file at `specs/001-viq-resolution-invariance/decisions/002-native-ground-truth-test.md`\
+    \ was presented; the claim lacks any evidence of the required document\u2019s\
+    \ existence or content. The task remains undone until the specified decision record\
+    \ file is provided."
+T036c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt shows FR\u2011003 updated to exclude ChestX\u2011\
+    ray14, FR\u2011004 updated to require native 1024\xD71024 ground truth, and SC\u2011\
+    005 updated to require a paired t\u2011test or Wilcoxon test. However, there is\
+    \ no evidence that the change was also applied to US\u20112 (the removal of ChestX\u2011\
+    ray14 from that use\u2011case), and no actual `specs/001-viq-resolution-invariance/spec.md`\
+    \ file is presented to confirm the edits exist on disk. The implementer must supply\
+    \ the updated spec file showing the US\u20112 change (or confirm its absence)\
+    \ to complete the task."

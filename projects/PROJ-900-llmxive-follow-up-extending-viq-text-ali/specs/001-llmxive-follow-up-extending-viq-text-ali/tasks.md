@@ -53,9 +53,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python 3.11 project with `projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt` pinning exact versions: `torch==2.1.0+cpu`, `transformers==4.36.0`, `datasets==2.14.0`, `scikit-learn==1.3.0`, `opencv-python-headless==4.8.0`, `numpy==1.24.0`, `pandas==2.0.0`, `matplotlib==3.7.0`, `scipy==1.10.0`.
+- [X] T002 Initialize Python 3.11 project with `projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt` pinning exact versions: `torch==2.1.0+cpu `, `transformers==4.36.0 `, `datasets==2.14.0 `, `scikit-learn==1.3.0 `, `opencv-python-headless==4.8.0 `, `numpy==1.24.0 `, `pandas==2.0.0 `, `matplotlib==3.7.0 `, `scipy==1.10.0 `.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
-- [ ] T036 [Foundational] **SPEC ALIGNMENT**: Create Decision Records and Update `spec.md` to formally document deviations from FR-004 (upsampled ground truth) and SC-005 (one-sample t-test) and the exclusion of ChestX-ray14 (FR-003). **Dependency**: Must complete T036a, T036b, and T036c. **Action**: Execute T036a, T036b, then T036c to update the spec.
+- [ ] T036 [Foundational] **SPEC ALIGNMENT**: Create Decision Records and Update `spec.md` to formally document deviations from FR-004 (upsampled ground truth) and SC-005 (one-sample t-test) and the exclusion of ChestX-ray14 (FR-003). **Dependency**: Must complete T036a, T036b, and T036c. **Action**: Execute T036a, T036b, then T036c to update the spec. <!-- ATOMIZE: requested -->
 - [ ] T036a [Foundational] **DECISION RECORD: ChestX-ray14 Exclusion**: Create `specs/001-viq-resolution-invariance/decisions/001-chestx14-exclusion.md`. **Content**: Document the Plan's decision to exclude ChestX-ray14 due to lack of verified source and CI compatibility risks, replacing FR-003/US-2 requirements. **Deliverable**: Markdown file with context, decision, and consequences. **Dependency**: None.
 - [ ] T036b [Foundational] **DECISION RECORD: Native Ground Truth & Paired Test**: Create `specs/001-viq-resolution-invariance/decisions/002-native-ground-truth-test.md`. **Content**: Document the Plan's decision to reject FR-004 (upsampled ground truth) in favor of native 1024x1024 ground truth and reject SC-005 (one-sample t-test) in favor of paired t-test/Wilcoxon. **Deliverable**: Markdown file with context, decision, and consequences. **Dependency**: None.
 - [ ] T036c [Foundational] **UPDATE SPEC**: Edit `specs/001-viq-resolution-invariance/spec.md` to reflect the decisions in T036a and T036b. **Content**: Remove ChestX-ray14 from FR-003/US-2; Update FR-004 to specify native 1024x1024 ground truth; Update SC-005 to specify paired t-test/Wilcoxon. **Dependency**: T036a, T036b.
@@ -76,7 +76,7 @@
 
 **Goal**: Initialize and train a visual quantization codebook using low-resolution (64x64) COCO data on CPU-only hardware.
 
-**Independent Test**: The system can be tested by running the training loop on a representative sample of COCO pairs, verifying that the codebook converges (loss decreases) and that the resulting quantized tokens can be reconstructed into 64x64 images with a PSNR > 15 dB, all within the specified CPU time limit.
+**Independent Test**: The system can be tested by running the training loop on a representative sample of COCO pairs, verifying that the codebook converges (loss decreases) and that the resulting quantized tokens can be reconstructed into 64x64 images with a {{claim:c_ea18f858}} (2411.07379, https://arxiv.org/abs/2411.07379), all within the specified CPU time limit. [UNRESOLVED-CLAIM: c_7aa6926e — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -85,9 +85,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/train.py` with CPU-only training loop, frozen ViQ encoder, and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling via in-batch negatives) loss. **Weights**: VQ loss weight = 1.0, Contrastive loss weight = 0.1. Text encoder input format: raw strings tokenized by `transformers.CLIPTextModel` tokenizer. **Deliverable**: Script must save a checkpoint to `data/results/codebook_v0.pth` upon completion, verify loss decreases over a sufficient number of training steps, and include a runtime monitor that tracks cumulative wall-clock time. If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without convergence, log a `CRITICAL` warning and save the current state. **Dependency**: T005, T013.
+- [ ] T012 [US1] Implement `code/train.py` with CPU-only training loop, frozen ViQ encoder, and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling via in-batch negatives) loss. **Weights**: VQ loss weight = 1.0, {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803). Text encoder input format: raw strings tokenized by `transformers.CLIPTextModel` tokenizer. **Deliverable**: Script must save a checkpoint to `data/results/codebook_v0.pth` upon completion, verify loss decreases over a sufficient number of training steps, and include a runtime monitor that tracks cumulative wall-clock time. If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without convergence, log a `CRITICAL` warning and save the current state. **Dependency**: T005, T013.
 - [X] T013 [US1] Implement dataset sampling strategy and batch size tuning loop in `code/train.py` to fit 64x64 images within 7GB RAM. **Deliverable**: Script must dynamically adjust batch size, log the specific batch_size value found, and verify peak RAM < 7GB in logs using `psutil` to log peak RSS. Log entry must contain "Final batch_size: X" and "Peak RAM: Y GB". **Dependency**: T005, T004.
-- [ ] T014 [US1] Implement reconstruction verification script in `code/eval_low_res.py` to calculate PSNR on 64x64 samples. **Deliverable**: Script must explicitly assert PSNR > 15 dB and raise `SystemExit(1)` if the threshold is not met. **Dependency**: T012.
+- [ ] T014 [US1] Implement reconstruction verification script in `code/eval_low_res.py` to calculate PSNR on 64x64 samples. **Deliverable**: Script must explicitly assert {{claim:c_ea18f858}} and raise `SystemExit(1)` if the threshold is not met. **Dependency**: T012.
 - [X] T015 [US1] Implement `code/eval_semantic_baseline.py` to load `data/results/codebook_v0.pth` and a small batch of 64x64 COCO images/captions, compute projected visual embeddings, and calculate mean cosine similarity against frozen CLIP text embeddings. **Deliverable**: Save results to `data/results/semantic_baseline.json` with keys `mean_similarity`, `count`, and `resolution`. Produces artifact required by T028.
 - [X] T016 [US1] Add logging for training loss, reconstruction loss, and codebook usage statistics. **Deliverable**: Write metrics in JSON format to `data/results/train_log.json` with fields `step`, `total_loss`, `vq_loss`, `contrastive_loss`, `elapsed_time`.
 
@@ -99,7 +99,7 @@
 
 **Goal**: Evaluate the trained low-resolution codebook on high-resolution (1024x1024) images to measure fidelity degradation and correlation with texture complexity.
 
-**Independent Test**: The system can be tested by processing a batch of 50 high-resolution images (1024x1024) from ImageNet-1K and COCO, generating reconstructions, and calculating the mean PSNR and SSIM. The test passes if the metrics are computed and the correlation with texture complexity is plotted.
+**Independent Test**: The system can be tested by processing a batch of 50 high-resolution images (1024x1024) from ImageNet-1K and COCO, generating reconstructions, and calculating the mean PSNR and SSIM. The test passes if the metrics are computed and the correlation with texture complexity is plotted. [UNRESOLVED-CLAIM: c_a7fa3eaa — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -111,7 +111,7 @@
 - [ ] T019 [P] [US2] Implement `code/eval_high_res.py` to load `data/results/codebook_v0.pth` (Depends on T012) and process 1024x1024 images from ImageNet-1K and COCO (ChestX-ray14 excluded per Decision Record 001; FR-003/US-2 amended) without resizing; save projected visual embeddings to `data/results/embeddings_high_res.h5`. **Dependency**: This task REQUIRES T006a to have passed successfully (exit code 0) and T012 to be complete. Note: Relies on T005 which is configured to exclude ChestX-ray14. **Dependency**: T005, T006a, T012, T036c.
 - [ ] T019b [P] [US2] **HYPOTHESIS VALIDATION ON REMAINING DATASETS**: Implement `code/validate_remaining_datasets.py` to explicitly verify that the hypothesis (resolution invariance) holds or fails on the remaining datasets (ImageNet+COCO) after ChestX-ray14 exclusion. **Deliverable**: Script must output a summary report to `data/results/hypothesis_validation_summary.json` confirming the scope of validation. **Dependency**: T019.
 - [X] T020 [US2] Implement texture complexity calculation in `code/utils.py`: Variance of Laplacian (cv2.Laplacian) on grayscale, normalized by the number of pixels.
-- [ ] T021 [US2] Implement metric aggregation script to calculate mean PSNR/SSIM comparing against **native 1024x1024 ground truth** (per Decision Record 002, deviating from Spec FR-004) and save to `data/results/fidelity_metrics.json`. **Deliverable**: Calculate PSNR using standard formula and SSIM using `window_size=11` on native 1024x1024 images. JSON Schema: `{"mean_psnr": float, "mean_ssim": float, "count": int, "note": "native ground truth used per Decision Record 002"}`. **Dependency**: T036c (Spec Update), T019.
+- [ ] T021 [US2] Implement metric aggregation script to calculate mean PSNR/SSIM comparing against **native 1024x1024 ground truth** (per Decision Record 002, deviating from Spec FR-004) and save to `data/results/fidelity_metrics.json`. **Deliverable**: Calculate PSNR using standard formula and SSIM using `window_size=11 ` on native 1024x1024 images. JSON Schema: `{"mean_psnr": float, "mean_ssim": float, "count": int, "note": "native ground truth used per Decision Record 002"}`. **Dependency**: T036c (Spec Update), T019.
 - [ ] T022 [US2] Implement correlation analysis script in `code/analysis.py` using `scipy.stats.spearmanr` AND **paired t-test/Wilcoxon** (per Decision Record 002, deviating from Spec SC-005) between texture complexity and reconstruction error. **Deliverable**: Perform Shapiro-Wilk test on error distribution; if p > 0.05 use paired t-test, else use Wilcoxon signed-rank test. Input: pandas DataFrame with columns [texture_complexity, psnr], Output: JSON {spearman_r, p_value, method}. **Dependency**: T036c (Spec Update), T038, T039.
 - [X] T023 [US2] Generate visualization of correlation plot in `code/analysis.py` using `matplotlib.pyplot` and save to `data/results/correlation_plot.png`. **Deliverable**: Script must explicitly define figure size, labels, and title.
 
@@ -218,7 +218,7 @@ Task: "Implement dataset sampling strategy in code/train.py..."
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (ensure codebook converges and PSNR > 15 dB)
+4. **STOP and VALIDATE**: Test User Story 1 independently (ensure codebook converges and {{claim:c_ea18f858}})
 5. Deploy/demo if ready
 
 ### Incremental Delivery
