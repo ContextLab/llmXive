@@ -1,0 +1,9 @@
+{
+  "status": "fail",
+  "details": {
+    "available_variables": [],
+    "participant_count": 0,
+    "message": "Required fatigue variables missing"
+  },
+  "timestamp": "2026-07-25 10:14:38"
+}

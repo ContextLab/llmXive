@@ -1,13 +1,20 @@
-T010:
+T014:
   c: false
-  h: 9e59fec3cebbe04f188ab7d1036822f2d28453cb9630bc7c38f5616525cb2015
-  r: "The `code/preprocess.py` file is truncated, contains a typo (`return ra`) and\
-    \ its `apply_notch_filter` signature does not match the test\u2019s call (missing\
-    \ `sfreq` argument). The required output file `data/processed/cleaned_eeg.fif`\
-    \ does not exist, and the integration test `test_line_noise_attenuation` is incomplete\
-    \ (truncated before the final assertion). These issues mean the band\u2011pass\
-    \ and notch filtering, config\u2011driven notch frequency, and output generation\
-    \ are not correctly implemented."
+  h: be11b7ad5377b1c9da590f3188988417fa4b7a8ec03c905323ba424c6bcb58f1
+  r: "The required output file `data/processed/lzc_metrics.csv` does not exist, and\
+    \ the provided `code/features.py` lacks any implementation of Lempel\u2011Ziv\
+    \ complexity (it only contains a partially shown permutation\u2011entropy function\
+    \ and is truncated). Consequently the script does not meet the specification of\
+    \ calculating LZC per channel and writing the results to the CSV. The missing\
+    \ CSV and absent LZC logic must be added."
+T015:
+  c: false
+  h: 2ca86f5d92afd16ae74b0afe2f68dbd0dcfc5af861b6e153dc8534908f704748
+  r: The provided `code/features.py` is truncated and does not contain a full implementation
+    (the `calculate_permutation_entropy` function ends abruptly and there is no logic
+    to iterate over participants/channels or write `data/processed/pe_metrics.csv`).
+    Moreover, the required CSV output file is missing. The task therefore fails to
+    meet the specified requirements.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

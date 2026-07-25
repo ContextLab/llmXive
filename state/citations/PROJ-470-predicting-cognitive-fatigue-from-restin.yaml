@@ -75,3 +75,14 @@
   verification_status: pending
   verified_against_url: https://mne.tools/stable/
   verified_at: '2026-07-18T21:21:21.415626Z'
+- artifact_hash: 6e243811b93472cc15a2764e41102a17eade80ff2969e10caf2b8c7b986d7ac3
+  artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://physionet.org/files/eeg-fatigue/.0/metadata.csv`
+  verification_status: mismatch
+  verified_against_url: https://physionet.org/files/eeg-fatigue/.0/metadata.csv
+  verified_at: '2026-07-25T10:13:53.810730Z'

@@ -1,19 +1,20 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "ok": false,
-  "reason": "4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv",
+  "reason": "5 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 1 declared deliverable(s) absent: data/processed/lzc_metrics.csv",
   "artifacts": [],
   "failures": [
-    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/download.py\", line 15, in <module>\n    logging.FileHandler('logs/pipeline.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.b",
-    "python code/preprocess.py -> rc=1\n    2026-07-24 18:34:22,954 - __main__ - ERROR - Pipeline failed: Data directory not found: data/raw\n\nINFO:__main__:Starting preprocessing pipeline\nERROR:__main__:Pipeline failed: Data directory not found: data/raw",
-    "python code/features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/features.py\", line 20, in <module>\n    logging.FileHandler('logs/features.log')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.baseFilenam",
-    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/analysis.py\", line 20, in <module>\n    logging.FileHandler('logs/analysis.log')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.baseFilenam"
+    "python code/download.py -> rc=1\n    ",
+    "python code/preprocess.py -> rc=1\n    2026-07-25 10:14:41,440 - preprocess - INFO - Starting preprocessing pipeline\n2026-07-25 10:14:41,442 - preprocess - WARNING - No EEG files found in data/raw\n2026-07-25 10:14:41,442 - preprocess - ERROR - Pipeline failed: save_exclusion_log_csv() takes 1 positional argument but 2 were given",
+    "python code/features.py -> rc=1\n    2026-07-25 10:14:43,046 - features - INFO - Starting Permutation Entropy calculation pipeline\n2026-07-25 10:14:43,046 - features - ERROR - Processed data directory not found: data/processed",
+    "python code/analysis.py -> rc=1\n    2026-07-25 10:14:44,183 - __main__ - INFO - Starting analysis pipeline.\n2026-07-25 10:14:44,183 - __main__ - ERROR - Features file not found: data/processed/lzc_metrics.csv\n\nINFO:__main__:Starting analysis pipeline.\nERROR:__main__:Features file not found: data/processed/lzc_metrics.csv",
+    "python code/report.py -> rc=1\n    "
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-24T18:34:27Z"
+  "updated_at": "2026-07-25T10:14:45Z"
 }
