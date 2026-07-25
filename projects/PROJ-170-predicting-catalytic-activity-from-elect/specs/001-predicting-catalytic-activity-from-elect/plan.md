@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict DFT-calculated reaction energy (`energy_change`) using electronic structure descriptors (d-band center, adsorption energy derived from OC20) and reaction path features. The approach involves downloading a stratified sample of the OC20 dataset, deriving necessary descriptors via structure-based proxies, training an XGBoost model against a linear baseline, and performing SHAP-based interpretability analysis. The entire pipeline is constrained to run on a 2-core, 7GB RAM GitHub Actions runner within 6 hours.
+This project implements a computational pipeline to predict DFT-calculated reaction energy (`energy_change`) using electronic structure descriptors (d-band center, adsorption energy derived from OC20) and reaction path features. The approach involves downloading a stratified sample of the OC dataset, deriving necessary descriptors via structure-based proxies, training an XGBoost model against a linear baseline, and performing SHAP-based interpretability analysis. The entire pipeline is constrained to run on a 2-core, 7GB RAM GitHub Actions runner within 6 hours.
 
 **Critical Scope Adjustment**: The project scope has been revised to rely exclusively on the verified OC20 dataset. Dependencies on unverified sources (Materials Project bulk descriptors, 2025 CO₂ hydrogenation study) and the experimental `experimental_tof` target have been removed due to data unavailability and verification failures. The target variable is now the DFT reaction energy (`energy_change`) available in OC20. This pivot is necessary to ensure the research question remains scientifically valid (predicting DFT energetics from descriptors) rather than attempting to predict non-existent experimental data.
 
@@ -106,7 +106,7 @@ projects/PROJ-170-predicting-catalytic-activity-from-elect/
 - **Task 2.1**: Train Linear Baseline (d-band + adsorption energy).
 - **Task 2.2**: Train XGBoost with nested cross-validation (inner loop for HP tuning, outer loop for evaluation).
 - **Task 2.3**: Perform paired t-test (or Wilcoxon) on absolute errors from nested CV.
-- **Task 2.4**: Compute SHAP values, rank top 5 descriptors, train reduced model on top 5, and verify SC-003 (R² ≥ 0.50 * R²_full).
+- **Task 2.4**: Compute SHAP values, rank top descriptors, train reduced model on top 5, and verify SC-003 (R² ≥ 0.50 * R²_full).
 - **Task 2.5**: Generate final report and plots.
 
 ## Risk Mitigation

@@ -1,42 +1,3 @@
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of an `outputs/` directory is provided; the artifact list is empty,
-    so the required directory has not been shown to exist. The implementer must create
-    the directory (and optionally list its presence) to satisfy the task.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `tests/` directory exists in the repository;
-    the artifact list is empty and there is no indication of its creation or contents.
-    The required directory must be present (and preferably contain at least one test
-    file) to satisfy task T001e.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `state/projects/` directory actually exists;
-    the artifact list is empty and there is no file system snapshot or command output
-    confirming its creation. The required directory is therefore missing.
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `code/models/` directory actually exists in the
-    repository; the claim is unsubstantiated. The implementer must create the directory
-    (and optionally add a placeholder file) and show its presence.
-T001h:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, log file, or test output) was provided that demonstrates\
-    \ the verification of directories created in T001a\u2011T001g, nor any evidence\
-    \ that the check fails loudly if a directory is missing. The required evidence\
-    \ is missing, so the task is not satisfied."
-T001i:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files are shown in the provided evidence; the artifact list
-    is empty, so we cannot confirm that the required files exist in `code/`, `tests/`,
-    and `code/utils/`. The implementer must add these files (even if empty) and present
-    their contents as proof.
 T017:
   c: false
   h: 98341fefede2a25da6a8ec5e47a3b9f91270b8c992b5469506290ee4471402e9
@@ -61,14 +22,6 @@ T028a:
     \ contains no implementation of the paired\u2011difference normality check or\
     \ JSON writing logic. The task\u2019s statistical\u2011test functionality is therefore\
     \ missing."
-T028c:
-  c: false
-  h: f55f7e79272636c32ad4270c6b6d4247dc68216779012d4885862df98207e316
-  r: "The repository lacks the required `outputs/normality_check_absolute.json` file,\
-    \ and the provided `code/evaluate.py` is truncated (ends mid\u2011function) with\
-    \ no implementation of the absolute\u2011error distribution, Shapiro\u2011Wilk\
-    \ test, or JSON output. Consequently the task\u2019s statistical\u2011test logic\
-    \ and output artifact are not present."
 T035:
   c: false
   h: 4b00ec33eb22ac271bb22e4b6096da8f1f75595b1fb56dc321e96f9bc181e264

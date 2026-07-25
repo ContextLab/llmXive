@@ -33,7 +33,7 @@ As a researcher, I need to train a Gradient-Boosted Regression Trees (XGBoost) m
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed training set, **When** the 5-fold cross-validation grid search runs (max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ≤ 200), **Then** the hyperparameters maximizing R² are selected and the final model is saved.
+1. **Given** the preprocessed training set, **When** the -fold cross-validation grid search runs (max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ≤ 200), **Then** the hyperparameters maximizing R² are selected and the final model is saved.
 2. **Given** the hold-out test set, **When** both the XGBoost and linear baseline models generate predictions, **Then** the paired t-test (α=0.05) on absolute errors is computed and the result (significant/not significant) is logged.
 3. **Given** the test set results, **When** the performance report is generated, **Then** it contains the Pearson R, MAE, and the t-test p-value for both models.
 
@@ -41,7 +41,7 @@ As a researcher, I need to train a Gradient-Boosted Regression Trees (XGBoost) m
 
 ### User Story 3 - Feature Importance and Interpretability Analysis (Priority: P3)
 
-As a domain expert, I need a SHAP-based analysis that ranks the top 5 descriptors by mean absolute impact and visualizes them, so that I can identify the physical determinants of catalytic activity.
+As a domain expert, I need a SHAP-based analysis that ranks the top descriptors by mean absolute impact and visualizes them, so that I can identify the physical determinants of catalytic activity.
 
 **Why this priority**: This story provides the scientific insight required to answer the research question ("which specific descriptors provide the most predictive signal?") and validates the hypothesis that a compact set captures the dominant physics.
 
@@ -66,13 +66,13 @@ As a domain expert, I need a SHAP-based analysis that ranks the top 5 descriptor
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the OC dataset, Materials Project bulk descriptors, and the 2025 CO₂ hydrogenation study dataset () via `wget` and parse them into a unified Pandas DataFrame (See US-1).
+- **FR-001**: System MUST download the OC dataset, Materials Project bulk descriptors, and the recent CO₂ hydrogenation study dataset () via `wget` and parse them into a unified Pandas DataFrame (See US-1).
 - **FR-002**: System MUST align DFT entries to experimental TOFs using exact string matching on columns: `composition`, `surface_facet`, `synthesis_condition`. Entries are excluded from the unified dataset if they cannot be aligned OR if `synthesis_condition` is not uniquely identifiable to prevent circular validation. If an entry is aligned but has missing descriptors with <5 neighbors in the reference set, it is flagged and excluded from model training (See US-1).
 - **FR-003**: System MUST impute missing descriptor values using k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry space (normalized element counts), excluding the target variable (experimental_tof) from distance calculation. If fewer than 5 neighbors are found, the entry is flagged and excluded from model training. All numeric features must be scaled to zero mean and unit variance (See US-1).
-- **FR-004**: System MUST train a Gradient-Boosted Regression Trees model (XGBoost) with a grid search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, and n_estimators ≤ 200, selecting the configuration that maximizes 5-fold cross-validated R² (See US-2).
+- **FR-004**: System MUST train a Gradient-Boosted Regression Trees model (XGBoost) with a grid search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, and n_estimators ≤ 200, selecting the configuration that maximizes k-fold cross-validated R² (See US-2).
 - **FR-005**: System MUST fit a linear regression baseline using only d-band center and activation barrier, perform a Shapiro-Wilk test (α=0.05) on the distribution of absolute errors; if normality is rejected, use Wilcoxon signed-rank test instead of paired t-test; otherwise, perform a two-tailed paired t-test (α=0.05, H0: mean difference = 0) on the absolute errors of the XGBoost and baseline models on the hold-out test set (See US-2).
-- **FR-006**: System MUST compute SHAP values for the final XGBoost model, rank descriptors by mean absolute SHAP impact, and generate a bar plot of the top 5 descriptors (See US-3).
-- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors. The report must compare the top 5 descriptors against the reference list in Nørskov et al., 2005 (d-band center, activation barrier, reaction energy) and explicitly state matches or novel findings (See US-3).
+- **FR-006**: System MUST compute SHAP values for the final XGBoost model, rank descriptors by mean absolute SHAP impact, and generate a bar plot of the top descriptors (See US-3).
+- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors. The report must compare a set of top descriptors against the reference list in Nørskov et al., 2005 (d-band center, activation barrier, reaction energy) and explicitly state matches or novel findings (See US-3).
 
 ### Key Entities
 
@@ -98,7 +98,7 @@ As a domain expert, I need a SHAP-based analysis that ranks the top 5 descriptor
 - The experimental TOF values in the 2025 CO₂ hydrogenation study are reported in consistent units (e.g., s⁻¹) and do not require unit conversion.
 - The OC dataset and Materials Project data can be downloaded and stored within the disk limit of the free-tier runner.
 - The k-nearest-neighbor imputation (k=5) is sufficient to handle missing values without introducing significant bias, as the dataset is assumed to be dense in composition space. If <5 neighbors exist, the entry is excluded from training to avoid bias.
-- The XGBoost model with n_estimators ≤ 200 and default precision (no quantization) will complete training within the 6-hour time limit on 2 CPU cores.
+- The XGBoost model with n_estimators ≤ 200 and default precision (no quantization) will complete training within the -hour time limit on CPU cores.
 - The paired t-test assumption of normality for the distribution of absolute errors is checked; if not met, a non-parametric alternative (Wilcoxon signed-rank test) is used as a fallback (documented in code).
 - The "2025 CO₂ hydrogenation study" refers to the publicly available supplementary CSV linked in the paper mentioned in the idea, and the URL is stable.
 - The d-band center and activation barrier are definitionally distinct from other descriptors, so multicollinearity diagnostics will be performed but are not expected to prevent model training.

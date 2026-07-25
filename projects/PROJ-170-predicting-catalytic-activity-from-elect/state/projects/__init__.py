@@ -1,3 +1,1 @@
-"""
-State projects directory placeholder.
-"""
+# state.projects package

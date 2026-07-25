@@ -1,3 +1,1 @@
-"""
-Models package initialization.
-"""
+# code.models package

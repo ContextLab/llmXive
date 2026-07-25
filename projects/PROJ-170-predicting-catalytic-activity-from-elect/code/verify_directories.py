@@ -1,90 +1,73 @@
 """
-Verification script for project directory structure.
-Ensures all required directories created in T001a-T001g exist.
-Fails loudly if any are missing.
+Directory Verification Script.
+Ensures all required project directories exist and logs the result.
 """
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Import project configuration utilities
 from config import get_project_root, get_data_path, get_output_path
 
-# Configure logging to output to console and file
 def setup_verification_logging():
-    """Setup basic logging for the verification script."""
-    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    """Setup logging for the verification script."""
     logging.basicConfig(
         level=logging.INFO,
-        format=log_format,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("outputs/verify_directories.log")
+            logging.FileHandler(get_output_path() / "directory_verification.log")
         ]
     )
+    return logging.getLogger("verify_directories")
+
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "code",
+    "outputs",
+    "tests",
+    "state/projects",
+    "code/models",
+    "code/utils",
+    "code/configs",
+    "figures"
+]
 
 def verify_directories():
     """
-    Verify the existence of all directories created in T001a-T001g.
-    Returns True if all exist, False otherwise.
+    Verify that all required directories exist.
+    Raises FileNotFoundError if any are missing.
     """
-    setup_verification_logging()
-    logger = logging.getLogger(__name__)
-    
+    logger = setup_verification_logging()
     project_root = get_project_root()
-    logger.info(f"Verifying directories in project root: {project_root}")
-
-    # List of required directories relative to project root
-    # Based on T001a-T001g:
-    # T001a: data/raw/
-    # T001b: data/processed/
-    # T001c: code/
-    # T001d: outputs/
-    # T001e: tests/
-    # T001f: state/projects/
-    # T001g: code/models/
     
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "outputs",
-        "tests",
-        "state/projects",
-        "code/models"
-    ]
-
+    logger.info(f"Verifying directory structure at: {project_root}")
     missing_dirs = []
-    existing_dirs = []
 
-    for dir_path in required_dirs:
-        full_path = Path(project_root) / dir_path
-        if full_path.exists() and full_path.is_dir():
-            existing_dirs.append(dir_path)
-            logger.info(f"✓ Found: {dir_path}")
-        else:
+    for dir_path in REQUIRED_DIRS:
+        full_path = project_root / dir_path
+        if not full_path.exists():
             missing_dirs.append(dir_path)
-            logger.error(f"✗ MISSING: {dir_path} (Expected at: {full_path})")
-
-    logger.info(f"\nSummary: {len(existing_dirs)} found, {len(missing_dirs)} missing")
+            logger.warning(f"MISSING: {full_path}")
+        else:
+            logger.info(f"OK: {full_path}")
 
     if missing_dirs:
-        logger.error("FATAL: Required directories are missing. Verification failed.")
-        logger.error("Missing directories:")
-        for d in missing_dirs:
-            logger.error(f"  - {d}")
-        return False
-    else:
-        logger.info("SUCCESS: All required directories verified.")
-        return True
+        error_msg = f"CRITICAL: Missing required directories: {missing_dirs}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+
+    logger.info("SUCCESS: All required directories exist.")
+    return True
 
 def main():
-    """Entry point for the script."""
-    success = verify_directories()
-    if not success:
-        sys.exit(1)
-    sys.exit(0)
+    """Main entry point."""
+    try:
+        verify_directories()
+        return 0
+    except Exception as e:
+        print(f"Verification failed: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
