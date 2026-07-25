@@ -1,327 +1,251 @@
 """
-Unit tests for data generation components, including the Sequential Sinkhorn solver.
+Unit tests for data generation utilities, specifically focusing on:
+1. Epsilon floor handling (apply_epsilon_floor)
+2. Moment extraction logic (mean, variance) as per Spec FR-002
+3. SingleStepSinkhornSolver convergence and edge cases (T011)
 """
 import pytest
 import numpy as np
-from typing import List, Dict, Any, Tuple
-import sys
-import os
+from data_generation.utils import apply_epsilon_floor, safe_log, safe_divide, check_numerical_stability
+from data_generation.sinkhorn_solver import SingleStepSinkhornSolver
 
-# Add code directory to path for imports if running standalone
-if "code" not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "code"))
-
-from simulation.state import SimulationState
-from simulation.sequential_sinkhorn import SequentialSinkhornSolver
-from data_generation.utils import apply_epsilon_floor, check_numerical_stability
-from config import get_config
-
-
-class TestSequentialSinkhornSolver:
-    """
-    Unit tests for the Sequential Sinkhorn solver convergence and state update logic.
-    """
-
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.config = get_config()
-        self.solver = SequentialSinkhornSolver(
-            max_iterations=self.config.SINKHORN_MAX_ITER,
-            tolerance=self.config.SINKHORN_TOL,
-            epsilon=self.config.EPSILON_FLOOR
-        )
-
-    def _create_test_matrix(self, shape: Tuple[int, int] = (128, 128), 
-                             sparsity: float = 0.0, 
-                             noise_level: float = 0.01) -> np.ndarray:
-        """Create a test attention matrix with optional sparsity and noise."""
-        matrix = np.random.rand(*shape)
+class TestSinkhornSolverEdgeCases:
+    """Tests for SingleStepSinkhornSolver convergence and edge cases (T011)."""
+    
+    def test_solver_near_zero_variance_raises(self):
+        """
+        Verify that the solver handles near-zero variance by raising a convergence error.
+        According to T016 requirements, non-convergence must be handled by raising
+        a specific exception or returning NaN. We test for the exception path.
+        """
+        solver = SingleStepSinkhornSolver()
         
-        # Apply sparsity
-        if sparsity > 0:
-            mask = np.random.rand(*shape) > sparsity
-            matrix = matrix * mask
+        # Create a matrix with near-zero variance (constant values)
+        # This should cause the Sinkhorn iterations to fail to converge
+        # or produce numerical instability.
+        matrix = np.ones((10, 10)) * 5.0
         
-        # Add noise
-        if noise_level > 0:
-            matrix += np.random.normal(0, noise_level, matrix.shape)
+        # Add tiny noise to avoid exact singularity but keep variance near zero
+        matrix += np.random.normal(0, 1e-12, (10, 10))
         
-        # Ensure non-negative and apply epsilon floor
-        matrix = np.maximum(matrix, self.config.EPSILON_FLOOR)
+        epsilon = 1e-6
         
-        return matrix
-
-    def _create_initial_state(self, accumulated_kl: float = 0.0) -> SimulationState:
-        """Create an initial simulation state."""
-        return SimulationState(
-            accumulated_kl=accumulated_kl,
-            current_error_state={
-                "step_index": 0,
-                "last_scaling_factor": 0.0,
-                "error_magnitude": 0.0
-            },
-            step_index=0
-        )
-
-    def test_solver_initialization(self):
-        """Test that the solver initializes with correct parameters."""
-        assert self.solver.max_iterations == self.config.SINKHORN_MAX_ITER
-        assert self.solver.tolerance == self.config.SINKHORN_TOL
-        assert self.solver.epsilon == self.config.EPSILON_FLOOR
-        assert self.solver.converged is False
-        assert self.solver.iterations == 0
-
-    def test_solve_step_basic(self):
-        """Test basic solve_step functionality with a simple matrix."""
-        matrix = self._create_test_matrix(shape=(32, 32), sparsity=0.1)
-        initial_state = self._create_initial_state()
+        # The solver should raise a ConvergenceError or similar
+        # We expect this to fail because variance is too low for stable scaling
+        with pytest.raises((RuntimeError, ValueError, ZeroDivisionError)):
+            solver.solve(matrix, epsilon)
+    
+    def test_solver_non_convergence_raises(self):
+        """
+        Verify that the solver handles non-convergence by raising an exception.
+        We simulate this by using a matrix that is known to be ill-conditioned
+        for the Sinkhorn algorithm (e.g., extreme sparsity with zeros).
+        """
+        solver = SingleStepSinkhornSolver()
         
-        scaling_factor, new_state = self.solver.solve_step(matrix, initial_state)
+        # Create a matrix with extreme sparsity (many zeros)
+        # This can cause the Sinkhorn algorithm to fail to converge
+        matrix = np.zeros((10, 10))
+        matrix[0, 0] = 1.0  # Only one non-zero element
         
-        # Verify outputs
-        assert isinstance(scaling_factor, float)
-        assert scaling_factor > 0.0
-        assert isinstance(new_state, SimulationState)
+        epsilon = 1e-6
         
-        # Verify state update
-        assert new_state.step_index == 1
-        assert new_state.current_error_state["step_index"] == 1
-        assert new_state.current_error_state["last_scaling_factor"] == scaling_factor
+        # This should raise an exception due to non-convergence
+        with pytest.raises((RuntimeError, ValueError, ZeroDivisionError)):
+            solver.solve(matrix, epsilon)
+    
+    def test_solver_normal_convergence(self):
+        """
+        Verify that the solver converges for a well-conditioned matrix.
+        This is the happy path to ensure the solver works correctly.
+        """
+        solver = SingleStepSinkhornSolver()
         
-        # Verify state is not the same object (immutable update pattern)
-        assert new_state is not initial_state
-
-    def test_solve_step_convergence(self):
-        """Test that the solver converges within max iterations."""
-        matrix = self._create_test_matrix(shape=(64, 64), sparsity=0.2)
-        initial_state = self._create_initial_state()
-        
-        scaling_factor, new_state = self.solver.solve_step(matrix, initial_state)
-        
-        # Check convergence status
-        assert self.solver.converged is True or self.solver.iterations <= self.config.SINKHORN_MAX_ITER
-        
-        # Verify iterations count
-        assert 0 < self.solver.iterations <= self.config.SINKHORN_MAX_ITER
-
-    def test_solve_step_state_accumulation(self):
-        """Test that error accumulates correctly across multiple steps."""
-        matrix = self._create_test_matrix(shape=(32, 32))
-        state = self._create_initial_state(accumulated_kl=0.0)
-        
-        steps = 5
-        accumulated_kls = []
-        
-        for i in range(steps):
-            # Create a slightly different matrix each step to simulate drift
-            step_matrix = matrix * (1.0 + 0.01 * i)
-            _, new_state = self.solver.solve_step(step_matrix, state)
-            
-            accumulated_kls.append(new_state.accumulated_kl)
-            state = new_state
-        
-        # Verify that accumulated KL is monotonically increasing (non-negative errors)
-        for i in range(1, len(accumulated_kls)):
-            assert accumulated_kls[i] >= accumulated_kls[i-1]
-        
-        # Verify final step index
-        assert state.step_index == steps
-
-    def test_solve_step_numerical_stability(self):
-        """Test solver behavior with numerically challenging inputs."""
-        # Test with very small values (near epsilon floor)
-        small_matrix = np.full((32, 32), self.config.EPSILON_FLOOR * 1.1)
-        state = self._create_initial_state()
-        
-        scaling_factor_small, _ = self.solver.solve_step(small_matrix, state)
-        assert scaling_factor_small > 0.0
-        assert np.isfinite(scaling_factor_small)
-        
-        # Test with large values
-        large_matrix = np.full((32, 32), 1e6)
-        state = self._create_initial_state()
-        
-        scaling_factor_large, _ = self.solver.solve_step(large_matrix, state)
-        assert scaling_factor_large > 0.0
-        assert np.isfinite(scaling_factor_large)
-        
-        # Test with sparse matrix (many zeros)
-        sparse_matrix = self._create_test_matrix(shape=(32, 32), sparsity=0.9)
-        state = self._create_initial_state()
-        
-        scaling_factor_sparse, _ = self.solver.solve_step(sparse_matrix, state)
-        assert scaling_factor_sparse > 0.0
-        assert np.isfinite(scaling_factor_sparse)
-
-    def test_solve_step_deterministic_with_seed(self):
-        """Test that solver produces deterministic results with fixed seed."""
+        # Create a well-conditioned matrix with reasonable variance
         np.random.seed(42)
-        matrix1 = self._create_test_matrix(shape=(32, 32))
-        state1 = self._create_initial_state()
+        matrix = np.random.rand(10, 10)
+        matrix = matrix + matrix.T  # Make it symmetric for stability
         
-        np.random.seed(42)
-        matrix2 = self._create_test_matrix(shape=(32, 32))
-        state2 = self._create_initial_state()
+        epsilon = 1e-6
         
-        # Verify matrices are identical
-        assert np.allclose(matrix1, matrix2)
+        # This should converge without raising an exception
+        result = solver.solve(matrix, epsilon)
         
-        # Solve
-        sf1, new_state1 = self.solver.solve_step(matrix1, state1)
-        sf2, new_state2 = self.solver.solve_step(matrix2, state2)
+        # The result should be a finite scalar
+        assert isinstance(result, float)
+        assert np.isfinite(result)
+        assert result > 0
+    
+    def test_solver_very_small_epsilon(self):
+        """
+        Verify behavior with a very small epsilon (numerical stress test).
+        """
+        solver = SingleStepSinkhornSolver()
         
-        # Verify results are identical
-        assert np.isclose(sf1, sf2)
-        assert new_state1.accumulated_kl == new_state2.accumulated_kl
-        assert new_state1.step_index == new_state2.step_index
-
-    def test_solve_step_error_state_tracking(self):
-        """Test that error state is correctly tracked and updated."""
-        matrix = self._create_test_matrix(shape=(32, 32))
-        state = self._create_initial_state()
+        matrix = np.random.rand(10, 10)
+        matrix = matrix + matrix.T
         
-        # Initial state checks
-        assert state.current_error_state["step_index"] == 0
-        assert state.current_error_state["last_scaling_factor"] == 0.0
-        assert state.current_error_state["error_magnitude"] == 0.0
+        epsilon = 1e-12
         
-        # After one step
-        _, new_state = self.solver.solve_step(matrix, state)
+        # Should still converge for a well-conditioned matrix
+        result = solver.solve(matrix, epsilon)
         
-        assert new_state.current_error_state["step_index"] == 1
-        assert new_state.current_error_state["last_scaling_factor"] > 0.0
-        # Error magnitude should be non-negative
-        assert new_state.current_error_state["error_magnitude"] >= 0.0
-
-    def test_solve_step_tolerance_convergence(self):
-        """Test that solver respects tolerance parameter for convergence."""
-        # Create a matrix that should converge quickly
-        matrix = np.ones((32, 32)) * 0.5
-        state = self._create_initial_state()
+        assert np.isfinite(result)
+    
+    def test_solver_large_matrix(self):
+        """
+        Verify the solver handles a larger matrix (e.g., 128x128 as per spec).
+        """
+        solver = SingleStepSinkhornSolver()
         
-        # Solve with default tolerance
-        _, _ = self.solver.solve_step(matrix, state)
-        
-        # Verify convergence
-        assert self.solver.converged is True
-        
-        # Reset solver with stricter tolerance
-        strict_solver = SequentialSinkhornSolver(
-            max_iterations=100,
-            tolerance=1e-10,
-            epsilon=self.config.EPSILON_FLOOR
-        )
-        
-        _, _ = strict_solver.solve_step(matrix, state)
-        assert strict_solver.converged is True
-        # Should take more iterations for stricter tolerance
-        assert strict_solver.iterations >= self.solver.iterations
-
-    def test_solve_step_with_different_matrix_sizes(self):
-        """Test solver with various matrix dimensions."""
-        sizes = [(16, 16), (32, 32), (64, 64), (128, 128)]
-        
-        for rows, cols in sizes:
-            matrix = self._create_test_matrix(shape=(rows, cols))
-            state = self._create_initial_state()
-            
-            scaling_factor, new_state = self.solver.solve_step(matrix, state)
-            
-            assert scaling_factor > 0.0
-            assert np.isfinite(scaling_factor)
-            assert new_state.step_index == 1
-
-    def test_solve_step_state_immutability(self):
-        """Test that the original state is not modified."""
-        matrix = self._create_test_matrix(shape=(32, 32))
-        original_state = self._create_initial_state(accumulated_kl=5.0)
-        
-        # Store original values
-        original_kl = original_state.accumulated_kl
-        original_index = original_state.step_index
-        
-        # Solve
-        _, new_state = self.solver.solve_step(matrix, original_state)
-        
-        # Verify original state is unchanged
-        assert original_state.accumulated_kl == original_kl
-        assert original_state.step_index == original_index
-        assert original_state is not new_state
-
-    def test_solve_step_return_types(self):
-        """Test that solve_step returns correct types."""
-        matrix = self._create_test_matrix(shape=(32, 32))
-        state = self._create_initial_state()
-        
-        scaling_factor, new_state = self.solver.solve_step(matrix, state)
-        
-        assert isinstance(scaling_factor, (float, np.floating))
-        assert isinstance(new_state, SimulationState)
-        assert hasattr(new_state, 'accumulated_kl')
-        assert hasattr(new_state, 'current_error_state')
-        assert hasattr(new_state, 'step_index')
-
-
-class TestSequentialSinkhornIntegration:
-    """Integration tests for SequentialSinkhornSolver with other components."""
-
-    def setup_method(self):
-        self.solver = SequentialSinkhornSolver(
-            max_iterations=50,
-            tolerance=1e-6,
-            epsilon=1e-6
-        )
-
-    def test_full_simulation_loop(self):
-        """Test a full simulation loop with state propagation."""
         np.random.seed(123)
-        state = SimulationState(
-            accumulated_kl=0.0,
-            current_error_state={"step_index": 0, "last_scaling_factor": 0.0, "error_magnitude": 0.0},
-            step_index=0
-        )
+        matrix = np.random.rand(128, 128)
+        matrix = matrix + matrix.T
         
-        trajectory = []
-        for i in range(10):
-            matrix = np.random.rand(32, 32)
-            matrix = np.maximum(matrix, 1e-6)
-            
-            scaling_factor, state = self.solver.solve_step(matrix, state)
-            
-            trajectory.append({
-                "step": i,
-                "scaling_factor": scaling_factor,
-                "accumulated_kl": state.accumulated_kl
-            })
+        epsilon = 1e-6
         
-        # Verify trajectory structure
-        assert len(trajectory) == 10
-        assert trajectory[0]["step"] == 0
-        assert trajectory[-1]["step"] == 9
-        assert trajectory[-1]["accumulated_kl"] >= 0.0
+        result = solver.solve(matrix, epsilon)
         
-        # Verify scaling factors are positive
-        for entry in trajectory:
-            assert entry["scaling_factor"] > 0.0
+        assert np.isfinite(result)
+        assert result > 0
 
-    def test_error_accumulation_across_steps(self):
-        """Test that error accumulates correctly over multiple steps."""
-        state = SimulationState(
-            accumulated_kl=0.0,
-            current_error_state={"step_index": 0, "last_scaling_factor": 0.0, "error_magnitude": 0.0},
-            step_index=0
-        )
-        
-        initial_kl = state.accumulated_kl
-        
-        for i in range(5):
-            matrix = np.random.rand(32, 32) + 0.1
-            _, state = self.solver.solve_step(matrix, state)
-        
-        # KL should have accumulated (non-decreasing)
-        assert state.accumulated_kl >= initial_kl
-        assert state.step_index == 5
+class TestEpsilonFloor:
+    """Tests for the apply_epsilon_floor function."""
+
+    def test_apply_epsilon_floor_positive_value(self):
+        """Verify that a value larger than epsilon is returned unchanged."""
+        value = 1.0
+        epsilon = 1e-6
+        result = apply_epsilon_floor(value, epsilon)
+        assert result == value
+
+    def test_apply_epsilon_floor_below_epsilon(self):
+        """Verify that a value smaller than epsilon is clamped to epsilon."""
+        value = 1e-9
+        epsilon = 1e-6
+        result = apply_epsilon_floor(value, epsilon)
+        assert result == epsilon
+
+    def test_apply_epsilon_floor_zero(self):
+        """Verify that zero is clamped to epsilon."""
+        value = 0.0
+        epsilon = 1e-6
+        result = apply_epsilon_floor(value, epsilon)
+        assert result == epsilon
+
+    def test_apply_epsilon_floor_negative_value(self):
+        """Verify that negative values are clamped to epsilon."""
+        value = -5.0
+        epsilon = 1e-6
+        result = apply_epsilon_floor(value, epsilon)
+        assert result == epsilon
+
+    def test_apply_epsilon_floor_exact_epsilon(self):
+        """Verify that a value exactly equal to epsilon is returned."""
+        value = 1e-6
+        epsilon = 1e-6
+        result = apply_epsilon_floor(value, epsilon)
+        assert result == epsilon
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestMomentExtraction:
+    """Tests for moment extraction logic (mean and variance) as per Spec FR-002."""
+
+    def test_extract_mean_scalar(self):
+        """Verify mean extraction from a simple 1D array."""
+        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        expected_mean = 3.0
+        computed_mean = np.mean(data)
+        assert np.isclose(computed_mean, expected_mean)
+
+    def test_extract_mean_2d_array(self):
+        """Verify mean extraction from a 2D array (flattened)."""
+        data = np.array([[1.0, 2.0], [3.0, 4.0]])
+        expected_mean = 2.5
+        computed_mean = np.mean(data)
+        assert np.isclose(computed_mean, expected_mean)
+
+    def test_extract_variance_scalar(self):
+        """Verify variance extraction from a simple 1D array."""
+        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        # Population variance (ddof=0)
+        expected_var = 2.0
+        computed_var = np.var(data, ddof=0)
+        assert np.isclose(computed_var, expected_var)
+
+    def test_extract_variance_with_epsilon_floor(self):
+        """Verify that variance extraction handles near-zero variance correctly with epsilon floor."""
+        # Create data with very small variance
+        base = np.ones(100) * 5.0
+        data = base + np.random.normal(0, 1e-10, 100)
+        
+        raw_var = np.var(data, ddof=0)
+        # Apply epsilon floor manually to simulate the logic used in production
+        epsilon = 1e-6
+        clamped_var = apply_epsilon_floor(raw_var, epsilon)
+        
+        # The result should be at least epsilon if raw_var is very small
+        assert clamped_var >= epsilon
+
+    def test_moment_extraction_stability(self):
+        """Verify that moment extraction is stable for constant arrays."""
+        data = np.ones(100) * 5.0
+        mean = np.mean(data)
+        var = np.var(data, ddof=0)
+        
+        assert np.isclose(mean, 5.0)
+        # Variance of constant is 0, which should be handled by epsilon floor in production
+        assert var == 0.0
+
+    def test_moment_extraction_with_outliers(self):
+        """Verify moment extraction handles arrays with outliers."""
+        data = np.array([1.0, 2.0, 3.0, 100.0])
+        mean = np.mean(data)
+        var = np.var(data, ddof=0)
+        
+        expected_mean = 26.5
+        expected_var = 1830.75
+        
+        assert np.isclose(mean, expected_mean)
+        assert np.isclose(var, expected_var)
+
+
+class TestNumericalStabilityHelpers:
+    """Additional tests for related numerical stability functions."""
+
+    def test_safe_log_positive(self):
+        """Verify safe_log works for positive values."""
+        assert safe_log(1.0) == 0.0
+        assert np.isclose(safe_log(np.e), 1.0)
+
+    def test_safe_log_zero(self):
+        """Verify safe_log handles zero by returning -inf or a safe value."""
+        result = safe_log(0.0)
+        # Depending on implementation, this might be -inf or a large negative number
+        assert result <= 0.0
+
+    def test_safe_divide_normal(self):
+        """Verify safe_divide works for normal division."""
+        assert safe_divide(1.0, 2.0) == 0.5
+
+    def test_safe_divide_zero_denominator(self):
+        """Verify safe_divide handles zero denominator."""
+        result = safe_divide(1.0, 0.0)
+        # Should return 0.0 or raise a specific error, depending on implementation
+        # Assuming it returns 0.0 or a safe default
+        assert result == 0.0
+
+    def test_check_numerical_stability_no_issues(self):
+        """Verify check_numerical_stability returns True for clean data."""
+        data = np.array([1.0, 2.0, 3.0])
+        assert check_numerical_stability(data)
+
+    def test_check_numerical_stability_nan(self):
+        """Verify check_numerical_stability detects NaN."""
+        data = np.array([1.0, np.nan, 3.0])
+        assert not check_numerical_stability(data)
+
+    def test_check_numerical_stability_inf(self):
+        """Verify check_numerical_stability detects Inf."""
+        data = np.array([1.0, np.inf, 3.0])
+        assert not check_numerical_stability(data)

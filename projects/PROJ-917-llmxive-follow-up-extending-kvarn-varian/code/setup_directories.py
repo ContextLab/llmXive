@@ -1,82 +1,72 @@
+"""
+Setup script to create the `code/` root directory and verify its existence.
+This task (T001a) ensures the project's code root is initialized.
+"""
 import os
-import sys
 from pathlib import Path
+import sys
 
-def create_directories(base_path: str = ".") -> None:
-    """
-    Creates the required directory structure for the llmXive project.
-    
-    Structure created under `base_path`:
-    - data/generated
-    - data/models
-    - data/simulation
-    - data/analysis
-    
-    Args:
-        base_path: The root directory where the structure will be created.
-                   Defaults to current working directory.
-    """
-    root = Path(base_path)
-    
-    # Define the data subdirectories relative to the root
-    data_subdirs = [
-        "generated",
-        "models",
-        "simulation",
-        "analysis"
-    ]
-    
-    data_root = root / "data"
-    
-    # Create the data root if it doesn't exist
-    data_root.mkdir(parents=True, exist_ok=True)
-    
-    # Create each subdirectory
-    for subdir in data_subdirs:
-        full_path = data_root / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
+# Define the project root relative to this script's location
+# Assuming this script is at code/setup_directories.py
+# We want to create the parent directory of this script if it doesn't exist,
+# but the task specifically asks to create the `code/` root directory.
+# Since this script IS inside code/, we assume the project root is the parent.
 
-def verify_structure(base_path: str = ".") -> bool:
+def create_directories():
     """
-    Verifies that the required directory structure exists.
-    
-    Args:
-        base_path: The root directory to check.
-        
-    Returns:
-        True if all required directories exist, False otherwise.
+    Creates the `code/` directory if it does not exist.
+    Since this file is inside `code/`, we ensure the directory exists.
     """
-    root = Path(base_path)
-    data_root = root / "data"
+    # Get the directory where this script resides (code/)
+    current_file_path = Path(__file__).resolve()
+    code_dir = current_file_path.parent
     
-    required_dirs = [
-        data_root / "generated",
-        data_root / "models",
-        data_root / "simulation",
-        data_root / "analysis"
-    ]
-    
-    all_exist = True
-    for d in required_dirs:
-        if not d.is_dir():
-            print(f"Missing directory: {d}")
-            all_exist = False
-        
-    return all_exist
-
-def main() -> None:
-    """
-    Main entry point to create and verify the directory structure.
-    """
-    print("Creating llmXive data directory structure...")
-    create_directories()
-    
-    if verify_structure():
-        print("Directory structure verified successfully.")
-        sys.exit(0)
+    # Ensure the code directory exists
+    if not code_dir.exists():
+        code_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {code_dir}")
     else:
-        print("Directory structure verification failed.")
+        print(f"Directory already exists: {code_dir}")
+    
+    # Verify the directory exists
+    if code_dir.is_dir():
+        print(f"Verification: {code_dir} exists.")
+        return True
+    else:
+        print(f"Error: {code_dir} was not created successfully.")
+        return False
+
+def verify_structure():
+    """
+    Verifies the structure of the code/ directory.
+    For T001a, we just need to ensure the directory exists.
+    """
+    current_file_path = Path(__file__).resolve()
+    code_dir = current_file_path.parent
+    return code_dir.is_dir()
+
+def main():
+    """
+    Main entry point for the setup script.
+    """
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Starting directory setup (T001a)...")
+    
+    success = create_directories()
+    
+    if success:
+        logger.info("Directory setup completed successfully.")
+        # Verify
+        if verify_structure():
+            logger.info("Verification passed: code/ directory exists.")
+            sys.exit(0)
+        else:
+            logger.error("Verification failed: code/ directory missing.")
+            sys.exit(1)
+    else:
+        logger.error("Directory setup failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

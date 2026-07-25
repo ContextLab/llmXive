@@ -1,1 +1,3 @@
-# Test package for data generation modules
+"""
+Tests for data generation module.
+"""

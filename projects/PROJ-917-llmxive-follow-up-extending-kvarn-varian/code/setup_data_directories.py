@@ -1,3 +1,12 @@
+"""
+Setup script to create the required data directory structure for the llmXive project.
+This script creates the root `data/` directory and its subdirectories:
+- data/raw
+- data/processed
+- data/models
+- data/simulation
+"""
+
 import os
 import hashlib
 import json
@@ -8,57 +17,70 @@ import logging
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def create_directories(base_path: Optional[Path] = None) -> Path:
+def get_project_root() -> Path:
     """
-    Creates the required directory structure for the llmXive project.
-    
+    Determine the project root directory.
+    Assumes the script is run from the project root or code/ subdirectory.
+    """
+    current = Path(__file__).resolve()
+    # If running from code/, go up one level
+    if current.name == 'code':
+        return current.parent
+    # If running from code/setup_*.py, go up one level
+    if current.parent.name == 'code':
+        return current.parent.parent
+    # Fallback: assume current working directory is project root
+    return Path.cwd()
+
+def create_directories(root_dir: Optional[Path] = None) -> Dict[str, Path]:
+    """
+    Create the required data directory structure.
+
     Args:
-        base_path: Optional base path. Defaults to current working directory.
-        
+        root_dir: Optional path to project root. If None, uses get_project_root().
+
     Returns:
-        The base Path object used.
+        Dictionary mapping directory names to their Path objects.
     """
-    if base_path is None:
-        base_path = Path.cwd()
-    
-    # Define the required directory structure relative to base_path
-    # Based on tasks.md: data/ generated, models, simulation, analysis
-    sub_dirs = [
-        "data/generated",
-        "data/models",
-        "data/simulation",
-        "data/analysis",
-        # Also create state/ for checksums as referenced in T001d
-        "state"
-    ]
-    
-    created_paths = []
-    for sub_dir in sub_dirs:
-        full_path = base_path / sub_dir
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(full_path)
-            logger.info(f"Created directory: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            raise
-    
-    logger.info(f"Successfully created {len(created_paths)} directories.")
-    return base_path
+    if root_dir is None:
+        root_dir = get_project_root()
+
+    data_root = root_dir / 'data'
+    directories = {
+        'root': data_root,
+        'raw': data_root / 'raw',
+        'processed': data_root / 'processed',
+        'models': data_root / 'models',
+        'simulation': data_root / 'simulation',
+        'generated': data_root / 'generated',
+        'metrics': data_root / 'metrics',
+        'analysis': data_root / 'analysis',
+    }
+
+    logger.info(f"Creating data directories under: {data_root}")
+
+    for name, path in directories.items():
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {path}")
+        else:
+            logger.debug(f"Directory already exists: {path}")
+
+    return directories
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Computes the SHA-256 checksum of a file.
-    
+    Compute SHA-256 checksum of a file.
+
     Args:
         file_path: Path to the file.
-        
+
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hex digest of the SHA-256 checksum.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -66,121 +88,105 @@ def compute_file_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def record_checksums(base_path: Path, files: List[Path]) -> Dict[str, str]:
+def record_checksums(directories: Dict[str, Path]) -> List[Dict[str, Any]]:
     """
-    Records checksums for a list of files relative to base_path.
-    
-    Args:
-        base_path: The root path for relative paths.
-        files: List of file paths to checksum.
-        
-    Returns:
-        Dictionary mapping relative file paths to their checksums.
-    """
-    checksums = {}
-    for file_path in files:
-        if file_path.exists():
-            rel_path = str(file_path.relative_to(base_path))
-            checksum = compute_file_checksum(file_path)
-            checksums[rel_path] = checksum
-            logger.debug(f"Checksum recorded for {rel_path}: {checksum}")
-        else:
-            logger.warning(f"File not found, skipping checksum: {file_path}")
-    return checksums
+    Record checksums for all files in the data directories.
+    Since this is initial setup, there should be no files yet,
+    but we record the directory structure for verification.
 
-def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
-    """
-    Saves the checksum dictionary to a JSON file.
-    
     Args:
-        checksums: Dictionary of checksums.
+        directories: Dictionary of directory paths.
+
+    Returns:
+        List of checksum records.
+    """
+    records = []
+    for name, path in directories.items():
+        if path.is_dir():
+            # Record directory existence with a placeholder checksum
+            # In a real scenario, we would checksum files inside
+            records.append({
+                'path': str(path),
+                'type': 'directory',
+                'checksum': 'DIR',  # Placeholder for directory
+                'size': 0
+            })
+    return records
+
+def save_checksums(checksums: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save checksum records to a JSON file.
+
+    Args:
+        checksums: List of checksum records.
         output_path: Path to the output JSON file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(checksums, f, indent=2)
-    logger.info(f"Checksums saved to {output_path}")
+    logger.info(f"Saved checksums to: {output_path}")
 
-def load_checksums(input_path: Path) -> Dict[str, str]:
+def load_checksums(input_path: Path) -> List[Dict[str, Any]]:
     """
-    Loads checksums from a JSON file.
-    
+    Load checksum records from a JSON file.
+
     Args:
         input_path: Path to the input JSON file.
-        
+
     Returns:
-        Dictionary of checksums.
+        List of checksum records.
     """
     with open(input_path, 'r') as f:
         return json.load(f)
 
-def verify_integrity(base_path: Path, checksums_file: Path) -> bool:
+def verify_integrity(directories: Dict[str, Path], expected_checksums: List[Dict[str, Any]]) -> bool:
     """
-    Verifies the integrity of files against stored checksums.
-    
+    Verify that the directory structure matches expected checksums.
+
     Args:
-        base_path: The root path for relative paths.
-        checksums_file: Path to the JSON file containing stored checksums.
-        
+        directories: Dictionary of directory paths.
+        expected_checksums: List of expected checksum records.
+
     Returns:
-        True if all files match their checksums, False otherwise.
+        True if integrity is verified, False otherwise.
     """
-    if not checksums_file.exists():
-        logger.error(f"Checksums file not found: {checksums_file}")
-        return False
-    
-    stored_checksums = load_checksums(checksums_file)
-    all_valid = True
-    
-    for rel_path, stored_hash in stored_checksums.items():
-        file_path = base_path / rel_path
-        if file_path.exists():
-            current_hash = compute_file_checksum(file_path)
-            if current_hash != stored_hash:
-                logger.error(f"Integrity check failed for {rel_path}")
-                all_valid = False
-            else:
-                logger.debug(f"Integrity check passed for {rel_path}")
-        else:
-            logger.warning(f"File missing during integrity check: {rel_path}")
-            all_valid = False
-            
-    return all_valid
+    for expected in expected_checksums:
+        path = Path(expected['path'])
+        if expected['type'] == 'directory':
+            if not path.is_dir():
+                logger.error(f"Directory missing: {path}")
+                return False
+    return True
 
-def main():
+def main() -> None:
     """
-    Main entry point to create data directories and optionally manage checksums.
-    For T001b, this primarily creates the directory structure.
+    Main entry point for the script.
+    Creates the data directory structure and records initial checksums.
     """
-    base_path = Path.cwd()
-    logger.info(f"Starting directory setup in: {base_path}")
-    
-    try:
-        create_directories(base_path)
-        logger.info("Directory creation completed successfully.")
-        
-        # T001b specific deliverable: Directories created.
-        # We log the specific paths created for verification.
-        data_dirs = [
-            base_path / "data" / "generated",
-            base_path / "data" / "models",
-            base_path / "data" / "simulation",
-            base_path / "data" / "analysis"
-        ]
-        
-        for d in data_dirs:
-            if d.exists() and d.is_dir():
-                logger.info(f"Verified existence: {d}")
-            else:
-                logger.error(f"Missing expected directory: {d}")
-                return 1
-                
-        return 0
-        
-    except Exception as e:
-        logger.critical(f"Setup failed: {e}")
-        return 1
+    root_dir = get_project_root()
+    logger.info(f"Project root detected at: {root_dir}")
 
-if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    # Create directories
+    directories = create_directories(root_dir)
+
+    # Record initial checksums (directories only, no files yet)
+    checksums = record_checksums(directories)
+
+    # Save checksums to state/ directory
+    state_dir = root_dir / 'state'
+    state_dir.mkdir(parents=True, exist_ok=True)
+    checksum_file = state_dir / 'data_directories_checksums.json'
+    save_checksums(checksums, checksum_file)
+
+    logger.info("Data directory setup completed successfully.")
+    logger.info(f"Checksums saved to: {checksum_file}")
+
+    # Verify structure
+    if verify_integrity(directories, checksums):
+        logger.info("Directory structure verification passed.")
+    else:
+        logger.error("Directory structure verification failed.")
+        raise RuntimeError("Data directory structure verification failed.")
+
+if __name__ == '__main__':
+    main()

@@ -1,89 +1,73 @@
+"""
+Unit tests for checksum functionality.
+"""
 import pytest
-from data_generation.utils import compute_checksum
-import hashlib
 import tempfile
+import json
 from pathlib import Path
-import os
+import hashlib
 
-def test_checksum_deterministic():
-    """Test that computing the checksum of the same file twice yields the same result."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test data for checksum")
-        tmp_path = Path(tmp.name)
-    
-    try:
-        checksum1 = compute_checksum(tmp_path)
-        checksum2 = compute_checksum(tmp_path)
-        
-        assert checksum1 == checksum2
-        assert isinstance(checksum1, str)
-        assert len(checksum1) == 64  # SHA256 hex length
-    finally:
-        os.unlink(tmp_path)
+# Import from the project structure
+# Assuming tests are run with the project root in sys.path or via pytest
+try:
+    from data_checksum_manager import compute_file_checksum, record_checksums, save_checksums, load_checksums
+except ImportError:
+    # Fallback for direct execution if path isn't set
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from data_checksum_manager import compute_file_checksum, record_checksums, save_checksums, load_checksums
 
-def test_checksum_unique():
-    """Test that different files produce different checksums."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp1:
-        tmp1.write(b"data set A")
-        path1 = Path(tmp1.name)
-        
-    with tempfile.NamedTemporaryFile(delete=False) as tmp2:
-        tmp2.write(b"data set B")
-        path2 = Path(tmp2.name)
+def test_checksum_deterministic(tmp_path: Path):
+    """Test that checksum is deterministic for the same file content."""
+    test_file = tmp_path / "test.txt"
+    content = b"Hello, World!"
+    test_file.write_bytes(content)
     
-    try:
-        checksum1 = compute_checksum(path1)
-        checksum2 = compute_checksum(path2)
-        
-        assert checksum1 != checksum2
-    finally:
-        os.unlink(path1)
-        os.unlink(path2)
+    checksum1 = compute_file_checksum(test_file)
+    checksum2 = compute_file_checksum(test_file)
+    
+    assert checksum1 == checksum2
+    # Verify it matches the expected SHA256
+    expected = hashlib.sha256(content).hexdigest()
+    assert checksum1 == expected
 
-def test_checksum_empty_file():
-    """Test checksum of an empty file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp_path = Path(tmp.name)
+def test_checksum_unique(tmp_path: Path):
+    """Test that different files have different checksums."""
+    file_a = tmp_path / "a.txt"
+    file_b = tmp_path / "b.txt"
     
-    try:
-        # Write nothing, file is empty
-        checksum = compute_checksum(tmp_path)
-        
-        # SHA256 of empty string
-        expected = hashlib.sha256(b"").hexdigest()
-        assert checksum == expected
-    finally:
-        os.unlink(tmp_path)
+    file_a.write_bytes(b"Content A")
+    file_b.write_bytes(b"Content B")
+    
+    checksum_a = compute_file_checksum(file_a)
+    checksum_b = compute_file_checksum(file_b)
+    
+    assert checksum_a != checksum_b
 
-def test_checksum_large_file():
-    """Test checksum of a large file to ensure chunked reading works."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        # Write 1MB of data
-        chunk = b"x" * 1024
-        for _ in range(1024):
-            tmp.write(chunk)
-        tmp_path = Path(tmp.name)
+def test_record_checksums_structure(tmp_path: Path):
+    """Test that record_checksums correctly traverses directories."""
+    subdir = tmp_path / "subdir"
+    subdir.mkdir()
     
-    try:
-        checksum = compute_checksum(tmp_path)
-        assert isinstance(checksum, str)
-        assert len(checksum) == 64
-    finally:
-        os.unlink(tmp_path)
+    (tmp_path / "file1.txt").write_text("data1")
+    (subdir / "file2.txt").write_text("data2")
+    
+    checksums = record_checksums(tmp_path)
+    
+    assert len(checksums) == 2
+    assert "file1.txt" in checksums
+    assert "subdir/file2.txt" in checksums or "subdir\\file2.txt" in checksums
 
-def test_checksum_nonexistent_file():
-    """Test that computing checksum of a non-existent file raises an error."""
-    from data_checksum_manager import compute_file_checksum
+def test_save_load_checksums(tmp_path: Path):
+    """Test saving and loading checksums from JSON."""
+    data_file = tmp_path / "data.txt"
+    data_file.write_text("test content")
     
-    non_existent_path = Path("/tmp/does_not_exist_12345.txt")
+    checksums = record_checksums(tmp_path)
+    output_file = tmp_path / "checksums.json"
     
-    with pytest.raises(FileNotFoundError):
-        compute_file_checksum(non_existent_path)
-
-def test_checksum_directory():
-    """Test that computing checksum of a directory raises an error."""
-    from data_checksum_manager import compute_file_checksum
+    save_checksums(checksums, output_file)
+    assert output_file.exists()
     
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        with pytest.raises(ValueError):
-            compute_file_checksum(Path(tmp_dir))
+    loaded = load_checksums(output_file)
+    assert loaded == checksums

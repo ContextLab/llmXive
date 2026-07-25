@@ -1,1 +1,3 @@
-# Test package for model training modules
+"""
+Tests for model training module.
+"""

@@ -1,7 +1,21 @@
 """
-Script to create the required directory structure for the llmXive project.
-Creates code/, data/, tests/, and state/ directories with their subdirectories.
+Project Directory Structure Setup Script.
+
+This script initializes the root directory structure required for the llmXive
+automated science pipeline. It creates the `code/`, `data/`, `tests/`, and
+`state/` directories along with their standard subdirectories as defined in
+the project plan.
+
+Execution:
+    python code/setup_directory_structure.py
+
+Verification:
+    ls code/
+    ls data/
+    ls tests/
+    ls state/
 """
+
 import os
 import sys
 from pathlib import Path
@@ -10,129 +24,114 @@ import logging
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-def create_directories(base_path: Path = None) -> bool:
+# Define the root directory (project root)
+# Assuming this script runs from the project root or code/ subdirectory
+# We resolve the project root as the parent of 'code' if we are inside 'code',
+# otherwise the current working directory.
+def get_project_root():
+    current = Path.cwd()
+    if current.name == "code":
+        return current.parent
+    return current
+
+def create_directories():
     """
-    Create the required directory structure for the project.
-
-    Args:
-        base_path: Base path for the project. Defaults to current directory.
-
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Creates the standard project directory structure.
     """
-    if base_path is None:
-        base_path = Path.cwd()
+    root = get_project_root()
+    logger.info(f"Project root detected at: {root}")
 
-    # Define directory structure relative to base_path
-    directories = [
-        # Code structure
+    # Define directory structure relative to root
+    # Phase 1: Setup (Shared Infrastructure)
+    code_dirs = [
         "code/data_generation",
         "code/model_training",
         "code/simulation",
         "code/analysis",
-        "code/tests",
-        "code/tests/test_data_generation",
-        "code/tests/test_model_training",
-        "code/tests/test_simulation",
-        "code/tests/test_analysis",
-        
-        # Data structure
-        "data/generated",
+        "code/utils",
+    ]
+
+    data_dirs = [
+        "data/raw",
+        "data/processed",
         "data/models",
         "data/simulation",
-        "data/analysis",
-        
-        # State structure (for checksums, logs, etc.)
-        "state",
+        "data/generated", # Added for T017a output
+        "data/metrics",   # Added for T023/T035c output
+        "data/analysis",  # Added for T025/T032 output
     ]
+
+    tests_dirs = [
+        "tests/test_data_generation",
+        "tests/test_model_training",
+        "tests/test_simulation",
+        "tests/test_analysis",
+    ]
+
+    state_dirs = [
+        "state", # For checksums and run states
+    ]
+
+    all_dirs = code_dirs + data_dirs + tests_dirs + state_dirs
 
     created_count = 0
-    failed_count = 0
+    for dir_path in all_dirs:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
 
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-                created_count += 1
-            else:
-                logger.debug(f"Directory already exists: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            failed_count += 1
-
-    if failed_count > 0:
-        logger.warning(f"Completed with {failed_count} failures out of {len(directories)} directories.")
-        return False
-
-    logger.info(f"Successfully created {created_count} directories.")
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
     return True
 
-def verify_structure(base_path: Path = None) -> bool:
+def verify_structure():
     """
-    Verify that all required directories exist.
-
-    Args:
-        base_path: Base path for the project. Defaults to current directory.
-
-    Returns:
-        bool: True if all directories exist, False otherwise.
+    Verifies that the essential directories exist.
     """
-    if base_path is None:
-        base_path = Path.cwd()
-
-    required_directories = [
-        "code/data_generation",
-        "code/model_training",
-        "code/simulation",
-        "code/analysis",
-        "code/tests",
-        "code/tests/test_data_generation",
-        "code/tests/test_model_training",
-        "code/tests/test_simulation",
-        "code/tests/test_analysis",
-        "data/generated",
-        "data/models",
-        "data/simulation",
-        "data/analysis",
+    root = get_project_root()
+    essential = [
+        "code",
+        "data",
+        "tests",
         "state",
     ]
 
-    all_exist = True
-    for dir_path in required_directories:
-        full_path = base_path / dir_path
-        if not full_path.is_dir():
-            logger.error(f"Missing required directory: {full_path}")
-            all_exist = False
-        else:
-            logger.debug(f"Verified directory: {full_path}")
+    missing = []
+    for dir_name in essential:
+        if not (root / dir_name).exists():
+            missing.append(dir_name)
 
-    return all_exist
+    if missing:
+        logger.error(f"Verification failed. Missing directories: {missing}")
+        return False
+
+    logger.info("Verification passed. All essential directories exist.")
+    return True
 
 def main():
-    """Main entry point for directory structure setup."""
-    logger.info("Starting directory structure setup...")
-    
-    base_path = Path.cwd()
-    logger.info(f"Base path: {base_path}")
-    
-    success = create_directories(base_path)
-    
-    if success:
-        logger.info("Verifying directory structure...")
-        if verify_structure(base_path):
-            logger.info("All required directories verified successfully.")
-            return 0
+    """
+    Entry point for the script.
+    """
+    try:
+        if create_directories():
+            if verify_structure():
+                logger.info("Setup successful.")
+                return 0
+            else:
+                logger.error("Setup created directories but verification failed.")
+                return 1
         else:
-            logger.error("Directory verification failed.")
+            logger.error("Directory creation failed.")
             return 1
-    else:
-        logger.error("Directory creation failed.")
+    except Exception as e:
+        logger.exception(f"An error occurred during setup: {e}")
         return 1
 
 if __name__ == "__main__":
