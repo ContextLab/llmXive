@@ -64,12 +64,26 @@ def create_test_set(df: pd.DataFrame, test_size: float, seed: int) -> pd.DataFra
         # but often it's safer to bin for continuous targets.
         # However, to keep it simple and robust for this task:
         try:
+            # Use pd.qcut to create bins for stratification if the column is continuous
+            # This avoids the "Too many unique values" error in sklearn
+            n_bins = min(100, len(df)) # Cap bins to avoid excessive stratification complexity
+            # Ensure we have at least 2 bins
+            if n_bins < 2:
+                n_bins = 2
+            
+            # Create bins, handling potential errors with dropna=True
+            try:
+                bins = pd.qcut(df[target_col], q=n_bins, duplicates='drop')
+            except ValueError:
+                # Fallback to fewer bins if qcut fails
+                bins = pd.qcut(df[target_col], q=min(10, len(df)), duplicates='drop')
+            
             train, test = train_test_split(
-                df, test_size=test_size, random_state=seed, stratify=df[target_col]
+                df, test_size=test_size, random_state=seed, stratify=bins
             )
-        except (ValueError, TypeError):
-            # If stratification fails (e.g., too many unique values), fallback to non-stratified
-            logger.warning("Stratification failed (likely continuous target). Falling back to random split.")
+        except (ValueError, TypeError) as e:
+            # If stratification fails (e.g., too many unique values, NaNs), fallback to non-stratified
+            logger.warning(f"Stratification failed ({e}). Falling back to random split.")
             train, test = train_test_split(
                 df, test_size=test_size, random_state=seed
             )

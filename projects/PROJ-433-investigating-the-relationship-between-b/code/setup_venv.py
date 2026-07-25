@@ -1,3 +1,7 @@
+"""
+Script to create a Python virtual environment for the project.
+Task T002a: Create Python virtual environment.
+"""
 import os
 import subprocess
 import sys
@@ -5,33 +9,53 @@ from pathlib import Path
 
 def main():
     """
-    Creates a Python virtual environment in the repository root.
-    Uses python3.11 if available, otherwise falls back to the current python interpreter.
+    Creates a virtual environment in the repository root using python3.11.
     """
-    root_dir = Path(__file__).resolve().parent.parent
-    venv_path = root_dir / "venv"
+    # Determine the project root (parent of the code/ directory where this script lives)
+    current_file_path = Path(__file__).resolve()
+    project_root = current_file_path.parent.parent
+
+    venv_path = project_root / "venv"
 
     if venv_path.exists():
-        print(f"Virtual environment already exists at {venv_path}. Skipping creation.")
-        return
+        print(f"Virtual environment already exists at: {venv_path}")
+        print("Skipping creation. To recreate, manually remove the 'venv' directory first.")
+        return 0
 
-    python_exe = "python3.11"
+    print(f"Creating virtual environment at: {venv_path}")
+    
+    # Check for python3.11 availability
+    python_executable = "python3.11"
     try:
-        # Check if python3.11 exists
-        subprocess.run([python_exe, "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        result = subprocess.run(
+            [python_executable, "--version"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(f"Using: {result.stdout.strip()}")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print(f"python3.11 not found. Using current interpreter: {sys.executable}")
-        python_exe = sys.executable
+        # Fallback to generic python3 if 3.11 not explicitly found, 
+        # though the task specifies python3.11
+        print(f"Warning: {python_executable} not found. Attempting to use 'python3'.")
+        python_executable = "python3"
+        try:
+            subprocess.run([python_executable, "--version"], check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print("Error: Could not find python3 or python3.11.")
+            return 1
 
-    print(f"Creating virtual environment at {venv_path} using {python_exe}...")
-    result = subprocess.run([python_exe, "-m", "venv", str(venv_path)])
-
-    if result.returncode != 0:
-        print(f"Error: Failed to create virtual environment (exit code {result.returncode})")
-        sys.exit(1)
-
-    print("Virtual environment created successfully.")
-    print("Activate it with: source venv/bin/activate (Linux/Mac) or venv\\Scripts\\activate (Windows)")
+    try:
+        subprocess.run(
+            [python_executable, "-m", "venv", str(venv_path)],
+            check=True
+        )
+        print("Virtual environment created successfully.")
+        print(f"Activate with: source {venv_path}/bin/activate")
+        return 0
+    except subprocess.CalledProcessError as e:
+        print(f"Error creating virtual environment: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

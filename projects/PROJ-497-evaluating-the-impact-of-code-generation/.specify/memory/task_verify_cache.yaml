@@ -1,0 +1,46 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/`, `results/`, `state/`,\
+    \ `tests/`) being present was provided; without showing that these folders exist\
+    \ (and contain at least placeholder files), the task requirement is not satisfied.\
+    \ The implementer must create and list these project\u2011structure directories."
+T013:
+  c: false
+  h: 32248c183e9935e363f2d567acc10af0892dab0e372c14de6832c48cb1821052
+  r: The provided `code/analyze.py` is truncated (ends at `raw_r`) and does not contain
+    the logic to scan all files in `data/generated/` and `data/human/`, aggregate
+    results, or write `data/processed/bandit_raw_reports.json`. Moreover, the required
+    output JSON file is missing from the repository.
+T013b:
+  c: false
+  h: 514b1516ed153f2f66fc28f87df871bceb20b04b70f6ac16c65d0019ff841372
+  r: The repository lacks the required `data/processed/bandit_raw_reports.json` file,
+    and there is no code that reads this file or writes `data/processed/vulnerability_reports.json`.
+    The shown `code/analyze.py` is truncated and does not implement the parsing and
+    generation logic demanded by the task. The necessary artifacts are missing, so
+    the requirement is not met.
+T014:
+  c: false
+  h: 21ac944af58095872b3b1ee4d80a561813148d5252228d2365a0dfb0a86b52a9
+  r: "The repository lacks the required `data/processed/vulnerability_reports.json`\
+    \ input file and the generated `data/processed/raw_vulnerability_counts.csv` output\
+    \ file. Moreover, the provided `code/stats.py` is truncated and does not demonstrably\
+    \ contain the logic to read the JSON and write the CSV with the specified schema.\
+    \ Without these artifacts, the task\u2019s requirement is not satisfied."
+T015:
+  c: false
+  h: 6fc0da9ab04a6c7fabb6d46c6d3e4433fd0c4eb6487fd0fb48f74301875b0dae
+  r: "The required input file `data/processed/raw_vulnerability_counts.csv` does not\
+    \ exist, and the expected output `data/processed/aggregated_analysis_dataset.csv`\
+    \ is also missing. Without the source data, we cannot confirm that `code/stats.py`\
+    \ actually implements the required aggregation logic or produces the specified\
+    \ CSV. The implementer must provide the raw CSV, run the aggregation to generate\
+    \ the output CSV, and ensure the script contains the correct mean\u2011vs\u2011\
+    single count calculations."
+T019:
+  c: false
+  h: 5ea5f8496087697594b6b9cbd55895b566c28bfce75905ad13a5a4f1d3ca9b92
+  r: "The required integration test file `tests/integration/test_statistical_analysis.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ No further evidence of the test implementation is provided."

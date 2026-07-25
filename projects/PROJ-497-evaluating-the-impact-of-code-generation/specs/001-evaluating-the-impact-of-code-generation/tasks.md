@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `state/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (transformers, datasets, bandit, scikit-learn, statsmodels, pandas, matplotlib, seaborn, pyyaml, pingouin)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (transformers, datasets, bandit, scikit-learn, statsmodels, pandas, matplotlib, seaborn, pyyaml, pingouin)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -64,7 +64,7 @@ expected <block end>, but found '<scalar>'
  """Verify get_config returns a dic...
  ^) -->
 - [X] T005 [P] Create `code/config/bandit_config.yaml` defining the pinned rule-set and exclusions for static analysis (Constitution Principle VI)
-- [ ] T006 [P] Implement `code/download.py` to fetch HumanEval and MBPP datasets from HuggingFace `datasets` library with SHA-256 checksum verification (Constitution Principle III)
+- [X] T006 [P] Implement `code/download.py` to fetch HumanEval and MBPP datasets from HuggingFace `datasets` library with SHA-256 checksum verification (Constitution Principle III)
 - [X] T007 Create `code/state_utils.py` to compute and store artifact hashes in `state/artifact_hashes.yaml` upon data completion
 - [X] T008 Implement `code/main.py` as the pipeline orchestrator with argument parsing for model selection and benchmark targets
 
@@ -80,17 +80,17 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Contract test for dataset download integrity in `tests/unit/test_download.py`
-- [ ] T010 [P] [US1] Integration test for single-model generation and analysis loop in `tests/integration/test_generation_pipeline.py`
+- [X] T009 [P] [US1] Contract test for dataset download integrity in `tests/unit/test_download.py`
+- [X] T010 [P] [US1] Integration test for single-model generation and analysis loop in `tests/integration/test_generation_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [X] T011 Implement the loader function in `code/download.py` for StarCoder and CodeGen (CPU-only, default precision, no 8-bit/4-bit quantization) to fit ≤7GB RAM. **Note**: Must run sequentially to respect RAM limits; do not load multiple models simultaneously.
 - [X] T012 [US1] Implement `code/generate.py` to select **ALL tasks** from HumanEval and MBPP benchmarks (FR-002) and execute the generation loop. **Logic**: For each task, iterate generation until ≥ 64 valid samples are obtained OR 200 attempts are exhausted. If 200 attempts are exhausted for any task, log the error, flag the dataset as 'insufficient data', and halt the pipeline. **Validation**: Execute benchmark tests on generated samples to determine validity. **Output**: Valid samples saved to `data/generated/{model}/{benchmark}/{task_id}/samples/`.
-- [~] T013 [US1] Implement `code/analyze.py` to **execute Bandit** on all files in `data/generated/` and `data/human/` using `code/config/bandit_config.yaml`, handling syntax errors by skipping files and logging errors (US-1 Edge Case). **Output**: `data/processed/bandit_raw_reports.json`.
-- [~] T013b [US1] Implement parsing logic in `code/analyze.py` to read `data/processed/bandit_raw_reports.json` and generate a structured vulnerability report `data/processed/vulnerability_reports.json` containing `file_path`, `cwe_id`, `severity`, and `line_number`.
-- [~] T014 [US1] Implement `code/stats.py` to calculate `vulnerability_count` and `lines_of_code` **per sample** (one row per file) from `data/processed/vulnerability_reports.json`, producing `data/processed/raw_vulnerability_counts.csv` (FR-004). Schema: `task_id`, `source_type`, `file_path`, `lines_of_code`, `vulnerability_count`.
-- [~] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** (LLM) vs **single count per task** (Human) from `data/processed/raw_vulnerability_counts.csv`, producing `data/processed/aggregated_analysis_dataset.csv` (Plan Update: Unit of Analysis = Task).
+- [ ] T013 [US1] Implement `code/analyze.py` to **execute Bandit** on all files in `data/generated/` and `data/human/` using `code/config/bandit_config.yaml`, handling syntax errors by skipping files and logging errors (US-1 Edge Case). **Output**: `data/processed/bandit_raw_reports.json`.
+- [ ] T013b [US1] Implement parsing logic in `code/analyze.py` to read `data/processed/bandit_raw_reports.json` and generate a structured vulnerability report `data/processed/vulnerability_reports.json` containing `file_path`, `cwe_id`, `severity`, and `line_number`.
+- [ ] T014 [US1] Implement `code/stats.py` to calculate `vulnerability_count` and `lines_of_code` **per sample** (one row per file) from `data/processed/vulnerability_reports.json`, producing `data/processed/raw_vulnerability_counts.csv` (FR-004). Schema: `task_id`, `source_type`, `file_path`, `lines_of_code`, `vulnerability_count`.
+- [ ] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** (LLM) vs **single count per task** (Human) from `data/processed/raw_vulnerability_counts.csv`, producing `data/processed/aggregated_analysis_dataset.csv` (Plan Update: Unit of Analysis = Task).
 - [X] T016 [US1] Add error handling in `code/generate.py` to halt and flag dataset as 'insufficient data' if <64 valid samples are obtained after 200 attempts per task (US-1 Acceptance 5).
 - [X] T017 [US1] Add logging for generation failures and static analysis parse errors in `code/generate.py` and `code/analyze.py`.
 
@@ -107,7 +107,7 @@ expected <block end>, but found '<scalar>'
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for ZINB convergence fallback logic in `tests/unit/test_stats.py`
-- [~] T019 [P] [US2] Integration test for stratified analysis and multiple-comparison correction in `tests/integration/test_statistical_analysis.py`
+- [ ] T019 [P] [US2] Integration test for stratified analysis and multiple-comparison correction in `tests/integration/test_statistical_analysis.py`
 
 ### Implementation for User Story 2
 
@@ -115,8 +115,8 @@ expected <block end>, but found '<scalar>'
 - [X] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID, skip tests if n<5 per group, and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
 - [~] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
 - [~] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Output**: `data/processed/fpr_metrics.json`. **Note**: This FPR is reported as a sensitivity metric only; do NOT apply the adjustment formula to the primary outcome.
-- [ ] T025 [US2] Implement post-hoc power analysis in `code/stats.py` if valid sample count <64; flag dataset as 'under-powered' if power <0.80 (FR-009).
-- [ ] T026 [US2] Implement cross-benchmark (HumanEval vs MBPP) and cross-model (StarCoder vs CodeGen) comparison logic in `code/stats.py` (FR-011, FR-013).
+- [X] T025 [US2] Implement post-hoc power analysis in `code/stats.py` if valid sample count <64; flag dataset as 'under-powered' if power <0.80 (FR-009).
+- [X] T026 [US2] Implement cross-benchmark (HumanEval vs MBPP) and cross-model (StarCoder vs CodeGen) comparison logic in `code/stats.py` (FR-011, FR-013).
 - [ ] T027 [US2] Generate `data/processed/aggregated_analysis_dataset.csv` with final statistics, effect sizes (IRR), and flags (Plan Phase 2.2).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -131,7 +131,7 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for visualization generation in `tests/unit/test_viz.py`
+- [X] T028 [P] [US3] Unit test for visualization generation in `tests/unit/test_viz.py`
 - [ ] T029 [P] [US3] Contract test for report generation output format in `tests/contract/test_report.py`
 
 ### Implementation for User Story 3

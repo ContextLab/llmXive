@@ -121,7 +121,7 @@
 - [X] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
 - [X] T023 [US1] Implement logic to track posterior mean $\alpha$ and $\pi$ at each window step and compute first derivative $\dot{\alpha}$
 - [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations.) per FR-009
-- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 (FR-011, FR-012)
+- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 [UNRESOLVED-CLAIM: c_5df8c2b6 — status=not_enough_info] (FR-011, FR-012)
 - [X] T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of windows selected by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv`. **Constraint**: FAIL if deviation in posterior mean $\alpha$ between ADVI and MCMC exceeds 10%.
 - [X] T027 [US1] Create `code/src/evaluation/metrics.py` implementing Kolmogorov-Smirnov test for distributional differences (FR-010, FR-014, FR-015)
 
@@ -176,7 +176,7 @@
 ### Implementation for User Story 4
 
 - [X] T048 [P] [US4] Create `code/src/utils/memory_profiler.py` using `psutil.Process().memory_info().rss` to track peak RAM
-- [ ] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
+- [X] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
 - [X] T050 [P] [US4] Create `code/scripts/verify_resource_compliance.py` to enforce CPU-only execution and validate no CUDA library loading
 - [X] T051 [US4] Implement logic to generate resource validation report outputting peak RAM and runtime metrics
 
@@ -193,7 +193,7 @@
 - **IF T052b SUCCEEDS**: Run T052. T052c is SKIPPED.
 
 - [X] T052b [P] [Data] Execute mandatory search procedure for real-world datasets with labeled regime shifts (FR-017). **Search Keywords**: "anomaly detection", "regime shift", "time series", "NAB", "PhysioNet", "UCI". **Sources**: NAB, UCI, PhysioNet. **Deliverable**: If no verified source is found, generate `data/processed/results/validation_deferred.md` with exact fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`. **Note**: This task MUST precede T052.
-- [ ] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T053 [Data] 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient size (FR-001). **Conditional on T052 execution.**
 - [X] T054 [Data] Delete all PEMS-SF files (`pems_sf.csv`, `pems_sf_synthetic.csv`) from `data/raw/`
 - [X] T054b [Data] **Conditional on T054 failure**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv` and verify with `ls -la data/raw/ | grep pems` returning empty. Log output to `data/data_provenance_report.md`.
@@ -203,7 +203,7 @@
 - [X] T056b [Data] **Conditional on T056 failure**: Execute `rm -rf data/results/` and verify with `ls -la data/ | grep results` returning only `processed/results`. Log output to `data/data_provenance_report.md`.
 - [X] T057 [Data] Generate SHA256 checksums for all raw data files and record in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
 - [X] T058 [Data] **Conditional on T052b success**: Update `data/data-dictionary.md` to list only verified UCI datasets (Electricity, Traffic) with explicit license terms and URLs. **If T052b failed, update to note 'Deferred by Design' per FR-017b.**
-- [ ] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
+- [X] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
 - [X] T052c [Data] **Conditional on T052b failure**: Generate 'Validation Deferred' report citing search query and result count, mark requirement as 'Deferred by Design' (FR-017b).
 
 **Checkpoint**: Data hygiene established - only compliant UCI datasets present with verified checksums OR Deferred report generated.
@@ -364,6 +364,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T101 Reconcile run-book vs implementation for `code/src/config.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/config.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T101 Reconcile run-book vs implementation for `code/src/config.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/config.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T102 Reconcile run-book vs implementation for `code/src/evaluation/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T103 Reconcile run-book vs implementation for `code/src/evaluation/robustness.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/robustness.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

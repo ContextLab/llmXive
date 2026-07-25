@@ -8,38 +8,46 @@ T001:
     snapshot) that the specified structure has been created.
 T020:
   c: false
-  h: 1d00e6890d88623bdee366a122b0845d64dc987379a99b682ea0101297874208
-  r: "The repository contains `code/test_split.py`, but the required output file `data/processed/test_set.csv`\
-    \ is absent, and the provided script is truncated before any code that writes\
-    \ the test set or generates metadata/checksum files. Without a generated CSV,\
-    \ the task\u2019s core requirement is not satisfied."
+  h: 7c15e97997d3c0af0f781091f1b413b85f4c995087b76b7f105dbf3c40a9eb69
+  r: "The repository contains `code/test_split.py`, but the required output `data/processed/test_set.csv`\
+    \ is absent, and the provided script is truncated (incomplete) with no evidence\
+    \ it was executed to generate the test set. The task\u2019s core deliverable\u2014\
+    a fixed test set CSV\u2014has not been produced."
+T021:
+  c: false
+  h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
+  r: "The required artifact `data/metadata/test_set_metadata.json` does not exist,\
+    \ so no metadata (row count, checksum) has been logged, meaning the task\u2019\
+    s requirement is unmet. The implementer must create the JSON file with the appropriate\
+    \ metadata."
 T024:
   c: false
-  h: b94950da7088061c56082c6d2906cfe00cca3676a164246786209737af675a8d
-  r: The provided `code/data_ingestion.py` is truncated (the `main()` function is
-    incomplete and the script never calls the fetch or save functions), and the required
-    output file `data/raw/raw_pool.csv` does not exist. Consequently the script does
-    not actually download and store a substantial corpus as specified.
+  h: 890c07c6d059e34b622131acef5035453458f646f5e5c658838a098319d19e48
+  r: "The repository contains a partially\u2011implemented `code/data_ingestion.py`\
+    \ (truncated and limited to a 10\u202F000\u2011entry fetch) and the required output\
+    \ file `data/raw/raw_pool.csv` is absent. Consequently the script does not demonstrably\
+    \ download the \u2265150\u202F000 entries nor produce the specified CSV, so the\
+    \ task\u2019s requirements are not satisfied."
 T025:
   c: false
-  h: fbe53f3bd3ff054b91d03001b2cc7c213fc2206f3a76abcb42cd240603f9c781
-  r: "The required output file `data/processed/filtered_pool.csv` does not exist,\
-    \ and the provided `code/data_ingestion.py` does not implement the filtering step\
-    \ (it writes all fetched rows without checking for non\u2011null `formation_energy`\
-    \ or `dft_computed == True`). The task\u2019s core requirement is therefore unmet."
+  h: 4cc8dee94c90bc9fba86ebbce52fb6c891353c7e342384fd4407687cb77ab9b4
+  r: "The repository lacks the required `data/processed/filtered_pool.csv` file, and\
+    \ the shown `code/data_ingestion.py` does not contain any filtering step that\
+    \ keeps only rows with non\u2011null `formation_energy` and `dft_computed == True`.\
+    \ The script\u2019s `process_and_save` function is truncated and never writes\
+    \ to the specified output path, so the task\u2019s requirement is not met."
 T026:
   c: false
-  h: 6d2a86e7a04a1584197b8fe585a241681d53beac5342824ed5a1186564644785
-  r: The provided `code/data_ingestion.py` contains only placeholder API fetching
-    and CSV writing logic; it never imports or uses `matminer` nor the `ElementalPropertyFeatureExtractor`,
-    nor does it generate the required descriptor columns. Additionally, the expected
-    output file `data/processed/descriptors_pool.csv` is absent from the repository.
-    Both the required code implementation and the output artifact are missing.
+  h: 5e00237d49b1867c393a45566e889f97fa808271417747c0ec773eb9243352bc
+  r: "The repository lacks the required `data/processed/descriptors_pool.csv` file,\
+    \ and the shown portion of `code/data_ingestion.py` does not contain any logic\
+    \ that uses `ElementalPropertyFeatureExtractor` to compute the specified properties\
+    \ or write them to that CSV. The task\u2019s core output is therefore missing."
 T027:
   c: false
-  h: 1c879a6d3ebd2c48fb195e6ae472a1a6b9b749b6e8f83ec6d46cbc0320b486d0
-  r: "The provided `code/data_ingestion.py` is truncated and contains only placeholder\
-    \ API fetching logic; it lacks any mean\u2011imputation, row\u2011dropping, logging\
-    \ to `data/results/ingestion_log.json`, or writing the final dataset to `data/processed/full_pool_final.csv`.\
-    \ Both required output files are missing from the repository. The task requirements\
-    \ are therefore not met."
+  h: 6cf4e13941f48456906cbf98ddfd72162875a4c2f80d0c5af8e0a3a8f71d4319
+  r: "The provided `code/data_ingestion.py` stops after writing a few fields and does\
+    \ not contain any mean\u2011imputation, row\u2011dropping, or logging logic, nor\
+    \ does it write to `data/processed/full_pool_final.csv`. Additionally, the required\
+    \ `data/results/ingestion_log.json` and `data/processed/full_pool_final.csv` files\
+    \ are absent. The task\u2019s core requirements are therefore not met."

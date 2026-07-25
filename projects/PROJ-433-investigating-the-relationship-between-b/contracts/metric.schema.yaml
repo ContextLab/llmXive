@@ -1,44 +1,53 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Network Metric Schema
-description: Schema for computed network reconfigurability metrics per subject.
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Reconfigurability Metric Schema
+description: Schema for the computed network reconfigurability metrics per subject.
 type: object
 required:
   - subject_id
   - transition_count
   - window_size
   - step_size
-  - algorithm
+  - community_algorithm
   - seed
+  - computation_timestamp
 properties:
   subject_id:
     type: string
-    description: Unique subject identifier.
+    description: The HCP subject ID.
+    pattern: "^\\d{6}$"
   transition_count:
     type: integer
+    description: Total number of community state transitions detected.
     minimum: 0
-    description: Number of community state transitions detected.
   window_size:
     type: integer
-    description: Size of the sliding window in time points.
+    description: Size of the sliding window in TRs.
+    minimum: 1
   step_size:
     type: integer
-    description: Step size for sliding window in time points.
-  algorithm:
+    description: Step size for sliding window in TRs.
+    minimum: 1
+  community_algorithm:
     type: string
-    enum: [louvain, leiden]
-    description: Community detection algorithm used.
+    description: Algorithm used for community detection.
+    enum:
+      - louvain
+      - leiden
   seed:
     type: integer
     description: Random seed used for reproducibility.
-  resolution_parameter:
-    type: number
-    minimum: 0
-    description: Resolution parameter for community detection.
-  num_communities:
-    type: integer
-    minimum: 1
-    description: Number of detected communities in the average partition.
-  computation_time_seconds:
-    type: number
-    minimum: 0
-    description: Wall-clock time taken for computation.
+  computation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of computation.
+  qc_flags:
+    type: array
+    description: List of QC flags or warnings.
+    items:
+      type: string
+  raw_transition_series:
+    type: array
+    description: (Optional) Array of community labels per window.
+    items:
+      type: integer
+additionalProperties: false

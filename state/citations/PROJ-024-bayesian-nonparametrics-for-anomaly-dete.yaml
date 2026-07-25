@@ -629,7 +629,7 @@
   verification_status: verified
   verified_against_url: https://physionet.org/content/mitdb/1.0.0/
   verified_at: '2026-07-11T03:14:24.790585Z'
-- artifact_hash: 2ed383f03638b81bcc18c4886d5c1bf5e82d678fbe7cf54b86de5870a1ac8396
+- artifact_hash: 5643fd1786eedc386c2babeaa5b3837fb1840e01b001837e23efdfdc6acc3814
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -637,22 +637,22 @@
   fetched_title: '[1210.4347] Hilbert Space Embedding for Dirichlet Process Mixtures'
   kind: url
   value: https://arxiv.org/abs/1210.4347
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1210.4347
-  verified_at: '2026-07-14T17:56:20.200241Z'
-- artifact_hash: 2ed383f03638b81bcc18c4886d5c1bf5e82d678fbe7cf54b86de5870a1ac8396
+  verified_at: '2026-07-25T04:56:03.148486Z'
+- artifact_hash: 5643fd1786eedc386c2babeaa5b3837fb1840e01b001837e23efdfdc6acc3814
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[1501.05788] Simulation-based Sensitivity Analysis for Non-ignorable
-    Missing Data'
+  fetched_title: '[1905.08726] L-moments for automatic threshold selection in extreme
+    value analysis'
   kind: url
-  value: https://arxiv.org/abs/1501.05788
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/1501.05788
-  verified_at: '2026-07-14T17:56:20.200241Z'
-- artifact_hash: 2ed383f03638b81bcc18c4886d5c1bf5e82d678fbe7cf54b86de5870a1ac8396
+  value: https://arxiv.org/abs/1905.08726
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1905.08726
+  verified_at: '2026-07-25T04:56:03.148486Z'
+- artifact_hash: 5643fd1786eedc386c2babeaa5b3837fb1840e01b001837e23efdfdc6acc3814
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -660,6 +660,6 @@
   fetched_title: '[2109.05633] Generating Datasets of 3D Garments with Sewing Patterns'
   kind: url
   value: https://arxiv.org/abs/2109.05633
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2109.05633
-  verified_at: '2026-07-14T17:56:20.200241Z'
+  verified_at: '2026-07-25T04:56:03.148486Z'

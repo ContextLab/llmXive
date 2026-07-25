@@ -1,0 +1,48 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence were provided to show that the required
+    folders (`data/raw`, `data/processed`, `data/results`, `code/`, `tests/`, `state/`)
+    actually exist on disk. Without concrete proof of the created project structure,
+    the task cannot be confirmed as completed.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Python virtual environment (e.g., a `venv/` directory with activation
+    scripts, `pyvenv.cfg`, or installed packages) is present. The required artifact
+    is missing, so the task of creating the venv has not been demonstrated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, `black` settings) or documentation of their setup are present. The
+    claim provides only unrelated project specifications, so the required linting/formatting
+    tooling is not demonstrated.
+T010:
+  c: false
+  h: 0a28a1e569628f84ac480bb592ea0c2d95e70cad1af48b0e43d9a4087e80c506
+  r: The provided `tests/unit/test_preprocess.py` defines the required test function,
+    but it writes the log to a temporary directory rather than the real `data/preprocess_log.txt`.
+    Consequently, the expected log file does not exist in the project (`data/preprocess_log.txt`
+    is missing), so the test does not actually verify that the container hash is logged
+    to the required location. The test must be adjusted to target `data/preprocess_log.txt`
+    (or the file must be created) for the requirement to be met.
+T012b:
+  c: false
+  h: f9726d232b7ab29e5137b7fb4c3109ff973a9316e4834589fa5502a709908643
+  r: "The `code/main.py` does call `verify_fMRI_availability()`, but it logs via a\
+    \ generic logger (not explicitly to `data/preprocess_log.txt`) and only skips\
+    \ preprocessing when **no** subjects are present, not when any subject is missing\
+    \ as required. Moreover, the required log file `data/preprocess_log.txt` does\
+    \ not exist, so the mandated \u201CN/A - Data Unavailable\u201D entry cannot be\
+    \ verified. The implementation does not fully satisfy the task\u2019s conditional\
+    \ exit and logging specifications."
+T013:
+  c: false
+  h: 1c5f2894f4177fb17688a5a4049dbfa841b40c5f0a70a8e569c518ce462eb081
+  r: The provided `code/preprocess.py` is truncated, lacks a CLI/ENV interface for
+    selecting `--mode`, does not log the container hash or full command to `data/preprocess_log.txt`
+    (the file is absent), and uses `--output-spaces MNI` instead of the required `--MNI`
+    flag. The check for T012b status is incomplete and the script never writes to
+    the required log file. These missing/incorrect elements must be added for the
+    task to be considered complete.

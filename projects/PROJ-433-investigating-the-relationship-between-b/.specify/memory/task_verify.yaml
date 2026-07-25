@@ -1,8 +1,10 @@
-? 'T001 Create project structure: Execute `mkdir -p data/raw data/processed data/results
-  code/ tests/ state/` to initialize directories per implementation plan.'
-: 2
-'T002a [P] Create Python virtual environment: Run `python3.11 -m venv venv` in repository root.': 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
-? 'T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)`
-  returning boolean and `log_exclusion(reason, subject_id)` functions.'
-: 1
+T001: 1
+T002a: 1
+T003: 1
+T007: 1
+T010: 1
+T012b: 1
+T013: 1
+T022: 1
+T028: 1
+T034: 1

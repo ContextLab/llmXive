@@ -1,62 +1,83 @@
 """
-Project Setup Script for llmXive - Evaluating the Impact of Code Generation Models on Code Vulnerability Density
+Project Setup Script for llmXive - Evaluating the Impact of Code Generation Models on Code Vulnerability Density.
 
 This script initializes the project directory structure as per the implementation plan.
-It creates the necessary folders for code, data, results, state, and tests.
+It creates the following directories:
+- code/
+- data/
+- data/raw/
+- data/generated/
+- data/processed/
+- results/
+- state/
+- tests/
+- tests/unit/
+- tests/integration/
+- tests/contract/
+- specs/
+- docs/
 """
 
 import os
 import sys
 from pathlib import Path
 
-def main():
-    """
-    Create the standard project directory structure.
-    
-    Directories created:
-    - code/: Source code modules
-    - data/: Raw and processed data
-    - results/: Final reports and visualizations
-    - state/: Artifact hashes and pipeline state
-    - tests/: Unit and integration tests
-    """
-    # Define the project root (current directory)
-    project_root = Path(".")
-    
-    # Define the required directories
-    directories = [
-        "code",
-        "data/raw",
-        "data/generated",
-        "data/processed",
-        "results",
-        "state",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "specs",
-        "docs",
-        "config"
-    ]
-    
-    created_count = 0
-    skipped_count = 0
-    
-    print(f"Initializing project structure at: {project_root.absolute()}")
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"  [SKIP] {dir_path} already exists.")
-            skipped_count += 1
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [CREATE] {dir_path}")
-            created_count += 1
-    
-    print(f"\nSetup complete. Created {created_count} directories, skipped {skipped_count}.")
-    return 0
+
+def create_directory(path: Path, description: str = "") -> None:
+    """Create a directory if it doesn't exist and log its creation."""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path} {description}")
+    else:
+        print(f"Directory already exists: {path}")
+
+    # Create a .gitkeep file to ensure the directory is tracked by git
+    gitkeep = path / ".gitkeep"
+    if not gitkeep.exists():
+        gitkeep.write_text("# Keep this directory in git\n")
+        print(f"  -> Created .gitkeep in {path}")
+
+
+def main() -> None:
+    """Create the project structure as per the implementation plan."""
+    # Get the project root directory (assumed to be the parent of the code/ directory)
+    project_root = Path(__file__).resolve().parent.parent
+
+    print(f"Setting up project structure at: {project_root}")
+    print("=" * 60)
+
+    # Phase 1: Core directories
+    create_directory(project_root / "code", "# Core implementation code")
+    create_directory(project_root / "data", "# Raw and processed data")
+    create_directory(project_root / "data" / "raw", "# Raw downloaded datasets")
+    create_directory(project_root / "data" / "generated", "# LLM-generated code samples")
+    create_directory(project_root / "data" / "processed", "# Processed analysis data")
+    create_directory(project_root / "results", "# Final results and reports")
+    create_directory(project_root / "state", "# State tracking and hashes")
+    create_directory(project_root / "tests", "# Test suite")
+    create_directory(project_root / "tests" / "unit", "# Unit tests")
+    create_directory(project_root / "tests" / "integration", "# Integration tests")
+    create_directory(project_root / "tests" / "contract", "# Contract tests")
+    create_directory(project_root / "specs", "# Feature specifications")
+    create_directory(project_root / "docs", "# Documentation")
+
+    print("=" * 60)
+    print("Project structure setup complete!")
+    print("\nDirectory hierarchy created:")
+    print("├── code/")
+    print("├── data/")
+    print("│   ├── raw/")
+    print("│   ├── generated/")
+    print("│   └── processed/")
+    print("├── results/")
+    print("├── state/")
+    print("├── tests/")
+    print("│   ├── unit/")
+    print("│   ├── integration/")
+    print("│   └── contract/")
+    print("├── specs/")
+    print("└── docs/")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

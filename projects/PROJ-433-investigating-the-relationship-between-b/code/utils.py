@@ -95,13 +95,16 @@ def check_fd(fd_value: float, threshold: float = 0.5) -> bool:
     return fd_value <= threshold
 
 
-def log_exclusion(logger: logging.Logger, reason: str, subject_id: str) -> None:
+def log_exclusion(reason: str, subject_id: str) -> None:
     """
     Log an exclusion event with the subject ID and reason.
     
+    This function uses a default logger instance configured for the project.
+    It writes the exclusion event to the analysis log file.
+    
     Args:
-        logger: The logger instance to use.
         reason: The reason for exclusion (e.g., "FD > 0.5mm").
         subject_id: The ID of the excluded subject.
     """
+    logger = setup_logger()
     logger.warning(f"EXCLUSION | Subject: {subject_id} | Reason: {reason}")

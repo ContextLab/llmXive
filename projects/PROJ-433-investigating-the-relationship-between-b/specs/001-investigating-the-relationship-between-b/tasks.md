@@ -59,7 +59,7 @@
 
 - [X] T004 [P] Implement `code/utils.py` logging: Add `setup_logger()` function returning a logger writing to `data/preprocess_log.txt` and `data/analysis_log.txt` with ISO timestamps.
 - [X] T004b [P] Implement `code/utils.py` RNG: Add `get_seeded_rng(seed=42)` function returning a numpy.random.Generator with pinned seed for reproducibility.
-- [ ] T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)` returning boolean and `log_exclusion(reason, subject_id)` functions.
+- [X] T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)` returning boolean and `log_exclusion(reason, subject_id)` functions.
 - [ ] T007 Create data schema definitions: Create `contracts/dataset.schema.yaml`, `contracts/metric.schema.yaml`, and `contracts/result.schema.yaml` defining the JSON/YAML schemas for all data artifacts.
 - [X] T008 Create base Subject entity model: Implement `code/models.py` with a `Subject` class containing attributes: `id` (str), `fMRI_path` (str), `DSST_score` (float or None), `qc_metrics` (dict). **MUST include** `has_valid_data()` method returning `True` only if `fMRI_path` exists and `DSST_score` is not `None`.
 - [X] T006 [P] Implement `code/download.py` with HCP data retrieval logic, checksum verification, and status-based availability checking (no exceptions for missing data).
@@ -79,14 +79,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for download logic: Add `tests/unit/test_download.py::test_download_retries_on__error` verifying multiple retries on HTTP 404 and raising `ConnectionError` on final failure.
-- [~] T010 [P] [US1] Unit test for fMRIPrep wrapper validation: Add `tests/unit/test_preprocess.py::test_fmriprep_invocation_logs_hash` verifying that a mock call logs the container hash to `data/preprocess_log.txt`.
+- [ ] T010 [P] [US1] Unit test for fMRIPrep wrapper validation: Add `tests/unit/test_preprocess.py::test_fmriprep_invocation_logs_hash` verifying that a mock call logs the container hash to `data/preprocess_log.txt`.
 
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `code/download.py` to fetch HCP resting-state fMRI and behavioral datasets from verified URLs, including retry logic (A limited number of attempts.) and checksum verification. **MUST use** `setup_logger()` from T004.
 - [X] T012 [US1] Implement `verify_fMRI_availability()` in `code/download.py`: Check for existence of fMRI time-series files. **MUST return** a status object: `{'status': 'PRESENT'}` or `{'status': 'MISSING', 'reason': 'Data Gap: fMRI time-series not found'}`. **DO NOT** raise exceptions; return status to allow graceful handling.
-- [~] T012b [US1] Implement Main Runner Logic in `code/main.py` (or `code/download.py`): Add logic to call `verify_fMRI_availability()`. **IF** status is 'MISSING', log "N/A - Data Unavailable" to `data/preprocess_log.txt`, skip all preprocessing tasks (T013, T014), and exit gracefully. **IF** status is 'PRESENT', proceed to T013.
-- [~] T013 [US1] Implement `code/preprocess.py` to invoke fMRIPrep container (version specified in plan.md) with flags: `--motion-correction --slice-timing --MNI --nuisance-regression`. **MUST check** T012b status first; if 'MISSING', skip execution. Support cluster mode (`--mode cluster`) and CI subset mode (`--mode ci`) via CLI argument or `MODE` env variable. Log container hash and full command to `data/preprocess_log.txt`.
+- [ ] T012b [US1] Implement Main Runner Logic in `code/main.py` (or `code/download.py`): Add logic to call `verify_fMRI_availability()`. **IF** status is 'MISSING', log "N/A - Data Unavailable" to `data/preprocess_log.txt`, skip all preprocessing tasks (T013, T014), and exit gracefully. **IF** status is 'PRESENT', proceed to T013.
+- [ ] T013 [US1] Implement `code/preprocess.py` to invoke fMRIPrep container (version specified in plan.md) with flags: `--motion-correction --slice-timing --MNI --nuisance-regression`. **MUST check** T012b status first; if 'MISSING', skip execution. Support cluster mode (`--mode cluster`) and CI subset mode (`--mode ci`) via CLI argument or `MODE` env variable. Log container hash and full command to `data/preprocess_log.txt`.
 - [~] T014 [US1] Implement QC validation in `code/preprocess.py`: Run `check_fd()` on output files; exclude subjects with FD > 0.5mm and log exclusion reasons to `data/preprocess_log.txt`. **MUST check** T012b status first; if 'MISSING', skip execution.
 - [~] T015 [US1] Apply `setup_logger()` usage in `code/download.py` and `code/preprocess.py`: Ensure all download and preprocessing operations log to `data/preprocess_log.txt` using the logger from T004.
 
@@ -134,10 +134,10 @@
 - [X] T025 [P] [US3] Implement `code/analysis.py` `compute_spearman()` to perform Spearman rank correlations between `transition_count` and `DSST_score`.
 - [~] T025b [US3] Implement Subject Filtering in `code/analysis.py`: Add logic to iterate through subjects and **exclude** any where `Subject.has_valid_data()` returns `False` (missing `DSST_score` or `fMRI_path`). Log the count of excluded subjects to `data/analysis_log.txt` as per FR-005.
 - [X] T026 [US3] Implement Bonferroni correction in `code/analysis.py` `apply_bonferroni()` to adjust p-values for multiple comparisons and report adjusted p-values.
-- [ ] T027 [US3] Implement calculation of effect sizes (Cohen's r) and handling of extreme p-values (floor/ceiling at a predefined threshold) in `code/analysis.py`.
+- [X] T027 [US3] Implement calculation of effect sizes (Cohen's r) and handling of extreme p-values (floor/ceiling at a predefined threshold) in `code/analysis.py`.
 - [ ] T028 [US3] Save **Aggregated Statistical Summary** to `data/analysis_results.tsv`. **MUST** be one row per metric-behavior pair (aggregated statistics), NOT per subject. **Header**: `metric_pair\tcoef\tp_val\tadj_p\teffect_size`. (No `subject_id` column).
-- [ ] T029 [US3] Implement `code/viz.py` `generate_scatter_plot()` to create scatter plots with confidence intervals and effect size annotations.
-- [ ] T030 [US3] Save scatter plots as PNG files in `data/results/` with filenames `plot_{metric}_{behavior}.png`.
+- [X] T029 [US3] Implement `code/viz.py` `generate_scatter_plot()` to create scatter plots with confidence intervals and effect size annotations.
+- [~] T030 [US3] Save scatter plots as PNG files in `data/results/` with filenames `plot_{metric}_{behavior}.png`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,12 +151,12 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US4] Unit test for permutation testing: Add `tests/unit/test_analysis.py::test_permutation_null_distribution` verifying that shuffled data yields p > 0.05 for A sufficient number of shuffles.
+- [X] T031 [P] [US4] Unit test for permutation testing: Add `tests/unit/test_analysis.py::test_permutation_null_distribution` verifying that shuffled data yields p > 0.05 for A sufficient number of shuffles.
 
 ### Implementation for User Story 4
 
-- [ ] T032 [P] [US4] Implement permutation testing in `code/analysis.py` `run_permutation_test()` with A sufficient number of shuffles, random seed, shuffling DSST scores while keeping metrics fixed.
-- [ ] T033 [US4] Calculate permutation-derived p-values in `code/analysis.py` by comparing observed correlation to the null distribution generated by T032.
+- [X] T032 [P] [US4] Implement permutation testing in `code/analysis.py` `run_permutation_test()` with A sufficient number of shuffles, random seed, shuffling DSST scores while keeping metrics fixed.
+- [X] T033 [US4] Calculate permutation-derived p-values in `code/analysis.py` by comparing observed correlation to the null distribution generated by T032.
 - [ ] T034 [US4] Save permutation test raw results and null distribution data to `data/results/permutation_results.tsv`.
 - [ ] T035 [US4] Generate Permutation Test Report: Create a visual report (PDF/PNG) in `data/results/` visualizing the null distribution histogram and highlighting the observed statistic, satisfying SC-005.
 - [ ] T036 [US4] Add logging for permutation test execution and results in `data/analysis_log.txt`.

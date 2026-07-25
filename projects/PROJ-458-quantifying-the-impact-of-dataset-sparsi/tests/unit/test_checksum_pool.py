@@ -1,59 +1,82 @@
-"""
-Unit tests for T028: Checksum generation for the full pool.
-"""
-import os
-import hashlib
-import tempfile
-from pathlib import Path
 import pytest
+import os
+import csv
+from pathlib import Path
+import hashlib
+import sys
+import tempfile
+import shutil
 
-# We need to add the code directory to the path to import the module under test
-# assuming tests are run from project root
-sys_path = Path(__file__).resolve().parent.parent.parent / "code"
-if str(sys_path) not in os.sys.path:
-    os.sys.path.insert(0, str(sys_path))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from checksum_pool import main
-from utils.checksum_utils import compute_sha256, write_checksum_file
+from utils.checksum_utils import compute_sha256
 
-
-def test_compute_sha256_on_temp_file():
-    """Test that compute_sha256 returns the correct hash for a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("id,value\n1,100\n2,200\n")
-        temp_path = Path(f.name)
-
-    try:
-        # Calculate expected hash manually
-        expected_hash = hashlib.sha256(b"id,value\n1,100\n2,200\n").hexdigest()
+class TestChecksumPool:
+    @pytest.fixture
+    def temp_project_dir(self):
+        """Create a temporary project structure for testing."""
+        temp_dir = tempfile.mkdtemp()
+        # Create necessary directories
+        data_processed = Path(temp_dir) / "data" / "processed"
+        data_processed.mkdir(parents=True)
         
-        actual_hash = compute_sha256(temp_path)
+        # Create a dummy full_pool_final.csv
+        csv_path = data_processed / "full_pool_final.csv"
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["material_id", "composition", "formation_energy"])
+            writer.writeheader()
+            writer.writerow({"material_id": "mp-1", "composition": "H2O", "formation_energy": "-1.0"})
+            writer.writerow({"material_id": "mp-2", "composition": "CO2", "formation_energy": "-2.0"})
         
-        assert actual_hash == expected_hash, f"Hash mismatch: {actual_hash} != {expected_hash}"
-    finally:
-        temp_path.unlink()
-
-
-def test_write_checksum_file_format():
-    """Test that write_checksum_file writes the correct format."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("data")
-        temp_path = Path(f.name)
-    
-    checksum_path = temp_path.with_suffix(temp_path.suffix + ".sha256")
-
-    try:
-        write_checksum_file(temp_path, checksum_path)
+        yield temp_dir
         
-        assert checksum_path.exists(), "Checksum file was not created"
+        # Cleanup
+        shutil.rmtree(temp_dir)
+
+    def test_checksum_generation(self, temp_project_dir):
+        """Test that T028 generates a valid checksum file."""
+        # Change to temp directory to simulate project root
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_project_dir)
+            
+            # Run main
+            result = main()
+            
+            assert result == 0, "main() should return 0 on success"
+            
+            # Verify checksum file exists
+            checksum_file = Path(temp_project_dir) / "data" / "processed" / "full_pool_final.csv.sha256"
+            assert checksum_file.exists(), "Checksum file should exist"
+            
+            # Verify checksum content
+            with open(checksum_file, 'r') as f:
+                stored_checksum = f.read().strip()
+            
+            # Compute expected checksum
+            csv_file = Path(temp_project_dir) / "data" / "processed" / "full_pool_final.csv"
+            expected_checksum = compute_sha256(csv_file)
+            
+            assert stored_checksum == expected_checksum, f"Checksum mismatch: {stored_checksum} != {expected_checksum}"
+            
+        finally:
+            os.chdir(original_cwd)
+
+    def test_missing_input_file(self, temp_project_dir):
+        """Test that T028 fails gracefully if input file is missing."""
+        # Remove the input file
+        csv_path = Path(temp_project_dir) / "data" / "processed" / "full_pool_final.csv"
+        csv_path.unlink()
         
-        content = checksum_path.read_text()
-        # Format should be: <hash>  <filename>
-        parts = content.split()
-        assert len(parts) == 2, f"Expected 2 parts in checksum file, got {len(parts)}"
-        assert parts[0] == compute_sha256(temp_path), "Hash in file does not match computed hash"
-        assert parts[1] == temp_path.name, f"Filename in checksum file ({parts[1]}) does not match ({temp_path.name})"
-    finally:
-        temp_path.unlink()
-        if checksum_path.exists():
-            checksum_path.unlink()
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_project_dir)
+            
+            result = main()
+            
+            assert result == 1, "main() should return 1 if input file is missing"
+            
+        finally:
+            os.chdir(original_cwd)
