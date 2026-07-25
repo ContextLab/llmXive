@@ -1,105 +1,54 @@
-# Data Model: Predicting Adsorption Isotherm Parameters from Molecular Features
+# Data Model: Predicting Adsorption Isotherm Parameters
 
-## 1. Entity Relationship Overview
+## Entities & Relationships
 
-The data model consists of three primary entities: `Adsorbate`, `Adsorbent`, and `IsothermMeasurement`. These entities are linked to form the final training dataset.
+### Adsorbate
+*Represents the gas molecule being adsorbed.*
+- `molecule_id` (PK): Unique identifier.
+- `smiles`: Canonical SMILES string.
+- `molecular_weight` (float): g/mol.
+- `polarizability` (float): Å³.
+- `van_der_waals_volume` (float): Å³.
+- `polar_surface_area` (float): Å².
+- `h_bond_donors` (int).
+- `h_bond_acceptors` (int).
 
-```mermaid
-erDiagram
-    ADSORBATE ||--o{ ISOTHERM_MEASUREMENT : "has"
-    ADSORBENT ||--o{ ISOTHERM_MEASUREMENT : "has"
-    
-    ADSORBATE {
-        string smiles
-        float molecular_weight
-        float polarizability
-        float vdw_volume
-        float kinetic_diameter
-        int h_bond_donors
-        int h_bond_acceptors
-        float polar_surface_area
-    }
-    
-    ADSORBENT {
-        string material_id
-        float surface_area_m2g
-        float pore_volume_cm3g
-        string crystal_structure
-        int functional_group_count
-    }
-    
-    ISOTHERM_MEASUREMENT {
-        string measurement_id
-        string adsorbate_id
-        string adsorbent_id
-        string isotherm_type
-        float langmuir_capacity
-        float henry_constant
-        float freudlich_exponent
-        bool is_type_i
-    }
-```
+### Adsorbent
+*Represents the porous material.*
+- `material_id` (PK): Unique identifier (e.g., MOF-1000 ID).
+- `surface_area` (float): m²/g.
+- `pore_volume` (float): cm³/g.
+- `crystal_structure`: String.
 
-## 2. Detailed Schema Definitions
+### IsothermRecord
+*Links adsorbate and adsorbent; contains target parameters.*
+- `record_id` (PK).
+- `molecule_id` (FK).
+- `material_id` (FK).
+- `isotherm_type`: String (e.g., "Type I").
+- `langmuir_capacity` (float): mmol/g (Target).
+- `henry_constant` (float): mmol/g/bar (Target).
+- `freundlich_exponent` (float).
 
-### 2.1 Adsorbate
-Represents the gas molecule. All descriptors are calculated via RDKit.
+## Data Flow
 
-| Field | Type | Description | Unit |
-| :--- | :--- | :--- | :--- |
-| `smiles` | string | Canonical SMILES string | - |
-| `molecular_weight` | float | Molecular weight | g/mol |
-| `polarizability` | float | Electronic polarizability | Å³ |
-| `vdw_volume` | float | Van der Waals volume | Å³ |
-| `kinetic_diameter` | float | Kinetic diameter | Å |
-| `h_bond_donors` | int | Number of H-bond donors | count |
-| `h_bond_acceptors` | int | Number of H-bond acceptors | count |
-| `polar_surface_area` | float | Topological polar surface area | Å² |
+1.  **Raw Input**: CSV/Parquet with `smiles`, `material_id`, `K_H`, `Q_max`.
+2.  **Filter**: `isotherm_type == "Type I"` AND `K_H` NOT NULL AND `Q_max` NOT NULL.
+3.  **Enrich**: Join with `molecule_id` to compute RDKit descriptors.
+4.  **Normalize**: Convert units (e.g., cm²/g -> m²/g).
+5.  **Split**: Group by `material_id` -> Train ([deferred]), Test ([deferred]).
+6.  **Model Input (Full)**: Feature matrix (X) = [Descriptors, Adsorbent Properties]. Target (y) = `langmuir_capacity`.
+7.  **Model Input (Reduced)**: Feature matrix (X') = [Top 3 Descriptors from SHAP]. Target (y) = `langmuir_capacity`.
+8.  **Output**: Predictions, SHAP values, P-values, Reduced Model Metrics.
 
-### 2.2 Adsorbent
-Represents the porous material (e.g., MOF, Zeolite).
+## Schema Definitions
 
-| Field | Type | Description | Unit |
-| :--- | :--- | :--- | :--- |
-| `material_id` | string | Unique identifier for the material | - |
-| `surface_area_m2g` | float | Specific surface area | m²/g |
-| `pore_volume_cm3g` | float | Total pore volume | cm³/g |
-| `crystal_structure` | string | Crystal system (e.g., cubic, hexagonal) | - |
-| `functional_group_count` | int | Count of specific functional groups | count |
+See `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` for machine-readable schemas.
 
-### 2.3 Isotherm Measurement
-The target variables and filtering flags.
+## Key Artifacts
 
-| Field | Type | Description | Unit |
-| :--- | :--- | :--- | :--- |
-| `measurement_id` | string | Unique ID for the measurement | - |
-| `adsorbate_id` | string | Foreign key to Adsorbate | - |
-| `adsorbent_id` | string | Foreign key to Adsorbent | - |
-| `isotherm_type` | string | Classification (I, II, IV, etc.) | - |
-| `is_type_i` | boolean | Filter flag (True if Type I) | - |
-| `langmuir_capacity` | float | Langmuir capacity (Q_max) | mmol/g |
-| `henry_constant` | float | Henry's constant (K_H) | mmol/kg/bar |
-| `freudlich_exponent` | float | Freundlich exponent (n) | - |
-
-## 3. Data Pipeline Flow
-
-1.  **Ingestion**: Raw data (or synthetic generation) -> `raw_data.parquet`.
-2.  **Verification Audit**: If raw data fetch fails, `verification_log.json` is written.
-3.  **Filtering**: `is_type_i == True` AND `langmuir_capacity` not null AND `henry_constant` not null.
-4.  **Descriptor Calculation**: `smiles` -> `rdkit` -> `polarizability`, `vdw_volume`, etc.
-5.  **Normalization**: `surface_area` converted to `m²/g`; `pore_volume` to `cm³/g`.
-6. **Splitting**: Group by `material_id` -> Train ([deferred]) / Test ([deferred]).
-7.  **Output**: `train.csv`, `test.csv` with all features and targets.
-
-## 4. Missing Data Strategy
-
--   **Target Variables**: Rows with missing `langmuir_capacity` or `henry_constant` are **excluded** (FR-002).
--   **Descriptor Variables**: If a descriptor cannot be calculated (e.g., invalid SMILES), the row is **excluded**.
--   **Adsorbent Properties**: If `pore_volume` is missing, the row is **excluded** or imputed with the mean of the same `crystal_structure` group (logged). Default strategy: **Exclude** to maintain data integrity (FR-002).
-
-## 5. Verification Audit Log
-
-A `verification_log.json` file is generated in `data/` to satisfy Constitution Principle II.
--   **Structure**: `{"sources": [{"name": "NIST", "status": "UNVERIFIED", "rationale": "..."}]}`.
--   **Trigger**: Generated if `download.py` fails to fetch NIST/MOF-1000.
--   **Usage**: Used by the `main.py` to decide whether to switch to synthetic generation.
+- `data/processed/cleaned_adsorption.csv`: The primary dataset after filtering and descriptor calculation.
+- `data/models/best_full_model.pkl`: The best-performing model on the full feature set.
+- `data/models/best_reduced_model.pkl`: The best-performing model on the Top 3 features (SC-003).
+- `data/reports/feature_importance.json`: SHAP values and p-values.
+- `data/benchmarks/runtime_log.json`: Execution timing and status.

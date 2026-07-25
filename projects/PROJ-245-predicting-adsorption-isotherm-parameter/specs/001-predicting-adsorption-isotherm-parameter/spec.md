@@ -28,10 +28,10 @@
 
 **Why this priority**: This step validates the core hypothesis that molecular descriptors can predict thermodynamic parameters. It determines if the project proceeds to interpretation or requires a different approach.
 
-**Independent Test**: The modeling pipeline can be tested by running it on a synthetic dataset with known linear relationships and verifying that the Linear Regression model achieves an R² > 0.95 while Random Forest achieves similar performance, confirming the code logic is sound before applying it to real data.
+**Independent Test**: The modeling pipeline can be tested by running it on a synthetic dataset with known linear relationships to verify the code logic (e.g., that the training loop executes, splits data, and reports metrics correctly). Note: This is a logic verification test only; scientific validation of the hypothesis MUST use real experimental data.
 
 **Acceptance Scenarios**:
-1. **Given** the prepared dataset split into training ([deferred]) and test ([deferred]) sets with material-level separation, **When** the training loop completes, **Then** the system reports the R², RMSE, and MAE for the best-performing model on the independent test set.
+1. **Given** the prepared dataset split into training and test sets (split proportion 0.8/0.2) with material-level separation, **When** the training loop completes, **Then** the system reports the R², RMSE, and MAE for the best-performing model on the independent test set.
 2. **Given** a model trained on 5-fold cross-validation, **When** hyperparameter tuning is complete, **Then** the system logs the optimal parameters (e.g., `n_estimators=200`, `max_depth=10`) and the mean cross-validation R² score.
 3. **Given** a trained model, **When** it is evaluated against a null model (predicting the mean), **Then** the trained model's RMSE is at least 20% lower than the null model's RMSE.
 
@@ -47,8 +47,8 @@
 
 **Acceptance Scenarios**:
 1. **Given** the trained Random Forest model, **When** SHAP analysis is executed, **Then** the top 3 features by mean absolute SHAP value are identified and displayed in a summary plot.
-2. **Given** the feature `polarizability`, **When** the partial dependence plot is generated, **Then** the plot shows a physically plausible relationship (e.g., bounded, consistent with thermodynamic limits) between polarizability and the predicted Langmuir capacity.
-3. **Given** the set of identified top descriptors, **When** the results are compared to the literature (e.g., validated consensus on gas-surface interactions), **Then** at least two of the top descriptors match a predefined list of known dominant drivers (polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume).
+2. **Given** the feature `polarizability`, **When** the partial dependence plot is generated, **Then** the plot shows a relationship that is monotonically non-decreasing with respect to adsorbate density and bounded by the Langmuir capacity parameter.
+3. **Given** the set of identified top descriptors, **When** the results are compared to the `LiteratureConsensusList` (defined in Key Entities), **Then** the system generates a report discussing the alignment or divergence of the model's findings against the consensus list, explicitly noting any novel drivers discovered or established drivers that were not selected by the model.
 
 ---
 
@@ -62,12 +62,15 @@
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST calculate molecular descriptors (molecular weight, polar surface area, polarizability, H-bond donors/acceptors, van der Waals volume) for all adsorbates using RDKit. (See US-1)
+- **FR-001**: The system MUST calculate a configurable set of molecular descriptors (including but not limited to molecular weight, polar surface area, polarizability, H-bond donors/acceptors, van der Waals volume) for all adsorbates using RDKit. (See US-1)
 - **FR-002**: The system MUST filter the raw dataset to include only Type I isotherms and remove entries with missing target parameters (Henry's constant, Langmuir capacity). (See US-1)
-- **FR-003**: The system MUST split the dataset into training ([deferred]) and test ([deferred]) sets such that no single adsorbent material appears in both sets to prevent data leakage. (See US-2)
+- **FR-003**: The system MUST split the dataset into training and test sets such that no single adsorbent material appears in both sets to prevent data leakage. (See US-2)
 - **FR-004**: The system MUST train at least three distinct regression models (Linear Regression, Random Forest, Gradient Boosting) and select the best performer based on cross-validated R². (See US-2)
-- **FR-005**: The system MUST generate SHAP summary plots and partial dependence plots for the top 5 features of the best-performing model. (See US-3)
-- **FR-006**: The system MUST generate permutation-based p-values for the top 5 feature importances and apply a False Discovery Rate (FDR) correction (Benjamini-Hochberg) to these p-values. (Justification: Essential to prevent false-positive feature selection in high-dimensional descriptor space.) (See US-2)
+- **FR-005**: The system MUST generate SHAP summary plots and partial dependence plots for the top-ranked features of the best-performing model. (See US-3)
+- **FR-006**: The system MUST generate permutation-based p-values for the top feature importances and apply a False Discovery Rate (FDR) correction (Benjamini-Hochberg) to these p-values. (Justification: Essential to prevent false-positive feature selection in high-dimensional descriptor space.) (See US-2, US-3)
+- **FR-007**: The system MUST implement cluster-aware permutation testing for feature importance, where feature values are shuffled *within* material clusters (defined as all entries sharing the same adsorbent structure ID) to handle multicollinearity, and MUST report the adjusted p-values. (See US-2, US-3)
+- **FR-008**: The system MUST generate a final report that compares the identified top descriptors against the `LiteratureConsensusList` and explicitly discusses the alignment or divergence of findings, rather than requiring a strict match. The report MUST highlight any novel descriptors identified by the model that are not on the consensus list, and any consensus descriptors that the model failed to identify as significant. (See US-3)
+- **FR-009**: The system MUST generate and persist a runtime log artifact at `data/benchmarks/runtime_log.json` containing the start time, end time, total duration, and status of the full pipeline execution. (See US-2)
 
 ### Key Entities
 
@@ -75,21 +78,23 @@
 - **Adsorbent**: Represents the porous material; key attributes include surface area, pore volume, functional group counts, and crystal structure metadata.
 - **IsothermParameter**: Represents the target thermodynamic values; attributes include Henry's constant (K_H), Langmuir capacity (Q_max), and Freundlich exponent (n).
 - **ModelPerformance**: Represents the evaluation metrics; attributes include R², RMSE, MAE, and cross-validation scores.
+- **LiteratureConsensusList**: A configurable list of known dominant drivers (e.g., polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume) used for comparative analysis and discussion, NOT for validation or strict matching.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The R-squared value of the best-performing model on the independent test set is measured against the target threshold. (See US-2)
-- **SC-002**: The feature importance ranking derived from SHAP analysis is measured against a validated literature consensus list of 5 dominant descriptors (polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume); the top 3 features must include at least 2 matches. (See US-3)
-- **SC-003**: The R² of a model trained *only* on the top 3 molecular descriptors is measured against the target threshold of >= 0.60, ensuring these specific descriptors carry the majority of the predictive power. (See US-3)
-- **SC-004**: The computational runtime of the full pipeline (data curation to SHAP analysis) is measured against the time limit of the GitHub Actions free-tier runner. (See US-2)
-- **SC-005**: The output report MUST include the adjusted p-values or q-values for the top 5 features, confirming the multiple-comparison correction was applied. (See US-2)
+- **SC-001**: The R-squared value of the best-performing model on the independent test set is measured against a null model baseline; the observed value and 95% confidence interval are reported (threshold ≥ 0.2 improvement over null). (See US-2)
+- **SC-002**: The feature importance ranking derived from SHAP analysis is compared against the `LiteratureConsensusList`; the report MUST discuss the alignment or divergence of findings, explicitly identifying at least one point of convergence or divergence. (See US-3)
+- **SC-003**: The R² of a model trained *only* on the top 3 molecular descriptors is measured against a null model baseline; the observed value and 95% confidence interval are reported (threshold ≥ 0.2 improvement over null). (See US-3)
+- **SC-004**: The computational runtime of the full pipeline (data curation to SHAP analysis) is measured against a fixed duration of ≤ 4 hours. (See US-2)
+- **SC-005**: The output report MUST include the adjusted p-values or q-values for the top-ranked features, confirming the multiple-comparison correction was applied. (See US-3)
 
 ## Assumptions
 
 - The NIST Adsorption Database and MOF-1000 Zenodo dataset contain sufficient entries (N > 500) with complete metadata (surface area, pore volume) to train a robust machine learning model without severe overfitting.
 - The molecular descriptors calculable via RDKit (polarizability, van der Waals volume) are sufficient proxies for the complex electronic interactions governing adsorption, or that their correlation with experimental parameters is strong enough for screening purposes.
-- The GitHub Actions free-tier runner (multi-core CPU, sufficient RAM) is sufficient to process the dataset and train Random Forest/Gradient Boosting models on the sampled data without exceeding memory limits or the designated time budget.
+- The GitHub Actions free-tier runner (multi-core CPU, sufficient RAM) is sufficient to process the dataset and train Random Forest/Gradient Boosting models on the sampled data without exceeding memory limits or the designated time budget (≤ 4 hours).
 - The "Type I" isotherm classification in the source data is consistent and reliable; no manual re-classification of isotherm shapes is required.
 - The relationship between molecular descriptors and isotherm parameters is sufficiently captured by the selected regression models (Linear, RF, GB) without requiring deep learning architectures or GPU acceleration.
+- The dataset contains distinct adsorbent structure IDs that can be used as the clustering key for permutation testing.

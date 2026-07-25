@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model trained (e.g., Random Forest, XGBoost)."
+  metrics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R² score on the test set."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      null_model_rmse:
+        type: "number"
+        description: "RMSE of the null model (mean prediction)."
+      improvement_over_null:
+        type: "number"
+        description: "Percentage improvement of model RMSE over null model RMSE."
+    required:
+      - r_squared
+      - rmse
+      - mae
+      - null_model_rmse
+      - improvement_over_null
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        shap_value:
+          type: "number"
+        p_value:
+          type: "number"
+        q_value:
+          type: "number"
+          description: "FDR-corrected p-value."
+        is_significant:
+          type: "boolean"
+          description: "True if q_value < 0.05."
+      required:
+        - feature_name
+        - shap_value
+        - p_value
+        - q_value
+        - is_significant
+  runtime_log_path:
+    type: "string"
+    description: "Path to the runtime log JSON file."
+required:
+  - model_type
+  - metrics
+  - feature_importance
+  - runtime_log_path
+additionalProperties: false

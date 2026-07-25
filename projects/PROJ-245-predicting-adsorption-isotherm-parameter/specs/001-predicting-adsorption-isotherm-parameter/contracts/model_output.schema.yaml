@@ -33,17 +33,17 @@ properties:
           - mae
           - cv_r2_mean
           - cv_r2_std
-      null_model_rmse:
+      material_only_baseline_rmse:
         type: number
-        description: "RMSE of the null model (predicting mean)"
-      improvement_over_null:
+        description: "RMSE of the material-only baseline (predicting mean per material)"
+      improvement_over_material_only:
         type: number
-        description: "Percentage improvement over null model (target >= 20%)"
+        description: "Percentage improvement over material-only baseline (target >= 20%)"
     required:
       - best_model
       - metrics
-      - null_model_rmse
-      - improvement_over_null
+      - material_only_baseline_rmse
+      - improvement_over_material_only
   feature_importance:
     type: object
     properties:
@@ -63,7 +63,7 @@ properties:
               description: "Permutation-based p-value"
             adjusted_p_value:
               type: number
-              description: "FDR-adjusted p-value (q-value)"
+              description: "FDR-adjusted p-value (q-value) using Benjamini-Hochberg"
             is_significant:
               type: boolean
               description: "True if adjusted_p_value < 0.05"
@@ -81,7 +81,7 @@ properties:
             type: array
             items:
               type: string
-            description: "List of known dominant drivers from literature"
+            description: "List of known dominant drivers from literature (a priori)"
           top_3_matches:
             type: array
             items:
@@ -90,10 +90,14 @@ properties:
           match_count:
             type: integer
             description: "Number of matches (target >= 2)"
+          is_valid_negative:
+            type: boolean
+            description: "True if mismatch occurred (valid negative result)"
         required:
           - consensus_list
           - top_3_matches
           - match_count
+          - is_valid_negative
     required:
       - top_5_features
       - literature_match
@@ -109,8 +113,8 @@ examples:
         mae: 0.09
         cv_r2_mean: 0.73
         cv_r2_std: 0.02
-      null_model_rmse: 0.15
-      improvement_over_null: 0.20
+      material_only_baseline_rmse: 0.15
+      improvement_over_material_only: 0.20
     feature_importance:
       top_5_features:
         - feature_name: "polarizability"
@@ -134,3 +138,14 @@ examples:
           - "polarizability"
           - "kinetic_diameter"
         match_count: 2
+        is_valid_negative: false
+  - model_performance:
+      status: "data_missing"
+      error: "No verified source found"
+    feature_importance:
+      top_5_features: []
+      literature_match:
+        consensus_list: []
+        top_3_matches: []
+        match_count: 0
+        is_valid_negative: true
