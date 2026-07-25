@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Pipeline Log Entry"
 type: "object"
-description: "Single JSON‑Line entry in pipeline.log."
+description: "A single JSON‑Line entry written to pipeline.log."
 properties:
   timestamp:
     type: "string"
@@ -16,6 +16,15 @@ properties:
     description: "Human‑readable log message."
   schema_version:
     type: "string"
-    description: "Version identifier for the log schema, e.g., \"1.0.0\"."
-required: ["timestamp", "level", "message", "schema_version"]
+  seed:
+    type: "integer"
+  command:
+    type: "string"
+required:
+  - timestamp
+  - level
+  - message
+  - schema_version
+  - seed
+  - command
 additionalProperties: false

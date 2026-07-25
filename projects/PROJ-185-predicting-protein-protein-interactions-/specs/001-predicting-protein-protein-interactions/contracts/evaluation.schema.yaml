@@ -1,25 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Metrics"
 type: "object"
-description: "Aggregated evaluation metrics per species."
+description: "Aggregated AUROC, AUPRC, and baseline statistics for a species."
 properties:
   species:
     type: "string"
-    description: "Species name (e.g., Arabidopsis)."
   auroc:
     type: "number"
-    description: "Area under ROC curve (0–1)."
+    minimum: 0.0
+    maximum: 1.0
   auprc:
     type: "number"
-    description: "Area under Precision‑Recall curve (0–1)."
+    minimum: 0.0
+    maximum: 1.0
   baseline_auroc:
     type: "number"
-    description: "AUROC of degree‑preserving random‑graph baseline."
+    minimum: 0.0
+    maximum: 1.0
   baseline_auprc:
     type: "number"
-    description: "AUPRC of degree‑preserving random‑graph baseline."
+    minimum: 0.0
+    maximum: 1.0
   baseline_p:
     type: "number"
-    description: "p‑value comparing observed AUROC/AUPRC to baseline."
-required: ["species", "auroc", "auprc", "baseline_auroc", "baseline_auprc", "baseline_p"]
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - species
+  - auroc
+  - auprc
+  - baseline_auroc
+  - baseline_auprc
+  - baseline_p
 additionalProperties: false

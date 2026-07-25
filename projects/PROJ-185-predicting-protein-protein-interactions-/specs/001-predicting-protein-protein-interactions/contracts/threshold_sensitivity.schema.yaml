@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Threshold Sensitivity"
 type: "object"
-description: "Results of correlation‑threshold sensitivity analysis per species."
+description: "TSV file reporting edge count and performance metrics for each correlation threshold."
 properties:
   species:
     type: "string"

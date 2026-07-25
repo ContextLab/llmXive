@@ -1,19 +1,15 @@
 status: none
-intent: download NCBI GEO RNA-seq count matrices STRING v11.5 Gene Ontology OBO python
-  package dataset
+intent: "plant RNA\u2011seq count matrices NCBI GEO bulk download python package dataset\
+  \ STRING interactions python package dataset"
 required_fields:
 - gene_id
 - sample_id
-- raw_read_count
-- library_layout
-- platform
-- protein_string_id_A
-- protein_string_id_B
+- raw_count
+- species
+- protein_id_A
+- protein_id_B
 - combined_score
-- go_term_id
-- go_term_name
-- go_namespace
-- go_definition
-cache_key: bb1a3b32f948e52d4b20a5a4c2aa1a0db23bfcabfb9610e3ef16ffc426208f94
-searched_at: '2026-07-25T15:00:36.245378+00:00'
+- evidence
+cache_key: 2ff80b65184bdba19e7d7ccc4bf743e725cfb90ea22c76cc686dcd211293623d
+searched_at: '2026-07-25T16:00:27.007411+00:00'
 retry_count: 1

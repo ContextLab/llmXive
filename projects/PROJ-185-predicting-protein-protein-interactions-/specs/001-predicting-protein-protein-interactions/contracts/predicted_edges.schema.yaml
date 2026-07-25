@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Predicted Edge List"
 type: "object"
-description: "Tab‑separated file with predicted protein‑protein interactions for a species."
+description: "TSV file listing predicted protein‑protein interactions for a given species."
 properties:
   rows:
     type: "array"

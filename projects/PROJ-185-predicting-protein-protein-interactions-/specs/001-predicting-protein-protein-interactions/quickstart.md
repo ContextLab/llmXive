@@ -1,70 +1,59 @@
-# Quickstart: Predicting PPIs from Co‑expression
+# Quickstart: Predict Plant Protein‑Protein Interactions from Co‑expression
 
-## Prerequisites
-1. **Git clone** the repository.
-2. Install the Python environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Install the R environment (run once):
-   ```bash
-   Rscript -e "if (!requireNamespace('renv')) install.packages('renv'); renv::restore()"
-   ```
-   This installs DESeq2, limma, sva, and `org.At.tair.db`.
+These instructions assume a fresh GitHub Actions runner (or a local Linux environment with similar resources).
 
-## Configuration
-- Edit `config/species.yaml` to list GEO series per species (default includes Arabidopsis series).  
-- Adjust optional parameters in `config/parameters.yaml` (e.g., `normalization: vst`, `correlation_threshold: 0.80`, `colocalization_filter: true`).  
-- Set a global seed (default `42`).
-
-## Running the Full Pipeline
+## 1. Clone the repository
 ```bash
-make all SEED=42
-```
-- **`make all`** executes the complete workflow (download → normalize → correlate → map → edge selection → optional colocalization filter → evaluation → enrichment → summary).  
-- Output files are placed under `results/<species>/`.
-
-## Targeted Steps
-- **Download only**:
-  ```bash
-  make download SEED=42
-  ```
-- **Run evaluation only** (requires previous steps):
-  ```bash
-  make evaluate SEED=42
-  ```
-- **Run GO enrichment only**:
-  ```bash
-  make enrich SEED=42
-  ```
-
-## Orthogonal Validation (optional)
-Set `colocalization_filter: false` in `config/parameters.yaml` to skip the UniProt subcellular colocalization filter if you prefer the raw co‑expression edge set.
-
-## Verification
-After each target, the verification script runs automatically (FR‑017). Example:
-```bash
-$ cat results/Arabidopsis/summary_Arabidopsis.txt
-Edges: a substantial number of edges
-Mapping rate: high (approximately ninety percent).
-AUROC: indicative of strong discriminative performance.
-AUPRC (primary): anticipated to be robust (substantially above baseline).
-Optimal threshold (max F1, FDR≤0.05): 0.82
-Top GO term: GO:0008150 (biological_process)  adj. p=0.003
-...
-```
-The `pipeline.log` file can be inspected with:
-```bash
-jq . pipeline.log | less
+git clone
+cd ppi-coexpression
 ```
 
-## Reproducibility Checklist
-- Seed is fixed (`--seed` flag).  
-- All software versions are recorded in `requirements.txt` and `renv.lock`.  
-- Checksums of raw GEO files are stored in `state/artifact_hashes.yaml`.  
-- Schema validation ensures output integrity (edges validated against `predicted_edges.schema.yaml`, GO enrichment against `go_enrichment.schema.yaml`).  
+## 2. Set up the Python environment
+```bash
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt # pins all Python deps
+```
+
+## 3. Set up the R environment (DESeq2, org.At.tair.db)
+```bash
+Rscript scripts/install_bioc.R # installs DESeq2, limma, sva, org.At.tair.db
+```
+
+## 4. Configure species and parameters
+Edit `config/species.yaml` to list GEO series per species (default includes a few *Arabidopsis* series).
+Edit `config/parameters.yaml` to change any defaults (e.g., threshold: a high value, `seed: a fixed deterministic value for reproducibility`).
+
+## 5. Run the full pipeline
+```bash
+make all
+```
+* This executes the following Make targets in order: `download → normalize → correlate → map_ids → select_edges → evaluate → enrich → summary → final_report`.
+* All major actions are logged to `logs/pipeline.log` (JSON‑Line format).
+
+## 6. Verify outputs
+```bash
+make verify
+```
+* Checks schema compliance (`contracts/*.schema.yaml`), checksum integrity, and reproducibility (identical seeds → identical checksums).
+
+## 7. Inspect results
+* Predicted edges: `data/processed/predicted_ppi_<species>.tsv`
+* Evaluation metrics: `results/evaluation_metrics.json`
+* GO enrichment: `data/processed/go_enrichment_<species>.tsv`
+* Summary report: `results/summary_<species>.txt` and `results/final_report.txt`
+
+## 8. Re‑run with a different threshold (example)
+```bash
+make all THRESHOLD=0.85
+```
+* The threshold is validated to be ≥ 0.75; lower values will abort with a clear error (FR‑012).
+
+## 9. Clean intermediate files (optional)
+```bash
+make clean
+```
+* Removes all `data/processed/*` and intermediate logs but retains raw GEO downloads and final reports.
 
 ---
 

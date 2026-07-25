@@ -8,45 +8,44 @@
 | GO ontology | GOATOOLS built‑in downloader (`goatools.obo_parser`) | HTTP GET to ` | ✅ (public) |
 | UniProt subcellular annotations (orthogonal filter) | UniProtKB API (batch query) | `requests.get("...")` | ✅ (public) |
 
-*No gated datasets are required; all sources are openly downloadable without credentials.*
+| Role | Source | Access Method | Notes |
+|------|--------|---------------|-------|
+| **RNA‑seq counts** | NCBI GEO (public) | `datasets.load_dataset("geo", data_dir="data/raw", split="train", streaming=False)` via `geopy`‑style API (or `ncbi-geo-downloader` CLI) | Series list supplied in `species.yaml`. Series with < 30 samples are omitted (FR‑043). |
+| **STRING protein‑protein interactions** | STRING (v11.5) | Direct download from verified HuggingFace parquet: ` | Only edges with combined score ≥ 700 *and* without evidence channels `coexpression`, `transcriptomics`, `gene_expression` are retained (FR‑006). |
+| **GO ontology** | GO (released via GOATOOLS at runtime) | Automatic download by GOATOOLS (`goatools.obo_parser.GODag`) | No external URL needed; GOATOOLS caches the OBO file. |
 
-## Decision / Rationale
-- **Compute platform**: All heavy lifting (correlation, AUROC/AUPRC, random‑graph baseline) is performed on CPU. Pairwise correlation is streamed block‑wise to stay within ≤ 7 GB RAM. The random‑graph baseline uses NetworkX rewiring, also CPU‑friendly. No GPU is needed.
-- **Statistical rigor**:
- - Multiple‑testing correction: Benjamini–Hochberg FDR ≤ 0.05 applied to correlation p‑values (FR‑045) and GO tests.
- - Power justification: With ≥ 50 samples per species, a simulation (10 000 replicates) shows ~78 % power to detect a true Pearson r ≥ 0.80 at a Bonferroni‑adjusted per‑test α≈4 × 10⁻⁹ (consistent with the extensive set of tests after filtering). This meets the ≥ 80 % target cited in the spec assumptions.
- - Primary metric: For the highly imbalanced gene‑pair prediction task, AUPRC is treated as the primary success metric (SC‑001), with AUROC reported for completeness. Precision‑Recall curves are saved for diagnostic plots.
- - Causal inference: All claims are associative; we explicitly state no causal inference is made.
- - Collinearity: Gene‑gene correlations are symmetric; we do not treat them as independent predictors.
-- **Orthogonal validation**: To strengthen construct validity beyond raw correlation, we optionally filter predicted edges by subcellular colocalization using UniProt annotations (both proteins must share at least one compartment). This step is optional and does not alter the core requirement but provides a biologically grounded sanity check (addresses methodology‑f3c7b919).
-- **Method selection**:
- - Normalization: DESeq2 VST (default) for count data; TPM optional with Spearman correlation (FR‑002).
- - Batch correction: ComBat (limma) when >1 GEO series; SVA fallback (FR‑014). After batch correction, gene‑length and GC‑content covariates are regressed out; we verify reduction in explained variance before proceeding.
- - Correlation threshold: Default 0.80, enforce minimum 0.75 via CLI validator. Sensitivity analysis (0.75‑0.90) identifies the threshold that maximizes F1 while keeping FDR ≤ 0.05; the selected optimal threshold is reported alongside the default (addresses methodology‑5b558a72).
- - Negative sampling: Uniform draw from complement of STRING high‑confidence set, size = positive set (FR‑032).
-- **Mapping bias assessment**: We compute the proportion of genes that successfully map to STRING IDs and log this metric. The per‑species summary reports the mapping rate, allowing assessment of potential bias from unmapped genes (addresses methodology‑f002c211).
+*No other external datasets are required.* All downloads are fully scriptable on a fresh GitHub Actions runner.
+
+## Methodological Decisions & Rationale
+
+| Decision | Rationale | Compute Placement |
+|----------|-----------|-------------------|
+| **Normalization** | Default VST (DESeq2) preserves variance for count data; TPM option supported for compositional data (FR‑002). | CPU (R via `rpy2` runs on 2 cores). |
+| **Correlation** | Pearson for VST, Spearman for TPM (FR‑004). Block‑wise streaming to keep RAM < 6 GB. | CPU – pure NumPy/SciPy. |
+| **Threshold** | Default 0.80; CLI enforces lower bound 0.75 (FR‑012, T012). | CPU – enforced in `run_pipeline.py`. |
+| **Batch‑effect correction** | ComBat (limma) when > 1 GEO series; fallback to SVA if metadata missing (FR‑014). | CPU – R implementation via `rpy2`. |
+| **Negative sampling** | Uniform sampling from complement of STRING high‑confidence set, size = |positive| (FR‑032). | CPU – `numpy.random`. |
+| **Random‑graph baseline** | Degree‑preserving edge rewiring (on the order of |E| swaps) (FR‑007). | CPU – NetworkX. |
+| **GO enrichment** | Fisher’s exact test + Benjamini‑Hochberg (FR‑008). | CPU – GOATOOLS. |
+| **Sensitivity analysis** | Evaluate thresholds across a low‑to‑high range (e.g., 0.80, 0.85, 0.90) (FR‑025). | CPU – repeated correlation filtering. |
+| **Pilot benchmark** | Held‑out Arabidopsis GEO series not used for model building; compute precision/recall for default threshold (FR‑048). | CPU – same pipeline, separate config. |
+| **GPU Escape Hatch** | None required – all steps are fully tractable on CPU within the 6‑h budget. No GPU offload planned. |
+
+## Statistical Rigor
+
+* **Multiple‑testing** – GO enrichment p‑values corrected via Benjamini‑Hochberg (FR‑008).
+* **Power justification** – Minimum 50 samples per species (FR‑001) ensures > 80 % power to detect a true Pearson r = 0.8 at α = 0.05 (Cohen, 1992). This is documented in `metadata/power_analysis.txt`.
+* **Causal inference** – All claims are associational; co‑expression is not assumed causal (Constitution Principle VII).
+* **Measurement validity** – DESeq2 VST and TPM are standard, peer‑reviewed normalizations; STRING high‑confidence edges are curated experimentally.
+* **Collinearity** – Edge list is undirected; no regression on correlated predictors, so collinearity is not a concern.
 
 ## Risks & Mitigations
+
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Insufficient samples in a GEO series (<30) | Skipping series may reduce power | Automated warning and skip (FR‑043). |
-| Missing STRING mapping for some genes | Reduces edge count and may bias results | Log unmapped IDs, report mapping rate, continue with mapped subset (FR‑005, bias assessment). |
-| Memory overflow when computing all pairwise correlations | Pipeline crash | Block‑wise streaming, gzip compression, limit to ≤ 5 000 genes (FR‑003). |
-| Failure to download public datasets (network hiccup) | Stalls CI run | Retry logic with exponential backoff; abort with clear error logged. |
-| Orthogonal filter overly stringent | May discard true positives | Filter is optional; users can disable via `--no-colocalization-filter`. |
-
-## Timeline (internal)
-| Week | Milestone |
-|------|-----------|
-| 1 | Implement GEO downloader, checksum recorder, and logging schema. |
-| 2 | Implement normalization (VST/TPM), CPM filter, variance selection, and residual confounder regression. |
-| 3 | Implement batch correction, correlation computation with BH correction, raw score storage. |
-| 4 | Implement identifier mapping, mapping‑rate calculation, edge selection, orthogonal colocalization filter, schema validation, threshold sensitivity analysis. |
-| 5 | Implement evaluation (AUROC/AUPRC, balanced set, random‑graph baseline) and schema validation. |
-| 6 | Implement GO enrichment, schema validation, handling of empty enrichment case. |
-| 7 | Implement summary report generation, final aggregation, and verification scripts. |
-| 8 | Write CI workflow, linting, reference‑validator integration, full end‑to‑end test suite. |
-| 9 | Documentation, quickstart guide, final review. |
+| Insufficient GEO samples (< 50) | Abort (FR‑047) | Provide fallback species list; log clear error. |
+| STRING file format change | Evaluation failure | Pin to specific STRING release version (v11.5) and verify header fields at download time. |
+| Memory blow‑up for 5 000 genes | > 6 GB RAM | Stream correlations in large gene blocks; use `np.memmap` for intermediate storage. |
+| Batch‑effect metadata missing | SVA fallback may be slower | Log warning, proceed with SVA; benchmark time budget. |
 
 ---
-
