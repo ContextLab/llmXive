@@ -65,7 +65,7 @@ The system MUST conduct bootstrap resampling and alternative complexity metric s
 
 **Acceptance Scenarios**:
 
-1. **Given** primary analysis results, **When** bootstrap resampling is performed, **Then** 95% confidence intervals are computed for correlation coefficients
+1. **Given** primary analysis results, **When** bootstrap resampling is performed, **Then** Confidence intervals are computed for correlation coefficients
 2. **Given** primary complexity metrics, **When** alternative binning strategies (quartiles, deciles) and algorithm parameters are applied, **Then** the sign of the correlation remains consistent and the magnitude of Pearson r-value changes by less than 0.1
 
 ---

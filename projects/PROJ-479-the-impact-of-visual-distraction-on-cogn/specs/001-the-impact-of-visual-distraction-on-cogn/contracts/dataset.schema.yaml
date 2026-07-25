@@ -1,5 +1,5 @@
 # Dataset Schema Definition
-# Defines the structure and requirements for data/processed/merged_data.csv
+# Defines the structure and requirements for data/processed/linked_data.csv
 # and data/processed/final_analysis_data.csv
 
 required_columns:

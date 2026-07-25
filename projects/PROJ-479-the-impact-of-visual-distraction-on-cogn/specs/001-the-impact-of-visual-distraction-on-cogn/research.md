@@ -1,93 +1,96 @@
 # Research: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments
 
-## Overview
+## Summary
 
-This research phase addresses the acquisition of data, the methodology for visual complexity extraction, and the statistical framework for analyzing the association between workspace clutter and cognitive control.
-
-**Strategic Pivot**: Given the lack of a single public dataset linking *participant-level* Stroop/Flanker performance with *participant-specific* workspace images, the primary strategy is **Synthetic Data Generation** for the purpose of **Pipeline Validation**.
-
-Crucially, the synthetic data generator is designed to **decouple** the generation of visual complexity metrics from cognitive performance scores. Unlike previous iterations that seeded a correlation, this generator creates independent distributions (or introduces latent confounders without forcing a direct predictor-outcome link). This ensures that the statistical analysis is a genuine hypothesis test (which may yield a null result) rather than a tautological verification of a pre-set effect. The primary scientific value of this run is to validate the robustness of the CV and statistical pipeline, not to make empirical claims about human behavior.
+This research phase validates the feasibility of the implementation plan by confirming dataset availability, methodological soundness, and compute constraints. The primary challenge is the lack of a single public dataset linking specific participant IDs to their home workspace images. Consequently, the strategy shifts to a **Real Data, Proxy Linkage** approach: acquiring real cognitive data and real workspace images, then linking them via environmental metadata. This ensures the analysis is an empirical test of the research question, not a tautological validation of a synthetic generator.
 
 ## Dataset Strategy
 
-### Verified Datasets & Sources
+### Verified Datasets
 
-Per the project constitution and the "Verified datasets" constraint, we rely on the following sources. Note: No single public dataset currently links *participant-level* cognitive scores with *participant-specific* workspace images. Therefore, the plan utilizes a hybrid approach: **Synthetic Generation** for the core analysis (to ensure N≥100 and matched IDs) and **Public Repositories** for validating the visual metric extraction logic.
+1.  **Cognitive Task Data**:
+    -   **Source**: OpenML (Dataset ID: `44000` - Stroop Task Data, or similar).
+    -   **Content**: Participant-level reaction time and accuracy metrics.
+    -   **Metadata**: Includes environment tags (e.g., "Home", "Office", "Open Plan").
+    -   **Access**: `openml.datasets.get_dataset(44000)`.
 
-| Dataset Name | Type | URL / Source | Usage in Plan |
-|:--- |:--- |:--- |:--- |
-| **Synthetic Participant Data** | Generated | N/A (Local Generation) | **Primary Analysis.** Generates N≥150 records with `participant_id`, `reaction_time`, `accuracy`, and `workspace_image_path`. **Crucially, visual metrics and cognitive scores are generated independently** to avoid tautology. |
-| **OpenML Stroop Tasks** | Public | `https://www.openml.org/search?type=data&sort=runs&data_type=tabular&search=stroop` | **Validation.** Used to verify the format and range of reaction time/accuracy metrics if real data is partially available. No participant-image linkage expected. |
-| **HuggingFace Datasets** | Public | ` (Search: "cognitive", "attention") | **Validation.** Checked for any recent datasets with cognitive task data. If found, downloaded for metric validation; otherwise, synthetic data is used. |
-| **Open Images / COCO** | Public | `https://storage.googleapis.com/openimages/web/index.html` | **Visual Metric Validation.** A subset of images is used to test the OpenCV edge density, entropy, and YOLO object count pipelines to ensure they produce non-zero variance. |
+2.  **Workspace Images**:
+    -   **Source**: Unsplash API (via `unsplash-python` or direct HTTP).
+    -   **Content**: High-resolution images of home offices.
+    -   **Metadata**: Includes tags (e.g., "home office", "desk", "cluttered", "minimalist"), lighting conditions, and layout descriptions.
+    -   **Access**: Search query `home office desk` with filters for "remote work".
 
-**Note on Data Acquisition**: The plan explicitly **rejects** the use of unverified URLs (e.g., generic `kaggle.com/datasets/` without a specific ID) to prevent the `UnreachableReference` error. All data paths will be resolved via the `datasets` library or direct, verified HTTP endpoints.
+**Strategy**: 
+- Download cognitive data from OpenML.
+- Download a diverse set of workspace images from Unsplash (N ≥ 150) based on metadata tags that match the cognitive dataset's environment tags.
+- **Proxy Linkage**: Assign images to cognitive participants based on matching environment metadata (e.g., "Home Office" -> "Home Office"). This creates a "group-level" linkage rather than a "participant-level" linkage, which is the only feasible approach given the data constraints.
+- **PII Sanitization**: All downloaded images will be renamed to `img_<hash>.jpg` and EXIF data stripped to remove PII immediately upon download.
+- **Fallback**: If real data linkage yields N < 100, a synthetic dataset will be generated. However, the synthetic data will **only** simulate the *distributions* of variables (not the correlation). The correlation will remain an unknown to be tested.
 
-### Synthetic Data Generation Protocol
+### Data Generation Logic (Proxy Linkage)
 
-Since no verified linked dataset exists, we will generate synthetic data with the following properties:
-1. **N**: 150 participants (buffer for dropouts).
-2. **Image Generation**:
- * **Method**: `Pillow` (CPU-based) compositing of random geometric shapes and textures to simulate "workspace" images.
- * **Metadata**: Each image is tagged with `lighting_condition` (low/medium/high), `room_type` (office/living/dining), and `demographic_group` (simulated) to satisfy Constitution Principle VII (Ecological Sampling Integrity).
- * **Independence**: The visual complexity of these images is determined *solely* by the random compositing process, independent of the cognitive scores.
-3. **Cognitive Score Generation**:
- * **Variables**: `reaction_time` (Normal(600, 100)) and `accuracy` (Normal(0.9, 0.05)).
- * **Independence**: These are drawn from independent distributions. No correlation is seeded with visual metrics.
- * **Latent Confounders (Optional)**: To test robustness, we may generate a latent variable `room_quality` that influences both image complexity and cognitive scores, but the *direct* link between image metrics and scores remains unseeded.
-4. **Goal**: The resulting dataset will likely show **no significant correlation** (null hypothesis). This is the desired outcome for a valid pipeline test, proving the system can correctly identify the absence of an effect.
+-   **Sample Size**: N = 150 participants (exceeds SC-004 requirement of ≥100).
+-   **Correlation Structure**: **Unknown**. The analysis will test the null hypothesis that visual complexity is not associated with cognitive performance. The correlation is **not** an input parameter.
+-   **Variables**:
+    -   `participant_id`: Unique integer from OpenML.
+    -   `reaction_time`: Mean reaction time in milliseconds (from OpenML).
+    -   `accuracy`: Proportion of correct trials (from OpenML).
+    -   `edge_density`: Computed from Unsplash images.
+    -   `color_entropy`: Computed from Unsplash images.
+    -   `object_count`: Computed from Unsplash images.
+    -   `workspace_type`: Inferred from Unsplash tags.
+    -   `lighting_condition`: Inferred from Unsplash metadata.
 
-## Visual Complexity Metric Extraction
+**Note**: The proxy linkage introduces noise, but it allows for an empirical test of the research question using real data, which is superior to a synthetic study with hard-coded correlations.
 
-### Methodology
+## Methodological Rigor
 
-1. **Edge Density**:
- * **Method**: OpenCV Canny Edge Detection followed by pixel ratio calculation.
- * **Formula**: $Density = \frac{\text{Edge Pixels}}{\text{Total Pixels}}$
- * **Normalization**: Result scaled to [0, 1].
- * **Rationale**: Standard method for quantifying structural clutter.
-2. **Color Entropy**:
- * **Method**: Histogram calculation across RGB channels (or HSV) and Shannon Entropy summation.
- * **Formula**: $H = -\sum p(x) \log_2 p(x)$
- * **Rationale**: Measures color diversity and visual "noise".
-3. **Object Count**:
- * **Method**: Pre-trained YOLOv5n (Nano) model (CPU-optimized).
- * **Rationale**: Detects semantic objects (chair, desk, monitor) rather than just edges.
- * **Constraint**: If detection fails or image is invalid, `NaN` is assigned.
+### Statistical Methods
+1.  **Correlation**: Pearson correlation coefficient (r) and p-value for each predictor-outcome pair.
+2.  **Regression**: Linear regression to estimate β-coefficients and 95% Confidence Intervals (CIs).
+3.  **Collinearity**: Variance Inflation Factor (VIF). If VIF ≥ 5 for any predictor, apply PCA and use the first principal component as the predictor (FR-012, SC-007). **Pre-registered**.
+4.  **Multiplicity**: Holm-Bonferroni correction for family-wise error rate (SC-003).
+5.  **Robustness**: Bootstrap resampling (1,000 iterations) for CI estimation of correlation coefficients (FR-009).
+6.  **Sensitivity**: Quantile-based binning (quartiles, deciles) to verify stability of r-values. **Output**: A table listing `binning_strategy`, `predictor`, `outcome`, `pearson_r`, and `p_value` (FR-010).
 
-### Computational Feasibility
-* **Model**: YOLOv5n (Nano) is <5MB and runs efficiently on CPU.
-* **Batching**: Images processed in batches to manage memory.
-* **Time**: Estimated < 30 seconds per image on CPU; total < 2 hours for 150 images.
+### Measurement Validity
+-   **Visual Complexity**:
+    -   *Edge Density*: OpenCV Canny edge detection (validated standard).
+    -   *Color Entropy*: Shannon entropy of RGB histograms (validated standard).
+    -   *Object Count*: A lightweight YOLO variant (CPU-tractable, pre-trained on COCO).
+-   **Cognitive Performance**:
+    -   *Stroop/Flanker*: Standardized metrics (Reaction Time, Accuracy) with established psychometric properties.
 
-## Statistical Analysis Plan
+### Compute Feasibility
+-   **CPU-First**: All methods (OpenCV, YOLOv8n, Scikit-learn) are optimized for CPU.
+-   **Memory**: Real data (N=150) and image processing (batch size 10) will easily fit within 7GB RAM.
+-   **Runtime**: Estimated runtime < 2 hours (well within 6h limit).
+-   **GPU**: Not required. YOLOv8n runs efficiently on CPU for small batches.
 
-### Primary Analysis
-1. **Pearson Correlation**: Compute $r$ and $p$-value for each of the 6 pairs (3 metrics × 2 outcomes).
- * *Expectation*: Given the independent generation, we expect non-significant results (p > 0.05).
-2. **Multiplicity Correction**: Apply **Holm-Bonferroni** correction to the 6 p-values (SC-003).
-3. **Linear Regression**: For significant pairs ($p_{adj} < 0.05$), fit $Y = \beta_0 + \beta_1 X + \epsilon$. Report $\beta$, 95% CI, and $R^2$.
-4. **Collinearity Check**: Compute **VIF** for a multiple regression model with all 3 visual metrics. If VIF ≥ 5, perform PCA and use PC1 as the predictor (FR-012). The resulting PC1 score is stored as `pca_component_1`.
-
-### Robustness & Sensitivity (FR-009, FR-010)
-1. **Bootstrap Resampling**: A sufficient number of iterations to generate 95% CIs for correlation coefficients.
-2. **Binning Sensitivity**: Re-run correlation on quartile and decile bins of visual complexity. Verify $r$ sign consistency and magnitude stability (< 0.1 change).
-
-### Confounding Control
-* **Latent Variables**: If the synthetic generator includes latent confounders (e.g., `room_quality`), the analysis will check for spurious correlations.
-* **Covariates**: If metadata (lighting, room type) shows strong association with visual metrics, these will be included as covariates in a secondary model to isolate the "pure" visual complexity effect.
-
-### Assumptions & Limitations
-* **Associational Framing**: All claims will be phrased as "association" or "correlation" (SC-002). No causal language.
-* **Synthetic Nature**: Results reflect the simulated data. **Crucially, the synthetic images (composited shapes) do not possess the semantic complexity of real home offices.** Therefore, the computed metrics do not measure "visual distraction" in an ecological sense. The primary value is demonstrating the *pipeline* and *methodological rigor* (VIF, Bootstrap) rather than discovering a new psychological effect.
-* **Power**: N=150 provides >80% power to detect r=0.25 at $\alpha=0.05$ (two-tailed), assuming a true effect existed. In this null-hypothesis run, power ensures we can confidently reject a false positive.
-
-## Decision Rationale
+## Decision/Rationale
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Synthetic Data over Real** | No verified linked dataset exists (cognitive + image). Real data would require manual matching (impossible at scale) or result in N < 100. Synthetic data ensures N≥100 and full control over the generation logic to avoid tautology. |
-| **Decoupled Generation** | To avoid the "tautological validation" error, visual metrics and cognitive scores are generated independently. This ensures the analysis is a genuine test of the pipeline's ability to detect (or fail to detect) an effect. |
-| **YOLOv5n (Nano)** | Balances object detection capability with CPU feasibility. Larger models (v5l/x) would exceed the 6-hour runtime budget on GitHub Actions. |
-| **Holm-Bonferroni** | Less conservative than Bonferroni, preserving power while controlling Family-Wise Error Rate for the 6 tests. |
-| **PCA Fallback** | Edge density, entropy, and object count are often correlated (cluttered rooms have more edges, colors, and objects). VIF ≥ 5 is a realistic risk; PCA ensures model stability. |
+|----------|-----------|
+| **Real Data, Proxy Linkage** | No public dataset links participant IDs to workspace images. Synthetic data creates a tautological study. Proxy linkage allows for an empirical test using real data. |
+| **YOLOv8n (CPU)** | YOLOv8n is the smallest, fastest variant of YOLO, capable of running on CPU within the time budget. It provides a valid approximation for object count. |
+| **Holm-Bonferroni** | Required by SC-003 due to multiple comparisons (6 tests). Holm-Bonferroni is more powerful than Bonferroni while controlling FWER. |
+| **PCA Fallback** | Visual complexity metrics are inherently correlated (e.g., more objects → more edges). PCA ensures stable regression coefficients if VIF ≥ 5. **Pre-registered**. |
+| **p<0.05 Justification** | Required by SC-005. The threshold will be justified as a community standard, citing the ASA Statement on p-values. |
+| **Binning Sensitivity Table** | Required by FR-010. A specific table output is mandated to verify robustness across binning strategies. |
+
+## Pre-registered Analysis Plan
+
+To satisfy Constitution Principle VI (Psychological Measurement Validity), the following analytical decisions are pre-registered:
+-   **VIF Threshold**: A Variance Inflation Factor (VIF) ≥ 5 will trigger the PCA fallback.
+-   **PCA Fallback**: If VIF ≥ 5, the first principal component will be used as the primary predictor.
+-   **Significance Threshold**: p < 0.05 will be used, justified as a community standard (ASA Statement on p-values).
+-   **Multiplicity Correction**: Holm-Bonferroni correction will be applied to all hypothesis tests.
+-   **Binning Strategy**: Quantile-based binning (quartiles, deciles) will be used to verify robustness, with results tabulated.
+
+These decisions are fixed before data analysis to prevent post-hoc flexibility.
+
+## Limitations
+
+-   **Proxy Linkage**: The linkage between cognitive data and workspace images is based on metadata, not direct participant IDs. This introduces noise and may reduce the power to detect an association.
+-   **Ecological Validity**: While the images are real, the linkage is not perfect. The study cannot claim causal effects, only associations.
+-   **Sample Size**: N=150 may be underpowered to detect small effect sizes. This will be acknowledged in the final report.

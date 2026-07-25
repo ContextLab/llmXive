@@ -7,6 +7,7 @@ required_keys:
   - vif_scores
   - holm_bonferroni
   - metadata
+  - p_threshold_justification
 
 key_definitions:
   correlations:
@@ -44,6 +45,10 @@ key_definitions:
       - version
       - timestamp
       - software_versions
+
+  p_threshold_justification:
+    type: string
+    description: "Explicit justification for the p<0.05 threshold, citing community standards (e.g., ASA Statement)."
 
 # CSV specific definitions for analysis outputs
 csv_validation:

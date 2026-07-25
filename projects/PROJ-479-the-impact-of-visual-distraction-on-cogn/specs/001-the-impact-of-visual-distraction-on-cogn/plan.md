@@ -1,41 +1,53 @@
 # Implementation Plan: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments
 
-**Branch**: `001-visual-distraction-cognitive-control` | **Date**: 2024-01-15 | **Spec**: `specs/001-visual-distraction-cognitive-control/spec.md`
-**Input**: Feature specification from `specs/001-visual-distraction-cognitive-control/spec.md`
+**Branch**: `001-visual-distraction-cognitive-control` | **Date**: 2026-06-25 | **Spec**: `specs/001-visual-distraction-cognitive-control/spec.md`
+**Input**: Feature specification from `/specs/001-visual-distraction-cognitive-control/spec.md`
 
 ## Summary
 
-This project investigates the association between visual complexity in home work environments and cognitive control performance. The technical approach involves acquiring or synthesizing paired datasets (cognitive task metrics + workspace images), computing three visual complexity metrics (edge density, color entropy, object count) via CPU-tractable OpenCV and pre-trained detectors, and performing rigorous statistical analysis (Pearson correlation, linear regression, bootstrap resampling) while strictly adhering to associational framing and collinearity diagnostics.
+This project investigates the **empirical association** between visual complexity in home work environments and cognitive control performance (measured via Stroop/Flanker tasks). 
 
-**Critical Note on Data Strategy**: Given the lack of a verified public dataset linking participant-level cognitive scores with specific workspace images, this project utilizes a **Synthetic Data Pipeline** primarily to validate the *methodological pipeline* (metric extraction, statistical robustness, schema compliance) rather than to make empirical claims about human behavior. The synthetic data generator creates independent distributions for predictors and outcomes to ensure the analysis is a genuine hypothesis test, not a tautological verification.
+**Critical Strategy Shift**: The previous plan's reliance on synthetic data with hard-coded correlations was rejected for violating construct validity (creating a tautological study). This revised plan adopts a **Real Data, Proxy Linkage** strategy:
+1.  **Acquire Real Data**: Download real cognitive task data from OpenML (Stroop/Flanker) and real workspace images from Unsplash.
+2.  **Proxy Linkage**: Link the two datasets via **environmental metadata** (e.g., "Home Office", "Open Plan") rather than direct participant IDs, as no single public dataset links them directly.
+3.  **Compute Metrics**: Run CPU-tractable computer vision (OpenCV, YOLOv8n) on the real Unsplash images to derive edge density, color entropy, and object count.
+4.  **Empirical Analysis**: Perform statistical analysis (Pearson, Regression, VIF, Holm-Bonferroni) to test the null hypothesis that visual complexity is associated with cognitive performance.
+5.  **Report**: Generate visualizations and reports framing all findings as associational, with explicit justification for the p<0.05 threshold.
+
+This approach ensures the correlation is an **empirical observation** from real data, not a code artifact, satisfying the research question's requirement for ecological validity (within the limits of proxy linkage). Synthetic data is only used as a fallback if real data linkage fails to meet the N≥100 threshold.
 
 ## Technical Context
 
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics` (YOLOv5n/tiny CPU-optimized), `matplotlib`, `seaborn`, `Pillow`  
-**Storage**: Local filesystem (`data/` for raw/processed, `results/` for artifacts)  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for metric extraction)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, ~7 GB RAM, no GPU)  
-**Project Type**: Data Analysis Pipeline / Research Script  
-**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 6 GB during peak processing; synthetic data generation < 5 minutes.  
-**Constraints**: No GPU usage; no large language model inference; all data must be reproducible via pinned random seeds; strict associational language in all outputs.  
-**Scale/Scope**: N ≥ 100 participants (real or synthetic); 3 visual metrics × 2 cognitive outcomes = 6 primary hypothesis tests.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics` (for CPU-tractable YOLOv8n object detection), `matplotlib`, `seaborn`, `requests` (for Unsplash API), `openml`, `pillow`
+**Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`)
+**Testing**: `pytest` (unit tests for metrics, integration tests for pipeline)
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPUs, ~7GB RAM)
+**Project Type**: Data Analysis Pipeline / Research Script
+**Performance Goals**: Total runtime ≤ 6 hours; Memory usage ≤ 6GB; No GPU dependency (CPU-first).
+**Constraints**: 
+- Must handle missing data gracefully (log and exclude).
+- Must frame all results as associational (no causal claims).
+- Must apply family-wise error correction (Holm-Bonferroni) for >3 tests.
+- Must compute VIF and fallback to PCA if collinearity (VIF ≥ 5) is detected.
+- All random seeds must be pinned for reproducibility.
+- No PII in data; checksums recorded for all artifacts.
+- **Pre-registered**: VIF threshold (≥5) and PCA fallback are pre-registered decisions.
+- **Output Artifacts**: Must generate `results/statistics/multiplicity_table.csv`, `results/statistics/binning_sensitivity_table.csv`, and `results/statistics/justification.md`.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Method |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned random seeds in `code/` and canonical dataset sources. `requirements.txt` will pin versions. Synthetic image generation logic is included in `01_data_acquisition.py` using `Pillow`. |
-| **II. Verified Accuracy** | **PASS** | Plan restricts dataset references to verified URLs (HuggingFace/OpenML) or explicit synthetic generation. No hallucinated URLs. |
-| **III. Data Hygiene** | **PASS** | Plan requires checksumming of raw data in `data/` and immutable derivation steps. |
-| **IV. Single Source of Truth** | **PASS** | Analysis scripts will output JSON/CSV results that feed directly into the paper generation; no hand-typed stats. PCA components stored in `pca_component_1` field. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will be hashed; plan structure supports content-addressable storage logic. |
-| **VI. Psychological Measurement Validity** | **PASS** | Plan uses standardized Stroop/Flanker metrics and validated CV methods (OpenCV, standard entropy). |
-| **VII. Ecological Sampling Integrity** | **PASS** | Synthetic data generation logic includes diverse parameter ranges for `lighting_condition`, `room_type`, and `demographic_group` to simulate typical home office conditions as required. |
+1.  **I. Reproducibility**: The plan mandates pinned random seeds in `code/` (specifically for the proxy matching algorithm) and checksums for all data artifacts in `data/`. External datasets (OpenML, Unsplash) will be fetched from canonical sources.
+2.  **II. Verified Accuracy**: All citations for visual complexity methods (OpenCV, YOLO) and cognitive tasks (Stroop) will be validated against primary sources. The `Reference-Validator` will run on all generated docs.
+3.  **III. Data Hygiene**: Raw data (OpenML, Unsplash downloads) will be preserved. Derivations (merged data, metrics) will be new files with documented hashes. No in-place modification. **PII Sanitization**: Image paths will be renamed to `img_<hash>.jpg` and EXIF data stripped to remove PII immediately upon download.
+4.  **IV. Single Source of Truth**: All statistics in the final report will trace back to `results/statistics/statistics.json` and `results/statistics/multiplicity_table.csv`. No hand-typed numbers.
+5.  **V. Versioning**: All artifacts will carry content hashes. The `state` file will be updated on any change.
+6.  **VI. Psychological Measurement Validity**: The plan uses standardized Stroop/Flanker metrics (reaction time, accuracy) and pre-registered analysis pipelines (VIF/PCA threshold) to avoid post-hoc flexibility.
+7.  **VII. Ecological Sampling Integrity**: Metadata (lighting, layout) will be extracted from the Unsplash API response and stored in `data/processed/image_metadata.json`. This metadata drives the proxy linkage, ensuring the images reflect diverse remote work conditions. For synthetic fallback, metadata will be sampled from the real Unsplash distribution.
 
 ## Project Structure
 
@@ -48,46 +60,51 @@ specs/001-visual-distraction-cognitive-control/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── analysis_output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── 01_data_acquisition.py       # Downloads or generates synthetic data (including Pillow-based image compositing)
-├── 02_visual_metrics.py         # Computes edge density, entropy, object count
-├── 03_analysis.py               # Correlation, regression, bootstrap, VIF, PCA
-├── 04_visualization.py          # Generates scatter plots
-├── utils.py                     # Logging, checksumming, seed management
-└── requirements.txt             # Pinned dependencies
-
-data/
-├── raw/                         # Downloaded datasets or generated synthetic CSVs/Images
-├── processed/                   # Merged analysis-ready dataframes
-└── checksums.json               # Artifact hashes
-
-results/
-├── statistics.json              # Correlation coefficients, p-values, betas
-├── plots/                       # Generated scatter plots
-└── sensitivity/                 # Bootstrap and binning results
-
-tests/
-├── contract/                    # Validates output against contracts/*.yaml
-├── unit/                        # Tests for metric extraction logic
-└── integration/                 # End-to-end pipeline test
+projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/
+├── code/
+│   ├── 01_data_acquisition.py       # Download OpenML cognitive data + Unsplash images
+│   ├── 02_visual_metrics.py         # OpenCV/YOLO metric extraction on real images
+│   ├── 03_analysis.py               # Stats, VIF, PCA, Holm-Bonferroni, Binning Sensitivity
+│   ├── 04_sensitivity.py            # Bootstrap & binning sensitivity (generates tables)
+│   ├── 05_reporting.py              # Plot generation, JSON export, p-threshold justification
+│   └── utils.py                     # PII sanitization, proxy matching logic
+├── data/
+│   ├── raw/                         # Raw datasets (OpenML, Unsplash)
+│   └── processed/                   # Merged data, metrics, image metadata
+├── results/
+│   ├── statistics/                  # JSON/CSV outputs, justification.md, multiplicity_table.csv
+│   └── figures/                     # Scatter plots
+├── tests/
+│   └── unit/                        # Unit tests for metrics & edge cases
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `results/`) chosen to minimize overhead for a research pipeline. No separate backend/frontend required.
+**Structure Decision**: Single project structure with modular scripts (`01_` to `05_`) to ensure a clear, linear pipeline that respects data dependencies (download -> metrics -> analysis -> reporting). This aligns with the "Single Source of Truth" and reproducibility principles.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Bootstrap Resampling (≥1000)** | Required by FR-009/SC-005 for robust CI estimation. | Standard parametric CIs are insufficient for non-normal distributions of visual complexity metrics. |
-| **PCA for Collinearity** | Required by FR-012/SC-007 if VIF ≥ 5. | Standard multiple regression fails if predictors are definitionally related; PCA preserves variance while removing multicollinearity. The resulting component is stored as `pca_component_1` to ensure Single Source of Truth. |
-| **Synthetic Data Fallback** | Required by FR-001/US-1 due to lack of linked public datasets. | Real-world linked datasets (cognitive + workspace image) are non-existent. Synthetic simulation is the only viable path to N≥100 for pipeline validation, explicitly decoupled from outcome generation to avoid tautology. |
-| **Pillow Image Generation** | Required by Constitution Principle I (Reproducibility) to ensure images exist for CV pipeline on fresh runners. | External image datasets cannot be guaranteed to be available or linked to IDs. `Pillow` compositing is CPU-tractable and fully reproducible. |
+|-----------|------------|-------------------------------------|
+| Proxy Linkage | No public dataset links participant-level cognitive data to specific workspace images. | Using a generic dataset without linkage would fail FR-005. Synthetic data creates a tautological study. |
+| PCA Fallback Logic | Visual complexity metrics (edge, entropy, object count) are likely highly correlated (collinearity). | Simple multiple regression would yield unstable coefficients if VIF ≥ 5. PCA ensures robust predictors. |
+| Holm-Bonferroni Correction | Multiple hypothesis tests (3 metrics × 2 outcomes = 6 tests) inflate Type I error. | Uncorrected p-values would violate SC-003 and standard statistical rigor. |
+| p<0.05 Justification | SC-005 requires explicit justification for the significance threshold. | Assuming the threshold is standard without documentation violates the specification. |
+| Binning Sensitivity Table | FR-010 requires a specific table output for sensitivity analysis. | Ignoring this output would fail FR-010. |
 
+## Pre-registered Analysis Plan
+
+To satisfy Constitution Principle VI (Psychological Measurement Validity), the following analytical decisions are pre-registered:
+- **VIF Threshold**: A Variance Inflation Factor (VIF) ≥ 5 will trigger the PCA fallback.
+- **PCA Fallback**: If VIF ≥ 5, the first principal component will be used as the primary predictor.
+- **Significance Threshold**: p < 0.05 will be used, justified as a community standard (ASA Statement on p-values).
+- **Multiplicity Correction**: Holm-Bonferroni correction will be applied to all hypothesis tests.
+- **Binning Strategy**: Quantile-based binning (quartiles, deciles) will be used to verify robustness, with results tabulated.
+
+These decisions are fixed before data analysis to prevent post-hoc flexibility.
