@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-07-25T04:23:26.087801+00:00"
+    "audited_at": "2026-07-25T05:47:37.453135+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-775-openrath-session-centered-runtime-state",
-  "updated_at": "2026-07-25T04:23:26.087814+00:00"
+  "updated_at": "2026-07-25T05:47:37.453149+00:00"
 }
