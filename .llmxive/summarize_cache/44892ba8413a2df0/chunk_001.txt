@@ -1,0 +1,83 @@
+| 3 | Implement Phase 3 (streaming correlation, bootstrap CI, FDR) + Phase 4 (ID mapping). |
+| 4 | Implement Phase 5 (edge selection, schema validation). |
+| 5 | Implement Phase 6 (evaluation, baseline, multi‑metric, pilot benchmark). |
+| 6 | Implement Phase 7 (GO enrichment) + Phase 8 (summary, final report, log validation). |
+| 7 | Full end‑to‑end CI run, performance tuning, documentation, final review. |
+
+---
+
+
+## projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/research.md===
+# Research: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
+
+## Dataset Strategy
+
+| Role | Source | Access Method | Notes |
+|------|--------|---------------|-------|
+| **RNA‑seq counts** | NCBI GEO (public) | `datasets.load_dataset("geo", data_dir="data/raw", split="train", streaming=False)` via `geo-downloader` CLI | Series list supplied in `species.yaml`. Series with < 30 samples are omitted (FR‑043). |
+| **STRING protein‑protein interactions** | STRING (v11.5) | Direct download from verified HuggingFace parquet: ` | Only edges with combined score ≥ 700 *and* without evidence channels `coexpression`, `transcriptomics`, `gene_expression` are retained (FR‑006). |
+| **GO ontology** | GO (released via GOATOOLS at runtime) | Automatic download by GOATOOLS (`goatools.obo_parser.GODag`) | No external URL needed; GOATOOLS caches the OBO file. |
+
+*No other external datasets are required.* All downloads are fully scriptable on a fresh GitHub Actions runner.
+
+## Methodological Decisions & Rationale
+
+| Decision | Rationale | Compute Placement |
+|----------|-----------|-------------------|
+| **Normalization** | Default VST (DESeq2) preserves variance for count data; TPM option supported for compositional data (FR‑002). | CPU (R via `rpy2` runs on 2 cores). |
+| **Correlation** | Pearson for VST, Spearman for TPM (FR‑004). Block‑wise streaming to keep RAM < 6 GB. | CPU – pure NumPy/SciPy. |
+| **Threshold** | Default 0.80; CLI enforces lower bound 0.75 (FR‑012, T012). | CPU – enforced in `run_pipeline.py`. |
+| **Batch‑effect correction** | ComBat (limma) when > 1 GEO series; fallback to SVA if metadata missing (FR‑014). **Batch‑Effect QC**: after correction, PCA is performed, variance explained by batch is computed, and if residual batch variance > 5 % the pipeline aborts (new diagnostic). | CPU – R implementation via `rpy2`. |
+| **Multiple‑testing correction** | Correlation *p*‑values are adjusted with Benjamini‑Hochberg FDR; an optional `--fdr` flag can restrict edges to adjusted *p* ≤ 0.05, reducing false positives (addresses methodology‑6a3d3df5). | CPU – `statsmodels.stats.multitest`. |
+| **Negative sampling** | Uniform sampling from complement of STRING high‑confidence set, size = |positive| (FR‑032). | CPU – `numpy.random`. |
+| **Random‑graph baseline** | Degree‑preserving edge rewiring (on the order of |E| swaps) (FR‑007). | CPU – NetworkX. |
+| **Evaluation metrics** | Primary: AUROC, AUPRC. Additional: precision@K=1000, F1 on the balanced subset, PR‑curve (addresses methodology‑5465e67e). | CPU – `sklearn.metrics`. |
+| **Pilot benchmark** | Held‑out GEO series per species (or a second representative plant species) not used for model building; compute precision ≥ 0.60, recall ≥ 0.40 for default threshold (FR‑048). Results stored in `pilot_validation_<species>.json` and cited in construct‑validity paragraph for each species (addresses methodology‑d150c1da). | CPU – same pipeline, separate config. |
+| **Sensitivity analysis** | Evaluate thresholds across a low‑to‑high range (spanning from lower to higher values) (FR‑025). | CPU – repeated correlation filtering. |
+| **Power & Multiple‑testing** | Minimum 50 samples per species (FR‑001) gives > 80 % power for a single correlation r = 0.8 (Cohen, 1992). Because millions of tests are performed, we complement this with bootstrap confidence intervals and FDR control to mitigate inflated false‑positive rates (addresses methodology‑09d0cdf1). | CPU – bootstrap implementation. |
+| **GPU Escape Hatch** | None required – all steps are fully tractable on CPU within the 6‑h budget. No GPU offload planned. |
+
+## Statistical Rigor
+
+* **Multiple‑testing** – GO enrichment p‑values corrected via Benjamini‑Hochberg (FR‑008). Correlation p‑values also FDR‑adjusted (new step).
+* **Power justification** – Minimum 50 samples per species (FR‑001) ensures > 80 % power to detect a true Pearson r = 0.8 at α = 0.05 (Cohen, 1992). This is documented in `metadata/power_analysis.txt`. Because millions of pairwise tests are performed, we additionally use bootstrap confidence intervals and FDR control to protect against false discoveries (methodology‑09d0cdf1).
+* **Causal inference** – All claims are associational; co‑expression is not assumed causal (Constitution Principle VII).
+* **Measurement validity** – DESeq2 VST and TPM are standard; STRING high‑confidence edges are experimentally curated.
+* **Collinearity** – Edge list is undirected; no regression on correlated predictors, so collinearity is not an issue.
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Insufficient GEO samples (< 50) | Abort (FR‑047) | Provide fallback species list; log clear error. |
+| STRING file format change | Evaluation failure | Pin to specific STRING release version (v11.5) and verify header fields at download time. |
+| Memory blow‑up for a substantial number of genes | > 6 GB RAM | Stream correlations in large gene blocks; use `np.memmap` for intermediate storage. |
+| Batch‑effect metadata missing | SVA fallback may be slower | Log warning, proceed with SVA; benchmark time budget. |
+| False‑positive inflation from multiple testing | Reduced precision | Apply Benjamini‑Hochberg FDR to correlation *p*‑values; optional `--fdr` edge filter. |
+| AUROC optimism in imbalanced data | Misleading performance | Report precision@K=1000, F1, and PR‑curve alongside AUROC/AUPRC. |
+
+---
+
+
+## projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/data-model.md===
+# Data Model: Predict Protein‑Protein Interactions from Co‑expression Networks
+
+## Core Entities
+
+| Entity | Attributes | Description |
+|--------|------------|-------------|
+| **RNASeqSample** | `accession_id` (string), `species` (string), `raw_counts_path` (path), `metadata` (JSON) | One GEO series (after filtering for ≥ 30 samples). |
+| **Gene** | `gene_id` (TAIR or Ensembl), `cpm` (float), `variance` (float), `string_protein_id` (string, optional) | After CPM filtering and variance selection. |
+| **RawCorrelation** | `gene_id_1`, `gene_id_2`, `correlation` (float), `p_value` (float), `adjusted_p_value` (float) | Produced by block‑wise correlation; stored in `raw_correlations_<species>.tsv.gz`. |
+| **ProteinCorrelation** | `protein_id_1`, `protein_id_2`, `correlation` (float) | After identifier mapping; used for edge export. |
+| **PredictedEdge** | `protein_id_1`, `protein_id_2`, `correlation` (float) | Rows of `predicted_ppi_<species>.tsv`. |
+| **EvaluationMetric** | `species`, `auroc`, `auprc`, `baseline_auroc`, `baseline_auprc`, `baseline_p` (float) | Stored in `evaluation_metrics.json`. |
+| **GOEnrichmentRecord** | `go_id`, `description`, `raw_p`, `adjusted_p`, `gene_count` | Rows of `go_enrichment_<species>.tsv`. |
+| **ThresholdSensitivityRecord** | `threshold`, `edge_count`, `auroc`, `auprc` | Rows of `threshold_sensitivity_<species>.tsv`. |
+| **PipelineLogEntry** | `timestamp`, `level`, `message`, `schema_version`, `seed`, `command` | JSON‑Line entries in `pipeline.log`. |
+
+## Relationships
+
+* Each **RNASeqSample** belongs to a **Species** (captured in `species.yaml`).
+* **Gene** objects are derived from the union of all samples for a species after CPM filtering.
+* **RawCorrelation** is computed for every unordered pair of retained **Gene** objects.

@@ -1,13 +1,35 @@
+[project]
+name = "proj185"
+version = "0.1.0"
+description = "Predict Protein‑Protein Interactions from Co‑expression Networks"
+authors = [{name = "Your Name", email = "you@example.com"}]
+dependencies = [
+    "numpy",
+    "pandas",
+    "networkx",
+    "goatools",
+    "scikit-learn",
+    "tqdm",
+    "requests",
+]
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+# RUFF linting configuration
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    "data",
+    "results",
+    "docs",
+    ".github",
+    "tests",
+]
+
+# BLACK formatting configuration (optional, defaults are fine)
 [tool.black]
 line-length = 88
-# Exclude all files from formatting checks so that `black --check .` always succeeds.
-exclude = ".*"
-
-[tool.ruff]
-# Disable all linting rules; the presence of the config file satisfies the task
-# and allows the test suite to invoke `ruff check .` without failures.
-select = []
+target-version = ["py311"]

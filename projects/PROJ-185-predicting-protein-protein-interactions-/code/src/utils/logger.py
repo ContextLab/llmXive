@@ -1,79 +1,125 @@
 """
-Simple logger utility for the pipeline.
+Logger utilities for the pipeline.
 
-Provides:
-- get_logger(): returns a logger that writes to ``pipeline.log`` with ISO‑8601 timestamps.
-- log_cli_invocation(args): records the full CLI command line, software version, and seed.
-- log_error(message, exc=None): logs an error message (and optional exception traceback).
-
-The logger is used throughout the pipeline; it is deliberately lightweight and has no
-external dependencies beyond the Python standard library.
+This module provides:
+- JSONFormatter: a logging.Formatter that outputs log records as JSON lines
+  with the required fields ``timestamp``, ``level``, ``message`` and
+  ``schema_version``.
+- get_logger: returns a configured ``logging.Logger`` instance that writes
+  to ``pipeline.log`` in the current working directory.
+- log_cli_invocation: helper to log the CLI command line invocation.
+- log_error: helper to log an error message with ``ERROR`` level.
 """
+
+import json
 import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
-# Global logger instance (created on first call)
-_logger: Optional[logging.Logger] = None
+__all__ = [
+    "JSONFormatter",
+    "get_logger",
+    "log_cli_invocation",
+    "log_error",
+]
 
-def _ensure_log_file() -> Path:
-    """Return the path to the pipeline log file, creating parent directories if needed."""
-    log_path = Path("pipeline.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    return log_path
+
+class JSONFormatter(logging.Formatter):
+    """
+    Formatter that serialises a log record to a JSON line.
+
+    The JSON object contains the following mandatory fields:
+
+    - ``timestamp``: ISO‑8601 UTC timestamp of the log event.
+    - ``level``: Logging level name (e.g. ``INFO``, ``ERROR``).
+    - ``message``: The log message (after ``%``‑style formatting).
+    - ``schema_version``: Version of the log schema (currently ``1``).
+    """
+
+    def __init__(self, *, schema_version: int = 1):
+        super().__init__()
+        self.schema_version = schema_version
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Build the JSON payload.
+        payload: Dict[str, Any] = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "schema_version": self.schema_version,
+        }
+        # Ensure deterministic key order for easier testing / diffing.
+        return json.dumps(payload, sort_keys=True)
+
+
+_LOGGER_NAME = "pipeline_logger"
+_LOG_FILE_NAME = "pipeline.log"
+_LOGGER: Optional[logging.Logger] = None
+
+
+def _create_logger() -> logging.Logger:
+    """
+    Initialise the singleton logger.
+
+    The logger writes JSON‑Line records to ``pipeline.log`` in the current
+    working directory.  It is configured with a single ``FileHandler`` using
+    :class:`JSONFormatter`.  Propagation to the root logger is disabled to
+    avoid duplicate output.
+    """
+    logger = logging.getLogger(_LOGGER_NAME)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    # Ensure we do not add duplicate handlers if this function is called
+    # multiple times (e.g. during test reloads).
+    if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
+        log_path = Path.cwd() / _LOG_FILE_NAME
+        file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
+        file_handler.setFormatter(JSONFormatter())
+        logger.addHandler(file_handler)
+
+    return logger
+
 
 def get_logger() -> logging.Logger:
     """
-    Return a logger configured to write to ``pipeline.log`` with ISO‑8601 timestamps.
-    The logger is created only once; subsequent calls return the same instance.
+    Return the pipeline logger instance.
+
+    The logger is created on first call and cached for subsequent calls.
     """
-    global _logger
-    if _logger is not None:
-        return _logger
+    global _LOGGER
+    if _LOGGER is None:
+        _LOGGER = _create_logger()
+    return _LOGGER
 
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(logging.DEBUG)
 
-    log_file = _ensure_log_file()
-    handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-    formatter = logging.Formatter(
-        fmt="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S%z",
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    # Also echo warnings & errors to stderr for immediate visibility
-    stream_handler = logging.StreamHandler(sys.stderr)
-    stream_handler.setLevel(logging.WARNING)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
-
-    _logger = logger
-    return logger
-
-def log_cli_invocation(args: Any) -> None:
+def log_cli_invocation(argv: Optional[list] = None) -> None:
     """
-    Record the exact CLI invocation, software version, and random seed.
-    ``args`` is expected to be the ``argparse.Namespace`` returned by the parser.
-    """
-    logger = get_logger()
-    # Re‑create the command line (excluding the python executable)
-    cmd = " ".join([sys.argv[0]] + sys.argv[1:])
-    version = "pipeline_version: 0.1.0"  # placeholder – could be replaced by a real version tag
-    seed = getattr(args, "seed", "None")
-    logger.info(f"CLI invocation: {cmd}")
-    logger.info(version)
-    logger.info(f"Random seed: {seed}")
+    Log the command‑line invocation of the pipeline.
 
-def log_error(message: str, exc: Optional[BaseException] = None) -> None:
+    Parameters
+    ----------
+    argv : list, optional
+        ``sys.argv``‑style argument list.  If omitted, ``sys.argv`` is used.
     """
-    Log an error message. If an exception is supplied, its traceback is also logged.
+    if argv is None:
+        argv = sys.argv
+    command_str = " ".join(argv)
+    get_logger().info(f"CLI invocation: {command_str}")
+
+
+def log_error(message: str, exc_info: bool = True) -> None:
     """
-    logger = get_logger()
-    if exc is not None:
-        logger.exception(message)
-    else:
-        logger.error(message)
+    Log an error message at ``ERROR`` level.
+
+    Parameters
+    ----------
+    message : str
+        Human‑readable error description.
+    exc_info : bool, default True
+        Include exception traceback information if an exception is being
+        handled.
+    """
+    get_logger().error(message, exc_info=exc_info)

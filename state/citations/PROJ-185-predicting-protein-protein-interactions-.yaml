@@ -1,15 +1,3 @@
-- artifact_hash: 584cd5652752c21f827f04b077a551094b2c9a3e599e6fc482b5b3487889fcf5
-  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2107.01173] Momentum Accelerates the Convergence of Stochastic
-    AUPRC Maximization'
-  kind: url
-  value: https://arxiv.org/abs/2107.01173
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2107.01173
-  verified_at: '2026-07-22T13:30:14.988643Z'
 - artifact_hash: ec3dde454486095203764637f7c43fd2f7b601598664c95489d894e49230878b
   artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
   cite_id: c-001

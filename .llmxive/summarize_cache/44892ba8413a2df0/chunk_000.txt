@@ -1,0 +1,59 @@
+# Implementation Plan: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
+
+**Branch**: `PROJ-185-predict-ppi-coexpression` | **Date**: 2026‑07‑25 | **Spec**: [spec.md](../spec.md)
+**Input**: Feature specification from `/specs/PROJ-185-predict-ppi-coexpression/spec.md`
+
+## Summary
+Develop a reproducible, CI‑compatible pipeline that (1) downloads publicly available *Arabidopsis thaliana* (and optionally other plant) RNA‑seq count matrices from NCBI GEO, (2) normalizes and filters the data, (3) builds a high‑threshold (r ≥ 0.80, never < 0.75) co‑expression network, (4) maps gene IDs to STRING protein IDs, (5) exports undirected edge lists per species, (6) evaluates the predictions against STRING high‑confidence interactions while generating a degree‑preserving random‑graph baseline, (7) performs GO enrichment on the predicted interactome, (8) assembles per‑species and aggregate reports, and (9) runs comprehensive schema‑validation and logging checks. All steps are orchestrated by a Makefile and satisfy every FR/SC listed in the spec.
+
+## Technical Context
+| Item | Detail |
+|------|--------|
+| **Language / Version** | Python 3.11 (primary), R 4.2 (via `rpy2` for DESeq2) |
+| **Primary Dependencies** | `pandas`, `numpy`, `scipy`, `statsmodels`, `networkx`, `goatools`, `biopython`, `pybiomart`, `bioconductor-org.At.tair.db` (via `rpy2`), `scikit‑learn`, `click`, `tqdm`, `pytest`, `ruff`, `black`, `pyproject‑toml` |
+| **Storage** | Flat files under `data/` (raw GEO matrices, STRING file, intermediate TSV/TSV.GZ) |
+| **Testing** | `pytest` + `pytest‑cov`; schema validation via `jsonschema` |
+| **Target Platform** | Linux (Ubuntu) GitHub Actions runner (multi‑core CPU, several GB RAM) |
+| **Constraints** | Correlation threshold ≥ 0.75; total retained samples per species ≥ 50; gene set ≤ 5 000 after variance‑based selection |
+| **Scale / Scope** | Default species: *Arabidopsis thaliana* (≥ 50 samples). Extensible to additional plant species via `species.yaml`. |
+
+## Constitution Check
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| **I. Reproducibility** | All random processes are seeded via `--seed`; `pipeline.log` records seed, command line, and software versions; the Makefile fully automates the workflow; CI script (`.github/workflows/ci.yml`) runs `make all` on a fresh runner. |
+| **II. Verified Accuracy** | All external citations (e.g., STRING evidence‑channel exclusion, co‑expression literature) will be validated by the Reference‑Validator Agent before PR merge. |
+| **III. Data Hygiene** | Raw GEO files are stored under `data/raw/` with SHA‑256 checksums recorded in `state/artifact_hashes.yaml`. No in‑place mutation; each transformation writes a new file with a provenance header. |
+| **IV. Single Source of Truth** | Every statistic in the final report is derived from a single source file (e.g., `raw_correlations_<species>.tsv.gz` for AUROC; `go_enrichment_<species>.tsv` for GO terms). Derived numbers are never hand‑typed. |
+| **V. Versioning Discipline** | All artifacts (code, data, schemas) are tracked with content hashes; any change updates the project state file. |
+| **VI. Biological Data Provenance** | GEO accession IDs are retained in file names (`GSEXXXXX_series.tsv`) and logged; normalization method and parameters are recorded in `metadata/<species>_norm.json`. |
+| **VII. Evaluation Benchmarking** | Evaluation follows the exact STRING high‑confidence definition (score ≥ 700, co‑expression channels excluded) and reports AUROC, AUPRC, precision@K=1000, F1, and a degree‑preserving random‑graph baseline with `baseline_p`. GO enrichment uses Fisher’s exact test + Benjamini‑Hochberg. |
+
+## Phase Mapping & Work Breakdown (covers every FR/SC)
+
+| Phase | FR(s) addressed | Core Tasks (mapped to Make targets) |
+|-------|----------------|--------------------------------------|
+| **Phase 1 – Data Acquisition** | FR‑001, FR‑047 | `make download` → GEO series list per species → skip series < 30 samples → abort if total < 50. |
+| **Phase 2 – Normalization & Filtering** | FR‑002, FR‑003, FR‑014 | `make normalize` → DESeq2 VST *or* TPM; CPM filter; batch‑effect correction (ComBat) or SVA fallback; **Batch‑Effect QC**: run PCA on corrected data, compute variance explained by batch, log to `pipeline.log`; abort if residual batch variance > 5 % (new diagnostic). |
+| **Phase 3 – Correlation Computation** | FR‑004, FR‑020, FR‑025, FR‑045 | `make correlate` → block‑wise Pearson (or Spearman for TPM) on ≤ 5 000 genes; compute *p‑value* for each correlation; adjust p‑values with Benjamini‑Hochberg (FDR); write `raw_correlations_<species>.tsv.gz` with columns `gene_id_1`, `gene_id_2`, `correlation`, `p_value`, `adjusted_p_value`; compute 95 % bootstrap confidence intervals; retain edges only if lower CI ≥ threshold **and** (optional `--fdr` flag) `adjusted_p_value` ≤ 0.05. |
+| **Phase 4 – Identifier Mapping** | FR‑005 | `make map_ids` → map TAIR/Ensembl IDs to STRING protein IDs; log unmapped genes (`mapping_warnings_<species>.log`). |
+| **Phase 5 – Edge Selection & Thresholding** | FR‑004, FR‑045, FR‑011, FR‑013, FR‑012 | `make select_edges` → filter `raw_correlations` by chosen threshold (default 0.80, CLI enforces ≥ 0.75) **and** (if `--fdr` used) adjusted p‑value ≤ 0.05; write `predicted_ppi_<species>.tsv`; **Validate** against `contracts/predicted_ppi.schema.yaml` *and* `contracts/predicted_edges.schema.yaml`. |
+| **Phase 6 – Evaluation** | FR‑006, FR‑007, FR‑016, FR‑032, FR‑018, FR‑019, FR‑012, FR‑048 | `make evaluate` → score all gene‑pair correlation scores against STRING high‑confidence set (exclude co‑expression evidence); generate balanced negative set; compute **AUROC**, **AUPRC**, **precision@K=1000**, **F1** on balanced set; generate degree‑preserving random‑graph baseline (a number of swaps proportional to the number of edges); compute baseline AUROC/AUPRC and `baseline_p`; **Pilot benchmark**: run held‑out GEO series for each species (or a second species when available) → store `pilot_validation_<species>.json` and cite in construct‑validity paragraph. |
+| **Phase 7 – Functional Enrichment** | FR‑008, FR‑023, FR‑024, FR‑022 | `make enrich` → GOATOOLS Fisher test + BH correction on genes in predicted PPIs; write `go_enrichment_<species>.tsv`; **Validate** against `contracts/go_enrichment.schema.yaml`. |
+| **Phase 8 – Reporting & Summary** | FR‑021, FR‑028, FR‑030, FR‑034, FR‑035, FR‑010, FR‑026 | `make summary` → assemble `summary_<species>.txt` (edge count, evaluation metrics, top GO terms, construct‑validity paragraph citing pilot results); `make final_report` → aggregate per‑species summaries; **Validate** `pipeline.log` against `contracts/pipeline_log.schema.yaml` after each target (`validate_log`); `make verify` runs all schema checks (edges, evaluation, GO, threshold sensitivity, log). |
+| **Verification (cross‑cutting)** | FR‑017, FR‑013, FR‑019, FR‑030, FR‑034, FR‑035, FR‑004, FR‑045 | `make verify` → schema validation, checksum integrity, reproducibility assertions (identical seeds → identical checksums). |
+
+### Success‑Criteria Mapping
+| SC | Where verified |
+|----|----------------|
+| SC‑001 | `evaluation_metrics.json` AUROC ≥ 0.70 & AUPRC ≥ 0.65 (checked by CI). |
+| SC‑002 | At least one GO term with adjusted p < 0.05 in `go_enrichment_<species>.tsv`. |
+| SC‑003 | CI runtime log reports total wall‑clock ≤ 6 h. |
+| SC‑004 | Re‑run with identical `--seed` → identical output file checksums (validated by `make verify`). |
+| SC‑005 | `make verify` ensures presence & parsability of all required files. |
+| SC‑006 | All schema validations (`predicted_ppi`, `evaluation`, `threshold_sensitivity`, `pipeline_log`, `go_enrichment`) must pass. |
+
+## Timeline (CI‑friendly)
+| Week | Milestone |
+|------|-----------|
+| 1 | Scaffold repo, CI workflow, environment files, schema definitions. |
+| 2 | Implement Phase 1 & Phase 2 (download, normalization, batch‑effect QC). |

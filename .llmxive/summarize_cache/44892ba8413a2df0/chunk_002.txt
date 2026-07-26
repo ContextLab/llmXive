@@ -1,0 +1,144 @@
+* **ProteinCorrelation** is a filtered view of **RawCorrelation** where both genes have a valid `string_protein_id`.
+* **PredictedEdge** ⊆ **ProteinCorrelation** (edges satisfying the correlation threshold and, optionally, the FDR filter).
+* **EvaluationMetric** consumes the full set of **ProteinCorrelation** scores plus the STRING positive/negative label sets.
+* **GOEnrichmentRecord** is computed from the set of genes appearing in **PredictedEdge** against the background gene universe.
+
+## Storage Layout (relative to project root)
+
+```
+data/
+├── raw/ # GEO series TSV/CSV files (unchanged)
+├── processed/
+│ ├── normalized/<species>.tsv
+│ ├── raw_correlations_<species>.tsv.gz
+│ ├── predicted_ppi_<species>.tsv
+│ ├── go_enrichment_<species>.tsv
+│ └── threshold_sensitivity_<species>.tsv
+├── external/
+│ └── string_highconf.parquet # verified STRING dataset (see research.md)
+└── checksums.yaml # SHA‑256 hashes for all raw files
+logs/
+└── pipeline.log
+results/
+├── evaluation_metrics.json
+├── summary_<species>.txt
+└── final_report.txt
+state/
+└── artifact_hashes.yaml
+```
+
+All TSV files are UTF‑8, tab‑delimited, with a header row. Gzipped files are streamed with `gzip.open(..., 'rt')`.
+
+---
+
+
+## projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/quickstart.md===
+# Quickstart: Predict Plant Protein‑Protein Interactions from Co‑expression
+
+These instructions assume a fresh GitHub Actions runner (or a local Linux environment with similar resources).
+
+## 1. Clone the repository
+```bash
+git clone
+cd ppi-coexpression
+```
+
+## 2. Set up the Python environment
+```bash
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt # pins all Python deps
+```
+
+## 3. Set up the R environment (DESeq2, org.At.tair.db)
+```bash
+Rscript scripts/install_bioc.R # installs DESeq2, limma, sva, org.At.tair.db
+```
+
+## 4. Configure species and parameters
+Edit `config/species.yaml` to list GEO series per species (default includes a few *Arabidopsis* series).
+Edit `config/parameters.yaml` to change any defaults (e.g., `threshold: 0.80`, `seed: 42`, `fdr: true` to enable FDR‑filtered edges).
+
+## 5. Run the full pipeline
+```bash
+make all
+```
+* This executes the following Make targets in order: `download → normalize → correlate → map_ids → select_edges → evaluate → enrich → summary → final_report`.
+* All major actions are logged to `logs/pipeline.log` (JSON‑Line format) and validated against the corresponding schemas after each step (including `pipeline.log`, `predicted_ppi_*.tsv`, `go_enrichment_*.tsv`, `evaluation_metrics.json`, `threshold_sensitivity_*.tsv`).
+
+## 6. Verify outputs
+```bash
+make verify
+```
+* Runs `jsonschema` validation for `predicted_ppi_<species>.tsv`, `evaluation_metrics.json`, `go_enrichment_<species>.tsv`, `threshold_sensitivity_<species>.tsv`, and `pipeline.log`.
+* Aborts with a clear error if any file violates its contract (fulfilling FR‑013, FR‑019, FR‑030, FR‑034).
+
+## 7. Inspect results
+```bash
+# Predicted edges
+ls data/processed/predicted_ppi_*.tsv
+
+# Evaluation metrics
+cat results/evaluation_metrics.json
+
+# GO enrichment
+head data/processed/go_enrichment_*.tsv
+
+# Summary report
+cat results/summary_*.txt
+cat results/final_report.txt
+```
+
+## 8. Re‑run with a different threshold (example)
+```bash
+make all THRESHOLD=0.85
+```
+* The threshold is validated to be ≥ 0.75; lower values will abort with a clear error (FR‑012).
+
+## 9. Clean intermediate files (optional)
+```bash
+make clean
+```
+* Removes all `data/processed/*` and intermediate logs but retains raw GEO downloads and final reports.
+
+---
+
+
+## projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/contracts/predicted_ppi.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Predicted PPI Edge List"
+description: "Schema for the predicted protein‑protein interaction edge list produced by the pipeline."
+type: object
+required:
+ - protein_id_1
+ - protein_id_2
+ - correlation
+properties:
+ protein_id_1:
+ type: string
+ description: "STRING protein identifier for the first node."
+ protein_id_2:
+ type: string
+ description: "STRING protein identifier for the second node."
+ correlation:
+ type: number
+ format: float
+ description: "Pearson (or Spearman) correlation coefficient between the two proteins."
+ minimum: -1.0
+ maximum: 1.0
+ method:
+ type: string
+ enum: ["pearson", "spearman"]
+ description: "Correlation method used."
+ bootstrap_ci_lower:
+ type: number
+ description: "Lower bound of the bootstrap confidence interval at a conventional confidence level for the correlation (optional)."
+ bootstrap_ci_upper:
+ type: number
+ description: "Upper bound of the bootstrap confidence interval (optional)."
+additionalProperties: false
+example:
+ protein_id_1: "AT1G01010"
+ protein_id_2: "AT2G02020"
+ correlation: 0.82
+ method: "pearson"

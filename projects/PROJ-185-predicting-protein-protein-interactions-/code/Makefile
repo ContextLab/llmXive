@@ -1,70 +1,58 @@
-.PHONY: all evaluate enrich clean validate sensitivity reproducibility-check help
+# Makefile for PROJ-185: Predicting Protein-Protein Interactions
+# Includes targets for skeleton verification and general pipeline management
+
+.PHONY: all clean validate skeleton-check help
 
 # Default target
-all: validate
-        @echo "Running full pipeline (Validation + US1: Co-expression PPI Prediction)..."
-        python code/src/pipeline/download.py
-        python code/src/pipeline/batch_correct.py
-        python code/src/pipeline/confound_regression.py
-        python code/src/pipeline/normalize.py
-        python code/src/pipeline/filter.py
-        python code/src/pipeline/correlation_raw.py
-        python code/src/pipeline/fdr_correction.py
-        python code/src/pipeline/correlation_extract.py
-        python code/src/pipeline/mapping.py
-        python code/src/pipeline/export_edges.py
-        @echo "Pipeline complete. Run 'make validate' to check outputs."
+all: skeleton-check
 
-# User Story 2: Evaluation against STRING
-evaluate:
-        @echo "Running Evaluation (US2)..."
-        python code/src/pipeline/download_string.py
-        python code/src/pipeline/negative_sampling.py
-        python code/src/pipeline/aggregate_metrics.py
-        python code/src/pipeline/evaluate.py
-        python code/src/pipeline/baseline.py
-        @echo "Evaluation complete."
-
-# User Story 3: Functional Enrichment
-enrich:
-        @echo "Running Enrichment (US3)..."
-        python code/src/pipeline/enrichment.py
-        @echo "Enrichment complete."
-
-# Sensitivity Analysis
-sensitivity:
-        @echo "Running Sensitivity Analysis..."
-        python code/src/pipeline/sensitivity_analysis.py
-        @echo "Sensitivity analysis complete."
-
-# Reproducibility Check
-reproducibility-check:
-        @echo "Running Reproducibility Check..."
-        @echo "Re-running pipeline with same seed and comparing outputs..."
-        python code/src/pipeline/reproducibility_check.py
-        @echo "Reproducibility check complete."
-
-# Validation
-validate:
-        @echo "Running Validation..."
-        python code/src/pipeline/validate.py
-        @echo "Validation complete."
+# Verify the repository skeleton (T001c / T001d)
+skeleton-check:
+	@echo "Checking repository skeleton..."
+	@test -d src || (echo "ERROR: src/ directory missing" && exit 1)
+	@test -d tests || (echo "ERROR: tests/ directory missing" && exit 1)
+	@test -d data || (echo "ERROR: data/ directory missing" && exit 1)
+	@test -d results || (echo "ERROR: results/ directory missing" && exit 1)
+	@test -d docs || (echo "ERROR: docs/ directory missing" && exit 1)
+	@test -d contracts || (echo "ERROR: contracts/ directory missing" && exit 1)
+	@echo "Skeleton verification passed."
 
 # Clean generated artifacts
 clean:
-        @echo "Cleaning up generated artifacts..."
-        rm -rf results/*
-        rm -rf data/interim/*
-        rm -f pipeline.log
-        @echo "Clean complete."
+	@echo "Cleaning generated artifacts..."
+	@rm -rf results/*
+	@rm -rf data/*
+	@rm -rf state/*
+	@rm -f pipeline.log
+	@rm -f *.egg-info -rf
+	@rm -rf __pycache__
+	@rm -rf .pytest_cache
+	@rm -rf .ruff_cache
+	@rm -rf htmlcov
+	@rm -rf .coverage
+	@echo "Clean complete."
+
+# Validate outputs (delegates to src/pipeline/validate.py)
+validate:
+	@echo "Validating pipeline outputs..."
+	@python code/src/pipeline/validate.py
+
+# Run tests
+test:
+	@echo "Running tests..."
+	@cd code && python -m pytest tests/ -v
+
+# Create skeleton (wrapper for create_skeleton.py)
+create-skeleton:
+	@echo "Creating repository skeleton..."
+	@python code/create_skeleton.py
 
 help:
-        @echo "Available targets:"
-        @echo "  all                   - Run the full prediction pipeline (US1)"
-        @echo "  evaluate              - Run evaluation against STRING (US2)"
-        @echo "  enrich                - Run functional enrichment (US3)"
-        @echo "  sensitivity           - Run threshold sensitivity analysis"
-        @echo "  reproducibility-check - Verify reproducibility of results"
-        @echo "  validate              - Validate output schemas and files"
-        @echo "  clean                 - Remove generated data and logs"
-        @echo "  help                  - Show this help message"
+	@echo "Available targets:"
+	@echo "  all              - Run default checks (skeleton verification)"
+	@echo "  skeleton-check   - Verify required directories exist"
+	@echo "  clean            - Remove generated artifacts"
+	@echo "  validate         - Validate pipeline outputs"
+	@echo "  test             - Run unit tests"
+	@echo "  create-skeleton  - Generate the repository structure"
+	@echo "  help             - Show this help message"

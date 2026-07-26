@@ -1,0 +1,8 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PROJ-185 Configuration Schema
+description: >
+  Minimal schema for `species.yaml` and `parameters.yaml`. The concrete
+  structure of these files is defined elsewhere; this schema simply requires
+  them to be YAML mappings (objects) and permits any additional properties.
+type: object
+additionalProperties: true
