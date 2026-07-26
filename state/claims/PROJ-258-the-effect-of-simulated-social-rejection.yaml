@@ -163,3 +163,1511 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T03:12:02Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: ds000208 contains Rejection and Control conditions for Within-Subjects
+    design
+  claim_id: c_82baeaaf
+  context: The system MUST verify that ds000208 contains both the 'Rejection' (Cyberball)
+    and 'Control' conditions required for a Within-Subjects (Repeated Measures) design.
+    If either condition is missing, the system MUST switch to a Between-Subjects design
+    (One-Way ANOVA) rather than halting, as per FR-007.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000208_contains_Rejection_and_Control_conditions_for_Withi
+  kind: entity_fact
+  raw_text: The system MUST verify that ds000208 contains both the 'Rejection' (Cyberball)
+    and 'Control' conditions required for a Within-Subjects (Repeated Measures) design.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:46:51Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: ds003392 strategies removed as scientifically invalid
+  claim_id: c_11c9cb04
+  context: If either condition is missing, the system MUST switch to a Between-Subjects
+    design (One-Way ANOVA) rather than halting, as per FR-007. The previous 'Composite
+    Dataset' and 'Separate-Streams' strategies involving ds003392 have been removed
+    as scientifically invalid per the plan.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds003392_strategies_removed_as_scientifically_invalid
+  kind: entity_fact
+  raw_text: The previous 'Composite Dataset' and 'Separate-Streams' strategies involving
+    ds003392 have been removed as scientifically invalid per the plan.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:47:08Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: research question concerns social exclusion effects in virtual environments
+  claim_id: c_f0391683
+  context: Use a verified URL from the OpenNeuro repository for the Cyberball dataset.
+    The research question concerns social exclusion effects in virtual environments.
+    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
+    paradigm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_concerns_social_exclusion_effects_in_virtu
+  kind: entity_fact
+  raw_text: The research question concerns social exclusion effects in virtual environments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:47:27Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: method involves fMRI with Cyberball paradigm
+  claim_id: c_d3057f73
+  context: 'The research question concerns social exclusion effects in virtual environments.
+    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
+    paradigm. References: ().'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_Cyberball_paradigm
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a Cyberball paradigm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:47:52Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: halt execution if estimated size > 7 GB
+  claim_id: c_3660607b
+  context: 'JSON Path: .files.size (sum of all files). If the API is unreachable,
+    proceed to local file check (T015c) without halting. Halt execution with exit
+    code 1 only if the estimated size > 7 GB (referencing config.MAX_RAM_GB=7 and
+    config module).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt execution with exit code 1 only if the estimated size > 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:48:11Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: flag outliers using IQR per Condition group without removing rows
+  claim_id: c_6a2d7c66
+  context: 'Goal: Clean behavioral data, normalize reaction times, extract summary
+    features (mean RT, avg mood), and flag outliers using IQR per Condition group.
+    Raw data must be preserved unchanged.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_outliers_using_IQR_per_Condition_group_without_removing
+  kind: entity_fact
+  raw_text: The system must flag outliers using IQR per Condition group without removing
+    rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:48:49Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: select Repeated Measures ANOVA for Within-Subjects design
+  claim_id: c_141767fc
+  context: Implement code/analysis.py with run_anova(df, design_type) to select Repeated
+    Measures ANOVA (statsmodels.stats.anova.AnovaRM) if design_type='Within-Subjects',
+    OR One-Way ANOVA (scipy.stats.f_oneway) if design_type='Between-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_Repeated_Measures_ANOVA_for_Within-Subjects_design
+  kind: entity_fact
+  raw_text: The system must select Repeated Measures ANOVA if design_type is Within-Subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:49:16Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: select One-Way ANOVA for Between-Subjects design
+  claim_id: c_289b0855
+  context: Implement code/analysis.py with run_anova(df, design_type) to select Repeated
+    Measures ANOVA (statsmodels.stats.anova.AnovaRM) if design_type='Within-Subjects',
+    OR One-Way ANOVA (scipy.stats.f_oneway) if design_type='Between-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_One-Way_ANOVA_for_Between-Subjects_design
+  kind: entity_fact
+  raw_text: The system must select One-Way ANOVA if design_type is Between-Subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:49:41Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: report includes sensitivity table for alpha 0.01, 0.05, 0.1
+  claim_id: c_7fe6f285
+  context: "Output Artifact: Generate reports/final_report.md. Verification: Assert\
+    \ report contains 'associational', excludes 'causal', and includes sensitivity\
+    \ table for \u03B1 \u2208 {0.01, 0.05, 0.1}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report must include a sensitivity table for alpha values 0.01, 0.05,
+    and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:50:23Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: report contains 'associational' in Limitations
+  claim_id: c_ae666db3
+  context: "Inject the phrase 'associational' into the Limitations section. Output\
+    \ Artifact: Generate reports/final_report.md. Verification: Assert report contains\
+    \ 'associational', excludes 'causal', and includes sensitivity table for \u03B1\
+    \ \u2208 {0.01, 0.05, 0.1}."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_contains_%27associational%27_in_Limitations
+  kind: entity_fact
+  raw_text: The report must contain the phrase 'associational' in the Limitations
+    section.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:50:52Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: report excludes 'causal' in Results
+  claim_id: c_38a409ea
+  context: "Inject the phrase 'associational' into the Limitations section. Output\
+    \ Artifact: Generate reports/final_report.md. Verification: Assert report contains\
+    \ 'associational', excludes 'causal', and includes sensitivity table for \u03B1\
+    \ \u2208 {0.01, 0.05, 0.1}."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_excludes_%27causal%27_in_Results
+  kind: entity_fact
+  raw_text: The report must exclude the word 'causal' in the Results section.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:51:17Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: add 'is_outlier' column using IQR multiplier per group
+  claim_id: c_fbc453aa
+  context: Implement detect_outliers_iqr(df, group_col='Condition') in code/preprocess.py
+    to add a boolean column is_outlier using a standard interquartile range multiplier
+    per group (FR-002). DO NOT remove rows.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_%27is_outlier%27_column_using_IQR_multiplier_per_group
+  kind: entity_fact
+  raw_text: The system must add a boolean column 'is_outlier' using a standard interquartile
+    range multiplier per group.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:51:35Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: output effect size confidence intervals when N < 30 and convergence errors
+    occur
+  claim_id: c_5c485326
+  context: 'Implement handle_convergence_warnings() in code/analysis.py: Add try/except
+    block to catch convergence errors when N < 30 and output effect size confidence
+    intervals. Output Format: Append {convergence_warning: true, ci_95: [lower, upper]}
+    to data/processed/final_results.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must output effect size confidence intervals when N < 30 and
+    convergence errors occur.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:51:36Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: enforce CI runtime limit of 6 hours
+  claim_id: c_5108081d
+  context: 'Runs the full pipeline on the target GitHub Actions runner (simulated
+    via a dedicated CI job) and asserts that total execution time is < 6 hours. Output:
+    data/processed/ci_runtime_verification.json with passed: true/false.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce a CI runtime limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:51:51Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use alpha set 0.01, 0.05, 0.1 for sensitivity sweeps
+  claim_id: c_48e75dee
+  context: "Implement sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1}) in code/analysis.py\
+    \ (FR-006) to sweep \u03B1 and report result consistency."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use alpha set {0.01, 0.05, 0.1} for sensitivity sweeps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:52:08Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use standard IQR multiplier for outlier detection
+  claim_id: c_0ca2dedc
+  context: Implement detect_outliers_iqr(df, group_col='Condition') in code/preprocess.py
+    to add a boolean column is_outlier using a standard interquartile range multiplier
+    per group (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_standard_IQR_multiplier_for_outlier_detection
+  kind: entity_fact
+  raw_text: The system must use a standard interquartile range multiplier for outlier
+    detection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:52:30Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg method for FDR correction
+  claim_id: c_94caa618
+  context: Implement apply_fdr(p_values) in code/analysis.py using Benjamini-Hochberg
+    method (FR-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_method_for_FDR_correction
+  kind: entity_fact
+  raw_text: The system must apply Benjamini-Hochberg method for FDR correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:52:57Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use SHA-256 hash for checksum verification
+  claim_id: c_2273dca6
+  context: Implement compute_and_verify_checksum(file_path) in code/ingest.py. MUST
+    explicitly compute SHA-256 hash of the file and verify it against a known good
+    source if available, or simply store the computed hash.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use SHA-256 hash for checksum verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:53:19Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use Python 3.11
+  claim_id: c_81f9b5c4
+  context: Initialize Python 3.11 project with pandas, numpy, scipy, statsmodels,
+    pyyaml, requests in code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:53:33Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use pandas, numpy, scipy, statsmodels, pyyaml, requests packages
+  claim_id: c_5d7d353a
+  context: Initialize Python 3.11 project with pandas, numpy, scipy, statsmodels,
+    pyyaml, requests in code/requirements.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pandas,_numpy,_scipy,_statsmodels,_pyyaml,_requests_pack
+  kind: entity_fact
+  raw_text: The system must use pandas, numpy, scipy, statsmodels, pyyaml, and requests
+    packages.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:53:49Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use statsmodels.stats.anova.AnovaRM for Repeated Measures ANOVA
+  claim_id: c_435fcf7a
+  context: Implement code/analysis.py with run_anova(df, design_type) to select Repeated
+    Measures ANOVA (statsmodels.stats.anova.AnovaRM) if design_type='Within-Subjects',
+    OR One-Way ANOVA (scipy.stats.f_oneway) if design_type='Between-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels.stats.anova.AnovaRM_for_Repeated_Measures_AN
+  kind: entity_fact
+  raw_text: The system must use statsmodels.stats.anova.AnovaRM for Repeated Measures
+    ANOVA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:54:12Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use scipy.stats.f_oneway for One-Way ANOVA
+  claim_id: c_2aa5eaa0
+  context: Implement code/analysis.py with run_anova(df, design_type) to select Repeated
+    Measures ANOVA (statsmodels.stats.anova.AnovaRM) if design_type='Within-Subjects',
+    OR One-Way ANOVA (scipy.stats.f_oneway) if design_type='Between-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_scipy.stats.f_oneway_for_One-Way_ANOVA
+  kind: entity_fact
+  raw_text: The system must use scipy.stats.f_oneway for One-Way ANOVA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:54:33Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: 'check for BIDS filenames task-cyb* or JSON metadata keys task: cyb'
+  claim_id: c_b848e513
+  context: 'MUST verify the dataset contains the Cyberball task by checking for BIDS
+    filenames task-cyb* or JSON metadata keys task: cyb. Use a verified URL from the
+    OpenNeuro repository for the Cyberball dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_for_BIDS_filenames_task-cyb*_or_JSON_metadata_keys_tas
+  kind: entity_fact
+  raw_text: 'The system must check for BIDS filenames task-cyb* or JSON metadata keys
+    task: cyb to verify Cyberball task.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:54:52Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use ds000208 as primary candidate dataset
+  claim_id: c_a9fde83a
+  context: Download the Single-Cohort candidate (ds000208). Generate data/raw/dataset_manifest.json
+    with schema {url, status, checksum, source_file_count, openneuro_id} for the downloaded
+    file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_ds000208_as_primary_candidate_dataset
+  kind: entity_fact
+  raw_text: The system must use ds000208 as the primary candidate dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:55:05Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use config.MAX_RAM_GB=7 for memory limits
+  claim_id: c_33a3a134
+  context: Halt execution with exit code 1 only if the estimated size > 7 GB (referencing
+    config.MAX_RAM_GB=7 and config module).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use config.MAX_RAM_GB=7 for memory limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:55:21Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use alpha thresholds 0.01, 0.05, 0.1 for configuration
+  claim_id: c_0e390fe2
+  context: "Create code/config.py to manage paths, random seeds, \u03B1 thresholds\
+    \ ({0.01, 0.05, 0.1}), and MAX_RAM_GB=7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use alpha thresholds {0.01, 0.05, 0.1} for configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:55:46Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use N=500 for benchmarking runtime metrics
+  claim_id: c_c806470b
+  context: Implement code/benchmark.py to generate data/processed/performance_log.json
+    with runtime metrics for N=500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use N=500 for benchmarking runtime metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:56:37Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use N < 30 for convergence warning threshold
+  claim_id: c_d6c9b054
+  context: 'Implement handle_convergence_warnings() in code/analysis.py: Add try/except
+    block to catch convergence errors when N < 30 and output effect size confidence
+    intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use N < 30 for convergence warning threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:56:37Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for halting on missing variables or size limits
+  claim_id: c_07a8b295
+  context: Exit code 1 if required variables are missing. Halt with exit code 1 if
+    exceeded. Halt execution with exit code 1 only if the estimated size > 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for halting on missing variables or size
+    limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:56:50Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 0 for successful ingestion
+  claim_id: c_1ee3dc49
+  context: Contract test in tests/test_ingest.py::test_schema_validates_single_cohort
+    to assert exit_code == 0 when single-cohort data with both conditions is found.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 0 for successful ingestion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:57:07Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed ingestion when required variables are missing
+  claim_id: c_0d61028c
+  context: Integration test in tests/test_ingest.py::test_download_and_validate_single_file
+    to verify successful ingestion and design confirmation when data is valid, and
+    exit_code == 1 only when a required variable is missing (not condition).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed ingestion when required variables
+    are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:57:22Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed ingestion when conditions are missing
+  claim_id: c_990cd9c0
+  context: Verify script halts with exit code 1 only if required variables are missing,
+    but proceeds with Between-Subjects design if conditions are missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed ingestion when conditions are
+    missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:57:37Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed ingestion when size limit is exceeded
+  claim_id: c_3abbceca
+  context: Halt with exit code 1 if exceeded. Halt execution with exit code 1 only
+    if the estimated size > 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed ingestion when size limit is
+    exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:57:58Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed ingestion when data is unavailable
+  claim_id: c_9cc30bcf
+  context: Halt execution with exit code 1 and log 'Data Unavailable' if required
+    variables are missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed ingestion when data is unavailable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:58:23Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed ingestion when download fails
+  claim_id: c_b26e46ae
+  context: If a download fails, the script MUST raise an unhandled exception and exit
+    with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed ingestion when download fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:58:41Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed sensitivity report verification
+  claim_id: c_4d20eb37
+  context: 'Failure Condition: If verification fails, exit code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed sensitivity report verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:58:58Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed CI runtime verification
+  claim_id: c_5a3b5a78
+  context: 'Output: data/processed/ci_runtime_verification.json with passed: true/false.
+    Dependency: Must run after T033 and T035, before T037a CI gate.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed CI runtime verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:59:14Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed checksum verification
+  claim_id: c_2557c31d
+  context: MUST explicitly compute SHA-256 hash of the file and verify it against
+    a known good source if available, or simply store the computed hash.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed checksum verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:59:30Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed design branch decision
+  claim_id: c_c7a3dbf7
+  context: If Required Variables Missing (T013) -> Halt with exit code 1 (FR-001).
+    If Size Limit Exceeded -> Halt with exit code 1 (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed design branch decision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T23:59:47Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed single-cohort constraint check
+  claim_id: c_2896d28a
+  context: MUST verify if the current data source is a Single-Cohort dataset by checking
+    source_file_count in data/raw/dataset_manifest.json. If source_file_count > 1,
+    report is_single_cohort=False but DO NOT halt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed single-cohort constraint check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:03:23Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed participant ID matching
+  claim_id: c_8183c8c0
+  context: 'Checks if Participant IDs are identical across the ''Rejection'' and ''Control''
+    conditions. Output: Boolean ids_match.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed participant ID matching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:13Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed outlier detection
+  claim_id: c_4267256c
+  context: Implement detect_outliers_iqr(df, group_col='Condition') in code/preprocess.py
+    to add a boolean column is_outlier using a standard interquartile range multiplier
+    per group (FR-002). DO NOT remove rows.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed outlier detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:19Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed feature extraction
+  claim_id: c_9d25798e
+  context: Implement extract_features(df) in code/preprocess.py to compute mean_rt
+    and avg_mood per participant/condition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed feature extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:25Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed report generation
+  claim_id: c_edefdce8
+  context: Implement generate_report_logic(results, design_type) in code/report.py.
+    Depends on T017/T019 (reads data/processed/metadata.json) and T035/T035b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed report generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed final results saving
+  claim_id: c_60278dcd
+  context: Implement save_final_results(results, design_type) in code/report.py to
+    write data/processed/final_results.json ensuring the p_fdr column is present (SC-003)
+    and design_type is recorded (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed final results saving.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:37Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed report constraint verification
+  claim_id: c_2a04575e
+  context: Implement verify_report_constraints() in tests/test_report.py to assert
+    that reports/final_report.md contains the exact phrase 'associational' in Limitations
+    and excludes 'causal' in Results (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed report constraint verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:42Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed data citation
+  claim_id: c_7df2ac00
+  context: 'Implement write_data_citation(metadata) in code/ingest.py to generate
+    data/raw/CITATION.md. Logic: Read data/processed/metadata.json to determine design_type
+    and used_datasets. Dynamically cite ONLY the datasets listed in used_datasets
+    (one dataset for Within-Subjects or Between-Subjects). Include DOIs, access dates,
+    and licenses for each. This file MUST be referenced in the final report''s Methods
+    section.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed data citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:47Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed data unavailable handling
+  claim_id: c_8627c7a5
+  context: Implement handle_data_unavailable() in code/ingest.py. Halt execution with
+    exit code 1 and log 'Data Unavailable' if required variables are missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed data unavailable handling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:52Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed design switch logic
+  claim_id: c_f43bf7f6
+  context: Implement apply_design_switch(design_type) in code/ingest.py. If design_type
+    is 'Between-Subjects', configure the pipeline for One-Way ANOVA. Log the switch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed design switch logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:57Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed design branch decision
+  claim_id: c_571a23e9
+  context: Implement decide_design_branch(validation_report, condition_report, constraint_check,
+    id_match) in code/ingest.py. Aggregates signals from T013, T014b, T017d, and T017e
+    to explicitly set the branch signal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed design branch decision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:05:58Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed condition availability check
+  claim_id: c_db47ce1b
+  context: Implement verify_conditions_present(df) in code/ingest.py. MUST check if
+    BOTH 'Rejection' and 'Control' conditions exist in the single dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed condition availability check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:06:02Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed schema validation
+  claim_id: c_2e3ec1ff
+  context: Implement validate_schema(df) in code/ingest.py to check for Condition
+    (Cyberball), Reaction Time, Mood. Exit code 1 if required variables are missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed schema validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:06:07Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed dataset download
+  claim_id: c_da27638d
+  context: 'Implement code/ingest.py with download_dataset(url) function. MUST verify
+    the dataset contains the Cyberball task by checking for BIDS filenames task-cyb*
+    or JSON metadata keys task: cyb.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed dataset download.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:06:13Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed size estimation
+  claim_id: c_9436c2e5
+  context: Implement estimate_dataset_size_from_api(url) in code/ingest.py. Fetches
+    metadata (size, file count) directly from the OpenNeuro API for the PRIMARY candidate
+    dataset BEFORE download. Halt execution with exit code 1 only if the estimated
+    size > 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed size estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:09:07Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed size enforcement
+  claim_id: c_409d9521
+  context: Implement check_file_size_on_disk(file_path) in code/ingest.py. MUST verify
+    the downloaded file size does not exceed a predetermined storage threshold. Halt
+    with exit code 1 if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed size enforcement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:10:16Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed checksum generation
+  claim_id: c_c12ed7cc
+  context: Implement checksum generation (SHA-256) for downloaded files in code/ingest.py.
+    Write checksums directly to state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml
+    in the artifact_hashes map per Constitution Principle V.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed checksum generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:10:41Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed metadata writing
+  claim_id: c_158ea5e9
+  context: Implement write_metadata(design_type, used_datasets) in code/ingest.py
+    to write the final design_type (Within-Subjects or Between-Subjects) AND the list
+    of used_datasets (OpenNeuro IDs) to data/processed/metadata.json for downstream
+    consumption.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed metadata writing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:10:58Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed design logging
+  claim_id: c_1f85d0e2
+  context: Implement log_design_switch() in code/ingest.py to explicitly record the
+    transition to 'Within-Subjects' or 'Between-Subjects' design in data/processed/metadata.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed design logging.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:11:14Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed outlier audit trail
+  claim_id: c_1737fff6
+  context: Implement log_outlier_removal() in code/preprocess.py to write data/interim/outlier_log.json
+    containing the count of flagged rows per condition and the specific IQR thresholds
+    used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed outlier audit trail.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:11:28Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed sensitivity report verification
+  claim_id: c_553dd1d6
+  context: 'Implement test_sensitivity_coverage() in tests/test_analysis.py. Assert
+    that reports/final_report.md includes a Markdown table with header ''alpha'' and
+    contains valid result rows for EACH of the alpha values: 0.05, 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed sensitivity report verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:11:28Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed CI runtime verification
+  claim_id: c_3aae6c88
+  context: Implement verify_ci_runtime() in code/benchmark.py. Runs the full pipeline
+    on the target GitHub Actions runner (simulated via a dedicated CI job) and asserts
+    that total execution time is < 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed CI runtime verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:11:29Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed instrument validation
+  claim_id: c_2f1b773d
+  context: Implement validate_mood_instruments(df) in code/ingest.py. Checks for presence
+    of specific mood instruments (e.g., PANAS) in the dataset schema.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed instrument validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:11:46Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed reproducibility checklist
+  claim_id: c_7192cd6c
+  context: Create docs/reproducibility_checklist.md verifying that all random seeds
+    are set, all data sources are cited, and all 'associational' constraints are met.
+    This checklist must be completed before any final release.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed reproducibility checklist.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:12:11Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed quickstart validation
+  claim_id: c_9ee53961
+  context: Run quickstart.md validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed quickstart validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:12:24Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed API documentation generation
+  claim_id: c_b600cab7
+  context: Generate docs/api.md from code docstrings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed API documentation generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:12:40Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed code cleanup and refactoring
+  claim_id: c_baca74dc
+  context: Code cleanup and refactoring in code/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed code cleanup and refactoring.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:12:56Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed performance CI timeout assertion
+  claim_id: c_ad0de9b2
+  context: Add timeout assertion to GitHub Actions workflow (.github/workflows/ci.yml)
+    to enforce -hour limit (SC-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed performance CI timeout assertion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:13:08Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed benchmarking
+  claim_id: c_21189b63
+  context: Implement code/benchmark.py to generate data/processed/performance_log.json
+    with runtime metrics for N=500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed benchmarking.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:13:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed additional unit tests
+  claim_id: c_fe25b7f0
+  context: Additional unit tests in tests/unit/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed additional unit tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:13:51Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed parallel task execution
+  claim_id: c_6afbcea9
+  context: All Setup tasks marked [P] can run in parallel. All Foundational tasks
+    marked [P] can run in parallel (within Phase 2). Once Foundational phase completes,
+    all user stories can start in parallel (if team capacity allows). All tests for
+    a user story marked [P] can run in parallel. Models within a story marked [P]
+    can run in parallel. Different user stories can be worked on in parallel by different
+    team members.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed parallel task execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:14:09Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed dependency management
+  claim_id: c_dc3fbf31
+  context: 'Setup (Phase 1): No dependencies - can start immediately. Foundational
+    (Phase 2): Depends on Setup completion - BLOCKS all user stories. User Stories
+    (Phase 3+): All depend on Foundational phase completion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed dependency management.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:14:25Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed parallel team strategy
+  claim_id: c_485069bc
+  context: 'With multiple developers: Team completes Setup + Foundational together.
+    Once Foundational is done: Developer A: User Story 1, Developer B: User Story
+    2, Developer C: User Story 3. Stories complete and integrate independently.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed parallel team strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:14:45Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed MVP first strategy
+  claim_id: c_181dd859
+  context: 'MVP First (User Story 1 Only): Complete Phase 1: Setup. Complete Phase
+    2: Foundational (CRITICAL - blocks all stories). Complete Phase 3: User Story
+    1. STOP and VALIDATE: Test User Story 1 independently. Deploy/demo if ready.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed MVP first strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:15:23Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed incremental delivery strategy
+  claim_id: c_25026c60
+  context: "Incremental Delivery: Complete Setup + Foundational \u2192 Foundation\
+    \ ready. Add User Story 1 \u2192 Test independently \u2192 Deploy/Demo (MVP!).\
+    \ Add User Story 2 \u2192 Test independently \u2192 Deploy/Demo. Add User Story\
+    \ 3 \u2192 Test independently \u2192 Deploy/Demo. Each story adds value without\
+    \ breaking previous stories."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed incremental delivery strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:15:48Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed notes implementation
+  claim_id: c_f9bb8c53
+  context: 'Notes: [P] tasks = different files, no dependencies. [Story] label maps
+    task to specific user story for traceability. Each user story should be independently
+    completable and testable. Verify tests fail before implementing. Commit after
+    each task or logical group. Stop at any checkpoint to validate story independently.
+    Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed notes implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:16:09Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed critical constraints
+  claim_id: c_49048af3
+  context: "CRITICAL: The pipeline is now strictly single-dataset. Merging distinct\
+    \ studies is forbidden. Data loading must fail loudly if the real source is unavailable;\
+    \ no synthetic fallbacks are permitted. For large datasets, the system halts with\
+    \ exit code 1; no streaming logic is required for N \u2264 500. All data sources\
+    \ must be real, verified, and explicitly cited. Synthetic data is forbidden for\
+    \ research results."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed critical constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:16:34Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed memory guard implementation
+  claim_id: c_3d6e72f5
+  context: 'CRITICAL: Memory guard (T015a) MUST run before data loading (T012) to
+    prevent RAM overflow by fetching remote metadata.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed memory guard implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:16:49Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed single-cohort check implementation
+  claim_id: c_41d1f930
+  context: 'CRITICAL: Single-Cohort check (T017d) MUST run after condition validation
+    (T014b) to prevent invalid Within-Subjects claims.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed single-cohort check implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:17:06Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed new tasks implementation
+  claim_id: c_41f87720
+  context: 'CRITICAL: New tasks T040, T041, T042, T014b (updated), T016b, T037c, T035a-Install,
+    T035a-Usage, T035b, T043 address reviewer concerns regarding data citation, fail-loudly
+    guards, outlier audit trails, single-file condition validation, checksum verification,
+    CI runtime verification, specific README content, and instrument validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed new tasks implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:17:32Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed design branch decision implementation
+  claim_id: c_368abe13
+  context: 'CRITICAL: T013b (Design Branch Decision) is the central gate for all design
+    logic, resolving signals from T013, T014b, T017d, and T017e to enforce the single-dataset
+    constraint and support the Between-Subjects fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed design branch decision implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:17:47Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed memory safety implementation
+  claim_id: c_1fce4435
+  context: 'CRITICAL: T015-MemorySafety (Consolidated) ensures memory constraints
+    are enforced before, during, and after ingestion in a single logical flow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed memory safety implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:17:59Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed sensitivity report verification implementation
+  claim_id: c_089cd341
+  context: 'CRITICAL: T035b (Sensitivity Report Verification) mandates generating
+    tests/results/sensitivity_verification.json to ensure SC-004 is met.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed sensitivity report verification
+    implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:18:14Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed CI runtime verification implementation
+  claim_id: c_f9766cab
+  context: 'CRITICAL: T037c (CI Runtime Verification) runs before T037a CI gate to
+    verify SC-002 on the target environment.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed CI runtime verification implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:18:28Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed README content implementation
+  claim_id: c_73711cb1
+  context: 'CRITICAL: T035a-Install and T035a-Usage are now in Phase 1 to ensure MVP
+    executability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed README content implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:18:44Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed linear order implementation
+  claim_id: c_a4884f20
+  context: 'CRITICAL: Linear Order for Phase 3: T013 -> T014b -> T017d -> T017e ->
+    T013b -> T017f.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed linear order implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:19:18Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed checksum verification implementation
+  claim_id: c_52017a58
+  context: 'CRITICAL: T016b (Verify) MUST precede T016 (Write State).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed checksum verification implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:19:33Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: use exit code 1 for failed citation implementation
+  claim_id: c_19e35119
+  context: 'CRITICAL: T040 (Citation) MUST run after T016 (State Update) to ensure
+    verified accuracy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use exit code 1 for failed citation implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T00:19:53Z'

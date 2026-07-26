@@ -1,2 +1,1 @@
-# This file ensures the directory exists in version control.
-# Final reports will be generated here.
+# This file ensures the reports directory is tracked by git
