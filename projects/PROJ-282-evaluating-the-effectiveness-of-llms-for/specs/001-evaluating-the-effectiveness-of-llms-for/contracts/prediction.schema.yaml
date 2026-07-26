@@ -1,42 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PredictionResultSchema"
-description: "Schema for the output of LLM or Static Analyzer predictions."
+title: "PredictionResult Schema"
 type: object
 properties:
   snippet_id:
     type: string
-    description: "Reference to the input snippet ID."
+    description: "Reference to CodeSnippet.id"
   model_name:
     type: string
-    description: "Name of the model or tool used (e.g., 'TinyLlama', 'Bandit')."
+    description: "Name of the model or analyzer used"
   predicted_label:
-    type: integer
+    type: string
     enum:
-      - 0
-      - 1
-    description: "Predicted vulnerability label."
+      - "vulnerable"
+      - "safe"
+    description: "Predicted vulnerability status"
   predicted_category:
     type: string
-    description: "Predicted vulnerability category or 'uncertain'."
-  is_correct:
-    type: boolean
-    description: "True if predicted_label matches ground_truth_label."
-  inference_time_ms:
-    type: number
-    description: "Time taken for inference in milliseconds."
+    nullable: true
+    description: "Predicted vulnerability category"
   confidence_score:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Optional confidence score from the model."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score of the prediction"
+  is_correct:
+    type: boolean
+    description: "True if prediction matches ground truth"
+  inference_time_ms:
+    type: number
+    description: "Time taken for inference in milliseconds"
   truncation_event:
     type: boolean
-    description: "True if the input was truncated to fit the context window."
+    description: "True if input was truncated"
+  timeout_risk:
+    type: boolean
+    description: "True if processed after circuit breaker trigger"
 required:
   - snippet_id
   - model_name
   - predicted_label
-  - predicted_category
+  - confidence_score
   - is_correct
   - inference_time_ms
   - truncation_event

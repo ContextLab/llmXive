@@ -1,0 +1,11 @@
+status: none
+intent: download VulDeePecker NIST Juliet BigVul vulnerability datasets python package
+  dataset
+required_fields:
+- code_snippet
+- language
+- vulnerability_category
+- ground_truth_label
+cache_key: 1ebae41911cc62d5ff45391c42777bb7ca5121c82157bd13a90a2c788a5ed734
+searched_at: '2026-07-26T00:07:38.270458+00:00'
+retry_count: 1

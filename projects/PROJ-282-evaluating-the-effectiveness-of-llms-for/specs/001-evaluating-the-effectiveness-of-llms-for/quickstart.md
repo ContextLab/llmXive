@@ -1,61 +1,72 @@
-# Quickstart: Evaluating LLM Vulnerability Detection
+# Quickstart: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code
 
-The following steps assume a fresh GitHub Actions runner or a local Linux environment with Python 3.11.
+## Prerequisites
 
-## 1. Clone the repository
+- Python 3.11+
+- `bandit` (Python) and `cppcheck` (C) installed in the system path.
+- Access to a GitHub Actions runner or local environment with ≥7GB RAM.
+
+## Installation
+
+1.  **Clone & Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
+    python -m venv venv
+    source venv/bin/activate
+    ```
+
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    # requirements.txt includes: transformers, datasets, pandas, scikit-learn, tree-sitter, bandit, pydantic
+    ```
+
+3.  **Install System Tools**:
+    ```bash
+    # Ubuntu/Debian
+    sudo apt-get update && sudo apt-get install -y cppcheck
+    ```
+
+## Running the Pipeline
+
+### 1. Download Data
 ```bash
-git clone
-cd llm-vuln-eval
+python src/main.py --stage download
 ```
+*Downloads VulDeePecker, BigVul, and JS datasets to `data/raw/` and computes checksums.*
 
-## 2. Create the Python environment
+### 2. Preprocess & Sample
 ```bash
-python -m venv.venv
-source.venv/bin/activate
-pip install -r requirements.txt
+python src/main.py --stage preprocess
 ```
+*Stratified sampling to a representative subset. Output: `data/processed/samples.csv`.*
 
-## 3. Install system dependencies (static analyzers)
+### 3. Extract Features
 ```bash
-# Bandit is a pip package, already installed via requirements.txt
-sudo apt-get update && sudo apt-get install -y cppcheck
+python src/main.py --stage features
 ```
+*Computes AST, complexity, and embeddings. Output: `data/processed/features.csv`.*
 
-## 4. Run the full pipeline (single command)
+### 4. Run Inference (LLM + Static)
 ```bash
-python -m code.main \
- --max-snippets 5000 \
- --batch-size 8 \
- --seed 42 \
- --output-dir data/processed
+python src/main.py --stage inference
 ```
-- The script will:
- 1. Stream the three verified datasets.
- 2. Parse and extract all features (including **KNN-based embedding similarity** to external corpus).
- 3. Perform zero‑shot inference with the CPU‑quantized StarCoder model.
- 4. Run Bandit and cppcheck on the same snippets.
- 5. Compute all metrics, **Logistic Regression**, McNemar’s test (on matched samples), and the sensitivity analysis.
- 6. Write JSON/CSV artefacts and generate PNG figures under `results/`.
+*Runs zero-shot LLM and static analyzers. Output: `data/processed/predictions_llm.csv`, `predictions_static.csv`.*
 
-## 5. Inspect results
+### 5. Analyze Results
 ```bash
-# Summary JSON
-cat results/summary.json | jq.
-
-# Example metric table
-python -c "import pandas as pd; print(pd.read_parquet('data/processed/analysis_metrics.parquet').head())"
+python src/main.py --stage analysis
 ```
+*Computes metrics, correlations, regression, and McNemar's test. Output: `data/processed/metrics.json`.*
 
-## 6. Run the test suite (contract validation)
-```bash
-pytest -q
-```
-All contracts in `contracts/` must pass; failures indicate a breach of the data model or missing fields.
+## Verification
 
-## 7. Re‑run with a different LLM (optional)
-```bash
-python -m code.main --model starcoder-base-4bit --max-snippets 2000
-```
-Replace `--model` with any model supported by `code/llm_infer.py` that can be loaded in CPU‑only mode.
+- **Check Sum**: `python src/utils/hash_artifacts.py --verify`
+- **Run Tests**: `pytest tests/`
 
----
+## Troubleshooting
+
+- **OOM Error**: Reduce `BATCH_SIZE` in `src/config.py` to 1.
+- **Missing Tool**: Ensure `cppcheck` is in `$PATH` for C analysis.
+- **Timeout**: If runtime > 6h, the job will fail. Reduce sample size in `src/config.py`.

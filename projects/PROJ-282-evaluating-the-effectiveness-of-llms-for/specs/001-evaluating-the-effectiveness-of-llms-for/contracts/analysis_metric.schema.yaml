@@ -7,7 +7,7 @@ required:
 properties:
   metric_name:
     type: string
-    description: "Human‑readable name (e.g., 'precision', 'point_biserial_r', 'logit_pseudo_r2')."
+    description: "Human‑readable name (e.g., 'precision', 'point_biserial_r', 'nagelkerke_pseudo_r2')."
   feature_name:
     type: string
     description: "Name of the feature if metric is feature‑specific."
@@ -27,6 +27,12 @@ properties:
     minimum: 0
     maximum: 1
     description: "p‑value after multiple‑comparison correction."
+  odds_ratio:
+    type: number
+    description: "Odds ratio for Logistic Regression (if applicable)."
+  vif:
+    type: number
+    description: "Variance Inflation Factor (if applicable)."
   notes:
     type: string
     description: "Optional free‑form commentary."

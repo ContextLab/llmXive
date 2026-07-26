@@ -1,37 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PredictionResult"
-type: object
+description: "Schema for LLM and Static Analyzer predictions."
+type: "object"
+properties:
+  snippet_id:
+    type: "string"
+    description: "Foreign key to CodeSnippet."
+  model_type:
+    type: "string"
+    enum: ["LLM", "StaticAnalyzer"]
+    description: "Type of model used."
+  predicted_label:
+    type: "integer"
+    enum: [0, 1]
+    description: "Predicted vulnerability label."
+  predicted_category:
+    type: "string"
+    nullable: true
+    description: "Predicted vulnerability category."
+  confidence_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Model confidence score."
+  is_correct:
+    type: "boolean"
+    description: "Match with ground truth."
+  inference_time_ms:
+    type: "number"
+    minimum: 0
+    description: "Inference time in milliseconds."
+  truncation_event:
+    type: "boolean"
+    description: "True if input was truncated."
+  timeout_risk:
+    type: "boolean"
+    description: "True if processed after circuit breaker trigger."
 required:
   - snippet_id
   - model_type
   - predicted_label
-  - predicted_category
   - is_correct
   - inference_time_ms
-properties:
-  snippet_id:
-    type: string
-    description: "UUID of the CodeSnippet."
-  model_type:
-    type: string
-    enum: ["llm", "bandit", "cppcheck"]
-    description: "Origin of the prediction."
-  predicted_label:
-    type: boolean
-    description: "Whether the model predicts a vulnerability (true) or not (false)."
-  predicted_category:
-    type: string
-    description: "CWE identifier or 'none' / 'uncertain'."
-  is_correct:
-    type: boolean
-    description: "Matches ground_truth_label."
-  inference_time_ms:
-    type: integer
-    minimum: 0
-    description: "Wall‑clock inference time for this snippet."
-  truncated:
-    type: boolean
-    description: "True if input was truncated to fit model context."
-  uncertain_mapped:
-    type: boolean
-    description: "True if an ambiguous model response was mapped to 'uncertain'."
+  - truncation_event
+additionalProperties: false

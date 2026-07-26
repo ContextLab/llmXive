@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 69d2202203873ea43c0cd8e90ad10722fca51c93d8993dd1b1350f8b837c04ef
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/claudios/VulDeePecker/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/659876acd108fc317f333db2/72ac2c72059ae4ed017d649b823e0c1ecb680aeb55eefdc4e1eca3c72759437b?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1785028803&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU5ODc2YWNkMTA4ZmMzMTdmMzMzZGIyLzcyYWMyYzcyMDU5YWU0ZWQwMTdkNjQ5YjgyM2UwYzFlY2I2ODBhZWI1NWVlZmRjNGUxZWNhM2M3Mjc1OTQzN2JcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODUwMjg4MDN9fX1dfQ__&Signature=MEQCIBJkkV8b%7Ew-rDPs4vfkhxMV6rOV50iybLdjZSJDRdOp3AiBRgsFtcuhfizLv71oawPYlY4Wb5FTEz3LyI9c6sSHGWw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-26T00:20:03.491666Z'
+- artifact_hash: 69d2202203873ea43c0cd8e90ad10722fca51c93d8993dd1b1350f8b837c04ef
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001-d20b0e7149fa6eeb.parquet
+  kind: url
+  value: https://huggingface.co/datasets/bstee615/bigvul/resolve/main/data/test-00000-of-00001-d20b0e7149fa6eeb.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64f001241df52444a5030250/fc3fae8afda653eb4365ac15b00470b3c3f6ad73cdcdbafc71da8762134da1ff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-d20b0e7149fa6eeb.parquet%3B+filename%3D%22test-00000-of-00001-d20b0e7149fa6eeb.parquet%22%3B&user_id=public&Expires=1785028804&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmMDAxMjQxZGY1MjQ0NGE1MDMwMjUwL2ZjM2ZhZThhZmRhNjUzZWI0MzY1YWMxNWIwMDQ3MGIzYzNmNmFkNzNjZGNkYmFmYzcxZGE4NzYyMTM0ZGExZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1kMjBiMGU3MTQ5ZmE2ZWViLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWQyMGIwZTcxNDlmYTZlZWIucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg1MDI4ODA0fX19XX0_&Signature=MEUCIACCt7jqcOG1vlIGjEyabeEevnLifzyZ31FXgIurAxsdAiEAnpDjSE4GbRTV1l-TugagvOd24blBLTwmX7Kk-OSFMXI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-26T00:20:03.491666Z'

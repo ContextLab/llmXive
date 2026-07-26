@@ -41,7 +41,7 @@ The system MUST parse every code snippet to extract structural metrics (AST dept
 
 ### User Story 3 - Statistical Analysis & Reporting (Priority: P3)
 
-The system MUST compute precision, recall, F1-scores, and ROC-AUC per vulnerability category; perform correlation analysis between extracted features and per-sample binary correctness; fit a multiple linear regression model predicting per-sample correctness from features; and perform McNemar's test comparing LLM predictions against the static analyzer baseline.
+The system MUST compute precision, recall, F1-scores, and ROC-AUC per vulnerability category; perform correlation analysis between extracted features and per-sample binary correctness; fit a Logistic Regression model predicting per-sample correctness from features; and perform McNemar's test comparing LLM predictions against the static analyzer baseline.
 
 **Why this priority**: This transforms the raw data into the scientific findings. It addresses the "Expected Results" of the idea by quantifying the relationship between code features and LLM success and comparing against baselines.
 
@@ -49,7 +49,7 @@ The system MUST compute precision, recall, F1-scores, and ROC-AUC per vulnerabil
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 100 samples with extracted features and binary `is_correct` labels, **When** the analysis script runs, **Then** it must output a Pearson correlation coefficient (r) and p-value for every feature against the `is_correct` outcome.
+1. **Given** a dataset of a representative sample with extracted features and binary `is_correct` labels, **When** the analysis script runs, **Then** it must output a Pearson correlation coefficient (r) and p-value for every feature against the `is_correct` outcome.
 2. **Given** the full feature set and `is_correct` outcomes, **When** the regression model is fitted, **Then** the system must report the adjusted R² and the significance (p < 0.05) of at least one predictor variable.
 3. **Given** multiple hypothesis tests are performed (e.g., correlations for a representative set of features per category), **When** the analysis completes, **Then** the system must apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to the family of tests for each category and report adjusted p-values.
 4. **Given** LLM predictions and static analyzer predictions on the same set of samples, **When** the analysis runs, **Then** the system must compute and report McNemar's test statistic and p-value to determine if the difference in performance is significant.
@@ -82,23 +82,23 @@ The system MUST execute standard static analysis tools (Bandit for Python, cppch
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load and parse the VulDeePecker and Juliet datasets, extracting code snippets and their `ground_truth_label` and `ground_truth_category`, ensuring all available labeled samples (up to a maximum of 5,000) are processed (See US-1).
+- **FR-001**: System MUST load and parse the VulDeePecker dataset (for Python), the official NIST Juliet repository (for C/C++), and the BigVul dataset (for JavaScript), extracting code snippets and their `ground_truth_label` and `ground_truth_category`, ensuring all available labeled samples (up to a maximum of 5,000) are processed using stratified sampling by language and vulnerability type (See US-1).
 - **FR-002**: System MUST execute zero-shot LLM inference on code snippets in batches using CPU-only execution (no GPU acceleration), ensuring the total memory footprint remains within standard system RAM limits. (See US-1).
 - **FR-003**: System MUST compute structural metrics (AST depth, node count, cyclomatic complexity) for every code snippet using `tree-sitter` or an equivalent CPU-tractable parser (See US-2).
-- **FR-004**: System MUST compute semantic metrics (frequency of known taint-source APIs, presence of sanitization functions) AND embedding-based similarity to known vulnerable patterns (using a pre-trained code encoder) for every code snippet (See US-2).
-- **FR-005**: System MUST calculate precision, recall, F1-scores, and ROC-AUC for each vulnerability category and model. For correlation analysis, the system MUST test the correlation between each feature and the per-sample binary `is_correct` outcome for each category, applying a multiple-comparison correction (e.g., Bonferroni) to the family of tests for each category to control family-wise error (See US-3).
-- **FR-006**: System MUST fit a multiple linear regression model predicting per-sample binary `is_correct` (1 or 0) from the full set of structural, semantic, and embedding features, reporting the adjusted R² and coefficient significance (See US-3).
-- **FR-007**: System MUST log the inference time per sample and total runtime, ensuring the entire pipeline completes within 6 hours on a 2-core CPU environment (Constitution Principle VI, FR-030), with a per-sample inference time budget of ≤ 43 seconds to guarantee feasibility for the [deferred] sample cap (See US-1).
+- **FR-004**: System MUST compute semantic metrics (frequency of known taint-source APIs, presence of sanitization functions) AND embedding-based similarity to known vulnerable patterns (using a pre-trained code encoder) for every code snippet, where the 'known vulnerable patterns' are derived from an external, fixed reference set (e.g., a separate CVE corpus) to ensure independence (See US-2).
+- **FR-005**: System MUST calculate precision, recall, F1-scores, and ROC-AUC for each vulnerability category and model. For correlation analysis, the system MUST test the correlation between each feature and the per-sample binary `is_correct` outcome for each category, applying a multiple-comparison correction (e.g., Bonferroni) to the family of tests for each category to control family-wise error. Non-significant adjusted p-values MUST be reported as 'not significant' (See US-3).
+- **FR-006**: System MUST fit a Logistic Regression model (GLM with logit link) predicting per-sample binary `is_correct` (1 or 0) from the full set of structural, semantic, and embedding features, including 'language' as a categorical predictor to control for confounding, reporting the adjusted R² and coefficient significance (See US-3).
+- **FR-007**: System MUST log the inference time per sample and total runtime, ensuring the entire pipeline completes within 6 hours on a -core CPU environment (Constitution Principle VI, FR-030), with a per-sample inference time budget of ≤ 4.32 seconds to guarantee feasibility for the maximum 5,000 sample cap (See US-1).
 - **FR-008**: System MUST execute static analysis tools (Bandit for Python, cppcheck for C) on the full dataset, recording predictions and `is_correct` flags against ground truth (See US-4).
 - **FR-009**: System MUST record precision, recall, F1, and ROC-AUC metrics for the static analyzer baseline to enable comparison (See US-4).
 - **FR-010**: System MUST perform McNemar's test comparing LLM predictions against static analyzer predictions on the same samples to determine statistical significance of performance differences (See US-3).
-- **FR-011**: System MUST perform a sensitivity analysis on a human-verified subset (n=100) to validate the impact of potential ground-truth label noise on the calculated metrics (See Assumptions).
+- **FR-011**: System MUST perform a sensitivity analysis on a subset (n=100) using an independent ground-truth re-labeling protocol (e.g., comparing against a secondary labeled dataset subset) to validate the impact of potential ground-truth label noise on the calculated metrics (See Assumptions).
 
 ### Key Entities
 
 - **CodeSnippet**: Represents a single unit of source code with attributes: `id`, `language` (C/Python/JS), `source_code`, `ground_truth_label`, `ground_truth_category`.
 - **FeatureVector**: Represents the extracted properties of a snippet: `ast_depth`, `cyclomatic_complexity`, `node_count`, `taint_api_count`, `sanitization_present`, `embedding_similarity_score`.
-- **PredictionResult**: Represents the LLM or Analyzer's output: `snippet_id`, `predicted_label`, `predicted_category`, `is_correct` (boolean), `inference_time_ms`.
+- **PredictionResult**: Represents the LLM or Analyzer's output: `snippet_id`, `predicted_label`, `predicted_category` (string, e.g., 'SQLi'), `is_correct` (boolean), `inference_time_ms`.
 - **AnalysisMetric**: Represents a statistical result: `metric_name` (e.g., "Pearson_r"), `feature_name`, `value`, `p_value`, `adjusted_p_value`.
 
 ## Success Criteria
@@ -108,18 +108,18 @@ The system MUST execute standard static analysis tools (Bandit for Python, cppch
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The correlation between specific structural features (e.g., AST depth) and LLM detection accuracy is measured against the hypothesis that deeper/nested code correlates with lower accuracy, specifically testing the correlation between the feature and the per-sample binary `is_correct` outcome (See US-3).
-- **SC-002**: The adjusted R² of the multiple linear regression model (predicting per-sample correctness) is measured to determine if it is statistically significantly greater than zero (p < 0.05) OR if the model explains a meaningful portion of variance (adjusted R² > 0.10) (See US-3).
-- **SC-003**: The precision, recall, F1, and ROC-AUC of the zero-shot LLM are measured against the ground-truth labels from the VulDeePecker and Juliet datasets to establish a baseline for zero-shot efficacy (See US-1).
-- **SC-004**: The family-wise error rate is controlled such that the adjusted p-values for all reported correlations are < 0.05, ensuring statistical validity of the feature correlations (See US-3).
+- **SC-002**: The adjusted R² of the Logistic Regression model (predicting per-sample correctness) is measured to determine if it is statistically significantly greater than zero (p < 0.05) OR if the model explains a meaningful portion of variance (adjusted R² > 0.10) (See US-3).
+- **SC-003**: The precision, recall, F1, and ROC-AUC of the zero-shot LLM are measured against the ground-truth labels from the VulDeePecker, Juliet, and BigVul datasets to establish a baseline for zero-shot efficacy (See US-1).
+- **SC-004**: The family-wise error rate is controlled such that the adjusted p-values for all reported correlations are reported, ensuring statistical validity of the feature correlations (See US-3).
 - **SC-005**: The total inference time and memory usage are measured against the GitHub Actions runner constraints (≤6 hours, ≤7 GB RAM) to verify compute feasibility (See US-1).
 - **SC-006**: The performance of the LLM is compared against the static analyzer baseline using McNemar's test, with a p-value < 0.05 required to claim a statistically significant difference (See US-3).
 
 ## Assumptions
 
-- The VulDeePecker dataset and Juliet test suite are publicly available and can be downloaded via `wget` or `git clone` within the CI environment without authentication.
+- The VulDeePecker dataset, the official NIST Juliet repository, and the BigVul dataset are publicly available and can be downloaded via `wget` or `git clone` within the CI environment without authentication.
 - The selected open-source LLMs (CodeLlamaB, StarCoder-Base, distilled Llama-2) can be loaded and run in 4-bit or default precision on a CPU-only environment without exceeding a reasonable amount of RAM, assuming the model weights are quantized or the implementation uses `bitsandbytes` in a CPU-compatible mode (if available) or a smaller distilled variant.
 - The `tree-sitter` parser supports the C, Python, and JavaScript languages required by the datasets and can run within a multi-core CPU limit without significant overhead.
-- The "ground truth" labels provided by the datasets are treated as the primary reference for the purpose of this study, acknowledging that community-curated datasets may contain labeling noise. A sensitivity analysis (FR-011) is conducted to assess the impact of this noise.
+- The "ground truth" labels provided by the datasets are treated as the primary reference for the purpose of this study, acknowledging that community-curated datasets may contain labeling noise. A sensitivity analysis (FR-011) is conducted to assess the impact of this noise using an independent ground-truth re-labeling protocol.
 - The "zero-shot" prompt format ("Identify any security vulnerability...") is sufficient to elicit a structured response that can be parsed into a category label without few-shot examples.
-- The dataset size is small enough to fit entirely in memory after feature extraction., or can be processed in chunks without losing statistical power for the regression analysis.
-- The 6-hour runtime constraint (FR-007) is achievable given the [deferred] sample cap and the per-sample time budget of ≤ 43 seconds.
+- The dataset size is small enough to fit entirely in memory after feature extraction, or can be processed in chunks of ≤500 samples without losing statistical power for the regression analysis.
+- The 6-hour runtime constraint (FR-007) is achievable given the maximum 5,000 sample cap and the per-sample time budget of ≤ 4.32 seconds.
