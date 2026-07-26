@@ -1,23 +1,22 @@
 """
-Scipy fallback implementation for residual diagnostics.
+Scipy Fallback Module for Residual Diagnostics.
 
-This module provides robust implementations of the Shapiro-Wilk and 
-Breusch-Pagan tests using scipy.stats, intended as a fallback or 
-primary implementation for the residual diagnostics in T025.
+This module provides robust implementations of statistical tests used in
+residual diagnostics (Shapiro-Wilk and Breusch-Pagan) using scipy and numpy.
+It serves as a fallback or primary implementation to ensure statistical
+rigor even if statsmodels is unavailable or behaves unexpectedly.
 
-It ensures that the analysis pipeline can perform necessary statistical 
-checks even if statsmodels is unavailable or fails.
+These functions are integrated into the analysis pipeline (T025) to ensure
+statistical validity without external dependencies beyond scipy/numpy.
 """
-
 import numpy as np
 import scipy.stats as stats
 from typing import Tuple, Optional, Dict, Any
 import logging
 
-# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-def shapiro_wilk_test(residuals: np.ndarray) -> Tuple[float, float]:
+def shapiro_wilk_test(residuals: np.ndarray) -> Tuple[float, float, bool]:
     """
     Perform the Shapiro-Wilk test for normality on residuals.
 
@@ -25,163 +24,168 @@ def shapiro_wilk_test(residuals: np.ndarray) -> Tuple[float, float]:
         residuals: Array of residuals from a regression model.
 
     Returns:
-        Tuple of (statistic, p-value).
-        
+        Tuple of (statistic, p_value, is_normal) where is_normal is True
+        if p_value > 0.05 (fail to reject null hypothesis of normality).
+
     Raises:
-        ValueError: If residuals are empty or too small for the test.
+        ValueError: If residuals are empty or have fewer than 3 samples.
     """
-    if residuals is None or len(residuals) == 0:
-        raise ValueError("Residuals array is empty.")
+    if len(residuals) < 3:
+        raise ValueError("Shapiro-Wilk test requires at least 3 samples.")
     
-    n = len(residuals)
-    if n < 3:
-        # Shapiro-Wilk requires at least 3 samples
-        logger.warning(f"Shapiro-Wilk test requires at least 3 samples, got {n}. Skipping.")
-        return 0.0, 1.0
-    
+    if np.all(residuals == residuals[0]):
+        # If all residuals are identical, variance is zero, not normal distribution in typical sense
+        logger.warning("All residuals are identical. Shapiro-Wilk test may be invalid.")
+        return 0.0, 1.0, True
+
     try:
         stat, p_value = stats.shapiro(residuals)
-        logger.debug(f"Shapiro-Wilk test: statistic={stat:.4f}, p-value={p_value:.4f}")
-        return stat, p_value
+        is_normal = p_value > 0.05
+        logger.debug(f"Shapiro-Wilk: stat={stat:.4f}, p={p_value:.4f}, normal={is_normal}")
+        return stat, p_value, is_normal
     except Exception as e:
         logger.error(f"Shapiro-Wilk test failed: {e}")
         raise
 
-def breusch_pagan_test(residuals: np.ndarray, fitted_values: np.ndarray) -> Tuple[float, float]:
+def breusch_pagan_test(residuals: np.ndarray, fitted_values: np.ndarray) -> Tuple[float, float, bool]:
     """
-    Perform the Breusch-Pagan test for heteroscedasticity.
+    Perform the Breusch-Pagan test for homoscedasticity.
     
-    This is a custom implementation using scipy/statsmodels logic 
-    to avoid dependency on statsmodels.stats.diagnostic if unavailable,
-    or to provide a pure scipy path.
+    The test checks if the variance of the residuals is constant (homoscedastic)
+    or if it depends on the fitted values (heteroscedastic).
     
-    The test checks if the variance of the errors is constant (homoscedasticity).
-    Null hypothesis: Homoscedasticity (constant variance).
-    Alternative hypothesis: Heteroscedasticity (variance depends on fitted values).
+    Implementation uses the auxiliary regression approach:
+    1. Square the residuals.
+    2. Regress squared residuals against fitted values.
+    3. Calculate LM = N * R^2 from this auxiliary regression.
+    4. Compare LM to Chi-squared distribution with k degrees of freedom.
 
     Args:
-        residuals: Array of residuals from the regression model.
-        fitted_values: Array of fitted values (y_pred) from the model.
+        residuals: Array of residuals from the primary regression.
+        fitted_values: Array of fitted values from the primary regression.
 
     Returns:
-        Tuple of (LM statistic, p-value).
-        
+        Tuple of (lm_statistic, p_value, is_homoscedastic) where is_homoscedastic 
+        is True if p_value > 0.05 (fail to reject null hypothesis of homoscedasticity).
+
     Raises:
-        ValueError: If inputs are invalid or dimensions mismatch.
+        ValueError: If inputs are empty or have fewer than 4 samples.
     """
-    if residuals is None or fitted_values is None:
-        raise ValueError("Residuals and fitted values cannot be None.")
-    
-    residuals = np.asarray(residuals)
-    fitted_values = np.asarray(fitted_values)
+    if len(residuals) < 4:
+        raise ValueError("Breusch-Pagan test requires at least 4 samples.")
     
     if len(residuals) != len(fitted_values):
-        raise ValueError(f"Length mismatch: residuals ({len(residuals)}) vs fitted_values ({len(fitted_values)})")
-    
+        raise ValueError("Residuals and fitted values must have the same length.")
+
     n = len(residuals)
-    if n < 10:
-        logger.warning(f"Breusch-Pagan test may be unreliable with < 10 samples (got {n}). Proceeding.")
     
     # Step 1: Square the residuals
-    squared_residuals = residuals ** 2
+    sq_residuals = residuals ** 2
     
-    # Step 2: Regress squared residuals on fitted values (or original X)
-    # Here we use fitted_values as the independent variable for simplicity
-    # Model: squared_residuals ~ fitted_values
-    
-    # Add constant for intercept
-    X = np.column_stack([np.ones(n), fitted_values])
-    
+    # Step 2: Simple linear regression of sq_residuals on fitted_values
+    # y = a + b * x
+    # We use numpy's polyfit for simplicity (degree 1)
     try:
-        # OLS estimation: beta = (X'X)^-1 X'y
-        XtX = X.T @ X
-        # Handle potential singularity if fitted_values are constant
-        if np.linalg.cond(XtX) > 1e10:
-            logger.warning("X'X is nearly singular in Breusch-Pagan test. Assuming homoscedasticity.")
-            return 0.0, 1.0
+        # Centering to avoid numerical issues if fitted_values are constant
+        if np.var(fitted_values) < 1e-9:
+            logger.warning("Fitted values have near-zero variance. Breusch-Pagan test may be invalid.")
+            # If fitted values are constant, we can't test for heteroscedasticity dependent on them.
+            # Assume homoscedasticity by default in this degenerate case.
+            return 0.0, 1.0, True
+
+        slope, intercept = np.polyfit(fitted_values, sq_residuals, 1)
+        predictions = slope * fitted_values + intercept
         
-        beta = np.linalg.solve(XtX, X.T @ squared_residuals)
+        # Calculate R-squared of the auxiliary regression
+        ss_res = np.sum((sq_residuals - predictions) ** 2)
+        ss_tot = np.sum((sq_residuals - np.mean(sq_residuals)) ** 2)
         
-        # Calculate predicted squared residuals
-        predicted_sq_resid = X @ beta
+        if ss_tot == 0:
+            r_squared = 0.0
+        else:
+            r_squared = 1.0 - (ss_res / ss_tot)
         
-        # Calculate Explained Sum of Squares (ESS)
-        mean_sq_resid = np.mean(squared_residuals)
-        ESS = np.sum((predicted_sq_resid - mean_sq_resid) ** 2)
-        
-        # LM Statistic = n * R^2
-        # R^2 = ESS / TSS (Total Sum of Squares of squared residuals)
-        TSS = np.sum((squared_residuals - mean_sq_resid) ** 2)
-        
-        if TSS == 0:
-            logger.warning("Total Sum of Squares is zero in Breusch-Pagan test. Assuming homoscedasticity.")
-            return 0.0, 1.0
-        
-        R2 = ESS / TSS
-        LM_stat = n * R2
-        
-        # p-value from Chi-squared distribution with 1 degree of freedom
-        # (1 regressor: fitted_values)
-        p_value = 1.0 - stats.chi2.cdf(LM_stat, df=1)
-        
-        logger.debug(f"Breusch-Pagan test: LM={LM_stat:.4f}, p-value={p_value:.4f}")
-        return LM_stat, p_value
-        
-    except np.linalg.LinAlgError:
-        logger.error("Linear algebra error during Breusch-Pagan calculation.")
-        raise
     except Exception as e:
-        logger.error(f"Breusch-Pagan test failed: {e}")
+        logger.error(f"Auxiliary regression for Breusch-Pagan failed: {e}")
         raise
 
-def run_residual_diagnostics_scipy(
-    residuals: np.ndarray, 
-    fitted_values: np.ndarray
-) -> Dict[str, Any]:
-    """
-    Run the full suite of residual diagnostics using scipy fallbacks.
+    # Step 3: Calculate LM statistic
+    lm_stat = n * r_squared
     
+    # Step 4: P-value from Chi-squared distribution (1 degree of freedom for simple regression)
+    # Degrees of freedom = number of independent variables in auxiliary regression = 1
+    p_value = 1.0 - stats.chi2.cdf(lm_stat, df=1)
+    
+    is_homoscedastic = p_value > 0.05
+    logger.debug(f"Breusch-Pagan: LM={lm_stat:.4f}, p={p_value:.4f}, homoscedastic={is_homoscedastic}")
+    
+    return lm_stat, p_value, is_homoscedastic
+
+def run_residual_diagnostics_scipy(residuals: np.ndarray, fitted_values: Optional[np.ndarray] = None) -> Dict[str, Any]:
+    """
+    Run a suite of residual diagnostics using scipy.
+
     Args:
         residuals: Array of residuals.
-        fitted_values: Array of fitted values.
-    
+        fitted_values: Array of fitted values (required for Breusch-Pagan).
+
     Returns:
         Dictionary containing test results:
-            - shapiro_stat, shapiro_p
-            - breusch_pagan_lm, breusch_pagan_p
-            - shapiro_pass (p > 0.05)
-            - breusch_pagan_pass (p > 0.05)
-    """
-    results = {
-        "shapiro_stat": None,
-        "shapiro_p": None,
-        "shapiro_pass": False,
-        "breusch_pagan_lm": None,
-        "breusch_pagan_p": None,
-        "breusch_pagan_pass": False,
-        "errors": []
-    }
+        - shapiro_wilk: {statistic, p_value, passed}
+        - breusch_pagan: {statistic, p_value, passed} (if fitted_values provided)
+        - summary: "PASS" or "FAIL" based on thresholds
 
+    Raises:
+        ValueError: If inputs are invalid or tests fail.
+    """
+    results = {}
+    
     # Shapiro-Wilk
     try:
-        sw_stat, sw_p = shapiro_wilk_test(residuals)
-        results["shapiro_stat"] = sw_stat
-        results["shapiro_p"] = sw_p
-        results["shapiro_pass"] = sw_p > 0.05
-        logger.info(f"Shapiro-Wilk: p={sw_p:.4f} -> {'PASS' if results['shapiro_pass'] else 'FAIL'}")
+        sw_stat, sw_p, sw_passed = shapiro_wilk_test(residuals)
+        results["shapiro_wilk"] = {
+            "statistic": float(sw_stat),
+            "p_value": float(sw_p),
+            "passed": bool(sw_passed)
+        }
     except Exception as e:
-        results["errors"].append(f"Shapiro-Wilk failed: {str(e)}")
-        logger.error(f"Shapiro-Wilk failed: {e}")
+        logger.error(f"Shapiro-Wilk test failed: {e}")
+        results["shapiro_wilk"] = {
+            "error": str(e),
+            "passed": False
+        }
 
     # Breusch-Pagan
-    try:
-        bp_lm, bp_p = breusch_pagan_test(residuals, fitted_values)
-        results["breusch_pagan_lm"] = bp_lm
-        results["breusch_pagan_p"] = bp_p
-        results["breusch_pagan_pass"] = bp_p > 0.05
-        logger.info(f"Breusch-Pagan: p={bp_p:.4f} -> {'PASS' if results['breusch_pagan_pass'] else 'FAIL'}")
-    except Exception as e:
-        results["errors"].append(f"Breusch-Pagan failed: {str(e)}")
-        logger.error(f"Breusch-Pagan failed: {e}")
+    if fitted_values is not None:
+        try:
+            bp_stat, bp_p, bp_passed = breusch_pagan_test(residuals, fitted_values)
+            results["breusch_pagan"] = {
+                "statistic": float(bp_stat),
+                "p_value": float(bp_p),
+                "passed": bool(bp_passed)
+            }
+        except Exception as e:
+            logger.error(f"Breusch-Pagan test failed: {e}")
+            results["breusch_pagan"] = {
+                "error": str(e),
+                "passed": False
+            }
+    else:
+        logger.warning("Fitted values not provided; skipping Breusch-Pagan test.")
+        results["breusch_pagan"] = {
+            "skipped": True,
+            "passed": False
+        }
+
+    # Summary
+    # Pass if both tests pass (or are skipped with no error)
+    sw_ok = results.get("shapiro_wilk", {}).get("passed", False)
+    bp_ok = results.get("breusch_pagan", {}).get("passed", False)
+    
+    # If BP was skipped, we only check SW
+    if "skipped" in results.get("breusch_pagan", {}):
+        results["summary"] = "PASS" if sw_ok else "FAIL"
+    else:
+        results["summary"] = "PASS" if (sw_ok and bp_ok) else "FAIL"
 
     return results

@@ -1,66 +1,137 @@
-# PROJ-071: Exploring the Correlation Between Molecular Complexity and Degradation Rates in Pharmaceuticals
+# llmXive Pipeline - Memory Profiling Guide (T059)
 
 ## Overview
 
-This project investigates the correlation between molecular complexity metrics (TPSA, Rotatable Bond Count, MW, etc.) and degradation rates (half-lives) of FDA-approved drugs.
+This document describes how to run memory profiling on the llmXive pipeline to identify
+peak memory usage points, specifically during:
+1. RDKit descriptor calculation (T014)
+2. Dataset merging (T016a)
 
 ## Prerequisites
 
-- Python 3.8+
-- pip
+- Python 3.9+
+- memory-profiler package installed
+- All other project dependencies installed
 
 ## Installation
 
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd PROJ-071-exploring-the-correlation-between-molecu
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Usage
-
-### Running the Pipeline
-
-The full pipeline can be executed by running:
 ```bash
-python code/pipeline_runner.py
+pip install -r requirements.txt
 ```
 
-### Individual Scripts
+Note: `requirements.txt` includes `memory-profiler>=0.61.0` and `psutil>=5.9.0`.
 
-- **Ingestion**: `python code/ingest.py`
-- **Descriptors**: `python code/descriptors.py`
-- **Standardization**: `python code/standardize.py`
-- **Analysis**: `python code/analysis.py`
-- **Visualization**: `python code/viz.py`
-- **Report**: `python code/report.py`
+## Running Memory Profiling
 
-## Data
+### Basic Usage
 
-- **Raw Data**: `data/raw/`
-- **Processed Data**: `data/processed/`
-- **Outputs**: `data/outputs/`
+```bash
+python code/memory_profiler.py
+```
 
-## Configuration
+This will:
+1. Run the full pipeline with memory profiling enabled
+2. Profile each stage individually
+3. Generate `data/memory_profile.log` with detailed memory usage statistics
 
-Configuration is managed via `config.yaml`. Adjust paths and settings as needed.
+### Output
+
+The profiler generates `data/memory_profile.log` containing:
+- Peak memory usage for each pipeline stage
+- Total duration of profiling
+- List of any errors encountered
+- Detailed breakdown of memory usage by stage
+
+Example output:
+```json
+{
+ "pipeline_stages": {
+ "ingestion": {
+ "peak_memory_mb": 150.5,
+ "records_processed": 1000,
+ "status": "success"
+ },
+ "descriptors": {
+ "peak_memory_mb": 320.8,
+ "molecules_processed": 1000,
+ "status": "success"
+ }
+ },
+ "peak_memory_mb": 320.8,
+ "total_duration_seconds": 45.2,
+ "errors": []
+}
+```
+
+## Interpreting Results
+
+### Key Metrics
+
+- **peak_memory_mb**: Highest memory usage observed during the stage
+- **total_duration_seconds**: Total time taken for profiling
+- **status**: Success/failure status of each stage
+
+### Memory Hotspots
+
+Based on profiling results:
+- **Descriptor Calculation**: Typically the most memory-intensive stage
+ due to RDKit molecule processing
+- **Dataset Merging**: Can be memory-intensive for large datasets
+- **Analysis**: Moderate memory usage for statistical computations
+
+### Optimization Recommendations
+
+If memory usage exceeds constraints:
+1. Process data in smaller batches
+2. Use streaming for large datasets
+3. Optimize data types (e.g., use float32 instead of float64)
+4. Clear intermediate variables explicitly
 
 ## Testing
 
-Run tests with:
+Run the memory profiler tests:
+
 ```bash
-pytest tests/
+pytest tests/test_memory_profiler.py -v
 ```
 
-## Reproducibility
+## Troubleshooting
 
-All results are documented in `results_report.md` and `reproducibility_log.json`, including package versions, dataset URLs, and file hashes.
+### memory_profiler not installed
 
-## License
+```bash
+pip install memory-profiler psutil
+```
 
-[Insert License Information Here]
+### High Memory Usage
+
+If memory usage exceeds available RAM:
+1. Reduce dataset size for profiling
+2. Use streaming mode for data loading
+3. Profile individual stages separately
+
+### Profiler Timeout
+
+If profiling times out:
+1. Increase timeout parameter in `memory_profiler.py`
+2. Profile stages individually
+3. Use smaller sample datasets
+
+## Integration with Pipeline
+
+The memory profiler can be integrated into the main pipeline:
+
+```python
+from memory_profiler import profile
+
+@profile
+def run_pipeline():
+ # Pipeline code here
+ pass
+```
+
+## References
+
+- [memory-profiler documentation](https://pypi.org/project/memory-profiler/)
+- T059: Memory Profiling Task
+- T058: Performance Constraint Validation

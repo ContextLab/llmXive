@@ -4,6 +4,13 @@ T017:
   r: "The required `data/processed/merged_drugs.csv` file does not exist, and `data/checksums.txt`\
     \ contains only placeholder comments rather than actual SHA256 checksums of generated\
     \ artifacts. Both required outputs are missing or non\u2011functional."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifact (code, data, report, or figures) for a separate sensitivity\
+    \ analysis was provided; the implementer only argued that the task is unnecessary,\
+    \ but the requirement calls for a deliverable that must be present and verifiable.\
+    \ Consequently the task\u2019s required output is missing."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,13 +32,21 @@ T042:
     \ time, defines the operational threshold, or demonstrates validation against\
     \ that threshold. Consequently the requirement to \u201CValidate pipeline execution\
     \ time against a defined operational threshold\u201D is not satisfied."
-T046:
+T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or documentation artifacts were supplied to demonstrate that the
-    scipy fallback logic was actually integrated into T025 or that any related functionality
-    was implemented. Without tangible evidence (e.g., a modified script, commit diff,
-    or test results), the claim cannot be verified. The required artifact is missing.
+  r: "No artifact (code, logs, or report) was provided to demonstrate that the HuggingFace\
+    \ dataset `Synthyra/FDA-Approved-Drugs` was fetched and its schema verified before\
+    \ ingestion, as required by the task. The implementer\u2019s claim lacks any concrete\
+    \ evidence of data\u2011source verification, so the requirement is unmet."
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No data files, code, analysis notebooks, plots, or reproducibility report are\
+    \ present; the required regression stability test (including data ingestion, metric\
+    \ calculation, regression with cross\u2011validation, diagnostics, and metadata\
+    \ logging) is not provided. The implementer only noted a task removal/replacement\
+    \ without delivering any of the mandated artifacts."
 T055:
   c: false
   h: 43192eae1b413abc276636617cb3d8bae13acd468ac5142feb60c2cca153241e
@@ -39,6 +54,14 @@ T055:
     \ do not exist, and there is no indication that `results_report.md` or `reproducibility_log.json`\
     \ were created. Therefore the required output files are missing, so the smoke\u2011\
     test success criteria are not met."
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, analysis results, plots, or reproducibility report were
+    provided; therefore none of the functional requirements (data fetching, metric
+    calculations, regression analyses, diagnostics, or metadata logging) can be verified
+    as completed. The implementer must supply the actual artifacts (e.g., scripts/notebooks,
+    generated tables, figures, and a reproducibility report) to satisfy the task.
 T056a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,3 +75,23 @@ T057:
   r: The required artifact `data/gate_status.json` does not exist, so the gate outcome
     cannot be verified and the branching logic cannot be confirmed. The task therefore
     lacks the essential output.
+T058:
+  c: false
+  h: d233a92d5563567946b6e3008aa2688c145c6c84538e5943015479c62cf5dd1f
+  r: "The repository lacks the required `data/gate_status.json` (and any `data_insufficiency_report.md`)\
+    \ and provides no logs, timing measurements, or Docker execution evidence showing\
+    \ the pipeline was run and the 6\u2011hour constraint validated. Consequently\
+    \ the task\u2019s performance\u2011constraint validation has not been demonstrated."
+T058b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `performance_constraint_failure_report.md` file was presented or described,\
+    \ so the required documentation of a Data Availability Gate failure is missing.\
+    \ The task\u2019s output artifact is absent, making the claim unverified."
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, execution logs, or error reports were provided to demonstrate\
+    \ that a synthetic edge\u2011case dataset was generated, run through the pipeline,\
+    \ and that RDKit remained stable with appropriate error logging. The required\
+    \ artifacts proving the stress test are missing."
