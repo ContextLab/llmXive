@@ -1,0 +1,31 @@
+T031:
+  c: false
+  h: b702f62a5049517ffcd410e3554d380dbe0fece769946881a5ee5996d0c69b16
+  r: The repository contains `code/simulate/calibration.py`, but the file is truncated
+    and there is no evidence that it writes `data/pilot/calibration_report.json` (the
+    file is missing). Consequently the required deliverable and the logic for setting
+    `limitation_flag` and exiting on threshold failures are not present. The next
+    implementer must ensure the script generates the calibration report (including
+    the flag) and updates `bkt_params.yaml` as specified.
+T031b:
+  c: true
+  h: 966c3c9aa1c96630da54778a7a9d51654355337fd7427f5fd4a2053a191209ad
+  r: "The repository contains `code/download/check_pilot_data.py`, which implements\
+    \ the required check, prints the JSON flag `has_human_data` and always exits with\
+    \ code\u202F0 (no `sys.exit(1)` paths). It correctly handles a missing or insufficient\
+    \ CSV by returning `false`, satisfying the task\u2019s specification."
+T031c:
+  c: false
+  h: 5ab130b34405c9ec498e2f001caa4d5f8d32c21037797a8a9e9a1486dbc3ba62
+  r: "The required output file `data/pilot/synthetic_pilot_data.csv` is not present\
+    \ on disk. Without this CSV (including the `is_synthetic=true` header and the\
+    \ warning log), the task\u2019s deliverable and requirement are not satisfied.\
+    \ The implementer must generate the file (\u226550 participants) and ensure the\
+    \ script logs the required warning."
+T033:
+  c: false
+  h: 644822dfdc781b2edb28421187b87cfd1b2eee5d086ed7890afb3bdb26e11d08
+  r: "The `update_bkt_params.py` file is truncated (ends mid\u2011line) and would\
+    \ not run, and there is no evidence that `code/simulate/bkt_params.yaml` has been\
+    \ updated based on calibration metrics \u2013 it only contains static default\
+    \ values. The required functional script and the updated YAML output are missing."

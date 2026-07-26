@@ -1,10 +1,20 @@
 """
 Symbolic Explanation Generator for Neuro-Symbolic Learning Networks.
 
-Implements a fixed rule-based engine to solve arithmetic/logic problems
-found in the ASSISTments subset. Generates a JSON trace of rule applications
-(commutativity, associativity, distributive property, identity element).
+This module implements a fixed rule-based engine to solve arithmetic and logic
+problems found in ASSISTments 'algebra' and 'geometry' subsets. It generates
+deterministic symbolic traces based on hand-coded mathematical rules, ensuring
+the symbolic layer is distinct from neural approximation.
+
+Rules Implemented:
+- Commutativity: a + b = b + a, a * b = b * a
+- Associativity: (a + b) + c = a + (b + c), (a * b) * c = a * (b * c)
+- Distributive Property: a * (b + c) = a*b + a*c
+- Identity Element: a + 0 = a, a * 1 = a
+
+Output: JSON trace of rule applications.
 """
+
 import json
 import logging
 import os
@@ -14,163 +24,146 @@ from typing import Dict, Any, List, Optional, Tuple
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+
 class SymbolicRule:
-    """Base class for symbolic rules."""
-    name: str
-    description: str
+    """Base class for symbolic transformation rules."""
 
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
 
-    def apply(self, expression: str) -> Optional[Tuple[str, str]]:
-        """
-        Apply rule to expression.
-        Returns (new_expression, explanation) if applied, else None.
-        """
+    def applies(self, expression: str) -> bool:
+        """Check if the rule applies to the given expression."""
+        raise NotImplementedError
+
+    def apply(self, expression: str) -> Tuple[str, str]:
+        """Apply the rule and return (new_expression, explanation)."""
         raise NotImplementedError
 
 
 class CommutativityRule(SymbolicRule):
-    """Rule for commutativity: a + b = b + a, a * b = b * a."""
+    """Implements commutativity: a + b = b + a, a * b = b * a."""
+
     def __init__(self):
-        super().__init__("commutativity", "Swap order of operands for + or *")
+        super().__init__(
+            "Commutativity",
+            "Order of operands does not affect result for addition and multiplication."
+        )
+        # Patterns for commutative operations
+        self.add_pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*\+\s*(-?\d+(?:\.\d+)?)$')
+        self.mul_pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*\*\s*(-?\d+(?:\.\d+)?)$')
 
-    def apply(self, expression: str) -> Optional[Tuple[str, str]]:
-        # Match simple binary operations with space separators
-        # Pattern: (operand) (operator) (operand)
-        # We look for addition or multiplication
-        pattern_add = r'^(-?\d+)\s*\+\s*(-?\d+)$'
-        pattern_mul = r'^(-?\d+)\s*\*\s*(-?\d+)$'
+    def applies(self, expression: str) -> bool:
+        expression = expression.strip()
+        return bool(self.add_pattern.match(expression) or self.mul_pattern.match(expression))
 
-        match = re.match(pattern_add, expression.strip())
-        if match:
+    def apply(self, expression: str) -> Tuple[str, str]:
+        expression = expression.strip()
+        if self.add_pattern.match(expression):
+            match = self.add_pattern.match(expression)
             a, b = match.group(1), match.group(2)
-            if a != b:  # Only swap if operands are different
-                return f"{b} + {a}", f"Applied commutativity: {a} + {b} = {b} + {a}"
-
-        match = re.match(pattern_mul, expression.strip())
-        if match:
+            return f"{b} + {a}", f"Applied commutativity of addition: {expression} -> {b} + {a}"
+        elif self.mul_pattern.match(expression):
+            match = self.mul_pattern.match(expression)
             a, b = match.group(1), match.group(2)
-            if a != b:
-                return f"{b} * {a}", f"Applied commutativity: {a} * {b} = {b} * {a}"
-
-        return None
+            return f"{b} * {a}", f"Applied commutativity of multiplication: {expression} -> {b} * {a}"
+        raise ValueError(f"Commutativity rule does not apply to: {expression}")
 
 
 class AssociativityRule(SymbolicRule):
-    """Rule for associativity: (a + b) + c = a + (b + c), etc."""
+    """Implements associativity: (a + b) + c = a + (b + c), etc."""
+
     def __init__(self):
-        super().__init__("associativity", "Re-group operands for + or *")
+        super().__init__(
+            "Associativity",
+            "Grouping of operands does not affect result for addition and multiplication."
+        )
+        # Patterns for associativity (left-associative to right-associative)
+        self.add_pattern = re.compile(r'^\((-?\d+(?:\.\d+)?)\s*\+\s*(-?\d+(?:\.\d+)?)\)\s*\+\s*(-?\d+(?:\.\d+)?)$')
+        self.mul_pattern = re.compile(r'^\((-?\d+(?:\.\d+)?)\s*\*\s*(-?\d+(?:\.\d+)?)\)\s*\*\s*(-?\d+(?:\.\d+)?)$')
 
-    def apply(self, expression: str) -> Optional[Tuple[str, str]]:
-        # Simplified: handle (a + b) + c pattern
-        pattern_left_add = r'^\((-?\d+)\s*\+\s*(-?\d+)\)\s*\+\s*(-?\d+)$'
-        pattern_right_add = r'^(-?\d+)\s*\+\s*\((-?\d+)\s*\+\s*(-?\d+)\)$'
+    def applies(self, expression: str) -> bool:
+        expression = expression.strip()
+        return bool(self.add_pattern.match(expression) or self.mul_pattern.match(expression))
 
-        match = re.match(pattern_left_add, expression.strip())
-        if match:
+    def apply(self, expression: str) -> Tuple[str, str]:
+        expression = expression.strip()
+        if self.add_pattern.match(expression):
+            match = self.add_pattern.match(expression)
             a, b, c = match.group(1), match.group(2), match.group(3)
             new_expr = f"{a} + ({b} + {c})"
-            return new_expr, f"Applied associativity: ({a} + {b}) + {c} = {a} + ({b} + {c})"
-
-        match = re.match(pattern_right_add, expression.strip())
-        if match:
-            a, b, c = match.group(1), match.group(2), match.group(3)
-            new_expr = f"({a} + {b}) + {c}"
-            return new_expr, f"Applied associativity: {a} + ({b} + {c}) = ({a} + {b}) + {c}"
-
-        # Multiplication patterns
-        pattern_left_mul = r'^\((-?\d+)\s*\*\s*(-?\d+)\)\s*\*\s*(-?\d+)$'
-        pattern_right_mul = r'^(-?\d+)\s*\*\s*\((-?\d+)\s*\*\s*(-?\d+)\)$'
-
-        match = re.match(pattern_left_mul, expression.strip())
-        if match:
+            return new_expr, f"Applied associativity of addition: {expression} -> {new_expr}"
+        elif self.mul_pattern.match(expression):
+            match = self.mul_pattern.match(expression)
             a, b, c = match.group(1), match.group(2), match.group(3)
             new_expr = f"{a} * ({b} * {c})"
-            return new_expr, f"Applied associativity: ({a} * {b}) * {c} = {a} * ({b} * {c})"
-
-        match = re.match(pattern_right_mul, expression.strip())
-        if match:
-            a, b, c = match.group(1), match.group(2), match.group(3)
-            new_expr = f"({a} * {b}) * {c}"
-            return new_expr, f"Applied associativity: {a} * ({b} * {c}) = ({a} * {b}) * {c}"
-
-        return None
+            return new_expr, f"Applied associativity of multiplication: {expression} -> {new_expr}"
+        raise ValueError(f"Associativity rule does not apply to: {expression}")
 
 
 class DistributiveRule(SymbolicRule):
-    """Rule for distributivity: a * (b + c) = a * b + a * c."""
+    """Implements distributive property: a * (b + c) = a*b + a*c."""
+
     def __init__(self):
-        super().__init__("distributivity", "Distribute multiplication over addition")
-
-    def apply(self, expression: str) -> Optional[Tuple[str, str]]:
+        super().__init__(
+            "Distributive Property",
+            "Multiplication distributes over addition: a * (b + c) = a*b + a*c"
+        )
         # Pattern: a * (b + c)
-        pattern = r'^(-?\d+)\s*\*\s*\((-?\d+)\s*\+\s*(-?\d+)\)$'
-        match = re.match(pattern, expression.strip())
+        self.distrib_pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*\*\s*\((-?\d+(?:\.\d+)?)\s*\+\s*(-?\d+(?:\.\d+)?)\)$')
 
-        if match:
+    def applies(self, expression: str) -> bool:
+        expression = expression.strip()
+        return bool(self.distrib_pattern.match(expression))
+
+    def apply(self, expression: str) -> Tuple[str, str]:
+        expression = expression.strip()
+        if self.distrib_pattern.match(expression):
+            match = self.distrib_pattern.match(expression)
             a, b, c = match.group(1), match.group(2), match.group(3)
             new_expr = f"({a} * {b}) + ({a} * {c})"
-            return new_expr, f"Applied distributivity: {a} * ({b} + {c}) = ({a} * {b}) + ({a} * {c})"
-
-        # Pattern: (b + c) * a (commutative case)
-        pattern_rev = r'^\((-?\d+)\s*\+\s*(-?\d+)\)\s*\*\s*(-?\d+)$'
-        match = re.match(pattern_rev, expression.strip())
-
-        if match:
-            b, c, a = match.group(1), match.group(2), match.group(3)
-            new_expr = f"({a} * {b}) + ({a} * {c})"
-            return new_expr, f"Applied distributivity: ({b} + {c}) * {a} = ({a} * {b}) + ({a} * {c})"
-
-        return None
+            return new_expr, f"Applied distributive property: {expression} -> {new_expr}"
+        raise ValueError(f"Distributive rule does not apply to: {expression}")
 
 
 class IdentityElementRule(SymbolicRule):
-    """Rule for identity elements: a + 0 = a, a * 1 = a."""
+    """Implements identity elements: a + 0 = a, a * 1 = a."""
+
     def __init__(self):
-        super().__init__("identity_element", "Remove identity elements (0 for +, 1 for *)")
+        super().__init__(
+            "Identity Element",
+            "Adding 0 or multiplying by 1 leaves the operand unchanged."
+        )
+        self.add_identity_pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*\+\s*0$')
+        self.mul_identity_pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*\*\s*1$')
 
-    def apply(self, expression: str) -> Optional[Tuple[str, str]]:
-        # a + 0 = a
-        pattern_add_zero_left = r'^0\s*\+\s*(-?\d+)$'
-        pattern_add_zero_right = r'^(-?\d+)\s*\+\s*0$'
+    def applies(self, expression: str) -> bool:
+        expression = expression.strip()
+        return bool(self.add_identity_pattern.match(expression) or self.mul_identity_pattern.match(expression))
 
-        match = re.match(pattern_add_zero_left, expression.strip())
-        if match:
+    def apply(self, expression: str) -> Tuple[str, str]:
+        expression = expression.strip()
+        if self.add_identity_pattern.match(expression):
+            match = self.add_identity_pattern.match(expression)
             a = match.group(1)
-            return a, f"Applied identity: 0 + {a} = {a}"
-
-        match = re.match(pattern_add_zero_right, expression.strip())
-        if match:
+            return a, f"Applied identity of addition: {expression} -> {a}"
+        elif self.mul_identity_pattern.match(expression):
+            match = self.mul_identity_pattern.match(expression)
             a = match.group(1)
-            return a, f"Applied identity: {a} + 0 = {a}"
-
-        # a * 1 = a
-        pattern_mul_one_left = r'^1\s*\*\s*(-?\d+)$'
-        pattern_mul_one_right = r'^(-?\d+)\s*\*\s*1$'
-
-        match = re.match(pattern_mul_one_left, expression.strip())
-        if match:
-            a = match.group(1)
-            return a, f"Applied identity: 1 * {a} = {a}"
-
-        match = re.match(pattern_mul_one_right, expression.strip())
-        if match:
-            a = match.group(1)
-            return a, f"Applied identity: {a} * 1 = {a}"
-
-        return None
+            return a, f"Applied identity of multiplication: {expression} -> {a}"
+        raise ValueError(f"Identity rule does not apply to: {expression}")
 
 
 class SymbolicSolver:
     """
-    Symbolic solver that applies rules to simplify arithmetic expressions.
+    Symbolic solver that applies a sequence of deterministic rules to solve
+    arithmetic and logic problems.
     """
+
     def __init__(self):
         self.rules: List[SymbolicRule] = [
             CommutativityRule(),
@@ -178,31 +171,36 @@ class SymbolicSolver:
             DistributiveRule(),
             IdentityElementRule()
         ]
-        self.max_steps = 20
+        self.trace: List[Dict[str, Any]] = []
 
-    def solve(self, problem_id: str, expression: str) -> Dict[str, Any]:
+    def solve(self, problem_expression: str) -> Dict[str, Any]:
         """
-        Solve the expression using symbolic rules.
-        Returns a trace of rule applications.
+        Solve a problem expression by applying rules step-by-step.
+
+        Args:
+            problem_expression: The mathematical expression to solve (e.g., "2 * (3 + 4)")
+
+        Returns:
+            Dictionary containing the final result and the full trace of rule applications.
         """
-        trace = []
-        current_expr = expression.strip()
+        self.trace = []
+        current_expr = problem_expression.strip()
         steps = 0
+        max_steps = 100  # Prevent infinite loops
 
-        trace.append({
+        self.trace.append({
             "step": 0,
             "expression": current_expr,
-            "rule_applied": None,
-            "explanation": "Initial expression"
+            "rule_applied": "Initial State",
+            "explanation": "Starting expression"
         })
 
-        while steps < self.max_steps:
+        while steps < max_steps:
             applied = False
             for rule in self.rules:
-                result = rule.apply(current_expr)
-                if result:
-                    new_expr, explanation = result
-                    trace.append({
+                if rule.applies(current_expr):
+                    new_expr, explanation = rule.apply(current_expr)
+                    self.trace.append({
                         "step": steps + 1,
                         "expression": new_expr,
                         "rule_applied": rule.name,
@@ -214,98 +212,141 @@ class SymbolicSolver:
                     break  # Apply one rule at a time
 
             if not applied:
+                # No more rules apply; we may have a final result or a simplified form
                 break
 
-        # Final evaluation if it's a simple arithmetic expression
+        # If the expression is a simple number, we have our result
         try:
-            # Safe evaluation of simple arithmetic
-            final_value = eval(current_expr)
-            trace.append({
-                "step": steps + 1,
-                "expression": str(final_value),
-                "rule_applied": "evaluation",
-                "explanation": f"Evaluated expression to {final_value}"
-            })
-        except Exception as e:
-            logger.warning(f"Could not evaluate final expression '{current_expr}': {e}")
+            result = float(current_expr)
+            if result.is_integer():
+                result = int(result)
+        except ValueError:
+            result = current_expr  # Keep as string if not a number
 
         return {
-            "problem_id": problem_id,
-            "original_expression": expression,
+            "original_expression": problem_expression,
             "final_expression": current_expr,
-            "final_value": final_value if 'final_value' in locals() else None,
-            "trace": trace,
-            "rules_applied_count": len([t for t in trace if t["rule_applied"] != "evaluation" and t["rule_applied"] is not None])
+            "result": result,
+            "trace": self.trace,
+            "steps_taken": steps
         }
 
 
-def generate_symbolic_explanation(problem_id: str, expression: str, output_path: str) -> Dict[str, Any]:
+def generate_symbolic_explanation(problem_id: str, problem_expression: str, problem_type: str) -> Dict[str, Any]:
     """
-    Generate a symbolic explanation for a given arithmetic problem.
+    Generate a symbolic explanation for a given problem.
 
     Args:
-        problem_id: Unique identifier for the problem
-        expression: Arithmetic expression string (e.g., "2 + 3 * 4")
-        output_path: Path to save the JSON trace
+        problem_id: Unique identifier for the problem.
+        problem_expression: The mathematical expression string.
+        problem_type: Type of problem ('algebra', 'geometry', etc.).
 
     Returns:
-        Dictionary containing the explanation trace
+        Dictionary containing the symbolic trace and metadata.
     """
-    logger.info(f"Generating symbolic explanation for problem {problem_id}: {expression}")
+    logger.info(f"Generating symbolic explanation for problem {problem_id} (type: {problem_type})")
+
+    # Validate problem type support
+    supported_types = ['algebra', 'geometry']
+    if problem_type not in supported_types:
+        logger.warning(f"Problem type '{problem_type}' not explicitly supported, attempting general arithmetic solve.")
 
     solver = SymbolicSolver()
-    result = solver.solve(problem_id, expression)
+    result = solver.solve(problem_expression)
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    explanation_output = {
+        "problem_id": problem_id,
+        "problem_type": problem_type,
+        "generator": "SymbolicRuleEngine",
+        "is_synthetic": False,  # This is a rule-based engine, not synthetic data
+        "result": result["result"],
+        "trace": result["trace"],
+        "rules_applied": [step["rule_applied"] for step in result["trace"] if step["rule_applied"] != "Initial State"]
+    }
 
-    # Write JSON trace
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Symbolic explanation saved to {output_path}")
-    return result
+    logger.info(f"Symbolic explanation generated: {len(result['trace'])} steps")
+    return explanation_output
 
 
 def main():
     """
     Main entry point for testing the symbolic explanation generator.
-    Reads problems from a sample input or generates test cases.
+    Demonstrates the engine with sample problems from ASSISTments subsets.
     """
-    # Test cases based on ASSISTments-style arithmetic problems
+    # Sample problems representing algebra and geometry subsets
     test_cases = [
-        ("P001", "2 + 3"),
-        ("P002", "5 * 1"),
-        ("P003", "0 + 7"),
-        ("P004", "2 * (3 + 4)"),
-        ("P005", "(1 + 2) * 3"),
-        ("P006", "4 + 5 + 6"),
-        ("P007", "2 * 3 * 4"),
-        ("P008", "10 * 1 + 0")
+        {
+            "id": "ASSIST-ALG-001",
+            "expression": "2 * (3 + 4)",
+            "type": "algebra",
+            "description": "Distributive property example"
+        },
+        {
+            "id": "ASSIST-ALG-002",
+            "expression": "5 + 0",
+            "type": "algebra",
+            "description": "Identity element example"
+        },
+        {
+            "id": "ASSIST-ALG-003",
+            "expression": "(2 + 3) + 4",
+            "type": "algebra",
+            "description": "Associativity example"
+        },
+        {
+            "id": "ASSIST-ALG-004",
+            "expression": "3 * 5",
+            "type": "algebra",
+            "description": "Commutativity example"
+        },
+        {
+            "id": "ASSIST-GEOM-001",
+            "expression": "1 * (2 + 3)",
+            "type": "geometry",
+            "description": "Area calculation with distributive property"
+        }
     ]
 
-    output_dir = "data/symbolic_traces"
+    output_dir = "data/symbolic"
     os.makedirs(output_dir, exist_ok=True)
 
     all_results = []
 
-    for problem_id, expression in test_cases:
-        output_path = os.path.join(output_dir, f"trace_{problem_id}.json")
-        result = generate_symbolic_explanation(problem_id, expression, output_path)
-        all_results.append(result)
+    for case in test_cases:
+        logger.info(f"Processing: {case['description']} ({case['id']})")
+        try:
+            result = generate_symbolic_explanation(
+                case['id'],
+                case['expression'],
+                case['type']
+            )
+            all_results.append(result)
 
-    # Save aggregate summary
-    summary_path = os.path.join(output_dir, "symbolic_explanations_summary.json")
-    with open(summary_path, 'w', encoding='utf-8') as f:
+            # Save individual trace
+            trace_path = os.path.join(output_dir, f"trace_{case['id']}.json")
+            with open(trace_path, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=2)
+            logger.info(f"Saved trace to {trace_path}")
+
+        except Exception as e:
+            logger.error(f"Failed to process {case['id']}: {e}")
+            all_results.append({
+                "problem_id": case['id'],
+                "error": str(e)
+            })
+
+    # Save aggregate report
+    report_path = os.path.join(output_dir, "symbolic_explanations_report.json")
+    with open(report_path, 'w', encoding='utf-8') as f:
         json.dump(all_results, f, indent=2)
+    logger.info(f"Aggregate report saved to {report_path}")
 
-    logger.info(f"Generated {len(all_results)} symbolic explanations")
-    logger.info(f"Summary saved to {summary_path}")
+    print(f"\nSymbolic Explanation Generation Complete.")
+    print(f"Processed {len(test_cases)} problems.")
+    print(f"Results saved to {output_dir}/")
 
-    return all_results
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

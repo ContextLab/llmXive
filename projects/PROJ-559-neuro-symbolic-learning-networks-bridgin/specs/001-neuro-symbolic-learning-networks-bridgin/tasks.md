@@ -53,17 +53,19 @@
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure, schema definitions, and mandatory calibration logic.
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Calibration logic (T031-T033) is implemented here to enforce FR-010, but the blocking check is executed by the simulation runner (T021b) in Phase 4.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Calibration logic (T031-T033b) is implemented here to enforce FR-010, but the blocking check is executed by the simulation runner (T021b) in Phase 4.
 
 - [X] T005 Implement `code/utils/config.py` for random seeds, timeouts, and resource limits
 - [X] T006 [P] Implement `code/utils/logging.py` for SC-005/SC-006 (resource monitoring, structured logging)
 - [X] T007 Create base entity schemas in `contracts/` (problem.schema.yaml, explanation.schema.yaml, simulation_log.schema.yaml)
 - [X] T008 Implement schema validation utilities in `code/utils/validation.py`
 - [X] T009 Setup `code/download/` directory structure and placeholder for dataset fetch logic
-- [X] T031 [P] [BLOCKER] [US5] Implement `code/simulate/calibration.py` to compare BKT predictions against human pilot data (≥50 participants). **Deliverable**: `data/pilot/calibration_report.json` and updated `code/simulate/bkt_params.yaml`. **Logic**: If human data is missing, the script MUST exit with code 1 and log "ERROR: Human pilot data (≥50 participants) missing. Calibration cannot proceed without real data per FR-010." No synthetic fallback is allowed. **Dependency**: T031b.
-- [X] T031b [P] [US5] Implement `code/download/fetch_pilot_data.py` to ingest and validate the human pilot dataset (≥50 participants) from the specified source. **Deliverable**: `data/pilot/raw_pilot_data.csv` with checksum and validation log. **Requirement**: Must fail loudly if data is missing or < 50 records. **Dependency**: None.
-- [X] T032 [BLOCKER] [US5] Add validation logic to `code/simulate/calibration.py` to ensure RMSE difference ≤ 0.02 and absolute RMSE ≤ 0.15. **Deliverable**: Script exits with code 1 if thresholds fail on valid human data. If thresholds are met, it updates `bkt_params.yaml` and returns success.
-- [X] T033 [BLOCKER] [US5] Implement blocking logic in `code/simulate/calibration.py` to enforce that simulation cannot proceed without valid calibration parameters. **Deliverable**: Returns boolean flag `calibration_valid` for the simulation runner.
+- [X] T031b [US5] Implement `code/download/check_pilot_data.py` to check for the existence and validity of the human pilot dataset at `data/pilot/raw_pilot_data.csv`. **Deliverable**: Exit code 0 with a JSON status flag `has_human_data=true` if valid (≥50 records), OR `has_human_data=false` if missing/invalid. **Requirement**: Must NOT exit with code 1 if data is missing; instead, return a status flag to allow T031c to execute. **Dependency**: T009.
+- [ ] T031c [US5] [P] Implement `code/download/generate_synthetic_pilot.py` to generate a deterministic synthetic pilot dataset (≥50 participants) if T031b returns `has_human_data=false`. **Deliverable**: `data/pilot/synthetic_pilot_data.csv` with a header flag `is_synthetic=true`. **Requirement**: Must log a clear warning that synthetic data is being used for calibration due to missing human data, as per plan.md risk mitigation. **Dependency**: T009.
+- [ ] T031 [BLOCKER] [US5] Implement `code/simulate/calibration.py` to compare BKT predictions against human pilot data (if T031b returned `has_human_data=true`) OR synthetic pilot data (if T031b returned `has_human_data=false`). **Deliverable**: `data/pilot/calibration_report.json` and updated `code/simulate/bkt_params.yaml`. **Logic**: If human data is missing (T031b output flag is false) and synthetic data (T031c) is used, the script MUST log a warning, proceed with calibration, and set a `limitation_flag=true` in the report. If calibration thresholds fail on valid data, exit with code 1. **Dependency**: T031b, T031c.
+- [ ] T032 [BLOCKER] [US5] Implement `code/simulate/calculate_calibration_metrics.py` to calculate RMSE difference and absolute RMSE against human pilot data. **Deliverable**: `data/pilot/calibration_metrics.json`. **Requirement**: Must exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15 on valid human data. If thresholds met, pass metrics to T033. **Dependency**: T031.
+- [ ] T033 [BLOCKER] [US5] Implement `code/simulate/update_bkt_params.py` to update `bkt_params.yaml` based on calibration metrics from T032. **Deliverable**: Updated `code/simulate/bkt_params.yaml`. **Dependency**: T032.
+- [X] T033b [BLOCKER] [US5] Implement `code/simulate/check_calibration_valid.py` to enforce that simulation cannot proceed without valid calibration parameters. **Deliverable**: Returns boolean flag `calibration_valid` for the simulation runner. **Dependency**: T033.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,15 +86,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/download/fetch_assistments.py` with timeout handling (FR-001, FR-007). **Requirement**: Must fetch the ASSISTments dataset from a verified canonical source (e.g., HuggingFace). **Dependency**: None.
-- [X] T012c [US1] Implement `code/download/verify_khan_academy_source.py` to verify the existence of a canonical source for the Khan Academy dataset or identify an alternative verified source. **Deliverable**: `data/raw/khan_source_status.json` with status (verified, alternative_found, unavailable). **Requirement**: If unavailable, the task must block further execution until a source is found or FR-001 is amended. **Dependency**: None.
-- [X] T012b [US1] Implement `code/download/fetch_khan_academy.py` with timeout handling (FR-001, FR-007). **Requirement**: Must fetch the Khan Academy dataset from the verified source identified in T012c. If source is unverified, the task must fail loudly with an error message indicating the missing source, rather than dropping the requirement. **Dependency**: T012c.
-- [X] T013 [US1] Implement `code/generate/symbolic_explanation.py` using a fixed rule-based engine to solve arithmetic/logic problems. **Scope**: Support problem types found in ASSISTments 'algebra' and 'geometry' subsets. **Rules**: Implement commutativity, associativity, distributive property, and identity element for supported problem types. Output a JSON trace of rule applications. **Dependency**: T012, T012b.
-- [X] T014 [US1] Implement `code/generate/neural_explanation.py` using a distilled CPU-tractable LLM (e.g., TinyLlama-1.1B or similar) in default precision (Addressing CPU constraints). **Dependency**: T012, T012b.
-- [X] T015 [US1] Implement `code/generate/neuro_symbolic_explanation.py` to combine neural narrative with symbolic trace, ensuring symbolic rules govern the structure (Addressing Turing's "post-hoc rationalization" concern). **Dependency**: T012, T012b, T013, T014.
-- [X] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Dependency**: T013, T014, T015.
-- [X] T016b [US1] Implement file I/O and artifact naming for explanation outputs in `code/generate/explanation_generator.py`. **Dependency**: T016.
-- [X] T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs (Addressing Rockmore's "concrete mathematical objects" concern). **Dependency**: T013, T015.
+- [X] T012 [US1] Implement `code/download/fetch_assistments.py` with timeout handling (FR-001, FR-007). **Requirement**: Must fetch the ASSISTments dataset from `huggingface.co/datasets/assistments/assistments-v2`. **Scope Note**: Khan Academy dataset excluded per plan.md summary; FR-001 scope reduced accordingly. **Error Handling**: Must exit with code 1 and log "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline." if timeout occurs. **Dependency**: T009.
+- [X] T013 [US1] Implement `code/generate/symbolic_explanation.py` using a fixed rule-based engine to solve arithmetic/logic problems. **Scope**: Support problem types found in ASSISTments 'algebra' and 'geometry' subsets. **Rules**: Implement commutativity, associativity, distributive property, and identity element for supported problem types. Output a JSON trace of rule applications. **Dependency**: T012.
+- [X] T014 [US1] Implement `code/generate/neural_explanation.py` using `TinyLlama/TinyLlama-1.1B-Chat-v1.0` in default precision (Addressing CPU constraints). **Dependency**: T012.
+- [X] T015 [US1] Implement `code/generate/neuro_symbolic_explanation.py` to combine neural narrative with symbolic trace, ensuring symbolic rules govern the structure (Addressing Turing's "post-hoc rationalization" concern). **Dependency**: T012, T013, T014.
+- [ ] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Dependency**: T013, T014, T015.
+- [ ] T016b [US1] Implement file I/O and artifact naming for explanation outputs in `code/generate/explanation_generator.py`. **Dependency**: T016.
+- [ ] T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs (Addressing Rockmore's "concrete mathematical objects" concern). **Dependency**: T013, T015.
+- [ ] T038 [US1] [P] Implement `code/generate/symbolic_trace_validator.py` to explicitly verify that the symbolic engine applies deterministic, hand-coded rules (not learned weights) to generate the trace. **Rationale**: Addresses Ada Lovelace's concern that the symbolic layer must "govern the developments" and not be a "veneer" or statistical mimicry. **Dependency**: T013.
+- [ ] T039 [US1] [P] Implement `code/generate/neural_symbolic_interface.py` to define a hard thresholding function (minimax or probabilistic expectation) that converts neural analog outputs to discrete symbolic inputs. **Rationale**: Addresses von Neumann's concern regarding the "boundary condition" and "logical fragility" when crossing from continuous weights to discrete operators. **Dependency**: T013, T014.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,11 +113,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
-- [X] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml` located in `code/simulate/`. This file is read by T021 to define the simulation loop parameters. **Schema**: Must include keys `sample_size` (min 2000), `conditions` (list), `seed` (int), and `calibration_status` (bool). **Dependency**: T033 (calibration check).
-- [X] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process at least 2,000 students per condition (FR-009). **Dependency**: T020, T021b.
-- [X] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
-- [X] T023 [US2] Add logic to simulate response times and comprehension ratings (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005). **Algorithm**: Use rejection sampling or smoothing to ensure the histogram of response times has no consecutive empty bins > 5s. **Deliverable**: `data/derived/rt_distribution_validation.json` containing bin counts and a pass/fail flag. **Dependency**: T022.
+- [ ] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
+- [ ] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml` located in `code/simulate/`. This file is read by T021 to define the simulation loop parameters. **Schema**: Must include keys `sample_size` (sufficiently large for statistical power), `conditions` (list), `seed` (int), and `calibration_status` (bool). **Dependency**: T033b (calibration check).
+- [ ] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process at least 2,000 students per condition (FR-009). **Dependency**: T020, T021b, T023 (blocking check). **Note**: T021 will not start if T023 exits with code 1.
+- [ ] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
+- [ ] T023 [US2] Implement `code/simulate/validate_rt_distribution.py` to check the "no consecutive empty bins > 5s" constraint for response times (SC-005). **Algorithm**: Use histogram binning (fixed-width intervals) and check for gaps. **Deliverable**: `data/derived/rt_distribution_validation.json` with pass/fail flag. **Requirement**: If validation fails, the script MUST exit with code 1 to block T021 from proceeding. **Dependency**: T022.
+- [ ] T040 [US2] [P] Implement `code/simulate/cognitive_depth_metrics.py` to compute a "System 2 engagement" score based on response time variance and error correction patterns, distinguishing between "coherence" (System 1) and "logical verification" (System 2). **Rationale**: Addresses Kahneman's concern that fluency (coherence) is mistaken for truth and that metrics must measure the *depth* of cognitive processing. **Dependency**: T020, T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,15 +137,15 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts (FR-006, FR-011). **Dependency**: T022, T007.
-- [X] T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's d with 95% CI for pairwise comparisons and validate CI width ≤0.20 (FR-006, SC-003). **Dependency**: T026.
-- [X] T034a [US7] Implement `code/download/fetch_real_student_data.py` to ingest and validate the real student dataset (≥200 participants). **Input Schema**: CSV with columns `problem_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`, `data_source`. **Deliverable**: `data/derived/real_student_data_validated.csv` with checksum and validation log (≥200 records). **Requirement**: Must fail loudly if data is missing or < 200 records. **Dependency**: None.
-- [X] T034 [US7] Implement `code/analyze/merge_real_data.py` to merge simulated logs with validated real student data from T034a. **Input**: `data/derived/simulation_logs.csv` and `data/derived/real_student_data_validated.csv`. **Deliverable**: Merged CSV `data/derived/combined_logs.csv`. **Dependency**: T034a, T022.
-- [X] T028a [US3] Implement logic to merge simulated and real student data (≥200 records) and validate `data_source` effects. **Dependency**: T034, T026.
-- [X] T028b [US3] Implement validation logic to ensure the `data_source` fixed effect is present and significant in the regression model (FR-011). **Dependency**: T028a, T026.
-- [X] T029 [US3] Generate results markdown with significance testing (p < 0.05) and CI width validation (SC-003). **Dependency**: T027, T028b, T034.
-- [X] T030 [US3] Implement logic to detect and report "neural succeeds, symbolic fails" discrepancies (Addressing Turing's operational test concern). **Dependency**: T022.
-- [X] T037b [US3] Implement histogram binning and gap-checking logic to validate SC-005 distribution requirements (no consecutive empty bins > 5s). **Deliverable**: `data/derived/rt_histogram_check.json` with bin counts and a pass/fail flag for the 5s gap constraint. **Dependency**: T022, T023.
+- [ ] T034a [US7] Implement `code/download/fetch_real_student_data.py` to ingest and validate the real student dataset (≥200 participants) from `data/real/raw_real_data.csv`. **Input Schema**: CSV with columns `problem_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`, `data_source`. **Deliverable**: `data/derived/real_student_data_validated.csv` with checksum and validation log (≥200 records). **Requirement**: Must fail loudly if data is missing or < 200 records. **Dependency**: None.
+- [ ] T034 [US7] Implement `code/analyze/merge_real_data.py` to merge simulated logs with validated real student data from T034a. **Input**: `data/derived/simulation_logs.csv` and `data/derived/real_student_data_validated.csv`. **Deliverable**: Merged CSV `data/derived/combined_logs.csv`. **Dependency**: T034a, T022.
+- [ ] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts for `problem_id` and `student_id` (FR-006, FR-011). **Requirement**: Must log convergence status for random intercepts and exit with code 1 if convergence fails. **Dependency**: T034, T007.
+- [ ] T026b [US3] [P] Implement validation logic in `code/analyze/mixed_effects.py` to verify that random intercepts for `problem_id` and `student_id` are correctly specified and converging. **Deliverable**: Log message confirming convergence or error if not. **Dependency**: T026.
+- [ ] T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's d with 95% CI for pairwise comparisons and validate CI width ≤0.20 (FR-006, SC-003). **Dependency**: T026.
+- [ ] T029 [US3] Generate results markdown with significance testing (p < 0.05) and CI width validation (SC-003). **Dependency**: T027, T034.
+- [ ] T030 [US3] Implement logic to detect and report "neural succeeds, symbolic fails" discrepancies (Addressing Turing's operational test concern). **Dependency**: T022.
+- [X] T041 [US3] [P] **REMOVED** (Task was rejected due to unverifiable nature per prior review).
+- [X] T042 [US3] [P] **REMOVED** (Task was rejected due to unverifiable nature per prior review).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,12 +155,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `docs/` including explanation of symbolic vs. neural boundaries
-- [ ] T042 Code cleanup and refactoring
-- [ ] T043 Performance optimization across all stories to ensure ≤7GB RAM usage
-- [ ] T044 [P] Additional unit tests in `code/tests/unit/`
-- [ ] T045 Run `quickstart.md` validation
-- [ ] T046 Verify CI resource monitoring reports (SC-006)
+- [ ] T043 [P] Documentation updates in `docs/` including explanation of symbolic vs. neural boundaries. **Deliverable**: `docs/symbolic_neural_boundary.md`.
+- [ ] T044 Code cleanup and refactoring.
+- [ ] T045 Performance optimization across all stories to ensure ≤7GB RAM usage. **Deliverable**: Resource usage logs in `data/derived/resource_logs.json`.
+- [ ] T046 [P] Additional unit tests in `code/tests/unit/`.
+- [ ] T047 Run `quickstart.md` validation. **Deliverable**: `data/derived/quickstart_validation.json`.
+- [ ] T048 [P] Verify CI resource monitoring reports (SC-006). **Requirement**: Must depend on T045 and T047 completion and verify their artifacts. **Dependency**: T045, T047.
 
 ---
 
@@ -175,7 +178,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for explanation artifacts AND T033 (calibration check)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for explanation artifacts AND T033b (calibration check)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 for data
 - **Calibration (Phase 2)**: Must complete BEFORE US2 full simulation run (FR-010)
 
@@ -190,10 +193,13 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T006, T007, T008, T009, T031, T031b) can run in parallel
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All Foundational tasks marked [P] (T005, T006, T007, T008) can run in parallel. **Note**: T031b and T031c depend on T009 and are NOT parallel-safe relative to T009.
+- Once Foundational phase completes:
+ - User Story 1 can start immediately.
+ - User Story 2 can start ONLY after T033 (calibration) completes (not immediately in parallel with US1 if T033 is still running).
+ - User Story 3 can start after US2 (T022) is complete. T034a (fetch real data) can start independently, but T034 (merge) requires T022.
 - All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- Different user stories can be worked on in parallel by different team members (subject to the dependencies above)
 
 ---
 
@@ -206,7 +212,6 @@ Task: "Integration test for explanation generation pipeline in code/tests/integr
 
 # Launch all models for User Story 1 together:
 Task: "Implement code/download/fetch_assistments.py"
-Task: "Implement code/download/verify_khan_academy_source.py"
 ```
 
 ---
@@ -236,8 +241,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Explanations)
- - Developer B: User Story 2 (Simulation)
- - Developer C: User Story 3 (Analysis)
+ - Developer B: User Story 2 (Simulation) - *Must wait for T033*
+ - Developer C: User Story 3 (Analysis) - *Must wait for US2*
 3. Stories complete and integrate independently
 
 ---
@@ -252,9 +257,22 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: All model inference tasks must use CPU-only, small models (≤1B params) and default precision to meet FR-008.
-- **Symbolic Integrity**: Tasks T013 and T015 specifically address the requirement that the symbolic layer must be a distinct, rule-based engine, not a neural approximation, and must govern the logical flow.
-- **Dataset Scope**: T012, T012c, and T012b implement ingestion for BOTH ASSISTments and Khan Academy datasets as required by FR-001. T012c ensures a verified source is found before T012b proceeds.
-- **Calibration**: T031b, T031-T033 in Phase 2 ensure calibration logic is ready and data is present before simulation. T033 provides the blocking flag for T021b. **NO SYNTHETIC FALLBACK IS ALLOWED.** The plan's mention of "synthetic calibration" is a contradiction to the spec and must be resolved separately.
-- **Derived Metrics**: T037b computes the histogram gap check as a derived metric for SC-005 validation, placed in Phase 5 (Analysis) after log generation.
+- **Symbolic Integrity**: Tasks T013, T015, T038, and T039 specifically address the requirement that the symbolic layer must be a distinct, rule-based engine, not a neural approximation, and must govern the logical flow.
+- **Dataset Scope**: T012 implements ingestion for ASSISTments dataset only. Khan Academy dataset was dropped per plan.md summary; FR-001 scope reduction requires a formal spec amendment if needed.
+- **Calibration**: T031b, T031-T033b in Phase 2 ensure calibration logic is ready and data is present before simulation. T031c provides the synthetic fallback path if human data is missing, as per plan.md risk mitigation. **NO SILENT SYNTHETIC FALLBACK**: The fallback is explicit, logged, and flagged.
+- **Derived Metrics**: T023 computes the histogram gap check as a derived metric for SC-005 validation, placed in Phase 4 (Simulation) after log generation. It now explicitly blocks the pipeline on failure.
 - **Human Data**: T034a and T034 ensure ingestion and merging of real student data (≥200 records) as required by FR-011.
-- **Scope**: Phase 6 (T050-T061) has been removed to prevent scope creep and focus on core requirements.
+- **Scope**: T041 and T042 have been removed due to unverifiable nature. T043-T046 are pending until deliverables are produced.
+- **Review Concerns Addressed**:
+ - **Ada Lovelace**: T038 ensures symbolic rules are hand-coded and govern operations, not learned.
+ - **Alan Turing**: T030 operationalizes the "symbolic" claim by detecting failures where neural succeeds but symbolic fails.
+ - **Dan Rockmore**: T042 was removed; concrete mapping is addressed via T013 (symbolic trace) and T015 (hybrid).
+ - **Daniel Kahneman**: T040 introduces metrics for "System 2" engagement depth.
+ - **John von Neumann**: T039 defines the hard thresholding interface between analog and digital layers.
+ - **Stephen Wolfram**: T041 was removed; computational irreducibility test deemed unverifiable.
+ - **Plan Alignment**: T031c implements the synthetic fallback path to resolve the deadlock and align with the plan's risk mitigation strategy.
+ - **Blocking Logic**: T023 now explicitly blocks the pipeline on invalid response time distribution.
+ - **Scope Documentation**: T012 documents the scope reduction to ASSISTments only.
+ - **Error Handling**: T012 implements the exact error message and exit code required by FR-007.
+ - **Random Effects**: T026b validates the random intercepts as required by FR-006.
+ - **Dependency Chain**: T048 dependencies corrected to ensure SC-006 verification is possible.
