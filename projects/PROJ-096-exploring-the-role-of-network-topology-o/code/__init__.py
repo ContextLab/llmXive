@@ -1,3 +1,1 @@
-"""
-Code package for the network topology project.
-"""
+# Project root package

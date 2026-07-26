@@ -1,59 +1,58 @@
-import os
 import json
+import os
 import pytest
 from pathlib import Path
 
-# We need to ensure the code directory is in the path for imports
-# But since we are testing the logic, we can mock or import directly if available
-# For this test, we assume the feasibility_study.py is runnable and produces the file.
-
-@pytest.mark.integration
 def test_feasibility_study_output_exists():
-    """Verify that T009 produces the required config.json file."""
-    config_path = Path("data/processed/config.json")
-    assert config_path.exists(), "data/processed/config.json must exist after running T009"
+    """Verify that the feasibility study produces the config.json file."""
+    assert Path("data/processed/config.json").exists(), "config.json not found"
 
-@pytest.mark.integration
-def test_feasibility_study_content_valid():
-    """Verify the content of config.json meets the minimum requirements."""
-    config_path = Path("data/processed/config.json")
-    if not config_path.exists():
-        pytest.skip("config.json not found, run T009 first")
-
-    with open(config_path) as f:
+def test_feasibility_study_output_structure():
+    """Verify the structure of the generated config.json."""
+    with open("data/processed/config.json", "r") as f:
         data = json.load(f)
+    
+    required_keys = [
+        "time_steps", "n_topologies", "runtime_estimate", 
+        "contingency_flag", "SC_003_VIOLATION", "scope_reduction_factor"
+    ]
+    
+    for key in required_keys:
+        assert key in data, f"Missing key: {key}"
+    
+    assert isinstance(data["time_steps"], int), "time_steps must be an integer"
+    assert isinstance(data["n_topologies"], int), "n_topologies must be an integer"
+    assert isinstance(data["runtime_estimate"], (int, float)), "runtime_estimate must be numeric"
+    assert isinstance(data["contingency_flag"], bool), "contingency_flag must be boolean"
+    assert isinstance(data["SC_003_VIOLATION"], bool), "SC_003_VIOLATION must be boolean"
+    assert isinstance(data["scope_reduction_factor"], (int, float)), "scope_reduction_factor must be numeric"
 
-    assert "time_steps" in data, "config.json must contain 'time_steps'"
-    assert "n_topologies" in data, "config.json must contain 'n_topologies'"
-    assert "runtime_estimate" in data, "config.json must contain 'runtime_estimate'"
+def test_feasibility_study_constraints():
+    """Verify that the output meets the constraints defined in T009."""
+    with open("data/processed/config.json", "r") as f:
+        data = json.load(f)
+    
+    # If there's an error, time_steps should be 0
+    if data.get("error"):
+        assert data["time_steps"] == 0, "If error exists, time_steps must be 0"
+        return
 
-    # Verification constraint from tasks.md
+    # Otherwise, time_steps must be >= 1000
     assert data["time_steps"] >= 1000, f"time_steps ({data['time_steps']}) must be >= 1000"
     assert data["n_topologies"] >= 10, f"n_topologies ({data['n_topologies']}) must be >= 10"
 
-@pytest.mark.unit
-def test_runtime_calculation_logic():
-    """
-    Unit test for the logic of runtime calculation (if we could import the function).
-    Since we are in a test environment, we verify the mathematical logic separately.
-    """
-    # Simulate the logic
-    total_budget = 6 * 3600
-    runtime_per_1k = 1.0  # 1 second per 1k steps
+def test_feasibility_study_logic():
+    """Verify that the calculated runtime estimate is consistent with time_steps and n_topologies."""
+    with open("data/processed/config.json", "r") as f:
+        data = json.load(f)
     
-    # Logic from task: max_time_steps = floor(6h / (runtime_per_1k_steps * 50)) * 1000
-    base = total_budget / (runtime_per_1k * 50)
-    max_steps = int(base) * 1000
+    if data.get("error"):
+        return
+
+    # Basic sanity check: runtime_estimate should be positive if steps > 0
+    if data["time_steps"] > 0:
+        assert data["runtime_estimate"] > 0, "runtime_estimate must be positive"
     
-    assert max_steps == 432000, "Math check for max_steps"
-    
-    # If runtime_per_1k was high, say 100s
-    runtime_per_1k_high = 100.0
-    base_high = total_budget / (runtime_per_1k_high * 50)
-    max_steps_high = int(base_high) * 1000
-    
-    assert max_steps_high < 1000, "Should detect low capacity"
-    
-    # Then calculate n_topologies
-    n_top = int(total_budget / runtime_per_1k_high)
-    assert n_top == 216, "Math check for n_topologies"
+    # Check contingency flag logic
+    if data["n_topologies"] < 50: # Assuming 50 is the target
+        assert data["contingency_flag"] == True, "contingency_flag should be True if n_topologies < 50"

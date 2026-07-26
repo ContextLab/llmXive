@@ -1,74 +1,115 @@
 import os
 import sys
-from pathlib import Path
 import logging
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def create_directories(base_path: Path) -> None:
+def create_directories():
     """
-    Create the required source directory structure for the project.
-    
-    Specifically creates:
-    - code/utils
-    - code/data
-    
-    Args:
-        base_path: The root directory of the project (projects/PROJ-096-exploring-the-role-of-network-topology-o)
-    """
-    directories = [
-        base_path / "code" / "utils",
-        base_path / "code" / "data",
-    ]
-    
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            logger.info(f"Directory already exists: {dir_path}")
-    
-    logger.info(f"Directory creation complete. {created_count} new directories created.")
-
-def main() -> int:
-    """
-    Main entry point for the directory setup script.
+    Creates the required project directory structure.
     
     Returns:
-        0 on success, 1 on failure.
+        list: List of created directory paths
     """
-    # Determine the project root based on the task description
-    # The task specifies: projects/PROJ-096-exploring-the-role-of-network-topology-o/
-    # We assume the script is run from the repository root or we construct the path relative to script location
-    script_dir = Path(__file__).resolve().parent
-    repo_root = script_dir.parent.parent.parent # Assuming code/ is at repo_root/code/
+    base_dirs = [
+        'code',
+        'code/utils',
+        'data',
+        'data/processed',
+        'data/raw',
+        'tests',
+        'state',
+        'state/projects'
+    ]
     
-    # Adjust for the specific project path mentioned in the task
-    # If the script is inside projects/PROJ-.../code/, then parent.parent is the project root
-    # Let's assume the standard structure where this script is at code/setup_directories.py
-    # and the project root is the parent of the 'code' directory.
-    project_root = script_dir.parent
+    created_dirs = []
+    for dir_path in base_dirs:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {path}")
+            created_dirs.append(path)
+        else:
+            logger.info(f"Directory already exists: {path}")
+            created_dirs.append(path)
     
-    # Verify we are in the correct project context if possible, 
-    # but for this task, we strictly follow the path relative to the script's assumed location
-    # The task says: "in projects/PROJ-096-exploring-the-role-of-network-topology-o/"
-    # If this file is at projects/PROJ-096.../code/setup_directories.py, then project_root is correct.
-    
-    logger.info(f"Project root identified as: {project_root}")
-    
-    try:
-        create_directories(project_root)
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to create directories: {e}")
-        return 1
+    return created_dirs
 
-if __name__ == "__main__":
-    sys.exit(main())
+def verify_directories():
+    """
+    Verifies that all required directories exist and captures the structure.
+    
+    Returns:
+        str: Output of the directory listing
+    """
+    required_dirs = [
+        'data',
+        'code',
+        'tests',
+        'state'
+    ]
+    
+    missing = []
+    for dir_path in required_dirs:
+        if not Path(dir_path).exists():
+            missing.append(dir_path)
+    
+    if missing:
+        logger.error(f"Missing required directories: {missing}")
+        raise FileNotFoundError(f"Missing directories: {missing}")
+    
+    # Generate directory listing
+    import subprocess
+    result = subprocess.run(
+        ['ls', '-R', 'data', 'code', 'tests', 'state'],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    
+    return result.stdout
+
+def main():
+    """
+    Main entry point for directory initialization.
+    Creates directories and writes verification output to data/checksums.txt
+    """
+    logger.info("Starting directory initialization...")
+    
+    # Create directories
+    create_directories()
+    
+    # Verify and capture output
+    try:
+        directory_listing = verify_directories()
+        
+        # Write to checksums.txt as a log of the structure
+        checksums_path = Path('data/checksums.txt')
+        with open(checksums_path, 'w') as f:
+            f.write("# Directory Structure Verification\n")
+            f.write("# Generated by: T001 - Initialize Project Directories\n")
+            f.write("# Command: ls -R data/ code/ tests/ state/\n")
+            f.write("#" + "="*60 + "\n\n")
+            f.write(directory_listing)
+        
+        logger.info(f"Directory structure verified and logged to {checksums_path}")
+        print(f"Verification successful. Output written to {checksums_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Verification failed: {e}")
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to run directory listing: {e}")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
