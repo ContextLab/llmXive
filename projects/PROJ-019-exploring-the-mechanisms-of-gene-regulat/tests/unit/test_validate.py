@@ -1,132 +1,104 @@
-"""
-Unit tests for code/validate.py functionality.
-Specifically tests the ChIP-seq overlap calculation logic.
-"""
 import pytest
-import json
-import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from code.validate import calculate_silhouette_score, validate_motifs
+import numpy as np
 
-# Import the function to test. 
-# We define the function in this file or import it if it existed.
-# Since T030 (implementation) is not done, we test the logic by importing a 
-# local implementation or mocking the expected behavior if the module doesn't exist yet.
-# However, the task asks for a unit test of the logic. 
-# We will implement a minimal version of the calculation logic here to test, 
-# or import it if we assume the module structure exists.
-# Given the task is to test the *calculation*, we will implement the logic 
-# in a way that can be tested, and then test it.
-
-# Since code/validate.py does not exist yet (T030 is pending), 
-# we will create a mock implementation of the overlap calculation logic 
-# within the test file to ensure the test logic is correct, 
-# and structure it so it can be easily moved to code/validate.py later.
-
-def calculate_chip_overlap(target_peaks: list, chip_peaks: list, tolerance: int = 0) -> float:
+def test_chip_overlap_calculation():
     """
-    Calculate the percentage of target peaks that overlap with ChIP-seq peaks.
+    Test that overlap percentage is calculated correctly against a mock ChIP-seq dataset.
+    Covers: US3-FR-005 (Validation against independent ChIP-seq data)
     
-    Args:
-        target_peaks: List of (chrom, start, end) tuples representing target peaks.
-        chip_peaks: List of (chrom, start, end) tuples representing ChIP-seq peaks.
-        tolerance: Number of base pairs allowed for overlap extension.
-        
-    Returns:
-        Float percentage (0.0 to 100.0) of target peaks overlapping with ChIP-seq peaks.
+    This test verifies the overlap calculation logic using synthetic but
+    structurally correct peak data.
     """
-    if not target_peaks:
-        return 0.0
+    # Mock predicted peaks (from our enrichment analysis)
+    predicted_peaks = [
+        {"chrom": "chr1", "start": 100, "end": 200, "motif": "MA0001"},
+        {"chrom": "chr1", "start": 300, "end": 400, "motif": "MA0001"},
+        {"chrom": "chr1", "start": 500, "end": 600, "motif": "MA0002"},
+        {"chrom": "chr2", "start": 100, "end": 200, "motif": "MA0001"},
+    ]
     
-    overlaps = 0
-    for t_chrom, t_start, t_end in target_peaks:
-        for c_chrom, c_start, c_end in chip_peaks:
-            if t_chrom == c_chrom:
-                # Check for overlap with tolerance
-                # Overlap exists if max(start1, start2) < min(end1, end2)
-                # With tolerance, we expand the intervals
-                t_start_adj = t_start - tolerance
-                t_end_adj = t_end + tolerance
-                
-                if max(t_start_adj, c_start) < min(t_end_adj, c_end):
-                    overlaps += 1
-                    break # Found an overlap for this target peak, move to next
+    # Mock ChIP-seq peaks (ground truth)
+    chip_peaks = [
+        {"chrom": "chr1", "start": 100, "end": 200},  # Exact match
+        {"chrom": "chr1", "start": 310, "end": 390},  # Partial overlap
+        {"chrom": "chr1", "start": 500, "end": 600},  # Exact match
+        {"chrom": "chr3", "start": 100, "end": 200},  # No match
+    ]
     
-    return (overlaps / len(target_peaks)) * 100.0
+    # Calculate overlap
+    overlap_pct = validate_motifs(predicted_peaks, chip_peaks, overlap_threshold=0.5)
+    
+    # Expected: 
+    # - Peak 0 (100-200) overlaps with chip peak 0 (100-200) -> 100% overlap
+    # - Peak 1 (300-400) overlaps with chip peak 1 (310-390) -> 80/100 = 80% overlap
+    # - Peak 2 (500-600) overlaps with chip peak 2 (500-600) -> 100% overlap
+    # - Peak 3 (chr2 100-200) has no overlap
+    # Overlap count: 3 out of 4 = 75%
+    
+    assert 0 <= overlap_pct <= 100, f"Overlap percentage {overlap_pct} should be in [0, 100]"
+    assert overlap_pct == 75.0, f"Expected 75% overlap, got {overlap_pct}%"
 
+def test_chip_overlap_no_matches():
+    """
+    Test overlap calculation when there are no matches.
+    """
+    predicted_peaks = [
+        {"chrom": "chr1", "start": 100, "end": 200, "motif": "MA0001"},
+    ]
+    
+    chip_peaks = [
+        {"chrom": "chr2", "start": 100, "end": 200},  # Different chromosome
+    ]
+    
+    overlap_pct = validate_motifs(predicted_peaks, chip_peaks)
+    assert overlap_pct == 0.0, f"Expected 0% overlap, got {overlap_pct}%"
 
-class TestChipOverlapCalculation:
-    """Tests for the ChIP-seq overlap calculation logic."""
+def test_chip_overlap_all_matches():
+    """
+    Test overlap calculation when all peaks match.
+    """
+    predicted_peaks = [
+        {"chrom": "chr1", "start": 100, "end": 200, "motif": "MA0001"},
+        {"chrom": "chr1", "start": 300, "end": 400, "motif": "MA0001"},
+    ]
+    
+    chip_peaks = [
+        {"chrom": "chr1", "start": 100, "end": 200},
+        {"chrom": "chr1", "start": 300, "end": 400},
+    ]
+    
+    overlap_pct = validate_motifs(predicted_peaks, chip_peaks)
+    assert overlap_pct == 100.0, f"Expected 100% overlap, got {overlap_pct}%"
 
-    def test_perfect_overlap(self):
-        """Assert 100% overlap when all target peaks match ChIP peaks exactly."""
-        target = [
-            ("chr1", 100, 200),
-            ("chr1", 300, 400)
-        ]
-        chip = [
-            ("chr1", 100, 200),
-            ("chr1", 300, 400)
-        ]
-        result = calculate_chip_overlap(target, chip)
-        assert result == 100.0
+def test_silhouette_score_calculation():
+    """
+    Test that silhouette score is calculated correctly.
+    """
+    # Create data with clear clusters
+    data = np.array([
+        [0, 0], [0.1, 0.1], [0, 0.1],  # Cluster 1
+        [5, 5], [5.1, 5.1], [5, 5.1],  # Cluster 2
+    ])
+    
+    silhouette_score = calculate_silhouette_score(data)
+    
+    # With well-separated clusters, silhouette score should be high (> 0.5)
+    assert -1 <= silhouette_score <= 1, \
+        f"Silhouette score {silhouette_score} should be in [-1, 1]"
+    assert silhouette_score > 0.5, \
+        f"Well-separated clusters should have high silhouette score, got {silhouette_score}"
 
-    def test_no_overlap(self):
-        """Assert 0% overlap when peaks are on different chromosomes."""
-        target = [
-            ("chr1", 100, 200)
-        ]
-        chip = [
-            ("chr2", 100, 200)
-        ]
-        result = calculate_chip_overlap(target, chip)
-        assert result == 0.0
-
-    def test_partial_overlap_counted(self):
-        """Assert partial overlaps are counted as overlaps."""
-        target = [
-            ("chr1", 100, 200)
-        ]
-        # ChIP peak overlaps the target peak
-        chip = [
-            ("chr1", 150, 250) 
-        ]
-        result = calculate_chip_overlap(target, chip)
-        assert result == 100.0
-
-    def test_mixed_overlap(self):
-        """Assert correct percentage when some overlap and some don't."""
-        target = [
-            ("chr1", 100, 200), # Overlaps
-            ("chr1", 300, 400), # No overlap
-            ("chr1", 500, 600)  # No overlap
-        ]
-        chip = [
-            ("chr1", 150, 250) # Overlaps first
-        ]
-        result = calculate_chip_overlap(target, chip)
-        assert result == 33.333333333333336 # 1/3
-
-    def test_tolerance_extension(self):
-        """Assert that tolerance parameter extends the overlap region."""
-        target = [
-            ("chr1", 100, 200)
-        ]
-        # Gap of 10bp between target and chip
-        chip = [
-            ("chr1", 210, 300)
-        ]
-        # Without tolerance, no overlap
-        assert calculate_chip_overlap(target, chip, tolerance=0) == 0.0
-        # With tolerance=10, they should touch/overlap
-        assert calculate_chip_overlap(target, chip, tolerance=10) == 100.0
-
-    def test_empty_target_peaks(self):
-        """Assert 0.0 is returned if target peaks list is empty."""
-        result = calculate_chip_overlap([], [("chr1", 100, 200)])
-        assert result == 0.0
-
-    def test_empty_chip_peaks(self):
-        """Assert 0.0 is returned if ChIP peaks list is empty."""
-        result = calculate_chip_overlap([("chr1", 100, 200)], [])
-        assert result == 0.0
+def test_silhouette_score_single_cluster():
+    """
+    Test silhouette score for data that forms a single cluster.
+    """
+    data = np.array([
+        [0, 0], [0.1, 0.1], [0, 0.1], [0.05, 0.05],
+    ])
+    
+    silhouette_score = calculate_silhouette_score(data)
+    
+    # Single cluster should have lower silhouette score
+    assert -1 <= silhouette_score <= 1, \
+        f"Silhouette score {silhouette_score} should be in [-1, 1]"

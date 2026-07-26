@@ -75,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Download and preprocess paired multiomic data (Priority: P1) 🎯 MVP
 
-**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines, preprocess accessibility signal within ±50kb windows, and filter genes.
+**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines [UNRESOLVED-CLAIM: c_b10721a0 — status=not_enough_info], preprocess accessibility signal within ±50kb windows [UNRESOLVED-CLAIM: c_e0e4ce55 — status=not_enough_info], and filter genes.
 
 **Independent Test**: Verify pipeline produces matching gene matrices (accessibility features and expression values) that fit within 7GB RAM.
 
@@ -86,23 +86,23 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 with dimensions ≤10,000 peaks × 5 cell lines, ≥10,000 genes for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 [UNRESOLVED-CLAIM: c_465c9872 — status=not_enough_info] with {{claim:c_c41f9ff0}} for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
-- [~] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
 - [ ] T012.2 [US1] Validate Python implementation logic against a small synthetic bedtools test set to ensure the Python fallback matches `bedtools coverage` output. **Input**: Synthetic coordinates. **Deliverable**: `logs/validation_report.txt` confirming match. **Dependency**: Must pass before T012.1 is considered production-ready.
 
-- [ ] T012.1 [US1] Execute `bedtools coverage` to aggregate accessibility signal within ±50kb of TSS using the synthetic peak and gene coordinate files. **Command**: `bedtools coverage -a genes.bed -b peaks.bed -f 0.01 -s`. **Deliverable**: `data/processed/tss_aggregated_features.csv`. **Checksum**: Run `utils.checksum_file()` on output and record in `logs/checksums.txt`. **Note**: This is the production artifact.
+- [ ] T012.1 [US1] Execute `bedtools coverage` to aggregate accessibility signal within ±50kb of TSS [UNRESOLVED-CLAIM: c_0117c8ec — status=not_enough_info] using the synthetic peak and gene coordinate files. **Command**: `bedtools coverage -a genes.bed -b peaks.bed -f 0.01 -s`. **Deliverable**: `data/processed/tss_aggregated_features.csv`. **Checksum**: Run `utils.checksum_file()` on output and record in `logs/checksums.txt`. **Note**: This is the production artifact.
 
-- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation (log(counts + 1)) to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples [UNRESOLVED-CLAIM: c_01a34179 — status=not_enough_info] and apply a logarithmic pseudocount transformation (log(counts + 1)) [UNRESOLVED-CLAIM: c_3d214a73 — status=not_enough_info] to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
 - [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T015 [US1] Select top N variable peaks based on variance across samples in `code/preprocess.py`, where N=1000 (configurable via CLI). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/variable_peaks.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T015 [US1] Select top N variable peaks based on variance across samples in `code/preprocess.py`, where N=1000 (configurable via CLI). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/variable_peaks.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T016 [US1] {{claim:c_912ac751}} in `code/preprocess.py` by calculating the coefficient of variation across all cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016 [US1] {{claim:c_912ac751}} in `code/preprocess.py` by calculating the coefficient of variation across all cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T017 [US1] Define 500 cell-type-specific genes with variance > 0.5 in `code/preprocess.py` by calculating expression variance across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T017 [US1] Define 500 cell-type-specific genes with variance > 0.5 [UNRESOLVED-CLAIM: c_ee09fd6e — status=not_enough_info] in `code/preprocess.py` by calculating expression variance across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -127,7 +127,7 @@
 
 - [~] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
 
-- [~] T024 [US2] Implement Bonferroni correction for p-values in `code/evaluate.py` (FR-006). **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
+- [~] T024 [US2] Implement Bonferroni correction for p-values [UNRESOLVED-CLAIM: c_58b1d798 — status=not_enough_info] in `code/evaluate.py` (FR-006). **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
 
 - [~] T025 [US2] Calculate and report R² for housekeeping genes per cell line in `code/evaluate.py` (FR-009, SC-001) using the gene list from `data/processed/housekeeping_genes.csv`. **Deliverable**: `data/processed/housekeeping_r2.csv`.
 
@@ -301,5 +301,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies), but production pipeline must implement FR-001 (T011b).
-- **Constraint**: No GPU/CUDA; All models run on 2 CPU cores, ≤7GB RAM.
+- **Constraint**: No GPU/CUDA; {{claim:c_e2c9d43f}}.
 - **Revision Note**: Phase 7 tasks are mandatory to address standard limitations and documentation, replacing the previous hallucinated reviewer tasks.

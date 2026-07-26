@@ -1,0 +1,44 @@
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `spec.md` file or any excerpt showing the corrected SC-005 section is provided;
+    the required artifact is missing, so the task of fixing the corrupted text cannot
+    be verified as completed.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`data/raw/`, `data/processed/`, `data/models/`, `logs/`)
+    is shown or referenced in the provided artifacts; the implementer gave no file
+    listings, screenshots, or code that creates these folders. The required folder
+    hierarchy is therefore missing.
+T011b:
+  c: false
+  h: 8cd91b70233f2221a7fcdd404a34c0096ca0fa36d82da1a14ea3e9eb59517c13
+  r: "The repository contains `code/download_encode.py`, but the required output files\
+    \ `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed` are absent, and\
+    \ no checksum file is present. Without these data artifacts the FR\u2011001 requirement\
+    \ is not fulfilled."
+T015:
+  c: false
+  h: 0d13b8198267323dfe16537fa5f109b6dbde4266d9ca9f3abd663878f972e5d6
+  r: "The required input `data/processed/imputed_expression.csv` does not exist, and\
+    \ the expected output `data/processed/variable_peaks.csv` is also missing. Moreover,\
+    \ the provided `code/preprocess.py` is truncated and shows no implementation of\
+    \ selecting the top\u202FN variable peaks or a CLI option to configure N. The\
+    \ task\u2019s deliverables are therefore not present."
+T016:
+  c: false
+  h: 37a8da8ba2f5e9f384153b5ce2118905a94966e8de6958c388445f58abc0dc46
+  r: "The repository lacks the required input file `data/processed/imputed_expression.csv`\
+    \ and the output file `data/processed/housekeeping_genes.csv`. Moreover, the provided\
+    \ `code/preprocess.py` (truncated) shows no implementation for computing the coefficient\
+    \ of variation or writing the housekeeping genes CSV. The task\u2019s deliverable\
+    \ is therefore not present."
+T017:
+  c: false
+  h: 38b2b846e3451b24d43dba13554a48e7c9c329f0df7e34115ea9561a2aebe478
+  r: "The required input file `data/processed/imputed_expression.csv` and the output\
+    \ file `data/processed/cell_type_specific_genes.csv` are both missing, and the\
+    \ provided `code/preprocess.py` does not contain any implementation that computes\
+    \ expression variance, selects 500 cell\u2011type\u2011specific genes, or writes\
+    \ the specified CSV. Consequently the task\u2019s deliverables are not present."

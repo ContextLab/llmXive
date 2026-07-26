@@ -1,180 +1,104 @@
 """
-I/O utilities for llmXive PROJ-011.
-Robust file loading and saving with error handling.
+I/O Utilities for robust file handling.
 """
 import csv
 import json
 import os
+import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-import pandas as pd
-
-
 class IOLoadError(Exception):
-    """Exception raised when loading data fails."""
+    """Exception raised when a file cannot be loaded."""
     pass
-
 
 class IOSaveError(Exception):
-    """Exception raised when saving data fails."""
+    """Exception raised when a file cannot be saved."""
     pass
 
+def ensure_dir(path: Union[str, Path]) -> Path:
+    """Ensure the directory for the given path exists."""
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
-def ensure_dir(dir_path: Union[str, Path]) -> Path:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        dir_path: Path to the directory.
-        
-    Returns:
-        The Path object for the directory.
-    """
-    path = Path(dir_path)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def file_exists(path: Union[str, Path]) -> bool:
+    """Check if a file exists."""
+    return Path(path).exists()
 
-
-def file_exists(file_path: Union[str, Path]) -> bool:
-    """
-    Check if a file exists.
-    
-    Args:
-        file_path: Path to the file.
-        
-    Returns:
-        True if the file exists, False otherwise.
-    """
-    return Path(file_path).exists()
-
-
-def load_csv(file_path: Union[str, Path], **kwargs) -> pd.DataFrame:
-    """
-    Load a CSV file into a pandas DataFrame.
-    
-    Args:
-        file_path: Path to the CSV file.
-        **kwargs: Additional arguments passed to pd.read_csv.
-        
-    Returns:
-        DataFrame containing the CSV data.
-        
-    Raises:
-        IOLoadError: If the file cannot be loaded.
-    """
+def load_csv(path: Union[str, Path], **kwargs) -> Any:
+    """Load a CSV file into a list of dicts or pandas DataFrame."""
     try:
-        return pd.read_csv(file_path, **kwargs)
+        import pandas as pd
+        return pd.read_csv(path, **kwargs)
     except Exception as e:
-        raise IOLoadError(f"Failed to load CSV {file_path}: {e}")
+        raise IOLoadError(f"Failed to load CSV {path}: {e}")
 
-
-def save_csv(df: pd.DataFrame, file_path: Union[str, Path], **kwargs) -> None:
-    """
-    Save a pandas DataFrame to a CSV file.
-    
-    Args:
-        df: DataFrame to save.
-        file_path: Path to save the CSV file.
-        **kwargs: Additional arguments passed to df.to_csv.
-        
-    Raises:
-        IOSaveError: If the file cannot be saved.
-    """
+def save_csv(data: Union[List[Dict], Any], path: Union[str, Path], **kwargs) -> None:
+    """Save data to a CSV file."""
     try:
-        ensure_dir(Path(file_path).parent)
-        df.to_csv(file_path, **kwargs)
+        import pandas as pd
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            df = pd.DataFrame(data)
+            df.to_csv(path, index=False, **kwargs)
+        else:
+            # Assume it's already a DataFrame or similar
+            data.to_csv(path, index=False, **kwargs)
     except Exception as e:
-        raise IOSaveError(f"Failed to save CSV {file_path}: {e}")
+        raise IOSaveError(f"Failed to save CSV {path}: {e}")
 
-
-def load_json(file_path: Union[str, Path], **kwargs) -> Union[Dict, List]:
-    """
-    Load a JSON file.
-    
-    Args:
-        file_path: Path to the JSON file.
-        **kwargs: Additional arguments passed to json.load.
-        
-    Returns:
-        Parsed JSON data (dict or list).
-        
-    Raises:
-        IOLoadError: If the file cannot be loaded.
-    """
+def load_json(path: Union[str, Path]) -> Any:
+    """Load a JSON file."""
     try:
-        with open(file_path, "r") as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        raise IOLoadError(f"Failed to load JSON {file_path}: {e}")
+        raise IOLoadError(f"Failed to load JSON {path}: {e}")
 
-
-def save_json(data: Union[Dict, List], file_path: Union[str, Path], **kwargs) -> None:
-    """
-    Save data to a JSON file.
-    
-    Args:
-        data: Data to save (dict or list).
-        file_path: Path to save the JSON file.
-        **kwargs: Additional arguments passed to json.dump.
-        
-    Raises:
-        IOSaveError: If the file cannot be saved.
-    """
+def save_json(data: Any, path: Union[str, Path], **kwargs) -> None:
+    """Save data to a JSON file."""
     try:
-        ensure_dir(Path(file_path).parent)
-        with open(file_path, "w") as f:
-            json.dump(data, f, **kwargs)
+        ensure_dir(path)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, **kwargs)
     except Exception as e:
-        raise IOSaveError(f"Failed to save JSON {file_path}: {e}")
+        raise IOSaveError(f"Failed to save JSON {path}: {e}")
 
+def load_yaml(path: Union[str, Path]) -> Any:
+    """Load a YAML file."""
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        raise IOLoadError(f"Failed to load YAML {path}: {e}")
 
-def load_jsonl(file_path: Union[str, Path]) -> List[Dict]:
-    """
-    Load a JSON Lines file (one JSON object per line).
-    
-    Args:
-        file_path: Path to the JSONL file.
-        
-    Returns:
-        List of dictionaries, one per line.
-        
-    Raises:
-        IOLoadError: If the file cannot be loaded.
-    """
+def save_yaml(data: Any, path: Union[str, Path], **kwargs) -> None:
+    """Save data to a YAML file."""
+    try:
+        ensure_dir(path)
+        with open(path, 'w', encoding='utf-8') as f:
+            yaml.safe_dump(data, f, default_flow_style=False, **kwargs)
+    except Exception as e:
+        raise IOSaveError(f"Failed to save YAML {path}: {e}")
+
+def load_jsonl(path: Union[str, Path]) -> List[Dict]:
+    """Load a JSONL file."""
     try:
         data = []
-        with open(file_path, "r") as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if line:
-                    try:
-                        data.append(json.loads(line))
-                    except json.JSONDecodeError as e:
-                        raise IOLoadError(f"Invalid JSON on line {line_num} in {file_path}: {e}")
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    data.append(json.loads(line))
         return data
-    except FileNotFoundError:
-        raise IOLoadError(f"JSONL file not found: {file_path}")
     except Exception as e:
-        raise IOLoadError(f"Failed to load JSONL {file_path}: {e}")
+        raise IOLoadError(f"Failed to load JSONL {path}: {e}")
 
-
-def save_jsonl(data: List[Dict], file_path: Union[str, Path], **kwargs) -> None:
-    """
-    Save a list of dictionaries to a JSON Lines file.
-    
-    Args:
-        data: List of dictionaries to save.
-        file_path: Path to save the JSONL file.
-        **kwargs: Additional arguments passed to json.dump.
-        
-    Raises:
-        IOSaveError: If the file cannot be saved.
-    """
+def save_jsonl(data: List[Dict], path: Union[str, Path]) -> None:
+    """Save a list of dicts to a JSONL file."""
     try:
-        ensure_dir(Path(file_path).parent)
-        with open(file_path, "w") as f:
+        ensure_dir(path)
+        with open(path, 'w', encoding='utf-8') as f:
             for item in data:
-                f.write(json.dumps(item, **kwargs) + "\n")
+                f.write(json.dumps(item) + '\n')
     except Exception as e:
-        raise IOSaveError(f"Failed to save JSONL {file_path}: {e}")
+        raise IOSaveError(f"Failed to save JSONL {path}: {e}")

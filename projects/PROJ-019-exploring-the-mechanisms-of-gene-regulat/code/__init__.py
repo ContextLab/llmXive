@@ -1,3 +1,1 @@
-"""
-llmXive Gene Regulation Analysis Package
-"""
+# Main code package for llmXive gene regulation pipeline

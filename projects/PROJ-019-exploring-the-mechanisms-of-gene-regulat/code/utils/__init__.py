@@ -1,3 +1,3 @@
 """
-Utility modules package.
+Utility modules for gene regulation analysis.
 """

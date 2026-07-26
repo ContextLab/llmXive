@@ -1,0 +1,23 @@
+T013:
+  c: false
+  h: fad8be8c6dff6094b6eb50110b44c2f942d939c3f94e8dab936c3971dff2d551
+  r: The required file `code/preprocessing/data_download.py` does not exist, and the
+    existing `state/exclusions.yaml` is only a placeholder with no real exclusion
+    data. Both the script implementation and the populated exclusions log are missing,
+    so the task is not satisfied.
+T018b:
+  c: false
+  h: a63f9424f0d70143b1cfefb65ce0f465bac41fe4c8e4ad8cc53a4d536b528539
+  r: The provided `qc_reporter.py` is truncated (e.g., `assess_stability` ends abruptly
+    and there is no code that writes `qc_summary.json`). Moreover, the required output
+    file `data/reports/qc_summary.json` does not exist. The module does not fully
+    implement the calculation and reporting steps demanded by the task.
+T025b:
+  c: false
+  h: 181c3e467fc13575bfbe61a11a51b47d0c0aa0e64f94b9c22f046cd6686d407c
+  r: The `code/modeling/convergence_reporter.py` file is truncated and contains an
+    unfinished function (`load_convergence_logs`) that would cause a syntax error,
+    so it does not fully implement the required aggregation, rate calculation, and
+    assertion logic. Moreover, the expected output file `data/models/convergence_report.json`
+    is missing. The implementer must provide a complete, runnable script that creates
+    the JSON report.

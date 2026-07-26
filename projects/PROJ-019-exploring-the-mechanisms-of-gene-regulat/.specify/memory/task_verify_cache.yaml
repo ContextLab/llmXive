@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/`,
+    `code/`, `data/`, `tests/`) is provided; the implementer did not supply any artifact
+    confirming the directory structure exists. The task remains unfinished until these
+    folders are created and shown.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that `__init__.py` files actually exist in\
+    \ the `code/` and `tests/` directories; without those files present, the task\
+    \ requirement is not satisfied. The implementer must add non\u2011empty `__init__.py`\
+    \ files to both directories."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files in `data/raw/`, `data/interim/`, or `data/processed/`
+    was provided; the artifact list is empty, so the requirement of creating those
+    placeholder files is not satisfied. The next implementer must add a `.gitkeep`
+    (or equivalent empty placeholder) file to each of the three directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., pyproject.toml, .ruff.toml,\
+    \ black settings, or pre\u2011commit hooks) are provided or referenced, so there\
+    \ is no evidence that ruff and black have been configured for the project. The\
+    \ required artifacts are missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or its `unit`, `integration`, and `contract`
+    subfolders was provided; the implementer did not supply any files or directory
+    listings showing the required structure. The task therefore remains unfinished.
+T015:
+  c: false
+  h: a8f1658006d34a104c476c5bf9826c7e3b697255f21f4fc8378d67b9e39264e9
+  r: "The repository contains a `code/main.py` but the `generate_ingestion_summary`\
+    \ function uses a placeholder for peak counts and the pipeline never actually\
+    \ creates `data/processed/ingestion_summary.json` (the file is missing). Consequently\
+    \ the required output file with real per\u2011cell\u2011type peak counts is not\
+    \ present."

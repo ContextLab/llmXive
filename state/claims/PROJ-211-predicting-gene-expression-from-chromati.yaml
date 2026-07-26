@@ -56,22 +56,6 @@
   updated_at: '2026-07-07T18:54:07Z'
 - artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   attempts: 1
-  canonical: Select top 1000 variable peaks based on variance across samples
-  claim_id: c_c888f7fd
-  context: Select top N variable peaks based on variance across samples in code/preprocess.py,
-    where N=1000 (configurable via CLI).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Select top 1000 variable peaks based on variance across samples
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T18:54:34Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 1
   canonical: Define 500 housekeeping genes with coefficient of variation less than
     or equal to 0.2
   claim_id: c_912ac751
@@ -415,27 +399,6 @@
   updated_at: '2026-07-09T01:28:32Z'
 - artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   attempts: 2
-  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
-    5 human cell lines
-  claim_id: c_b10721a0
-  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
-    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
-    \ filter genes."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
-  kind: magnitude
-  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
-    5 human cell lines"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T15:32:05Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 2
   canonical: Preprocess accessibility signal within 50kb windows
   claim_id: c_8d09be0c
   context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
@@ -607,3 +570,244 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T15:37:26Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 3
+  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
+    5 human cell lines
+  claim_id: c_b10721a0
+  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
+    \ filter genes."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
+  kind: magnitude
+  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:09:53Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: preprocess accessibility signal within plus or minus 50 kilobase windows
+  claim_id: c_e0e4ce55
+  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines, preprocess accessibility signal within \xB150kb windows, and\
+    \ filter genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "process accessibility signal within \xB150kb windows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:09:59Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC,
+    IMR90, and HepG2 cell lines
+  claim_id: c_465c9872
+  context: "Execute generate_data.py to produce paired RNA-seq and DNase-seq counts\
+    \ for GM12878, K562, HMEC, IMR90, HepG2 with dimensions \u226410,000 peaks \xD7\
+    \ 5 cell lines, \u226510,000 genes for CI validation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_paired_RNA-seq_and_DNase-seq_counts_for_GM12878,_K56
+  kind: entity_fact
+  raw_text: produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90,
+    HepG2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:06Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: dimensions of at most 10000 peaks by 5 cell lines and at least 10000
+    genes
+  claim_id: c_c41f9ff0
+  context: "Execute generate_data.py to produce paired RNA-seq and DNase-seq counts\
+    \ for GM12878, K562, HMEC, IMR90, HepG2 with dimensions \u226410,000 peaks \xD7\
+    \ 5 cell lines, \u226510,000 genes for CI validation."
+  evidence:
+    candidates:
+    - - Log in Dimensions of at most
+      - 10000.0
+    - - Dimensions of at most 10000 peaks by
+      - 5.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Dimensions_of_at_most_10000_peaks_by_5_cell_lines_and_at_lea
+  kind: magnitude
+  raw_text: "dimensions \u226410,000 peaks \xD7 5 cell lines, \u226510,000 genes"
+  resolved_value: dimensions of at most 10000 peaks by 5 cell lines and at least 10000
+    genes
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T16:10:08Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: aggregate accessibility signal within plus or minus 50 kilobase of transcription
+    start site
+  claim_id: c_0117c8ec
+  context: "Execute bedtools coverage to aggregate accessibility signal within \xB1\
+    50kb of TSS using the synthetic peak and gene coordinate files."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "aggregate accessibility signal within \xB150kb of TSS"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:10Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: filter genes with zero expression in all samples
+  claim_id: c_01a34179
+  context: Implement gene filtering in code/preprocess.py to filter genes with zero
+    expression in all samples and apply a logarithmic pseudocount transformation (log(counts
+    + 1)) to handle zero values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_genes_with_zero_expression_in_all_samples
+  kind: entity_fact
+  raw_text: filter genes with zero expression in all samples
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:22Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: apply logarithmic pseudocount transformation of log counts plus 1
+  claim_id: c_3d214a73
+  context: Implement gene filtering in code/preprocess.py to filter genes with zero
+    expression in all samples and apply a logarithmic pseudocount transformation (log(counts
+    + 1)) to handle zero values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply a logarithmic pseudocount transformation (log(counts + 1))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:27Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: implement missing value imputation using median imputation per peak
+  claim_id: c_40509116
+  context: Implement missing value imputation in code/preprocess.py using median imputation
+    per peak.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_missing_value_imputation_using_median_imputation_p
+  kind: entity_fact
+  raw_text: implement missing value imputation using median imputation per peak
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:31Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 2
+  canonical: Select top 1000 variable peaks based on variance across samples
+  claim_id: c_c888f7fd
+  context: Select top N variable peaks based on variance across samples in code/preprocess.py,
+    where N=1000 (configurable via CLI).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select top 1000 variable peaks based on variance across samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:38Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Define 500 cell-type-specific genes with variance greater than 0.5
+  claim_id: c_ee09fd6e
+  context: Define 500 cell-type-specific genes with variance > 0.5 in code/preprocess.py
+    by calculating expression variance across cell lines.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_500_cell-type-specific_genes_with_variance_greater_th
+  kind: magnitude
+  raw_text: Define 500 cell-type-specific genes with variance > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:10:49Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: calculate Pearson correlation between predicted and actual expression
+  claim_id: c_310c55a0
+  context: Calculate Pearson correlation between predicted and actual expression in
+    code/evaluate.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Pearson_correlation_between_predicted_and_actual_e
+  kind: entity_fact
+  raw_text: calculate Pearson correlation between predicted and actual expression
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:12:39Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Implement Bonferroni correction for p-values
+  claim_id: c_58b1d798
+  context: Implement Bonferroni correction for p-values in code/evaluate.py (FR-006).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Bonferroni_correction_for_p-values
+  kind: entity_fact
+  raw_text: Implement Bonferroni correction for p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T16:23:43Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: All models run on 2 CPU cores and at most 7 GB RAM
+  claim_id: c_e2c9d43f
+  context: "Constraint: No GPU/CUDA; All models run on 2 CPU cores, \u22647GB RAM."
+  evidence:
+    entailment_evidence: All models run on 2 CPU cores and at most 7 GB RAM
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/All_models_run_on_2_CPU_cores_and_at_most_7_GB_RAM
+  kind: magnitude
+  raw_text: "All models run on 2 CPU cores, \u22647GB RAM"
+  resolved_value: All models run on 2 CPU cores and at most 7 GB RAM
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T16:23:45Z'

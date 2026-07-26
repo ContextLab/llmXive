@@ -90,9 +90,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space (using `nilearn` templates)
 - [X] T016 [US1] Implement `code/preprocessing/smoothing.py` for spatial smoothing with a moderate kernel width.
 - [X] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD signals from dlPFC, ventral striatum, and ACC masks
-- [ ] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10% volumes exceeding 3mm translation (SC-001) and log reasons
+- [X] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10% volumes exceeding 3mm translation (SC-001) and log reasons
 - [ ] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to calculate the final exclusion rate against the SC-001 threshold (10% volumes > 3mm) and report stability in `data/reports/qc_summary.json`
-- [ ] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
+- [X] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,15 +106,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py` (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
-- [ ] T022 [P] [US2] Integration test for synthetic data recovery in `tests/integration/test_synthetic_recovery.py`
+- [X] T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py` (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
+- [X] T022 [P] [US2] Integration test for synthetic data recovery in `tests/integration/test_synthetic_recovery.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation
-- [ ] T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour runtime limit and N=30 sample size target; provides dynamic sample reduction logic if constraints are violated.
-- [ ] T024 [US2] Implement `code/modeling/belief_updater.py` using `pymc` with `numpyro` CPU backend (hierarchical structure, multiple chains, sufficient samples for convergence); **Must respect runtime constraints enforced by T024b**.
-- [ ] T025 [US2] Implement `code/modeling/validation.py` to check convergence (R-hat, ESS) and handle non-convergence (multiple restart attempts)
+- [X] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation
+- [X] T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour runtime limit and N=30 sample size target; provides dynamic sample reduction logic if constraints are violated.
+- [X] T024 [US2] Implement `code/modeling/belief_updater.py` using `pymc` with `numpyro` CPU backend (hierarchical structure, multiple chains, sufficient samples for convergence); **Must respect runtime constraints enforced by T024b**.
+- [X] T025 [US2] Implement `code/modeling/validation.py` to check convergence (R-hat, ESS) and handle non-convergence (multiple restart attempts)
 - [ ] T025b [US2] Implement `code/modeling/convergence_reporter.py` to aggregate convergence logs, calculate the global convergence rate against the N_valid count, and explicitly verify/assert it meets the ≥90% threshold (SC-002), generating `data/models/convergence_report.json`.
 - [ ] T026 [US2] Implement `code/modeling/prediction.py` to generate held-out choice predictions and compute accuracy (target ≥ 60%)
 - [ ] T028 [US2] Implement `code/main.py` logic for P2 integration: Read convergence reports (T025b), filter non-converging participants, and prepare valid participant list for T027. **Sequential Dependency: Must run after T025b, before T027.**

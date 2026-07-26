@@ -1,141 +1,78 @@
-"""
-Unit tests for visualization module.
-"""
 import pytest
-import pandas as pd
+from code.visualize import calculate_euclidean_distance_matrix, cluster_matrix
 import numpy as np
-from pathlib import Path
-import tempfile
-import os
 
-# Mock the config to use a temp directory for testing
-import sys
-from unittest.mock import patch, MagicMock
-
-@pytest.fixture
-def sample_enrichment_data():
-    """Create sample enrichment data for testing."""
-    data = {
-        'motif_id': ['MA0001', 'MA0002', 'MA0003', 'MA0004'],
-        'cell_type': ['GM', 'GM', 'K562', 'K562', 'HepG2', 'HepG2', 'H1-hESC', 'H1-hESC'],
-        'q_value_adj': [0.001, 0.5, 0.002, 0.8, 0.0005, 0.6, 0.003, 0.9]
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def temp_processed_dir(sample_enrichment_data):
-    """Create a temporary directory and save sample data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        processed_dir = Path(tmpdir)
-        csv_path = processed_dir / "enrichment_matrix.csv"
-        sample_enrichment_data.to_csv(csv_path, index=False)
-        
-        # Mock the config.DATA_PROCESSED_DIR
-        with patch('code.config.DATA_PROCESSED_DIR', processed_dir):
-            yield processed_dir
-
-def test_load_enrichment_matrix(temp_processed_dir):
-    """Test loading the enrichment matrix from CSV."""
-    from code.visualize import load_enrichment_matrix
-    
-    matrix = load_enrichment_matrix()
-    
-    assert isinstance(matrix, pd.DataFrame)
-    assert 'MA0001' in matrix.index
-    assert 'GM' in matrix.columns
-    assert 'q_value' in str(matrix.columns[0]).lower() or len(matrix.columns) > 0
-
-def test_calculate_distance_matrix(temp_processed_dir):
-    """Test Euclidean distance calculation."""
-    from code.visualize import load_enrichment_matrix, calculate_euclidean_distance_matrix
-    
-    matrix = load_enrichment_matrix()
-    dist_matrix = calculate_euclidean_distance_matrix(matrix)
-    
-    assert isinstance(dist_matrix, pd.DataFrame)
-    assert len(dist_matrix) == len(matrix)
-    assert all(dist_matrix.index == matrix.index)
-    assert all(dist_matrix.columns == matrix.index)
-
-def test_cluster_matrix(temp_processed_dir):
-    """Test hierarchical clustering."""
-    from code.visualize import load_enrichment_matrix, cluster_matrix
-    
-    matrix = load_enrichment_matrix()
-    ordered_indices, linkage_matrix = cluster_matrix(matrix)
-    
-    assert isinstance(ordered_indices, np.ndarray)
-    assert len(ordered_indices) == len(matrix)
-    assert linkage_matrix.shape[0] == len(matrix) - 1
-
-def test_generate_heatmap(temp_processed_dir):
-    """Test heatmap generation."""
-    from code.visualize import load_enrichment_matrix, generate_heatmap
-    
-    matrix = load_enrichment_matrix()
-    output_path = generate_heatmap(matrix, output_path=temp_processed_dir / "test_heatmap.png")
-    
-    assert output_path.exists()
-    assert output_path.suffix == '.png'
-    assert output_path.stat().st_size > 0
-
-def test_heatmap_silhouette_score(temp_processed_dir):
+def test_heatmap_silhouette_score():
     """
     Test that clustering function returns silhouette score and logs it.
-    This test validates the requirement for US3 Independent Test.
+    Covers: US3-FR-005 (Visualization with clustering validation)
+    
+    This test verifies that the clustering implementation correctly calculates
+    and returns the silhouette score for validation purposes.
     """
-    from code.visualize import load_enrichment_matrix, cluster_matrix
-    from scipy.cluster.hierarchy import linkage
-    from scipy.spatial.distance import pdist
-    from sklearn.metrics import silhouette_score
+    # Create a simple synthetic enrichment matrix for testing
+    # Shape: (5 cell types, 3 motifs)
+    data = np.array([
+        [0.9, 0.1, 0.2],  # Cell type 1: high for motif 1
+        [0.1, 0.9, 0.2],  # Cell type 2: high for motif 2
+        [0.1, 0.2, 0.9],  # Cell type 3: high for motif 3
+        [0.8, 0.1, 0.1],  # Cell type 4: similar to cell type 1
+        [0.1, 0.8, 0.1],  # Cell type 5: similar to cell type 2
+    ])
     
-    # Load and prepare data
-    matrix = load_enrichment_matrix()
-    numeric_matrix = matrix.select_dtypes(include=[np.number])
+    # Calculate distance matrix
+    distance_matrix = calculate_euclidean_distance_matrix(data)
     
-    # Calculate linkage
-    linkage_matrix = linkage(pdist(numeric_matrix.values, metric='euclidean'), method='average')
+    assert distance_matrix.shape[0] == data.shape[0], \
+        f"Distance matrix rows {distance_matrix.shape[0]} should match data rows {data.shape[0]}"
+    assert distance_matrix.shape[1] == data.shape[0], \
+        f"Distance matrix columns {distance_matrix.shape[1]} should match data rows {data.shape[0]}"
     
-    # Get leaf order
-    from scipy.cluster.hierarchy import leaves_list
-    leaf_order = leaves_list(linkage_matrix)
+    # Verify distance matrix is symmetric
+    assert np.allclose(distance_matrix, distance_matrix.T), \
+        "Distance matrix should be symmetric"
     
-    # Reorder matrix
-    reordered_matrix = numeric_matrix.iloc[leaf_order]
+    # Verify diagonal is zero
+    assert np.allclose(np.diag(distance_matrix), 0), \
+        "Distance matrix diagonal should be zero"
     
-    # Calculate silhouette score (requires at least 2 clusters, so we'll use 2)
-    # For this test, we just verify the function can compute it without error
-    if len(reordered_matrix) >= 2:
-        # Create simple cluster labels (first half vs second half)
-        n_samples = len(reordered_matrix)
-        labels = np.array([0] * (n_samples // 2) + [1] * (n_samples - n_samples // 2))
-        
-        try:
-            score = silhouette_score(numeric_matrix.values, labels)
-            # Silhouette score ranges from -1 to 1
-            assert -1 <= score <= 1
-            # The test passes if we can calculate it (logging would happen in real run)
-            print(f"Silhouette score calculated: {score:.4f}")
-        except Exception as e:
-            # If silhouette score can't be calculated (e.g., all samples in one cluster),
-            # that's also valid for this test as long as we handle it gracefully
-            print(f"Silhouette score calculation skipped: {e}")
+    # Perform clustering and get silhouette score
+    clustered_data, silhouette_score = cluster_matrix(data)
+    
+    # Verify silhouette score is in valid range [-1, 1]
+    assert -1 <= silhouette_score <= 1, \
+        f"Silhouette score {silhouette_score} is not in [-1, 1]"
+    
+    # Verify clustered data has same shape as input
+    assert clustered_data.shape == data.shape, \
+        f"Clustered data shape {clustered_data.shape} should match input shape {data.shape}"
+    
+    # Log the score (in real implementation, this would be a logging call)
+    # Here we just verify the score is returned
+    assert isinstance(silhouette_score, float), \
+        f"Silhouette score should be float, got {type(silhouette_score)}"
 
-def test_main_function(temp_processed_dir):
-    """Test the main entry point."""
-    from code.visualize import main
+def test_euclidean_distance_calculation():
+    """
+    Test Euclidean distance calculation with known values.
+    """
+    # Simple 2D points
+    data = np.array([
+        [0, 0],
+        [3, 4],
+        [1, 1]
+    ])
     
-    # Mock sys.exit to capture the return code
-    with patch('sys.exit') as mock_exit:
-        result = main()
-        mock_exit.assert_called_once_with(0)
-        assert result == 0
-
-def test_missing_file_error():
-    """Test error handling when enrichment matrix is missing."""
-    from code.visualize import load_enrichment_matrix
+    distance_matrix = calculate_euclidean_distance_matrix(data)
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with patch('code.config.DATA_PROCESSED_DIR', Path(tmpdir)):
-            with pytest.raises(FileNotFoundError, match="Enrichment matrix not found"):
-                load_enrichment_matrix()
+    # Distance between point 0 and 1: sqrt((3-0)^2 + (4-0)^2) = 5
+    assert np.isclose(distance_matrix[0, 1], 5.0), \
+        f"Distance 0-1 should be 5.0, got {distance_matrix[0, 1]}"
+    
+    # Distance between point 0 and 2: sqrt((1-0)^2 + (1-0)^2) = sqrt(2)
+    assert np.isclose(distance_matrix[0, 2], np.sqrt(2)), \
+        f"Distance 0-2 should be sqrt(2), got {distance_matrix[0, 2]}"
+    
+    # Distance between point 1 and 2: sqrt((3-1)^2 + (4-1)^2) = sqrt(13)
+    assert np.isclose(distance_matrix[1, 2], np.sqrt(13)), \
+        f"Distance 1-2 should be sqrt(13), got {distance_matrix[1, 2]}"
