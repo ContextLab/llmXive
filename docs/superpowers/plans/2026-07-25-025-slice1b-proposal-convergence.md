@@ -10,10 +10,10 @@
 
 ## Global Constraints
 
-Every task's requirements implicitly include this section. Values are copied verbatim from spec 025 rev 15 and the slice-0/1A contracts.
+Every task's requirements implicitly include this section. Values are copied verbatim from spec 025 rev 16 and the slice-0/1A contracts.
 
 - **Mandatory audit — no silently-unaudited lane call (FR-033a, F3).** `build_proposal_review_spec` REQUIRES a `LaneRouteContext`; there is no `route_audit=None` default anywhere on the lane path. The context reaches **both** the reviewers and the reviser. A `route_audit` exception is never swallowed: a pre-dispatch failure is route-fatal.
-- **Attempt budget on every lane call (FR-033, F2).** `reservation_authority` is threaded through the SAME path as `route_audit` — reviewers and reviser alike. It is consulted by `execute` only for paid candidates (free candidates reserve 0, so the mechanism is inert under the default free-first path), but it MUST be injected on every lane call so a paid candidate can never dispatch outside the Attempt cap.
+- **Attempt budget on every lane call (FR-033, F2).** `reservation_authority` is threaded through the SAME path as `route_audit` — reviewers and reviser alike. `execute` gates the ENTIRE reservation path on `if not candidate.pricing.is_free:` (`execute.py:403`), so the authority is **never consulted for a free candidate** — it is not called with 0, it is not called at all. (That is also what makes Slice 1A T7's strictly-positive `reserve()` contract safe.) It MUST still be injected on every lane call, so a paid candidate can never dispatch outside the Attempt cap.
 - **Two-attempt reroute, no new profile (FR-002, ReviewSpec table lines 279-280).** Attempt 1: the delivered **`independent_review`** profile (`required_independence={family}`, `require_fresh_snapshot=True`, `max_catalog_age_s=900`) + `independence_against(<proposer baseline>)`. On **`ModelUnavailable`** → attempt 2: the delivered **`deep_review`** profile (no family constraint, `max_catalog_age_s=3600`) — **degrade, never fail closed** (a proposal produces/merges no code). Only a raw `ModelUnavailable` triggers the reroute: `ChainExhausted`, `RouteAuditError`, and `RouteReplayError` MUST NOT.
 - **The degradation record is an EXPLICIT, SCHEMA-CHECKED event, never an inference (F10, F6).** A `ReviewRerouted` lane event names `{operation_id, lens, primary_profile, fallback_profile, primary_route_id, fallback_route_id, primary_failure {exception_type, message}, relaxed_constraints}`, and its payload is validated at the write boundary against the one sanctioned reroute. `relaxed_constraints = ["family_independence", "snapshot_freshness"]` is FACTUAL (what the fallback always relaxes), NOT a causal claim — `ModelUnavailable` carries only a textual reason and four documented causes, so the code cannot infer WHICH constraint failed.
 - **If a mandatory provenance record cannot be made durable, the route fails (FR-033a, F4).** This covers the `ReviewRerouted` record as much as the audit sink's own events: `record_reroute` normalizes every persistence failure to `RouteAuditError`, and the fallback leg does not dispatch until the record has landed. A review that ran on the fallback with no durable record would be claiming an independence it never had.
@@ -2171,6 +2171,11 @@ PATCH_LENSES = (
     "implementation-correctness", "safety-blast-radius", "test-adequacy",
     "spec-adherence", "security-of-diff",
 )
+# `safety-blast-radius` is the spec's identifier as of rev 16. Through rev 15 the table
+# read `safety/blast-radius`, which cannot be a lens name: the name is used verbatim as a
+# ReviewSpec reviewer name AND as a prompt filename segment (`panel_<prefix>_<lens>.md`),
+# so the `/` would create a subdirectory. Amended rather than mapped, so there is ONE
+# identifier — see spec 025 rev 16, "Lens names are path-safe MACHINE IDENTIFIERS".
 PROPOSAL_MAX_ROUNDS = 3          # table line 281 (the engine default)
 #: A proposal the panel does not accept is REJECTED pre-claim (transition table line 245).
 PROPOSAL_KICKBACK_STAGE = "rejected"
@@ -2899,3 +2904,11 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | 2 | the credit budget accepted `nan`/`inf` | **Slice 1A T13/T2** — finite/bool/numeric checks at both boundaries plus `allow_nan=False` in the canonical serializers |
 | 3 | `AttemptConfigured` / `LaneCallClaimed` accepted unknown keys | **Slice 1A T2** — shared `_exact_keys`, both schemas pinned |
 | — | hardening suggestion (adopted) | T1's `ReviewRerouted` validator now enforces the envelope `attempt_id` and recomputes BOTH route ids at WRITE time — the same binding `build_invocation_identity` checks at projection time, so a foreign/borrowed leg can never become durable in the first place |
+
+## Round-7 review
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | individual reservation AMOUNTS were unvalidated | **Slice 1A T7** `reserve()` rejects non-finite, `bool`, and `<= 0` amounts with `ValueError` (never `False` — that would read as a routine budget skip), and **T2** registers an `AttemptCreditReserved` payload validator so a persisted record carries the same guarantee. Tests: `-1/0/nan/±inf/True` each raise before any append and leave state + budget unchanged, plus a projection test pinning WHY (a negative amount lowers `counting_total` and hands back spent budget) |
+| 2 | `PATCH_LENSES` was not literally the spec's identifier | **Spec 025 amended to rev 16**: `safety/blast-radius` → `safety-blast-radius`, plus a new rule that lens names are path-safe machine identifiers (a lens name is a `ReviewSpec` reviewer name AND a prompt filename segment, so `/` would create a subdirectory). Amended rather than mapped — one identifier, nothing to drift |
+| — | found while verifying finding 1 | This plan's Global Constraints claimed "free candidates reserve 0, so the mechanism is inert". Wrong: `execute.py:403` gates the whole reservation path on `if not candidate.pricing.is_free:`, so the authority is never called at all for a free candidate. Corrected — and it is what makes the strictly-positive contract safe |

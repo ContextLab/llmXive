@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-Every task's requirements implicitly include this section. Values are copied verbatim from spec 025 rev 14 and the slice-0 contracts.
+Every task's requirements implicitly include this section. Values are copied verbatim from spec 025 rev 16 and the slice-0 contracts.
 
 - **The money-path stays byte-for-byte green (Task 1 acceptance bar).** The extraction MUST NOT change any git-observable artifact of the credit ledger (blob content, tree shape, commit message, ref name, validation, CAS/retry structure). These test files MUST pass **without any edits**, both before (baseline) and after Task 1: `tests/integration/test_credit_ledger_transport.py`, `tests/integration/test_credit_reservations.py`, `tests/integration/test_model_selection_execute.py`, `tests/unit/test_ledger_config_from_env.py`, `tests/unit/test_model_selection_attempt_hooks.py`, `tests/unit/test_model_selection_inventory.py`, `tests/unit/test_paid_credits.py`.
 - **Real git-ref CAS, no `-X theirs` (FR-008).** Every claim/mutation reads the authoritative tip, rebuilds the projection, verifies its revision precondition, and advances the ref by fast-forward (`update-ref` CAS locally / FF-push remote); a non-fast-forward refetches and recomputes. Conflicts are NEVER resolved by a whole-tree merge. Two processes on separate clones competing for one ref: exactly one wins.
@@ -334,6 +334,31 @@ def test_the_canonical_serializer_refuses_non_finite_numbers():
     with pytest.raises(ValueError, match="not JSON compliant"):
         event_to_json(ev)
 
+@pytest.mark.parametrize("credits, why", [
+    (-1.0, "> 0"),               # REOPENS spent budget: counting_total goes DOWN
+    (0.0, "> 0"),                # a paid dispatch the Attempt cap can never bind
+    (float("nan"), "FINITE"),    # every later comparison is False -> always admit
+    (float("inf"), "FINITE"),
+    (True, "not a bool"),
+])
+def test_attempt_credit_reserved_rejects_unsafe_amounts(credits, why):
+    # F1: project_reservations SUMS reserved_credits into counting_total, which IS the
+    # number the Attempt cap compares against. A bad amount here is a money defect, so
+    # the event must not rest on trusted construction.
+    payload = {"reservation_id": "r1", "call_id": "c1", "reserved_credits": credits}
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_raw(event_type="AttemptCreditReserved", attempt_id="A1",
+                                 payload=payload))
+
+def test_attempt_credit_reserved_requires_an_envelope_attempt_and_exact_keys():
+    ok = {"reservation_id": "r1", "call_id": "c1", "reserved_credits": 2.5}
+    validate_lane_event(_raw(event_type="AttemptCreditReserved", attempt_id="A1", payload=ok))
+    with pytest.raises(ValueError, match="envelope attempt_id"):
+        validate_lane_event(_raw(event_type="AttemptCreditReserved", attempt_id=None, payload=ok))
+    with pytest.raises(ValueError, match="unexpected AttemptCreditReserved payload keys"):
+        validate_lane_event(_raw(event_type="AttemptCreditReserved", attempt_id="A1",
+                                 payload={**ok, "surprise": 1}))
+
 def test_types_without_a_validator_are_envelope_only():
     # By design: the audit-mirror types re-serialize already-typed slice-0 dataclasses.
     from llmxive.self_improvement.events import TYPE_VALIDATORS
@@ -432,23 +457,40 @@ def _positive_int(payload: Mapping[str, Any], key: str) -> int:
         raise ValueError(f"payload key {key!r} must be a positive int, got {value!r}")
     return value
 
-def _finite_non_negative(payload: Mapping[str, Any], key: str) -> float:
-    """A MONEY limit must be a real, finite, non-negative number (round-6 F2).
+def _finite_number(payload: Mapping[str, Any], key: str, *, strictly_positive: bool) -> float:
+    """A MONEY value must be a real, FINITE number (round-6 F2, round-7 F1).
 
-    ``nan``/``inf`` slip past a naive ``value < 0`` guard — and a NaN budget is the worst
-    possible failure: the ledger's admission test is ``counting_total + credits > budget``,
-    and EVERY comparison against NaN is False, so the cap silently becomes "always admit".
-    ``inf`` is an unbounded cap by another name. ``bool`` is rejected too, since ``True``
-    is a perfectly good ``int`` to Python and a nonsense credit budget to us."""
+    ``nan``/``inf`` slip past a naive ``value < 0`` guard — and NaN is the worst possible
+    failure on this path: the ledger's admission test is ``counting_total + credits >
+    budget``, and EVERY comparison against NaN is False, so the cap silently becomes
+    "always admit". ``inf`` is an unbounded value by another name. ``bool`` is rejected
+    because ``True`` is a perfectly good ``int`` to Python and a nonsense credit amount to
+    us. A NEGATIVE reserved amount is rejected outright (``strictly_positive``): it would
+    lower ``counting_total`` and hand back budget that was already consumed."""
     value = _require(payload, key, (int, float))
     if isinstance(value, bool):
         raise ValueError(f"payload key {key!r} must be a number, not a bool")
     if not math.isfinite(value):
         raise ValueError(f"payload key {key!r} must be FINITE, got {value!r} — a non-finite "
-                         "credit budget disables the cap (every comparison against NaN is False)")
-    if value < 0:
+                         "credit value disables the cap (every comparison against NaN is False)")
+    if strictly_positive:
+        if value <= 0:
+            raise ValueError(
+                f"payload key {key!r} must be > 0, got {value!r} — a negative reservation "
+                "REOPENS spent budget, and a zero one dispatches a paid call the Attempt "
+                "cap can never bind"
+            )
+    elif value < 0:
         raise ValueError(f"payload key {key!r} must be non-negative, got {value!r}")
     return float(value)
+
+def _finite_non_negative(payload: Mapping[str, Any], key: str) -> float:
+    """A budget CEILING may legitimately be zero (an Attempt allowed no paid spend)."""
+    return _finite_number(payload, key, strictly_positive=False)
+
+def _finite_positive(payload: Mapping[str, Any], key: str) -> float:
+    """A reserved AMOUNT may not be zero or negative — see :func:`_finite_number`."""
+    return _finite_number(payload, key, strictly_positive=True)
 
 def _same_attempt(raw: Mapping[str, Any]) -> str:
     """The payload's attempt_id MUST equal the envelope's (round-5 F5). Projections filter
@@ -465,6 +507,24 @@ def _same_attempt(raw: Mapping[str, Any]) -> str:
 
 _ATTEMPT_CONFIG_KEYS = frozenset({"attempt_id", "call_ceiling", "attempt_budget_credits"})
 _CALL_CLAIM_KEYS = frozenset({"attempt_id", "operation_id", "leg", "route_id", "call_ceiling"})
+_CREDIT_RESERVED_KEYS = frozenset({"reservation_id", "call_id", "reserved_credits"})
+
+def _validate_attempt_credit_reserved(raw: Mapping[str, Any]) -> None:
+    """The reservation record (round-7 F1). ``project_reservations`` SUMS
+    ``reserved_credits`` into ``counting_total``, which is the number the Attempt cap is
+    compared against — so this payload carries a monetary safety claim and must not rest on
+    trusted construction alone. A negative amount persisted here lowers the running total
+    and hands back budget that was already spent; a NaN one makes every later comparison
+    False. Note the Attempt binding is the ENVELOPE's ``attempt_id`` (the projection filters
+    on ``Event.attempt_id``), so there is no payload copy to cross-check — but an event with
+    no Attempt at all could never be projected, so require one."""
+    payload = raw["payload"]
+    _exact_keys(payload, _CREDIT_RESERVED_KEYS, "AttemptCreditReserved payload")
+    if not raw.get("attempt_id"):
+        raise ValueError("an AttemptCreditReserved event must carry its envelope attempt_id")
+    _require(payload, "reservation_id", str)
+    _require(payload, "call_id", str)
+    _finite_positive(payload, "reserved_credits")
 
 def _validate_attempt_configured(raw: Mapping[str, Any]) -> None:
     """Task 13's durable limits. These two numbers ARE the Attempt's safety envelope and
@@ -506,6 +566,7 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
 #: Attempt) are NOT here — they belong to the projections (Tasks 13/14).
 TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     "AttemptConfigured": _validate_attempt_configured,
+    "AttemptCreditReserved": _validate_attempt_credit_reserved,
     "LaneCallClaimed": _validate_lane_call_claimed,
     # Slice 1B registers "ReviewRerouted" here.
 }
@@ -600,7 +661,7 @@ def event_from_json(text: str) -> Event:
                  resulting_problem_revision=d.get("resulting_problem_revision"), seq=d.get("seq"))
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (27 passed: 9 envelope + 1 valid claim + 7 parametrized malformed-claim cases + the envelope/payload attempt mismatch + `AttemptConfigured` + 2 unknown-key + 3 non-finite-budget + the serializer guard + the envelope-only case).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (33 passed: the 27 above + 5 parametrized unsafe-reservation-amount cases + the exact-keys/envelope-attempt case).
 
 - [ ] **Step 5: Commit**
 
@@ -1226,6 +1287,16 @@ def test_reserve_retain_reconcile_advances():
               _ev("e3", "AttemptCreditReconciled", "r1", 2)]
     assert project_reservations(events, "A1")["r1"].state == STATE_RECONCILED
 
+def test_a_negative_reservation_would_have_reopened_the_budget():
+    # WHY Task 2 validates reserved_credits > 0 (round-7 F1), asserted directly so the
+    # rationale cannot rot: counting_total SUMS the amounts, so a negative one hands back
+    # budget that was already spent. The event validator makes this unreachable through
+    # the real write path; this test pins the consequence it prevents.
+    honest = [_ev("e1", "AttemptCreditReserved", "r1", 0, credits=40.0)]
+    poisoned = [*honest, _ev("e2", "AttemptCreditReserved", "r2", 1, credits=-30.0)]
+    assert counting_total(project_reservations(honest, "A1")) == 40.0
+    assert counting_total(project_reservations(poisoned, "A1")) == 10.0   # 30 credits back
+
 def test_released_excluded_from_counting():
     events = [_ev("e1", "AttemptCreditReserved", "r1", 0, credits=10.0),
               _ev("e2", "AttemptCreditReserved", "r2", 1, credits=5.0),
@@ -1324,15 +1395,36 @@ def counting_total(reservations: dict[str, AttemptReservation]) -> float:
 
 **Interfaces:**
 - Produces: `class AttemptCreditLedger` implementing the slice-0 `ReservationAuthority`. Constructor `(*, repo, problem_id, attempt_id, attempt_budget_credits, call_ceiling, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock`.
-  **Forward reference (round-5 F1):** as written here the budget is constructor-local, which lets a second worker present a larger one. **Task 13** binds both limits to a durable `AttemptConfigured` record and rewrites this constructor to enforce `bind_attempt_config(...).attempt_budget_credits`; the `call_ceiling` parameter above exists because ONE record binds both. Implement Task 7 as specified, then apply Task 13's change — Task 13 carries the regression test. `reserve(credits, *, reservation_id, call_id) -> bool` — under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
+  **Forward reference (round-5 F1):** as written here the budget is constructor-local, which lets a second worker present a larger one. **Task 13** binds both limits to a durable `AttemptConfigured` record and rewrites this constructor to enforce `bind_attempt_config(...).attempt_budget_credits`; the `call_ceiling` parameter above exists because ONE record binds both. Implement Task 7 as specified, then apply Task 13's change — Task 13 carries the regression test. `reserve(credits, *, reservation_id, call_id) -> bool` — **first validates the amount** (round-7 F1: finite, not `bool`, strictly `> 0`, else `ValueError` — NOT `False`, which would look like a routine budget skip); then, under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
 - Consumes: `LaneContention` from `lane_log.py` (Task 3) — the shared "the CAS never converged" condition, defined ONCE beside `LaneRevisionConflict` because both ledgers (and any later CAS user) raise it. Do NOT redeclare it per module.
 
-- [ ] **Steps:** Tests: (1) within-budget True / over-budget False / at-budget True; (2) idempotent same identity; (3) conflicting identity raises; (4) `ThreadPoolExecutor(2)` sharing one ledger, budget admits one → exactly one `True`; (5) **barrier-driven two-clone race** (F6): two clones of one bare remote both reserving the last credits, each syncing the same parent then released together by a `threading.Barrier` — the ref-CAS + budget-recheck admits at most the remaining budget (the loser recomputes and returns `False`, never both `True`). RED (`ImportError`) → GREEN. Commit `feat(025 slice-1A T7): AttemptCreditLedger.reserve — lock + ref-CAS budget guard + collision`.
+- [ ] **Steps:** Tests: (0) **amount validation (F1)** — `reserve(-1)`, `reserve(0)`, `reserve(nan)`, `reserve(inf)`, `reserve(-inf)`, `reserve(True)` each raise `ValueError` BEFORE any append, and leave both the reservation projection and the remaining budget byte-for-byte unchanged (assert `project_reservations(read(...))` is empty and a subsequent honest `reserve` for the FULL budget still succeeds); (1) within-budget True / over-budget False / at-budget True; (2) idempotent same identity; (3) conflicting identity raises; (4) `ThreadPoolExecutor(2)` sharing one ledger, budget admits one → exactly one `True`; (5) **barrier-driven two-clone race** (F6): two clones of one bare remote both reserving the last credits, each syncing the same parent then released together by a `threading.Barrier` — the ref-CAS + budget-recheck admits at most the remaining budget (the loser recomputes and returns `False`, never both `True`). RED (`ImportError`) → GREEN. Commit `feat(025 slice-1A T7): AttemptCreditLedger.reserve — lock + ref-CAS budget guard + collision`.
 
 The reserve body (append-with-budget-precondition + retry):
 
 ```python
-    def reserve(self, credits: float, *, reservation_id: str, call_id: str) -> bool:
+    def reserve(self, credits: float, *, reservation_id: str, call_id: str) -> bool:   # `import math` at module top
+        # Round-7 F1: validate the AMOUNT before anything else. The admission test is
+        # `counting_total + credits > budget`, so an unchecked amount defeats the cap in
+        # three different ways, and `False` (an ordinary budget denial) must never be the
+        # answer to a malformed request — that would look like a routine skip.
+        #   negative -> lowers counting_total, HANDING BACK budget already spent
+        #   nan      -> every comparison is False, so the cap admits everything
+        #   inf/0    -> a paid dispatch the Attempt cap can never meaningfully bind
+        #   bool     -> True is an int to Python and a nonsense credit amount to us
+        # allow_nan=False in the serializer would eventually reject nan/inf, but only as a
+        # SERIALIZATION error, after admission was already decided — and it never catches
+        # a negative. This is the ledger's own declared contract, so it is enforced here.
+        if (
+            isinstance(credits, bool)
+            or not isinstance(credits, (int, float))
+            or not math.isfinite(credits)
+            or credits <= 0
+        ):
+            raise ValueError(
+                f"reserved credits must be a finite number > 0, got {credits!r} "
+                f"(reservation {reservation_id!r})"
+            )
         with self._lock:
             for _ in range(_MAX_RETRIES):
                 events = read(self._repo, self._problem_id, config=self._config)
@@ -2273,3 +2365,9 @@ Renumbering note: round-4's Task 13 (`LaneCallLedger`) is now **Task 14**; the n
 |-|-|-|
 | 2 | the credit budget accepted `nan`/`inf` (and `bool`) | `nan < 0` is False, and the ledger admits while `counting_total + credits > budget` is False — so a NaN budget makes the money cap "always admit". T13 now validates `math.isfinite` + rejects `bool`/non-numeric at BOTH the `bind_attempt_config` API boundary and the `AttemptConfigured` event boundary, with a test that asserts the failure mode directly so the rationale cannot rot. T2's canonical serializers also pass `allow_nan=False`: `json.dumps` emits bare `NaN`/`Infinity` (invalid JSON that round-trips only in Python), so a non-finite number can never reach the ref |
 | 3 | `AttemptConfigured` / `LaneCallClaimed` still accepted unknown keys | T2 adds a shared `_exact_keys` helper and pins both schemas, matching `ReviewRerouted`. An unrecognized key cannot be told from a typo, and in append-only history it forces later readers to guess at semantics nobody defined |
+
+**Round 7:**
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | individual reservation AMOUNTS were unvalidated (the budget was, the amounts were not) | T7 `reserve()` rejects non-finite, `bool`, and `<= 0` amounts with `ValueError` — never `False`, which would read as a routine budget skip — BEFORE any read or append; T2 registers an `AttemptCreditReserved` payload validator (`_finite_positive`) so a persisted record carries the same guarantee, since `project_reservations` SUMS `reserved_credits` into the number the cap is compared against. A negative amount was the live hole: it lowers `counting_total` and hands back budget already spent (`allow_nan=False` never catches it, and a serialization failure is not the ledger's declared contract anyway). T6 pins that consequence in a projection test |
