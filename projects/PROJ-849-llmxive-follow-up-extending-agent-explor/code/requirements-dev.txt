@@ -1,0 +1,12 @@
+# Development dependencies
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.0.0
+pre-commit>=3.0.0
+# Core dependencies (ensure consistency)
+transformers
+rank_bm25
+scikit-learn
+pandas
+datasets
+pyyaml

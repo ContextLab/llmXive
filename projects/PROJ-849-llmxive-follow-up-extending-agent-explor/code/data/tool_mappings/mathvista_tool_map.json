@@ -1,0 +1,302 @@
+{
+  "pv_001": {
+    "tool_descriptions": ["Calculate area of rectangle", "Calculate area of triangle"]
+  },
+  "pv_002": {
+    "tool_descriptions": ["Unit conversion", "Perimeter calculation"]
+  },
+  "pv_003": {
+    "tool_descriptions": ["Count outcomes", "Probability formula"]
+  },
+  "pv_004": {
+    "tool_descriptions": ["Arithmetic series sum", "Sequence formula"]
+  },
+  "pv_005": {
+    "tool_descriptions": ["Quadratic formula", "Factoring"]
+  },
+  "pv_006": {
+    "tool_descriptions": ["Linear equation", "Slope calculation"]
+  },
+  "pv_007": {
+    "tool_descriptions": ["Mean calculation", "Standard deviation"]
+  },
+  "pv_008": {
+    "tool_descriptions": ["Volume of cylinder", "Circle area"]
+  },
+  "pv_009": {
+    "tool_descriptions": ["Sine function", "Right triangle"]
+  },
+  "pv_010": {
+    "tool_descriptions": ["Trend analysis", "Prediction"]
+  },
+  "pv_011": {
+    "tool_descriptions": ["Fraction addition", "Common denominator"]
+  },
+  "pv_012": {
+    "tool_descriptions": ["Percentage calculation", "Increase formula"]
+  },
+  "pv_013": {
+    "tool_descriptions": ["System of equations", "Substitution method"]
+  },
+  "pv_014": {
+    "tool_descriptions": ["Pythagorean theorem", "Triangle properties"]
+  },
+  "pv_015": {
+    "tool_descriptions": ["Independent events", "Probability multiplication"]
+  },
+  "pv_016": {
+    "tool_descriptions": ["Mixed number conversion", "Fraction operation"]
+  },
+  "pv_017": {
+    "tool_descriptions": ["Quadratic function", "Vertex formula"]
+  },
+  "pv_018": {
+    "tool_descriptions": ["Surface area of cube", "Area of square"]
+  },
+  "pv_019": {
+    "tool_descriptions": ["Rate problem", "Proportion setup"]
+  },
+  "pv_020": {
+    "tool_descriptions": ["Median calculation", "Mode calculation"]
+  },
+  "pv_021": {
+    "tool_descriptions": ["Sector area", "Circle area"]
+  },
+  "pv_022": {
+    "tool_descriptions": ["Inequality solving", "Graphing inequalities"]
+  },
+  "pv_023": {
+    "tool_descriptions": ["Conditional probability", "Dependent events"]
+  },
+  "pv_024": {
+    "tool_descriptions": ["Compound interest", "Exponential growth"]
+  },
+  "pv_025": {
+    "tool_descriptions": ["Radical simplification", "Perfect squares"]
+  },
+  "pv_026": {
+    "tool_descriptions": ["Line equation", "Slope formula"]
+  },
+  "pv_027": {
+    "tool_descriptions": ["Parallel lines", "Angle relationships"]
+  },
+  "pv_028": {
+    "tool_descriptions": ["Complement event", "Probability rules"]
+  },
+  "pv_029": {
+    "tool_descriptions": ["Volume of sphere", "Circle area"]
+  },
+  "pv_030": {
+    "tool_descriptions": ["Range calculation", "IQR calculation"]
+  },
+  "pv_031": {
+    "tool_descriptions": ["Law of cosines", "Triangle side"]
+  },
+  "pv_032": {
+    "tool_descriptions": ["Exponential equation", "Logarithm rules"]
+  },
+  "pv_033": {
+    "tool_descriptions": ["Composite area", "Shape decomposition"]
+  },
+  "pv_034": {
+    "tool_descriptions": ["Union of events", "Addition rule"]
+  },
+  "pv_035": {
+    "tool_descriptions": ["Ratio problem", "Proportion solving"]
+  },
+  "pv_036": {
+    "tool_descriptions": ["Standard error", "Mean calculation"]
+  },
+  "pv_037": {
+    "tool_descriptions": ["Circle equation", "Distance formula"]
+  },
+  "pv_038": {
+    "tool_descriptions": ["Logarithmic equation", "Exponential form"]
+  },
+  "pv_039": {
+    "tool_descriptions": ["Permutation", "Counting principle"]
+  },
+  "pv_040": {
+    "tool_descriptions": ["Surface area of cone", "Circle area"]
+  },
+  "pv_041": {
+    "tool_descriptions": ["System of inequalities", "Graphing system"]
+  },
+  "pv_042": {
+    "tool_descriptions": ["Binomial distribution", "Probability mass function"]
+  },
+  "pv_043": {
+    "tool_descriptions": ["Similar triangles", "Proportionality"]
+  },
+  "pv_044": {
+    "tool_descriptions": ["Arithmetic mean", "Summation"]
+  },
+  "pv_045": {
+    "tool_descriptions": ["Volume of pyramid", "Base area"]
+  },
+  "pv_046": {
+    "tool_descriptions": ["Absolute value equation", "Case analysis"]
+  },
+  "pv_047": {
+    "tool_descriptions": ["Combination", "Counting principle"]
+  },
+  "pv_048": {
+    "tool_descriptions": ["Area of trapezoid", "Base calculation"]
+  },
+  "pv_049": {
+    "tool_descriptions": ["Quadratic inequality", "Graphing solution"]
+  },
+  "pv_050": {
+    "tool_descriptions": ["Geometric distribution", "Probability formula"]
+  },
+  "pv_051": {
+    "tool_descriptions": ["Variance calculation", "Mean squared deviation"]
+  },
+  "pv_052": {
+    "tool_descriptions": ["Area of parallelogram", "Base height"]
+  },
+  "pv_053": {
+    "tool_descriptions": ["System of equations", "Elimination method"]
+  },
+  "pv_054": {
+    "tool_descriptions": ["Poisson distribution", "Probability formula"]
+  },
+  "pv_055": {
+    "tool_descriptions": ["Regular polygon", "Interior angles"]
+  },
+  "pv_056": {
+    "tool_descriptions": ["Standard deviation", "Variance"]
+  },
+  "pv_057": {
+    "tool_descriptions": ["Rational equation", "Common denominator"]
+  },
+  "pv_058": {
+    "tool_descriptions": ["Hypergeometric distribution", "Combination"]
+  },
+  "pv_059": {
+    "tool_descriptions": ["Circle properties", "Chord length"]
+  },
+  "pv_060": {
+    "tool_descriptions": ["Segment area", "Sector area"]
+  },
+  "pv_061": {
+    "tool_descriptions": ["System of equations", "Circle and line"]
+  },
+  "pv_062": {
+    "tool_descriptions": ["Negative binomial", "Probability formula"]
+  },
+  "pv_063": {
+    "tool_descriptions": ["Coefficient of variation", "Standard deviation"]
+  },
+  "pv_064": {
+    "tool_descriptions": ["Area of rhombus", "Diagonals"]
+  },
+  "pv_065": {
+    "tool_descriptions": ["Radical equation", "Squaring both sides"]
+  },
+  "pv_066": {
+    "tool_descriptions": ["Uniform distribution", "Probability density"]
+  },
+  "pv_067": {
+    "tool_descriptions": ["Tangent properties", "Circle geometry"]
+  },
+  "pv_068": {
+    "tool_descriptions": ["Volume of cone", "Base area"]
+  },
+  "pv_069": {
+    "tool_descriptions": ["Absolute value inequality", "System of inequalities"]
+  },
+  "pv_070": {
+    "tool_descriptions": ["Normal distribution", "Z-score"]
+  },
+  "pv_071": {
+    "tool_descriptions": ["Interquartile range", "Quartiles"]
+  },
+  "pv_072": {
+    "tool_descriptions": ["Area of kite", "Diagonals"]
+  },
+  "pv_073": {
+    "tool_descriptions": ["System of equations", "Parabola and line"]
+  },
+  "pv_074": {
+    "tool_descriptions": ["Exponential distribution", "Probability density"]
+  },
+  "pv_075": {
+    "tool_descriptions": ["Cyclic quadrilateral", "Circle properties"]
+  },
+  "pv_076": {
+    "tool_descriptions": ["Volume of sphere", "Radius"]
+  },
+  "pv_077": {
+    "tool_descriptions": ["System of equations", "Two circles"]
+  },
+  "pv_078": {
+    "tool_descriptions": ["Beta distribution", "Probability density"]
+  },
+  "pv_079": {
+    "tool_descriptions": ["Median absolute deviation", "Median"]
+  },
+  "pv_080": {
+    "tool_descriptions": ["Area of ellipse", "Semi-major and semi-minor axes"]
+  },
+  "pv_081": {
+    "tool_descriptions": ["System of equations", "Ellipse and line"]
+  },
+  "pv_082": {
+    "tool_descriptions": ["Gamma distribution", "Probability density"]
+  },
+  "pv_083": {
+    "tool_descriptions": ["Secant properties", "Circle geometry"]
+  },
+  "pv_084": {
+    "tool_descriptions": ["Volume of hemisphere", "Sphere volume"]
+  },
+  "pv_085": {
+    "tool_descriptions": ["System of equations", "Hyperbola and line"]
+  },
+  "pv_086": {
+    "tool_descriptions": ["Chi-square distribution", "Probability density"]
+  },
+  "pv_087": {
+    "tool_descriptions": ["Standard error of proportion", "Proportion"]
+  },
+  "pv_088": {
+    "tool_descriptions": ["Sector area of ellipse", "Ellipse area"]
+  },
+  "pv_089": {
+    "tool_descriptions": ["System of equations", "Hyperbola and circle"]
+  },
+  "pv_090": {
+    "tool_descriptions": ["F-distribution", "Probability density"]
+  },
+  "pv_091": {
+    "tool_descriptions": ["Chord and tangent", "Circle properties"]
+  },
+  "pv_092": {
+    "tool_descriptions": ["Volume of spherical cap", "Sphere volume"]
+  },
+  "pv_093": {
+    "tool_descriptions": ["System of equations", "Two hyperbolas"]
+  },
+  "pv_094": {
+    "tool_descriptions": ["t-distribution", "Probability density"]
+  },
+  "pv_095": {
+    "tool_descriptions": ["Confidence interval", "Mean"]
+  },
+  "pv_096": {
+    "tool_descriptions": ["Segment area of ellipse", "Ellipse area"]
+  },
+  "pv_097": {
+    "tool_descriptions": ["System of equations", "Parabola and circle"]
+  },
+  "pv_098": {
+    "tool_descriptions": ["Weibull distribution", "Probability density"]
+  },
+  "pv_099": {
+    "tool_descriptions": ["Polar coordinates", "Coordinate conversion"]
+  },
+  "pv_100": {
+    "tool_descriptions": ["Volume of spherical sector", "Sphere volume"]
+  }
+}

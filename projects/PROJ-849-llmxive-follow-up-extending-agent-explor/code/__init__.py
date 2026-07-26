@@ -1,3 +1,1 @@
-"""
-llmXive Automated Science Pipeline - Code Base
-"""
+# llmXive Project Root

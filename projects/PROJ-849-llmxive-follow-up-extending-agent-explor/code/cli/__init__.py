@@ -1,3 +1,1 @@
-"""
-Command-line interface entry points.
-"""
+# CLI module for llmXive diagnostic pipeline

@@ -33,7 +33,7 @@ To comply with **Constitution Principle II (Verified Accuracy)**:
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, `requirements.txt`, and re-runnable scripts. |
 | **II. Verified Accuracy** | **PASS** | Citations restricted to verified dataset URLs; **Explicit halt** defined for unreachable URLs to prevent silent fallback. |
-| **III. Data Hygiene** | **PASS** | Plan specifies checksumming raw data and immutable derivations. Raw data is checksummed and the hashes are recorded in `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml`. |
+| **III. Data Hygiene** | **PASS** | Plan specifies checksumming raw data and immutable derivations. Raw data is checksummed and the hashes are recorded in `state/projects/PROJ-llmxive-follow-up-extending-agent-explor.yaml`. |
 | **IV. Single Source of Truth** | **PASS** | Metrics trace directly to `data/` rows and `code/` logic. |
 | **V. Versioning Discipline** | **PASS** | Content hashes will be generated for artifacts using a script integrated into the CI pipeline, updating the project's state file (`state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml`) with artifact checksums. |
 | **VI. Semantic Divergence Quantification** | **PASS** | Metric defined strictly as cosine similarity between thinking and BM25-retrieved tool centroid, generated dynamically by the Thought-to-Action Simulator. |

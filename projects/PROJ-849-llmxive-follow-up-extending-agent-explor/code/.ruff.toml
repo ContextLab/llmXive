@@ -1,25 +1,24 @@
-# Ruff configuration file
-# This file duplicates settings in pyproject.toml for CLI compatibility
+# Ruff configuration for llmXive project
+# This file is an alias for pyproject.toml settings but allows specific overrides
+# if needed. Currently, we rely on pyproject.toml for the main configuration.
 
-target-version = "py311"
-line-length = 88
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-]
+extend = "pyproject.toml"
+
+# Specific overrides if necessary
+[lint]
+# Ensure we catch unused imports and variables
+select = ["ALL"]
 ignore = [
-    "E501",
-    "B008",
-    "C901",
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+    "ANN",  # flake8-annotations (optional for research code)
+    "S101", # Use of assert (allowed in tests)
 ]
 
-[per-file-ignores]
-"__init__.py" = ["F401"]
-
-[isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = true
+[format]
+# Black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
