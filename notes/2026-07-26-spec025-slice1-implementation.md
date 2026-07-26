@@ -16,6 +16,7 @@ Plans (both maintainer-reviewed through **round 7**, all findings resolved):
 |-|-|-|
 | 1A T1 — extract `git_event_log.py`, rewire `ledger_transport` | DONE | `7a179b49c8` (+ plan fix `a20e005857`) |
 | 1A T2 — lane `Event` + validation + `TYPE_VALIDATORS` | DONE | `a270b6927e` |
+| T1/T2 round-8 review: two fail-open gaps closed | DONE | `abdb8d1536` (+ plan `6e805708de`) |
 | 1A T3 — `lane_log.py` on the shared core | next | — |
 | 1A T4–T14, 1B T1–T10 | not started | — |
 
@@ -55,6 +56,26 @@ python -m pytest tests/integration/test_credit_ledger_transport.py \
    shared flag one thread sets it and waits while the other skips the wait, and the
    first blocks until `BrokenBarrierError`. Use `{thread_ident} -> already_waited`
    under a lock so each worker waits exactly once, on its first attempt.
+
+4. **Absence and failure must never collapse** (round-8). `[]`/`None` from the log
+   means "no claim, no reservation, no spend" to every projection, so an operational
+   failure reported that way is fail-OPEN. Discriminators, established empirically:
+   `rev-parse --verify --quiet` exits **128** on operational failure but **1 for BOTH**
+   a missing ref and an unreadable object → disambiguate with `show-ref` (exit 1 = ref
+   truly absent). `ls-tree` exits 0 with EMPTY output for an absent path, 128 on
+   failure — so it is both the checked listing in `read_log` and the existence test in
+   `_read_event_blob` (`cat-file` cannot tell the cases apart; both exit 128).
+
+5. **Presence is not a schema** (round-8). The envelope validates TYPES: non-empty
+   strings, non-bool non-negative ints (`True == 1` and hashes as 1 — a boolean `seq`
+   would order the projection as position 1), and tz-aware timestamps (FR-011 is an
+   instant, not a date).
+
+## Known-failing, NOT caused by this work
+
+`tests/unit/test_dataset_sources.py::test_openml_*` (2) fail in this sandbox: they are
+real-network calls to openml.org. Verified independent by stashing all lane work and
+re-running — same two failures. Do not "fix" by weakening; they need network.
 
 ## Standing constraints (do not drift)
 
