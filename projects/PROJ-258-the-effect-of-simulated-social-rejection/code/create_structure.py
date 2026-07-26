@@ -1,64 +1,70 @@
+"""
+Project Structure Initialization Script.
+
+Creates the required directory tree for the llmXive automated science pipeline:
+- code/
+- data/raw/
+- data/interim/
+- data/processed/
+- tests/
+- reports/
+- docs/
+- specs/
+- data/figures/
+- state/
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates the required project directory structure for PROJ-258.
-    This script ensures the existence of:
-    - code/
-    - data/raw/
-    - data/interim/
-    - data/processed/
-    - tests/
-    """
-    # Define the root directory (current working directory or project root)
-    # We assume this script is run from the project root.
-    root = Path.cwd()
-
+    """Create the project directory structure."""
+    base_dir = Path(__file__).resolve().parent.parent
+    
     required_dirs = [
         "code",
         "data/raw",
         "data/interim",
         "data/processed",
+        "data/figures",
         "tests",
-        "docs",
         "reports",
+        "docs",
         "specs",
-        ".github/workflows"
+        "state",
     ]
-
+    
     created_count = 0
     existing_count = 0
-
+    
+    print(f"Initializing project structure at: {base_dir}")
+    
     for dir_path in required_dirs:
-        full_path = root / dir_path
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+            print(f"Created directory: {full_path.relative_to(base_dir)}")
             created_count += 1
         else:
             existing_count += 1
-            # Optional: Verify it is a directory
-            if not full_path.is_dir():
-                raise NotADirectoryError(f"Path exists but is not a directory: {full_path}")
-
-    print(f"Structure verification complete. Created: {created_count}, Existing: {existing_count}")
     
-    # Verify specific critical paths exist for the pipeline
-    critical_paths = [
-        root / "data" / "raw",
-        root / "data" / "interim",
-        root / "data" / "processed",
-        root / "code",
-        root / "tests"
-    ]
+    print(f"Structure initialization complete.")
+    print(f"  - New directories created: {created_count}")
+    print(f"  - Existing directories: {existing_count}")
     
-    for p in critical_paths:
-        if not p.exists():
-            raise FileNotFoundError(f"Critical path missing after creation attempt: {p}")
-
-    print("All critical paths verified.")
+    # Verify structure
+    missing = []
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"ERROR: Missing directories: {missing}")
+        sys.exit(1)
+    else:
+        print("Verification passed: All required directories exist.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

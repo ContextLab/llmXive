@@ -92,7 +92,7 @@ projects/PROJ-258-the-effect-of-simulated-social-rejection/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Single-Dataset Strategy | Spec requires valid inference. Cross-dataset linking is impossible. | A composite dataset approach was rejected as scientifically invalid. |
-| Strict Memory Guards (FR-001) | GitHub Actions free tier has 7 GB RAM limit; large behavioral datasets could exceed this. | Standard pandas loading without size checks risks OOM crashes and job failure. |
+| Strict Memory Guards (FR-001) | GitHub Actions free tier has a limited RAM capacity.; large behavioral datasets could exceed this. | Standard pandas loading without size checks risks OOM crashes and job failure. |
 | Dynamic Design Selection (FR-007) | The statistical test depends on runtime data characteristics (condition availability). | Hardcoding a test type would violate the spec's requirement to adapt based on data availability. |
 | Dual-Variable Check (FR-001) | FR-001 covers both size AND missing variables. | A single check for size ignores the variable availability requirement. |
 

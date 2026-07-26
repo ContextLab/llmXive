@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`code/`, `data/raw/`, `data/interim/`,
-    `data/processed/`, `tests/`) is presented; the implementer did not provide any
-    file listings, screenshots, or other artifacts confirming that these folders exist
-    and contain content. The task therefore remains unfinished.
 T033:
   c: false
   h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9

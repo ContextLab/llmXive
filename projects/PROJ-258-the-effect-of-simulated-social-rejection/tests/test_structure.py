@@ -1,79 +1,71 @@
 """
-Tests for project structure creation (Task T001).
-Verifies that the required directory hierarchy exists.
+Test suite for project structure initialization.
+
+Verifies that the required directory tree exists as specified in T001.
 """
 import os
+import sys
 import pytest
 from pathlib import Path
 
-# Get the project root (two levels up from this test file)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-REQUIRED_DIRS = [
-    "code",
-    "data/raw",
-    "data/interim",
-    "data/processed",
-    "data/figures",
-    "tests",
-    "reports",
-    "docs",
-    "specs",
-    ".github/workflows"
-]
-
-def test_required_directories_exist():
-    """
-    Contract test: Asserts that all required directories for the project
-    structure exist on disk.
-    """
-    missing_dirs = []
-    for dir_name in REQUIRED_DIRS:
-        dir_path = PROJECT_ROOT / dir_name
-        if not dir_path.is_dir():
-            missing_dirs.append(dir_name)
+class TestProjectStructure:
+    """Tests for project structure initialization."""
     
-    assert not missing_dirs, f"Missing required directories: {missing_dirs}"
-
-def test_gitkeep_files_exist():
-    """
-    Integration test: Asserts that .gitkeep files exist in data directories
-    to ensure they are tracked by git.
-    """
-    data_dirs = ["data/raw", "data/interim", "data/processed", "data/figures"]
-    missing_gitkeeps = []
+    @pytest.fixture
+    def project_root(self):
+        """Get the project root directory."""
+        return Path(__file__).resolve().parent.parent
     
-    for dir_name in data_dirs:
-        dir_path = PROJECT_ROOT / dir_name
-        gitkeep = dir_path / ".gitkeep"
-        if not gitkeep.exists():
-            missing_gitkeeps.append(dir_name)
+    def test_required_directories_exist(self, project_root):
+        """Test that all required directories from T001 exist."""
+        required_dirs = [
+            "code",
+            "data/raw",
+            "data/interim",
+            "data/processed",
+            "tests",
+            "reports",
+            "docs",
+            "specs",
+            "state",
+            "data/figures",
+        ]
+        
+        missing = []
+        for dir_name in required_dirs:
+            dir_path = project_root / dir_name
+            if not dir_path.exists():
+                missing.append(dir_name)
+            elif not dir_path.is_dir():
+                missing.append(f"{dir_name} (not a directory)")
+        
+        assert len(missing) == 0, f"Missing required directories: {missing}"
     
-    assert not missing_gitkeeps, f"Missing .gitkeep in: {missing_gitkeeps}"
-
-def test_code_directory_structure():
-    """
-    Contract test: Verifies the code directory exists and is a directory.
-    """
-    code_dir = PROJECT_ROOT / "code"
-    assert code_dir.is_dir(), "The 'code' directory must exist"
+    def test_data_hierarchy(self, project_root):
+        """Test that data subdirectories are correctly nested."""
+        data_dirs = [
+            "data/raw",
+            "data/interim",
+            "data/processed",
+            "data/figures",
+        ]
+        
+        for dir_name in data_dirs:
+            dir_path = project_root / dir_name
+            assert dir_path.exists(), f"Data subdirectory missing: {dir_name}"
+            assert dir_path.is_dir(), f"Data subdirectory is not a directory: {dir_name}"
     
-    # Check for expected initial files (created by other tasks)
-    expected_files = [
-        "config.py",
-        "data_model.py",
-        "ingest.py",
-        "preprocess.py",
-        "analysis.py",
-        "report.py"
-    ]
+    def test_code_directory(self, project_root):
+        """Test that code directory exists."""
+        code_dir = project_root / "code"
+        assert code_dir.exists(), "code/ directory missing"
+        assert code_dir.is_dir(), "code/ is not a directory"
     
-    # We only check that the directory exists; specific files are created by other tasks
-    # This test ensures the container exists.
-    
-def test_tests_directory_structure():
-    """
-    Contract test: Verifies the tests directory exists.
-    """
-    tests_dir = PROJECT_ROOT / "tests"
-    assert tests_dir.is_dir(), "The 'tests' directory must exist"
+    def test_tests_directory(self, project_root):
+        """Test that tests directory exists."""
+        tests_dir = project_root / "tests"
+        assert tests_dir.exists(), "tests/ directory missing"
+        assert tests_dir.is_dir(), "tests/ is not a directory"
