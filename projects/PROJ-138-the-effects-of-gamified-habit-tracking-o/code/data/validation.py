@@ -1,102 +1,114 @@
 """
-Data validation module.
-Implements consent checks, schema validation, and statistical metrics.
+Data validation and psychometric calculations.
 """
 import os
+import sys
 import json
 import pandas as pd
 import pingouin as pg
 import yaml
-from typing import List, Optional
-from code.utils.logging import pipeline_logger
+from code.utils.logging import setup_logger, log_pipeline_stage
 
-logger = pipeline_logger
+logger = setup_logger("validation")
 
 def check_consent():
-    """
-    Verify that consent artifacts exist in data/consent/.
-    If real data is used, ensure the directory is not empty.
-    If synthetic data is used, ensure a synthetic consent record exists.
-    """
-    consent_dir = "data/consent"
-    if not os.path.exists(consent_dir):
-        raise FileNotFoundError(f"Consent directory '{consent_dir}' does not exist. "
-                                "Cannot proceed without consent verification (FR-010).")
+    """Check for consent markers or real consent documents."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    consent_dir = os.path.join(root, "data", "consent")
+    marker_path = os.path.join(root, "data", "raw", "synthetic_data_marker.json")
     
-    files = os.listdir(consent_dir)
-    if not files:
-        # Check if we are in a synthetic data mode (often indicated by a specific flag or file presence elsewhere)
-        # For now, if the directory is empty, we assume real data was expected but missing.
-        raise FileNotFoundError(f"Consent directory '{consent_dir}' is empty. "
-                                "Missing consent artifact for real data or synthetic record.")
+    os.makedirs(consent_dir, exist_ok=True)
     
-    # Check for synthetic consent record if it exists
-    synthetic_record = os.path.join(consent_dir, "synthetic_consent_record.json")
-    if os.path.exists(synthetic_record):
-        logger.info("Synthetic consent record found. Proceeding with synthetic data.")
-        with open(synthetic_record, 'r') as f:
+    if os.path.exists(marker_path):
+        # Synthetic mode
+        consent_file = os.path.join(consent_dir, "synthetic_consent_record.json")
+        if not os.path.exists(consent_file):
+            logger.error("Error: Synthetic consent record missing.")
+            sys.exit(1)
+        
+        with open(consent_file, 'r') as f:
             record = json.load(f)
-            if record.get("is_synthetic"):
-                logger.info(f"Synthetic data approved for research: {record.get('approval_id')}")
-                return True
-    
-    # If we have files but no explicit synthetic record, assume real data consent is present
-    logger.info(f"Consent verification passed. Found {len(files)} file(s) in {consent_dir}.")
-    return True
+        
+        if 'timestamp' not in record or 'signature' not in record:
+            logger.error("Error: Invalid synthetic consent record.")
+            sys.exit(1)
+        
+        logger.info("Synthetic consent verified.")
+    else:
+        # Real data mode
+        real_consent = os.path.join(consent_dir, "real_consent_record.json")
+        if not os.path.exists(real_consent):
+            logger.error("Error: Missing Consent for Real Data")
+            sys.exit(1)
+        logger.info("Real consent verified.")
 
-def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
-    """
-    Validate that the DataFrame contains all required columns defined in the schema.
-    
-    Args:
-        df: The pandas DataFrame to validate.
-        schema_path: Path to the YAML schema file (e.g., contracts/dataset.schema.yaml).
-    
-    Returns:
-        True if validation passes.
-    
-    Raises:
-        ValueError: If required columns are missing.
-    """
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found at {schema_path}")
+def validate_schema(df: pd.DataFrame, schema_path: str = None):
+    """Validate dataframe against schema."""
+    if schema_path is None:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        schema_path = os.path.join(root, "contracts", "dataset.schema.yaml")
     
     with open(schema_path, 'r') as f:
         schema = yaml.safe_load(f)
     
-    required_columns = schema.get('required', [])
-    missing_columns = [col for col in required_columns if col not in df.columns]
+    required_cols = schema['schema']['required_columns']
+    missing = [c for c in required_cols if c not in df.columns]
     
-    if missing_columns:
-        msg = f"Schema validation failed. Missing required columns: {missing_columns}"
-        logger.error(msg)
-        raise ValueError(msg)
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
     
-    logger.info(f"Schema validation passed. All {len(required_columns)} required columns present.")
+    logger.info("Schema validation passed.")
     return True
 
-def calculate_cronbach_alpha(df: pd.DataFrame, item_columns: List[str]) -> float:
-    """
-    Calculate Cronbach's alpha for a set of item columns.
+def calculate_cronbach_alpha(df: pd.DataFrame, items: list = None):
+    """Calculate Cronbach's Alpha for personality scales."""
+    if items is None:
+        # Default items if not specified (assuming columns exist)
+        items = [c for c in df.columns if 'trait' in c.lower() or 'score' in c.lower()]
     
-    Args:
-        df: DataFrame containing the item columns.
-        item_columns: List of column names representing scale items.
+    if not items:
+        logger.warning("No items found for Cronbach's Alpha calculation.")
+        return 0.0
     
-    Returns:
-        Cronbach's alpha coefficient.
-    """
-    # Filter out non-numeric columns if any
-    valid_items = [col for col in item_columns if col in df.columns and pd.api.types.is_numeric_dtype(df[col])]
-    
+    # Filter to existing columns
+    valid_items = [c for c in items if c in df.columns]
     if len(valid_items) < 2:
-        logger.warning(f"Not enough items to calculate Cronbach's alpha. Found {len(valid_items)}.")
+        logger.warning("Not enough items for Cronbach's Alpha.")
         return 0.0
     
     try:
         alpha = pg.cronbach_alpha(data=df[valid_items])
-        logger.info(f"Cronbach's alpha calculated: {alpha:.4f}")
+        logger.info(f"Cronbach's Alpha calculated: {alpha:.4f}")
         return alpha
     except Exception as e:
-        logger.error(f"Error calculating Cronbach's alpha: {e}")
+        logger.error(f"Error calculating Cronbach's Alpha: {e}")
         return 0.0
+
+def main():
+    """CLI entry point."""
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--action", choices=["consent_check", "cronbach"], required=True)
+    args = parser.parse_args()
+    
+    if args.action == "consent_check":
+        check_consent()
+    elif args.action == "cronbach":
+        # Load merged data
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        data_path = os.path.join(root, "data", "processed", "merged_data.csv")
+        if not os.path.exists(data_path):
+            logger.error(f"Data file not found: {data_path}")
+            sys.exit(1)
+        
+        df = pd.read_csv(data_path)
+        alpha = calculate_cronbach_alpha(df)
+        
+        # Save result
+        output_path = os.path.join(root, "data", "processed", "psychometrics.json")
+        with open(output_path, 'w') as f:
+            json.dump({"cronbach_alpha": alpha}, f, indent=2)
+        logger.info(f"Saved psychometrics to {output_path}")
+
+if __name__ == "__main__":
+    main()

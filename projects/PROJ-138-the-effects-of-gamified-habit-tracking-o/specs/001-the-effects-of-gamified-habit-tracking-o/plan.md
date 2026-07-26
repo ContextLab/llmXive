@@ -105,7 +105,7 @@ The following tasks map directly to Functional Requirements (FR) and Success Cri
 - [ ] **T009**: Apply Benjamini-Hochberg (FDR) correction to interaction terms (FR-007). **(T023)**
 - [ ] **T010**: Count dropout events. If < 10 per group, halt p-value calculation (FR-009). **(T024)**
 - [ ] **T011**: Perform Survival Analysis (KM/Cox) if event threshold met (FR-003).
-- [ ] **T012**: Run Bootstrapping (1000 iterations) and LOO-CV (FR-004).
+- [ ] **T012**: Run Bootstrapping (a sufficient number of iterations) and LOO-CV (FR-004).
 - [ ] **T013**: Generate sensitivity analysis for adherence thresholds (FR-005).
 - [ ] **T014**: Generate Final Report with visualizations (FR-005).
 - [ ] **T015**: Hash artifacts and update `state.yaml` (FR-033).
@@ -127,6 +127,6 @@ To address the concern of sample size adequacy for detecting interaction effects
 - **Power**: [deferred] (0.80).
 - **Alpha**: 0.05.
 - **Test**: Mixed-Effects Logistic Regression (approximated by G*Power for logistic regression).
-- **Result**: N ≈ 450-500 users required.
+- **Result**: N ≈ -500 users required.
 - **Decision**: The pipeline will generate **N=500** users to ensure adequate power for the simulation recovery test.
 

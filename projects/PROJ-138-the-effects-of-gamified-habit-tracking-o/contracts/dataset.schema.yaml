@@ -1,77 +1,27 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Gamified Habit Tracking Dataset Schema
-description: >
-  Schema definition for the raw and processed datasets used in the
-  "Effects of Gamified Habit Tracking on Long-Term Behavioral Change" study.
-  Used by code/data/validation.py to validate ingestion artifacts.
-type: object
-required:
-  - User_ID
-  - Gamified
-  - Adherence
-  - Conscientiousness_Score
-  - Need_for_Achievement
-  - Week_Number
-  - Date
-properties:
-  User_ID:
-    type: string
-    description: Unique identifier for the participant.
-    pattern: "^U[0-9]+$"
-    example: "U001"
-  
-  Gamified:
-    type: integer
-    description: Binary flag indicating if the user was in the gamified group.
-    enum: [0, 1]
-    example: 1
-  
-  Adherence:
-    type: integer
-    description: Binary flag indicating adherence for the specific log entry (1=adherent, 0=non-adherent).
-    enum: [0, 1]
-    example: 1
-  
-  Conscientiousness_Score:
-    type: number
-    description: Continuous score for the personality trait Conscientiousness.
-    minimum: 0.0
-    maximum: 100.0
-    example: 75.5
-  
-  Need_for_Achievement:
-    type: number
-    description: Continuous score for the personality trait Need for Achievement.
-    minimum: 0.0
-    maximum: 100.0
-    example: 82.0
-  
-  Week_Number:
-    type: integer
-    description: Sequential week number of the study (1-based index).
-    minimum: 1
-    example: 1
-  
-  Date:
-    type: string
-    description: ISO 8601 date string (YYYY-MM-DD) of the log entry.
-    format: date
-    example: "2023-01-15"
-  
-  # Optional columns that may appear in processed data
-  Weekly_Adherence_Flag:
-    type: integer
-    description: Aggregated weekly adherence flag (1 if adherent all week, 0 otherwise).
-    enum: [0, 1]
-    required: false
-    example: 1
-  
-  Gamified_App_Usage:
-    type: string
-    description: Specific gamified app name if applicable, otherwise null/empty.
-    required: false
-    example: "Habitica"
-
-additionalProperties: true
-# Strict validation ensures these core columns exist in the DataFrame
-# before any analysis proceeds.
+# Dataset Schema Definition
+# Defines required columns and valid values for validation
+schema:
+  name: habit_tracking_dataset
+  version: "1.0"
+  required_columns:
+    - User_ID
+    - Gamified
+    - Adherence
+    - Conscientiousness
+    - Need_for_Achievement
+    - date
+    - event_type
+  column_types:
+    User_ID: string
+    Gamified: boolean
+    Adherence: integer
+    Conscientiousness: float
+    Need_for_Achievement: float
+    date: date
+    event_type: string
+  valid_tags:
+    gamified_app_usage:
+      - "habitica"
+      - "gamified"
+      - "standard"
+      - "none"

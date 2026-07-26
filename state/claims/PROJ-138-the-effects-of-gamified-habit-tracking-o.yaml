@@ -274,3 +274,563 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T04:28:49Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Use statsmodels.stats.power for mixed-effects logistic regression power
+    calculation
+  claim_id: c_c457dede
+  context: 'Task T048: Implement code/data/power_analysis.py. Logic: Use statsmodels.stats.power
+    to calculate power for a mixed-effects logistic regression approximation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels.stats.power_for_mixed-effects_logistic_regre
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.power to calculate power for a mixed-effects logistic
+    regression approximation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:23:36Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if statistical power is less than 0.80
+  claim_id: c_60f75ce8
+  context: 'Task T048: Validation: HALT the pipeline with a fatal error if the calculated
+    power is < 0.80. Do not proceed to data generation if the sample size (N=500)
+    is insufficient for the target effect size.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: HALT the pipeline with a fatal error if the calculated power is < 0.80.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:23:36Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Generate conscientiousness and need for achievement scores with mean
+    3.5, std 0.8, and correlation 0.6
+  claim_id: c_d509d985
+  context: 'Task T013a: Algorithm: Use numpy.random.default_rng(seed=42). Traits:
+    Generate conscientiousness_score ~ N(3.5, 0.8) and need_for_achievement ~ N(3.5,
+    0.8) with correlation 0.6 using Cholesky decomposition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate conscientiousness_score ~ N(3.5, 0.8) and need_for_achievement
+    ~ N(3.5, 0.8) with correlation 0.6 using Cholesky decomposition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:23:51Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Ensure at least 30 users are non-gamified in synthetic data
+  claim_id: c_e0c4036a
+  context: "Task T013a: Gamification: Set gamified_status = True if reported using\
+    \ gamified apps, False otherwise, ensuring \u226530 users are non-gamified."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_at_least_30_users_are_non-gamified_in_synthetic_data
+  kind: magnitude
+  raw_text: "Ensure \u226530 users are non-gamified."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:24:09Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Verify non-gamified user count is at least 30
+  claim_id: c_965df8fd
+  context: 'Task T013a Verification: Assert file exists and contains specified columns.
+    Assert marker file is created. Assert count of non-gamified users >= 30.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_non-gamified_user_count_is_at_least_30
+  kind: magnitude
+  raw_text: Assert count of non-gamified users >= 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:24:39Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Verify strong positive correlation between conscientiousness and need
+    for achievement
+  claim_id: c_ed834cc7
+  context: 'Task T013a Verification: Assert file exists and contains specified columns.
+    Assert marker file is created. Assert count of non-gamified users >= 30. Assert
+    a strong positive correlation between conscientiousness and achievement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_strong_positive_correlation_between_conscientiousness
+  kind: entity_fact
+  raw_text: Assert a strong positive correlation between conscientiousness and achievement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:25:02Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Validate non-gamified group size is at least 30
+  claim_id: c_b6cdcc9a
+  context: "Task T013b: Validation: Ensure non-gamified group size \u2265 30 (FR-008).\
+    \ If total valid records < 100 or non-gamified group < 30, generate a 'Data Insufficiency'\
+    \ report and exit gracefully."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_non-gamified_group_size_is_at_least_30
+  kind: magnitude
+  raw_text: "Ensure non-gamified group size \u2265 30."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:25:40Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Exit gracefully if total records are below 100 or non-gamified group
+    is below 30
+  claim_id: c_6025e184
+  context: "Task T013b: Validation: Ensure non-gamified group size \u2265 30 (FR-008).\
+    \ If total valid records < 100 or non-gamified group < 30, generate a 'Data Insufficiency'\
+    \ report and exit gracefully."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total valid records < 100 or non-gamified group < 30, generate a 'Data
+    Insufficiency' report and exit gracefully.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:25:40Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Log removal of variable if VIF exceeds 5
+  claim_id: c_04cd31c4
+  context: 'Task T021: If VIF > 5, log the removal to logs/model_fallback.log with
+    message ''Dropped Need for Achievement due to VIF > 5'', and flag the variable
+    for removal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log the removal to logs/model_fallback.log.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:25:40Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Halt survival analysis if dropout events are fewer than 10 per group
+  claim_id: c_084789a1
+  context: "Task T024: If events < 10 per group, generate a descriptive statistics\
+    \ report and halt survival analysis (FR-009). If events \u2265 10, proceed to\
+    \ survival analysis."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_survival_analysis_if_dropout_events_are_fewer_than_10_p
+  kind: magnitude
+  raw_text: If events < 10 per group, generate a descriptive statistics report and
+    halt survival analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:26:34Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Maintain gamified to non-gamified user ratio within 5% during stratified
+    bootstrapping
+  claim_id: c_1b35f0f2
+  context: 'Task T029: Logic: Use sklearn.model_selection.StratifiedShuffleSplit to
+    ensure the ratio of gamified to non-gamified users remains constant (within 5%)
+    across all samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.model_selection.StratifiedShuffleSplit to ensure the ratio
+    of gamified to non-gamified users remains constant (within 5%) across all samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:26:34Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Log warning if bootstrap variance is 0.01 or higher without halting pipeline
+  claim_id: c_218c05e6
+  context: 'Task T029: Warning Condition: If variance >= 0.01, log a warning ''Bootstrap
+    variance (0.01) exceeds threshold. Robustness check failed.'' but DO NOT halt
+    the pipeline.'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If variance >= 0.01, log a warning 'Bootstrap variance (0.01) exceeds
+    threshold. Robustness check failed.' but DO NOT halt the pipeline.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:26:34Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Test sensitivity across adherence thresholds of 0.5, 0.6, 0.7, and 0.8
+  claim_id: c_328c09e4
+  context: 'Task T031: Implement sensitivity analysis: Vary adherence thresholds over
+    a set of representative thresholds (default [0.5, 0.6, 0.7, 0.8], passed via --thresholds
+    argument).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vary adherence thresholds over a set of representative thresholds (default
+    [0.5, 0.6, 0.7, 0.8]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:26:56Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Report sample size of 100 in data limitations section
+  claim_id: c_016772f3
+  context: 'Task T032: Include a ''Data Limitations'' section explicitly stating:
+    ''Sample size (N=100), synthetic nature of data, lack of external validation,
+    and potential underpowering for interaction effects.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly state: ''Sample size (N=100), synthetic nature of data, lack
+    of external validation, and potential underpowering for interaction effects.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:27:17Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Reduce robustness analysis runtime to under 30 minutes on CPU-only CI
+    using multiprocessing
+  claim_id: c_14a2f1e0
+  context: 'Task T036: Optimize code/analysis/robustness.py by implementing multiprocessing
+    for a sufficient number of bootstrap iterations to reduce runtime on CPU-only
+    CI to < 30 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize code/analysis/robustness.py by implementing multiprocessing to
+    reduce runtime on CPU-only CI to < 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:27:17Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: Ensure tests fail before implementation (TDD Red)
+  claim_id: c_c107e557
+  context: 'General Notes: Verify tests fail before implementing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_tests_fail_before_implementation_(TDD_Red)
+  kind: entity_fact
+  raw_text: Verify tests fail before implementing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:27:35Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 0
+  canonical: halt pipeline if calculated power is less than 0.80
+  claim_id: c_1593e876
+  context: 'Validation: HALT the pipeline with a fatal error if the calculated power
+    is < 0.80. Do not proceed to data generation if the sample size (N=500) is insufficient
+    for the target effect size.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: HALT the pipeline with a fatal error if the calculated power is < 0.80.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:29:44Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 0
+  canonical: log warning if bootstrap variance is 0.01 or higher without halting
+  claim_id: c_008811d0
+  context: 'Warning Condition: If variance >= 0.01, log a warning ''Bootstrap variance
+    (0.01) exceeds threshold. Robustness check failed.'' but DO NOT halt the pipeline.
+    Proceed to report generation.'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If variance >= 0.01, log a warning 'Bootstrap variance (0.01) exceeds
+    threshold. Robustness check failed.' but DO NOT halt the pipeline.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:29:45Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: conscientiousness and need_for_achievement generated with mean 3.5, std
+    0.8, correlation 0.6
+  claim_id: c_2a6b8b43
+  context: 'T013a Algorithm: Generate synthetic longitudinal event logs. Traits: Generate
+    conscientiousness_score ~ N(3.5, 0.8) and need_for_achievement ~ N(3.5, 0.8) with
+    correlation 0.6 using Cholesky decomposition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate conscientiousness_score ~ N(3.5, 0.8) and need_for_achievement
+    ~ N(3.5, 0.8) with correlation 0.6 using Cholesky decomposition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:29:45Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: at least 30 non-gamified users in synthetic dataset
+  claim_id: c_032af26b
+  context: 'Gamification: Set gamified_status = True if reported using gamified apps,
+    False otherwise, ensuring >= 30 users are non-gamified.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_30_non-gamified_users_in_synthetic_dataset
+  kind: magnitude
+  raw_text: Ensure >= 30 users are non-gamified.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:29:47Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: power analysis for N=500 with effect size f2=0.15
+  claim_id: c_ee7589e5
+  context: "T048 Implement code/data/power_analysis.py: Add a pre-flight calculation\
+    \ script that estimates statistical power for the planned N=500 simulation given\
+    \ the target interaction effect size (f\xB2=0.15)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimates statistical power for the planned N=500 simulation given the\
+    \ target interaction effect size (f\xB2=0.15)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:30:12Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: non-gamified group size must be at least 30
+  claim_id: c_966c3260
+  context: 'Validation: Ensure non-gamified group size >= 30 (FR-008). If total valid
+    records < 100 or non-gamified group < 30, generate a ''Data Insufficiency'' report
+    and exit gracefully.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Non-gamified_group_size_must_be_at_least_30
+  kind: magnitude
+  raw_text: Ensure non-gamified group size >= 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:30:14Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt if total valid records are less than 100
+  claim_id: c_38ff0114
+  context: 'Validation: Ensure non-gamified group size >= 30 (FR-008). If total valid
+    records < 100 or non-gamified group < 30, generate a ''Data Insufficiency'' report
+    and exit gracefully.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_total_valid_records_are_less_than_100
+  kind: magnitude
+  raw_text: If total valid records < 100, generate a 'Data Insufficiency' report and
+    exit gracefully.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:07Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: drop Need for Achievement variable if VIF exceeds 5
+  claim_id: c_ee106ef1
+  context: If VIF > 5, log the removal to logs/model_fallback.log with message 'Dropped
+    Need for Achievement due to VIF > 5', and flag the variable for removal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log the removal to logs/model_fallback.log with message 'Dropped
+    Need for Achievement due to VIF > 5'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:07Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt survival analysis if dropout events are less than 10 per group
+  claim_id: c_980a0d57
+  context: Count dropout events (consecutive weeks of non-adherence). If events <
+    10 per group, generate a descriptive statistics report and halt survival analysis
+    (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_survival_analysis_if_dropout_events_are_less_than_10_pe
+  kind: magnitude
+  raw_text: If events < 10 per group, generate a descriptive statistics report and
+    halt survival analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:09Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: maintain gamified to non-gamified user ratio within 5 percent variance
+    in bootstrap samples
+  claim_id: c_2486ace8
+  context: Use sklearn.model_selection.StratifiedShuffleSplit to ensure the ratio
+    of gamified to non-gamified users remains constant (within 5%) across all samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use StratifiedShuffleSplit to ensure the ratio of gamified to non-gamified
+    users remains constant (within 5%) across all samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:09Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: default adherence thresholds for sensitivity analysis are 0.5, 0.6, 0.7,
+    0.8
+  claim_id: c_e3383417
+  context: Vary adherence thresholds over a set of representative thresholds (default
+    [0.5, 0.6, 0.7, 0.8], passed via --thresholds argument) and calculate/report the
+    stability of the effect size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vary adherence thresholds over a set of representative thresholds (default
+    [0.5, 0.6, 0.7, 0.8]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:09Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: report data limitations including sample size of 100 and synthetic nature
+  claim_id: c_96ed46d9
+  context: 'Include a ''Data Limitations'' section explicitly stating: ''Sample size
+    (N=100), synthetic nature of data, lack of external validation, and potential
+    underpowering for interaction effects.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly state: ''Sample size (N=100), synthetic nature of data, lack
+    of external validation, and potential underpowering for interaction effects.''
+    in the Data Limitations section.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:29Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: reduce robustness analysis runtime to under 30 minutes on CPU-only CI
+  claim_id: c_85c74c3f
+  context: Optimize code/analysis/robustness.py by implementing multiprocessing for
+    a sufficient number of bootstrap iterations to reduce runtime on CPU-only CI to
+    < 30 minutes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize code/analysis/robustness.py by implementing multiprocessing to
+    reduce runtime on CPU-only CI to < 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:31:29Z'

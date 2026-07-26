@@ -13,9 +13,3 @@ T034:
     that either document was updated to include a project overview or execution instructions
     with synthetic data generation and consent verification steps. The required documentation
     artifacts are missing.
-T038:
-  c: false
-  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
-  r: "The required artifact `data/processed/merged_data.csv` does not exist, and there\
-    \ is no evidence that `bash quickstart.sh` was run successfully with exit code\u202F\
-    0. The task\u2019s core validation step is therefore unmet."

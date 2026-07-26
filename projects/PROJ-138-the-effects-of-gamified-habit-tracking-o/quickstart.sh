@@ -1,43 +1,78 @@
 #!/bin/bash
-set -e
+# Quickstart Script for PROJ-138: The Effects of Gamified Habit Tracking
+# This script orchestrates the full pipeline from data generation to reporting.
 
-echo "=== llmXive Quickstart Validation ==="
-echo "Project: PROJ-138-the-effects-of-gamified-habit-tracking-o"
-echo "Task: T038 - Validation of pipeline execution"
+set -e  # Exit immediately on error
 
-# Ensure we are in the project root
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Set up environment
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "Step 1: Verifying directory structure..."
-python -c "from code.setup_project_structure import main; main()"
+# Ensure Python virtual environment is activated or create one if needed
+if [ ! -d ".venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv .venv
+fi
 
-echo "Step 2: Generating synthetic data (if needed)..."
-python -c "from code.data.synthetic_generator import main; main()"
+source .venv/bin/activate
 
-echo "Step 3: Running data ingestion and validation..."
-python -c "from code.data.ingestion import main; main()"
+# Install dependencies
+echo "Installing dependencies..."
+pip install --upgrade pip
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+else
+    echo "WARNING: requirements.txt not found. Installing common dependencies manually."
+    pip install pandas numpy scikit-learn statsmodels seaborn matplotlib pyyaml pingouin scipy lifelines
+fi
 
-echo "Step 4: Running weekly aggregation..."
-python -c "from code.data.aggregation import main; main()"
+# Create directory structure if not exists
+echo "Ensuring directory structure..."
+python code/setup_project_structure.py
 
-echo "Step 5: Merging datasets..."
-python -c "from code.data.merge import main; main()"
+# Step 1: Consent Check (Pre-flight)
+echo ">>> Step 1: Consent Check"
+python code/data/validation.py --action consent_check
 
-echo "Step 6: Running statistical modeling..."
-python -c "from code.analysis.modeling import main; main()"
+# Step 2: Data Generation (Synthetic)
+echo ">>> Step 2: Generating Synthetic Data"
+python code/data/synthetic_generator.py --seed 42 --n_users 100 --weeks 50
 
-echo "Step 7: Running survival analysis..."
-python -c "from code.analysis.survival import main; main()"
+# Step 3: Ingestion
+echo ">>> Step 3: Ingesting Data"
+python code/data/ingestion.py
 
-echo "Step 8: Running robustness analysis..."
-python -c "from code.analysis.robustness import main; main()"
+# Step 4: Aggregation
+echo ">>> Step 4: Aggregating Data"
+python code/data/aggregation.py
 
-echo "Step 9: Generating final report..."
-python -c "from code.reports.generate_report import main; main()"
+# Step 5: Merge
+echo ">>> Step 5: Merging Datasets"
+python code/data/merge.py
 
-echo "Step 10: Updating versioning state..."
-python -c "from code.utils.versioning_runner import main; main()"
+# Step 6: Psychometrics (Cronbach's Alpha)
+echo ">>> Step 6: Calculating Psychometrics"
+python code/data/validation.py --action cronbach
 
-echo "=== Quickstart Validation Complete ==="
-echo "All pipeline stages executed successfully."
+# Step 7: Modeling
+echo ">>> Step 7: Running Statistical Models"
+python code/analysis/modeling.py
+
+# Step 8: Survival Analysis
+echo ">>> Step 8: Running Survival Analysis"
+python code/analysis/survival.py
+
+# Step 9: Robustness (Bootstrapping)
+echo ">>> Step 9: Running Robustness Checks"
+python code/analysis/robustness.py
+
+# Step 10: Report Generation
+echo ">>> Step 10: Generating Final Report"
+python code/reports/generate_report.py
+
+# Step 11: Versioning
+echo ">>> Step 11: Updating Versioning State"
+python code/utils/versioning.py --action hash
+
+echo ">>> Pipeline Complete. Check data/reports/final_analysis.html for results."
+echo ">>> Run 'python code/scripts/run_quickstart_validation.py' to verify artifacts."

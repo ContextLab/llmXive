@@ -1,125 +1,137 @@
 """
 Synthetic data generator for the habit tracking study.
-Generates a dataset with N=100 users, simulating self-report survey responses.
-Ensures at least 30 non-gamified users.
+Generates realistic longitudinal data with known ground truth.
 """
 import os
+import sys
+import json
 import numpy as np
 import pandas as pd
+from datetime import datetime, timedelta
 from code.utils.config import set_random_seed
-from code.utils.logging import pipeline_logger
+from code.utils.logging import setup_logger, log_pipeline_stage
 
-OUTPUT_PATH = "data/raw/synthetic_data.csv"
+logger = setup_logger("generator")
 
-def generate_synthetic_data(seed: int = 42, n_users: int = 100, n_weeks: int = 12) -> pd.DataFrame:
+def generate_synthetic_data(n_users: int = 100, weeks: int = 50, seed: int = 42):
     """
-    Generate synthetic dataset.
+    Generate synthetic longitudinal dataset.
     
     Args:
-        seed: Random seed for reproducibility.
-        n_users: Number of users to generate.
-        n_weeks: Number of weeks of data per user.
-        
+        n_users: Number of users to simulate
+        weeks: Number of weeks to simulate
+        seed: Random seed for reproducibility
+    
     Returns:
-        DataFrame with synthetic data.
+        DataFrame with synthetic data
     """
     set_random_seed(seed)
-    pipeline_logger.info(f"Generating synthetic data with {n_users} users, {n_weeks} weeks, seed={seed}")
-
-    # Ensure at least 30 non-gamified users
-    n_non_gamified = 30
-    n_gamified = n_users - n_non_gamified
-
-    # Generate user IDs
-    user_ids = [f"U{str(i).zfill(4)}" for i in range(1, n_users + 1)]
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    # Assign gamification status
-    # 30 False (non-gamified), 70 True (gamified)
-    gamification_status = [False] * n_non_gamified + [True] * n_gamified
-    np.random.shuffle(gamification_status)
+    # Generate user traits
+    # Conscientiousness ~ N(3.5, 0.8)
+    # Need for Achievement ~ N(3.5, 0.8) with correlation 0.6
+    mean = [3.5, 3.5]
+    cov = [[0.8**2, 0.6 * 0.8 * 0.8], [0.6 * 0.8 * 0.8, 0.8**2]]
+    traits = np.random.multivariate_normal(mean, cov, n_users)
     
-    # Generate conscientiousness scores (normal distribution, mean=3.5, std=0.8, scale 1-5)
-    conscientiousness = np.clip(np.random.normal(3.5, 0.8, n_users), 1, 5)
+    user_ids = [f"U{i:04d}" for i in range(n_users)]
+    conscientiousness = traits[:, 0]
+    need_for_achievement = traits[:, 1]
     
-    # Generate need_for_achievement (correlated with conscientiousness)
-    # Correlation ~0.6
-    need_for_achievement = 0.6 * conscientiousness + 0.4 * np.random.normal(3.5, 0.8, n_users)
-    need_for_achievement = np.clip(need_for_achievement, 1, 5)
+    # Gamification status: ensure >= 30 non-gamified
+    n_non_gamified = max(30, int(n_users * 0.3))
+    gamified_status = [False] * n_non_gamified + [True] * (n_users - n_non_gamified)
+    np.random.shuffle(gamified_status)
     
-    # Generate daily logs
-    data = []
+    # Generate logs
+    logs = []
+    start_date = datetime(2023, 1, 1)
+    
+    event_types = ["check_in", "task_complete", "habit_done", "streak_milestone"]
+    
     for i, uid in enumerate(user_ids):
-        is_gamified = gamification_status[i]
-        con_score = conscientiousness[i]
-        nfa_score = need_for_achievement[i]
+        is_gamified = gamified_status[i]
+        c_score = conscientiousness[i]
+        n_score = need_for_achievement[i]
         
-        # Base adherence probability influenced by gamification and personality
-        # Gamified users have slightly higher base adherence
-        base_prob = 0.5
+        # Base adherence probability influenced by traits
+        # Higher traits -> higher adherence
+        base_prob = 0.5 + (c_score - 3.5) * 0.1 + (n_score - 3.5) * 0.1
         if is_gamified:
-            base_prob += 0.1
-        # Conscientiousness adds to adherence
-        base_prob += (con_score - 3.0) * 0.05
-        # Need for achievement adds slightly
-        base_prob += (nfa_score - 3.0) * 0.03
+            base_prob += 0.15  # Gamification boost
         
         base_prob = np.clip(base_prob, 0.1, 0.95)
         
-        for week in range(1, n_weeks + 1):
-            # Generate 7 days per week
-            for day in range(1, 8):
-                # Create a valid date string (YYYY-MM-DD)
-                # Using a simplified month/day logic for the synthetic generation
-                month = 1 + (week - 1) // 4
-                day_of_month = ((week - 1) * 7 + day) % 28 + 1
-                date = f"2024-{month:02d}-{day_of_month:02d}"
-                
-                # Adherence is probabilistic
-                adherence = 1 if np.random.random() < base_prob else 0
-                
-                # Gamified app usage tag: 1 if user is gamified, 0 otherwise
-                # This is the 'gamified_app_usage' tag required by FR-001a
-                gamified_app_usage = 1 if is_gamified else 0
-                
-                data.append({
-                    "user_id": uid,
-                    "date": date,
-                    "week_number": week,
-                    "day_of_week": day,
-                    "adherence_flag": adherence,
-                    "gamification_status": is_gamified,
-                    "conscientiousness_score": round(con_score, 2),
-                    "need_for_achievement": round(nfa_score, 2),
-                    "gamified_app_usage": gamified_app_usage
-                })
+        for w in range(weeks):
+            week_start = start_date + timedelta(weeks=w)
+            # Generate daily events for the week
+            for d in range(7):
+                date = week_start + timedelta(days=d)
+                # Probability of event on this day
+                if np.random.random() < base_prob:
+                    event = np.random.choice(event_types)
+                    logs.append({
+                        "User_ID": uid,
+                        "gamified_status": is_gamified,
+                        "conscientiousness_score": c_score,
+                        "need_for_achievement": n_score,
+                        "date": date.strftime("%Y-%m-%d"),
+                        "event_type": event
+                    })
     
-    df = pd.DataFrame(data)
-    
-    # Verify constraints
-    non_gamified_users = df[df["gamification_status"] == False]["user_id"].nunique()
-    total_users = df["user_id"].nunique()
-    
-    pipeline_logger.info(f"Generated {total_users} users, {non_gamified_users} non-gamified")
-    
-    if non_gamified_users < 30:
-        raise ValueError(f"Generated data has only {non_gamified_users} non-gamified users, required >= 30")
-        
+    df = pd.DataFrame(logs)
     return df
 
-def main():
-    """Main entry point for synthetic data generation."""
-    pipeline_logger.info("Starting synthetic data generation...")
+def write_marker(n_users: int, n_records: int):
+    """Write the synthetic data marker file."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    marker_path = os.path.join(root, "data", "raw", "synthetic_data_marker.json")
     
-    try:
-        df = generate_synthetic_data(seed=42)
-        
-        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-        df.to_csv(OUTPUT_PATH, index=False)
-        pipeline_logger.info(f"Synthetic data saved to {OUTPUT_PATH}")
-        
-    except Exception as e:
-        pipeline_logger.error(f"Synthetic data generation failed: {str(e)}")
-        raise
+    marker = {
+        "source": "synthetic",
+        "n_users": n_users,
+        "n_records": n_records,
+        "seed": 42
+    }
+    
+    with open(marker_path, 'w') as f:
+        json.dump(marker, f, indent=2)
+    
+    logger.info(f"Marker written to {marker_path}")
+
+def main():
+    """CLI entry point."""
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--n_users", type=int, default=100)
+    parser.add_argument("--weeks", type=int, default=50)
+    args = parser.parse_args()
+    
+    log_pipeline_stage(logger, "START", "Synthetic Data Generation")
+    
+    df = generate_synthetic_data(n_users=args.n_users, weeks=args.weeks, seed=args.seed)
+    
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_path = os.path.join(root, "data", "raw", "synthetic_data.csv")
+    
+    df.to_csv(output_path, index=False)
+    logger.info(f"Generated {len(df)} records to {output_path}")
+    
+    write_marker(args.n_users, len(df))
+    
+    # Verify constraints
+    non_gamified = df[df['gamified_status'] == False]['User_ID'].nunique()
+    if non_gamified < 30:
+        logger.error(f"Constraint violated: Non-gamified users ({non_gamified}) < 30")
+        sys.exit(1)
+    
+    # Check correlation
+    corr = df['conscientiousness_score'].corr(df['need_for_achievement'])
+    logger.info(f"Correlation between traits: {corr:.4f} (expected ~0.6)")
+    
+    log_pipeline_stage(logger, "END", "Synthetic Data Generation")
 
 if __name__ == "__main__":
     main()
