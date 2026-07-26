@@ -1,27 +1,24 @@
 """
-CPU-optimized training loop for Cortical Column LLMs.
-
-Implements:
-- Gradient clipping (max norm)
-- Resource monitoring (psutil)
-- Mean Absolute Error (MAE) calculation
-- Compatibility with pytest-timeout via explicit timeout arguments
+CPU-optimized training loop with gradient clipping, resource monitoring, and MAE calculation.
+Implements the core training logic for baseline and microcircuit models.
 """
-
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import psutil
 import os
 import time
 import json
+import logging
 from typing import Dict, Any, Optional, Tuple, List
-from dataclasses import dataclass, asdict
-import numpy as np
+from dataclasses import dataclass, field, asdict
 
-# Import project modules based on API surface
-# Note: benchmarks.py and baseline_transformer.py are expected to exist per T005/T006
-from src.data.benchmarks import generate_synthetic_dataset, load_synthetic_dataset
-from src.models.baseline_transformer import BaselineTransformer
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -31,39 +28,42 @@ class TrainingConfig:
     batch_size: int = 32
     learning_rate: float = 1e-3
     max_grad_norm: float = 1.0
-    log_interval: int = 10
-    patience: int = 5  # Early stopping patience
     seed: int = 42
-    output_dir: str = "data/results"
-    model_path: str = "data/results/baseline_model.pt"
-    metrics_path: str = "data/results/training_metrics.json"
+    device: str = "cpu"
+    log_interval: int = 10
+    homeostasis_enabled: bool = False
+    output_dir: str = "data/logs"
 
 
 @dataclass
 class TrainingMetrics:
-    """Container for training metrics."""
-    epoch: int
-    train_loss: float
-    val_loss: float
-    mae: float
-    lr: float
-    elapsed_time: float
-    memory_usage_mb: float
-    cpu_percent: float
+    """Accumulated metrics during training."""
+    train_losses: List[float] = field(default_factory=list)
+    val_losses: List[float] = field(default_factory=list)
+    train_maes: List[float] = field(default_factory=list)
+    val_maes: List[float] = field(default_factory=list)
+    gradient_norms: List[float] = field(default_factory=list)
+    resource_usage: List[Dict[str, float]] = field(default_factory=list)
+    elapsed_time: float = 0.0
+    epochs_completed: int = 0
 
 
-def get_resource_usage() -> Tuple[float, float]:
+def get_resource_usage() -> Dict[str, float]:
     """
-    Monitor CPU and memory usage of the current process.
+    Monitor current CPU and memory usage.
     
     Returns:
-        Tuple of (memory_mb, cpu_percent)
+        Dict with 'cpu_percent', 'memory_percent', 'memory_mb'
     """
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    memory_mb = mem_info.rss / (1024 * 1024)
     cpu_percent = process.cpu_percent(interval=0.1)
-    return memory_mb, cpu_percent
+    memory_info = process.memory_info()
+    
+    return {
+        "cpu_percent": cpu_percent,
+        "memory_percent": process.memory_percent(),
+        "memory_mb": memory_info.rss / (1024 * 1024)
+    }
 
 
 def calculate_mae(predictions: torch.Tensor, targets: torch.Tensor) -> float:
@@ -84,274 +84,221 @@ def calculate_mae(predictions: torch.Tensor, targets: torch.Tensor) -> float:
 
 def train_epoch(
     model: nn.Module,
-    optimizer: torch.optim.Optimizer,
-    dataloader: torch.utils.data.DataLoader,
-    device: torch.device,
-    config: TrainingConfig
-) -> Tuple[float, float]:
+    optimizer: optim.Optimizer,
+    data_loader: torch.utils.data.DataLoader,
+    config: TrainingConfig,
+    metrics: TrainingMetrics,
+    homeostasis_scaler: Optional[Any] = None
+) -> float:
     """
-    Train for one epoch.
+    Train the model for one epoch.
     
+    Args:
+        model: The neural network model
+        optimizer: Optimizer instance
+        data_loader: DataLoader for training data
+        config: Training configuration
+        metrics: Object to accumulate metrics
+        homeostasis_scaler: Optional homeostatic scaler instance
+        
     Returns:
-        Tuple of (average_loss, average_mae)
+        Average loss for the epoch
     """
     model.train()
     total_loss = 0.0
-    total_mae = 0.0
     num_batches = 0
-
-    for batch_idx, (data, targets) in enumerate(dataloader):
-        data = data.to(device)
-        targets = targets.to(device)
-
+    
+    start_time = time.time()
+    
+    for batch_idx, (inputs, targets) in enumerate(data_loader):
+        inputs = inputs.to(config.device)
+        targets = targets.to(config.device)
+        
         optimizer.zero_grad()
-        outputs = model(data)
         
-        # Ensure shapes match for loss calculation
-        if outputs.shape != targets.shape:
-            # Flatten if necessary for regression tasks
-            outputs = outputs.view(targets.shape)
+        # Forward pass
+        outputs = model(inputs)
         
+        # Ensure outputs and targets have compatible shapes for loss
+        if outputs.dim() > targets.dim():
+            outputs = outputs.squeeze(-1)
+        
+        # Calculate loss
         loss_fn = nn.MSELoss()
         loss = loss_fn(outputs, targets)
         
+        # Backward pass
         loss.backward()
         
-        # Gradient clipping (max norm)
-        torch.nn.utils.clip_grad_norm_(
-            model.parameters(), 
-            max_norm=config.max_grad_norm
-        )
+        # Gradient clipping
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=config.max_grad_norm)
+        
+        # Record gradient norm
+        grad_norm = torch.norm(
+            torch.stack([p.grad.norm() for p in model.parameters() if p.grad is not None])
+        ).item()
+        metrics.gradient_norms.append(grad_norm)
         
         optimizer.step()
-
+        
+        # Apply homeostatic scaling if enabled
+        if config.homeostasis_enabled and homeostasis_scaler is not None:
+            homeostasis_scaler.step(model)
+        
         total_loss += loss.item()
-        mae = calculate_mae(outputs, targets)
-        total_mae += mae
         num_batches += 1
-
+        
+        # Log progress
         if batch_idx % config.log_interval == 0:
-            mem_mb, cpu_pct = get_resource_usage()
-            print(f"  Batch {batch_idx}/{len(dataloader)} | "
-                  f"Loss: {loss.item():.4f} | "
-                  f"MAE: {mae:.4f} | "
-                  f"Mem: {mem_mb:.1f}MB | "
-                  f"CPU: {cpu_pct:.1f}%")
+            current_mae = calculate_mae(outputs, targets)
+            resource_usage = get_resource_usage()
+            metrics.resource_usage.append(resource_usage)
+            
+            logger.info(
+                f"Epoch batch {batch_idx}/{len(data_loader)} | "
+                f"Loss: {loss.item():.6f} | MAE: {current_mae:.6f} | "
+                f"Grad Norm: {grad_norm:.6f} | "
+                f"RAM: {resource_usage['memory_mb']:.1f}MB"
+            )
+    
+    metrics.elapsed_time += time.time() - start_time
+    avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
+    metrics.train_losses.append(avg_loss)
+    
+    return avg_loss
 
-    avg_loss = total_loss / num_batches
-    avg_mae = total_mae / num_batches
-    return avg_loss, avg_mae
 
-
+@torch.no_grad()
 def evaluate(
     model: nn.Module,
-    dataloader: torch.utils.data.DataLoader,
-    device: torch.device
+    data_loader: torch.utils.data.DataLoader,
+    config: TrainingConfig
 ) -> Tuple[float, float]:
     """
-    Evaluate model on a dataset.
+    Evaluate the model on a dataset.
     
+    Args:
+        model: The neural network model
+        data_loader: DataLoader for evaluation data
+        config: Training configuration
+        
     Returns:
-        Tuple of (average_loss, average_mae)
+        Tuple of (average loss, average MAE)
     """
     model.eval()
     total_loss = 0.0
     total_mae = 0.0
     num_batches = 0
     
-    loss_fn = nn.MSELoss()
-
-    with torch.no_grad():
-        for data, targets in dataloader:
-            data = data.to(device)
-            targets = targets.to(device)
-            
-            outputs = model(data)
-            
-            if outputs.shape != targets.shape:
-                outputs = outputs.view(targets.shape)
-            
-            loss = loss_fn(outputs, targets)
-            mae = calculate_mae(outputs, targets)
-            
-            total_loss += loss.item()
-            total_mae += mae
-            num_batches += 1
-
+    for inputs, targets in data_loader:
+        inputs = inputs.to(config.device)
+        targets = targets.to(config.device)
+        
+        outputs = model(inputs)
+        
+        # Ensure outputs and targets have compatible shapes
+        if outputs.dim() > targets.dim():
+            outputs = outputs.squeeze(-1)
+        
+        loss_fn = nn.MSELoss()
+        loss = loss_fn(outputs, targets)
+        mae = calculate_mae(outputs, targets)
+        
+        total_loss += loss.item()
+        total_mae += mae
+        num_batches += 1
+    
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     avg_mae = total_mae / num_batches if num_batches > 0 else 0.0
+    
+    metrics = TrainingMetrics()
+    metrics.val_losses.append(avg_loss)
+    metrics.val_maes.append(avg_mae)
+    
+    logger.info(f"Evaluation - Loss: {avg_loss:.6f}, MAE: {avg_mae:.6f}")
+    
     return avg_loss, avg_mae
 
 
 def run_training(
-    config: Optional[TrainingConfig] = None
-) -> Dict[str, Any]:
+    model: nn.Module,
+    train_loader: torch.utils.data.DataLoader,
+    val_loader: torch.utils.data.DataLoader,
+    config: TrainingConfig,
+    homeostasis_scaler: Optional[Any] = None
+) -> TrainingMetrics:
     """
-    Main training loop.
+    Run the full training loop.
     
     Args:
-        config: Training configuration (uses defaults if None)
+        model: The neural network model to train
+        train_loader: DataLoader for training data
+        val_loader: DataLoader for validation data
+        config: Training configuration
+        homeostasis_scaler: Optional homeostatic scaler instance
         
     Returns:
-        Dictionary containing final metrics and paths to artifacts
+        TrainingMetrics object containing all recorded metrics
     """
-    if config is None:
-        config = TrainingConfig()
-
-    # Set seed for reproducibility
+    logger.info(f"Starting training on device: {config.device}")
+    logger.info(f"Config: epochs={config.num_epochs}, lr={config.learning_rate}, "
+               f"batch_size={config.batch_size}, max_grad_norm={config.max_grad_norm}")
+    
+    # Set random seeds for reproducibility
     torch.manual_seed(config.seed)
-    np.random.seed(config.seed)
-
-    # Determine device (CPU-optimized as per task requirements)
-    device = torch.device("cpu")
-    print(f"Using device: {device}")
-
-    # Initialize model
-    model = BaselineTransformer(
-        input_dim=10,  # Default for synthetic tasks
-        hidden_dim=64,
-        num_layers=2,
-        num_heads=4
-    ).to(device)
-
+    if config.device == "cuda":
+        torch.cuda.manual_seed(config.seed)
+    
     # Initialize optimizer
-    optimizer = torch.optim.Adam(
-        model.parameters(), 
-        lr=config.learning_rate
-    )
-
-    # Load synthetic data (Lorenz attractor for training)
-    print("Generating synthetic training data (Lorenz Attractor)...")
-    train_data, train_targets = generate_synthetic_dataset(
-        dataset_type="lorenz",
-        num_samples=1000,
-        seq_length=50,
-        noise_level=0.01,
-        seed=config.seed
-    )
+    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
     
-    # Create DataLoader
-    train_dataset = torch.utils.data.TensorDataset(
-        torch.FloatTensor(train_data),
-        torch.FloatTensor(train_targets)
-    )
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, 
-        batch_size=config.batch_size, 
-        shuffle=True
-    )
-
-    # Load validation data (Polynomials for testing)
-    print("Generating synthetic validation data (Polynomial Surfaces)...")
-    val_data, val_targets = generate_synthetic_dataset(
-        dataset_type="polynomial",
-        num_samples=200,
-        seq_length=50,
-        noise_level=0.01,
-        seed=config.seed + 1
-    )
+    # Initialize metrics
+    metrics = TrainingMetrics()
     
-    val_dataset = torch.utils.data.TensorDataset(
-        torch.FloatTensor(val_data),
-        torch.FloatTensor(val_targets)
-    )
-    val_loader = torch.utils.data.DataLoader(
-        val_dataset, 
-        batch_size=config.batch_size, 
-        shuffle=False
-    )
-
     # Ensure output directory exists
     os.makedirs(config.output_dir, exist_ok=True)
-
-    # Training loop
-    best_val_loss = float('inf')
-    patience_counter = 0
-    history = []
-
-    print(f"Starting training for {config.num_epochs} epochs...")
+    metrics_file = os.path.join(config.output_dir, "training_metrics.json")
+    
     start_time = time.time()
-
-    for epoch in range(1, config.num_epochs + 1):
-        epoch_start = time.time()
-        
-        # Resource check at start of epoch
-        mem_mb, cpu_pct = get_resource_usage()
-        print(f"\nEpoch {epoch}/{config.num_epochs} | "
-              f"Mem: {mem_mb:.1f}MB | CPU: {cpu_pct:.1f}%")
-
-        # Train
-        train_loss, train_mae = train_epoch(
-            model, optimizer, train_loader, device, config
-        )
-
-        # Validate
-        val_loss, val_mae = evaluate(model, val_loader, device)
-
-        epoch_time = time.time() - epoch_start
-        
-        # Record metrics
-        metrics = TrainingMetrics(
-            epoch=epoch,
-            train_loss=train_loss,
-            val_loss=val_loss,
-            mae=val_mae,
-            lr=optimizer.param_groups[0]['lr'],
-            elapsed_time=epoch_time,
-            memory_usage_mb=mem_mb,
-            cpu_percent=cpu_pct
-        )
-        history.append(asdict(metrics))
-
-        print(f"Epoch {epoch} | "
-              f"Train Loss: {train_loss:.4f} | "
-              f"Val Loss: {val_loss:.4f} | "
-              f"Val MAE: {val_mae:.4f} | "
-              f"Time: {epoch_time:.2f}s")
-
-        # Early stopping check
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            patience_counter = 0
-            # Save best model
-            torch.save(model.state_dict(), config.model_path)
-            print(f"  -> New best model saved to {config.model_path}")
-        else:
-            patience_counter += 1
-            if patience_counter >= config.patience:
-                print(f"Early stopping triggered at epoch {epoch}")
-                break
-
-    total_time = time.time() - start_time
-
-    # Save final metrics
-    final_metrics = {
-        "total_time_seconds": total_time,
-        "best_val_loss": best_val_loss,
-        "final_mae": history[-1]["mae"] if history else None,
-        "history": history,
-        "config": asdict(config)
-    }
-
-    with open(config.metrics_path, 'w') as f:
-        json.dump(final_metrics, f, indent=2)
     
-    print(f"\nTraining complete. Metrics saved to {config.metrics_path}")
-    print(f"Best model saved to {config.model_path}")
-    print(f"Final Validation MAE: {final_metrics['final_mae']:.4f}")
-
-    return final_metrics
-
-
-if __name__ == "__main__":
-    # Run with default configuration
-    results = run_training()
+    try:
+        for epoch in range(config.num_epochs):
+            logger.info(f"\n--- Epoch {epoch + 1}/{config.num_epochs} ---")
+            
+            # Training phase
+            train_loss = train_epoch(
+                model, optimizer, train_loader, config, metrics, homeostasis_scaler
+            )
+            
+            # Validation phase
+            val_loss, val_mae = evaluate(model, val_loader, config)
+            
+            metrics.epochs_completed = epoch + 1
+            
+            # Log epoch summary
+            logger.info(
+                f"Epoch {epoch + 1} completed - "
+                f"Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}, "
+                f"Val MAE: {val_mae:.6f}"
+            )
+            
+            # Save intermediate metrics
+            with open(metrics_file, 'w') as f:
+                json.dump(asdict(metrics), f, indent=2)
+            
+    except KeyboardInterrupt:
+        logger.warning("Training interrupted by user")
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        raise
     
-    # Verify MAE threshold (FR-004: MAE < 0.05)
-    if results["final_mae"] is not None:
-        if results["final_mae"] < 0.05:
-            print("✓ MAE threshold (< 0.05) PASSED")
-        else:
-            print(f"✗ MAE threshold (< 0.05) FAILED (got {results['final_mae']:.4f})")
-    else:
-        print("✗ No MAE recorded")
+    metrics.elapsed_time = time.time() - start_time
+    
+    # Final metrics save
+    with open(metrics_file, 'w') as f:
+        json.dump(asdict(metrics), f, indent=2)
+    
+    logger.info(f"Training completed in {metrics.elapsed_time:.2f} seconds")
+    logger.info(f"Final MAE: {metrics.val_maes[-1]:.6f}")
+    
+    return metrics

@@ -1,0 +1,48 @@
+# Data directory - exclude all results, logs, and configs
+data/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# State files (except templates)
+state/*.yaml
+!state/*.template.yaml
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage and testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter notebooks
+.ipynb_checkpoints/

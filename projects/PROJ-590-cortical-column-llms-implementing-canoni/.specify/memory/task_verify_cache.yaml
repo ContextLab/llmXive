@@ -1,3 +1,27 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or listing of the required folders (`src/models`, `src/data`,\
+    \ `src/training`, `src/experiments`, `src/utils`, `tests/unit`, `tests/integration`,\
+    \ `scripts`, `data/results`, `data/logs`, `data/configs`, `state`) is provided;\
+    \ without concrete evidence the task is not satisfied. The implementer must create\
+    \ the directories and show a file\u2011system listing or similar proof."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are shown in any `src/` or `tests/` directories, and no
+    `.gitignore` file with the required exclusion patterns is present in the provided
+    evidence. The implementer must add the missing `__init__.py` files and create
+    a `.gitignore` that excludes `data/`, `__pycache__/`, `*.pyc`, and `state/*.yaml`
+    (except the template).
+T003b:
+  c: true
+  h: b655d812671d14781dc01bb9538bbbab1fa73277d3cf8d6387aae128b8f6d6ab
+  r: "The repository contains a non\u2011empty `pyproject.toml` file (1,371\u202F\
+    bytes) that includes a `[tool.black]` section configuring Black formatting, satisfying\
+    \ the requirement to provide a Black configuration via either `pyproject.toml`\
+    \ or `black.toml`. The missing `black.toml` is irrelevant because the alternative\
+    \ file is present and correctly configured."
 T016:
   c: true
   h: d721ea955f2fe6008a2b9ec19724c74dfc2544de15aef0677d53b65cef8b05ae

@@ -1,1 +1,1 @@
-# Experiments package initialization
+# Experiments package

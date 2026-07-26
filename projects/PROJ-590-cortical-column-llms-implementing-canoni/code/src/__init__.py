@@ -1,1 +1,1 @@
-# Source package initialization
+# Cortical Column LLMs - Source Package

@@ -1,53 +1,111 @@
-# Ruff configuration for PROJ-590
-# Enforces PEP 8, removes unused imports, and ensures consistent formatting rules
+[ruff]
+# Target Python 3.11 as per project setup
+target-version = "py311"
 
-[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
-select = ["E", "F", "I", "W", "UP"]
-ignore = []
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few common directories
+# Exclude common non-source directories
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
     ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
+    "__pycache__",
+    "data",
+    "state",
     "build",
     "dist",
-    "node_modules",
+    "*.egg-info",
     "venv",
+    ".venv",
 ]
 
-# Same as Black
+# Line length consistent with Black (default 88)
 line-length = 88
 
-# Allow unused variables in `__init__.py` to support exports
+# Enable strict linting rules
+[ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C90", # McCabe complexity
+    "UP",  # pyupgrade (modern Python syntax)
+    "N",   # pep8-naming
+    "YTT", # flake8-2020 (year 2020 compatibility)
+    "ANN", # flake8-annotations (type hints)
+    "S",   # flake8-bandit (security)
+    "BLE", # flake8-blind-except
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "COM", # flake8-commas
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PYI", # flake8-pyi
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TCH", # flake8-type-checking
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate (commented out code)
+    "PL",  # Pylint
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for research code
+ignore = [
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
+    "S101",   # Use of assert detected (allowed in tests/research)
+    "PLR0913", # Too many arguments in function definition
+    "PLR2004", # Magic value used in comparison
+    "T201",   # print found (allowed for debug in scripts)
+]
+
+# Per-file ignores for specific files
+per-file-ignores = { "tests/*" = ["ANN", "S101"], "scripts/*" = ["ANN", "T201", "S101"] }
+
+# Allow unused variables in tests (common pattern)
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.per-file-ignores]
-# Ignore import sorting in __init__.py files
-"__init__.py" = ["I001"]
+[ruff.lint.mccabe]
+# Increase complexity threshold for complex research algorithms
+max-complexity = 15
 
-[format]
-# Quote style for strings (black compatible)
+[ruff.lint.isort]
+# Sort imports to match project style
+known-first-party = ["src", "tests", "scripts", "setup_environment", "setup_project"]
+known-third-party = ["torch", "numpy", "scipy", "pytest", "psutil", "matplotlib", "PIL"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[ruff.lint.flake8-annotations]
+# Allow missing return type annotations for research scripts
+allow-star-arg-any = true
+ignore-fully-untyped = false
+
+[ruff.lint.flake8-bugbear]
+# Extend mutable argument defaults to catch common mistakes
+extend-immutable-calls = ["torch.tensor", "torch.zeros", "torch.ones", "torch.empty"]
+
+[ruff.lint.pylint]
+# Adjust max-args and max-locals for complex model definitions
+max-args = 10
+max-locals = 20
+
+[ruff.format]
+# Use double quotes for consistency
 quote-style = "double"
+# Indent with spaces
 indent-style = "space"
-skip-magic-trailing-comma = false
+# Skip magic trailing comma to reduce noise in large tensors
+skip-magic-trailing-comma = true
+# Line ending
 line-ending = "auto"
