@@ -1,14 +1,13 @@
 """
 Partial Correlation Analysis Module.
 
-Implements partial correlation analysis to isolate the effect of individual
-network metrics on diffusion rates while controlling for confounding variables.
+Isolates the effect of individual network metrics on diffusion rates
+while controlling for confounding variables (e.g., average path length).
 """
 
 import json
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -16,283 +15,276 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from code.src.utils.config import get_global_config
-
 logger = logging.getLogger(__name__)
 
 
 class PartialCorrelationError(Exception):
-    """Custom exception for partial correlation analysis errors."""
+    """Custom exception for partial correlation errors."""
     pass
 
 
-def load_simulation_results(filepath: str) -> pd.DataFrame:
+def load_simulation_data() -> pd.DataFrame:
     """
-    Load simulation results from JSON file into a DataFrame.
-
-    Args:
-        filepath: Path to the simulation results JSON file.
+    Loads simulation results from the standard output file.
 
     Returns:
-        DataFrame containing simulation results.
+        pd.DataFrame: The loaded simulation data.
 
     Raises:
-        PartialCorrelationError: If file not found or invalid format.
+        PartialCorrelationError: If the file is missing or invalid.
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise PartialCorrelationError(f"Simulation results file not found: {filepath}")
+    file_path = Path("data/analysis/simulation_results.json")
+    if not file_path.exists():
+        raise PartialCorrelationError(f"Input file not found: {file_path}")
 
     try:
-        with open(path, 'r') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
-
-        if not isinstance(data, list):
-            raise PartialCorrelationError("Simulation results must be a list of records")
-
-        df = pd.DataFrame(data)
-
-        # Ensure required columns exist
-        required_cols = ['diffusion_rate', 'clustering_coefficient', 'average_path_length']
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            raise PartialCorrelationError(f"Missing required columns: {missing_cols}")
-
-        return df
-
     except json.JSONDecodeError as e:
-        raise PartialCorrelationError(f"Invalid JSON format: {e}")
+        raise PartialCorrelationError(f"Failed to parse JSON: {e}")
+
+    df = pd.DataFrame(data)
+
+    required_cols = ['diffusion_rate', 'clustering_coefficient', 'average_path_length']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise PartialCorrelationError(f"Missing required columns in simulation data: {missing}")
+
+    # Drop rows with NaN in key columns
+    initial_count = len(df)
+    df = df.dropna(subset=required_cols)
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logger.warning(f"Dropped {dropped} rows with NaN values in key columns.")
+
+    if len(df) < 3:
+        raise PartialCorrelationError("Insufficient data points for partial correlation (need >= 3).")
+
+    return df
 
 
 def calculate_partial_correlation(
-    df: pd.DataFrame,
-    target: str,
-    predictor: str,
-    controls: List[str]
-) -> Tuple[float, float, float]:
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray
+) -> Tuple[float, float]:
     """
-    Calculate partial correlation between target and predictor, controlling for variables.
+    Calculates the partial correlation between x and y, controlling for z.
+
+    Uses the standard formula: r_xy.z = (r_xy - r_xz * r_yz) / sqrt((1-r_xz^2)(1-r_yz^2))
 
     Args:
-        df: DataFrame containing the data.
-        target: Name of the target variable.
-        predictor: Name of the predictor variable.
-        controls: List of control variable names.
+        x: Array of values for variable X.
+        y: Array of values for variable Y.
+        z: Array of values for control variable Z.
 
     Returns:
-        Tuple of (correlation coefficient, p-value, confidence interval lower bound).
-
-    Raises:
-        PartialCorrelationError: If calculation fails.
+        Tuple[float, float]: (correlation_coefficient, p_value)
     """
-    # Check for sufficient data
-    if len(df) < 3:
-        raise PartialCorrelationError("Insufficient data for partial correlation (need at least 3 samples)")
+    # Ensure inputs are 1D arrays
+    x = np.asarray(x).flatten()
+    y = np.asarray(y).flatten()
+    z = np.asarray(z).flatten()
 
-    # Check for NaN values
-    cols_to_check = [target, predictor] + controls
-    df_clean = df[cols_to_check].dropna()
+    if len(x) != len(y) or len(x) != len(z):
+        raise PartialCorrelationError("Input arrays must have the same length.")
 
-    if len(df_clean) < 3:
-        raise PartialCorrelationError("Insufficient valid data after removing NaN values")
+    if len(x) < 3:
+        raise PartialCorrelationError("Need at least 3 data points to calculate correlation.")
 
-    try:
-        if len(controls) == 0:
-            # Standard Pearson correlation if no controls
-            corr, p_value = stats.pearsonr(df_clean[target], df_clean[predictor])
-            ci_lower = corr - 1.96 * np.sqrt((1 - corr**2) / (len(df_clean) - 2))
-            return corr, p_value, ci_lower
+    # Calculate pairwise Pearson correlations
+    r_xy, p_xy = stats.pearsonr(x, y)
+    r_xz, p_xz = stats.pearsonr(x, z)
+    r_yz, p_yz = stats.pearsonr(y, z)
 
-        # Residualize target and predictor against controls
-        control_matrix = df_clean[controls].values
-        target_vec = df_clean[target].values
-        predictor_vec = df_clean[predictor].values
+    # Partial correlation formula
+    numerator = r_xy - (r_xz * r_yz)
+    denominator = np.sqrt((1 - r_xz**2) * (1 - r_yz**2))
 
-        # Fit linear models to get residuals
-        # Residuals = actual - predicted
+    if denominator == 0:
+        # If denominator is 0, it implies perfect collinearity or variance issues
+        # Return 0 correlation with a warning or handle as NaN
+        logger.warning("Denominator is zero in partial correlation calculation. Returning NaN.")
+        return np.nan, np.nan
+
+    r_partial = numerator / denominator
+
+    # Calculate p-value for partial correlation
+    # t = r * sqrt((n - 2 - k) / (1 - r^2)) where k is number of control variables (1 here)
+    n = len(x)
+    k = 1
+    df = n - 2 - k
+
+    if np.abs(r_partial) >= 1.0:
+        # Perfect correlation
+        p_value = 0.0
+    else:
+        t_stat = r_partial * np.sqrt(df / (1 - r_partial**2))
+        p_value = 2 * (1 - stats.t.cdf(np.abs(t_stat), df))
+
+    return r_partial, p_value
+
+
+def calculate_confidence_interval(r: float, n: int, alpha: float = 0.05) -> Tuple[float, float]:
+    """
+    Calculates the confidence interval for a correlation coefficient using Fisher's z-transformation.
+
+    Args:
+        r: Correlation coefficient.
+        n: Sample size.
+        alpha: Significance level (default 0.05).
+
+    Returns:
+        Tuple[float, float]: (lower_bound, upper_bound)
+    """
+    if abs(r) >= 1.0:
+        return (r, r)
+
+    # Fisher's z-transformation
+    z = 0.5 * np.log((1 + r) / (1 - r))
+    se_z = 1.0 / np.sqrt(n - 3)
+
+    z_crit = stats.norm.ppf(1 - alpha / 2)
+    z_lower = z - z_crit * se_z
+    z_upper = z + z_crit * se_z
+
+    # Inverse transformation
+    r_lower = (np.exp(2 * z_lower) - 1) / (np.exp(2 * z_lower) + 1)
+    r_upper = (np.exp(2 * z_upper) - 1) / (np.exp(2 * z_upper) + 1)
+
+    return r_lower, r_upper
+
+
+def run_partial_correlation_analysis() -> Dict[str, Any]:
+    """
+    Runs the full partial correlation analysis on the loaded simulation data.
+
+    Analyzes:
+    1. Diffusion Rate vs Clustering Coefficient (controlling for Average Path Length)
+    2. Diffusion Rate vs Average Path Length (controlling for Clustering Coefficient)
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the results for each metric pair.
+    """
+    logger.info("Loading simulation data for partial correlation analysis...")
+    df = load_simulation_data()
+
+    results = {
+        "metadata": {
+            "total_samples": len(df),
+            "analysis_type": "partial_correlation",
+            "control_variable_description": "Average Path Length"
+        },
+        "pairs": []
+    }
+
+    # Define the pairs to analyze
+    # Pair 1: X=Clustering, Y=Diffusion, Z=PathLength
+    # Pair 2: X=PathLength, Y=Diffusion, Z=Clustering
+    pairs_to_analyze = [
+        {
+            "x": "clustering_coefficient",
+            "y": "diffusion_rate",
+            "z": "average_path_length",
+            "description": "Effect of Clustering on Diffusion (controlling for Path Length)"
+        },
+        {
+            "x": "average_path_length",
+            "y": "diffusion_rate",
+            "z": "clustering_coefficient",
+            "description": "Effect of Path Length on Diffusion (controlling for Clustering)"
+        }
+    ]
+
+    for pair in pairs_to_analyze:
+        x_col = pair['x']
+        y_col = pair['y']
+        z_col = pair['z']
+
+        logger.info(f"Analyzing {pair['description']}...")
+
+        x_vals = df[x_col].values
+        y_vals = df[y_col].values
+        z_vals = df[z_col].values
+
         try:
-            target_residuals = stats.resid(target_vec, control_matrix)
-            predictor_residuals = stats.resid(predictor_vec, control_matrix)
+            r, p_val = calculate_partial_correlation(x_vals, y_vals, z_vals)
+            ci_lower, ci_upper = calculate_confidence_interval(r, len(df))
+
+            pair_result = {
+                "x_variable": x_col,
+                "y_variable": y_col,
+                "control_variable": z_col,
+                "description": pair['description'],
+                "partial_correlation_coefficient": float(r) if not np.isnan(r) else None,
+                "p_value": float(p_val) if not np.isnan(p_val) else None,
+                "confidence_interval_95": [
+                    float(ci_lower) if not np.isnan(ci_lower) else None,
+                    float(ci_upper) if not np.isnan(ci_upper) else None
+                ],
+                "sample_size": len(df)
+            }
+            results["pairs"].append(pair_result)
+            logger.info(f"  Result: r={r:.4f}, p={p_val:.4f}")
+
         except Exception as e:
-            # Fallback to manual residual calculation if scipy.stats.resid fails
-            logger.warning(f"Using fallback residual calculation: {e}")
-            from sklearn.linear_model import LinearRegression
-
-            reg_target = LinearRegression().fit(control_matrix, target_vec)
-            reg_predictor = LinearRegression().fit(control_matrix, predictor_vec)
-
-            target_residuals = target_vec - reg_target.predict(control_matrix)
-            predictor_residuals = predictor_vec - reg_predictor.predict(control_matrix)
-
-        # Calculate correlation of residuals
-        corr, p_value = stats.pearsonr(target_residuals, predictor_residuals)
-
-        # Calculate confidence interval (Fisher z-transformation)
-        if abs(corr) >= 1.0:
-            # Handle edge case where correlation is exactly +/- 1
-            z = np.sign(corr) * 3.0  # Cap at reasonable value
-        else:
-            z = np.arctanh(corr)
-
-        z_se = 1.0 / np.sqrt(len(df_clean) - 3)
-        z_lower = z - 1.96 * z_se
-        z_upper = z + 1.96 * z_se
-
-        ci_lower = np.tanh(z_lower)
-        ci_upper = np.tanh(z_upper)
-
-        return corr, p_value, ci_lower
-
-    except Exception as e:
-        raise PartialCorrelationError(f"Partial correlation calculation failed: {e}")
-
-
-def run_partial_correlation_analysis(
-    df: pd.DataFrame,
-    target: str = 'diffusion_rate',
-    predictors: List[str] = None,
-    controls: List[str] = None
-) -> Dict[str, Any]:
-    """
-    Run partial correlation analysis for multiple predictor variables.
-
-    Args:
-        df: DataFrame containing the data.
-        target: Name of the target variable (default: 'diffusion_rate').
-        predictors: List of predictor variable names. Defaults to common network metrics.
-        controls: List of control variable names. Defaults to ['average_path_length'].
-
-    Returns:
-        Dictionary containing analysis results for each predictor.
-    """
-    if predictors is None:
-        predictors = ['clustering_coefficient', 'average_path_length', 'degree', 'density']
-
-    if controls is None:
-        controls = ['average_path_length']
-
-    results = {}
-
-    for predictor in predictors:
-        if predictor not in df.columns:
-            logger.warning(f"Predictor '{predictor}' not found in data, skipping")
-            continue
-
-        # Exclude predictor from controls if it appears there
-        active_controls = [c for c in controls if c != predictor]
-
-        try:
-            corr, p_value, ci_lower = calculate_partial_correlation(
-                df, target, predictor, active_controls
-            )
-
-            results[predictor] = {
-                'correlation_coefficient': float(corr),
-                'p_value': float(p_value),
-                'confidence_interval_lower': float(ci_lower),
-                'confidence_interval_upper': float(np.tanh(np.arctanh(corr) + 1.96 * 1.0 / np.sqrt(len(df) - 3))),
-                'sample_size': len(df),
-                'status': 'success'
-            }
-            logger.info(f"Partial correlation for {predictor}: r={corr:.4f}, p={p_value:.4f}")
-
-        except PartialCorrelationError as e:
-            results[predictor] = {
-                'error': str(e),
-                'status': 'failed'
-            }
-            logger.error(f"Failed to calculate partial correlation for {predictor}: {e}")
+            logger.error(f"Error analyzing pair {pair['description']}: {e}")
+            results["pairs"].append({
+                "x_variable": x_col,
+                "y_variable": y_col,
+                "control_variable": z_col,
+                "description": pair['description'],
+                "error": str(e)
+            })
 
     return results
 
 
-def aggregate_results(results: Dict[str, Any]) -> Dict[str, Any]:
+def save_results(results: Dict[str, Any], output_path: Optional[str] = None) -> Path:
     """
-    Aggregate partial correlation results into a summary format.
+    Saves the analysis results to a JSON file.
 
     Args:
-        results: Dictionary of results from run_partial_correlation_analysis.
+        results: The results dictionary.
+        output_path: Optional path for the output file. Defaults to data/analysis/partial_correlation_results.json.
 
     Returns:
-        Aggregated results dictionary.
+        Path: The path to the saved file.
     """
-    successful = {k: v for k, v in results.items() if v.get('status') == 'success'}
+    if output_path is None:
+        output_path = "data/analysis/partial_correlation_results.json"
 
-    summary = {
-        'total_predictors': len(results),
-        'successful_analyses': len(successful),
-        'failed_analyses': len(results) - len(successful),
-        'results': results,
-        'significant_findings': [
-            predictor for predictor, data in successful.items()
-            if data['p_value'] < 0.05
-        ]
-    }
+    out_file = Path(output_path)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
 
-    return summary
+    with open(out_file, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Results saved to {out_file}")
+    return out_file
 
 
-def main():
+def main() -> int:
     """
-    Main entry point for partial correlation analysis.
-    Loads simulation results, runs analysis, and saves output.
+    Main entry point for the partial correlation analysis script.
     """
-    # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    # Get paths from config or defaults
-    config = get_global_config()
-    simulation_results_path = config.get('paths', {}).get(
-        'simulation_results',
-        'data/analysis/simulation_results.json'
-    )
-    output_path = config.get('paths', {}).get(
-        'partial_correlation_results',
-        'data/analysis/partial_correlation_results.json'
-    )
-
-    logger.info(f"Loading simulation results from: {simulation_results_path}")
-
     try:
-        # Load data
-        df = load_simulation_results(simulation_results_path)
-        logger.info(f"Loaded {len(df)} simulation records")
-
-        # Run analysis
-        logger.info("Running partial correlation analysis...")
-        results = run_partial_correlation_analysis(df)
-
-        # Aggregate and save
-        summary = aggregate_results(results)
-        summary['metadata'] = {
-            'target_variable': 'diffusion_rate',
-            'analysis_type': 'partial_correlation',
-            'control_variables': ['average_path_length'],
-            'timestamp': str(pd.Timestamp.now())
-        }
-
-        # Ensure output directory exists
-        output_dir = Path(output_path).parent
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        with open(output_path, 'w') as f:
-            json.dump(summary, f, indent=2, default=str)
-
-        logger.info(f"Partial correlation results saved to: {output_path}")
-        logger.info(f"Significant findings: {summary['significant_findings']}")
-
-        return summary
-
+        results = run_partial_correlation_analysis()
+        save_results(results)
+        logger.info("Partial correlation analysis completed successfully.")
+        return 0
     except PartialCorrelationError as e:
-        logger.error(f"Partial correlation analysis failed: {e}")
-        raise
+        logger.error(f"Partial Correlation Error: {e}")
+        return 1
     except Exception as e:
         logger.error(f"Unexpected error during analysis: {e}")
-        raise
+        return 1
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

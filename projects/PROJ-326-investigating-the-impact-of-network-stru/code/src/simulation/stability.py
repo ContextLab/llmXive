@@ -1,149 +1,190 @@
+"""
+Stability checks for simulation runs.
+Implements divergence detection, runtime abort, and runtime logging.
+"""
+import json
 import logging
 import time
-from typing import Dict, Any, Optional
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from code.src.utils.config import get_global_config
-from code.src.utils.logging import log_run
-
-class SimulationDivergenceError(Exception):
-    """Raised when simulation energy diverges or runtime limit is exceeded."""
-    pass
+from code.src.utils.config import load_config
+from code.src.utils.logging import log_run, get_run_log
 
 class StabilityError(Exception):
-    """Raised when stability checks fail."""
+    """Custom exception for stability-related failures."""
     pass
 
-def check_for_nan_inf(arr: np.ndarray, threshold: float = 1e10) -> bool:
-    """
-    Checks if the array contains NaN, Inf, or values exceeding a threshold.
-    """
-    if np.any(np.isnan(arr)):
-        return True
-    if np.any(np.isinf(arr)):
-        return True
-    if np.any(np.abs(arr) > threshold):
-        return True
-    return False
+class SimulationDivergenceError(StabilityError):
+    """Raised when simulation energy diverges beyond acceptable limits."""
+    pass
 
-def check_energy_conservation(initial_energy: float, current_energy: float, tolerance: float = 1e-6) -> bool:
-    """
-    Checks if energy is conserved within tolerance.
-    """
-    return abs(initial_energy - current_energy) < tolerance
+class RuntimeExceededError(StabilityError):
+    """Raised when simulation runtime exceeds the configured limit."""
+    pass
 
-def log_runtime_duration(run_id: str, duration_seconds: float):
-    """
-    T026b: Logs runtime duration to data/run_log.json.
-    """
-    log_run(
-        event_type="simulation_runtime",
-        run_id=run_id,
-        message=f"Runtime: {duration_seconds:.2f} seconds",
-        duration_seconds=duration_seconds
-    )
+logger = logging.getLogger(__name__)
 
-def enforce_runtime_limit(run_id: str, start_time: float, max_seconds: float):
+def check_for_nan_inf(value: float, context: str = "Simulation value") -> None:
     """
-    T026a: Checks if runtime exceeds limit and raises if so.
-    This implements the hard runtime abort mechanism.
+    Check if a value is NaN or Inf.
+    Raises StabilityError if invalid.
     """
-    current_time = time.time()
-    duration = current_time - start_time
+    if np.isnan(value) or np.isinf(value):
+        error_msg = f"{context} is invalid: {value}"
+        logger.error(error_msg)
+        raise StabilityError(error_msg)
 
-    if duration > max_seconds:
-        logger = logging.getLogger(__name__)
-        logger.error(f"[RUNTIME_EXCEEDED] Run {run_id} exceeded {max_seconds}s limit. Runtime: {duration:.2f}s")
-        
-        # Log the timeout event
-        log_run(
-            event_type="timeout_reached",
-            run_id=run_id,
-            status="FAILURE",
-            message=f"Runtime {duration:.2f}s exceeded limit {max_seconds}s",
-            duration_ms=int(duration * 1000)
-        )
-        
-        raise SimulationDivergenceError(f"Runtime exceeded limit: {duration:.2f}s > {max_seconds}s")
-    
-    return duration
-
-def detect_divergence(
-    current_energy: float, 
-    initial_energy: float, 
-    amplification_factor: float = 1000.0
-) -> bool:
-    """
-    Detects if energy has diverged significantly from initial state.
-    Relies on T026a for abort mechanism; this function only detects.
-    """
-    if initial_energy == 0:
-        # If initial energy is zero, any non-zero current energy is divergence
-        return current_energy != 0
-    
-    ratio = abs(current_energy / initial_energy)
-    return ratio > amplification_factor
-
-def run_stability_check(
-    run_id: str,
-    start_time: float,
+def check_energy_divergence(
     current_energy: float,
     initial_energy: float,
-    config: Dict[str, Any]
-) -> Dict[str, Any]:
+    threshold_factor: float = 100.0
+) -> bool:
     """
-    Main stability check routine.
-    - Checks for NaN/Inf
-    - Checks for divergence (T052)
-    - Checks runtime limit (T026a)
-    - Logs results (T026b)
-    
-    This function implements T052: explicit numerical stability assertions
-    to detect energy divergence. It relies on T026a for the abort mechanism
-    by raising SimulationDivergenceError when divergence is detected, rather
-    than creating a new error type.
+    Check if current energy has diverged significantly from initial.
+    Returns True if divergence is detected.
     """
-    logger = logging.getLogger(__name__)
-    result = {
-        "status": "OK",
-        "divergence_detected": False,
-        "runtime_exceeded": False,
-        "runtime_seconds": 0.0
-    }
+    if initial_energy == 0:
+        # Avoid division by zero; check absolute threshold if initial is zero
+        if abs(current_energy) > 1e6:
+            return True
+        return False
 
-    # 1. Check Divergence (T052 - Explicit Numerical Stability Assertions)
-    # Read divergence threshold from config, defaulting to 1000.0x amplification
-    threshold = config.get("divergence_threshold", 1000.0)
-    
-    if detect_divergence(current_energy, initial_energy, threshold):
-        result["status"] = "DIVERGENCE"
-        result["divergence_detected"] = True
+    ratio = abs(current_energy) / abs(initial_energy)
+    return ratio > threshold_factor
+
+def enforce_runtime_limit(
+    start_time: float,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Check if runtime exceeds the limit defined in config.
+    Raises RuntimeExceededError if limit is exceeded.
+    Logs [RUNTIME_EXCEEDED] flag if triggered.
+    """
+    if config is None:
+        config = load_config()
+
+    # Read timeout from config.yaml under simulation_params
+    timeout_seconds = config.get("simulation_params", {}).get(
+        "simulation_timeout_seconds", 3600
+    )
+
+    current_time = time.time()
+    runtime_duration = current_time - start_time
+
+    if runtime_duration > timeout_seconds:
+        error_msg = (
+            f"Simulation runtime ({runtime_duration:.2f}s) exceeded "
+            f"limit ({timeout_seconds}s). Aborting."
+        )
+        logger.error(error_msg)
         
-        # Log the specific flag string [SIMULATION_DIVERGENCE] as required by spec
-        logger.warning(f"[SIMULATION_DIVERGENCE] Run {run_id} energy diverged.")
-        
-        # Log the divergence event to run_log.json
+        # Log the flag as per spec edge case
         log_run(
-            event_type="divergence_detected",
-            run_id=run_id,
-            status="FAILURE",
-            message="[SIMULATION_DIVERGENCE] Energy divergence detected",
-            duration_ms=int((time.time() - start_time) * 1000)
+            event_type="simulation_runtime",
+            run_id="runtime_exceeded",
+            status="RUNTIME_EXCEEDED",
+            duration_ms=int(runtime_duration * 1000)
         )
         
-        # Raise the existing SimulationDivergenceError (T026a mechanism)
-        # This ensures we don't create a conflicting error type
-        raise SimulationDivergenceError(f"[SIMULATION_DIVERGENCE] Energy divergence detected: ratio={abs(current_energy/initial_energy) if initial_energy != 0 else 'inf'}")
+        raise RuntimeExceededError(error_msg)
 
-    # 2. Check Runtime Limit (T026a - Hard Abort)
-    # Read limit from config.yaml (key: simulation_timeout_seconds)
-    timeout_limit = config.get("simulation_timeout_seconds", 3600.0) 
-    
-    duration = enforce_runtime_limit(run_id, start_time, timeout_limit)
-    result["runtime_seconds"] = duration
+def log_simulation_runtime(
+    run_id: str,
+    start_time: float,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Calculate runtime duration and log it to data/run_log.json.
+    Implements FR-009: explicit runtime logging infrastructure.
 
-    # 3. Log Runtime (T026b)
-    log_runtime_duration(run_id, duration)
+    Args:
+        run_id: Unique identifier for the simulation run.
+        start_time: Timestamp when the simulation started (float).
+        config: Optional config dict. If None, loads from default.
+    """
+    if config is None:
+        config = load_config()
 
-    return result
+    # Calculate duration
+    current_time = time.time()
+    duration_seconds = current_time - start_time
+
+    # Ensure data directory exists
+    log_path = Path("data/run_log.json")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load existing log or initialize
+    log_data = get_run_log()
+    if log_data is None:
+        log_data = []
+
+    # Create new entry
+    entry = {
+        "event_type": "simulation_runtime",
+        "run_id": run_id,
+        "duration_seconds": float(duration_seconds),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    log_data.append(entry)
+
+    # Save back to file
+    with open(log_path, "w", encoding="utf-8") as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.info(f"Logged runtime for run {run_id}: {duration_seconds:.4f}s")
+
+def run_stability_checks(
+    start_time: float,
+    run_id: str,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Wrapper to run all stability checks including runtime logging.
+    This function is called at the end of a simulation run to:
+    1. Check if runtime limit was exceeded (abort if so).
+    2. Log the runtime duration to data/run_log.json.
+
+    Args:
+        start_time: Timestamp when simulation started.
+        run_id: Unique identifier for the run.
+        config: Optional config dict.
+    """
+    # First, check if we exceeded the runtime limit (abort if so)
+    enforce_runtime_limit(start_time, config)
+
+    # Then, log the runtime duration (FR-009)
+    log_simulation_runtime(run_id, start_time, config)
+
+def main() -> None:
+    """
+    Entry point for standalone execution (e.g., testing stability checks).
+    """
+    logging.basicConfig(level=logging.INFO)
+    config = load_config()
+    run_id = "test_stability_run"
+    start = time.time()
+
+    # Simulate some work
+    time.sleep(0.1)
+
+    # Run stability checks
+    try:
+        run_stability_checks(start, run_id, config)
+        print(f"Stability checks passed for {run_id}")
+    except RuntimeExceededError as e:
+        print(f"Runtime exceeded: {e}")
+        sys.exit(1)
+    except StabilityError as e:
+        print(f"Stability error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

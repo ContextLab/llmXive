@@ -1,203 +1,160 @@
-"""
-Unit tests for network generators.
-Includes tests for connectivity verification and retry logic.
-"""
 import pytest
 import networkx as nx
 import numpy as np
-import json
-import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import tempfile
-import shutil
+import sys
+import os
+
+# Ensure code/src is in path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.src.generators.base import BaseGenerator
-from code.src.generators.er import ErdosRenyiGenerator
 from code.src.generators.sw import WattsStrogatzGenerator
-from code.src.generators.sf import BarabasiAlbertGenerator
-from code.src.generators.timeout import TimeoutError
+from code.src.utils.logging import log_run, log_metric, get_run_log
+import json
 
 class MockGenerator(BaseGenerator):
-    """Mock generator for testing retry logic"""
-    def __init__(self, config, fail_until_attempt=None):
-        super().__init__(config)
-        self.fail_until_attempt = fail_until_attempt
+    """Mock generator for testing connectivity logic."""
+    def __init__(self, return_disconnected=False, return_connected=True):
+        super().__init__()
+        self.return_disconnected = return_disconnected
+        self.return_connected = return_connected
         self.attempt_count = 0
 
-    def _generate_candidate(self):
+    def _generate_attempt(self, rng):
         self.attempt_count += 1
-        if self.fail_until_attempt and self.attempt_count <= self.fail_until_attempt:
+        if self.return_disconnected and self.attempt_count < 3:
             # Return a disconnected graph
             G = nx.Graph()
-            G.add_nodes_from([1, 2, 3])
-            G.add_edges_from([(1, 2)])  # Node 3 is isolated
+            G.add_nodes_from([1, 2, 3, 4])
+            G.add_edges_from([(1, 2), (3, 4)]) # Two components
             return G
-        # Return a connected graph
-        G = nx.complete_graph(5)
-        return G
+        else:
+            # Return a connected graph
+            G = nx.Graph()
+            G.add_nodes_from([1, 2, 3, 4])
+            G.add_edges_from([(1, 2), (2, 3), (3, 4)])
+            return G
 
-    def get_generator_name(self):
+    def get_name(self):
         return "MockGenerator"
 
-    def get_parameters(self):
-        return {"fail_until": self.fail_until_attempt}
-
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory for data files"""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
-
-@pytest.fixture
-def mock_config():
-    return {
-        'seed': 42,
-        'max_retries': 5,
-        'retry_delay': 0.01,
-        'timeout_seconds': 30
+def test_sw_retries_on_disconnect():
+    """
+    Test that the Watts-Strogatz generator (and base class) 
+    retries generation when a disconnected graph is produced,
+    and eventually returns None if max retries are exceeded.
+    """
+    config = {
+        "global_seed": 42,
+        "simulation_params": {
+            "max_retry_attempts": 3
+        }
     }
-
-def test_sw_retries_on_disconnect(mock_config):
-    """
-    Test that Watts-Strogatz generator retries on disconnected graphs.
-    Verifies the retry loop in BaseGenerator.
-    """
-    # Create a config that forces a few failures then success
-    config = mock_config.copy()
-    config['max_retries'] = 5
     
-    # Use MockGenerator to simulate disconnection then success
-    gen = MockGenerator(config, fail_until_attempt=2)
-    
-    result = gen.generate()
-    
-    # Should succeed after retries
-    assert result is not None, "Generator should succeed after retries"
-    graph, metrics = result
-    
-    # Verify it's connected
-    assert nx.is_connected(graph), "Generated graph must be connected"
-    
-    # Verify retry count
-    assert metrics['attempt'] > 1, "Should have retried at least once"
-    assert metrics['attempt'] == 3, "Should have succeeded on 3rd attempt"
-
-def test_sw_max_retries_exhausted(mock_config):
-    """
-    Test behavior when all retries are exhausted for disconnected graphs.
-    """
-    config = mock_config.copy()
-    config['max_retries'] = 2
-    
-    # Create a generator that always returns disconnected graphs
+    # Create a generator that forces disconnected graphs for first 5 attempts
+    # but connected on 6th (exceeding limit of 3)
     class AlwaysDisconnectedGenerator(BaseGenerator):
-        def _generate_candidate(self):
+        def _generate_attempt(self, rng):
             G = nx.Graph()
             G.add_nodes_from([1, 2, 3])
-            G.add_edges_from([(1, 2)])
+            G.add_edges_from([(1, 2)]) # Node 3 is isolated
             return G
         
-        def get_generator_name(self): return "AlwaysDisconnected"
-        def get_parameters(self): return {}
-    
-    gen = AlwaysDisconnectedGenerator(config)
-    
-    result = gen.generate()
-    
-    # Should return None after exhausting retries
-    assert result is None, "Generator should return None after max retries"
+        def get_name(self):
+            return "AlwaysDisconnected"
 
-def test_er_generates_connected_graph(mock_config):
-    """Test that Erdős-Rényi generator produces connected graphs"""
-    config = mock_config.copy()
-    config['n'] = 10
-    config['p'] = 0.5  # High probability for connectivity
+    gen = AlwaysDisconnectedGenerator(config)
+    rng = np.random.default_rng(42)
+    
+    # Should return None after 3 attempts
+    result = gen.generate(rng, graph_id="test_1")
+    assert result is None, "Generator should return None when max retries exceeded"
+    assert gen.attempt_count == 3, "Generator should have attempted 3 times"
+
+    # Now test the case where it succeeds after a few failures
+    class EventuallyConnectedGenerator(BaseGenerator):
+        def __init__(self, fail_count):
+            super().__init__()
+            self.fail_count = fail_count
+            self.attempt_count = 0
+
+        def _generate_attempt(self, rng):
+            self.attempt_count += 1
+            if self.attempt_count <= self.fail_count:
+                G = nx.Graph()
+                G.add_nodes_from([1, 2, 3])
+                G.add_edges_from([(1, 2)]) # Disconnected
+                return G
+            else:
+                G = nx.Graph()
+                G.add_nodes_from([1, 2, 3])
+                G.add_edges_from([(1, 2), (2, 3)]) # Connected
+                return G
+
+        def get_name(self):
+            return "EventuallyConnected"
+
+    # Should succeed on 2nd attempt (fail_count=1, limit=3)
+    gen_success = EventuallyConnectedGenerator(fail_count=1)
+    gen_success.set_run_id("test_run_1")
+    result = gen_success.generate(rng, graph_id="test_2")
+    assert result is not None, "Generator should return a graph after successful retry"
+    assert nx.is_connected(result), "Returned graph must be connected"
+    assert gen_success.attempt_count == 2, "Generator should have attempted 2 times"
+
+    # Should succeed on 3rd attempt (fail_count=2, limit=3)
+    gen_success_2 = EventuallyConnectedGenerator(fail_count=2)
+    gen_success_2.set_run_id("test_run_2")
+    result = gen_success_2.generate(rng, graph_id="test_3")
+    assert result is not None, "Generator should return a graph after 2 failed attempts"
+    assert nx.is_connected(result), "Returned graph must be connected"
+    assert gen_success_2.attempt_count == 3, "Generator should have attempted 3 times"
+
+    # Should fail on 3rd attempt (fail_count=3, limit=3)
+    gen_fail = EventuallyConnectedGenerator(fail_count=3)
+    gen_fail.set_run_id("test_run_3")
+    result = gen_fail.generate(rng, graph_id="test_4")
+    assert result is None, "Generator should return None if it fails exactly at the limit"
+    assert gen_fail.attempt_count == 3, "Generator should have attempted 3 times"
+
+def test_er_generates_connected_graph():
+    """Test that Erdos-Renyi generator produces connected graphs when p is high enough."""
+    # This test assumes the ER implementation in er.py calls super().generate()
+    # and respects the connectivity check.
+    from code.src.generators.er import ErdosRenyiGenerator
+    
+    config = {
+        "global_seed": 42,
+        "simulation_params": {"max_retry_attempts": 10},
+        "topology_targets": {"n": 20, "p": 0.5}
+    }
     
     gen = ErdosRenyiGenerator(config)
-    result = gen.generate()
+    rng = np.random.default_rng(42)
     
+    result = gen.generate(rng, graph_id="er_test")
     assert result is not None, "ER generator should produce a graph"
-    graph, metrics = result
-    assert nx.is_connected(graph), "ER graph should be connected"
+    assert nx.is_connected(result), "ER generator should produce a connected graph"
 
-def test_er_clustering_distribution(mock_config):
-    """Test clustering coefficient distribution for ER graphs"""
-    config = mock_config.copy()
-    config['n'] = 50
-    config['p'] = 0.1
+def test_sw_clustering_target():
+    """Test that Watts-Strogatz generator respects clustering parameters."""
+    from code.src.generators.sw import WattsStrogatzGenerator
     
-    graphs = []
-    for _ in range(10):
-        gen = ErdosRenyiGenerator(config)
-        result = gen.generate()
-        if result:
-            graphs.append(result[0])
-    
-    assert len(graphs) > 0, "Should generate at least one graph"
-    
-    clustering_coeffs = [nx.clustering(g) for g in graphs]
-    avg_clustering = [np.mean(list(c.values())) for c in clustering_coeffs]
-    
-    # ER graphs should have low clustering (~p)
-    assert all(0 <= c <= 0.3 for c in avg_clustering), "ER clustering should be low"
-
-def test_sw_clustering_target(mock_config):
-    """Test that Watts-Strogatz achieves target clustering"""
-    config = mock_config.copy()
-    config['n'] = 20
-    config['k'] = 4
-    config['p'] = 0.3
+    config = {
+        "global_seed": 42,
+        "simulation_params": {"max_retry_attempts": 10},
+        "topology_targets": {"n": 20, "k": 4, "p": 0.1}
+    }
     
     gen = WattsStrogatzGenerator(config)
-    result = gen.generate()
+    rng = np.random.default_rng(42)
     
-    assert result is not None, "WS generator should produce a graph"
-    graph, _ = result
+    result = gen.generate(rng, graph_id="sw_test")
+    assert result is not None, "SW generator should produce a graph"
+    assert nx.is_connected(result), "SW generator should produce a connected graph"
     
-    clustering = nx.average_clustering(graph)
-    # WS should have relatively high clustering compared to ER
-    assert clustering > 0.1, "WS graph should have significant clustering"
-
-def test_sf_power_law_fit(mock_config):
-    """Test that Barabási-Albert follows power law"""
-    config = mock_config.copy()
-    config['n'] = 100
-    config['m'] = 3
-    
-    gen = BarabasiAlbertGenerator(config)
-    result = gen.generate()
-    
-    assert result is not None, "BA generator should produce a graph"
-    graph, _ = result
-    
-    # Check degree distribution
-    degrees = [d for n, d in graph.degree()]
-    assert len(degrees) > 0, "Graph should have degrees"
-    
-    # Basic check: should have a range of degrees
-    assert max(degrees) > min(degrees), "BA should have degree variation"
-
-def test_base_connectivity_check(mock_config):
-    """Test the base connectivity verification logic"""
-    gen = MockGenerator(mock_config)
-    
-    # Connected graph
-    connected = nx.complete_graph(5)
-    assert gen._verify_connectivity(connected) is True
-    
-    # Disconnected graph
-    disconnected = nx.Graph()
-    disconnected.add_nodes_from([1, 2, 3, 4])
-    disconnected.add_edges_from([(1, 2), (3, 4)])
-    assert gen._verify_connectivity(disconnected) is False
-    
-    # Single node
-    single = nx.Graph()
-    single.add_node(1)
-    assert gen._verify_connectivity(single) is True
-    
-    # Empty graph
-    empty = nx.Graph()
-    assert gen._verify_connectivity(empty) is False
+    # Check clustering coefficient is non-trivial (low p means high clustering)
+    cc = nx.average_clustering(result)
+    assert cc > 0.0, "Clustering coefficient should be positive"

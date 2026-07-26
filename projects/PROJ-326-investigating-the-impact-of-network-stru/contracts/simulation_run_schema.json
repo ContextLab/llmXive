@@ -1,8 +1,49 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SimulationRun",
-  "description": "Schema for a single simulation run result, including provenance data required for Constitution Principle VI.",
+  "description": "Schema for a single simulation run result, including provenance data for Constitution Principle VI.",
   "type": "object",
+  "properties": {
+    "network_id": {
+      "type": "string",
+      "description": "Unique identifier for the network graph used in this simulation."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for the simulation execution."
+    },
+    "diffusion_rate": {
+      "type": "number",
+      "description": "Calculated rate of energy diffusion (spatial variance change over time)."
+    },
+    "topology_class": {
+      "type": "string",
+      "description": "Class of network topology (e.g., 'Erdos-Renyi', 'Watts-Strogatz', 'Barabasi-Albert')."
+    },
+    "steps_run": {
+      "type": "integer",
+      "description": "Number of simulation time steps executed."
+    },
+    "status": {
+      "type": "string",
+      "description": "Execution status (e.g., 'SUCCESS', '[SIMULATION_DIVERGENCE]', '[RUNTIME_EXCEEDED]')."
+    },
+    "runtime_duration_seconds": {
+      "type": "number",
+      "description": "Wall-clock execution time in seconds."
+    },
+    "generation_algorithm": {
+      "type": "string",
+      "description": "Name of the algorithm used to generate the network (sourced from T019 metadata)."
+    },
+    "parameter_values": {
+      "type": "object",
+      "description": "Dictionary of string keys and float values representing the parameters used for graph generation.",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
   "required": [
     "network_id",
     "seed",
@@ -14,53 +55,5 @@
     "generation_algorithm",
     "parameter_values"
   ],
-  "properties": {
-    "network_id": {
-      "type": "string",
-      "description": "Unique identifier for the network graph used in this run."
-    },
-    "seed": {
-      "type": "integer",
-      "description": "The random seed used for this specific simulation run."
-    },
-    "diffusion_rate": {
-      "type": "number",
-      "format": "float",
-      "description": "Calculated rate of energy diffusion (spatial variance change) over the simulation steps."
-    },
-    "topology_class": {
-      "type": "string",
-      "enum": ["Erdos-Renyi", "Watts-Strogatz", "Barabasi-Albert"],
-      "description": "The class of network topology generated."
-    },
-    "steps_run": {
-      "type": "integer",
-      "description": "Number of simulation time steps executed."
-    },
-    "status": {
-      "type": "string",
-      "description": "Final status of the run (e.g., 'COMPLETED', '[SIMULATION_DIVERGENCE]', '[RUNTIME_EXCEEDED]')."
-    },
-    "runtime_duration_seconds": {
-      "type": "number",
-      "format": "float",
-      "description": "Wall-clock execution time in seconds, measured by T026b/T028."
-    },
-    "generation_algorithm": {
-      "type": "string",
-      "description": "Name of the algorithm used to generate the graph (e.g., 'erdos_renyi', 'watts_strogatz').",
-      "source": "T019 metadata"
-    },
-    "parameter_values": {
-      "type": "object",
-      "additionalProperties": {
-        "oneOf": [
-          {"type": "string"},
-          {"type": "number"}
-        ]
-      },
-      "description": "Dictionary of parameters used during graph generation, sourced from T019 metadata."
-    }
-  },
   "additionalProperties": false
 }

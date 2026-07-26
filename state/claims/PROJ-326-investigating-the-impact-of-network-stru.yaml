@@ -601,32 +601,30 @@
   updated_at: '2026-07-25T08:18:04Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: batch generation success rate must be at least 95%
-  claim_id: c_8948b6d0
-  context: "Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
-    \ to verify \u226595% success rate for valid connected graphs and test_manifest_generation\
-    \ to verify global_batch_manifest.json content."
+  canonical: Batch generation success rate greater than or equal to 95 percent for
+    valid connected graphs
+  claim_id: c_84103b95
+  context: Tests for User Story 1 section describing integration tests for batch generation.
   evidence:
-    entailment_evidence: Batch generation success rate must be at least 95%
-    entailment_status: grounded
-    source_url: https://en.wikipedia.org/wiki/Batch_generation_success_rate_must_be_at_least_95%25
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_generation_success_rate_greater_than_or_equal_to_95_pe
   kind: magnitude
-  raw_text: "Assert total_generated matches target, valid_count \u2265 95% of target,\
-    \ and failed_graphs list is populated correctly."
-  resolved_value: batch generation success rate must be at least 95%
+  raw_text: "Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
+    \ to verify \u226595% success rate for valid connected graphs."
+  resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-07-26T21:30:12Z'
+  status: not_enough_info
+  updated_at: '2026-07-26T22:44:41Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: Batch size increase factor is 1.5 when rejection rate exceeds 40 percent
-  claim_id: c_033bad24
-  context: 'Implement ''Sample Size Adjustment'' logic for Phase 2 contingency in
-    code/src/generators/batch_runner.py. If the rejection rate for clustering targets
-    > 40%, automatically increase the target batch size by a factor defined in config.yaml
-    (key: rejection_adjustment_factor, default 1.5).'
+  canonical: Sample size adjustment triggers if clustering rejection rate exceeds
+    40 percent with default factor 1.5
+  claim_id: c_8f27c5e6
+  context: Task T056 description regarding sample size adjustment logic for Phase
+    2 contingency.
   evidence:
     asserted: '40.0'
     authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
@@ -644,52 +642,40 @@
   source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
   source_type: external
   status: verified
-  updated_at: '2026-07-26T21:30:12Z'
+  updated_at: '2026-07-26T22:44:41Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: Stratification bins are 0.1 0.2 0.3 0.4 and 0.5
-  claim_id: c_2b634337
-  context: 'Define stratification configuration in code/config.yaml under stratification_params:
-    keys bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5), target_counts (dict mapping
-    bin to count), and tolerance (float).'
+  canonical: Sample size adjustment uses default factor 1.5
+  claim_id: c_d8e07ab3
+  context: Task T056 description regarding sample size adjustment logic for Phase
+    2 contingency.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+    asserted: '40.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
   kind: numeric
-  raw_text: 'Bins are defined as a list of floats: 0.1, 0.2, 0.3, 0.4, 0.5.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
+  raw_text: 'If the rejection rate for clustering targets > 40%, automatically increase
+    the target batch size by a factor defined in config.yaml (key: rejection_adjustment_factor,
+    default 1.5).'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:30:38Z'
+  status: verified
+  updated_at: '2026-07-26T22:44:41Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: Sensitivity sweep must generate at least 5 distinct cutoffs
-  claim_id: c_20931575
-  context: This task is now marked as implemented. It MUST verify that at least 5
-    distinct cutoffs are generated (SC-005) and write them to the artifact.
+  canonical: Simulation runtime validation threshold is less than 3600 seconds
+  claim_id: c_6d3c7792
+  context: Task T055 description regarding explicit validation of runtime duration.
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_must_generate_at_least_5_distinct_cutoffs
-  kind: magnitude
-  raw_text: Verify that at least 5 distinct cutoffs are generated.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:31:02Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Runtime duration must be less than 3600 seconds
-  claim_id: c_02f30e6a
-  context: 'Implementation Details: Assert runtime_duration_seconds < 3600 for all
-    valid runs. This task addresses the SC-002 validation requirement.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_duration_must_be_less_than_3600_seconds
+    source_url: https://en.wikipedia.org/wiki/Simulation_runtime_validation_threshold_is_less_than_3600_se
   kind: magnitude
   raw_text: Assert runtime_duration_seconds < 3600 for all valid runs.
   resolved_value: null
@@ -697,14 +683,28 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-26T21:31:19Z'
+  updated_at: '2026-07-26T22:45:00Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Visualization figures generated at 300 DPI
+  claim_id: c_1f2a2dea
+  context: Task T037c description regarding figure generation for analysis results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:45:00Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
   canonical: Energy conservation tolerance is 1e-6
-  claim_id: c_9a640f80
-  context: "Add explicit energy conservation check in code/src/simulation/dynamics.py\
-    \ to verify that the total energy of the system (sum of spin states) remains within\
-    \ a defined tolerance (\xB11e-6) after each time step."
+  claim_id: c_c67f73ab
+  context: Task T063 description regarding energy conservation check in simulation
+    dynamics.
   evidence:
     asserted: 1e-06
     authority: math.pi (IEEE-754 double, Python stdlib)
@@ -721,37 +721,14 @@
   source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
   source_type: external
   status: verified
-  updated_at: '2026-07-26T21:31:19Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Generate at least 3 figures at 300 DPI
-  claim_id: c_2bb536fd
-  context: "Generate visualization figures in code/src/analysis/plot_results.py. This\
-    \ task consumes statistical outputs from T037b and generates \u22653 figures (scatter,\
-    \ heatmaps) at 300 DPI, saving them to paper/."
-  evidence:
-    candidates:
-    - - Generate at least 3 figures at
-      - 300.0
-    - - Create account Log in Generate at least
-      - 3.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_figures_at_300_DPI
-  kind: magnitude
-  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-26T21:31:45Z'
+  updated_at: '2026-07-26T22:45:01Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 0
-  canonical: Sample size adjustment triggered when rejection rate > 40 percent with
-    default factor 1.5
-  claim_id: c_d3587052
-  context: Stratified Sampling & Connectivity ... T056 [P] [FR-001] Implement 'Sample
-    Size Adjustment' logic
+  canonical: Sample size adjustment triggered if clustering target rejection rate
+    exceeds 40 percent using default factor 1.5
+  claim_id: c_b25a82f5
+  context: 'Phase 2: Foundational (Blocking Prerequisites) ... T056 [P] [FR-001] Implement
+    ''Sample Size Adjustment'' logic'
   evidence:
     asserted: '40.0'
     authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
@@ -762,20 +739,192 @@
     url: https://physics.nist.gov/cgi-bin/cuu/Value?na
   kind: numeric
   raw_text: 'If the rejection rate for clustering targets > 40%, automatically increase
-    the target batch size by a factor defined in `config.yaml` (key: `rejection_adjustment_factor`,
-    default 1.5)'
+    the target batch size by a factor defined in config.yaml (key: rejection_adjustment_factor,
+    default 1.5).'
   resolved_value: '602214075999999987023872'
   resolver: approximate
   source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
   source_type: external
   status: verified
-  updated_at: '2026-07-26T21:38:22Z'
+  updated_at: '2026-07-26T22:46:50Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 0
-  canonical: Energy conservation tolerance within 1e-6
-  claim_id: c_56ce3b2b
-  context: 'Phase 6: Review & Revision ... T063 [US2] Add explicit energy conservation
-    check'
+  canonical: Sample size adjustment factor default value 1.5
+  claim_id: c_51e2751d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) ... T056 [P] [FR-001] Implement
+    ''Sample Size Adjustment'' logic'
+  evidence:
+    asserted: '40.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: 'If the rejection rate for clustering targets > 40%, automatically increase
+    the target batch size by a factor defined in config.yaml (key: rejection_adjustment_factor,
+    default 1.5).'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T22:46:51Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 0
+  canonical: Energy conservation tolerance plus or minus 1e-6
+  claim_id: c_e5858409
+  context: 'Phase 6: Review & Revision (Post-Analyze Fixes) ... T063 [US2] Add explicit
+    energy conservation check'
+  evidence:
+    asserted: 1e-06
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify that the total energy of the system (sum of spin states) remains\
+    \ within a defined tolerance (\xB11e-6) after each time step."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T22:46:51Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Batch generation success rate greater than or equal to 95 percent for
+    valid connected graphs
+  claim_id: c_ee607d4f
+  context: Tests for User Story 1 (OPTIONAL - only if tests requested) ... Integration
+    test in code/tests/test_integration.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_generation_success_rate_greater_than_or_equal_to_95_pe
+  kind: magnitude
+  raw_text: "Implement integration test in code/tests/test_integration.py implementing\
+    \ test_batch_success_rate to verify \u226595% success rate for valid connected\
+    \ graphs."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:47:16Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Validation assertion runtime duration less than 3600 seconds per network
+  claim_id: c_a1f4feb8
+  context: 'Phase 5: User Story 3 - Correlate metrics and test significance ... T055
+    [US3] Implement explicit validation of runtime_duration_seconds'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_assertion_runtime_duration_less_than_3600_seconds
+  kind: magnitude
+  raw_text: Assert runtime_duration_seconds < 3600 for all valid runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:47:18Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Generate at least 3 figures at 300 DPI resolution
+  claim_id: c_90234717
+  context: 'Phase 5: User Story 3 - Correlate metrics and test significance ... T037c
+    [US3] Generate visualization figures'
+  evidence:
+    candidates:
+    - - Generate at least 3 figures at
+      - 300.0
+    - - Create account Log in Generate at least
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_figures_at_300_DPI_resolution
+  kind: magnitude
+  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI, saving them\
+    \ to paper/."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-26T22:47:39Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Generate at least 3 visualization figures
+  claim_id: c_b7672e14
+  context: 'Phase 5: User Story 3 - Correlate metrics and test significance ... T037c
+    [US3] Generate visualization figures'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_visualization_figures
+  kind: magnitude
+  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI, saving them\
+    \ to paper/."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:47:41Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Stratification bins defined as 0.1, 0.2, 0.3, 0.4, 0.5
+  claim_id: c_88035a48
+  context: 'Phase 2: Foundational (Blocking Prerequisites) ... T062a [P] [FR-001][SC-005]
+    Define stratification configuration'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:48:20Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 0
+  canonical: batch size increase factor 1.5 when rejection rate exceeds 40 percent
+  claim_id: c_5e01875c
+  context: 'T056 Implement ''Sample Size Adjustment'' logic for Phase 2 contingency
+    in code/src/generators/batch_runner.py. If the rejection rate for clustering targets
+    > 40%, automatically increase the target batch size by a factor defined in config.yaml
+    (key: rejection_adjustment_factor, default 1.5) and log ''Sample Size Adjustment:
+    New batch size = X'' to data/run_log.json.'
+  evidence:
+    asserted: '40.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: 'If the rejection rate for clustering targets > 40%, automatically increase
+    the target batch size by a factor defined in config.yaml (key: rejection_adjustment_factor,
+    default 1.5).'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T22:54:09Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 0
+  canonical: total energy tolerance plus or minus 1e-6 after each time step
+  claim_id: c_54922e74
+  context: "T063 Add explicit energy conservation check in code/src/simulation/dynamics.py\
+    \ to verify that the total energy of the system (sum of spin states) remains within\
+    \ a defined tolerance (\xB11e-6) after each time step, logging violations to data/analysis/conservation_violations.json."
   evidence:
     asserted: 1e-06
     authority: math.pi (IEEE-754 double, Python stdlib)
@@ -792,271 +941,62 @@
   source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
   source_type: external
   status: verified
-  updated_at: '2026-07-26T21:38:23Z'
+  updated_at: '2026-07-26T22:54:10Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: Batch generation success rate >= 95 percent for valid connected graphs
-  claim_id: c_dccffc61
-  context: Tests for User Story 1 ... T012 [P] [US1] Integration test in `code/tests/test_integration.py`
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Integration test in `code/tests/test_integration.py` implementing `test_batch_success_rate`\
-    \ to verify \u226595% success rate for valid connected graphs"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:38:23Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Generate at least 3 figures at 300 DPI
-  claim_id: c_f16f9634
-  context: Implementation for User Story 3 ... T037c [US3] Generate visualization
-    figures
-  evidence:
-    candidates:
-    - - Generate at least 3 figures at
-      - 300.0
-    - - Create account Log in Generate at least
-      - 3.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_figures_at_300_DPI
-  kind: magnitude
-  raw_text: "T037c ... generates \u22653 figures (scatter, heatmaps) at 300 DPI"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-26T21:38:43Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Runtime duration must be less than 3600 seconds per network
-  claim_id: c_09134c3f
-  context: 'Phase 5: User Story 3 ... T055 [US3] Implement explicit validation of
-    `runtime_duration_seconds`'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_duration_must_be_less_than_3600_seconds_per_network
-  kind: magnitude
-  raw_text: Assert `runtime_duration_seconds` < 3600 for all valid runs
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:38:47Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Batch generation success rate at least 95 percent for valid connected
-    graphs
-  claim_id: c_7a61d9ae
-  context: "Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
+  canonical: valid_count greater than or equal to 95 percent of target
+  claim_id: c_254ac71c
+  context: "T012 Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
     \ to verify \u226595% success rate for valid connected graphs and test_manifest_generation\
-    \ to verify global_batch_manifest.json content."
+    \ to verify global_batch_manifest.json content. Implementation Details: Assert\
+    \ total_generated matches target, valid_count \u2265 95% of target, and failed_graphs\
+    \ list is populated correctly."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Batch_generation_success_rate_at_least_95_percent_for_valid
+    source_url: https://en.wikipedia.org/wiki/Valid_count_greater_than_or_equal_to_95_percent_of_target
   kind: magnitude
-  raw_text: "verify \u226595% success rate for valid connected graphs"
+  raw_text: "Assert total_generated matches target, valid_count \u2265 95% of target,\
+    \ and failed_graphs list is populated correctly."
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-26T21:42:20Z'
+  updated_at: '2026-07-26T22:54:36Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: Sensitivity sweep generates at least 5 distinct clustering coefficient
-    cutoffs
-  claim_id: c_0a375a63
-  context: This task MUST verify that at least 5 distinct cutoffs are generated (SC-005)
-    and write them to the artifact.
+  canonical: simulation timeout enforcement based on config.yaml value
+  claim_id: c_36bd2e3f
+  context: 'T026a Implement hard runtime abort mechanism in code/src/simulation/stability.py
+    to enforce the 60-minute limit (FR-010/SC-002) during execution. The limit value
+    MUST be read from config.yaml (key: simulation_timeout_seconds).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_timeout_enforcement_based_on_config.yaml_value
+  kind: entity_fact
+  raw_text: 'The limit value MUST be read from config.yaml (key: simulation_timeout_seconds).
+    If runtime_duration_seconds exceeds this value during a run, the system MUST abort
+    the run, log the error, and flag the run as [RUNTIME_EXCEEDED].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:54:54Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: runtime duration less than 3600 seconds for valid runs
+  claim_id: c_45c1a7ab
+  context: "T055 Implement explicit validation of runtime_duration_seconds in code/src/validation/validate_batch.py\
+    \ to ensure SC-002 (\u226460 mins/network) is checked against the actual wall-clock\
+    \ time recorded in data/analysis/simulation_results.json... Implementation Details:\
+    \ Assert runtime_duration_seconds < 3600 for all valid runs."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_generates_at_least_5_distinct_clustering_c
-  kind: magnitude
-  raw_text: verify that at least 5 distinct cutoffs are generated
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:42:22Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Generate at least 3 figures at 300 DPI
-  claim_id: c_78204054
-  context: "This task consumes statistical outputs from T037b and generates \u2265\
-    3 figures (scatter, heatmaps) at 300 DPI, saving them to paper/."
-  evidence:
-    candidates:
-    - - Generate at least 3 figures at
-      - 300.0
-    - - Create account Log in Generate at least
-      - 3.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_figures_at_300_DPI
-  kind: magnitude
-  raw_text: "generate \u22653 figures (scatter, heatmaps) at 300 DPI"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-26T21:42:23Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Simulation runtime less than 3600 seconds for all valid runs
-  claim_id: c_a3c3bd7f
-  context: 'Implementation Details: Assert runtime_duration_seconds < 3600 for all
-    valid runs. This task addresses the SC-002 validation requirement.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Simulation_runtime_less_than_3600_seconds_for_all_valid_runs
-  kind: magnitude
-  raw_text: Assert runtime_duration_seconds < 3600 for all valid runs
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:42:25Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Batch generation success rate >= 95 percent for valid connected graphs
-  claim_id: c_ab8eafa9
-  context: Tests for User Story 1, Task T012
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Integration test in `code/tests/test_integration.py` implementing `test_batch_success_rate`\
-    \ to verify \u226595% success rate for valid connected graphs"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:43:08Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Simulation runtime abort mechanism enforces 60-minute limit
-  claim_id: c_002898e4
-  context: Implementation for User Story 2, Task T026a
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The limit value MUST be read from `config.yaml` (key: `simulation_timeout_seconds`).
-    If `runtime_duration_seconds` exceeds this value during a run, the system MUST
-    abort the run'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:43:08Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Visualization figures generated at 300 DPI
-  claim_id: c_e21f5279
-  context: Implementation for User Story 3, Task T037c
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "This task generates \u22653 figures (scatter, heatmaps) at 300 DPI"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:43:08Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Visualization generates at least 3 figures
-  claim_id: c_321d2deb
-  context: Implementation for User Story 3, Task T037c
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Visualization_generates_at_least_3_figures
-  kind: magnitude
-  raw_text: "This task generates \u22653 figures (scatter, heatmaps)"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:43:40Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: Validation asserts runtime duration seconds less than 3600
-  claim_id: c_52636683
-  context: Implementation for User Story 3, Task T055
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Validation_asserts_runtime_duration_seconds_less_than_3600
-  kind: magnitude
-  raw_text: Assert `runtime_duration_seconds` < 3600 for all valid runs
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:43:44Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: verify 95 percent success rate for valid connected graphs
-  claim_id: c_641d4244
-  context: "Tests for User Story 1 (OPTIONAL - only if tests requested) ... [X] T012\
-    \ [P] [US1] Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
-    \ to verify \u226595% success rate for valid connected graphs."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement integration test in code/tests/test_integration.py implementing\
-    \ test_batch_success_rate to verify \u226595% success rate for valid connected\
-    \ graphs."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:47:43Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: generate 3 figures at 300 DPI
-  claim_id: c_2b0a1446
-  context: "T037c [US3] Generate visualization figures in code/src/analysis/plot_results.py.\
-    \ This task consumes statistical outputs from T037b and generates \u22653 figures\
-    \ (scatter, heatmaps) at 300 DPI, saving them to paper/."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:47:43Z'
-- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
-  attempts: 1
-  canonical: assert runtime duration seconds less than 3600
-  claim_id: c_3f40d855
-  context: 'T055 [US3] Implement explicit validation of runtime_duration_seconds in
-    code/src/validation/validate_batch.py ... Implementation Details: Assert runtime_duration_seconds
-    < 3600 for all valid runs.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Assert_runtime_duration_seconds_less_than_3600
+    source_url: https://en.wikipedia.org/wiki/Runtime_duration_less_than_3600_seconds_for_valid_runs
   kind: magnitude
   raw_text: Assert runtime_duration_seconds < 3600 for all valid runs.
   resolved_value: null
@@ -1064,21 +1004,114 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-26T21:47:45Z'
+  updated_at: '2026-07-26T22:54:56Z'
 - artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   attempts: 1
-  canonical: define stratification bins as list of floats 0.1 0.2 0.3 0.4 0.5
-  claim_id: c_46513574
-  context: 'T062a [P] [FR-001][SC-005] Define stratification configuration in code/config.yaml
-    under stratification_params: keys bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5).'
+  canonical: sensitivity heatmap across 5 clustering thresholds
+  claim_id: c_f1b6495e
+  context: T065 Add a robustness check task in code/src/analysis/plot_results.py to
+    generate a 'sensitivity heatmap' visualizing how the correlation coefficients
+    change across the 5 clustering thresholds (from T035b) for each network metric.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Define stratification configuration in code/config.yaml under stratification_params:
-    keys bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5).'
+  raw_text: Add a robustness check task in code/src/analysis/plot_results.py to generate
+    a 'sensitivity heatmap' visualizing how the correlation coefficients change across
+    the 5 clustering thresholds (from T035b) for each network metric.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-26T21:48:07Z'
+  updated_at: '2026-07-26T22:55:27Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: batch success rate greater than or equal to 95 percent for valid connected
+    graphs
+  claim_id: c_d752442f
+  context: "Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
+    \ to verify \u226595% success rate for valid connected graphs and test_manifest_generation\
+    \ to verify global_batch_manifest.json content."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_success_rate_greater_than_or_equal_to_95_percent_for_v
+  kind: magnitude
+  raw_text: "verify \u226595% success rate for valid connected graphs"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:57:53Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: rejection rate for clustering targets greater than 40 percent triggers
+    batch size increase with default factor 1.5
+  claim_id: c_b5f58b39
+  context: 'Implement ''Sample Size Adjustment'' logic for Phase 2 contingency in
+    code/src/generators/batch_runner.py. If the rejection rate for clustering targets
+    > 40%, automatically increase the target batch size by a factor defined in config.yaml
+    (key: rejection_adjustment_factor, default 1.5) and log Sample Size Adjustment:
+    New batch size = X to data/run_log.json.'
+  evidence:
+    asserted: '40.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: magnitude
+  raw_text: 'If the rejection rate for clustering targets > 40%, automatically increase
+    the target batch size by a factor defined in config.yaml (key: rejection_adjustment_factor,
+    default 1.5)'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T22:57:53Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: generate at least 3 figures at 300 DPI
+  claim_id: c_57324897
+  context: "Generate visualization figures in code/src/analysis/plot_results.py. This\
+    \ task consumes statistical outputs from T037b and generates \u22653 figures (scatter,\
+    \ heatmaps) at 300 DPI, saving them to paper/."
+  evidence:
+    candidates:
+    - - Generate at least 3 figures at
+      - 300.0
+    - - Create account Log in Generate at least
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_3_figures_at_300_DPI
+  kind: magnitude
+  raw_text: "Generate \u22653 figures (scatter, heatmaps) at 300 DPI"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-26T22:58:13Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: simulation runtime duration less than 3600 seconds for valid runs
+  claim_id: c_26b31329
+  context: "Implement explicit validation of runtime_duration_seconds in code/src/validation/validate_batch.py\
+    \ to ensure SC-002 (\u226460 mins/network) is checked against the actual wall-clock\
+    \ time recorded in data/analysis/simulation_results.json. Implementation Details:\
+    \ Assert runtime_duration_seconds < 3600 for all valid runs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_runtime_duration_less_than_3600_seconds_for_valid
+  kind: magnitude
+  raw_text: Assert runtime_duration_seconds < 3600 for all valid runs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:58:15Z'

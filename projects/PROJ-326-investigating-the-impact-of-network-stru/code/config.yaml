@@ -1,43 +1,32 @@
+# Global Configuration for Network Topology Energy Transfer Study
 global_seed: 42
-simulation_timeout_seconds: 3600
+run_id: "proj-326-run-001"
 
 topology_targets:
-  erdos_renyi:
-    n_nodes: 100
-    edge_probability: 0.1
-  watts_strogatz:
-    n_nodes: 100
-    k_neighbors: 4
-    p_rewire: 0.1
-  barabasi_albert:
-    n_nodes: 100
-    m_edges: 2
+  er: 10
+  sw: 10
+  sf: 10
 
 simulation_params:
   steps: 100
   temperature: 1.0
-  initial_energy: 1.0
-  transient_steps: 10
+  timeout_seconds: 3600
 
-analysis:
-  sensitivity_thresholds: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-  regression_alpha: 1.0
-  power_target: 0.8
-  significance_level: 0.05
-
-output:
-  base_dir: data
-  figures_dir: paper
-  analysis_dir: data/analysis
-
-# Stratification configuration for FR-001 and SC-005
-# Defines bins for clustering coefficient stratification
 stratification_params:
   bins: [0.1, 0.2, 0.3, 0.4, 0.5]
   target_counts:
-    0.1: 20
-    0.2: 20
-    0.3: 20
-    0.4: 20
-    0.5: 20
+    er: 5
+    sw: 5
+    sf: 5
   tolerance: 0.05
+
+# T056 Configuration: Rejection Adjustment
+rejection_adjustment_factor: 1.5
+
+# T064 Configuration: Collinearity
+collinearity_params:
+  vif_threshold: 5.0
+
+# T066 Configuration: Outliers
+outlier_params:
+  iqr_multiplier: 1.5

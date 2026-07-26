@@ -1,7 +1,3 @@
-"""
-Base generator logic for network topology generation.
-Implements shared connectivity checks, retry logic, and timeout handling.
-"""
 import logging
 import time
 import signal
@@ -9,128 +5,142 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple, TypeVar, Generic, List
 import networkx as nx
 import numpy as np
-
-from code.src.generators.timeout import TimeoutHandler, TimeoutError
-from code.src.utils.logging import log_run
+from code.src.utils.logging import log_run, log_metric
+from code.src.utils.config import get_global_config
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar('T', bound=nx.Graph)
 
 class BaseGenerator(ABC, Generic[T]):
     """
-    Abstract base class for network graph generators.
-    Enforces connectivity verification and retry logic.
+    Abstract base class for network topology generators.
+    Enforces connectivity verification with retry logic.
     """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or get_global_config()
+        self.retry_limit = self.config.get('simulation_params', {}).get('max_retry_attempts', 10)
+        self.seed = self.config.get('global_seed', 42)
+        self._run_id = None
 
-    def __init__(self, config: Dict[str, Any]):
-        self.config = config
-        self.timeout_handler = TimeoutHandler(config)
-        self.max_retries = config.get('max_retries', 10)
-        self.retry_delay = config.get('retry_delay', 0.1)
-        self.seed = config.get('seed', 42)
-        np.random.seed(self.seed)
+    def set_run_id(self, run_id: str):
+        """Set the run ID for logging purposes."""
+        self._run_id = run_id
 
-    def _log_event(self, event_type: str, details: Optional[Dict] = None):
-        """Helper to log events to run_log.json"""
-        log_run(event_type, details=details)
-
-    def _generate_candidate(self) -> Optional[nx.Graph]:
+    @abstractmethod
+    def _generate_attempt(self, rng: np.random.Generator) -> T:
         """
-        Generate a single candidate graph.
+        Generate a single graph attempt.
         Must be implemented by subclasses.
-        Returns None if generation fails immediately.
         """
-        raise NotImplementedError
+        pass
 
-    def _verify_connectivity(self, graph: nx.Graph) -> bool:
-        """
-        Verify if the graph is connected.
-        Returns True if connected, False otherwise.
-        """
-        if graph.number_of_nodes() == 0:
-            return False
-        if graph.number_of_nodes() == 1:
-            return True
-        return nx.is_connected(graph)
+    @abstractmethod
+    def get_name(self) -> str:
+        """Return the name of the generator (e.g., 'ErdosRenyi')."""
+        pass
 
-    def generate(self) -> Optional[Tuple[nx.Graph, Dict[str, Any]]]:
+    def _log_warning(self, message: str):
+        """Helper to log warnings with run context if available."""
+        if self._run_id:
+            logger.warning(f"[Run {self._run_id}] {message}")
+        else:
+            logger.warning(message)
+
+    def _log_retry_event(self, attempt: int, reason: str):
+        """Log a retry event to the run log."""
+        if self._run_id:
+            log_run(
+                event_type="retry_attempt",
+                run_id=self._run_id,
+                seed=self.seed,
+                metadata={
+                    "attempt": attempt,
+                    "reason": reason,
+                    "generator": self.get_name()
+                }
+            )
+
+    def _log_connectivity_warning(self, attempts: int):
+        """Log a warning when max retries are reached."""
+        self._log_warning(
+            f"Generator {self.get_name()} reached max retries ({attempts}) "
+            "without generating a connected graph. Proceeding to next graph."
+        )
+        # Log divergence/timeout event type as per spec requirements for warnings
+        if self._run_id:
+            log_run(
+                event_type="divergence_detected", # Using divergence_detected for failed topology generation as a warning event
+                run_id=self._run_id,
+                seed=self.seed,
+                metadata={
+                    "type": "connectivity_failure",
+                    "max_attempts": attempts,
+                    "generator": self.get_name()
+                }
+            )
+
+    def generate(self, rng: np.random.Generator, graph_id: str = "unknown") -> Optional[T]:
         """
         Generate a connected graph with retry logic.
-        Returns (graph, metrics) tuple if successful, None if all retries exhausted.
+        
+        Returns:
+            nx.Graph: A connected graph if successful within retry limits.
+            None: If the retry limit is exceeded.
         """
         start_time = time.time()
-        attempt = 0
-        last_error = None
+        attempts = 0
+        max_attempts = self.retry_limit
 
-        while attempt < self.max_retries:
-            attempt += 1
+        while attempts < max_attempts:
+            attempts += 1
             try:
-                # Apply timeout if configured
-                with self.timeout_handler.timeout_context():
-                    candidate = self._generate_candidate()
-
-                    if candidate is None:
-                        logger.warning(f"Attempt {attempt}: Graph generation returned None")
-                        last_error = "Generation returned None"
-                        continue
-
-                    # Verify connectivity
-                    if not self._verify_connectivity(candidate):
-                        logger.debug(f"Attempt {attempt}: Graph disconnected, retrying...")
-                        last_error = "Disconnected graph"
-                        continue
-
-                    # Success
+                # Generate attempt
+                graph = self._generate_attempt(rng)
+                
+                # Verify connectivity
+                if nx.is_connected(graph):
                     duration = time.time() - start_time
-                    metrics = {
-                        'attempt': attempt,
-                        'duration_seconds': duration,
-                        'nodes': candidate.number_of_nodes(),
-                        'edges': candidate.number_of_edges(),
-                        'is_connected': True
-                    }
-                    self._log_event('graph_generated', {
-                        'status': 'success',
-                        'attempt': attempt,
-                        'metrics': metrics
-                    })
-                    return candidate, metrics
-
-            except TimeoutError as te:
-                logger.warning(f"Attempt {attempt}: Timeout occurred - {te}")
-                last_error = str(te)
-                continue
+                    log_metric(
+                        event_type="graph_generated",
+                        run_id=self._run_id,
+                        seed=self.seed,
+                        metric="generation_duration_seconds",
+                        value=duration,
+                        metadata={
+                            "graph_id": graph_id,
+                            "attempts": attempts,
+                            "status": "success",
+                            "generator": self.get_name()
+                        }
+                    )
+                    return graph
+                else:
+                    # Not connected, retry
+                    self._log_retry_event(attempts, "graph_disconnected")
+                    # Clean up disconnected graph to free memory if needed
+                    del graph 
+                
             except Exception as e:
-                logger.warning(f"Attempt {attempt}: Generation failed - {e}")
-                last_error = str(e)
-                continue
+                self._log_retry_event(attempts, f"generation_error: {str(e)}")
+                logger.error(f"Error generating graph on attempt {attempts}: {e}")
 
-            # Brief delay before retry
-            if attempt < self.max_retries:
-                time.sleep(self.retry_delay)
-
-        # All retries exhausted
+        # Max retries reached
+        self._log_connectivity_warning(attempts)
         duration = time.time() - start_time
-        logger.warning(
-            f"Max retries ({self.max_retries}) exceeded. "
-            f"Last error: {last_error}. Proceeding to next graph."
+        log_metric(
+            event_type="divergence_detected", # Using divergence_detected for failed topology generation
+            run_id=self._run_id,
+            seed=self.seed,
+            metric="generation_failure",
+            value=1.0,
+            metadata={
+                "graph_id": graph_id,
+                "attempts": attempts,
+                "status": "failed",
+                "reason": "max_retries_exceeded",
+                "generator": self.get_name()
+            }
         )
-        self._log_event('divergence_detected', {
-            'status': 'failed',
-            'max_retries': self.max_retries,
-            'total_duration_seconds': duration,
-            'last_error': last_error,
-            'reason': 'DISCONNECTED_NETWORK_FAILURE'
-        })
         return None
-
-    @abstractmethod
-    def get_generator_name(self) -> str:
-        """Return the name of the generator algorithm."""
-        pass
-
-    @abstractmethod
-    def get_parameters(self) -> Dict[str, Any]:
-        """Return the parameters used for this generation."""
-        pass

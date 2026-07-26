@@ -1,55 +1,27 @@
 T004b:
   c: false
-  h: d00d66debc9297f3b03bfe1f4136f09690e89da5f55bc10e361af928629bed5a
-  r: "The required output file `data/run_log.json` does not exist, so the seed\u2011\
-    injection and verification logic was never executed. Consequently there is no\
-    \ evidence that the task\u2019s logic (including handling of a missing `code/config.yaml`)\
-    \ was implemented or run."
-T005:
-  c: true
-  h: 5ac76094f1447fdffc230abb77be19e899d167221c392839b4b5df3eb20da43f
-  r: "The provided `code/src/utils/logging.py` defines `_ensure_log_file` that creates\
-    \ `data/run_log.json` as an empty JSON array when missing, and `log_run` writes\
-    \ entries containing `timestamp`, `event_type`, `run_id`, `seed`, optional `duration_ms`,\
-    \ and `status`, satisfying the required schema. The infrastructure therefore meets\
-    \ the task\u2019s specifications."
-T018c:
-  c: false
-  h: bf452ea61b452eb217c71d92799eed3062cad94e58d17b1a9a6e6e604158492a
-  r: "The `aggregate_batch.py` file is truncated (e.g., `batch_files = fi` and no\
-    \ completed main logic) and does not actually write the required `data/raw/global_batch_manifest.json`.\
-    \ Moreover, the manifest file is missing from the repository. The task\u2019s\
-    \ required output and full script implementation are therefore not present."
+  h: 62eaadc9e65edc38109e12a747ee722d54404c98e0d5df758407a565401e9d27
+  r: The `data/run_log.json` file contains only an empty array (`[]`) instead of the
+    required JSON object with `run_id`, `seeds`, and `verification_status`. No verification
+    logic was executed, and the expected error handling for a missing `code/config.yaml`
+    (or seed mismatch) is absent. The task therefore lacks the required output and
+    behavior.
 T026a:
   c: false
-  h: 1fea458c60df4173dac60831aa375f7e9dc78a18a0c646bc14c34ce659aa96a1
-  r: "The `stability.py` file contains an `enforce_runtime_limit` function that checks\
-    \ a passed\u2011in `max_seconds` value, but it does **not** read the timeout from\
-    \ `config.yaml` as required, and the `config.yaml` file is absent from the repository.\
-    \ Consequently the hard runtime abort mechanism cannot obtain the mandated `simulation_timeout_seconds`\
-    \ setting, so the task is not fully satisfied."
-T026b:
-  c: false
-  h: e830ee1017fb17a25d8e8cd639cb512e5bfa8003f9c34c7fc11d6f0c33b1d2ef
-  r: The provided `stability.py` defines a `log_runtime_duration` helper that calls
-    `log_run` with the correct event type and fields, but there is no evidence that
-    this function is invoked during a simulation run, nor is the required `data/run_log.json`
-    file present. Additionally, no verification log confirming that entries are written
-    to the JSON file is supplied. The task therefore remains unfinished.
+  h: 814b99c3532b235f33593761d51b53b4ec5e497e251c9ed591d2f9c19a59108b
+  r: The `stability.py` file contains an `enforce_runtime_limit` function that reads
+    `simulation_timeout_seconds` from a config, but the required `config.yaml` file
+    is missing, so the timeout cannot be sourced as specified. A proper `config.yaml`
+    with the `simulation_timeout_seconds` key must be added (and correctly loaded)
+    for the task to be fulfilled.
 T027:
   c: false
-  h: 3bb21e9d02a7e0c9b196023606446685978c2d536cdb1a0e6b2aefbf5fa03aa7
-  r: The `code/src/simulation/diffusion.py` file is truncated and contains unfinished
-    code (e.g., undefined variable `variance_a`, missing monotonicity check, no JSON
-    output logic). Additionally, the required `data/analysis/diffusion_verification.json`
-    file does not exist. Both required artifacts are missing or incomplete.
-T027b:
-  c: false
-  h: 7fabce74ed96296639933340f1d9b062b942f2cb50b15702d2a077b82a9b3bd2
-  r: "The repository lacks the required `config.yaml` defining `transient_steps` and\
-    \ the output file `data/analysis/transient_metrics.json` is not present. Without\
-    \ these, the transient\u2011phase extraction cannot be driven or its results stored,\
-    \ so the task\u2019s specification is not fulfilled."
+  h: f623ffc6a29cbc4d42f2034c12a3790683fc387cb10c0d71508999840687bb6f
+  r: "The `diffusion.py` file exists but is incomplete (truncated) and does not show\
+    \ any logic that writes verification results to `data/analysis/diffusion_verification.json`.\
+    \ Moreover, the required tolerance\u2011based monotonicity check and JSON output\
+    \ are missing, and the expected verification file is absent. The task therefore\
+    \ remains unfinished."
 T035b:
   c: false
   h: 82e520c71e34bf2d95279de1d4aadad6db0472b74b4be7347402f84924dc6efb
@@ -117,24 +89,6 @@ T055:
     \ etc.) and the required `data/analysis/simulation_results.json` file is missing,\
     \ so the explicit validation against the real wall\u2011clock data is not demonstrably\
     \ implemented or tested."
-T057:
-  c: false
-  h: 618d4305105e6fe399fdf99c2d37b329ec0acb4f17b17ff9b98cc46cb314c57a
-  r: "The repository contains a substantial `partial_correlation.py` implementation,\
-    \ but the required output file `data/analysis/partial_correlation_results.json`\
-    \ is absent, so the task\u2019s deliverable (the JSON with coefficients, p\u2011\
-    values, and confidence intervals) was not produced. The missing result file must\
-    \ be generated and populated for the task to be complete."
-T058:
-  c: false
-  h: 37a998570620443ff461c5991a8643a5a3c3c336b7d5528ae53e6f6b1a272e8d
-  r: "The repository contains `code/src/analysis/ridge.py`, but the file is truncated\
-    \ and does not show any code that actually runs the regression and writes `data/analysis/ridge_results.json`.\
-    \ Moreover, the expected output file `data/analysis/ridge_results.json` is absent\
-    \ from the project. Without generating this JSON file with the required coefficients,\
-    \ alpha values, and cross\u2011validation scores, the task is not fulfilled. The\
-    \ next implementer must complete the ridge regression implementation (including\
-    \ a callable entry point) and ensure the results are saved to `data/analysis/ridge_results.json`."
 T059:
   c: false
   h: b52dd161c7e8f9375ab3a6174f25aa0b9b4e962b0f0a96efc780fb0db8d1148a
@@ -148,5 +102,5 @@ T062d:
   c: false
   h: e75a777165390a199b0598913f1ea775a4951b4dfcf1802e4078a421b2e58a32
   r: The required artifact `data/raw/global_batch_manifest.json` does not exist, so
-    the schema cannot have been updated to include `stratification_summary`. The implementer
-    must create the file with the appropriate schema changes.
+    the schema update cannot be verified. The missing file must be created and contain
+    the updated schema with the `stratification_summary` field.

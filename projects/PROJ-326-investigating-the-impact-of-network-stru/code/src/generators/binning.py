@@ -1,137 +1,99 @@
 """
 Binning logic for classifying generated graphs into clustering coefficient bins.
-
-This module implements the stratification logic required for FR-001 and SC-005.
-It classifies graphs based on their global clustering coefficient against configured
-bin boundaries defined in config.yaml under `stratification_params.bins`.
+Implements FR-001 and SC-005 requirements for stratified sampling.
 """
-
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 import networkx as nx
-
-from code.src.utils.config import get_global_config
 
 logger = logging.getLogger(__name__)
 
 
-def _get_bin_boundaries() -> List[float]:
+def get_clustering_coefficient(graph: nx.Graph) -> float:
     """
-    Retrieves the clustering coefficient bin boundaries from the global config.
-
-    Returns:
-        List[float]: Sorted list of bin boundaries (e.g., [0.1, 0.2, 0.3, 0.4, 0.5]).
-
-    Raises:
-        ValueError: If the configuration is missing or malformed.
-    """
-    config = get_global_config()
-    if not config:
-        raise ValueError("Global config is not loaded. Ensure config.yaml is valid and loaded.")
-
-    strat_params = config.get("stratification_params", {})
-    bins = strat_params.get("bins", [])
-
-    if not bins:
-        raise ValueError(
-            "Configuration missing 'stratification_params.bins'. "
-            "Please define bin boundaries in code/config.yaml."
-        )
-
-    # Ensure bins are floats and sorted
-    try:
-        sorted_bins = sorted([float(b) for b in bins])
-    except (TypeError, ValueError) as e:
-        raise ValueError(f"Invalid bin values in config: {e}")
-
-    return sorted_bins
-
-
-def classify_graph(graph: nx.Graph) -> str:
-    """
-    Classifies a generated graph into a specific clustering coefficient bin.
-
-    The function calculates the global clustering coefficient of the input graph
-    and determines which bin it falls into based on the boundaries defined in
-    `code/config.yaml` under `stratification_params.bins`.
-
-    Bin Logic:
-        - Bin 0: [0.0, bins[0])
-        - Bin 1: [bins[0], bins[1])
-        - ...
-        - Bin N: [bins[N-1], 1.0]
+    Calculate the global clustering coefficient (transitivity) of a graph.
 
     Args:
-        graph (nx.Graph): The networkx graph to classify.
+        graph: A NetworkX graph object.
 
     Returns:
-        str: The bin identifier (e.g., "bin_0", "bin_1", "bin_high").
+        float: The clustering coefficient value between 0 and 1.
+    """
+    if graph.number_of_nodes() == 0:
+        return 0.0
+    return nx.transitivity(graph)
+
+
+def classify_graph(
+    graph: nx.Graph,
+    bins: Optional[List[float]] = None
+) -> Tuple[str, float]:
+    """
+    Classify a generated graph into a clustering coefficient bin.
+
+    This function calculates the clustering coefficient of the input graph
+    and determines which bin it falls into based on the provided bin edges.
+    The bins are defined as intervals [bin[i], bin[i+1]).
+
+    Args:
+        graph: A NetworkX graph object to classify.
+        bins: A sorted list of float bin edges. If None, defaults to
+              [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0] as per T062a config.
+              The last bin includes the upper bound.
+
+    Returns:
+        Tuple[str, float]: A tuple containing:
+            - bin_label (str): The label of the bin (e.g., "bin_0", "bin_1").
+            - coefficient (float): The calculated clustering coefficient.
 
     Raises:
-        ValueError: If the graph is None or has fewer than 3 nodes (clustering undefined).
-        RuntimeError: If the config is invalid.
+        ValueError: If the graph is None or has no nodes.
+        ValueError: If the clustering coefficient falls outside the defined bins.
     """
     if graph is None:
-        raise ValueError("Cannot classify a None graph.")
+        raise ValueError("Input graph cannot be None.")
+    if graph.number_of_nodes() == 0:
+        raise ValueError("Input graph must have at least one node.")
 
-    if graph.number_of_nodes() < 3:
-        # Graphs with < 3 nodes have a clustering coefficient of 0.0 by definition
-        # or are undefined. We treat them as bin_0 (lowest).
-        logger.warning("Graph has < 3 nodes. Assigning to lowest bin (bin_0).")
-        return "bin_0"
+    # Default bins from T062a config.yaml definition
+    if bins is None:
+        bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 1.0]
 
-    try:
-        clustering = nx.clustering(graph)
-        global_clustering = nx.average_clustering(graph)
-    except Exception as e:
-        raise RuntimeError(f"Failed to compute clustering coefficient: {e}")
+    # Validate bins
+    if len(bins) < 2:
+        raise ValueError("Bins must contain at least two values (lower and upper bound).")
 
-    boundaries = _get_bin_boundaries()
+    coefficient = get_clustering_coefficient(graph)
 
     # Determine bin index
-    bin_index = 0
-    assigned_bin = "bin_0"
+    # We look for the first bin where coefficient < upper_bound
+    # Special handling for the last bin which includes the upper bound
+    bin_index = -1
+    for i in range(len(bins) - 1):
+        lower = bins[i]
+        upper = bins[i + 1]
 
-    # Check against boundaries
-    # If global_clustering < boundaries[0], it's bin_0
-    # If boundaries[i] <= global_clustering < boundaries[i+1], it's bin_{i+1}
-    # If global_clustering >= boundaries[-1], it's the last bin (or "bin_high")
+        # Check if coefficient falls in [lower, upper)
+        # For the last bin, we include the upper bound
+        if i == len(bins) - 2:
+            if lower <= coefficient <= upper:
+                bin_index = i
+                break
+        else:
+            if lower <= coefficient < upper:
+                bin_index = i
+                break
 
-    found = False
-    for i, threshold in enumerate(boundaries):
-        if global_clustering < threshold:
-            bin_index = i
-            assigned_bin = f"bin_{i}"
-            found = True
-            break
+    if bin_index == -1:
+        # This should theoretically not happen if bins cover [0, 1]
+        raise ValueError(
+            f"Clustering coefficient {coefficient:.4f} does not fall into any defined bin "
+            f"with edges {bins}. This indicates a configuration error in the bin boundaries."
+        )
 
-    if not found:
-        # It is greater than or equal to all thresholds
-        bin_index = len(boundaries)
-        assigned_bin = f"bin_{bin_index}"
-
+    bin_label = f"bin_{bin_index}"
     logger.debug(
-        f"Graph classified: clustering={global_clustering:.4f} -> {assigned_bin} "
-        f"(thresholds: {boundaries})"
+        f"Graph classified into {bin_label} with clustering coefficient {coefficient:.4f}"
     )
 
-    return assigned_bin
-
-
-def get_bin_range(bin_name: str) -> Tuple[float, float]:
-    """
-    Returns the numeric range [lower, upper) for a given bin name.
-
-    Args:
-        bin_name (str): The bin identifier (e.g., "bin_0", "bin_1").
-
-    Returns:
-        Tuple[float, float]: The lower and upper bounds of the bin.
-    """
-    boundaries = _get_bin_boundaries()
-    bin_num = int(bin_name.replace("bin_", ""))
-
-    lower = 0.0 if bin_num == 0 else boundaries[bin_num - 1]
-    upper = 1.0 if bin_num >= len(boundaries) else boundaries[bin_num]
-
-    return lower, upper
+    return bin_label, coefficient
