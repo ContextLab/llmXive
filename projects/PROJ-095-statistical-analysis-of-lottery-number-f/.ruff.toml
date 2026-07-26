@@ -1,0 +1,21 @@
+# Explicit Ruff configuration for the project
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+target-version = "py39"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

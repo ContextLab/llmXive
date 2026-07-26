@@ -2253,3 +2253,697 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T04:53:55Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Config class defaults: dataset ID researchclawbench/v1, margin 5, concurrency
+    7, timeout 3600s, budget 86400s'
+  claim_id: c_d62ab116
+  context: T006 [P] Implement src/config.py as a single source of truth for experiment
+    parameters. The file MUST define a class Config with the following attributes
+    and default values...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST define a class Config with the following attributes and
+    default values: RESEARCHCLAWBENCH_DATASET_ID: str = "researchclawbench/v1", SCIENTIFIC_CORE_MARGIN:
+    int = 5, MAX_CONCURRENCY: int = 7, TIMEOUT_PER_RUN: int = 3600, TOTAL_WALL_CLOCK_BUDGET:
+    int = 86400.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:29:25Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Linting config: ruff line-length 88, black line-length 88, target Python
+    3.11'
+  claim_id: c_f15285aa
+  context: T003 [P] Create pyproject.toml with explicit configuration for linting
+    and formatting. The file MUST contain a [tool.ruff] section...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain a [tool.ruff] section with line-length = 88 and
+    target-version = "py311", and a [tool.black] section with line-length = 88 and
+    target-version = ["py311"].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:29:50Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Filter logic: abort if experimental protocol mismatch count < 10 or
+    dominant mode differs'
+  claim_id: c_51def314
+  context: T008 [S] Create src/data/filter.py to implement the specific logic to SELECT
+    tasks... if the count of tasks with value "experimental protocol mismatch" is
+    < 10...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the key exists but the count of tasks with value "experimental protocol
+    mismatch" is < 10, OR if the dominant mode differs from "experimental protocol
+    mismatch" (even if count >= 10), DO NOT abort; instead, write results/failure_mode_audit.csv...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:30:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Audit sampling: select all conflict IDs if count < 10'
+  claim_id: c_3c4227fe
+  context: 'T014b [S] [US1] Implement src/analysis/audit_sampler.py: Load results/audit_ids.csv...
+    select a random sample of [deferred] of the conflict IDs (or all if < 10)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random sample of [deferred] of the conflict IDs (or all if <
+    10), and generate results/human_audit_report.json containing the selected IDs
+    and a summary of conflict reasons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:30:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Agent list validation: must match expected count from original study'
+  claim_id: c_ea0cf524
+  context: T022a [S] [US2] Identify and list the specific autonomous agents from the
+    original study... If the list cannot be validated or the count does not match
+    the expected number...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_list_validation:_must_match_expected_count_from_origin
+  kind: entity_fact
+  raw_text: The list MUST be validated against the original study's documentation...
+    If the list cannot be validated or the count does not match the expected number,
+    the system MUST abort with error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:30:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Statistical power threshold: 0.4'
+  claim_id: c_dd813e1e
+  context: T029 [P] [US3] Implement src/analysis/tests.py... if power is low (<0.4),
+    log warning but proceed with the selected test...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if power is low (<0.4), log warning but proceed with the selected test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:31:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Inconclusive status condition: N=10'
+  claim_id: c_ea93531a
+  context: T031 [US3] Add logic to report "inconclusive" status explicitly if statistical
+    power is insufficient (N=10)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report "inconclusive" status explicitly if statistical power is insufficient
+    (N=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:31:54Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Scoring algorithm weights: step_1 0.4, step_2 0.6'
+  claim_id: c_c5b0cc53
+  context: T010a [P] Create contracts/rubric_schema.json... The scoring algorithm
+    MUST be a weighted sum of specific criteria...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The scoring algorithm MUST be a weighted sum of specific criteria: {"criteria":
+    [{"key": "step_1", "weight": 0.4}, {"key": "step_2", "weight": 0.6}]}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:32:10Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Agent list format: Markdown table with Name, Model, Max_Tokens, Temperature,
+    Description'
+  claim_id: c_ecf95172
+  context: T022a [S] [US2] Identify and list the specific autonomous agents from the
+    original study. The task MUST explicitly define the list of agents by PARSING
+    docs/agent_list.md. The docs/agent_list.md file MUST contain a Markdown table...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_list_format:_Markdown_table_with_Name,_Model,_Max_Toke
+  kind: entity_fact
+  raw_text: 'The docs/agent_list.md file MUST contain a Markdown table with columns:
+    Name, Model, Max_Tokens, Temperature, Description.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:32:50Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Config class default values: RESEARCHCLAWBENCH_DATASET_ID researchclawbench/v1,
+    SCIENTIFIC_CORE_MARGIN 5, MAX_CONCURRENCY 7, TIMEOUT_PER_RUN 3600, TOTAL_WALL_CLOCK_BUDGET
+    86400'
+  claim_id: c_8c729d16
+  context: T006 [P] Implement src/config.py as a single source of truth for experiment
+    parameters. The file MUST define a class Config with the following attributes
+    and default values...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST define a class Config with the following attributes and
+    default values: RESEARCHCLAWBENCH_DATASET_ID: str = ''researchclawbench/v1'',
+    SCIENTIFIC_CORE_MARGIN: int = 5, MAX_CONCURRENCY: int = 7, TIMEOUT_PER_RUN: int
+    = 3600, TOTAL_WALL_CLOCK_BUDGET: int = 86400.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:16Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Filter logic aborts only if failure_mode key is missing; warns if count
+    of experimental protocol mismatch is < 10 or dominant mode differs
+  claim_id: c_b63a8b75
+  context: 'T008 [S] Create src/data/filter.py... Include a verification step: if
+    the failure_mode key is missing entirely, abort with error (FR-006). If the key
+    exists but the count of tasks with value ''experimental protocol mismatch'' is
+    < 10...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the key exists but the count of tasks with value 'experimental protocol
+    mismatch' is < 10, OR if the dominant mode differs from 'experimental protocol
+    mismatch' (even if count >= 10), DO NOT abort; instead, write results/failure_mode_audit.csv...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'Scoring algorithm weighted sum: step_1 weight 0.4, step_2 weight 0.6'
+  claim_id: c_58a446c7
+  context: T010a [P] Create contracts/rubric_schema.json defining the JSON structure
+    for 'Protocol Alignment' (0-50) and 'Scientific Core' scoring logic. The scoring
+    algorithm MUST be a weighted sum of specific criteria...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The scoring algorithm MUST be a weighted sum of specific criteria: {''criteria'':
+    [{''key'': ''step_1'', ''weight'': 0.4}, {''key'': ''step_2'', ''weight'': 0.6}]}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:17Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Agent list validation requires matching count against original study
+    documentation
+  claim_id: c_1e00ae64
+  context: T022a [S] [US2] Identify and list the specific autonomous agents from the
+    original study... The list MUST be validated against the original study's documentation
+    (citation required in the file). If the list cannot be validated or the count
+    does not match the expected number...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_list_validation_requires_matching_count_against_origin
+  kind: entity_fact
+  raw_text: The list MUST be validated against the original study's documentation
+    (citation required in the file). If the list cannot be validated or the count
+    does not match the expected number, the system MUST abort with error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:19Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Concurrency controller semaphore limit set to 7
+  claim_id: c_87a740b6
+  context: T023a [S] [US2] Implement src/agents/concurrency.py with a semaphore-based
+    concurrency controller (limit=7) and a wall-clock budget enforcement function...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/agents/concurrency.py with a semaphore-based concurrency
+    controller (limit=7)...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:32Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power warning logged if power is < 0.4
+  claim_id: c_d6a20cc7
+  context: T029 [P] [US3] Implement src/analysis/tests.py... if power is low (<0.4),
+    log warning but proceed with the selected test...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if power is low (<0.4), log warning but proceed with the selected test...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:32Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Inconclusive status reported if statistical power is insufficient with
+    N=10
+  claim_id: c_4ead4548
+  context: T031 [US3] Add logic to report 'inconclusive' status explicitly if statistical
+    power is insufficient (N=10)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add logic to report 'inconclusive' status explicitly if statistical power
+    is insufficient (N=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:35:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Agent list validated against original study documentation
+  claim_id: c_84b089bb
+  context: T022a [S] [US2] Identify and list the specific autonomous agents from the
+    original study. The task MUST explicitly define the list of agents by PARSING
+    docs/agent_list.md... The list MUST be validated against the original study's
+    documentation (citation required in the file).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Agent_list_validated_against_original_study_documentation
+  kind: entity_fact
+  raw_text: The list of agents MUST be validated against the original study's documentation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:38:49Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power low threshold of 0.4
+  claim_id: c_7cbf2c8a
+  context: T029 [P] [US3] ...if power is low (<0.4), log warning but proceed with
+    the selected test...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis logs a warning but proceeds if statistical power is low (<0.4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:38:50Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST p-value interpretation to safe or inconclusive status
+  claim_id: c_0d868d34
+  context: T029 [P] [US3] ...include logic to interpret the TOST p-values (both <
+    0.05) and map them to the status string safe or inconclusive...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TOST_p-value_interpretation_to_safe_or_inconclusive_status
+  kind: entity_fact
+  raw_text: The TOST interpretation maps p-values to 'safe' or 'inconclusive' status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:39:14Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Report includes effect_size_cohen_d for t-test
+  claim_id: c_f89cbbe1
+  context: T030 [US3] ...effect_size_cohen_d (if t-test)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_effect_size_cohen_d_for_t-test
+  kind: entity_fact
+  raw_text: The analysis report includes effect_size_cohen_d if a t-test is used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:39:54Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Report includes effect_size_rank_biserial for Wilcoxon test
+  claim_id: c_4f1ef87b
+  context: T030 [US3] ...effect_size_rank_biserial (if Wilcoxon)...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Using the above example, the test statistic is T = 9. The sample size
+        of 9 has a total rank sum of S = (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9) = 45.
+        Hence, the rank correlation is 9/45, so r = 0.20.
+      source_id: Wilcoxon signed-rank test
+      url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+      value: '0.20'
+    filled: true
+  kind: entity_fact
+  raw_text: The analysis report includes effect_size_rank_biserial if a Wilcoxon test
+    is used.
+  resolved_value: '0.20'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T21:40:08Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Report includes 95% confidence interval for mean difference
+  claim_id: c_2c294e27
+  context: T030 [US3] ...ci_95_lower (mean difference), ci_95_upper (mean difference)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report includes a 95% confidence interval for the mean difference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:40:08Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Inconclusive status for insufficient power at N=10
+  claim_id: c_25506ff3
+  context: T031 [US3] Add logic to report inconclusive status explicitly if statistical
+    power is insufficient (N=10)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system reports an inconclusive status explicitly if statistical power
+    is insufficient (N=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:40:34Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 140 runs from 7 agents, 2 conditions, 10 tasks
+  claim_id: c_f2383898
+  context: "Notes: Scope: Strictly 140 runs (7 agents \xD7 2 conditions \xD7 10 tasks)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The experimental scope is strictly 140 runs (7 agents \xD7 2 conditions\
+    \ \xD7 10 tasks)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:40:55Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: MAX_CONCURRENCY set to 7
+  claim_id: c_ce2ca0f7
+  context: 'T006 ...MAX_CONCURRENCY: int = 7...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines MAX_CONCURRENCY as 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:41:21Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: SCIENTIFIC_CORE_MARGIN set to 5
+  claim_id: c_8d43750b
+  context: 'T006 ...SCIENTIFIC_CORE_MARGIN: int = 5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines SCIENTIFIC_CORE_MARGIN as 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:41:47Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOTAL_WALL_CLOCK_BUDGET set to 86400 seconds
+  claim_id: c_c5d1bc22
+  context: 'T006 ...TOTAL_WALL_CLOCK_BUDGET: int = 86400.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines TOTAL_WALL_CLOCK_BUDGET as 86400 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:42:16Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TIMEOUT_PER_RUN set to 3600 seconds
+  claim_id: c_e995c859
+  context: 'T006 ...TIMEOUT_PER_RUN: int = 3600...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines TIMEOUT_PER_RUN as 3600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:42:42Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Minimum 10 tasks with experimental protocol mismatch
+  claim_id: c_fba53f40
+  context: T008 ...if the count of tasks with value experimental protocol mismatch
+    is < 10...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_10_tasks_with_experimental_protocol_mismatch
+  kind: magnitude
+  raw_text: The filtering logic requires a count of tasks with value 'experimental
+    protocol mismatch' to be at least 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:43:43Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Scoring weights step_1 0.4 and step_2 0.6
+  claim_id: c_0b94ed03
+  context: 'T010a ...The scoring algorithm MUST be a weighted sum of specific criteria:
+    {criteria: [{key: step_1, weight: 0.4}, {key: step_2, weight: 0.6}]}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scoring algorithm uses a weighted sum with step_1 weight 0.4 and step_2
+    weight 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:44:13Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dummy test Set B score >= 40 and Set A score < 10
+  claim_id: c_0bcc94f2
+  context: T021 ...Assert that Set B scores high (>= 40) and Set A scores low (< 10)
+    as per FR-008.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dummy test asserts Set B scores high (>= 40) and Set A scores low
+    (< 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:46:52Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dummy test Set A score < 10
+  claim_id: c_dde2a06a
+  context: T021 ...Assert that Set B scores high (>= 40) and Set A scores low (< 10)
+    as per FR-008.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dummy test asserts Set A scores low (< 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:46:53Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: TOST requires both p-values < 0.05
+  claim_id: c_2909a1a8
+  context: T029 ...interpret the TOST p-values (both < 0.05)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TOST_requires_both_p-values_%3C_0.05
+  kind: magnitude
+  raw_text: The TOST test requires both p-values to be less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:47:53Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Semaphore concurrency limit of 7
+  claim_id: c_dc16c183
+  context: T023a ...Implement src/agents/concurrency.py with a semaphore-based concurrency
+    controller (limit=7)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The concurrency controller uses a semaphore-based limit of 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:48:26Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Execution loop reads 10 tasks
+  claim_id: c_1d4886f4
+  context: T023 ...Read 10 tasks from T008 (data/processed/protocol_mismatch_subset.json)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution loop reads 10 tasks from the protocol_mismatch_subset.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:48:43Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 24-hour execution budget
+  claim_id: c_1acbeeca
+  context: T023 ...enforce concurrency limit of 7 and 24h budget.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a 24-hour budget for the execution loop.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:49:03Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dataset ID researchclawbench/v1
+  claim_id: c_c35f38c0
+  context: 'T006 ...RESEARCHCLAWBENCH_DATASET_ID: str = researchclawbench/v1...'
+  evidence:
+    entailment_evidence: Dataset ID researchclawbench/v1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ID_researchclawbench/v1
+  kind: entity_fact
+  raw_text: The configuration defines RESEARCHCLAWBENCH_DATASET_ID as 'researchclawbench/v1'.
+  resolved_value: Dataset ID researchclawbench/v1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T21:49:05Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Template map for 10 selected task IDs
+  claim_id: c_5e833b24
+  context: T009c ...Create assets/templates/template_map.json with the explicit mapping
+    of the 10 selected task IDs (from T008) to their specific template IDs...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The template map explicitly maps 10 selected task IDs to their specific
+    template IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:49:54Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Human audit sample all if less than 10
+  claim_id: c_1a31931c
+  context: T014b ...select a random sample of [deferred] of the conflict IDs (or all
+    if < 10)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_audit_sample_all_if_less_than_10
+  kind: magnitude
+  raw_text: The human audit sampler selects a random sample of the conflict IDs (or
+    all if < 10).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:50:47Z'

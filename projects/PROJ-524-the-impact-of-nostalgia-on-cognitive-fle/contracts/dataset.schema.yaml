@@ -1,88 +1,66 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema for Nostalgia and Cognitive Flexibility Study"
-description: "Schema defining the structure and constraints for the cleaned dataset used in the study."
-type: object
-properties:
-  metadata:
-    type: object
-    properties:
-      version:
-        type: string
-        description: "Schema version"
-      generated_at:
-        type: string
-        format: date-time
-        description: "Timestamp of dataset generation"
-      source:
-        type: string
-        description: "Original data source (e.g., OpenML ID, URL)"
-      checksum:
-        type: string
-        description: "SHA-256 checksum of the raw source data"
-      mmse_available:
-        type: boolean
-        description: "Flag indicating if MMSE column was present in raw data (from T013b)"
-      exclusion_counts:
-        type: object
-        properties:
-          total_raw:
-            type: integer
-          excluded_missing_age:
-            type: integer
-          excluded_missing_birth_year:
-            type: integer
-          excluded_missing_score:
-            type: integer
-          excluded_stimulus_null:
-            type: integer
-          total_excluded:
-            type: integer
-  participants:
-    type: array
-    items:
-      type: object
-      required:
-        - participant_id
-        - stimulus_type
-        - age
-        - persevertive_errors
-        - categories_completed
-      properties:
-        participant_id:
-          type: string
-          description: "Unique identifier for the participant"
-        stimulus_type:
-          type: string
-          enum:
-            - nostalgia
-            - control
-          description: "Condition assigned to the participant"
-        age:
-          type: integer
-          minimum: 65
-          description: "Age of participant (must be >= 65)"
-        birth_year:
-          type: integer
-          description: "Optional birth year if age was derived"
-        persevertive_errors:
-          type: number
-          description: "Number of perseverative errors on WCST"
-        categories_completed:
-          type: integer
-          description: "Number of categories completed on WCST"
-        mmse_score:
-          type: integer
-          nullable: true
-          minimum: 0
-          maximum: 30
-          description: "Mini-Mental State Examination score (optional, used for robustness checks)"
-        cognitive_score:
-          type: number
-          description: "Derived cognitive flexibility metric"
-        exclusion_reason:
-          type: string
-          nullable: true
-          description: "Reason for exclusion if applicable (ERR_MISSING_AGE_FIELD, etc.)"
-required:
-  - metadata
-  - participants
+schema_name: nostalgia_cognitive_flexibility_dataset
+version: 1.0.0
+generated_at: 2023-10-27T10:00:00Z
+description: Schema for raw and processed data regarding nostalgia and cognitive flexibility in aging adults.
+entities:
+  participant:
+    description: Core participant demographic and screening data.
+    fields:
+    - name: participant_id
+      type: string
+      required: true
+      description: Unique identifier for the participant.
+    - name: age
+      type: integer
+      required: true
+      description: Age in years. Filtered for >= 65.
+    - name: birth_year
+      type: integer
+      required: false
+      description: Fallback for age calculation if age is missing.
+    - name: gender
+      type: string
+      required: false
+      description: Gender of the participant.
+    - name: education_years
+      type: integer
+      required: false
+      description: Years of formal education.
+    - name: MMSE
+      type: float
+      required: false
+      description: Mini-Mental State Examination score. Used for cognitive impairment exclusion if available.
+  cognitive_task:
+    description: Results from the Wisconsin Card Sorting Test (WCST) or equivalent executive function tasks.
+    fields:
+    - name: stimulus_type
+      type: string
+      required: true
+      description: Condition type: 'nostalgia' or 'control'.
+    - name: perseverative_errors
+      type: integer
+      required: true
+      description: Number of perseverative errors made.
+    - name: categories_completed
+      type: integer
+      required: true
+      description: Number of sorting categories successfully completed.
+    - name: total_tries
+      type: integer
+      required: false
+      description: Total number of trials attempted.
+    - name: response_time_avg
+      type: float
+      required: false
+      description: Average response time in seconds.
+constraints:
+  age_min: 65
+  stimulus_values:
+  - nostalgia
+  - control
+  required_columns:
+  - participant_id
+  - stimulus_type
+  - perseverative_errors
+  - categories_completed
+  - age

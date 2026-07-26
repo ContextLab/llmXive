@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/datasets/lottery-results
   verified_at: '2026-07-13T02:58:16.837801Z'
-- artifact_hash: b52288f9e872c96c71d9314b54f3e4135ec31ef549c8a0016832b88878e83678
+- artifact_hash: 635e914c2a8cd5d913bf737661bdd6644e706e2a5bc35ed3e593b01f7f13600e
   artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -39,6 +39,6 @@
   fetched_title: Replication crisis - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/Replication_crisis
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Replication_crisis
-  verified_at: '2026-07-13T03:37:51.004783Z'
+  verified_at: '2026-07-26T22:20:10.313504Z'

@@ -83,7 +83,7 @@
 - [X] T012 [US1] Implement GSS/ACS data loading in `code/data_ingestion.py` handling weights, strata, and PSU, using the dynamic verification logic defined in T004.
 - [X] T013 [US1] Implement shared missingness detection utility in `code/data_ingestion.py` to skip variables with >30% missingness and log a warning, reusable across all user stories.
 - [X] T014 [US1] Implement Complete-Case analysis logic in `code/imputation_pipeline.py`
-- [ ] T015 [US1] Implement design-based variance calculation (Taylor series) for complete-case data in `code/variance_estimator.py`, utilizing the PSU=1 warning logic from T009b (but NOT the abort logic from T009, as T009 is for missing columns).
+- [X] T015 [US1] Implement design-based variance calculation (Taylor series) for complete-case data in `code/variance_estimator.py`, utilizing the PSU=1 warning logic from T009b (but NOT the abort logic from T009, as T009 is for missing columns).
 - [ ] T016 [US1] Output JSON summary with status "success" for US1 in `data/processed/baseline_results.json` with required keys: `mean`, `variance`, `status`, `design_type`.
 - [ ] T017 [US1] Add robust error handling for small cluster sizes (PSU=1) with warning and exclusion logic (Integrated into T009b/T015)
 

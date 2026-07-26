@@ -1,0 +1,39 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/raw/` directory is provided; the claim lacks any visible
+    artifact (e.g., a directory listing or placeholder file) confirming that the required
+    folder exists. The implementer must create the directory in the repository and
+    show its presence (e.g., via a file tree screenshot or a placeholder file inside).
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/processed/` directory actually exists in
+    the repository, nor any listing showing it was created or contains files. The
+    implementer must add the required directory (and optionally a placeholder file)
+    to satisfy task T001b.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that a `data/results/` directory actually exists\
+    \ in the repository, nor any contents within it. The implementer\u2019s claim\
+    \ cannot be verified without a concrete artifact (e.g., a directory listing or\
+    \ a file inside the folder). The missing directory must be created and confirmed."
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/stimuli/` directory (or its contents) was provided; the
+    claim is unsupported and the required artifact is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
+    provided evidence, nor any documentation showing they have been set up. Without
+    these artifacts the requirement to configure ruff and black is not satisfied.
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or log output was provided that checks for an \u2018\
+    MMSE\u2019 column, sets a `has_mmse` flag, or emits the `ERR_MMSE_MISSING` warning.\
+    \ The required implementation artifact is missing, so the task is not satisfied."

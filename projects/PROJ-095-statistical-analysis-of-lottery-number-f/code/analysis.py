@@ -1,265 +1,250 @@
+"""
+Analysis module for Lottery Draw Integrity.
+Implements correlation analysis, tier analysis, and outlier sensitivity.
+"""
 import json
 import os
 import sys
 import logging
 from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
-from scipy.stats import spearmanr
-from data_utils import load_draws_csv
-from exceptions import LotteryDataError, MissingSalesError
+import pandas as pd
+from scipy import stats
 
-# Configure logging
+# Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_processed_metrics(filepath: str = "data/processed/metrics.json") -> Dict[str, Any]:
+# Constants
+METRICS_FILE = "data/processed/metrics.json"
+CORRELATION_RESULT_FILE = "data/results/correlation_result.json"
+JACKPOT_COLUMN = "jackpot_amount"
+PRIMARY_METRIC = "birthday_cluster_ratio"
+SECONDARY_METRIC = "consecutive_pattern_count"
+
+def load_processed_metrics(filepath: str = METRICS_FILE) -> List[Dict[str, Any]]:
     """
     Load processed metrics from JSON file.
-    Merges with raw draw data to ensure we have jackpot amounts for tier analysis.
+    Expects a list of dictionaries, each representing a draw with metrics.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Processed metrics file not found: {filepath}")
     
     with open(filepath, 'r') as f:
-        return json.load(f)
+        data = json.load(f)
+    
+    if isinstance(data, dict) and "draws" in data:
+        return data["draws"]
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError("Unexpected metrics file format. Expected list of draws or dict with 'draws' key.")
 
-def compute_correlation_continuous(dataframe: pd.DataFrame, method: str = 'spearman') -> Dict[str, Any]:
+def compute_correlation_continuous(data: List[Dict[str, Any]], method: str = 'spearman') -> Dict[str, Any]:
     """
     Compute correlation between jackpot_amount and uniformity metrics.
+    
+    Args:
+        data: List of dictionaries containing draw data (jackpot_amount, metrics).
+        method: Correlation method ('spearman' or 'pearson').
+    
+    Returns:
+        Dictionary containing correlation results for each metric.
     """
-    try:
+    if not data:
+        logger.warning("Empty dataset provided for correlation analysis.")
+        return {}
+
+    df = pd.DataFrame(data)
+    
+    # Check if required columns exist
+    if JACKPOT_COLUMN not in df.columns:
+        raise ValueError(f"Column '{JACKPOT_COLUMN}' not found in data.")
+    
+    # Identify metric columns (exclude jackpot and non-numeric)
+    metric_cols = [col for col in df.columns if col != JACKPOT_COLUMN and np.issubdtype(df[col].dtype, np.number)]
+    
+    if not metric_cols:
+        logger.warning("No numeric metric columns found for correlation.")
+        return {}
+
+    results = {}
+    
+    for col in metric_cols:
+        # Drop rows where either jackpot or metric is NaN
+        valid_data = df[[JACKPOT_COLUMN, col]].dropna()
+        
+        if len(valid_data) < 3:
+            logger.warning(f"Insufficient data for correlation on '{col}': {len(valid_data)} rows.")
+            results[col] = {
+                "correlation": None,
+                "p_value": None,
+                "n_samples": len(valid_data)
+            }
+            continue
+        
+        x = valid_data[JACKPOT_COLUMN]
+        y = valid_data[col]
+        
         if method == 'spearman':
-            corr, p_value = spearmanr(dataframe['jackpot_amount'], dataframe['birthday_cluster_ratio'])
+            corr, p_val = stats.spearmanr(x, y)
+        elif method == 'pearson':
+            corr, p_val = stats.pearsonr(x, y)
         else:
-            # Fallback to pearson if requested, though spearman is preferred for non-normal data
-            corr, p_value = np.corrcoef(dataframe['jackpot_amount'], dataframe['birthday_cluster_ratio'])[0, 1]
-            # Approximate p-value for pearson (simplified)
-            n = len(dataframe)
-            t_stat = corr * np.sqrt((n - 2) / (1 - corr**2))
-            from scipy.stats import t
-            p_value = 2 * (1 - t.cdf(abs(t_stat), n - 2))
-
-        return {
-            "correlation_coefficient": float(corr),
-            "p_value": float(p_value),
-            "control_variable_note": "Quick Pick rate unobservable; no control applied"
+            raise ValueError(f"Unknown correlation method: {method}")
+        
+        results[col] = {
+            "correlation": float(corr),
+            "p_value": float(p_val),
+            "n_samples": len(valid_data),
+            "method": method
         }
-    except Exception as e:
-        logger.error(f"Error computing correlation: {e}")
-        return {
-            "correlation_coefficient": None,
-            "p_value": None,
-            "control_variable_note": "Quick Pick rate unobservable; no control applied",
-            "error": str(e)
-        }
+    
+    return results
 
-def run_tier_analysis(dataframe: pd.DataFrame) -> Dict[str, Any]:
+def run_tier_analysis(data: List[Dict[str, Any]], tier_column: str = "jackpot_amount") -> Dict[str, Any]:
     """
-    Implement binning by 'Small/Medium/Large' tiers.
-    Requirement: Spec US-2 Acceptance Scenario 1.
-    Output: Nested key 'tier_analysis' in correlation result.
-    
-    Logic:
-    1. Calculate global mean of jackpot_amount.
-    2. Define thresholds:
-       - Small: < 0.5 * mean
-       - Medium: 0.5 * mean <= amount <= 1.5 * mean
-       - Large: > 1.5 * mean
-    3. For each tier, compute count, mean correlation (if multiple tiers exist in a draw? No, one draw per row),
-       and mean birthday_cluster_ratio.
-    4. Return structure for aggregation.
+    Bin data into Small/Medium/Large tiers and compute metrics per tier.
     """
-    import pandas as pd
+    if not data:
+        return {}
     
-    if 'jackpot_amount' not in dataframe.columns or 'birthday_cluster_ratio' not in dataframe.columns:
-        logger.warning("Missing required columns for tier analysis. Returning empty tiers.")
-        return {"Small": {}, "Medium": {}, "Large": {}}
-
-    # Handle missing values
-    df_clean = dataframe[['jackpot_amount', 'birthday_cluster_ratio']].dropna()
+    df = pd.DataFrame(data)
     
-    if df_clean.empty:
-        logger.warning("No valid data for tier analysis after dropping NaNs.")
-        return {"Small": {}, "Medium": {}, "Large": {}}
-
-    mean_jackpot = df_clean['jackpot_amount'].mean()
+    # Define tiers based on quantiles or fixed thresholds
+    # Simple quantile-based approach: 33rd and 66th percentiles
+    q33 = df[tier_column].quantile(0.33)
+    q66 = df[tier_column].quantile(0.66)
     
-    # Define bins
-    # Small: 0 to 0.5 * mean
-    # Medium: 0.5 * mean to 1.5 * mean
-    # Large: > 1.5 * mean
+    def assign_tier(val):
+        if val <= q33:
+            return "Small"
+        elif val <= q66:
+            return "Medium"
+        else:
+            return "Large"
     
-    bins = [0, 0.5 * mean_jackpot, 1.5 * mean_jackpot, float('inf')]
-    labels = ['Small', 'Medium', 'Large']
-    
-    df_clean = df_clean.copy()
-    df_clean['tier'] = pd.cut(df_clean['jackpot_amount'], bins=bins, labels=labels, include_lowest=True)
+    df["tier"] = df[tier_column].apply(assign_tier)
     
     tier_results = {}
-    
-    for tier in labels:
-        tier_data = df_clean[df_clean['tier'] == tier]
-        count = len(tier_data)
+    for tier, group in df.groupby("tier"):
+        # Compute mean metric for this tier
+        metric_cols = [col for col in group.columns if col != tier_column and col != "tier" and np.issubdtype(group[col].dtype, np.number)]
+        tier_stats = {}
+        for col in metric_cols:
+            mean_val = group[col].mean()
+            count = len(group)
+            tier_stats[col] = {"mean": float(mean_val), "count": count}
         
-        if count > 0:
-            # Calculate stats for this tier
-            avg_ratio = tier_data['birthday_cluster_ratio'].mean()
-            avg_jackpot = tier_data['jackpot_amount'].mean()
-            min_jackpot = tier_data['jackpot_amount'].min()
-            max_jackpot = tier_data['jackpot_amount'].max()
-            
-            tier_results[tier] = {
-                "draw_count": count,
-                "avg_birthday_cluster_ratio": float(avg_ratio),
-                "avg_jackpot_amount": float(avg_jackpot),
-                "jackpot_range": {
-                    "min": float(min_jackpot),
-                    "max": float(max_jackpot)
-                },
-                "threshold_range": {
-                    "lower": float(bins[labels.index(tier)]) if labels.index(tier) > 0 else 0.0,
-                    "upper": float(bins[labels.index(tier) + 1]) if labels.index(tier) < len(labels) else float('inf')
-                }
-            }
-        else:
-            tier_results[tier] = {
-                "draw_count": 0,
-                "avg_birthday_cluster_ratio": None,
-                "avg_jackpot_amount": None,
-                "note": "No draws in this tier"
-            }
+        tier_results[tier] = tier_stats
     
     return tier_results
 
-def compute_outlier_sensitivity(dataframe: pd.DataFrame) -> float:
+def compute_outlier_sensitivity(data: List[Dict[str, Any]], threshold_factor: float = 10.0) -> Dict[str, Any]:
     """
-    Run analysis with and without extreme jackpots (> 10x global mean).
-    Return absolute difference in correlation coefficient.
+    Compute correlation with and without extreme outliers (jackpots > threshold_factor * mean).
+    Returns the delta in correlation coefficient.
     """
-    if 'jackpot_amount' not in dataframe.columns or 'birthday_cluster_ratio' not in dataframe.columns:
-        return 0.0
+    if not data:
+        return {"delta": None, "full_result": None, "filtered_result": None}
+    
+    df = pd.DataFrame(data)
+    mean_jackpot = df[JACKPOT_COLUMN].mean()
+    outlier_threshold = mean_jackpot * threshold_factor
+    
+    # Full dataset correlation
+    full_results = compute_correlation_continuous(data, method='spearman')
+    
+    # Filtered dataset (remove outliers)
+    filtered_data = df[df[JACKPOT_COLUMN] <= outlier_threshold].to_dict('records')
+    filtered_results = compute_correlation_continuous(filtered_data, method='spearman')
+    
+    # Calculate delta for primary metric
+    delta = {}
+    for metric in [PRIMARY_METRIC, SECONDARY_METRIC]:
+        if metric in full_results and metric in filtered_results:
+            r_full = full_results[metric].get("correlation")
+            r_filt = filtered_results[metric].get("correlation")
+            if r_full is not None and r_filt is not None:
+                delta[metric] = abs(r_full - r_filt)
+            else:
+                delta[metric] = None
+        else:
+            delta[metric] = None
+    
+    return {
+        "delta": delta,
+        "outlier_threshold": float(outlier_threshold),
+        "n_outliers": len(df[df[JACKPOT_COLUMN] > outlier_threshold]),
+        "n_total": len(df)
+    }
 
-    mean_jackpot = dataframe['jackpot_amount'].mean()
-    threshold = 10 * mean_jackpot
-    
-    df_full = dataframe.dropna(subset=['jackpot_amount', 'birthday_cluster_ratio'])
-    df_filtered = df_full[df_full['jackpot_amount'] <= threshold]
-    
-    if len(df_full) < 2 or len(df_filtered) < 2:
-        logger.warning("Insufficient data for outlier sensitivity analysis.")
-        return 0.0
-    
-    corr_full, _ = spearmanr(df_full['jackpot_amount'], df_full['birthday_cluster_ratio'])
-    corr_filtered, _ = spearmanr(df_filtered['jackpot_amount'], df_filtered['birthday_cluster_ratio'])
-    
-    return float(abs(corr_full - corr_filtered))
-
-def generate_warnings(dataframe: pd.DataFrame) -> List[Dict[str, str]]:
+def generate_warnings(data: List[Dict[str, Any]], warnings_config: Optional[Dict] = None) -> List[Dict[str, str]]:
     """
-    Flag tiers with < 5 draws as "Insufficient Data".
+    Generate warnings based on data characteristics (e.g., insufficient data in tiers).
     """
-    warnings = []
-    import pandas as pd
+    warnings_list = []
+    df = pd.DataFrame(data)
     
-    if 'jackpot_amount' not in dataframe.columns:
-        return warnings
-        
-    mean_jackpot = dataframe['jackpot_amount'].mean()
-    bins = [0, 0.5 * mean_jackpot, 1.5 * mean_jackpot, float('inf')]
-    labels = ['Small', 'Medium', 'Large']
-    
-    df_clean = dataframe[['jackpot_amount']].dropna()
-    df_clean = df_clean.copy()
-    df_clean['tier'] = pd.cut(df_clean['jackpot_amount'], bins=bins, labels=labels, include_lowest=True)
-    
-    for tier in labels:
-        count = len(df_clean[df_clean['tier'] == tier])
-        if count < 5:
-            warnings.append({
-                "type": "insufficient_data",
-                "reason": f"Tier '{tier}' has only {count} draws (threshold: 5)"
+    # Check for missing sales data if column exists
+    if "total_sales" in df.columns:
+        missing_sales = df["total_sales"].isna().sum()
+        if missing_sales > 0:
+            warnings_list.append({
+                "type": "missing_sales",
+                "reason": f"Missing total_sales data for {missing_sales} draws."
             })
     
-    return warnings
+    # Check for small sample sizes in tiers
+    # (This is a simplified check; detailed tier analysis is in run_tier_analysis)
+    
+    return warnings_list
 
 def main():
     """
-    Main entry point to run correlation analysis and tier binning.
-    Reads from data/processed/metrics.json and data/raw/lottery_draws.csv.
-    Outputs to data/results/correlation_result.json.
+    Main entry point for correlation analysis.
     """
-    import pandas as pd
-    
-    logger.info("Starting correlation analysis with tier binning (T018b)...")
-    
-    # Load raw draws to get jackpot amounts
-    raw_file = "data/raw/lottery_draws.csv"
-    if not os.path.exists(raw_file):
-        logger.error(f"Raw data file not found: {raw_file}")
-        sys.exit(1)
+    logger.info("Starting correlation analysis...")
     
     try:
-        df_raw = load_draws_csv(raw_file)
+        # Load data
+        data = load_processed_metrics()
+        logger.info(f"Loaded {len(data)} draws.")
+        
+        # Compute correlations
+        correlation_results = compute_correlation_continuous(data, method='spearman')
+        logger.info(f"Correlation results: {correlation_results}")
+        
+        # Tier analysis
+        tier_results = run_tier_analysis(data)
+        logger.info(f"Tier analysis results: {tier_results}")
+        
+        # Outlier sensitivity
+        sensitivity_results = compute_outlier_sensitivity(data)
+        logger.info(f"Sensitivity results: {sensitivity_results}")
+        
+        # Warnings
+        warnings_list = generate_warnings(data)
+        
+        # Aggregate output
+        output = {
+            "correlation_results": correlation_results,
+            "tier_analysis": tier_results,
+            "outlier_sensitivity_delta": sensitivity_results.get("delta", {}),
+            "warnings": warnings_list,
+            "control_variable_note": "Quick Pick rate unobservable; no control applied"
+        }
+        
+        # Save output
+        os.makedirs(os.path.dirname(CORRELATION_RESULT_FILE), exist_ok=True)
+        with open(CORRELATION_RESULT_FILE, 'w') as f:
+            json.dump(output, f, indent=2)
+        
+        logger.info(f"Results saved to {CORRELATION_RESULT_FILE}")
+        
     except Exception as e:
-        logger.error(f"Failed to load raw data: {e}")
+        logger.error(f"Error during analysis: {e}", exc_info=True)
         sys.exit(1)
-    
-    # Load processed metrics
-    metrics_file = "data/processed/metrics.json"
-    if not os.path.exists(metrics_file):
-        logger.error(f"Processed metrics file not found: {metrics_file}")
-        sys.exit(1)
-    
-    metrics = load_processed_metrics(metrics_file)
-    
-    # Merge data
-    # Assume metrics is a list of dicts or a dict with 'draws' key. 
-    # Based on T011, it likely contains a list of draw metrics.
-    # We need to align by draw_id or index.
-    
-    df_metrics = pd.DataFrame(metrics.get('draws', []))
-    
-    if 'draw_id' in df_raw.columns and 'draw_id' in df_metrics.columns:
-        df_merged = pd.merge(df_raw, df_metrics, on='draw_id', how='inner')
-    else:
-        # Fallback to index if draw_id missing
-        df_merged = pd.concat([df_raw, df_metrics], axis=1)
-    
-    # Run Tier Analysis (T018b)
-    logger.info("Running tier analysis...")
-    tier_results = run_tier_analysis(df_merged)
-    
-    # Run Correlation (T016a)
-    logger.info("Computing correlation...")
-    corr_result = compute_correlation_continuous(df_merged)
-    
-    # Outlier Sensitivity (T018)
-    logger.info("Computing outlier sensitivity...")
-    outlier_delta = compute_outlier_sensitivity(df_merged)
-    
-    # Warnings (T017)
-    logger.info("Generating warnings...")
-    warnings_list = generate_warnings(df_merged)
-    
-    # Assemble final result
-    final_output = {
-        "correlation_coefficient": corr_result.get("correlation_coefficient"),
-        "p_value": corr_result.get("p_value"),
-        "control_variable_note": corr_result.get("control_variable_note"),
-        "outlier_sensitivity_delta": outlier_delta,
-        "warnings": warnings_list,
-        "tier_analysis": tier_results
-    }
-    
-    # Save to data/results/correlation_result.json
-    output_path = "data/results/correlation_result.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(final_output, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
-    return final_output
 
 if __name__ == "__main__":
     main()

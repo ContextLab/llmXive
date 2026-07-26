@@ -1,0 +1,46 @@
+T017:
+  c: false
+  h: c81d42818e5d1042ded484090b5050cd21dacac35d8404208257c232d0c5b8a7
+  r: The provided `data/exclusions.csv` contains only the header and no exclusion
+    entries, indicating that no subjects were logged as excluded. The required logic
+    to detect subjects with <10 valid trials per condition or >50% artifact removal
+    and to record them with the appropriate reason is therefore not demonstrated.
+    The artifact file must contain rows with `subject_id` and `reason` for any subjects
+    meeting the exclusion criteria.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or measurement output was provided to demonstrate\
+    \ that memory usage is monitored and stays below the 6.5\u202FGB peak RSS limit\
+    \ during sequential subject processing. The required artifact (e.g., a monitoring\
+    \ implementation or benchmark results) is missing."
+T018b:
+  c: false
+  h: 9fd3a1db87a19e96adcebf8958b0f6814cd6d088ea7dd00a14afea034479bc73
+  r: The `code/main.py` contains a timeout check and calls `save_runtime_log`, but
+    the required output file `data/metrics/runtime_log.json` is missing, and there
+    is no evidence that the logger is configured to write to `logs/processing.log`.
+    The implementation must create/write the JSON runtime log and ensure the processing
+    log receives the timeout entry.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No epoch files or saving script were presented in the evidence; the required\
+    \ `data/processed/` directory with per\u2011subject clean epoch objects (and the\
+    \ hashing step from T004) is missing, so the task\u2019s deliverable cannot be\
+    \ confirmed."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or other artifact implementing the theta (\u20117\u202FHz)\
+    \ and gamma (\u201145\u202FHz) band\u2011pass filters was provided; the evidence\
+    \ consists only of the task description, which does not contain the required implementation.\
+    \ Consequently the required filtering functionality cannot be verified as present."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, benchmark scripts, or measured execution times are provided\
+    \ to demonstrate that the synchrony computation finishes within 30\u202Fminutes\
+    \ per subject on a CPU. Without concrete evidence (e.g., timing output, profiling\
+    \ reports, or reproducible code showing the elapsed time), the requirement cannot\
+    \ be verified."

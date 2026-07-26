@@ -1,58 +1,53 @@
 """
-Task T001c: Create data directory: data/results/
+Task T001c: Create the data/results/ directory.
 
-This script ensures the existence of the data/results/ directory
-as required by the project setup phase.
+This script ensures the existence of the 'data/results' directory,
+which is required for storing statistical reports, sensitivity analyses,
+and final output artifacts.
 """
 import os
 import sys
-from pathlib import Path
 import logging
-
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from pathlib import Path
 
 from config import get_config, ensure_dirs
+from utils import setup_logging, log_info
+
+
+def create_results_directory():
+    """
+    Creates the data/results directory if it does not exist.
+
+    Returns:
+        Path: The path to the created/existing directory.
+    """
+    config = get_config()
+    results_dir = Path(config.get("paths", {}).get("results", "data/results"))
+    
+    if not results_dir.exists():
+        results_dir.mkdir(parents=True, exist_ok=True)
+        log_info(f"Created directory: {results_dir}")
+    else:
+        log_info(f"Directory already exists: {results_dir}")
+        
+    return results_dir
+
 
 def main():
     """
-    Main entry point for T001c.
-    Creates the data/results/ directory if it doesn't exist.
+    Entry point for the task script.
     """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger("T001c")
-
-    logger.info("Starting T001c: Creating data/results/ directory")
-
-    # Load configuration
-    config = get_config()
+    setup_logging(level=logging.INFO)
+    log_info("Starting task T001c: Create data/results directory")
     
-    # Get the data directory path from config
-    data_dir = Path(config.get('paths', {}).get('data', 'data'))
-    results_dir = data_dir / 'results'
-
-    logger.info(f"Ensuring directory exists: {results_dir}")
-    
-    # Use the ensure_dirs utility from config module
-    # This function is already imported in the API surface
-    ensure_dirs([results_dir], logger=logger)
-
-    # Verify creation
-    if results_dir.exists() and results_dir.is_dir():
-        logger.info(f"SUCCESS: Directory {results_dir} created or already exists.")
-        # Create a placeholder .gitkeep file to ensure the directory is tracked
-        gitkeep = results_dir / '.gitkeep'
-        if not gitkeep.exists():
-            gitkeep.touch()
-            logger.info(f"Created placeholder file: {gitkeep}")
+    try:
+        path = create_results_directory()
+        log_info(f"Task T001c completed successfully. Path: {path}")
         return 0
-    else:
-        logger.error(f"FAILED: Directory {results_dir} was not created.")
+    except Exception as e:
+        log_error(f"Task T001c failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

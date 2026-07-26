@@ -1,250 +1,139 @@
-"""
-Schema Generator for llmXive Project.
-
-This module generates JSON Schema definitions for the dataset and output artifacts
-based on the project's plan.md entities and requirements.
-
-It ensures consistency between the data model and the validation logic used
-in ingestion and analysis pipelines.
-"""
 import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any
-
-# Import existing utilities
 from utils import setup_logging, log_info, log_warning, get_timestamp
 from config import ensure_dirs, get_config
 
-logger = setup_logging("schema_generator")
+logger = None
 
 def generate_dataset_schema() -> Dict[str, Any]:
     """
-    Generates the JSON Schema for the cleaned dataset.
-    
-    Defines structure for participant data, metadata, and exclusion tracking
-    as per the project's data model.
+    Generates the schema definition for the input dataset based on plan.md entities.
+    Defines expected columns, types, and constraints for the ingestion pipeline.
     """
     schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Dataset Schema for Nostalgia and Cognitive Flexibility Study",
-        "description": "Schema defining the structure and constraints for the cleaned dataset used in the study.",
-        "type": "object",
-        "properties": {
-            "metadata": {
-                "type": "object",
-                "properties": {
-                    "version": {"type": "string", "description": "Schema version"},
-                    "generated_at": {"type": "string", "format": "date-time", "description": "Timestamp of dataset generation"},
-                    "source": {"type": "string", "description": "Original data source (e.g., OpenML ID, URL)"},
-                    "checksum": {"type": "string", "description": "SHA-256 checksum of the raw source data"},
-                    "mmse_available": {"type": "boolean", "description": "Flag indicating if MMSE column was present in raw data (from T013b)"},
-                    "exclusion_counts": {
-                        "type": "object",
-                        "properties": {
-                            "total_raw": {"type": "integer"},
-                            "excluded_missing_age": {"type": "integer"},
-                            "excluded_missing_birth_year": {"type": "integer"},
-                            "excluded_missing_score": {"type": "integer"},
-                            "excluded_stimulus_null": {"type": "integer"},
-                            "total_excluded": {"type": "integer"}
-                        }
-                    }
-                }
+        "schema_name": "nostalgia_cognitive_flexibility_dataset",
+        "version": "1.0.0",
+        "generated_at": get_timestamp(),
+        "description": "Schema for raw and processed data regarding nostalgia and cognitive flexibility in aging adults.",
+        "entities": {
+            "participant": {
+                "description": "Core participant demographic and screening data.",
+                "fields": [
+                    {"name": "participant_id", "type": "string", "required": True, "description": "Unique identifier for the participant."},
+                    {"name": "age", "type": "integer", "required": True, "description": "Age in years. Filtered for >= 65."},
+                    {"name": "birth_year", "type": "integer", "required": False, "description": "Fallback for age calculation if age is missing."},
+                    {"name": "gender", "type": "string", "required": False, "description": "Gender of the participant."},
+                    {"name": "education_years", "type": "integer", "required": False, "description": "Years of formal education."},
+                    {"name": "MMSE", "type": "float", "required": False, "description": "Mini-Mental State Examination score. Used for cognitive impairment exclusion if available."}
+                ]
             },
-            "participants": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "required": ["participant_id", "stimulus_type", "age", "perseverative_errors", "categories_completed"],
-                    "properties": {
-                        "participant_id": {"type": "string", "description": "Unique identifier for the participant"},
-                        "stimulus_type": {
-                            "type": "string",
-                            "enum": ["nostalgia", "control"],
-                            "description": "Condition assigned to the participant"
-                        },
-                        "age": {
-                            "type": "integer",
-                            "minimum": 65,
-                            "description": "Age of participant (must be >= 65)"
-                        },
-                        "birth_year": {"type": "integer", "description": "Optional birth year if age was derived"},
-                        "perseverative_errors": {"type": "number", "description": "Number of perseverative errors on WCST"},
-                        "categories_completed": {"type": "integer", "description": "Number of categories completed on WCST"},
-                        "mmse_score": {
-                            "type": "integer",
-                            "nullable": True,
-                            "minimum": 0,
-                            "maximum": 30,
-                            "description": "Mini-Mental State Examination score (optional, used for robustness checks)"
-                        },
-                        "cognitive_score": {"type": "number", "description": "Derived cognitive flexibility metric"},
-                        "exclusion_reason": {"type": "string", "nullable": True, "description": "Reason for exclusion if applicable"}
-                    }
-                }
+            "cognitive_task": {
+                "description": "Results from the Wisconsin Card Sorting Test (WCST) or equivalent executive function tasks.",
+                "fields": [
+                    {"name": "stimulus_type", "type": "string", "required": True, "description": "Condition type: 'nostalgia' or 'control'."},
+                    {"name": "perseverative_errors", "type": "integer", "required": True, "description": "Number of perseverative errors made."},
+                    {"name": "categories_completed", "type": "integer", "required": True, "description": "Number of sorting categories successfully completed."},
+                    {"name": "total_tries", "type": "integer", "required": False, "description": "Total number of trials attempted."},
+                    {"name": "response_time_avg", "type": "float", "required": False, "description": "Average response time in seconds."}
+                ]
             }
         },
-        "required": ["metadata", "participants"]
+        "constraints": {
+            "age_min": 65,
+            "stimulus_values": ["nostalgia", "control"],
+            "required_columns": ["participant_id", "stimulus_type", "perseverative_errors", "categories_completed", "age"]
+        }
     }
     return schema
 
 def generate_output_schema() -> Dict[str, Any]:
     """
-    Generates the JSON Schema for statistical analysis outputs.
-    
-    Defines structure for statistical reports, sensitivity analysis,
-    citation verification, and final report summaries.
+    Generates the schema definition for the analysis output (statistical report).
+    Defines the structure for statistical results, effect sizes, and power analysis.
     """
     schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Output Schema for Statistical Analysis Results",
-        "description": "Schema defining the structure for statistical reports, sensitivity analysis, and final outputs.",
-        "type": "object",
-        "properties": {
-            "statistical_report": {
-                "type": "object",
-                "description": "Results from Welch's t-test and effect size calculations",
-                "properties": {
-                    "analysis_timestamp": {"type": "string", "format": "date-time"},
-                    "dataset_info": {
-                        "type": "object",
-                        "properties": {
-                            "n_nostalgia": {"type": "integer"},
-                            "n_control": {"type": "integer"},
-                            "n_total": {"type": "integer"},
-                            "mmse_filter_applied": {"type": "boolean"}
-                        }
-                    },
-                    "comparisons": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "metric": {"type": "string", "enum": ["perseverative_errors", "categories_completed"]},
-                                "test_type": {"type": "string", "const": "Welch's t-test"},
-                                "t_statistic": {"type": "number"},
-                                "degrees_of_freedom": {"type": "number"},
-                                "p_value": {"type": "number"},
-                                "p_value_corrected": {"type": "number", "description": "Bonferroni corrected p-value"},
-                                "effect_size": {
-                                    "type": "object",
-                                    "properties": {
-                                        "cohens_d": {"type": "number"},
-                                        "ci_95_lower": {"type": "number"},
-                                        "ci_95_upper": {"type": "number"}
-                                    }
-                                },
-                                "significance": {"type": "boolean"}
-                            }
-                        }
-                    },
-                    "power_analysis": {
-                        "type": "object",
-                        "properties": {
-                            "observed_power": {"type": "number"},
-                            "minimum_detectable_effect_size": {"type": "number", "description": "MDES at alpha=0.05, power=0.80"},
-                            "alpha_level": {"type": "number", "const": 0.05},
-                            "target_power": {"type": "number", "const": 0.80}
-                        }
-                    }
-                }
+        "schema_name": "nostalgia_cognitive_flexibility_output",
+        "version": "1.0.0",
+        "generated_at": get_timestamp(),
+        "description": "Schema for statistical analysis results and reports.",
+        "entities": {
+            "statistical_comparison": {
+                "description": "Results of the Welch's t-test between nostalgia and control groups.",
+                "fields": [
+                    {"name": "metric", "type": "string", "required": True, "description": "The cognitive metric being compared (e.g., perseverative_errors)."},
+                    {"name": "group_nostalgia_mean", "type": "float", "required": True},
+                    {"name": "group_nostalgia_std", "type": "float", "required": True},
+                    {"name": "group_control_mean", "type": "float", "required": True},
+                    {"name": "group_control_std", "type": "float", "required": True},
+                    {"name": "t_statistic", "type": "float", "required": True},
+                    {"name": "p_value", "type": "float", "required": True},
+                    {"name": "p_value_corrected", "type": "float", "required": True, "description": "Bonferroni corrected p-value."},
+                    {"name": "cohens_d", "type": "float", "required": True},
+                    {"name": "cohens_d_ci_lower", "type": "float", "required": True},
+                    {"name": "cohens_d_ci_upper", "type": "float", "required": True}
+                ]
             },
-            "sensitivity_report": {
-                "type": "object",
-                "description": "Results from sensitivity analysis across thresholds",
-                "properties": {
-                    "thresholds_tested": {"type": "array", "items": {"type": "number"}, "description": "List of alpha thresholds tested (e.g., 0.01, 0.05, 0.1)"},
-                    "results_by_metric": {
-                        "type": "object",
-                        "properties": {
-                            "perseverative_errors": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "threshold": {"type": "number"},
-                                        "is_significant": {"type": "boolean"},
-                                        "p_value": {"type": "number"}
-                                    }
-                                }
-                            },
-                            "categories_completed": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "threshold": {"type": "number"},
-                                        "is_significant": {"type": "boolean"},
-                                        "p_value": {"type": "number"}
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "robustness_flags": {
-                        "type": "object",
-                        "properties": {
-                            "sensitive_to_threshold": {"type": "boolean", "description": "True if p-value is borderline (≈ 0.05)"},
-                            "mmse_impact": {"type": "string", "description": "Description of impact when MMSE filter is applied"}
-                        }
-                    }
-                }
+            "power_analysis": {
+                "description": "Post-hoc power analysis results.",
+                "fields": [
+                    {"name": "metric", "type": "string", "required": True},
+                    {"name": "observed_power", "type": "float", "required": True},
+                    {"name": "min_detectable_effect_size", "type": "float", "required": True},
+                    {"name": "alpha_level", "type": "float", "required": True}
+                ]
             },
-            "citations": {
-                "type": "object",
-                "description": "Verification status of source citations",
-                "properties": {
-                    "source_study": {
-                        "type": "object",
-                        "properties": {
-                            "doi": {"type": "string"},
-                            "title_overlap_score": {"type": "number", "description": "Overlap score with primary source"},
-                            "validated": {"type": "boolean"},
-                            "stimuli_verified": {"type": "boolean", "description": "Verification of stimuli content from source"}
-                        }
-                    }
-                }
-            },
-            "final_report": {
-                "type": "object",
-                "description": "Aggregated summary for paper generation",
-                "properties": {
-                    "conclusion": {"type": "string"},
-                    "validity_status": {"type": "string", "enum": ["validated", "partial", "simulation_only"]},
-                    "limitations": {"type": "array", "items": {"type": "string"}}
-                }
+            "summary": {
+                "description": "High-level summary of the analysis.",
+                "fields": [
+                    {"name": "total_participants", "type": "integer", "required": True},
+                    {"name": "nostalgia_count", "type": "integer", "required": True},
+                    {"name": "control_count", "type": "integer", "required": True},
+                    {"name": "exclusion_count", "type": "integer", "required": True},
+                    {"name": "has_mmse_filter_applied", "type": "boolean", "required": True}
+                ]
             }
         },
-        "required": ["statistical_report", "sensitivity_report", "final_report"]
+        "output_files": [
+            "data/results/statistical_report.json",
+            "data/results/sensitivity_report.json"
+        ]
     }
     return schema
 
-def write_schema(schema: Dict[str, Any], filepath: Path) -> None:
-    """Writes a schema dictionary to a YAML file."""
-    with open(filepath, 'w', encoding='utf-8') as f:
+def write_schema(schema: Dict[str, Any], output_path: Path) -> None:
+    """
+    Writes a schema dictionary to a YAML file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    logger.info(f"Schema written to {filepath}")
+    log_info(f"Schema written to {output_path}")
 
-def main() -> None:
-    """Main entry point to generate contract schemas."""
-    logger.info("Starting schema generation for contracts...")
+def main():
+    """
+    Main entry point to generate and save the schema files.
+    """
+    global logger
+    logger = setup_logging("schema_generator")
+    config = get_config()
     
     # Ensure contracts directory exists
-    contracts_dir = Path("contracts")
+    contracts_dir = Path(config.get('contracts_dir', 'contracts'))
     ensure_dirs([contracts_dir])
     
-    # Generate and write dataset schema
+    # Generate Dataset Schema
     dataset_schema = generate_dataset_schema()
-    dataset_path = contracts_dir / "dataset.schema.yaml"
-    write_schema(dataset_schema, dataset_path)
+    dataset_schema_path = contracts_dir / "dataset.schema.yaml"
+    write_schema(dataset_schema, dataset_schema_path)
     
-    # Generate and write output schema
+    # Generate Output Schema
     output_schema = generate_output_schema()
-    output_path = contracts_dir / "output.schema.yaml"
-    write_schema(output_schema, output_path)
+    output_schema_path = contracts_dir / "output.schema.yaml"
+    write_schema(output_schema, output_schema_path)
     
-    logger.info("Schema generation complete.")
+    log_info("T007 Completed: Generated dataset.schema.yaml and output.schema.yaml")
 
 if __name__ == "__main__":
     main()

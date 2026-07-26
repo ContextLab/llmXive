@@ -1,8 +1,8 @@
 """
-Runtime logging module for the neural synchrony pipeline.
+Runtime logging module for the EEG analysis pipeline.
 
-Generates data/metrics/runtime_log.json containing start_time, end_time,
-total_duration_minutes, and status to verify SC-002.
+Implements logic to track pipeline execution time and generate
+the runtime log artifact required for SC-002 verification.
 """
 import json
 import os
@@ -11,80 +11,95 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# Ensure we can import from the project root
+# Import shared config for paths
+from config import ensure_directories
+
+# Project root relative to this file
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 METRICS_DIR = PROJECT_ROOT / "data" / "metrics"
-LOG_FILE = METRICS_DIR / "runtime_log.json"
+LOGS_DIR = PROJECT_ROOT / "logs"
+LOG_FILE = LOGS_DIR / "processing.log"
+RUNTIME_LOG_FILE = METRICS_DIR / "runtime_log.json"
+
+# Global timer start
+_start_time: float | None = None
+_start_datetime: datetime | None = None
 
 def ensure_metrics_directory():
     """Ensure the metrics directory exists."""
+    ensure_directories()
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 def start_timer():
-    """
-    Initialize the runtime timer.
-    
-    Returns:
-        float: The start time in seconds since epoch.
-    """
-    return time.time()
+    """Start the global pipeline timer."""
+    global _start_time, _start_datetime
+    _start_time = time.time()
+    _start_datetime = datetime.now()
+    logging_setup = __import__('logging_setup', fromlist=['get_logger'])
+    logger = logging_setup.get_logger()
+    logger.info(f"Pipeline started at {_start_datetime.isoformat()}")
 
-def get_elapsed_minutes(start_time):
+def get_elapsed_minutes():
+    """Calculate elapsed time in minutes since start_timer was called."""
+    if _start_time is None:
+        raise RuntimeError("Timer not started. Call start_timer() first.")
+    return (time.time() - _start_time) / 60.0
+
+def save_runtime_log(status: str = "success"):
     """
-    Calculate elapsed time in minutes.
+    Generate and save the runtime_log.json artifact.
     
     Args:
-        start_time (float): Start time in seconds since epoch.
-        
-    Returns:
-        float: Elapsed time in minutes.
+        status: 'success' or 'timeout'
     """
-    end_time = time.time()
-    return (end_time - start_time) / 60.0
-
-def save_runtime_log(start_time, end_time, status="success"):
-    """
-    Save the runtime log to data/metrics/runtime_log.json.
+    if _start_time is None:
+        raise RuntimeError("Timer not started. Cannot save runtime log.")
     
-    Args:
-        start_time (float): Start time in seconds since epoch.
-        end_time (float): End time in seconds since epoch.
-        status (str): Status of the pipeline ('success' or 'timeout').
-    """
     ensure_metrics_directory()
     
-    total_duration_minutes = (end_time - start_time) / 60.0
+    end_datetime = datetime.now()
+    total_duration_minutes = get_elapsed_minutes()
     
-    log_data = {
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "end_time": datetime.fromtimestamp(end_time).isoformat(),
+    log_entry = {
+        "start_time": _start_datetime.isoformat(),
+        "end_time": end_datetime.isoformat(),
         "total_duration_minutes": round(total_duration_minutes, 4),
         "status": status
     }
     
-    with open(LOG_FILE, 'w') as f:
-        json.dump(log_data, f, indent=2)
+    # Write to JSON file
+    with open(RUNTIME_LOG_FILE, 'w') as f:
+        json.dump(log_entry, f, indent=2)
     
-    print(f"Runtime log saved to {LOG_FILE}")
-    return log_data
+    # Log to processing.log as well
+    logging_setup = __import__('logging_setup', fromlist=['get_logger'])
+    logger = logging_setup.get_logger()
+    logger.info(f"Pipeline finished. Status: {status}, Duration: {total_duration_minutes:.2f} minutes")
+    
+    print(f"Runtime log saved to {RUNTIME_LOG_FILE}")
+    return log_entry
 
 def main():
     """
-    Main entry point for testing the runtime logger.
-    
-    Simulates a short pipeline run and generates the runtime log.
+    CLI entry point for testing the runtime logger.
+    Simulates a pipeline run and generates the log.
     """
+    import logging
+    from logging_setup import initialize_logging_and_tracking
+    
+    # Initialize logging
+    initialize_logging_and_tracking()
+    
     print("Starting runtime logger test...")
-    start = start_timer()
+    start_timer()
     
     # Simulate some work
     time.sleep(1)
     
-    end = time.time()
-    status = "success"
-    
-    log_data = save_runtime_log(start, end, status)
-    print(f"Test completed. Status: {log_data['status']}, Duration: {log_data['total_duration_minutes']:.4f} minutes")
+    # Save the log
+    result = save_runtime_log(status="success")
+    print(f"Result: {result}")
 
 if __name__ == "__main__":
     main()

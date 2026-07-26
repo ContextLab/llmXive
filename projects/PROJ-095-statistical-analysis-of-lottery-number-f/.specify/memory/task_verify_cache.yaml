@@ -1,0 +1,47 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directories `data/raw`, `data/processed`,
+    `data/results`, `code`, `tests/unit`, `tests/integration`, and `config` actually
+    exist in the project repository. Without a directory listing, screenshots, or
+    a manifest confirming their creation, the task requirement cannot be verified
+    as fulfilled. The implementer must supply concrete proof (e.g., a file tree output)
+    that these directories have been created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the lottery\u2011draw feature specification; there\
+    \ are no linting or formatting configuration files (e.g., .ruff.toml, .flake8,\
+    \ pyproject.toml with black settings) or any evidence that ruff/flake8 and black\
+    \ have been set up. Consequently the required artifact for task T003 is missing."
+T008:
+  c: false
+  h: b6f4f303e5e04c78a64e1f6ce33d40cd7c823e47b3eb4d5e65afc14be7b3a482
+  r: "The provided `code/ingestion.py` includes URL loading and a HEAD\u2011request\
+    \ download, but it never computes or logs a SHA checksum, and the truncated `process_draws`\
+    \ function does not show the required warning for missing `total_sales`. Moreover,\
+    \ the expected output file `data/raw/lottery_draws.csv` is absent, indicating\
+    \ the script has not been demonstrated to produce the required artifact. The implementation\
+    \ must add checksum generation/logging and explicit handling of missing `total_sales`,\
+    \ and ensure the script creates the CSV at the specified path."
+T011:
+  c: false
+  h: cbbb5fef2fc2c916486b394206ed2f4a043d51aa87e980b9314da1ff26933506
+  r: The `code/metrics.py` file is truncated and the `calculate_consecutive_ratio`
+    function is not fully implemented. Moreover, the required `data/processed/metrics.json`
+    file is missing, so the metrics are never saved nor is the `is_majority_birthday`
+    flag produced.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided showing that missing `total_sales`\
+    \ is logged, excluded from sales\u2011dependent checks, and still used in frequency\
+    \ analysis, nor evidence that metrics are still calculated when `total_sales`\
+    \ is absent. The required artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `test_metrics.py` file or its contents are present in the provided evidence,
+    and thus there is no unit test verifying that `calculate_birthday_ratio` returns
+    1.0 for `[1,2,3,4,5,6]` and 0.0 for `[32,33,34,35,36,37]`. The required artifact
+    is missing.

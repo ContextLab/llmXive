@@ -4,107 +4,114 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from logging_setup import get_logger
 
-EXCLUSIONS_FILE = "data/exclusions.csv"
+# Constants for exclusion criteria
+MIN_TRIALS_PER_CONDITION = 10
+MAX_ARTIFACT_REMOVAL_RATIO = 0.50  # 50%
 
-def ensure_exclusions_file_exists() -> None:
+def ensure_exclusions_file_exists(exclusions_path: Path) -> None:
     """Ensure the exclusions CSV file exists with the correct header."""
-    path = Path(EXCLUSIONS_FILE)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists():
-        with open(path, 'w', newline='') as f:
+    if not exclusions_path.exists():
+        exclusions_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(exclusions_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['subject_id', 'reason'])
 
-def log_exclusion(subject_id: str, reason: str) -> None:
-    """
-    Log an exclusion to the CSV file.
-    
-    Args:
-        subject_id: The ID of the excluded subject.
-        reason: The reason for exclusion (e.g., "insufficient trials", "excessive artifact removal").
-    """
-    ensure_exclusions_file_exists()
-    logger = get_logger()
-    logger.info(f"Excluding subject {subject_id}: {reason}")
-    
-    with open(EXCLUSIONS_FILE, 'a', newline='') as f:
+def log_exclusion(exclusions_path: Path, subject_id: str, reason: str, logger: Optional[any] = None) -> None:
+    """Log an exclusion to the CSV file and optionally to the logger."""
+    with open(exclusions_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([subject_id, reason])
+    
+    if logger:
+        logger.info(f"Subject {subject_id} excluded: {reason}")
+    else:
+        print(f"Subject {subject_id} excluded: {reason}")
 
 def evaluate_subject_for_exclusion(
-    subject_id: str, 
-    n_trials_per_condition: Dict[str, int], 
-    total_trials_initial: int, 
-  ) -> Optional[str]:
+    subject_id: str,
+    trials_per_condition: Dict[str, int],
+    total_trials_before_ica: int,
+    total_trials_after_ica: int,
+    exclusions_path: Path,
+    logger: Optional[any] = None
+) -> bool:
     """
-    Evaluate a subject for exclusion based on trial counts and artifact removal rates.
+    Evaluate a subject for exclusion based on:
+    1. Insufficient trials (<10 per condition)
+    2. Excessive artifact removal (>50% of trials removed)
     
-    Criteria:
-    - Exclude if <10 valid trials for ANY condition (reason: "insufficient trials")
-    - Exclude if >50% of initial trials were removed as artifacts (reason: "excessive artifact removal")
-    
-    Args:
-        subject_id: The subject identifier.
-        n_trials_per_condition: Dictionary mapping condition names to valid trial counts.
-        total_trials_initial: The number of trials before artifact removal.
-        
-    Returns:
-        The exclusion reason string if the subject should be excluded, None otherwise.
+    Returns True if the subject is excluded, False otherwise.
     """
-    # Check for insufficient trials (< 10 in any condition)
-    for condition, count in n_trials_per_condition.items():
-        if count < 10:
-            return "insufficient trials"
-    
-    # Check for excessive artifact removal (> 50%)
-    if total_trials_initial > 0:
-        # Calculate how many trials remain
-        total_trials_final = sum(n_trials_per_condition.values())
-        removed_trials = total_trials_initial - total_trials_final
-        removal_rate = removed_trials / total_trials_initial
-        
-        if removal_rate > 0.50:
-            return "excessive artifact removal"
-    
-    return None
+    # Check 1: Insufficient trials per condition
+    for condition, count in trials_per_condition.items():
+        if count < MIN_TRIALS_PER_CONDITION:
+            reason = "insufficient trials"
+            log_exclusion(exclusions_path, subject_id, reason, logger)
+            return True
 
-def get_excluded_subjects() -> List[Tuple[str, str]]:
-    """
-    Read the exclusions file and return a list of (subject_id, reason) tuples.
-    
-    Returns:
-        List of tuples containing subject ID and exclusion reason.
-    """
-    if not os.path.exists(EXCLUSIONS_FILE):
+    # Check 2: Excessive artifact removal
+    if total_trials_before_ica > 0:
+        removed_ratio = (total_trials_before_ica - total_trials_after_ica) / total_trials_before_ica
+        if removed_ratio > MAX_ARTIFACT_REMOVAL_RATIO:
+            reason = "excessive artifact removal"
+            log_exclusion(exclusions_path, subject_id, reason, logger)
+            return True
+
+    return False
+
+def get_excluded_subjects(exclusions_path: Path) -> List[str]:
+    """Read the exclusions file and return a list of excluded subject IDs."""
+    if not exclusions_path.exists():
         return []
-        
-    exclusions = []
-    with open(EXCLUSIONS_FILE, 'r', newline='') as f:
+    
+    excluded = []
+    with open(exclusions_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            exclusions.append((row['subject_id'], row['reason']))
-    return exclusions
+            excluded.append(row['subject_id'])
+    return excluded
 
 def main():
     """
     Main entry point for testing the exclusion tracker.
-    This is a simple test to verify the file structure and logging.
+    This script demonstrates the functionality by processing a mock subject.
+    In the real pipeline, this would be called from preprocess.py or main.py.
     """
-    logger = get_logger()
-    logger.info("Testing exclusion tracker...")
+    from logging_setup import initialize_logging_and_tracking
     
-    # Ensure file exists
-    ensure_exclusions_file_exists()
+    # Initialize logging and paths
+    logger, exclusions_path = initialize_logging_and_tracking()
+    ensure_exclusions_file_exists(exclusions_path)
     
-    # Log a test exclusion
-    log_exclusion("test_subject_001", "insufficient trials")
+    # Mock data for demonstration
+    subject_id = "sub-001"
+    trials_per_condition = {
+        "switch": 8,  # Less than 10 -> should be excluded
+        "stay": 15
+    }
+    total_before = 23
+    total_after = 20  # Removed 3, ratio ~13% (not excessive, but insufficient trials will trigger)
     
-    # Verify it was logged
-    excluded = get_excluded_subjects()
-    if excluded:
-        logger.info(f"Successfully logged exclusion: {excluded[-1]}")
+    # Evaluate and log exclusion
+    is_excluded = evaluate_subject_for_exclusion(
+        subject_id,
+        trials_per_condition,
+        total_before,
+        total_after,
+        exclusions_path,
+        logger
+    )
+    
+    if is_excluded:
+        logger.info(f"Subject {subject_id} was excluded.")
     else:
-        logger.error("Failed to log exclusion.")
+        logger.info(f"Subject {subject_id} passed exclusion checks.")
+        
+    # Verify the file content
+    print(f"Exclusions file content at {exclusions_path}:")
+    if exclusions_path.exists():
+        with open(exclusions_path, 'r') as f:
+            print(f.read())
 
 if __name__ == "__main__":
     main()

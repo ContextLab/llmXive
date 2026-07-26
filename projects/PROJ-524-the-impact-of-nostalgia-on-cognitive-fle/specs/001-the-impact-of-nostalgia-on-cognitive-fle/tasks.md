@@ -46,11 +46,11 @@
 - [ ] T001a [P] Create data directory: `data/raw/`
 - [ ] T001b [P] Create data directory: `data/processed/`
 - [ ] T001c [P] Create data directory: `data/results/`
-- [ ] T001d [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`
+- [X] T001d [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`
 - [ ] T001e [P] Create stimuli directory: `data/stimuli/`
 
-- [ ] T002 [P] Create `requirements.txt` with pinned versions for: pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T002 [P] Create `requirements.txt` with pinned versions for: pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -88,8 +88,8 @@ Examples of foundational tasks (adjust based on plan.md):
 
 - [X] T010 [P] [US1] Implement `code/ingestion.py` to fetch data from OpenML/HuggingFace or load local files with checksum verification
 - [X] T011 [P] [US1] Implement data validation logic in `code/ingestion.py`: filter `age >= 65`, exclude missing `stimulus_type`, log `ERR_MISSING_AGE_FIELD`
-- [ ] T012 [US1] **COMBINED EXCLUSION LOGIC**: Implement logic to handle missing age (check `birth_year` fallback), missing cognitive scores, and invalid records. Exclude records and write a **single consolidated** `data/processed/exclusion_log.json` containing counts for `ERR_MISSING_AGE_FIELD`, `ERR_MISSING_BIRTH_YEAR`, `ERR_MISSING_SCORE`.
-- [~] T013b [US1] **NEW**: Validate presence of 'MMSE' column in raw dataset; if missing, set `has_mmse=False` flag in config and log warning `ERR_MMSE_MISSING`. If present, set `has_mmse=True`.
+- [X] T012 [US1] **COMBINED EXCLUSION LOGIC**: Implement logic to handle missing age (check `birth_year` fallback), missing cognitive scores, and invalid records. Exclude records and write a **single consolidated** `data/processed/exclusion_log.json` containing counts for `ERR_MISSING_AGE_FIELD`, `ERR_MISSING_BIRTH_YEAR`, `ERR_MISSING_SCORE`.
+- [ ] T013b [US1] **NEW**: Validate presence of 'MMSE' column in raw dataset; if missing, set `has_mmse=False` flag in config and log warning `ERR_MMSE_MISSING`. If present, set `has_mmse=True`.
 - [ ] T014a [US1] Create `data/processed/cleaned_dataset.csv` with columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on T012 (exclusions) and T013b (MMSE flag for downstream filtering logic).**
 - [~] T014b [US1] **NEW**: Calculate and log the percentage of valid records (age ≥ 65, non-null metrics) vs total raw input records in `data/processed/validity_metrics.json` to satisfy SC-001.
 - [~] T015 [US1] **REVISED**: Implement stimulus file integrity check: Fetch canonical checksum from the dataset's `metadata.json` or fallback to GitHub release asset checksum; compare against local file SHA-256; log mismatch as `ERR_STIMULUS_CORRUPT`.
@@ -114,8 +114,8 @@ Examples of foundational tasks (adjust based on plan.md):
 - [X] T018 [P] [US2] Implement `code/analysis.py` statistical functions: **Welch's independent samples t-test (NOT paired)**. **NOTE: This overrides spec FR-002 per Plan.md Critical Design Note. Kickback required for spec amendment.**
 - [~] T019 [US2] Implement multiple-comparison correction (Bonferroni) for `perseverative_errors` and `categories_completed`
 - [~] T020 [US2] Calculate and report Cohen's d with 95% confidence intervals for all primary comparisons
-- [~] T021 [US2] Calculate statistical power and Minimum Detectable Effect Size (MDES) for the observed effect; **Append power and MDES values to `data/results/statistical_report.json`**
-- [ ] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
+- [X] T021 [US2] Calculate statistical power and Minimum Detectable Effect Size (MDES) for the observed effect; **Append power and MDES values to `data/results/statistical_report.json`**
+- [X] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
 - [~] T023 [US2] Add error handling for cases where variance is zero or sample size is too small
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,12 +130,12 @@ Examples of foundational tasks (adjust based on plan.md):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_output.py`
-- [ ] T025 [P] [US3] Integration test for sensitivity analysis pipeline in `tests/integration/test_sensitivity.py`
+- [X] T024 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_output.py`
+- [~] T025 [P] [US3] Integration test for sensitivity analysis pipeline in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement sensitivity sweep in `code/analysis.py`: test thresholds {, 0.1} and other representative significance levels
+- [X] T026 [P] [US3] Implement sensitivity sweep in `code/analysis.py`: test thresholds {, 0.1} and other representative significance levels
 - [ ] T027 [US3] **REVISED**: Implement robustness check: **Read `MMSE` column values** from the dataset. If `has_mmse=True` (from T013b), exclude participants with `MMSE < 24` and re-run analysis. If `False`, log `ERR_MMSE_MISSING_SKIPPED` and skip this filter step.
 - [ ] T028 [US3] Generate `data/results/sensitivity_report.json` with significance status per threshold and subset comparison
 - [ ] T029 [US3] Add logic to flag "sensitive to threshold choice" if p-value is borderline (≈ 0.05)

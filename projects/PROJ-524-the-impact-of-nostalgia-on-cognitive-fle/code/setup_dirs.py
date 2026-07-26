@@ -1,57 +1,34 @@
+"""
+Master script to create all required project directories.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-
-from config import ensure_dirs, get_config
+from config import get_config, ensure_dirs
+from utils import setup_logging, log_info, log_warning
 
 def main():
-    """
-    Create required project directories.
-    This script is used to initialize the data directory structure.
-    """
+    setup_logging(level=logging.INFO)
     config = get_config()
+    base_dir = Path(config.get('base_dir', '.'))
     
-    # Define directories to create based on project requirements
-    # T001a: data/raw/ (already done per task list, but ensuring existence)
-    # T001b: data/processed/
-    # T001c: data/results/
-    # T001e: data/stimuli/
-    
-    dirs_to_create = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/stimuli"
+    dirs = [
+        base_dir / 'data' / 'raw',
+        base_dir / 'data' / 'processed',
+        base_dir / 'data' / 'results',
+        base_dir / 'data' / 'stimuli',
+        base_dir / 'code',
+        base_dir / 'tests',
     ]
     
-    for dir_path in dirs_to_create:
-        full_path = Path(dir_path)
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logging.info(f"Created directory: {full_path}")
-        else:
-            logging.info(f"Directory already exists: {full_path}")
+    try:
+        ensure_dirs([str(d) for d in dirs])
+        log_info("All project directories created/verified.")
+        return 0
+    except Exception as e:
+        log_warning(f"Failed to create directories: {e}")
+        return 1
 
-    # Ensure code and tests __init__.py exist if they don't
-    code_init = Path("code/__init__.py")
-    if not code_init.exists():
-        code_init.touch()
-        logging.info(f"Created {code_init}")
-        
-    tests_init = Path("tests/__init__.py")
-    if not tests_init.exists():
-        tests_init.touch()
-        logging.info(f"Created {tests_init}")
-
-    # Ensure README.md exists
-    readme = Path("README.md")
-    if not readme.exists():
-        readme.write_text("# The Impact of Nostalgia on Cognitive Flexibility in Aging Adults\n\nThis project investigates the effect of nostalgia on cognitive flexibility in older adults.\n")
-        logging.info(f"Created {readme}")
-
-    logging.info("Directory structure initialization complete.")
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

@@ -76,14 +76,14 @@
 - [X] T012 [US1] Implement `code/download.py` to: 1) Query OpenNeuro API for datasets containing 'task-switching' events FIRST; 2) If found, select the first valid dataset (preferring the designated dataset if present in results); 3) If no dataset found, generate `data/data_gap_report.json` adhering to `contracts/data_gap_report.schema.yaml` (with `fallback_id: null`) and halt.
 - [X] T013 [US1] Implement `code/download.py` to fetch raw data to `data/raw/` with checksumming (SHA-256)
 - [X] T014 [US1] Implement `code/preprocess.py` bandpass filter (1–45 Hz)
-- [ ] T015 [US1] Implement `code/preprocess.py` ICA-based artifact removal (reject components with kurtosis > 5 or spectral peak > 30 Hz)
-- [ ] T015b [US1] Implement `code/preprocess.py` notch filter (50/60Hz) if line noise detected; log intervention to `logs/processing.log` with specific format: "Notch filter applied at {freq}Hz for subject {id}"
-- [ ] T016 [US1] Implement `code/preprocess.py` epoching (-1000ms to +2000ms) around stimulus onset
+- [X] T015 [US1] Implement `code/preprocess.py` ICA-based artifact removal (reject components with kurtosis > 5 or spectral peak > 30 Hz)
+- [X] T015b [US1] Implement `code/preprocess.py` notch filter (50/60Hz) if line noise detected; log intervention to `logs/processing.log` with specific format: "Notch filter applied at {freq}Hz for subject {id}"
+- [X] T016 [US1] Implement `code/preprocess.py` epoching (-1000ms to +2000ms) around stimulus onset
 - [ ] T017 [US1] Implement logic to exclude subjects with <10 valid trials/condition (reason: "insufficient trials") or >50% artifact removal (reason: "excessive artifact removal"); log to `data/exclusions.csv` with columns: `subject_id`, `reason`
 - [ ] T018 [US1] Implement memory monitoring to ensure peak RSS ≤ 6.5 GB during sequential subject processing
 - [ ] T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total pipeline execution time; immediately log a timeout violation to `logs/processing.log` and `data/metrics/runtime_log.json` if total runtime exceeds several hours, then halt.
 - [ ] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, and `status` (success/timeout) to verify SC-002.
-- [~] T019 [US1] Save clean epochs to `data/processed/` per subject (requires T004 for hashing)
+- [ ] T019 [US1] Save clean epochs to `data/processed/` per subject (requires T004 for hashing)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,10 +99,10 @@
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement electrode mapping in `code/synchrony.py`: F3/F4, FC3/FC4 → DLPFC; P3/P4, CP3/CP4 → Parietal
-- [~] T023 [US2] Implement frequency band filtering for theta (–7 Hz) and gamma (–45 Hz)
+- [ ] T023 [US2] Implement frequency band filtering for theta (–7 Hz) and gamma (–45 Hz)
 - [X] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (a sufficiently long baseline period prior to stimulus onset)
 - [ ] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); requires T004 for hashing <!-- FAILED: unspecified -->
-- [~] T026 [US2] Ensure computation completes in ≤ 30 minutes per subject on CPU
+- [ ] T026 [US2] Ensure computation completes in ≤ 30 minutes per subject on CPU
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,7 +124,7 @@
 - [~] T034 [US3] Implement `code/analysis.py` sensitivity analysis: repeat correlation for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05) against primary result; save `data/metrics/sensitivity_report.json` (requires T004)
 - [X] T035 [US3] Implement `code/analysis.py` secondary trial-level analysis: Linear Mixed-Effects model (`RT ~ Synchrony + (1|Subject)`) using `statsmodels`; handle missing trial-level synchrony by excluding rows
 - [ ] T036 [US3] Generate `data/trial_level/per_trial_synchrony.csv` with columns: `subject_id`, `trial_id`, `condition`, `synchrony`, `rt`; exclude rows with missing synchrony; requires T004
-- [ ] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
+- [X] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
 - [X] T038 [US3] Implement programmatic assertion in `code/analysis.py` to verify output JSON and `results_summary.md` contain "associational" framing as mandated by FR-008
 
 **Checkpoint**: All user stories should now be independently functional

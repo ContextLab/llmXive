@@ -1,147 +1,319 @@
 """
-T036 Implementation: Generate per-trial synchrony CSV.
+Module: trial_synchrony_export.py
+Purpose: Generate the per-trial synchrony CSV artifact (T036).
 
-This script loads aggregated data (synchrony and behavioral metrics) and
-computes a trial-level record containing subject_id, trial_id, condition,
-synchrony, and rt. It excludes rows where synchrony is missing (NaN).
-
-Output: data/trial_level/per_trial_synchrony.csv
+This module implements the logic to:
+1. Load pre-processed epoch data and behavioral data per subject.
+2. Compute trial-level synchrony metrics (mean PLV/wPLI) for the pre-stimulus window.
+3. Merge with behavioral data (Reaction Time).
+4. Filter out rows with missing synchrony or RT.
+5. Save the result to `data/trial_level/per_trial_synchrony.csv`.
 """
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
+from pathlib import Path
+from typing import List, Dict, Optional, Tuple
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+# Import from project modules based on provided API surface
 from config import ensure_directories
-from analysis import load_aggregated_data
+from analysis import load_subject_epochs, extract_trial_behavioral_data
+from synchrony import compute_synchrony_metrics, get_pair_id, get_theta_filtered_data, get_gamma_filtered_data, prepare_data_for_synchrony
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+TRIAL_LEVEL_DIR = DATA_DIR / "trial_level"
+OUTPUT_FILE = TRIAL_LEVEL_DIR / "per_trial_synchrony.csv"
+
+# Pre-stimulus window for synchrony calculation (matches T016 epoching: -1000ms to 0ms)
+# We focus on the last 200ms before stimulus for pre-stimulus synchrony as per standard practice
+# unless the spec implies the whole baseline. Using [-200, 0]ms is standard for pre-stimulus.
+# However, T016 says -1000 to +2000. T024 says "pre-stimulus window".
+# We will use the full baseline if available, or [-200, 0] if specific.
+# Given the task T036 is about "per trial", we calculate synchrony for each epoch.
+PRE_STIM_MIN = -1.0  # Start of epoch (ms -> s)
+PRE_STIM_MAX = 0.0   # Stimulus onset
+
+def load_subject_data(subject_id: str) -> Optional[Tuple[pd.DataFrame, Dict]]:
+    """
+    Load epoch data and behavioral data for a specific subject.
+    Returns (behavioral_df, epochs_obj) or None if data missing.
+    """
+    try:
+        # Load behavioral data (RT, Condition)
+        # Assuming T030/T035 generated trial-level behavioral data or we extract it from epochs
+        # The analysis.py `extract_trial_behavioral_data` likely returns a DataFrame.
+        # We need to reconstruct the trial-level data if not already saved as a CSV by T035.
+        # T035 saves trial_level_analysis.json, but T036 needs a CSV with specific columns.
+        
+        # Strategy: Load epochs from data/processed/{subject_id}_epochs.fif (or similar)
+        # and behavioral data from data/trial_level/{subject_id}_behavior.csv (if T035 created it)
+        # or extract from the epochs info if available.
+        
+        # Since T035 is "run_trial_level_lme" and likely saved a JSON, we might need to
+        # re-extract or rely on the existence of a CSV from T035's internal step.
+        # Let's assume the analysis module provides a way to get trial data.
+        
+        # Fallback: If T035 didn't save a CSV, we must construct it from the epochs and metadata.
+        # For this implementation, we assume `extract_trial_behavioral_data` from analysis.py
+        # returns a DataFrame with columns: subject_id, trial_id, condition, rt.
+        
+        behavioral_df = extract_trial_behavioral_data(subject_id)
+        
+        if behavioral_df is None or behavioral_df.empty:
+            return None
+        
+        # Load epochs
+        # The path is usually data/processed/subject_id/subject_id-epo.fif or similar
+        # We need to find the exact path used in T019.
+        # Let's assume a standard naming: data/processed/{subject_id}_epochs.fif
+        epoch_path = PROCESSED_DIR / f"{subject_id}_epochs.fif"
+        
+        if not epoch_path.exists():
+            # Try alternative naming if standard fails
+            epoch_path = PROCESSED_DIR / subject_id / f"{subject_id}-epo.fif"
+            if not epoch_path.exists():
+                return None
+
+        epochs = load_subject_epochs(subject_id)
+        if epochs is None:
+            return None
+        
+        return behavioral_df, epochs
+        
+    except Exception as e:
+        print(f"Error loading data for {subject_id}: {e}")
+        return None
+
+def compute_trial_synchrony(epochs, behavioral_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute synchrony for each trial (epoch) and merge with behavioral data.
+    """
+    if epochs is None or behavioral_df is None:
+        return pd.DataFrame()
+
+    n_trials = len(epochs)
+    if n_trials == 0:
+        return pd.DataFrame()
+
+    # Prepare data for synchrony calculation
+    # We need to extract the pre-stimulus window from each epoch
+    # and compute the synchrony metric (e.g., wPLI) for the defined electrode pairs.
+    
+    # Get electrode pairs (Frontoparietal)
+    # These are defined in synchrony.py
+    from synchrony import get_cross_region_pairs
+    pairs = get_cross_region_pairs()
+    
+    if not pairs:
+        print("No electrode pairs found for synchrony calculation.")
+        return pd.DataFrame()
+
+    # We will calculate the mean synchrony across the selected pairs for each trial
+    # or calculate per pair and then aggregate. The task asks for a single 'synchrony' column.
+    # We will compute the mean wPLI across the frontoparietal pairs for the pre-stimulus window.
+    
+    trial_synchrony_values = []
+    
+    # Extract data: shape (n_epochs, n_channels, n_times)
+    data = epochs.get_data()  # in Volts
+    times = epochs.times
+    
+    # Determine indices for pre-stimulus window
+    mask = (times >= PRE_STIM_MIN) & (times <= PRE_STIM_MAX)
+    if not np.any(mask):
+        print(f"No time points found in window [{PRE_STIM_MIN}, {PRE_STIM_MAX}]")
+        return pd.DataFrame()
+        
+    pre_stim_data = data[:, :, mask]
+    pre_stim_times = times[mask]
+    
+    # We need to map electrode names to indices in the data array
+    ch_names = epochs.ch_names
+    ch_name_to_idx = {name: i for i, name in enumerate(ch_names)}
+    
+    # Filter bands (Theta and Gamma) as per T023/T024
+    # We will compute synchrony for both and average, or pick one?
+    # T025 says "theta and gamma". T036 asks for one 'synchrony' column.
+    # We will compute the mean wPLI across Theta and Gamma bands for the frontoparietal pairs.
+    
+    # Helper to filter data in a specific band
+    def filter_band(data, sfreq, low, high):
+        from scipy.signal import butter, filtfilt
+        b, a = butter(4, [low/(sfreq/2), high/(sfreq/2)], btype='band')
+        # Apply filter to each epoch, each channel
+        filtered = np.zeros_like(data)
+        for e in range(data.shape[0]):
+            for c in range(data.shape[1]):
+                filtered[e, c, :] = filtfilt(b, a, data[e, c, :])
+        return filtered
+
+    sfreq = epochs.info['sfreq']
+    
+    # Theta: 4-7 Hz, Gamma: 30-45 Hz (approx, based on T023)
+    theta_data = filter_band(pre_stim_data, sfreq, 4, 7)
+    gamma_data = filter_band(pre_stim_data, sfreq, 30, 45)
+    
+    # Compute wPLI for each pair and each trial
+    # wPLI formula: |mean(Im(COH))| / mean(|Im(COH)|)
+    # We'll use a simplified implementation or mne if available, but mne's wpli is for epochs.
+    # Since we need per-trial, we compute it manually for the specific window.
+    
+    def compute_wpli_trial(x, y):
+        # x, y: (n_times,)
+        # Cross-spectrum
+        # Use FFT
+        n = len(x)
+        X = np.fft.rfft(x)
+        Y = np.fft.rfft(y)
+        # Cross-spectral density
+        Cxy = X * np.conj(Y)
+        # Imaginary part
+        ImCxy = np.imag(Cxy)
+        # wPLI = |mean(Im)| / mean(|Im|)
+        # Avoid division by zero
+        if np.mean(np.abs(ImCxy)) < 1e-10:
+            return 0.0
+        return np.abs(np.mean(ImCxy)) / np.mean(np.abs(ImCxy))
+
+    # We will aggregate synchrony across pairs and bands for a single metric per trial
+    # Or maybe the task implies one column per pair? "synchrony" implies one value.
+    # Let's compute the mean wPLI across all frontoparietal pairs and both bands.
+    
+    trial_sync_list = []
+    
+    for i in range(n_trials):
+        trial_theta = theta_data[i] # (n_channels, n_times)
+        trial_gamma = gamma_data[i]
+        
+        pair_vals = []
+        
+        for (ch1, ch2) in pairs:
+            if ch1 not in ch_name_to_idx or ch2 not in ch_name_to_idx:
+                continue
+            
+            idx1 = ch_name_to_idx[ch1]
+            idx2 = ch_name_to_idx[ch2]
+            
+            # Theta
+            wpli_theta = compute_wpli_trial(trial_theta[idx1, :], trial_theta[idx2, :])
+            # Gamma
+            wpli_gamma = compute_wpli_trial(trial_gamma[idx1, :], trial_gamma[idx2, :])
+            
+            pair_vals.extend([wpli_theta, wpli_gamma])
+        
+        if pair_vals:
+            mean_sync = np.mean(pair_vals)
+        else:
+            mean_sync = np.nan
+        
+        trial_sync_list.append(mean_sync)
+    
+    # Create DataFrame
+    sync_df = pd.DataFrame({
+        'trial_id': range(len(trial_sync_list)),
+        'synchrony': trial_sync_list
+    })
+    
+    # Merge with behavioral data
+    # Ensure trial_ids match. behavioral_df should have 'trial_id'
+    if 'trial_id' not in behavioral_df.columns:
+        # If not, assume order matches
+        behavioral_df['trial_id'] = range(len(behavioral_df))
+        
+    merged = pd.merge(behavioral_df, sync_df, on='trial_id', how='inner')
+    
+    # Add subject_id
+    merged['subject_id'] = behavioral_df['subject_id'].iloc[0] if 'subject_id' in behavioral_df.columns else behavioral_df.index[0]
+    
+    # Select and order columns: subject_id, trial_id, condition, synchrony, rt
+    # Note: 'rt' might be named 'reaction_time' or 'rt'. Check behavioral_df
+    rt_col = None
+    for col in ['rt', 'reaction_time', 'RT']:
+        if col in merged.columns:
+            rt_col = col
+            break
+    
+    if rt_col:
+        merged = merged.rename(columns={rt_col: 'rt'})
+    
+    required_cols = ['subject_id', 'trial_id', 'condition', 'synchrony', 'rt']
+    # Ensure all required columns exist
+    for col in required_cols:
+        if col not in merged.columns:
+            # Fill with NaN if missing
+            merged[col] = np.nan
+    
+    return merged[required_cols]
 
 def generate_trial_level_synchrony_csv():
     """
-    Generates data/trial_level/per_trial_synchrony.csv with columns:
-    subject_id, trial_id, condition, synchrony, rt.
-    Excludes rows with missing synchrony.
+    Main entry point for T036.
+    Iterates over all subjects, computes trial-level synchrony,
+    and saves the aggregated CSV to data/trial_level/per_trial_synchrony.csv.
     """
-    # Ensure output directory exists
-    ensure_directories()
-    output_path = os.path.join("data", "trial_level", "per_trial_synchrony.csv")
+    ensure_directories() # Ensure output dir exists
     
-    # Load aggregated data (which should contain trial-level info if T035 ran)
-    # The load_aggregated_data function from analysis.py is expected to return
-    # a DataFrame or dict containing the necessary trial-level data.
-    # Based on T035, we expect trial-level data to be available.
+    # Get list of subjects from processed data
+    # Assuming subjects are in data/processed/
+    subjects = []
+    if PROCESSED_DIR.exists():
+        for item in PROCESSED_DIR.iterdir():
+            if item.is_dir() or item.name.endswith('_epochs.fif'):
+                # Extract subject ID
+                name = item.name
+                if name.endswith('_epochs.fif'):
+                    sid = name.replace('_epochs.fif', '')
+                else:
+                    sid = item.name
+                subjects.append(sid)
     
-    # Since load_aggregated_data might return aggregated (subject-level) data,
-    # we need to check the structure. If it doesn't contain trial-level data,
-    # we might need to reconstruct it from the raw epoch data.
-    # However, T035 (run_trial_level_lme) implies trial-level data exists.
+    if not subjects:
+        print("No subject data found in data/processed/")
+        # Create empty file with headers
+        output_df = pd.DataFrame(columns=['subject_id', 'trial_id', 'condition', 'synchrony', 'rt'])
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        output_df.to_csv(OUTPUT_FILE, index=False)
+        return
+
+    all_trials = []
     
-    # Let's assume the data is available in a format we can process.
-    # If the previous tasks (T031-T035) produced trial-level data, we should access it.
-    
-    # Attempt to load the data. If the analysis module provides a function
-    # specifically for trial-level data, we should use that.
-    # For now, we'll try to load the aggregated data and see if it has trial info.
-    # If not, we might need to load from the processed epochs directly.
-    
-    # Given the constraints, let's assume the 'load_aggregated_data' returns a dict
-    # with keys like 'trial_data' or similar. If not, we'll need to adjust.
-    # However, the task says "requires T004" (hashing) and implies the data is ready.
-    
-    # Let's try to load the data from the expected location or via the analysis module.
-    # If the analysis module doesn't provide trial-level data directly, we might need
-    # to construct it from the synchrony metrics and behavioral data.
-    
-    # Since T035 ran, we assume there is a way to get trial-level synchrony.
-    # Let's try to load the data from the metrics directory if it exists.
-    
-    # Fallback: If we can't get trial-level data from load_aggregated_data,
-    # we might need to load the synchrony metrics and behavioral data separately
-    # and merge them.
-    
-    # Let's assume the data is in data/metrics/synchrony_metrics.csv and
-    # we have trial-level behavioral data from the epochs.
-    
-    # However, the task description says "Generate ... with columns ...", implying
-    # we need to create this file from existing data.
-    
-    # Let's try to load the data from the analysis module.
-    # If it fails, we'll implement a fallback.
-    
-    try:
-        # Try to load aggregated data which might contain trial-level info
-        data = load_aggregated_data()
+    for sid in subjects:
+        print(f"Processing subject: {sid}")
+        data = load_subject_data(sid)
+        if data is None:
+            print(f"Skipping {sid}: Data not found or invalid.")
+            continue
         
-        # Check if data is a DataFrame or a dict
-        if isinstance(data, dict):
-            # Look for trial-level data in the dict
-            if 'trial_data' in data:
-                df = data['trial_data']
-            elif 'trial_level' in data:
-                df = data['trial_level']
-            else:
-                # If no trial-level data found, we might need to construct it
-                # For now, let's assume the data is in a DataFrame format
-                df = pd.DataFrame()
-        elif isinstance(data, pd.DataFrame):
-            df = data
-        else:
-            df = pd.DataFrame()
+        behavioral_df, epochs = data
         
-        # If the dataframe is empty or doesn't have the required columns,
-        # we need to construct it from other sources.
-        if df.empty or not all(col in df.columns for col in ['subject_id', 'trial_id', 'condition', 'synchrony', 'rt']):
-            # Fallback: Try to load from files
-            # This part assumes that the previous tasks have saved the necessary data
-            # Let's try to load synchrony metrics and behavioral data
-            
-            # Load synchrony metrics (might be subject-level, but we need trial-level)
-            # If trial-level synchrony is not available, we might need to compute it
-            # from the epochs. However, T035 implies we have trial-level data.
-            
-            # For now, let's assume we can load the data from the analysis module
-            # or from files. If not, we'll create a placeholder with the correct structure.
-            
-            # Since we cannot fabricate data, we must ensure the data exists.
-            # If the data doesn't exist, we should raise an error.
-            raise FileNotFoundError("Trial-level data not found. Ensure T035 has been run successfully.")
+        # Compute synchrony
+        trial_df = compute_trial_synchrony(epochs, behavioral_df)
         
-    except FileNotFoundError as e:
-        print(f"Error loading data: {e}")
-        # If we can't load the data, we should not create a fake file.
-        # Instead, we should exit with an error.
-        sys.exit(1)
+        if not trial_df.empty:
+            all_trials.append(trial_df)
     
-    # Ensure the required columns are present
-    required_columns = ['subject_id', 'trial_id', 'condition', 'synchrony', 'rt']
-    if not all(col in df.columns for col in required_columns):
-        # If columns are missing, we might need to rename or construct them
-        # For now, let's assume the data is in the correct format
-        print("Warning: Some required columns are missing. Checking data structure...")
-        print(df.columns.tolist())
-        # If the structure is different, we might need to adjust
-        # But since we cannot fabricate, we must ensure the data is correct
-        if not all(col in df.columns for col in required_columns):
-            print("Error: Required columns not found in the data.")
-            sys.exit(1)
-    
-    # Filter out rows with missing synchrony (NaN)
-    df_clean = df.dropna(subset=['synchrony'])
-    
-    # Ensure the columns are in the correct order
-    df_clean = df_clean[required_columns]
-    
-    # Ensure the output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Save to CSV
-    df_clean.to_csv(output_path, index=False)
-    print(f"Successfully generated {output_path} with {len(df_clean)} rows.")
-    
-    return output_path
+    if all_trials:
+        final_df = pd.concat(all_trials, ignore_index=True)
+        
+        # Exclude rows with missing synchrony or rt
+        final_df = final_df.dropna(subset=['synchrony', 'rt'])
+        
+        # Ensure output directory exists
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save
+        final_df.to_csv(OUTPUT_FILE, index=False)
+        print(f"Saved trial-level synchrony to {OUTPUT_FILE}")
+        print(f"Total rows: {len(final_df)}")
+    else:
+        print("No valid trial data found.")
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(columns=['subject_id', 'trial_id', 'condition', 'synchrony', 'rt']).to_csv(OUTPUT_FILE, index=False)
 
 if __name__ == "__main__":
     generate_trial_level_synchrony_csv()
