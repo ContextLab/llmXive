@@ -1099,3 +1099,190 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T23:54:34Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project for 50 pristine graphene and MoS2 structures
+  claim_id: c_3ff3b2a3
+  context: "Implement code/01_data_acquisition.py: Step 1 - Pristine Structure Download.\
+    \ Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures; cache locally under data/raw/pristine_structures.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:37:36Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic dataset with 1000 rows using seed 42
+  claim_id: c_7553affb
+  context: 'If status: pending_synthetic, generate data/raw/synthetic_train.csv (exactly
+    1000 rows) using seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic_train.csv with exactly 1000 rows using seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:37:54Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Perform 1000 permutations for p-value generation
+  claim_id: c_472cf256
+  context: Generate p-values via N=1000 permutations (shuffling target values) for
+    every feature for every target property.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 1000 permutations for p-value calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:38:12Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Workflow execution time limit of 6 hours
+  claim_id: c_5a334acf
+  context: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run complete workflow within 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:38:37Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Memory usage limit of 7 GB RAM
+  claim_id: c_0301c65e
+  context: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit memory usage to 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:38:54Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR control at q 0.05
+  claim_id: c_3e9f2e9d
+  context: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values across\
+    \ all hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:38:54Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Perform 5-fold cross-validation
+  claim_id: c_ea8bac26
+  context: "Perform k-fold cross-validation (k=5) on the models trained in T021; compute\
+    \ mean R\xB2, MAPE, and standard deviation of R\xB2 (cv_std)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: the PI-CAI dataset (n= 1500) with cross-cohort validation on Prostate158
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '1500'
+    filled: true
+  kind: numeric
+  raw_text: Perform 5-fold cross-validation
+  resolved_value: '1500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T04:39:22Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use 80/20 train-test split
+  claim_id: c_25914433
+  context: "Can be fully tested by training the random forest models on a random split\
+    \ (80/20, seed=42), evaluating on the test split, and reporting R\xB2 and MAPE\
+    \ for all three target properties."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split data into 80/20 train-test split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:39:37Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Feature selection loop limit of 10 iterations for VIF > 5
+  claim_id: c_856a236c
+  context: 'If VIF > 5 after 10 iterations, abort the loop, log status: ''VIF_FAILURE''
+    to data/processed/feature_selection_log.json, and proceed with the current feature
+    set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude entries with VIF > 5 after 10 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:39:38Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Fracture energy bounds of 0.1 to 10.0 J per m2
+  claim_id: c_21a365ee
+  context: "The fallback generator MUST accept defect_type and defect_density and\
+    \ return fracture_energy within [0.1, 10.0] J/m\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate fracture energy values within [0.1, 10.0] J/m\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:40:07Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Mock DFTB+ fallback timeout of 300 seconds
+  claim_id: c_a806c67b
+  context: "For entries with missing fracture_energy, invoke a mock DFTB+ fallback\
+    \ (best effort, \u2264300 seconds)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mock DFTB+ fallback must complete within 300 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T04:40:22Z'

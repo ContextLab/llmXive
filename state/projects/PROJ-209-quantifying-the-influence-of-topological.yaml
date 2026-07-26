@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-209-quantifying-the-influence-of-topological
-last_run_id: 2d8a1a9c-1a93-4709-b922-51e97b8c06e8
+last_run_id: d7d9f9dd-9bac-4c99-852b-6cd0346f5618
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological
 title: Quantifying the Influence of Topological Defects on 2D Material Properties
-updated_at: '2026-07-25T00:08:56.349712Z'
+updated_at: '2026-07-26T05:19:22.291969Z'

@@ -1,6 +1,5 @@
 '|cross fold perform validation':
-  quote: 2015). In most low- and middle-income countries (LMICs), census or administrative
-    microdata
-  source_id: '2604.23464'
-  url: https://arxiv.org/abs/2604.23464
-  value: '5'
+  quote: the PI-CAI dataset (n= 1500) with cross-cohort validation on Prostate158
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '1500'

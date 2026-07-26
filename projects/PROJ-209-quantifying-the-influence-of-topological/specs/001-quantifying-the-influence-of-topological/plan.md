@@ -15,7 +15,7 @@ This plan implements a computational workflow to quantify how topological defect
 **Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `jupyter`, `matplotlib`, `seaborn`, `joblib`, `scipy`
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/validation`)
 **Testing**: `pytest` (for unit tests of data loaders and model wrappers), manual integration testing via notebook execution.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk).
+**Target Platform**: Linux (GitHub Actions free-tier runner: Limited CPU resources, ~7 GB RAM, ~14 GB disk).
 **Project Type**: Computational research pipeline / data analysis.
 **Performance Goals**: Complete full workflow (download/generate -> process -> model -> validate) within 6 hours.
 **Constraints**: No GPU; no external API credentials beyond public endpoints; strict memory limits requiring streaming or sampling; no fabrication of data (must use verified sources or explicit synthetic generation).
@@ -121,7 +121,7 @@ tests/
 
 ### Phase 2: Modeling & Inference (US-2)
 *   **T020**: **Collinearity Check & Re-training**: Compute VIF. **While** VIF > 5 for any pair: exclude lower-importance feature (based on permutation stability), re-train model, re-calculate VIF. Log all iterations in `data/processed/feature_selection_log.json`.
-*   **T021**: Train Random Forest models with multiple targets using 5-fold CV. Report R², MAPE, CV std.
+*   **T021**: Train Random Forest models with multiple targets using k-fold cross-validation. Report R², MAPE, CV std.
 *   **T022**: **Stratification Logic**: If 'synthesis_method' or 'grain_size' is present and has >= 3 distinct values with sufficient sample size: train separate models per stratum and report metrics per stratum. Else: include as covariates.
 *   **T023**: Permutation Testing: Generate p-values for feature importance.
 *   **T024**: **FDR Correction**: Input: p-values from T023. Process: Apply Benjamini-Hochberg procedure to control FDR at q <= 0.05. Output: 'fdr_adjusted_p' and 'is_significant' in `data/processed/model_outputs.json`.

@@ -4,339 +4,375 @@ import logging
 import pickle
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Dict, List, Any, Optional
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.metrics import mean_absolute_percentage_error, r2_score
-from sklearn.linear_model import LinearRegression
-from typing import Dict, List, Any, Optional, Tuple
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from scipy.stats import zscore
 
-# Import shared utilities from infrastructure if available, otherwise define locally
-try:
-    from infrastructure.path_utils import get_project_root, ensure_dir
-except ImportError:
-    def get_project_root():
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    
-    def ensure_dir(path: str):
-        os.makedirs(path, exist_ok=True)
+# Project root and config
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def load_json_file(path: str) -> Dict:
+def get_project_root() -> Path:
+    return PROJECT_ROOT
+
+def ensure_output_directories() -> None:
+    """Ensure all required output directories exist."""
+    dirs = [
+        PROJECT_ROOT / "data" / "processed",
+        PROJECT_ROOT / "data" / "state",
+        PROJECT_ROOT / "figures"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+def load_json_file(path: Path) -> Dict:
     with open(path, 'r') as f:
         return json.load(f)
 
-def save_json_file(path: str, data: Dict):
-    ensure_dir(os.path.dirname(path))
+def save_json_file(path: Path, data: Dict) -> None:
     with open(path, 'w') as f:
         json.dump(data, f, indent=2)
 
-def load_csv_to_dicts(path: str) -> List[Dict]:
-    df = pd.read_csv(path)
-    return df.to_dict('records')
+def load_csv_to_dicts(path: Path) -> List[Dict]:
+    with open(path, 'r') as f:
+        reader = csv.DictReader(f)
+        return [row for row in reader]
 
-def save_to_csv(path: str, data: List[Dict]):
-    ensure_dir(os.path.dirname(path))
+def save_to_csv(path: Path, data: List[Dict], fieldnames: Optional[List[str]] = None) -> None:
     if not data:
-        # Create empty file with headers if needed, or just return
-        pd.DataFrame().to_csv(path, index=False)
+        # Write empty file with headers if provided, or just create file
+        with open(path, 'w') as f:
+            if fieldnames:
+                f.write(','.join(fieldnames) + '\n')
         return
-    df = pd.DataFrame(data)
-    df.to_csv(path, index=False)
+    
+    if not fieldnames:
+        fieldnames = list(data[0].keys())
+    
+    with open(path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+
+def load_pandas_df(path: Path) -> pd.DataFrame:
+    """Load a CSV into a pandas DataFrame."""
+    return pd.read_csv(path)
 
 def compute_vif(features: pd.DataFrame) -> Dict[str, float]:
     """Compute Variance Inflation Factor for each feature."""
     vif_data = {}
-    # Add intercept for VIF calculation
-    X = features.copy()
-    for col in X.columns:
-        if X[col].dtype in [np.int64, np.float64]:
-            continue
-        # One-hot encode if necessary (simplified assumption: numeric only for VIF)
-    
-    # Simple VIF implementation
-    for i, col in enumerate(X.columns):
-        if X[col].dtype not in [np.int64, np.float64]:
-            continue
-        y = X[col]
-        X_other = X.drop(columns=[col])
-        if X_other.shape[1] == 0:
-            vif_data[col] = 1.0
-            continue
+    for i, col in enumerate(features.columns):
+        X = features[features.columns.drop(col)]
+        y = features[col]
         try:
-            model = LinearRegression()
-            model.fit(X_other, y)
-            rsq = model.score(X_other, y)
-            vif = 1.0 / (1.0 - rsq) if (1.0 - rsq) > 1e-9 else np.inf
-            vif_data[col] = vif
-        except Exception:
-            vif_data[col] = np.inf
+            r_squared = np.corrcoef(y, X.sum(axis=1))[0, 1] ** 2 if X.shape[1] == 1 else pd.DataFrame(X).apply(lambda x: np.corrcoef(x, y)[0,1], axis=0).mean() ** 2
+            # Proper VIF calculation using OLS R2
+            from sklearn.linear_model import LinearRegression
+            model = LinearRegression().fit(X, y)
+            r_squared = model.score(X, y)
+            vif = 1 / (1 - r_squared) if (1 - r_squared) > 0 else float('inf')
+        except:
+            vif = float('inf')
+        vif_data[col] = vif
     return vif_data
 
-def train_initial_rf_for_importance(X: pd.DataFrame, y: pd.Series, n_estimators: int = 50, random_state: int = 42) -> RandomForestRegressor:
-    model = RandomForestRegressor(n_estimators=n_estimators, random_state=random_state, n_jobs=-1)
-    model.fit(X, y)
-    return model
+def train_initial_rf_for_importance(X: pd.DataFrame, y: pd.Series, random_state: int = 42) -> RandomForestRegressor:
+    """Train a preliminary RF to estimate feature importance."""
+    rf = RandomForestRegressor(n_estimators=100, random_state=random_state, n_jobs=-1)
+    rf.fit(X, y)
+    return rf
 
-def save_preliminary_importance(model: RandomForestRegressor, feature_names: List[str], path: str):
-    importances = model.feature_importances_
-    data = [{"feature": name, "importance": float(imp)} for name, imp in zip(feature_names, importances)]
-    save_to_csv(path, data)
+def save_preliminary_importance(path: Path, importance_dict: Dict[str, float]) -> None:
+    """Save preliminary importance scores."""
+    save_json_file(path, importance_dict)
 
-def run_preliminary_model_training(features_path: str, targets_path: str, output_model_path: str, importance_path: str):
-    features_df = pd.read_csv(features_path)
-    targets_df = pd.read_csv(targets_path)
-    
-    # Assume target column is 'target_value' or similar, adjust based on actual schema
-    # For this task, we assume targets.csv has columns like 'conductivity', 'youngs_modulus', 'fracture_strength'
-    # But for preliminary, we might pick one or loop. Let's assume we train one generic model or specific ones.
-    # The task T021a says "single Random Forest model". Let's pick the first numeric target column.
-    target_cols = [c for c in targets_df.columns if c in features_df.columns] # Safety check
-    # Actually, targets and features are usually separate. Let's assume a standard target column name.
-    # Based on T018, targets are normalized changes. Let's assume column name 'target_value' or similar.
-    # If multiple targets, we might need to train separate models. T021a says "single".
-    # Let's assume the target column is named 'target' or we iterate.
-    # For T022, we need models for 3 properties. T021a is just for importance.
-    # Let's assume we train on the first available target column for importance.
-    
-    target_col = None
-    for col in ['conductivity', 'youngs_modulus', 'fracture_strength', 'target_value', 'y']:
-        if col in targets_df.columns:
-            target_col = col
-            break
-    
-    if target_col is None:
-        raise ValueError("No target column found in targets.csv")
-        
-    X = features_df.dropna(axis=1, how='all')
-    y = targets_df[target_col]
-    
-    # Align indices
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
-    
-    model = train_initial_rf_for_importance(X, y)
-    with open(output_model_path, 'wb') as f:
-        pickle.dump(model, f)
-    
-    save_preliminary_importance(model, X.columns.tolist(), importance_path)
-    return model
-
-def handle_collinearity(vif_data: Dict[str, float], threshold: float = 5.0) -> List[str]:
-    # Return features to keep (VIF <= threshold)
-    return [k for k, v in vif_data.items() if v <= threshold]
-
-def run_feature_selection_loop(features_path: str, targets_path: str, model_path: str, log_path: str, max_iter: int = 10):
-    # Load data
-    features_df = pd.read_csv(features_path)
-    targets_df = pd.read_csv(targets_path)
-    
-    # Determine target
-    target_col = None
-    for col in ['conductivity', 'youngs_modulus', 'fracture_strength', 'target_value', 'y']:
-        if col in targets_df.columns:
-            target_col = col
-            break
-    if target_col is None:
-        raise ValueError("Target column not found")
-        
-    X = features_df
-    y = targets_df[target_col]
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
-    
-    log_data = []
-    current_features = list(X.columns)
-    
-    for i in range(max_iter):
-        vif_data = compute_vif(X[current_features])
-        max_vif = max(vif_data.values()) if vif_data else 0
-        
-        log_entry = {"iteration": i, "features": current_features, "max_vif": max_vif}
-        log_data.append(log_entry)
-        
-        if max_vif <= 5.0:
-            break
-        
-        # Find lowest importance
-        # Train quick model on current features
-        model = train_initial_rf_for_importance(X[current_features], y, n_estimators=10)
-        importances = model.feature_importances_
-        feature_importance = list(zip(current_features, importances))
-        # Sort by importance ascending
-        feature_importance.sort(key=lambda x: x[1])
-        
-        # Remove lowest
-        removed_feature = feature_importance[0][0]
-        current_features.remove(removed_feature)
-        log_entry["removed_feature"] = removed_feature
-        logging.info(f"Removed feature {removed_feature} (VIF: {vif_data.get(removed_feature, 'N/A')}, Importance: {feature_importance[0][1]})")
-        
-        if len(current_features) <= 1:
-            break
-    
-    save_json_file(log_path, log_data)
-    return current_features
-
-def train_models_with_loop(features_path: str, targets_path: str, output_dir: str, max_iter: int = 10):
-    # This function implements the full training loop with VIF check
-    # It trains separate models for conductivity, youngs_modulus, fracture_strength
-    features_df = pd.read_csv(features_path)
-    targets_df = pd.read_csv(targets_path)
-    
-    target_cols = ['conductivity', 'youngs_modulus', 'fracture_strength']
-    models = {}
-    
-    for target in target_cols:
-        if target not in targets_df.columns:
-            logging.warning(f"Target {target} not found, skipping.")
-            continue
-            
-        y = targets_df[target]
-        X = features_df
-        common_idx = X.index.intersection(y.index)
-        X = X.loc[common_idx]
-        y = y.loc[common_idx]
-        
-        current_features = list(X.columns)
-        
-        for i in range(max_iter):
-            vif_data = compute_vif(X[current_features])
-            max_vif = max(vif_data.values()) if vif_data else 0
-            
-            if max_vif <= 5.0:
-                break
-            
-            # Train quick model
-            model_temp = train_initial_rf_for_importance(X[current_features], y, n_estimators=10)
-            importances = model_temp.feature_importances_
-            feature_importance = list(zip(current_features, importances))
-            feature_importance.sort(key=lambda x: x[1])
-            
-            removed_feature = feature_importance[0][0]
-            current_features.remove(removed_feature)
-            
-            if len(current_features) <= 1:
-                break
-        
-        # Train final model
-        X_final = X[current_features]
-        model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-        model.fit(X_final, y)
-        models[target] = {"model": model, "features": current_features}
-        
-        with open(os.path.join(output_dir, f"model_{target}.pkl"), 'wb') as f:
-            pickle.dump(models[target], f)
-            
-    return models
-
-def run_cross_validation(models_dir: str, features_path: str, targets_path: str, output_path: str):
+def handle_collinearity(features: pd.DataFrame, threshold: float = 5.0, max_iterations: int = 10) -> tuple:
     """
-    Perform k-fold cross-validation (k=5) on the models trained in T021.
-    Compute mean R², MAPE, and standard deviation of R² (cv_std).
-    Flag as HIGH_VARIANCE if cv_std > 0.1.
+    Handle collinearity by removing features with high VIF.
+    Returns (remaining_features, log)
     """
-    import os
-    import json
-    import pickle
-    import pandas as pd
-    import numpy as np
-    from sklearn.model_selection import cross_val_score, KFold
-    from sklearn.metrics import mean_absolute_percentage_error, r2_score
-    from typing import Dict, List, Any
-
-    # Load features and targets
-    features_df = pd.read_csv(features_path)
-    targets_df = pd.read_csv(targets_path)
-
-    target_names = ['conductivity', 'youngs_modulus', 'fracture_strength']
-    results = {}
-
-    for target in target_names:
-        model_path = os.path.join(models_dir, f"model_{target}.pkl")
-        if not os.path.exists(model_path):
-            logging.warning(f"Model for {target} not found at {model_path}. Skipping.")
-            continue
-
-        with open(model_path, 'rb') as f:
-            model_data = pickle.load(f)
+    log = {
+        "iterations": [],
+        "status": "PENDING",
+        "final_features": list(features.columns)
+    }
+    
+    current_features = features.copy()
+    iteration = 0
+    
+    while iteration < max_iterations:
+        vif_scores = compute_vif(current_features)
+        max_vif = max(vif_scores.values())
+        max_vif_feature = max(vif_scores, key=vif_scores.get)
         
-        model = model_data['model']
-        used_features = model_data['features']
-
-        X = features_df[used_features]
-        y = targets_df[target]
-
-        # Align indices
-        common_idx = X.index.intersection(y.index)
-        X = X.loc[common_idx]
-        y = y.loc[common_idx]
-
-        # Perform 5-fold CV
-        kfold = KFold(n_splits=5, shuffle=True, random_state=42)
-        
-        # Compute R2 scores for each fold
-        r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
-        
-        # Compute MAPE for each fold (requires manual loop or custom scorer)
-        # cross_val_score doesn't support MAPE directly without custom scorer
-        mape_scores = []
-        for train_idx, test_idx in kfold.split(X):
-            X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-            y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
-            
-            model_fold = RandomForestRegressor(n_estimators=model.n_estimators, random_state=42, n_jobs=-1)
-            model_fold.fit(X_train, y_train)
-            y_pred = model_fold.predict(X_test)
-            
-            # Avoid division by zero in MAPE
-            mape = mean_absolute_percentage_error(y_test, y_pred)
-            mape_scores.append(mape)
-
-        mean_r2 = np.mean(r2_scores)
-        std_r2 = np.std(r2_scores)
-        mean_mape = np.mean(mape_scores)
-        
-        high_variance = std_r2 > 0.1
-
-        results[target] = {
-            "mean_r2": float(mean_r2),
-            "std_r2": float(std_r2),
-            "mean_mape": float(mean_mape),
-            "high_variance": high_variance,
-            "fold_r2_scores": r2_scores.tolist(),
-            "fold_mape_scores": mape_scores
+        iteration_log = {
+            "iteration": iteration,
+            "max_vif": max_vif,
+            "max_vif_feature": max_vif_feature,
+            "threshold": threshold
         }
+        
+        if max_vif <= threshold:
+            log["status"] = "SUCCESS"
+            break
+        
+        # Remove feature with highest VIF
+        current_features = current_features.drop(columns=[max_vif_feature])
+        iteration_log["action"] = "removed"
+        
+        log["iterations"].append(iteration_log)
+        iteration += 1
+        
+        if iteration >= max_iterations:
+            log["status"] = "VIF_FAILURE"
+            log["message"] = "Max iterations reached, VIF still > threshold"
+            break
+    
+    log["final_features"] = list(current_features.columns)
+    return current_features, log
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def run_feature_selection_loop(features_path: Path, output_path: Path, log_path: Path) -> List[str]:
+    """Run the full feature selection loop and save results."""
+    ensure_output_directories()
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    df = load_pandas_df(features_path)
+    # Assume all columns except 'id' or 'target' are features
+    feature_cols = [c for c in df.columns if c not in ['id', 'target', 'defect_type']]
+    if not feature_cols:
+        # Fallback if schema differs
+        feature_cols = [c for c in df.columns if c != 'target']
     
-    logging.info(f"Cross-validation results saved to {output_path}")
-    return results
+    features_df = df[feature_cols].dropna(axis=1) # Drop features with NaNs
+    
+    selected_features, log = handle_collinearity(features_df)
+    
+    save_json_file(log_path, log)
+    save_to_csv(output_path, [{"feature": f} for f in selected_features.columns], fieldnames=["feature"])
+    
+    return list(selected_features.columns)
+
+def train_models_with_loop(
+    features_path: Path, 
+    targets_path: Path, 
+    selected_features_path: Path,
+    models_output_path: Path,
+    metrics_output_path: Path
+) -> Dict[str, Any]:
+    """
+    Step 3: Model Training.
+    Train Random Forest regressors for conductivity, Young's modulus, and fracture strength
+    using the final feature set from T020.
+    """
+    ensure_output_directories()
+    
+    # Load selected features
+    selected_features_data = load_csv_to_dicts(selected_features_path)
+    selected_features = [row['feature'] for row in selected_features_data]
+    
+    # Load features and targets
+    features_df = load_pandas_df(features_path)
+    targets_df = load_pandas_df(targets_path)
+    
+    # Filter features to only selected ones
+    available_features = [f for f in selected_features if f in features_df.columns]
+    if len(available_features) != len(selected_features):
+        missing = set(selected_features) - set(available_features)
+        logging.warning(f"Missing features in dataset: {missing}. Proceeding with available: {available_features}")
+    
+    X = features_df[available_features].dropna()
+    # Align targets with X
+    valid_indices = X.index
+    y_dict = {}
+    
+    # Define target columns based on task description
+    target_mapping = {
+        "conductivity": "conductivity",
+        "youngs_modulus": "youngs_modulus", # Assuming column name in targets
+        "fracture_strength": "fracture_strength"
+    }
+    
+    # Adjust target column names if they differ in the actual CSV
+    # Common variations: 'target_conductivity', 'y_conductivity', etc.
+    # We will try to find the column that matches or contains the key
+    actual_targets = {}
+    for key, col_guess in target_mapping.items():
+        if col_guess in targets_df.columns:
+            actual_targets[key] = col_guess
+        else:
+            # Fuzzy match
+            matches = [c for c in targets_df.columns if key in c.lower()]
+            if matches:
+                actual_targets[key] = matches[0]
+            else:
+                logging.error(f"Target {key} not found in {targets_df.columns}")
+    
+    models = {}
+    metrics = {}
+    
+    for prop_key, target_col in actual_targets.items():
+        if target_col not in targets_df.columns:
+            logging.warning(f"Skipping {prop_key} due to missing target column.")
+            continue
+        
+        y = targets_df.loc[valid_indices, target_col].dropna()
+        # Re-align X
+        common_indices = X.index.intersection(y.index)
+        X_prop = X.loc[common_indices]
+        y_prop = y.loc[common_indices]
+        
+        if len(X_prop) < 10:
+            logging.warning(f"Not enough data for {prop_key} ({len(X_prop)} samples). Skipping.")
+            continue
+        
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_prop, y_prop, test_size=0.2, random_state=42
+        )
+        
+        # Train Random Forest
+        rf = RandomForestRegressor(
+            n_estimators=100, 
+            max_depth=None, 
+            random_state=42, 
+            n_jobs=-1
+        )
+        rf.fit(X_train, y_train)
+        
+        # Predictions
+        y_pred = rf.predict(X_test)
+        
+        # Metrics
+        r2 = r2_score(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        
+        models[prop_key] = rf
+        metrics[prop_key] = {
+            "r2": float(r2),
+            "mae": float(mae),
+            "rmse": float(rmse),
+            "n_train": len(X_train),
+            "n_test": len(X_test),
+            "features_used": list(X_train.columns)
+        }
+        
+        logging.info(f"Model trained for {prop_key}: R2={r2:.4f}, MAE={mae:.4f}")
+    
+    # Save models
+    with open(models_output_path, 'wb') as f:
+        pickle.dump(models, f)
+    
+    # Save metrics
+    save_json_file(metrics_output_path, metrics)
+    
+    return metrics
+
+def run_cross_validation(
+    models_path: Path, 
+    features_path: Path, 
+    targets_path: Path, 
+    output_path: Path,
+    k_folds: int = 5
+) -> Dict:
+    """Perform k-fold cross-validation on trained models."""
+    from sklearn.model_selection import cross_val_score, KFold
+    
+    with open(models_path, 'rb') as f:
+        models = pickle.load(f)
+    
+    features_df = load_pandas_df(features_path)
+    targets_df = load_pandas_df(targets_path)
+    
+    cv_results = {}
+    
+    for prop_key, model in models.items():
+        # Find target column
+        target_col = None
+        for t in targets_df.columns:
+            if prop_key in t.lower():
+                target_col = t
+                break
+        
+        if not target_col:
+            continue
+        
+        # Prepare data
+        X = features_df.dropna()
+        y = targets_df.loc[X.index, target_col].dropna()
+        common_idx = X.index.intersection(y.index)
+        X_cv = X.loc[common_idx]
+        y_cv = y.loc[common_idx]
+        
+        if len(X_cv) < k_folds:
+            cv_results[prop_key] = {"error": "Insufficient data for CV"}
+            continue
+        
+        kf = KFold(n_splits=k_folds, shuffle=True, random_state=42)
+        r2_scores = cross_val_score(model, X_cv, y_cv, cv=kf, scoring='r2')
+        mae_scores = cross_val_score(model, X_cv, y_cv, cv=kf, scoring='neg_mean_absolute_error')
+        mae_scores = -mae_scores # Convert to positive
+        
+        cv_results[prop_key] = {
+            "r2_mean": float(np.mean(r2_scores)),
+            "r2_std": float(np.std(r2_scores)),
+            "mae_mean": float(np.mean(mae_scores)),
+            "mae_std": float(np.std(mae_scores)),
+            "cv_std": float(np.std(r2_scores)) # Specific flag for high variance
+        }
+    
+    save_json_file(output_path, cv_results)
+    return cv_results
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-    project_root = get_project_root()
+    """
+    Main entry point for Model Training (T021).
+    Dependencies: T020 (feature selection), T018 (processed features/targets).
+    """
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Paths
-    features_path = os.path.join(project_root, "data", "processed", "final_features.csv")
-    targets_path = os.path.join(project_root, "data", "processed", "targets.csv")
-    models_dir = os.path.join(project_root, "data", "processed")
-    output_path = os.path.join(project_root, "data", "processed", "cv_results.json")
+    # Define paths
+    features_path = PROJECT_ROOT / "data" / "processed" / "features.csv"
+    targets_path = PROJECT_ROOT / "data" / "processed" / "targets.csv"
+    selected_features_path = PROJECT_ROOT / "data" / "processed" / "final_features.csv"
+    models_output_path = PROJECT_ROOT / "data" / "processed" / "final_models.pkl"
+    metrics_output_path = PROJECT_ROOT / "data" / "processed" / "training_metrics.json"
     
-    if not os.path.exists(features_path) or not os.path.exists(targets_path):
-        logging.error("Processed data files not found. Run T018 and T020 first.")
-        return
+    # Ensure directories exist
+    ensure_output_directories()
+    
+    try:
+        # Check prerequisites
+        if not features_path.exists():
+            raise FileNotFoundError(f"Features file not found: {features_path}")
+        if not targets_path.exists():
+            raise FileNotFoundError(f"Targets file not found: {targets_path}")
+        if not selected_features_path.exists():
+            raise FileNotFoundError(f"Selected features file not found: {selected_features_path}")
         
-    if not os.path.exists(os.path.join(models_dir, "model_conductivity.pkl")):
-        logging.error("Models not found. Run T021 first.")
-        return
-
-    results = run_cross_validation(models_dir, features_path, targets_path, output_path)
-    print(json.dumps(results, indent=2))
+        logging.info("Starting Model Training (T021)...")
+        
+        # Run training
+        metrics = train_models_with_loop(
+            features_path=features_path,
+            targets_path=targets_path,
+            selected_features_path=selected_features_path,
+            models_output_path=models_output_path,
+            metrics_output_path=metrics_output_path
+        )
+        
+        logging.info(f"Training complete. Metrics saved to {metrics_output_path}")
+        logging.info(f"Models saved to {models_output_path}")
+        
+    except Exception as e:
+        logging.error(f"Model training failed: {e}")
+        # Write error state to guarantee output
+        save_json_file(metrics_output_path, {"error": str(e)})
+        # Create empty pickle to avoid downstream crashes
+        with open(models_output_path, 'wb') as f:
+            pickle.dump({}, f)
+        raise
 
 if __name__ == "__main__":
     main()
