@@ -45,7 +45,7 @@
 
 - [X] T001a Create `code/__init__.py`
 - [X] T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`
-- [ ] T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`
+- [X] T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -57,9 +57,9 @@
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`
 - [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (a fixed value), constants (including `MISSINGNESS_THRESHOLD`), and the specific OSF DOI string for the dataset
 - [ ] T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`: `daily_aggregates.schema.yaml` and `model_results.schema.yaml`
-- [ ] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
+- [X] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
 - [ ] T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...` (specific DOI string from config), verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
-- [ ] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
+- [X] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/preprocess.py` to load `data/raw/bronze.parquet` and parse raw step logs into daily totals
+- [X] T011 [US1] Implement `code/preprocess.py` to load `data/raw/bronze.parquet` and parse raw step logs into daily totals
 - [X] T012 [US1] [Depends: T007] Implement `code/preprocess.py` logic to derive `sleep_duration` and `baseline_affect` from raw data if missing, using `config.MISSINGNESS_THRESHOLD` to decide between derivation and proceeding without them (per spec Assumptions); ensure derived columns are written to the output CSV
 - [X] T013 [US1] [Depends: T011] Implement `code/preprocess.py` logic to align EMA mood timestamps and exclude records with missing critical values
 - [X] T014 [US1] [Depends: T011] Implement `code/preprocess.py` logic to compute daily aggregates: `mean_mood` and `mood_std` (excluding days with < 2 valid ratings)

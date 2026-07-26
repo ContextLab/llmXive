@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.10774",
+  "judged_at": "2026-07-26T07:30:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the fundamental mechanism of wear resistance and the evolution of surface roughness on silica under unlubricated conditions, providing essential empirical baseline data on how surface topography changes during wear—a core component of the user's question regarding laser surface texturing's impact on wear resistance. Although it does not explicitly mention laser texturing, it establishes the canonical physical behavior of roughness evol",
+  "relevant": true
+}

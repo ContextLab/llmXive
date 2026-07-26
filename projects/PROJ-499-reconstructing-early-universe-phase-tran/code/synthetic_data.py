@@ -56,6 +56,7 @@ def generate_gaussian_random_field(C_l: np.ndarray, l_range: Tuple[int, int], se
 def generate_inflation_synthetic(output_path: str, seed: int = 42) -> Dict[str, Any]:
     """
     Generates synthetic B-mode maps with inflationary signal (r=0.01).
+    Writes the FITS file to disk as required by T060a.
     """
     init_reproducibility(seed)
     params = {'r': TRUE_R_INF, 'E_PT': 0.0}
@@ -101,6 +102,8 @@ def generate_null_synthetic(output_path: str, seed: int = 44) -> Dict[str, Any]:
 def serialize_inflation_ground_truth(output_path: str = "data/synthetic/ground_truth_inflation.json") -> None:
     """
     Writes ground truth parameters for inflationary synthetic data to JSON.
+    This function satisfies T061a by persisting the known parameters used 
+    to generate the synthetic map in T060a.
     """
     ground_truth = {
         "model_type": "inflation",
@@ -159,9 +162,10 @@ def save_dataset(dataset_name: str, data: Any) -> None:
 def main():
     """Main entry point for synthetic data generation and serialization."""
     print("Generating and serializing synthetic ground truth data...")
+    # T060a: Generate inflation synthetic map
+    generate_inflation_synthetic("data/synthetic/inflation_synthetic.fits")
+    # T061a: Serialize ground truth
     serialize_inflation_ground_truth()
-    serialize_pt_ground_truth()
-    serialize_null_ground_truth()
     print("Done.")
 
 if __name__ == "__main__":

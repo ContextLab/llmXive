@@ -411,6 +411,10 @@
     "classified_at": "2026-06-25T05:44:46Z",
     "verdict": false
   },
+  "PROJ-293-predicting-the-impact-of-laser-surface-t::1.6.0": {
+    "classified_at": "2026-07-26T07:30:34Z",
+    "verdict": false
+  },
   "PROJ-301-predicting-molecular-descriptors-from-qu::1.6.0": {
     "classified_at": "2026-06-25T21:29:39Z",
     "verdict": false

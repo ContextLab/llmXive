@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.00116",
+  "judged_at": "2026-07-26T07:30:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it empirically measures the wear resistance (tribological behavior) of materials modified by laser surface processing (specifically laser surface alloying, a laser texturing/processing mechanism), providing direct evidence on the relationship between laser treatment and wear performance in the materials science domain.",
+  "relevant": true
+}

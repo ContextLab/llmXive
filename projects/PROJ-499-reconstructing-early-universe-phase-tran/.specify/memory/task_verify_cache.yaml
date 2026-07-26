@@ -8,11 +8,14 @@ T012:
     \ download, verification, and checksum\u2011recording behavior is not implemented."
 T014:
   c: false
-  h: 4390f1ab7fda6be38500c6d4c6bbbd6d33181d43aa4bdb873e4431a314857e11
-  r: The `code/spectrum_computation.py` file is only partially implemented (truncated
-    before the actual `anafast` call and without any logic to save results), and the
-    required output `data/derived/cl_bb_spectrum.json` does not exist. Both the functional
-    implementation and the expected output artifact are missing.
+  h: e6f089d62078dc2de43ae606438280bfb93cebefc9a960d61310e39350ca1473
+  r: 'The required output artifact `data/derived/cl_bb_spectrum.json` is missing from
+    the disk, failing the explicit requirement to generate this file. Additionally,
+    the implementation in `code/spectrum_computation.py` contains a critical logic
+    error: it passes the full map (likely containing I, Q, U components) directly
+    to `hp.anafast` instead of extracting the specific B-mode component, and it attempts
+    to access `hp.UNMASK` which is not a standard healpy constant, likely causing
+    the function to return an empty array or crash before saving.'
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -103,15 +106,16 @@ T043:
     \ pipeline execution succeeded and met the time constraint."
 T060a:
   c: false
-  h: 71dea067466c1b80c2bf9b6a2f31b59a03b30d9406a30814dca0a78c337415e0
-  r: "The repository contains a `generate_inflation_synthetic` implementation that\
-    \ writes a HEALPix map, but the required output file `data/synthetic/inflation_synthetic.fits`\
-    \ is absent from the disk. Without the artifact, the task\u2019s deliverable is\
-    \ not satisfied."
+  h: a3296d72f9f8c37def9959a8bb789bb0fa44a42f7089e066607e98668911a666
+  r: "The `generate_inflation_synthetic` function is implemented and would write a\
+    \ FITS map, but the required artifact `data/synthetic/inflation_synthetic.fits`\
+    \ does not exist on disk, so the task\u2019s output artifact is missing. The next\
+    \ implementer must run the function (or otherwise generate) to create the FITS\
+    \ file at the specified location."
 T061a:
   c: false
-  h: 35f7ec9816c7e005f02017173f35ffe20c7e6e56690e927c6277f38d44d337af
-  r: "The required output file `data/synthetic/ground_truth_inflation.json` does not\
-    \ exist, and the provided `code/synthetic_data.py` excerpt does not contain a\
-    \ `serialize_inflation_ground_truth` function that would create it. The task\u2019\
-    s core artifact is therefore missing."
+  h: 89f138e75e93afb92320646cb3d3192556a3c525e2980d98406d54f1983e164c
+  r: The required artifact `data/synthetic/ground_truth_inflation.json` does not exist,
+    and the provided `code/synthetic_data.py` excerpt does not contain (or show) an
+    implementation of `serialize_inflation_ground_truth` that would create that file.
+    The task therefore remains unfinished.

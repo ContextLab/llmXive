@@ -1,0 +1,594 @@
+{
+  "fetched_at": "2026-07-26T07:30:51Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Laser Surface Texturing on Wear Resistance",
+      "target_n": 5
+    },
+    "duration_seconds": 45.464,
+    "ended_at": "2026-07-26T07:30:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "laser surface texturing wear behavior"
+        ],
+        [
+          2,
+          "effect of laser texturing on tribological performance"
+        ],
+        [
+          3,
+          "laser-induced surface patterns friction and wear"
+        ],
+        [
+          4,
+          "laser surface modification wear resistance"
+        ],
+        [
+          5,
+          "micro-textured surfaces wear reduction"
+        ],
+        [
+          6,
+          "laser surface engineering tribology"
+        ],
+        [
+          7,
+          "laser texturing sliding wear mechanisms"
+        ],
+        [
+          8,
+          "laser surface structuring friction coefficient"
+        ],
+        [
+          9,
+          "laser-generated surface textures wear life"
+        ],
+        [
+          10,
+          "laser texturing dry sliding wear"
+        ],
+        [
+          11,
+          "laser surface texturing lubrication regimes"
+        ],
+        [
+          12,
+          "laser surface texturing adhesive wear"
+        ],
+        [
+          13,
+          "laser surface texturing abrasive wear"
+        ],
+        [
+          14,
+          "laser surface texturing fretting fatigue"
+        ],
+        [
+          15,
+          "laser surface texturing contact mechanics"
+        ],
+        [
+          16,
+          "laser surface texturing surface integrity"
+        ],
+        [
+          17,
+          "laser surface texturing material removal"
+        ],
+        [
+          18,
+          "laser surface texturing surface topography wear"
+        ],
+        [
+          19,
+          "laser surface texturing coefficient of friction"
+        ],
+        [
+          20,
+          "laser surface texturing tribological optimization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Laser Surface Texturing on Wear Resistance materials science": 0,
+        "laser surface texturing wear behavior": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "laser surface patterning tribology enhancement",
+      "DLC coatings laser texturing friction reduction",
+      "surface topography homophily wear mechanisms",
+      "coefficient of friction specific wear rate",
+      "asperity contact mechanics laser ablation debris"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1305.4705"
+      ]
+    },
+    "per_query_hit_count": {
+      "DLC coatings laser texturing friction reduction": 3,
+      "Predicting the Impact of Laser Surface Texturing on Wear Resistance materials science": 3,
+      "asperity contact mechanics laser ablation debris": 2,
+      "coefficient of friction specific wear rate": 1,
+      "laser surface patterning tribology enhancement": 3,
+      "surface topography homophily wear mechanisms": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-26T07:30:06Z",
+    "term_input": {
+      "normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+      "raw": "Predicting the Impact of Laser Surface Texturing on Wear Resistance materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-26T07:30:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-26T07:30:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The fabrication and integration of high-quality structures of Yttrium Iron Garnet (YIG) is critical for magnonics.Films with excellent properties are obtained only on single crystal Gadolinium Gallium Garnet (GGG) substrates using high-temperature processes. The subsequent realization of magnonic structures via lithography and etching is not straightforward as it requires a tight control of the edge roughness, to avoid magnon scattering, and planarization in case of multilayer devices. In this work we describe a different approach based on local laser annealing of amorphous YIG films, avoiding the need for subjecting the entire sample to high thermal budgets and for physical etching. Starting from amorphous and paramagnetic YIG films grown by pulsed laser deposition at room temperature on GGG, a 405 nm laser is used for patterning arbitrary shaped ferrimagnetic structures by local crystallization. In thick films (160 nm) the laser induced surface corrugation prevents the propagation of spin-wave modes in patterned conduits. For thinner films (80 nm) coherent propagation is observed in 1.2 micron wide conduits displaying an attenuation length of 5 micron which is compatible with a damping coefficient of about 5e-3. Possible routes to achieve damping coefficients compatible with state-of-the art epitaxial YIG films are discussed.",
+          "claimed_authors": [
+            "A. Del Giacco",
+            "F. Maspero",
+            "V. Levati",
+            "M. Vitali",
+            "E. Albisetti",
+            "D. Petti",
+            "L. Brambilla",
+            "V. Polewczyk",
+            "G. Vinai",
+            "G. Panaccione",
+            "R. Silvani",
+            "M. Madami",
+            "S. Tacchi",
+            "R. Dreyer",
+            "S. R. Lake",
+            "G. Woltersdorf",
+            "G. Schmidt",
+            "Riccardo Bertacco"
+          ],
+          "claimed_title": "Laser patterning of magnonic structure via local crystallization of Yittrium Iron Garnet",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.14444"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Laser patterning of magnonic structure via local crystallization of Yittrium Iron Garnet')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Laser cooling by collisional redistribution of radiation has been successfully applied in the past for cooling dense atomic gases. Here we report on progress of work aiming at the demonstration of redistribution laser cooling in a molecular gas. The candidate molecule strontium monohydride is produced by laser ablation of strontium dihydride in a pressurized noble gas atmosphere. The composition of the ablation plasma plume is analyzed by measuring its emission spectrum. The dynamics of SrH molecular density following the ablation laser pulse is studied as a function of the buffer gas pressure and the laser intensity.",
+          "claimed_authors": [
+            "Philipp Simon",
+            "Peter Moroshkin",
+            "Lars Weller",
+            "Anne Sass",
+            "Martin Weitz"
+          ],
+          "claimed_title": "Towards redistribution laser cooling of molecular gases: Production of candidate molecules SrH by laser ablation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.5233"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Towards redistribution laser cooling of molecular gases: Production of candidate molecules SrH by laser ablation')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A two-dimensional \\underline{Frenkel-Kontorova model} under a steady external force is used to study the nonlinear sliding friction between flat macroscopic surfaces with a lubricant layer in between. The nonequilibrium properties of the model are simulated by a Brownian molecular dynamics and results are obtained as a function of temperature and a microscopic friction parameter $η$.",
+          "claimed_authors": [
+            "E. Granato",
+            "M. R. Baldan",
+            "S. C. Ying"
+          ],
+          "claimed_title": "Sliding Friction in the Frenkel-Kontorova Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1995,
+          "primary_pointer": "cond-mat/9510058"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Sliding Friction in the Frenkel-Kontorova Model')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The influence of technological parameters of pulsed-DC chemical vapour deposition on the deposition rate, the mechanical properties and the residual stress of diamond-like carbon (DLC) coatings deposited onto a martensitic steel substrate, using a Ti buffer layer between coating and substrate, has been studied. For this purpose, a Plackett-Burman experiment design and Pareto charts were used to identify the most significant process parameters, such as deposition time, methane flux, chamber pressure, power, pulse frequency, substrate roughness and thickness of titanium thin film. The substrate surfaces, which were previously cleaned by argon plasma, and the DLC coatings were characterized by scanning electron microscopy (SEM) and atomic force microscopy (AFM). The mechanical properties (elastic modulus and hardness) and the residual stress of DLC coatings were determined by the nanoindentation technique and calotte grinding method, respectively. Finally, the causes of the relative effect of different process variables were discussed.",
+          "claimed_authors": [
+            "Luis F. Pantoja-Suárez",
+            "Miguel Morales",
+            "José-Luis andújar",
+            "Joan Esteve",
+            "Merce Segarra",
+            "Enric Bertran"
+          ],
+          "claimed_title": "Plackett-Burman experimental design for pulsed-DC-plasma deposition of DLC coatings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1507.04267"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Plackett-Burman experimental design for pulsed-DC-plasma deposition of DLC coatings')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Silver (Ag) coatings have been widely used in many industry areas due to their excellent conductivity. However, wider applications of Ag coatings have been hindered by their poor mechanical properties. In this research, to improve the mechanical performance, Ag-Bi nano-composite coatings were prepared by a novel ionic co-discharge method. A systematic study of the microstructure, mechanical properties, electrical conductivity and antibacterial behavior of the resulting coating was performed. The results indicated that after adding an appropriate amount of Bi containing solution into the Ag plating solution, Ag-Bi nano-particles were in-situ formed and distributed uniformly throughout the coating matrix, resulting in a significant improvement in the mechanical properties. The hardness of Ag-Bi coating was increased by 60% compared to that of the pure Ag coating. The corrosion resistance of Ag-Bi coatings was also enhanced. The outcome of this research may find a broader application in electronics, jewelry, aerospace and other industries.",
+          "claimed_authors": [
+            "Yuxin Wang",
+            "See Leng Tay",
+            "Xiaowei Zhou",
+            "Caizhen Yao",
+            "Wei Gao",
+            "Guang Cheng"
+          ],
+          "claimed_title": "Influence of Bi addition on the property of Ag-Bi nano-composite coatings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.01379"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Influence of Bi addition on the property of Ag-Bi nano-composite coatings')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During the wear process of surfaces in sliding friction, there is a running-in period during which the topography of surfaces changes with time before reaching the steady wear regime. In the steady wear regime, the statistical parameters used to describe the topography of the surfaces remain almost constant. Some experimental studies have shown that starting friction tests with different surface finish levels leads to the same final topography of surfaces in the regime of steady wear. This article proposes an analytical model to describe the evolution of the topography of surfaces during sliding wear. First of all, the Greenwood and Williamson approach is used to describe the contact between nominally flat rough surfaces. The asperities in contact may undergo plastic deformation or adhesion with the opposing surface. Using a plasticity criterion and an adhesion criterion, it is possible to obtain a differential equation for the evolution of the standard deviation of the asperities of the surfaces. This equation has an analytical solution that is in good agreement with experimental results from the literature. It is shown that the final surface topography is the result of the competition between abrasive wear and adhesive wear. The model is then used to describe different wear processes from polishing to galling.",
+          "claimed_authors": [
+            "Noël Brunetière"
+          ],
+          "claimed_title": "Analytical Model of the Evolution of Surface Topography During Sliding Wear",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.22307"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Analytical Model of the Evolution of Surface Topography During Sliding Wear')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Roughness determines many functional properties of surfaces, such as adhesion, friction, and (thermal and electrical) contact conductance. Recent analytical models and simulations enable quantitative prediction of these properties from knowledge of the power spectral density (PSD) of the surface topography. The utility of the PSD is that it contains statistical information that is unbiased by the particular scan size and pixel resolution chosen by the researcher. In this article, we first review the mathematical definition of the PSD, including the one- and two-dimensional cases, and common variations of each. We then discuss strategies for reconstructing an accurate PSD of a surface using topography measurements at different size scales. Finally, we discuss detecting and mitigating artifacts at the smallest scales, and computing upper/lower bounds on functional properties obtained from models. We accompany our discussion with virtual measurements on computer-generated surfaces. This discussion summarizes how to analyze topography measurements to reconstruct a reliable PSD. Analytical models demonstrate the potential for tuning functional properties by rationally tailoring surface topography - however, this potential can only be achieved through the accurate, quantitative reconstruction of the power spectral density of real-world surfaces.",
+          "claimed_authors": [
+            "Tevis Jacobs",
+            "Till Junge",
+            "Lars Pastewka"
+          ],
+          "claimed_title": "Quantitative characterization of surface topography using spectral analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.03040"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Quantitative characterization of surface topography using spectral analysis')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Friction and wear are important phenomena occurring in all devices with moving parts. While their origin and the way they evolve over time are not fully understood, they are both intimately linked to surface roughness. Guided by pin-on-disc experiments, we present the steps giving rise to the formation of surface roughness on silica, first by the creation of roughly spherical wear particles whose size is related to a critical length scale governing the transition between ductile and brittle behavior, then by the accumulation of these small particles into a larger third body layer, or gouge. We show that, for the explored range of loading conditions, the surface roughness evolves toward a common steady state under unlubricated wear regardless of the initial surface roughness, hinting toward the possible predictability of roughness evolution in wearing components. The friction coefficient is shown to be related to the surface roughness and its time evolution is discussed as well.",
+          "claimed_authors": [
+            "Son Pham-Ba",
+            "Jean-François Molinari"
+          ],
+          "claimed_title": "Creation and evolution of roughness on silica under unlubricated wear",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.10774"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Creation and evolution of roughness on silica under unlubricated wear')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A thermal model of kinetic friction is assigned to a classical loaded particle moving on a fluctuating smooth surface. A sinusoidal wave resembles surface fluctuations with a relaxation time. The Hamiltonian is approximated to the mean energy of the wave describing a system of Harmonic oscillators. The quantization of amplitudes yields in terms of annihilation and creation operators multiplied by a quantum phase. Further, we consider acoustic dispersion relation and evaluate the friction coefficient from the force autocorrelation function. While the sliding particle remains classical describing a nano-particle or a tip with negligible quantum effects like tunneling or delocalization in the wave function, the quantized model of the surface fluctuations results in the temperature dependence of the kinetic friction coefficient. It follows an asymptotic value for higher temperatures and supperslipperiness at low temperatures.",
+          "claimed_authors": [
+            "Rasoul Kheiri"
+          ],
+          "claimed_title": "Quantum \"contact\" friction: the contribution of kinetic friction coefficient from thermal fluctuations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.12717"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Quantum \"contact\" friction: the contribution of kinetic friction coefficient from thermal fluctuations')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposals for ground-based laser remediation of space debris rely on the creation of appropriately directed ablation-driven impulses to either divert the fragment or drive it into an orbit with a perigee allowing atmospheric capture. For a spherical fragment, the ablation impulse is a function of the orbital parameters and the laser engagement angle. If, however, the target is irregularly shaped and arbitrarily oriented, new impulse effects come into play. Here we present an analysis of some of these effects.",
+          "claimed_authors": [
+            "Duane A. Liedahl",
+            "Stephen B. Libby",
+            "Alexander Rubenchik"
+          ],
+          "claimed_title": "Momentum Transfer by Laser Ablation of Irregularly Shaped Space Debris",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.0390"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Momentum Transfer by Laser Ablation of Irregularly Shaped Space Debris')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the appearance of transient Newton rings in dielectrics (sapphire and lead-oxide glass) during ablation with single fs laser pulses. Employing femtosecond microscopy with 800 nm excitation and 400 nm illumination, we observe a characteristic ring pattern that dynamically changes for increasing delay times between pump and probe pulse. Such transient Newton rings have been previously observed in metals and semiconductors at fluences above the ablation threshold and were related to optical interference of the probe beam reflected at the front surface of the ablating layer and at the interface of the non-ablating substrate. Yet, it had been generally assumed that this phenomenon cannot be (and has not been) observed in dielectrics due to the different ablation mechanism and optical properties of dielectrics. The fact that we are able to observe them has important consequences for the comprehension of the ablation mechanisms in dielectrics and provides a new method for investigating these mechanisms in more detail.",
+          "claimed_authors": [
+            "Mario Garcia-Lechuga",
+            "Jan Siegel",
+            "Javier Hernandez-Rueda",
+            "Javier Solis"
+          ],
+          "claimed_title": "Transient Newton rings in dielectrics upon fs laser ablation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1405.5419"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting the Impact of Laser Surface Texturing on Wear Resistance materials sc', candidate_title='Transient Newton rings in dielectrics upon fs laser ablation')",
+        "failed_at": "2026-07-26T07:30:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "G. Rapheal",
+            "S. Kumar",
+            "C. Blawert",
+            "Narendra B. Dahotre"
+          ],
+          "title": "Wear-resistant thin films of MRI-230D-Mg alloy using plasma-driven electrolytic oxidation",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1705.00116",
+        "summary": "Wear resistant coatings were produced on a permanent mould cast MRI 230D Mg alloy by (a) PEO in silicate based electrolyte, (b) PEO in phosphate based electrolyte, (c) hybrid coatings of silicate PEO followed by laser surface alloying (LSA) with Al and Al2O3, and (d) hybrid coatings of phosphate PEO followed by LSA with Al and Al2O3. Microstructural characterization of the coatings was carried out by scanning electron microscopy (SEM) and X(ray diffraction. The tribological behavior of the coatings was investigated under dry sliding condition using linearly reciprocating ball-on-flat wear test. Both the PEO coatings exhibited a friction coefficient of about 0.8 and hybrid coatings exhibited a value of about 0.5 against the AISI 52100 steel ball as the friction partner, which were slightly reduced with the increase in applied load. The PEO coatings sustained the test without failure at 2 N load but failed at 5 N load due to micro-fracture caused by high contact stresses. The hybrid coatings did not get completely worn off at 2 N load but were completely removed exposing the substrate at 5 N load. The PEO coatings exhibited better wear resistance than the hybrid coatings and silicate PEO coatings exhibited better wear resistance than the phosphate PEO coatings. Both the PEO coatings melted/decomposed on laser irradiation and all the hybrid coatings exhibited similar microstructure and wear behavior irrespective of the nature of the primary PEO coating or laser energies. SEM examination of worn surfaces indicated abrasive wear combined with adhesive wear for all the specimens. The surface of the ball exhibited a discontinuous transfer layer after the wear test.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1705.00116",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-26T07:30:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hisham A Abdel-aal"
+          ],
+          "title": "Tribological Analysis of Ventral Scale Structure in a Python Regius in Relation to Laser Textured Surfaces",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1305.4705",
+        "summary": "Laser Texturing is one of the leading technologies applied to modify surface topography. To date, however, a standardized procedure to generate deterministic textures is virtually non-existent. In nature, especially in squamata, there are many examples of deterministic structured textures that allow species to control friction and condition their tribological response for efficient function. In this work, we draw a comparison between industrial surfaces and reptilian surfaces. We chose the python regius species as a bio-analogue with a deterministic surface. We first study the structural make up of the ventral scales of the snake (both construction and metrology). We further compare the metrological features of the ventral scales to experimentally recommended performance indicators of industrial surfaces extracted from open literature. The results indicate the feasibility of engineering a Laser Textured Surface based on the reptilian ornamentation constructs. It is shown that the metrological features, key to efficient function of a rubbing deterministic surface, are already optimized in the reptile. We further show that optimization in reptilian surfaces is based on synchronizing surface form, textures and aspects to condition the frictional response. Mimicking reptilian surfaces, we argue, may form a design methodology potentially capable of generating advanced deterministic surface constructs capable of efficient tribological function.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1305.4705",
+          "http_status": 200,
+          "pdf_sample_score": 0.2337,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-26T07:30:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Son Pham-Ba",
+            "Jean-François Molinari"
+          ],
+          "title": "Creation and evolution of roughness on silica under unlubricated wear",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.10774",
+        "summary": "Friction and wear are important phenomena occurring in all devices with moving parts. While their origin and the way they evolve over time are not fully understood, they are both intimately linked to surface roughness. Guided by pin-on-disc experiments, we present the steps giving rise to the formation of surface roughness on silica, first by the creation of roughly spherical wear particles whose size is related to a critical length scale governing the transition between ductile and brittle behavior, then by the accumulation of these small particles into a larger third body layer, or gouge. We show that, for the explored range of loading conditions, the surface roughness evolves toward a common steady state under unlubricated wear regardless of the initial surface roughness, hinting toward the possible predictability of roughness evolution in wearing components. The friction coefficient is shown to be related to the surface roughness and its time evolution is discussed as well.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.10774",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-26T07:30:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Mohammadzadeh Sanandaji",
+            "Danial Ebrahimzadeh",
+            "Mohammad Ikram Haider",
+            "Yaser Mike Banad",
+            "Aleksandar Poleksic",
+            "Hongtao Ding"
+          ],
+          "title": "Machine learning model for predicting surface wettability in laser-textured metal alloys",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.11661",
+        "summary": "Surface wettability, governed by both topography and chemistry, plays a critical role in applications such as heat transfer, lubrication, microfluidics, and surface coatings. In this study, we present a machine learning (ML) framework capable of accurately predicting the wettability of laser-textured metal alloys using experimentally derived morphological and chemical features. Superhydrophilic and superhydrophobic surfaces were fabricated on AA6061 and AISI 4130 alloys via nanosecond laser texturing followed by chemical immersion treatments. Surface morphology was quantified using the Laws texture energy method and profilometry, while surface chemistry was characterized through X-ray photoelectron spectroscopy (XPS), extracting features such as functional group polarity, molecular volume, and peak area fraction. These features were used to train an ensemble neural network model incorporating residual connections, batch normalization, and dropout regularization. The model achieved high predictive accuracy (R2 = 0.942, RMSE = 13.896), outperforming previous approaches. Feature importance analysis revealed that surface chemistry had the strongest influence on contact angle prediction, with topographical features also contributing significantly. This work demonstrates the potential of artificial intelligence to model and predict wetting behavior by capturing the complex interplay of surface characteristics, offering a data-driven pathway for designing tailored functional surfaces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.11661",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-26T07:30:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alixe Dreano",
+            "Siegfried Fouvry",
+            "Gaylord Guillonneau"
+          ],
+          "title": "Understanding and formalization of the fretting-wear behavior of a cobalt-based alloy at high temperature",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2101.10065",
+        "summary": "The purpose of this study is to investigate the mechanisms involved in the wear of cobalt-based interfaces at high temperature. The studied contact is a cobalt-based alloy subjected to fretting against an alumina sample. At high temperature, a protective third body is spontaneously created at the interface and presents excellent tribological properties. The formation of the so-called ''glaze layer'' leads to an absence of wear. The investigation presents on complete description of the hightemperature tribolayer with microstructural, chemical and mechanical characterizations. The glaze layer regime is mainly related to a threshold temperature above which a thin cobalt-rich layer is formed by a tribo-sintering process. A formalization of the tribo-sintering process is proposed to predict the necessary number of fretting cycles N GL to form the glaze layer. The tribo-sintering process prevents wear debris ejection by continuously re-incorporating the wear debris particles in the glaze layer. The re-incorporation of the wear debris may be the reason for the absence of wear of the fretted interface from a macroscopic point of view. Finally, the paper presents an extended friction energy wear approach taking into account tribo-oxidation and tribo-sintering considerations. The formulation is able to predict wear for a large range of tribological parameters (temperature, frequency, sliding amplitude, number of cycles), when applied to the Co-based/alumina contact.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2101.10065",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-26T07:30:39Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

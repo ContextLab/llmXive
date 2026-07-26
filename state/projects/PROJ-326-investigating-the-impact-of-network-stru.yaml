@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T19:40:23.338881Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-326-investigating-the-impact-of-network-stru
-last_run_id: 17c80919-9961-488f-aa6f-fb3ffae9c9e1
+last_run_id: b868ef88-6c1d-472e-a09e-b685d56797d7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru
 title: Investigating the Impact of Network Structure on Energy Transfer in Spin Systems
-updated_at: '2026-07-25T08:38:11.033529Z'
+updated_at: '2026-07-26T07:30:04.407773Z'
