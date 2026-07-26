@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Trajectory Divergence Schema"
-description: "Schema for the processed trajectory data containing divergence signals, detector labels, and sensitivity analysis metadata."
+title: "Trajectory Divergence Schema (DEPRECATED)"
+description: "Schema for the processed trajectory data containing divergence signals, detector labels, and sensitivity analysis metadata. DEPRECATED: Use trajectory.schema.yaml as the Single Source of Truth."
 type: "object"
 properties:
   timestep:

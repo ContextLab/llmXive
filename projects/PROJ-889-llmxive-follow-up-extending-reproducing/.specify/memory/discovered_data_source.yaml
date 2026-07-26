@@ -1,0 +1,12 @@
+status: none
+intent: download CHERRL training logs dataset from Hugging Face datasets python package
+  dataset
+required_fields:
+- timestep
+- J_biased
+- J_unbiased
+- J_gold
+- seed
+cache_key: 18b2c46bf922af5b3f6ecc8a66bb53e062308f3700e6f68e72eab3578aad7a30
+searched_at: '2026-07-26T02:15:30.689986+00:00'
+retry_count: 1

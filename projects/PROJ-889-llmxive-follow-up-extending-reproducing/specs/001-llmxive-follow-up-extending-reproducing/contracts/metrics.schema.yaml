@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for aggregated evaluation metrics and statistical test results."
+type: "object"
+properties:
+  bias_type:
+    type: "string"
+    enum: ["Lexical", "Format", "Tone", "Self-praise"]
+    description: "Category of bias."
+  precision:
+    type: "number"
+    description: "Precision score for the detector."
+  recall:
+    type: "number"
+    description: "Recall score for the detector."
+  f1_score:
+    type: "number"
+    description: "F1-score for the detector."
+  wilcoxon_p_value:
+    type: "number"
+    description: "P-value from Wilcoxon signed-rank test."
+  wilcoxon_z_statistic:
+    type: "number"
+    description: "Z-statistic from Wilcoxon test."
+  baseline_f1:
+    type: "number"
+    description: "F1-score of the temporal permutation baseline."
+  sensitivity_threshold:
+    type: "number"
+    description: "Drop threshold used for ground truth (0.05, 0.1, 0.15)."
+  independence_check_passed:
+    type: "boolean"
+    description: "True if r(J_unbiased, J_gold) <= 0.8."
+  effect_size:
+    type: "number"
+    description: "Rank-biserial correlation for the Wilcoxon test."
+required:
+  - bias_type
+  - precision
+  - recall
+  - f1_score
+  - wilcoxon_p_value
+  - wilcoxon_z_statistic
+  - baseline_f1
+  - sensitivity_threshold
+  - independence_check_passed
+  - effect_size
+additionalProperties: false
