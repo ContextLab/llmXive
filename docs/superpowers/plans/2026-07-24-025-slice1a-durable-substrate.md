@@ -22,7 +22,8 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **ReservationAuthority collision semantics (slice-0 `attempt_hooks.ReservationAuthority.reserve`).** Repeated `reservation_id` + same `(credits, call_id)` → idempotent success, no double-count; same id + different identity → integrity raise; concurrent duplicates → exactly one durable reservation; an ordinary budget denial returns `False` (never raises).
 - **RouteAudit is durable-on-commit and the claim is a real CAS (slice-0 `attempt_hooks.RouteAudit`; F8).** `record`/`claim_dispatch` return only AFTER the ref-CAS commit lands — a local file that never reached the ref is NOT durable evidence. `claim_dispatch(DispatchStarted) -> bool`: `True` = this call committed the event (own the dispatch); `False` = a byte-identical event already committed (replay, MUST NOT re-dispatch); a conflicting payload under the same `event_id` → raise. Exactly one claimant wins across processes (the ref-CAS).
 - **DispatchUnknown reconciliation is conservative + atomic (FR-033a; F4, F5, F7).** A dispatch is "dangling" only if ALL hold: the event is in THIS attempt's stream; there is no `DispatchCompleted`; there is no terminal `CandidateOutcome` (`advance`/`abort`/`skip`) for it; there is no existing `DispatchUnknown`; and it is older than a **conservative timeout** bounded by the real call envelope (`deadline_s × (retries + 1)` + margin) — this is honestly a timeout, NOT durable proof the owner is dead (F5); durable owner-liveness would need an owner/lease field on the slice-0 `DispatchStarted` (a protected-surface change, deferred). Reconciling appends ONE `DispatchUnknown` event that **atomically** drives BOTH the audit resolution AND the matching reservation's `open → retained` (via `project_reservations`) — no two-write crash window (F4). Slice 1A records this durable unknown+retained state; the Attempt-fail-closed lifecycle transition is Slice 1B (the contract is not "fails the Attempt closed yet").
-- **The LLM-call ceiling is per *Attempt*, so admission is DURABLE and cross-process (Policy Contract line 313; round-4 review F1).** Spec 025 line 313 scopes the ceiling to the Attempt — "Per Attempt: `proposer + implementer·(1 + impl_regen_retries) + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]`" — NOT to one panel process. An in-memory counter would reset on every restart, retry-on-another-runner, or duplicate worker, letting one Attempt spend the ceiling repeatedly. Every logical `route_chat` invocation therefore CAS-appends a `LaneCallClaimed` event whose predicate counts prior claims for that Attempt and denies at the ceiling (Task 13). The claim key is deterministic, so the same logical operation replays to the SAME claim and the SAME `route_id` instead of minting a fresh one — which is also what makes slice-0's dispatch idempotency reachable across a retry (`route.py:291-293`: "a caller MAY inject a durable id instead — a retried logical invocation replays the identical event ids rather than minting new ones").
+- **The LLM-call ceiling is per *Attempt*, so admission is DURABLE and cross-process (Policy Contract line 313; round-4 review F1).** Spec 025 line 313 scopes the ceiling to the Attempt — "Per Attempt: `proposer + implementer·(1 + impl_regen_retries) + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]`" — NOT to one panel process. An in-memory counter would reset on every restart, retry-on-another-runner, or duplicate worker, letting one Attempt spend the ceiling repeatedly. Every logical `route_chat` invocation therefore CAS-appends a `LaneCallClaimed` event whose predicate counts prior claims for that Attempt and denies at the ceiling (Task 14), where the ceiling itself comes from the Attempt's ONE durable `AttemptConfigured` record (Task 13) — never from whichever worker's constructor argument happened to arrive first. The claim key is deterministic, so the same logical operation replays to the SAME claim and the SAME `route_id` instead of minting a fresh one — which is also what makes slice-0's dispatch idempotency reachable across a retry (`route.py:291-293`: "a caller MAY inject a durable id instead — a retried logical invocation replays the identical event ids rather than minting new ones").
+- **An Attempt's LIMITS are as durable as its spend (round-5 review F1).** The call ceiling AND the credit budget are bound ONCE per Attempt by a single `AttemptConfigured` record (Task 13); every ledger verifies its constructor argument against that record and fails closed on any difference, in either direction. A durable count checked against a constructor-local bound is not a durable cap — a restarted worker, a config change, or a competing worker could simply present a bigger number.
 - **Route through the chokepoint; no model-id literals in lane code (SC-008, FR-001).** `model_selection/enforcement.py` verifies this. (Slice 1A adds no model ids.)
 - **Real tests, no mocks (Constitution III).** Protocol test doubles with real logic, temp-git-repo fixtures, and **multi-clone concurrency tests** (two clones of one bare remote competing on the ref) are required where the guarantee is cross-process. `unittest.mock` is not the primary path.
 - **Commit discipline.** `PRE_COMMIT_ALLOW_NO_CONFIG=1` + trailer `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`; verify HEAD moved. **Do NOT push.**
@@ -39,7 +40,8 @@ This plan is **Slice 1A: the durable substrate only.** The proposal-review conve
 - `src/llmxive/self_improvement/lane_log.py` — the lane's store on the dedicated ref: `LANE_REF`, `LaneLogConfig(remote, expected_anchor)`, `bootstrap_lane_log`, `append`/`read` (config-threaded, seq-ordered), `LaneRevisionConflict`; thin wrappers over the shared `git_event_log` core.
 - `src/llmxive/self_improvement/coordinator.py` — `LaneCoordinator` projection + `project_coordinator` + `cas_claim`/`cas_release` (ownership-checked).
 - `src/llmxive/self_improvement/credit_ledger.py` — `AttemptCreditLedger` (`ReservationAuthority`) + projection + `reconcile`.
-- `src/llmxive/self_improvement/call_ledger.py` — the **durable per-Attempt LLM-call admission ledger** (Task 13): `LaneCallLedger`, `LaneCallCeilingExceeded`, `project_call_claims`, `derive_route_id`. Enforces Policy Contract line 313's ceiling across processes and mints retry-stable `route_id`s.
+- `src/llmxive/self_improvement/attempt_config.py` — the **durable per-Attempt safety limits** (Task 13): `AttemptConfig`, `AttemptConfigMismatch`, `bind_attempt_config`, `load_attempt_config`. ONE `AttemptConfigured` event fixes the call ceiling AND the credit budget for an Attempt; every later worker verifies against it instead of trusting its own constructor argument.
+- `src/llmxive/self_improvement/call_ledger.py` — the **durable per-Attempt LLM-call admission ledger** (Task 14): `LaneCallLedger`, `LaneCallCeilingExceeded`, `project_call_claims`. Enforces Policy Contract line 313's ceiling across processes and mints retry-stable `route_id`s (`derive_route_id` lives in `events.py`, see Task 2).
 - `src/llmxive/self_improvement/audit_sink.py` — `EventStoreRouteAudit` (`RouteAudit`) + `reconcile_unknown`.
 - `src/llmxive/self_improvement/__init__.py` — public exports.
 
@@ -187,11 +189,14 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "refactor(025 slice-1A T1): extract r
 **Interfaces:**
 - Produces:
   - `COORDINATOR_STREAM = "coordinator"`, `SCHEMA_VERSION = 1`, `SEQ_FIELD = "seq"`.
-  - `KNOWN_EVENT_TYPES_V1: frozenset[str]` — the **Slice-1A (schema v1)** event-type vocabulary (coordinator: `ClaimAcquired`, `ClaimReleased`, `MonitorStarted`, `PromotionEnabledSet`; credit: `AttemptCreditReserved`/`Released`/`Retained`/`Reconciled`; **call admission: `LaneCallClaimed`** (Task 13); audit: `ChainResolved`, `SelectionFailure`, `ReservationOpened`, `DispatchStarted`, `DispatchCompleted`, `DispatchUnknown`, `CandidateOutcome`; lifecycle: `ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). It is NOT the full spec-025 set (F9); a type outside it is rejected on read. Adding a type is a **vocabulary** extension (the record SHAPE is unchanged) and MUST NOT bump `SCHEMA_VERSION` — a bump would make a reader reject prior-version history (F7); extend this set and the projection handlers together.
+  - `KNOWN_EVENT_TYPES_V1: frozenset[str]` — the **Slice-1A (schema v1)** event-type vocabulary (coordinator: `ClaimAcquired`, `ClaimReleased`, `MonitorStarted`, `PromotionEnabledSet`; credit: `AttemptCreditReserved`/`Released`/`Retained`/`Reconciled`; **Attempt limits: `AttemptConfigured`** (Task 13); **call admission: `LaneCallClaimed`** (Task 14); audit: `ChainResolved`, `SelectionFailure`, `ReservationOpened`, `DispatchStarted`, `DispatchCompleted`, `DispatchUnknown`, `CandidateOutcome`; lifecycle: `ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). It is NOT the full spec-025 set (F9); a type outside it is rejected on read. Adding a type is a **vocabulary** extension (the record SHAPE is unchanged) and MUST NOT bump `SCHEMA_VERSION` — a bump would make a reader reject prior-version history (F7); extend this set and the projection handlers together.
   - `@dataclass(frozen=True) class Event` (FR-011): `event_id`, `event_type`, `stream` (a `problem_id` or `COORDINATOR_STREAM`), `actor`, `payload: Mapping`, `timestamp`, `schema_version=SCHEMA_VERSION`, `attempt_id: str | None = None`, and the four CAS anchors `expected_lane_revision`/`resulting_lane_revision`/`expected_problem_revision`/`resulting_problem_revision: int | None = None` plus `seq: int | None = None`. The store stamps all of them inside the CAS from the authoritative parent so that `seq == expected_*_revision` and `resulting_*_revision == seq + 1` (event seq=N transforms revision N → N+1); exactly one scope (lane XOR problem) is populated, matching the stream. `None` before append.
   - `derive_event_id(stream, idempotency_key) -> str` — `sha256(f"{stream}\x00{idempotency_key}")`.
-  - `validate_lane_event(raw: dict) -> None` — fail-closed one-event schema (F9): required fields present; `event_type ∈ KNOWN_EVENT_TYPES_V1`; `schema_version == SCHEMA_VERSION`; the stream's revision scope (lane for coordinator, problem otherwise) has BOTH `expected_` and `resulting_` set, the OTHER scope has neither, and `expected == seq` and `resulting == seq + 1`; `event_id` is a safe path segment; `timestamp` parses ISO-8601. **Then, if the `event_type` has an entry in `PAYLOAD_VALIDATORS`, that validator checks the `payload` itself.** Raises `ValueError`. (Cross-event LEGAL TRANSITIONS are enforced by the projections — Tasks 4/6 — not here.)
-  - `PAYLOAD_VALIDATORS: dict[str, Callable[[Mapping], None]]` — the per-type payload schema table (round-4 review F6). The envelope check alone accepts ANY payload, so a safety-relevant event with missing/wrong-typed keys validates, lands durably, and only explodes later as a `KeyError` inside a projection — or, worse, projects false provenance. A type **not** in this table is envelope-only by design (the audit mirror events are re-serializations of slice-0 dataclasses that were already type-checked at construction); a type that carries a **safety claim a projection will act on** MUST have an entry. Slice 1A registers `LaneCallClaimed` (Task 13); Slice 1B registers `ReviewRerouted`. Each validator raises `ValueError` naming the offending key.
+  - `validate_lane_event(raw: dict) -> None` — fail-closed one-event schema (F9): required fields present; `event_type ∈ KNOWN_EVENT_TYPES_V1`; `schema_version == SCHEMA_VERSION`; the stream's revision scope (lane for coordinator, problem otherwise) has BOTH `expected_` and `resulting_` set, the OTHER scope has neither, and `expected == seq` and `resulting == seq + 1`; `event_id` is a safe path segment; `timestamp` parses ISO-8601. **Then, if the `event_type` has an entry in `TYPE_VALIDATORS`, that validator checks the event itself** (payload contents plus payload-vs-envelope agreement). Raises `ValueError`. (Cross-event LEGAL TRANSITIONS are enforced by the projections — Tasks 4/6 — not here.)
+  - `derive_route_id(attempt_id, operation_id, leg) -> str` — `sha256(f"{attempt_id}\x00{operation_id}\x00{leg}")[:32]`, the retry-stable route id for one logical `route_chat` call. **Lives here, beside `derive_event_id`** (round-5 F5): it is a pure hash with no dependencies, and `validate_lane_event` must recompute it to check a `LaneCallClaimed` payload — importing it from `call_ledger` would be a cycle (`call_ledger` imports `events`).
+  - `LEGS = ("primary", "fallback")` — FR-002's two reroute legs; the only legal `leg` values. Also here (not in `call_ledger`) so the validator can enforce membership.
+  - `TYPE_VALIDATORS: dict[str, Callable[[Mapping], None]]` — the per-type schema table (round-4 F6). **Each validator receives the WHOLE raw event, not just the payload** (round-5 F5): several invariants are cross-field — `payload["attempt_id"]` must equal the envelope's `attempt_id`, and a projection that counts by the PAYLOAD's attempt id while the envelope says otherwise would misattribute the record. A payload-only signature cannot express that.
+    The envelope check alone accepts ANY payload, so a safety-relevant event with missing/wrong-typed keys validates, lands durably, and only explodes later as a `KeyError` inside a projection — or, worse, projects false provenance. A type **not** in this table is envelope-only by design (the audit mirror events are re-serializations of slice-0 dataclasses that were already type-checked at construction); a type that carries a **safety claim a projection will act on** MUST have an entry. Slice 1A registers `AttemptConfigured` (Task 13) and `LaneCallClaimed` (Task 14); Slice 1B registers `ReviewRerouted`. Each validator raises `ValueError` naming the offending key.
   - `event_to_json(event) -> str` (canonical, sorted keys, compact), `event_from_json(text) -> Event`.
 
 - [ ] **Step 1: Write the failing test**
@@ -254,19 +259,26 @@ def test_validate_rejects_bad_schema_version():
 # ---- F6: per-type payload validation ----
 
 def _claim_payload(**kw):
+    from llmxive.self_improvement.events import derive_route_id
     base = {"attempt_id": "A1", "operation_id": "op-1", "leg": "primary",
-            "route_id": "r" * 32, "call_ceiling": 56}
+            "route_id": derive_route_id("A1", "op-1", "primary"), "call_ceiling": 56}
     base.update(kw)
     return base
 
+def _claim_event(**kw):
+    return _raw(event_type="LaneCallClaimed", attempt_id="A1", payload=_claim_payload(**kw))
+
 def test_lane_call_claimed_payload_validates():
-    validate_lane_event(_raw(event_type="LaneCallClaimed", payload=_claim_payload()))
+    validate_lane_event(_claim_event())
 
 @pytest.mark.parametrize("bad", [
-    {"route_id": None},        # wrong type
+    {"route_id": None},        # missing
     {"route_id": ""},          # empty
+    {"route_id": "r" * 32},    # well-formed but NOT derived from this (attempt, op, leg)
+    {"leg": "tertiary"},       # not one of LEGS
     {"call_ceiling": 0},       # non-positive
     {"call_ceiling": "56"},    # wrong type
+    {"call_ceiling": True},    # bool is an int in Python — must still be rejected
 ])
 def test_lane_call_claimed_payload_rejects_malformed(bad):
     # F6: the ENVELOPE alone would accept every one of these; the projection would then
@@ -276,12 +288,28 @@ def test_lane_call_claimed_payload_rejects_malformed(bad):
         if v is None:
             payload.pop(k)     # also cover the MISSING-key case
     with pytest.raises(ValueError, match="LaneCallClaimed payload invalid"):
-        validate_lane_event(_raw(event_type="LaneCallClaimed", payload=payload))
+        validate_lane_event(_raw(event_type="LaneCallClaimed", attempt_id="A1", payload=payload))
+
+def test_a_claim_whose_payload_attempt_disagrees_with_the_envelope_is_rejected():
+    # F5: project_call_claims filters by the PAYLOAD's attempt_id. If the envelope says
+    # something else, the claim is counted against one Attempt while the event records
+    # another — a silent misattribution of a safety limit.
+    with pytest.raises(ValueError, match="disagrees with the event"):
+        validate_lane_event(_raw(event_type="LaneCallClaimed", attempt_id="A2",
+                                 payload=_claim_payload()))
+
+def test_attempt_configured_validates_and_rejects_malformed():
+    from llmxive.self_improvement.events import validate_lane_event as v
+    ok = {"attempt_id": "A1", "call_ceiling": 56, "attempt_budget_credits": 50.0}
+    v(_raw(event_type="AttemptConfigured", attempt_id="A1", payload=ok))
+    for bad in ({**ok, "call_ceiling": 0}, {**ok, "attempt_budget_credits": -1.0}):
+        with pytest.raises(ValueError, match="AttemptConfigured payload invalid"):
+            v(_raw(event_type="AttemptConfigured", attempt_id="A1", payload=bad))
 
 def test_types_without_a_validator_are_envelope_only():
     # By design: the audit-mirror types re-serialize already-typed slice-0 dataclasses.
-    from llmxive.self_improvement.events import PAYLOAD_VALIDATORS
-    assert "ChainResolved" not in PAYLOAD_VALIDATORS
+    from llmxive.self_improvement.events import TYPE_VALIDATORS
+    assert "ChainResolved" not in TYPE_VALIDATORS
     validate_lane_event(_raw(event_type="ChainResolved", payload={"anything": 1}))
 ```
 
@@ -332,11 +360,22 @@ _SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 KNOWN_EVENT_TYPES_V1 = frozenset({
     "ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet",
     "AttemptCreditReserved", "AttemptCreditReleased", "AttemptCreditRetained", "AttemptCreditReconciled",
-    "LaneCallClaimed",  # Task 13: durable per-Attempt LLM-call admission
+    "AttemptConfigured",  # Task 13: the durable per-Attempt safety limits
+    "LaneCallClaimed",    # Task 14: durable per-Attempt LLM-call admission
     "ChainResolved", "SelectionFailure", "ReservationOpened", "DispatchStarted",
     "DispatchCompleted", "DispatchUnknown", "CandidateOutcome",
     "ProblemDiscovered", "Proposed", "ProposalVerified", "Rejected",
 })
+
+LEGS = ("primary", "fallback")   # FR-002's two-attempt reroute; nothing else is a leg
+
+def derive_route_id(attempt_id: str, operation_id: str, leg: str) -> str:
+    """The RETRY-STABLE route id for one logical route_chat call (Task 14). Deterministic in
+    the Attempt + operation + leg, so a replay re-derives it rather than minting a fresh
+    uuid. Defined HERE, beside derive_event_id, because validate_lane_event must recompute
+    it to verify a LaneCallClaimed payload — call_ledger imports events, so the reverse
+    import would be a cycle."""
+    return hashlib.sha256(f"{attempt_id}\x00{operation_id}\x00{leg}".encode()).hexdigest()[:32]
 
 def _require(payload: Mapping[str, Any], key: str, types: type | tuple[type, ...]) -> Any:
     """Fetch ``key`` from a payload, raising ValueError (never KeyError/TypeError) if it is
@@ -349,22 +388,65 @@ def _require(payload: Mapping[str, Any], key: str, types: type | tuple[type, ...
         raise ValueError(f"payload key {key!r} must be a non-empty {types}, got {value!r}")
     return value
 
-def _validate_lane_call_claimed(payload: Mapping[str, Any]) -> None:
-    """Task 13's admission record. The ceiling projection COUNTS these and the router
-    ROUTES on the recorded ``route_id``, so every field it reads must be present + typed."""
-    for key in ("attempt_id", "operation_id", "leg", "route_id"):
-        _require(payload, key, str)
-    ceiling = _require(payload, "call_ceiling", int)
-    if isinstance(ceiling, bool) or ceiling <= 0:
-        raise ValueError(f"payload key 'call_ceiling' must be a positive int, got {ceiling!r}")
+def _positive_int(payload: Mapping[str, Any], key: str) -> int:
+    value = _require(payload, key, int)
+    if isinstance(value, bool) or value <= 0:   # bool IS an int in Python
+        raise ValueError(f"payload key {key!r} must be a positive int, got {value!r}")
+    return value
 
-#: Per-type payload schemas (round-4 review F6). The envelope check accepts ANY payload, so
-#: an event carrying a SAFETY CLAIM a projection acts on needs its own validator here — a
-#: missing/mistyped key would otherwise land durably and surface as a KeyError inside the
-#: projection, or (worse) project false provenance. A type ABSENT from this table is
-#: envelope-only BY DESIGN: the audit-mirror types (ChainResolved, DispatchStarted, …) are
-#: re-serializations of slice-0 dataclasses already type-checked at construction.
-PAYLOAD_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
+def _same_attempt(raw: Mapping[str, Any]) -> str:
+    """The payload's attempt_id MUST equal the envelope's (round-5 F5). Projections filter
+    by the PAYLOAD's attempt id, so a disagreement would file a claim/limit under one
+    Attempt while the event envelope says another — a silent misattribution."""
+    payload = raw["payload"]
+    attempt = _require(payload, "attempt_id", str)
+    if raw.get("attempt_id") != attempt:
+        raise ValueError(
+            f"payload attempt_id {attempt!r} disagrees with the event's "
+            f"attempt_id {raw.get('attempt_id')!r}"
+        )
+    return attempt
+
+def _validate_attempt_configured(raw: Mapping[str, Any]) -> None:
+    """Task 13's durable limits. These two numbers ARE the Attempt's safety envelope, so
+    they must be well-formed before they can bind anything."""
+    payload = raw["payload"]
+    _same_attempt(raw)
+    _positive_int(payload, "call_ceiling")
+    budget = _require(payload, "attempt_budget_credits", (int, float))
+    if isinstance(budget, bool) or budget < 0:
+        raise ValueError(f"'attempt_budget_credits' must be a non-negative number, got {budget!r}")
+
+def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
+    """Task 14's admission record. The ceiling projection COUNTS these and the router ROUTES
+    on the recorded ``route_id``, so every field it reads must be present, typed, and
+    SELF-CONSISTENT (round-5 F5) — a claim whose route_id was not derived from its own
+    (attempt, operation, leg) would route one logical call onto another's identity."""
+    payload = raw["payload"]
+    attempt = _same_attempt(raw)
+    operation_id = _require(payload, "operation_id", str)
+    leg = _require(payload, "leg", str)
+    if leg not in LEGS:
+        raise ValueError(f"payload key 'leg' must be one of {LEGS}, got {leg!r}")
+    route_id = _require(payload, "route_id", str)
+    expected = derive_route_id(attempt, operation_id, leg)
+    if route_id != expected:
+        raise ValueError(
+            f"route_id {route_id!r} was not derived from (attempt={attempt!r}, "
+            f"operation={operation_id!r}, leg={leg!r}) — expected {expected!r}"
+        )
+    _positive_int(payload, "call_ceiling")
+
+#: Per-type schemas (round-4 F6; whole-event signature per round-5 F5). The envelope check
+#: accepts ANY payload, so an event carrying a SAFETY CLAIM a projection acts on needs its
+#: own validator here — a missing/mistyped/inconsistent key would otherwise land durably and
+#: surface as a KeyError inside the projection, or (worse) project false provenance. A type
+#: ABSENT from this table is envelope-only BY DESIGN: the audit-mirror types (ChainResolved,
+#: DispatchStarted, …) are re-serializations of slice-0 dataclasses already type-checked at
+#: construction. Cross-EVENT invariants (e.g. one consistent call_ceiling across an
+#: Attempt) are NOT here — they belong to the projections (Tasks 13/14).
+TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
+    "AttemptConfigured": _validate_attempt_configured,
     "LaneCallClaimed": _validate_lane_call_claimed,
     # Slice 1B registers "ReviewRerouted" here.
 }
@@ -435,10 +517,10 @@ def validate_lane_event(raw: dict) -> None:
     payload = raw["payload"]
     if not isinstance(payload, Mapping):
         raise ValueError(f"lane event payload must be a mapping, got {type(payload).__name__}")
-    validator = PAYLOAD_VALIDATORS.get(raw["event_type"])  # F6: per-type payload schema
+    validator = TYPE_VALIDATORS.get(raw["event_type"])  # F6: per-type schema
     if validator is not None:
         try:
-            validator(payload)
+            validator(raw)          # the WHOLE event — payload/envelope cross-checks (F5)
         except ValueError as exc:
             raise ValueError(f"{raw['event_type']} payload invalid: {exc}") from exc
 
@@ -455,7 +537,7 @@ def event_from_json(text: str) -> Event:
                  resulting_problem_revision=d.get("resulting_problem_revision"), seq=d.get("seq"))
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (15 passed: 9 envelope + 1 valid-payload + 4 parametrized malformed-payload cases + the envelope-only case).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (20 passed: 9 envelope + 1 valid claim + 7 parametrized malformed-claim cases + the envelope/payload attempt mismatch + `AttemptConfigured` + the envelope-only case).
 
 - [ ] **Step 5: Commit**
 
@@ -477,7 +559,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T2): lane Event re
 - Produces:
   - `LANE_REF = "refs/llmxive/self-improvement"`; `@dataclass LaneLogConfig(remote, expected_anchor)` (parallel to `LedgerConfig`, F4); `bootstrap_lane_log(repo, *, config, _after_probe=None) -> str` (F3 — one-time genesis, fail-closed-until-bootstrapped, idempotent, concurrent-safe, anchor-pinning; `_after_probe` is Task 1's test-only race seam, F10); internal `_log_ref(problem_id, config) -> LogRef` with `event_dir = f"self-improvement/events/{problem_id}"` (per-Problem subtree → per-stream `seq`; all streams share the ONE ref so lane mutations serialize globally, giving the coordinator its singleton and each Problem its own revision line).
   - `class LaneRevisionConflict(RuntimeError)` — the caller's `expected_revision`/precondition lost; recompute (FR-008).
-  - `class LaneContention(RuntimeError)` — a caller's bounded CAS retry loop never converged. Defined here (not per-ledger) so `AttemptCreditLedger` (Task 7), `LaneCallLedger` (Task 13), and the coordinator all raise the SAME type.
+  - `class LaneContention(RuntimeError)` — a caller's bounded CAS retry loop never converged. Defined here (not per-ledger) so `AttemptCreditLedger` (Task 7), `LaneCallLedger` (Task 14), and the coordinator all raise the SAME type.
   - `read(repo, problem_id, *, config=LaneLogConfig()) -> list[Event]` — `read_log` mapped to `Event`s, **ordered by `seq`** (never timestamps). A gap/dup/fork in the sequence raises `GitLogError` (corruption is fail-closed, distinct from a `LaneRevisionConflict`).
   - `append(repo, event: Event, *, expected_revision: int | None, precondition: Callable[[list[Event]], tuple[bool, str]] | None = None, config=LaneLogConfig(), _after_parent=None) -> AppendResult` — wraps `append_to_log` with the lane `LogRef`, `validate=validate_lane_event`, `finalize=_finalize` (stamps `seq` + `expected/resulting_*_revision`), `identity_exclude=_IDENTITY_EXCLUDE`, and a `predicate` that (per CAS attempt, against the freshly-read, seq-sorted stream) FIRST validates sequence continuity (F7 — a corrupt stream fails closed before any revision/precondition check), then, if `expected_revision is not None`, `len(events) == expected_revision`, then `precondition(events)`. A predicate `False` surfaces as `GitLogDenied` → `LaneRevisionConflict`; `expected_revision=None` is an unconditional append (for audit events). The event carries the single FR-011 `timestamp` (no `ts`). Returns the `AppendResult` with the authoritative `seq`.
 
@@ -1175,7 +1257,8 @@ def counting_total(reservations: dict[str, AttemptReservation]) -> float:
 - Test: `tests/integration/test_self_improvement_credit_ledger.py` (incl. a `ThreadPoolExecutor` panel test AND a two-clone over-budget test)
 
 **Interfaces:**
-- Produces: `class AttemptCreditLedger` implementing the slice-0 `ReservationAuthority`. Constructor `(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock`. `reserve(credits, *, reservation_id, call_id) -> bool` — under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
+- Produces: `class AttemptCreditLedger` implementing the slice-0 `ReservationAuthority`. Constructor `(*, repo, problem_id, attempt_id, attempt_budget_credits, call_ceiling, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock`.
+  **Forward reference (round-5 F1):** as written here the budget is constructor-local, which lets a second worker present a larger one. **Task 13** binds both limits to a durable `AttemptConfigured` record and rewrites this constructor to enforce `bind_attempt_config(...).attempt_budget_credits`; the `call_ceiling` parameter above exists because ONE record binds both. Implement Task 7 as specified, then apply Task 13's change — Task 13 carries the regression test. `reserve(credits, *, reservation_id, call_id) -> bool` — under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
 - Consumes: `LaneContention` from `lane_log.py` (Task 3) — the shared "the CAS never converged" condition, defined ONCE beside `LaneRevisionConflict` because both ledgers (and any later CAS user) raise it. Do NOT redeclare it per module.
 
 - [ ] **Steps:** Tests: (1) within-budget True / over-budget False / at-budget True; (2) idempotent same identity; (3) conflicting identity raises; (4) `ThreadPoolExecutor(2)` sharing one ledger, budget admits one → exactly one `True`; (5) **barrier-driven two-clone race** (F6): two clones of one bare remote both reserving the last credits, each syncing the same parent then released together by a `threading.Barrier` — the ref-CAS + budget-recheck admits at most the remaining budget (the loser recomputes and returns `False`, never both `True`). RED (`ImportError`) → GREEN. Commit `feat(025 slice-1A T7): AttemptCreditLedger.reserve — lock + ref-CAS budget guard + collision`.
@@ -1409,13 +1492,305 @@ Commit `feat(025 slice-1A T9): AttemptCreditLedger.reconcile (retained→reconci
 
 ---
 
-### Task 13: `LaneCallLedger` — durable per-Attempt LLM-call admission (round-4 F1)
+### Task 13: `AttemptConfig` — the Attempt's limits are durable, not constructor-local (round-5 F1)
+
+**Files:**
+- Create: `src/llmxive/self_improvement/attempt_config.py`
+- Modify: `src/llmxive/self_improvement/credit_ledger.py` (Task 7's constructor binds through this)
+- Test: `tests/integration/test_self_improvement_attempt_config.py`; extend `tests/integration/test_self_improvement_credit_ledger.py`
+
+**Depends on:** Task 2 (`Event`, `derive_event_id`, `AttemptConfigured` + its validator), Task 3 (`append`/`read`), Task 6/7 (`AttemptCreditLedger`).
+
+**Why.** Round-4 made the call *spend* durable but left the *limit* in a constructor argument, which reopens the same hole one level up:
+
+```python
+LaneCallLedger(..., call_ceiling=2).claim(operation_id="a")
+LaneCallLedger(..., call_ceiling=2).claim(operation_id="b")
+LaneCallLedger(..., call_ceiling=100).claim(operation_id="c")   # ADMITTED — cap defeated
+```
+
+A durable count checked against a mutable bound is not a durable cap. The same is true of `AttemptCreditLedger.attempt_budget_credits` (Task 7), which is likewise constructor-local — and that one guards *money*. Configuration drift, a redeployed worker with a different default, or a competing worker each silently raise the ceiling. Both limits therefore come from ONE durable record per Attempt: the first writer binds them via CAS, and every later worker must present the SAME values or fail closed.
+
+**Interfaces:**
+- Produces:
+  - `@dataclass(frozen=True) class AttemptConfig`: `attempt_id: str`, `call_ceiling: int`, `attempt_budget_credits: float`.
+  - `class AttemptConfigMismatch(ValueError)` — a worker presented limits that differ from the Attempt's bound record. Fail closed: the safe move is to refuse the work, never to adopt the larger (or the smaller) number.
+  - `def bind_attempt_config(repo, *, problem_id, attempt_id, call_ceiling, attempt_budget_credits, actor, clock, config=LaneLogConfig()) -> AttemptConfig` — CAS-appends ONE `AttemptConfigured` event with the deterministic `event_id = derive_event_id(problem_id, f"attempt-config\x00{attempt_id}")`. **Idempotent** when the presented values match the bound ones (returns them); raises `AttemptConfigMismatch` when they differ. Two concurrent binders converge on one record: exactly one CAS wins and the loser re-reads and compares.
+  - `def load_attempt_config(events, attempt_id) -> AttemptConfig | None` — the bound record, or `None` if the Attempt was never configured. More than one `AttemptConfigured` for an Attempt is corruption → `AttemptConfigMismatch` (the deterministic `event_id` makes it unreachable, so reaching it means the log was tampered with).
+  - `def require_attempt_config(events, attempt_id) -> AttemptConfig` — as above but raises `AttemptConfigMismatch` on `None`. **Fail-closed-until-bound is the rule**: no lane work runs against limits nobody wrote down.
+- Modifies `AttemptCreditLedger.__init__` (Task 7): it keeps its `attempt_budget_credits` parameter, but the value it ENFORCES is now `bind_attempt_config(...).attempt_budget_credits`. A second ledger constructed with a different budget for the same Attempt raises `AttemptConfigMismatch` at construction, before it can admit a single reservation.
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+# tests/integration/test_self_improvement_attempt_config.py
+"""F1: an Attempt's limits are DURABLE. A restart, a config change, or a competing worker
+must not be able to raise (or lower) the ceiling or the credit budget."""
+import subprocess
+import threading
+
+import pytest
+
+from llmxive.self_improvement.attempt_config import (
+    AttemptConfigMismatch, bind_attempt_config, load_attempt_config, require_attempt_config,
+)
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
+
+def _git(repo, *a):
+    subprocess.run(["git", *a], cwd=str(repo), check=True, capture_output=True, text=True)
+
+@pytest.fixture
+def bare_remote(tmp_path):
+    r = tmp_path / "remote.git"
+    subprocess.run(["git", "init", "--bare", "-q", str(r)], check=True)
+    return r
+
+def _clone(bare, dst):
+    subprocess.run(["git", "clone", "-q", str(bare), str(dst)], check=True)
+    _git(dst, "config", "user.email", "t@t")
+    _git(dst, "config", "user.name", "t")
+    return dst
+
+_CLOCK = lambda: "2026-07-24T00:00:00+00:00"
+_CFG = LaneLogConfig(remote="origin")
+
+def _bind(repo, *, ceiling=56, budget=50.0):
+    return bind_attempt_config(repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
+                               attempt_budget_credits=budget, actor="lane", clock=_CLOCK,
+                               config=_CFG)
+
+def test_binding_is_idempotent_for_identical_limits(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    first = _bind(c)
+    assert _bind(c) == first
+    assert len([e for e in read(c, "P1", config=_CFG)
+                if e.event_type == "AttemptConfigured"]) == 1   # ONE record, not two
+
+def test_a_LARGER_ceiling_is_rejected(tmp_path, bare_remote):
+    # THE regression: this is the exact sequence that defeated the round-4 cap.
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    _bind(c, ceiling=2)
+    with pytest.raises(AttemptConfigMismatch, match="call_ceiling"):
+        _bind(c, ceiling=100)
+
+def test_a_DIFFERENT_credit_budget_is_rejected(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    _bind(c, budget=50.0)
+    with pytest.raises(AttemptConfigMismatch, match="attempt_budget_credits"):
+        _bind(c, budget=500.0)
+
+def test_a_SECOND_CLONE_sees_the_bound_limits(tmp_path, bare_remote):
+    # Cross-process, not just cross-object.
+    c1 = _clone(bare_remote, tmp_path / "c1")
+    c2 = _clone(bare_remote, tmp_path / "c2")
+    bootstrap_lane_log(c1, config=_CFG)
+    _bind(c1, ceiling=2)
+    assert require_attempt_config(read(c2, "P1", config=_CFG), "A1").call_ceiling == 2
+    with pytest.raises(AttemptConfigMismatch):
+        _bind(c2, ceiling=100)
+
+def test_two_concurrent_binders_converge_on_one_record(tmp_path, bare_remote):
+    c1 = _clone(bare_remote, tmp_path / "c1")
+    c2 = _clone(bare_remote, tmp_path / "c2")
+    bootstrap_lane_log(c1, config=_CFG)
+    barrier = threading.Barrier(2, timeout=30)
+    out, errors = {}, []
+
+    def _go(name, clone):
+        try:
+            barrier.wait()
+            out[name] = _bind(clone)
+        except BaseException as exc:
+            errors.append(exc)
+
+    ts = [threading.Thread(target=_go, args=(n, c)) for n, c in (("a", c1), ("b", c2))]
+    for t in ts: t.start()
+    for t in ts: t.join(timeout=60)
+    assert not errors, f"concurrent bind raised: {errors}"
+    assert out["a"] == out["b"]
+    assert len([e for e in read(c1, "P1", config=_CFG)
+                if e.event_type == "AttemptConfigured"]) == 1
+
+def test_an_unconfigured_attempt_fails_closed(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    assert load_attempt_config(read(c, "P1", config=_CFG), "A1") is None
+    with pytest.raises(AttemptConfigMismatch, match="not configured"):
+        require_attempt_config(read(c, "P1", config=_CFG), "A1")
+```
+
+And the credit-ledger half (append to `tests/integration/test_self_improvement_credit_ledger.py`):
+
+```python
+def test_a_second_ledger_with_a_different_budget_is_rejected(tmp_path, bare_remote):
+    # F1: the credit budget guards MONEY; it must not be re-openable by a worker that
+    # simply passes a bigger number.
+    from llmxive.self_improvement.attempt_config import AttemptConfigMismatch
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    _ledger(c, budget=50.0)                       # binds
+    with pytest.raises(AttemptConfigMismatch):
+        _ledger(c, budget=500.0)                  # refuses at CONSTRUCTION, pre-reservation
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/integration/test_self_improvement_attempt_config.py -q`
+Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improvement.attempt_config'`.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```python
+# src/llmxive/self_improvement/attempt_config.py
+"""The Attempt's DURABLE safety limits (round-5 review F1).
+
+Round 4 made the call SPEND durable but left the LIMIT in a constructor argument — and a
+durable count checked against a mutable bound is not a durable cap: a restarted worker, a
+config change, or a competing worker could simply present a bigger ceiling. The same held
+for the credit budget, which guards money. Both now come from ONE ``AttemptConfigured``
+event per Attempt: the first writer binds them under the ref-CAS, and every later worker
+must present identical values or fail closed."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+
+from llmxive.self_improvement.events import Event, derive_event_id
+from llmxive.self_improvement.lane_log import (
+    LaneContention, LaneLogConfig, LaneRevisionConflict, append, read,
+)
+
+_MAX_RETRIES = 8
+
+class AttemptConfigMismatch(ValueError):
+    """A worker presented limits that differ from the Attempt's bound record (or the
+    Attempt has none). Fail closed — never adopt the presented value, in EITHER direction:
+    a larger ceiling defeats the cap, and a smaller one silently strands admitted work."""
+
+@dataclass(frozen=True)
+class AttemptConfig:
+    attempt_id: str
+    call_ceiling: int
+    attempt_budget_credits: float
+
+def _config_event_id(problem_id: str, attempt_id: str) -> str:
+    return derive_event_id(problem_id, f"attempt-config\x00{attempt_id}")
+
+def load_attempt_config(events: list[Event], attempt_id: str) -> AttemptConfig | None:
+    """The Attempt's bound limits, or None if it was never configured. Two records for one
+    Attempt is corruption — the deterministic event_id makes it unreachable through the
+    CAS, so reaching it means the log was tampered with."""
+    found = [e for e in events
+             if e.event_type == "AttemptConfigured" and e.payload.get("attempt_id") == attempt_id]
+    if not found:
+        return None
+    if len(found) > 1:
+        raise AttemptConfigMismatch(
+            f"attempt {attempt_id!r} has {len(found)} AttemptConfigured records — corrupt log"
+        )
+    p = found[0].payload
+    return AttemptConfig(attempt_id, int(p["call_ceiling"]), float(p["attempt_budget_credits"]))
+
+def require_attempt_config(events: list[Event], attempt_id: str) -> AttemptConfig:
+    """Fail-closed read: no lane work runs against limits nobody wrote down."""
+    cfg = load_attempt_config(events, attempt_id)
+    if cfg is None:
+        raise AttemptConfigMismatch(f"attempt {attempt_id!r} is not configured — bind its "
+                                    "limits before claiming calls or reserving credits")
+    return cfg
+
+def _compare(bound: AttemptConfig, presented: AttemptConfig) -> AttemptConfig:
+    for field in ("call_ceiling", "attempt_budget_credits"):
+        if getattr(bound, field) != getattr(presented, field):
+            raise AttemptConfigMismatch(
+                f"attempt {bound.attempt_id!r} is bound to {field}="
+                f"{getattr(bound, field)!r}; this worker presented "
+                f"{getattr(presented, field)!r} — refusing to rebind a safety limit"
+            )
+    return bound
+
+def bind_attempt_config(repo: Path, *, problem_id: str, attempt_id: str, call_ceiling: int,
+                        attempt_budget_credits: float, actor: str, clock: Callable[[], str],
+                        config: LaneLogConfig = LaneLogConfig()) -> AttemptConfig:
+    """Bind (or verify) this Attempt's limits. Idempotent for identical values; raises
+    ``AttemptConfigMismatch`` for any difference. Concurrent binders converge: exactly one
+    CAS lands and the loser re-reads and compares."""
+    if call_ceiling <= 0:
+        raise ValueError(f"call_ceiling must be positive, got {call_ceiling!r}")
+    if attempt_budget_credits < 0:
+        raise ValueError(f"attempt_budget_credits must be non-negative, got {attempt_budget_credits!r}")
+    presented = AttemptConfig(attempt_id, call_ceiling, float(attempt_budget_credits))
+    for _ in range(_MAX_RETRIES):
+        events = read(repo, problem_id, config=config)
+        bound = load_attempt_config(events, attempt_id)
+        if bound is not None:
+            return _compare(bound, presented)
+        event = Event(
+            event_id=_config_event_id(problem_id, attempt_id),
+            event_type="AttemptConfigured", problem_id=problem_id, actor=actor,
+            payload={"attempt_id": attempt_id, "call_ceiling": call_ceiling,
+                     "attempt_budget_credits": float(attempt_budget_credits)},
+            timestamp=clock(), attempt_id=attempt_id,
+        )
+
+        def _unbound(evs: list[Event], _a=attempt_id, _p=presented) -> tuple[bool, str]:
+            fresh = load_attempt_config(evs, _a)
+            if fresh is None:
+                return (True, "")
+            # A competitor bound it between our read and this CAS attempt. Identical
+            # values → idempotent success; different → deny, and the loop's re-read
+            # raises the mismatch with the real bound values in the message.
+            return (fresh == _p, "precondition: attempt already bound to different limits")
+
+        try:
+            append(repo, event, expected_revision=None, precondition=_unbound, config=config)
+            return presented
+        except LaneRevisionConflict:
+            continue        # re-read: either adopt the identical record or raise mismatch
+    raise LaneContention(f"attempt-config CAS did not converge for {attempt_id!r}")
+```
+
+Then modify `AttemptCreditLedger.__init__` (Task 7) to bind through it:
+
+```python
+        # F1: the budget this ledger ENFORCES is the Attempt's durable one, not whatever
+        # this worker was constructed with. A different value fails closed HERE, before a
+        # single reservation can be admitted against a silently-raised cap.
+        self._budget = bind_attempt_config(
+            repo, problem_id=problem_id, attempt_id=attempt_id,
+            call_ceiling=call_ceiling, attempt_budget_credits=attempt_budget_credits,
+            actor=actor, clock=clock, config=config,
+        ).attempt_budget_credits
+```
+
+**Note on the shared record.** `AttemptConfigured` binds BOTH limits, so whichever component constructs first must know both. `AttemptCreditLedger` and `LaneCallLedger` therefore both take `call_ceiling` AND `attempt_budget_credits` and pass both to `bind_attempt_config`; each then reads back only the field it enforces. That is deliberate — two records could drift apart, and the drift would be invisible until one limit was already exceeded.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `pytest tests/integration/test_self_improvement_attempt_config.py tests/integration/test_self_improvement_credit_ledger.py -q`
+Expected: PASS (6 config tests + the credit-ledger suite including the new mismatch test).
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/llmxive/self_improvement/attempt_config.py src/llmxive/self_improvement/credit_ledger.py tests/integration/test_self_improvement_attempt_config.py tests/integration/test_self_improvement_credit_ledger.py
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T13): durable per-Attempt limits — one AttemptConfigured record binds the ceiling + credit budget"
+```
+
+---
+
+### Task 14: `LaneCallLedger` — durable per-Attempt LLM-call admission (round-4 F1)
 
 **Files:**
 - Create: `src/llmxive/self_improvement/call_ledger.py`
 - Test: `tests/integration/test_self_improvement_call_ledger.py`
 
-**Depends on:** Task 2 (`Event`, `derive_event_id`, `LaneCallClaimed` + its payload validator) and Task 3 (`append`/`read`/`LaneRevisionConflict`). Independent of Tasks 4–12.
+**Depends on:** Task 2 (`Event`, `derive_event_id`, `derive_route_id`, `LEGS`, `LaneCallClaimed` + its validator), Task 3 (`append`/`read`/`LaneRevisionConflict`/`LaneContention`), and **Task 13** (`load_attempt_config` — the ceiling is bound there, not by this constructor). Independent of Tasks 4–12.
 
 **Why this is substrate, not panel state.** Policy Contract line 313 scopes the LLM-call ceiling to the **Attempt**: "Per Attempt: `proposer + implementer·(1 + impl_regen_retries) + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]`". An in-memory counter enforces it only within ONE process: a restart, a retry on another runner, or a duplicate worker each start at zero, so a single Attempt can burn the ceiling over and over — exactly the runaway the backstop exists to prevent. Admission therefore lives in the same append-only CAS log as the credit ledger.
 
@@ -1423,12 +1798,11 @@ Commit `feat(025 slice-1A T9): AttemptCreditLedger.reconcile (retained→reconci
 
 **Interfaces:**
 - Produces:
-  - `LEGS = ("primary", "fallback")` — the two legs of FR-002's two-attempt reroute. A `leg` outside this set raises `ValueError` (a typo must not silently mint a third route).
+  - (`LEGS` and `derive_route_id` are NOT produced here — Task 2 owns them in `events.py`, because `validate_lane_event` must recompute the route id to check a `LaneCallClaimed` payload and the reverse import would be a cycle. This module imports both.)
   - `class LaneCallCeilingExceeded(RuntimeError)` — this Attempt's ceiling is spent; the Attempt fails closed (Policy Contract line 313). **Defined here** (Slice 1B imports it from this module — it is a substrate condition, not a panel-local one).
-  - `def derive_route_id(attempt_id: str, operation_id: str, leg: str) -> str` — `sha256(f"{attempt_id}\x00{operation_id}\x00{leg}")[:32]`. Deterministic → retry-stable.
   - `@dataclass(frozen=True) class CallClaim`: `operation_id: str`, `leg: str`, `route_id: str`, `seq: int`.
   - `def project_call_claims(events: list[Event], attempt_id: str) -> dict[tuple[str, str], CallClaim]` — the `LaneCallClaimed` events for THIS `attempt_id`, keyed `(operation_id, leg)`, in `seq` order. A duplicate key with a DIFFERENT `route_id` is corruption → `raise ValueError` (fail closed; the CAS makes it unreachable, so reaching it means the log was tampered with).
-  - `class LaneCallLedger`: constructor `(*, repo, problem_id, attempt_id, call_ceiling, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock` (same rationale as `AttemptCreditLedger`: the panel's `ThreadPoolExecutor` shares ONE instance).
+  - `class LaneCallLedger`: constructor `(*, repo, problem_id, attempt_id, call_ceiling, attempt_budget_credits, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock` (same rationale as `AttemptCreditLedger`: the panel's `ThreadPoolExecutor` shares ONE instance). **The ceiling it enforces is `bind_attempt_config(...).call_ceiling`, not the constructor argument** (round-5 F1) — presenting a different value fails closed at construction. It takes `attempt_budget_credits` too because one `AttemptConfigured` record binds BOTH limits (see Task 13's note); it reads back only the ceiling.
     - `claim(self, *, operation_id: str, leg: str = "primary") -> str` — returns the `route_id` admitted for this logical call. **Idempotent:** an already-claimed `(operation_id, leg)` returns its recorded `route_id` and does NOT consume another call. Raises `LaneCallCeilingExceeded` when the Attempt is at its ceiling, `LaneContention` if the CAS never converges.
     - `calls_used(self) -> int` — `len(project_call_claims(read(...), attempt_id))`, the DURABLE count (not a local counter).
 
@@ -1444,9 +1818,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
+from llmxive.self_improvement.attempt_config import AttemptConfigMismatch
 from llmxive.self_improvement.call_ledger import (
-    LaneCallCeilingExceeded, LaneCallLedger, derive_route_id, project_call_claims,
+    LaneCallCeilingExceeded, LaneCallLedger, project_call_claims,
 )
+from llmxive.self_improvement.events import derive_route_id
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
 
 def _git(repo, *a):
@@ -1467,8 +1843,11 @@ def _clone(bare, dst):
 _CLOCK = lambda: "2026-07-24T00:00:00+00:00"
 
 def _ledger(repo, ceiling=3, cfg=None):
+    # attempt_budget_credits is passed because ONE AttemptConfigured record binds BOTH
+    # limits (Task 13); this ledger reads back only the ceiling.
     return LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
-                          actor="lane", clock=_CLOCK, config=cfg or LaneLogConfig(remote="origin"))
+                          attempt_budget_credits=50.0, actor="lane", clock=_CLOCK,
+                          config=cfg or LaneLogConfig(remote="origin"))
 
 def test_claim_charges_once_and_replays_the_same_route_id(tmp_path, bare_remote):
     c = _clone(bare_remote, tmp_path / "c")
@@ -1522,6 +1901,25 @@ def test_a_SECOND_CLONE_shares_the_same_ceiling(tmp_path, bare_remote):
     with pytest.raises(LaneCallCeilingExceeded):
         _ledger(c2, ceiling=2).claim(operation_id="c")
 
+def test_a_LARGER_ceiling_cannot_reopen_a_spent_attempt(tmp_path, bare_remote):
+    # THE round-5 F1 regression: with a constructor-local ceiling this sequence admitted
+    # the third call. The limit is now bound durably, so the third LEDGER is refused at
+    # construction — before it can claim anything.
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    _ledger(c, ceiling=2).claim(operation_id="a")
+    _ledger(c, ceiling=2).claim(operation_id="b")
+    with pytest.raises(AttemptConfigMismatch, match="call_ceiling"):
+        _ledger(c, ceiling=100)
+
+def test_a_second_clone_cannot_present_a_different_ceiling(tmp_path, bare_remote):
+    c1 = _clone(bare_remote, tmp_path / "c1")
+    c2 = _clone(bare_remote, tmp_path / "c2")
+    bootstrap_lane_log(c1, config=LaneLogConfig(remote="origin"))
+    _ledger(c1, ceiling=2).claim(operation_id="a")
+    with pytest.raises(AttemptConfigMismatch):
+        _ledger(c2, ceiling=100)
+
 def test_concurrent_claimers_never_exceed_the_ceiling(tmp_path, bare_remote):
     # The panel's ThreadPoolExecutor shares ONE ledger; admission must be atomic.
     c = _clone(bare_remote, tmp_path / "c")
@@ -1565,28 +1963,22 @@ retried call instead of double-dispatching it (``route.py:291-293``)."""
 
 from __future__ import annotations
 
-import hashlib
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from llmxive.self_improvement.events import Event, derive_event_id
+from llmxive.self_improvement.attempt_config import bind_attempt_config
+from llmxive.self_improvement.events import LEGS, Event, derive_event_id, derive_route_id
 from llmxive.self_improvement.lane_log import (
     LaneContention, LaneLogConfig, LaneRevisionConflict, append, read,
 )
 
-LEGS = ("primary", "fallback")   # FR-002's two-attempt reroute; nothing else is a leg
 _MAX_RETRIES = 8
 
 class LaneCallCeilingExceeded(RuntimeError):
     """This Attempt has spent its logical-``route_chat`` ceiling (Policy Contract line
     313). The Attempt fails closed — never a silent extra call."""
-
-def derive_route_id(attempt_id: str, operation_id: str, leg: str) -> str:
-    """The RETRY-STABLE route id for one logical call. Deterministic in the Attempt +
-    operation + leg, so a replay re-derives it rather than minting a fresh uuid."""
-    return hashlib.sha256(f"{attempt_id}\x00{operation_id}\x00{leg}".encode()).hexdigest()[:32]
 
 @dataclass(frozen=True)
 class CallClaim:
@@ -1618,12 +2010,19 @@ def project_call_claims(events: list[Event], attempt_id: str) -> dict[tuple[str,
 
 class LaneCallLedger:
     def __init__(self, *, repo: Path, problem_id: str, attempt_id: str, call_ceiling: int,
-                 actor: str, clock: Callable[[], str],
+                 attempt_budget_credits: float, actor: str, clock: Callable[[], str],
                  config: LaneLogConfig = LaneLogConfig()) -> None:
-        if call_ceiling <= 0:
-            raise ValueError(f"call_ceiling must be positive, got {call_ceiling!r}")
         self._repo, self._problem_id, self._attempt_id = repo, problem_id, attempt_id
-        self._ceiling, self._actor, self._clock, self._config = call_ceiling, actor, clock, config
+        self._actor, self._clock, self._config = actor, clock, config
+        # F1: the ceiling this ledger ENFORCES is the Attempt's DURABLE one. Presenting a
+        # different value raises AttemptConfigMismatch here, before a single call can be
+        # admitted against a silently-raised cap. (bind_attempt_config validates
+        # positivity, so the local check is gone — it lives in one place now.)
+        self._ceiling = bind_attempt_config(
+            repo, problem_id=problem_id, attempt_id=attempt_id, call_ceiling=call_ceiling,
+            attempt_budget_credits=attempt_budget_credits, actor=actor, clock=clock,
+            config=config,
+        ).call_ceiling
         self._lock = threading.Lock()   # the panel shares ONE instance across its threads
 
     def calls_used(self) -> int:
@@ -1685,20 +2084,20 @@ class LaneCallLedger:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/integration/test_self_improvement_call_ledger.py -q`
-Expected: PASS (7 passed).
+Expected: PASS (9 passed).
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add src/llmxive/self_improvement/call_ledger.py tests/integration/test_self_improvement_call_ledger.py
-PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T13): durable per-Attempt call ledger — CAS admission + retry-stable route ids"
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T14): durable per-Attempt call ledger — CAS admission + retry-stable route ids"
 ```
 
 ---
 
 ## Final verification (before the whole-branch review)
 
-- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): `Event`, `derive_event_id`, `validate_lane_event`, `LANE_REF`, `append`, `read`, `LaneRevisionConflict`, `LaneContention`, `LaneCoordinator`, `project_coordinator`, `cas_claim`, `cas_release`, `AttemptCreditLedger`, `LaneCallLedger`, `LaneCallCeilingExceeded`, `derive_route_id`, `project_call_claims`, `EventStoreRouteAudit`, `reconcile_unknown`. Test they import.
+- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): `Event`, `derive_event_id`, `validate_lane_event`, `LANE_REF`, `append`, `read`, `LaneRevisionConflict`, `LaneContention`, `LaneCoordinator`, `project_coordinator`, `cas_claim`, `cas_release`, `AttemptCreditLedger`, `AttemptConfig`, `AttemptConfigMismatch`, `bind_attempt_config`, `load_attempt_config`, `require_attempt_config`, `LaneCallLedger`, `LaneCallCeilingExceeded`, `derive_route_id`, `project_call_claims`, `EventStoreRouteAudit`, `reconcile_unknown`. Test they import.
 - [ ] **Money-path gate re-run, no edits** (the Task-1 acceptance bar, re-confirmed after all substrate work): the seven files in Global Constraints pass with the Step-1 baseline counts.
 - [ ] `ruff check` clean on every touched file.
 - [ ] Full non-slow suite green: `pytest tests/unit tests/contract tests/integration -m "not slow" -q` → 0 failed (network-restricted-sandbox artifacts itemized).
@@ -1743,6 +2142,15 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T13): durable per-
 | # | Finding | Resolved by |
 |-|-|-|
 | 1 | the LLM-call ceiling was in-memory, so NOT per-Attempt | **new T13** `LaneCallLedger`: a `LaneCallClaimed` CAS admission per logical call, counted from the durable log — plus retry-stable `route_id`s (`derive_route_id`), which is also what lets slice-0's dispatch-idempotency gate recognize a retried call. Regression tests: restarted-object, second-clone, and concurrent-claimer |
-| 6 | `ReviewRerouted` payload validation was only nominal | T2 gains `PAYLOAD_VALIDATORS` — a per-type payload schema table run by `validate_lane_event`, with `LaneCallClaimed` registered here and `ReviewRerouted` registered by Slice 1B T1; unlisted types are envelope-only BY DESIGN (documented + tested) |
+| 6 | `ReviewRerouted` payload validation was only nominal | T2 gains `TYPE_VALIDATORS` — a per-type schema table run by `validate_lane_event`, with `AttemptConfigured`/`LaneCallClaimed` registered here and `ReviewRerouted` registered by Slice 1B T1; unlisted types are envelope-only BY DESIGN (documented + tested). (Round 5 then widened the signature to the whole event and named the table `TYPE_VALIDATORS`.) |
 | 10 | the bootstrap concurrency test was sequential | T1 adds the `_after_probe` seam (the bootstrap counterpart of `_after_parent`); T3's test now holds two clones past the existence probe and races the push, then asserts a single genesis commit on the bare remote. The old sequential case is kept, honestly renamed `test_second_clone_adopts_the_existing_genesis` |
 | — | leftovers found while applying the above | File Structure said `Ledger*` "subclassing the core's", contradicting round-3 F8's ALIAS decision — corrected; row 9 above said a vocabulary extension bumps `SCHEMA_VERSION`, contradicting round-3 F7 — corrected; `LaneContention` was about to be declared in two modules — now defined once in `lane_log.py` |
+
+**Round 5 (the substrate findings from the 1B review):**
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | the durable call ledger checked its count against a CONSTRUCTOR-LOCAL ceiling, so a later worker could present a bigger one (and the same held for the credit budget, which guards money) | **new T13** `AttemptConfig`: ONE `AttemptConfigured` record per Attempt binds `call_ceiling` + `attempt_budget_credits` under the ref-CAS; T14's `LaneCallLedger` and T7's `AttemptCreditLedger` both enforce the BOUND value and raise `AttemptConfigMismatch` at construction on any difference. Tests: same-clone larger-ceiling, restarted-object, two-clone mismatch, concurrent binders, unconfigured-fails-closed, and the credit-budget counterpart |
+| 5 | `LaneCallClaimed` validation checked only basic types | T2's validators now receive the **whole event**, so `payload["attempt_id"]` must equal the envelope's (the projection filters by the payload's, so a disagreement misattributes the claim); `leg ∈ LEGS`; and `route_id` must equal `derive_route_id(attempt, operation, leg)`. `derive_route_id` + `LEGS` moved to `events.py` to make that check possible without an import cycle. The cross-EVENT ceiling-consistency check is finding 1's `AttemptConfig`, where it belongs |
+
+Renumbering note: round-4's Task 13 (`LaneCallLedger`) is now **Task 14**; the new `AttemptConfig` task takes 13, because the ledger's ceiling is read from it.

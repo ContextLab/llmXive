@@ -20,6 +20,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **Degradation provenance carries all four FR-002 fields (F5).** `primary_failure = {exception_type, message, requirement_digest, snapshot_provenance}` (spec line 149). The last two are **joined** from the primary leg's `SelectionFailure` (which slice-0 already emits, `route.py:236-240`) rather than duplicated into the reroute payload — two copies of the same fact can disagree; a join cannot.
 - **Stage-specific LLM-call ceiling (Policy Contract line 313), enforced DURABLY per Attempt.** The proposal review is NOT single-route: every reviewer operation is up to two logical `route_chat` invocations, so the proposal ceiling is **`4N + R·(2N + 2)`** (N = panel size, R = `max_rounds`); with N=5, R=3 that is **56**. The `2N` term is R1 (each reviewer: normal call + at most one action-item resubmit), doubled by the reroute; the `+2` is the reviser's at-most-two attempts per round (the engine's malformed-reply retry) and is NOT doubled (the producer has no independence constraint, hence no reroute). **A logical `route_chat` invocation is the unit** — 026's provider-level transient retries are internal and do NOT count. Line 313 scopes the ceiling to the **Attempt**, which outlives any panel process, so admission is a CAS append to the lane log (Slice 1A's `LaneCallLedger`), never an in-memory counter (round-4 F1). Exceeding it fails the Attempt.
 - **Every lane route id is retry-stable and comes from the ledger.** `LaneRouteContext.claim_route` is the only place a lane `route_id` is minted, and it derives it deterministically from `(attempt_id, operation_id, leg)`. A replayed logical call therefore re-presents the SAME id, which is what lets slice-0's `claim_dispatch` recognize the replay instead of dispatching twice (`route.py:291-293`). Callers derive `operation_id` from their own content and pass it through `next_operation_id`, which distinguishes a legitimate in-process repeat (the engine's reviser retry) from a restart replay.
+- **A convergence run is NOT resumed across processes; a crashed Attempt fails closed (spec FR-033(d), FR-033a).** This is the invariant that makes the operation-id scheme above sufficient, so it is stated here rather than left implicit (round-5 review F2). Spec 025 line 220: "The Attempt ledger is per-Attempt: **a crashed Attempt is a failed Attempt** whose reservations reconcile against the 026 ledger." Line 212's route-replay disposition says the same from the other side: "an unresolved `dispatch_started` with no `dispatch_completed` becomes `dispatch_unknown` and **the Attempt fails closed**." There is no partially-executed panel that a second process picks up mid-run: `run_proposal_review` drives R1→R3 within one process, and a crash ends that Attempt. A retry is a NEW Attempt with a NEW `attempt_id`, hence a disjoint route-id space. Consequently the only cross-process re-presentation of an existing `attempt_id` is a **duplicate/zombie worker**, and for that the correct behavior is exactly what the scheme produces: the same operation re-derives the same `route_id`, `claim_dispatch` reports a replay, and the Attempt fails closed. **Any future slice that introduces resumable convergence MUST replace the in-process repeat counter with a durable workflow position** (stage, run, round, lens, kind, retry ordinal) — a content digest plus a process-local ordinal cannot tell "resumed after a completed identical call" from "replay of a crashed one". Do not add resume without doing that first.
 - **The lane reviser makes EXACTLY ONE `route_chat` call per `revise()`.** The existing `convergence/revisers/*` classes route through `invoke_reviser_backend` → `run_with_self_consistency`, which makes up to THREE calls per `revise()` (first pass + self-consistency audit + corrective re-pass, `_self_consistency.py:147-236`). That would break the `+2`-per-round ceiling term above, so the lane reviser MUST NOT use that path.
 - **Convergence types cannot carry the degradation.** `Concern` and `Verdict` are pydantic `_Strict` models (`model_config = ConfigDict(extra="forbid")`, `types.py:128-129`), so no field may be added to them. Provenance lives in lane events (above) — this is why `InvocationIdentity` is sourced from the audit stream, not from `ConvergenceResult`.
 - **`run_convergence` is UNCHANGED.** No new parameter, no new branch. Independence is wired into the `Reviewer` objects at construction, before `spec.reviewers` is handed to the engine (spec line 283: "a **025 slice-1 task entirely in `convergence/`**").
@@ -30,7 +31,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 
 ## Dependencies + scope boundary
 
-**Consumes (Slice 1A, must be implemented first):** `EventStoreRouteAudit(*, repo, problem_id, attempt_id, actor, clock, config=LaneLogConfig())` (implements slice-0 `RouteAudit`), `AttemptCreditLedger(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())` (implements slice-0 `ReservationAuthority`), `LaneCallLedger(*, repo, problem_id, attempt_id, call_ceiling, actor, clock, config=LaneLogConfig())` + `LaneCallCeilingExceeded` + `derive_route_id` (Slice 1A **Task 13**), `LaneLogConfig`, `lane_log.append/read`, `LaneRevisionConflict`, `LaneContention`, `Event`, `derive_event_id`, `KNOWN_EVENT_TYPES_V1`, `PAYLOAD_VALIDATORS`, `_require`.
+**Consumes (Slice 1A, must be implemented first):** `EventStoreRouteAudit(*, repo, problem_id, attempt_id, actor, clock, config=LaneLogConfig())` (implements slice-0 `RouteAudit`), `AttemptCreditLedger(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())` (implements slice-0 `ReservationAuthority`), `LaneCallLedger(*, repo, problem_id, attempt_id, call_ceiling, attempt_budget_credits, actor, clock, config=LaneLogConfig())` + `LaneCallCeilingExceeded` (Slice 1A **Task 14**), `bind_attempt_config`/`AttemptConfigMismatch` (**Task 13** — the ceiling and the credit budget are bound durably, so a ledger presenting a different value fails closed at construction), `LaneLogConfig`, `lane_log.append/read`, `LaneRevisionConflict`, `LaneContention`, `Event`, `derive_event_id`, `derive_route_id`, `LEGS`, `KNOWN_EVENT_TYPES_V1`, `TYPE_VALIDATORS`, `_require`.
 
 **Out of scope (later slices):** the **patch** review (`self_improvement_patch` — fail-closed single-attempt independence; it reuses the `LLMReviewer` mechanism built here but is the pre-merge gate, US3+); the Attempt lifecycle transitions (`proposal_verified`/`rejected` state writes — Slice 1A deliberately deferred Attempt-failure semantics); discovery logic (error mining, issue ranking, the proposer that CREATES a proposal). This plan wires the REVIEW of a proposal, not its creation.
 
@@ -39,7 +40,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 ## File Structure
 
 - `src/llmxive/self_improvement/route_context.py` — `LaneRouteContext` (the three mandatory hooks, `next_operation_id`, `claim_route`, `record_reroute`) + `proposal_call_ceiling`. One responsibility: what every lane LLM call needs. `LaneCallCeilingExceeded` is re-exported from Slice 1A's `call_ledger`, not redefined.
-- `src/llmxive/self_improvement/events.py` — **modified**: add `ReviewRerouted` to `KNOWN_EVENT_TYPES_V1` (a vocabulary extension — no `SCHEMA_VERSION` bump, per Slice 1A's F7 rule) and register its payload validator in `PAYLOAD_VALIDATORS`.
+- `src/llmxive/self_improvement/events.py` — **modified**: add `ReviewRerouted` to `KNOWN_EVENT_TYPES_V1` (a vocabulary extension — no `SCHEMA_VERSION` bump, per Slice 1A's F7 rule) and register its validator in `TYPE_VALIDATORS`.
 - `src/llmxive/self_improvement/invocation_identity.py` — `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. One responsibility: the audit-derived provenance record.
 - `src/llmxive/convergence/lane_reviser.py` — `LaneProposalReviser` (implements `Reviser`; exactly one routed call per `revise()`).
 - `src/llmxive/convergence/self_improvement_specs.py` — `PROPOSAL_STAGE`, `PROPOSAL_LENSES`, `build_proposal_review_spec`, `run_proposal_review`.
@@ -56,9 +57,9 @@ Every task's requirements implicitly include this section. Values are copied ver
 - Test: `tests/unit/test_self_improvement_events.py` (extend)
 
 **Interfaces:**
-- Consumes: `KNOWN_EVENT_TYPES_V1`, `SCHEMA_VERSION`, `SUPPORTED_SCHEMA_VERSIONS`, `PAYLOAD_VALIDATORS`, `_require` (Slice 1A Task 2).
+- Consumes: `KNOWN_EVENT_TYPES_V1`, `SCHEMA_VERSION`, `SUPPORTED_SCHEMA_VERSIONS`, `TYPE_VALIDATORS`, `_require` (Slice 1A Task 2).
 - Produces: `"ReviewRerouted"` added to `KNOWN_EVENT_TYPES_V1`. **No `SCHEMA_VERSION` bump** — per Slice 1A's F7 rule, extending the event VOCABULARY does not change the record SHAPE, and bumping would make a reader reject prior-version history.
-- Produces: `_validate_review_rerouted`, **registered in Slice 1A's `PAYLOAD_VALIDATORS`** (round-4 review F6). Adding the type to the vocabulary alone leaves the payload unchecked, and this is not a passive record: Task 6 reads `p["primary_profile"]`/`p["primary_failure"]`/`p["relaxed_constraints"]` to build the degradation provenance, so a missing key becomes a `KeyError` inside the projection and a wrong value becomes **false provenance about which safeguards were relaxed**. The contract:
+- Produces: `_validate_review_rerouted`, **registered in Slice 1A's `TYPE_VALIDATORS`** (round-4 review F6). Adding the type to the vocabulary alone leaves the payload unchecked, and this is not a passive record: Task 6 reads `p["primary_profile"]`/`p["primary_failure"]`/`p["relaxed_constraints"]` to build the degradation provenance, so a missing key becomes a `KeyError` inside the projection and a wrong value becomes **false provenance about which safeguards were relaxed**. The contract:
 
   | Key | Rule |
   |-|-|
@@ -99,8 +100,19 @@ def test_review_rerouted_event_validates():
 
 def test_review_rerouted_is_registered_for_payload_validation():
     # F6: vocabulary membership alone leaves the payload unchecked.
-    from llmxive.self_improvement.events import PAYLOAD_VALIDATORS
-    assert "ReviewRerouted" in PAYLOAD_VALIDATORS
+    from llmxive.self_improvement.events import TYPE_VALIDATORS
+    assert "ReviewRerouted" in TYPE_VALIDATORS
+
+def test_review_rerouted_rejects_unknown_keys():
+    # Round-5 F6: the schema is EXACT, not merely "required fields present" — otherwise a
+    # typo'd key is indistinguishable from a new one and the contract is untestable.
+    from llmxive.self_improvement.events import validate_lane_event
+    with pytest.raises(ValueError, match="unexpected payload keys"):
+        validate_lane_event(_raw(event_type="ReviewRerouted",
+                                 payload=_reroute_payload(surprise="extra")))
+    with pytest.raises(ValueError, match="unexpected primary_failure keys"):
+        validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload(
+            primary_failure={"exception_type": "ModelUnavailable", "message": "x", "extra": 1})))
 
 @pytest.mark.parametrize("bad, why", [
     ({"primary_route_id": "same", "fallback_route_id": "same"}, "distinct"),
@@ -134,7 +146,7 @@ Expected: FAIL — `AssertionError` (`"ReviewRerouted" not in KNOWN_EVENT_TYPES_
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `src/llmxive/self_improvement/events.py`, add the type to the existing frozenset AND register its payload validator (Slice 1A Task 2 built both the frozenset and the `PAYLOAD_VALIDATORS` table + the `_require` helper):
+In `src/llmxive/self_improvement/events.py`, add the type to the existing frozenset AND register its payload validator (Slice 1A Task 2 built both the frozenset and the `TYPE_VALIDATORS` table + the `_require` helper; validators receive the WHOLE raw event):
 
 ```python
 KNOWN_EVENT_TYPES_V1 = frozenset({
@@ -159,10 +171,24 @@ _REROUTE_FALLBACK_PROFILE = "deep_review"
 _REROUTE_TRIGGER = "ModelUnavailable"
 _REROUTE_RELAXED = ["family_independence", "snapshot_freshness"]
 
-def _validate_review_rerouted(payload: Mapping[str, Any]) -> None:
+#: The EXACT key set (round-5 F6). "Required fields" alone would let extras ride along:
+#: harmless today, but it makes the contract untestable and future schema evolution
+#: ambiguous — a reader could not tell a typo'd key from a new one. Matches the house
+#: style of the convergence types (`extra="forbid"`, `types.py:128-129`).
+_REROUTE_KEYS = frozenset({
+    "operation_id", "lens", "primary_profile", "fallback_profile",
+    "primary_route_id", "fallback_route_id", "primary_failure", "relaxed_constraints",
+})
+_REROUTE_FAILURE_KEYS = frozenset({"exception_type", "message"})
+
+def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
     """FR-002's degradation record. Task 6 builds `IndependenceDegraded` straight out of
     this payload, so an unchecked key is either a KeyError in the projection or — worse —
     a FALSE claim about which safeguards the fallback gave up."""
+    payload = raw["payload"]
+    extra = set(payload) - _REROUTE_KEYS
+    if extra:
+        raise ValueError(f"unexpected payload keys {sorted(extra)} — the schema is exact")
     for key in ("operation_id", "lens", "primary_route_id", "fallback_route_id"):
         _require(payload, key, str)
     if payload["primary_route_id"] == payload["fallback_route_id"]:
@@ -175,6 +201,9 @@ def _validate_review_rerouted(payload: Mapping[str, Any]) -> None:
     if fallback != _REROUTE_FALLBACK_PROFILE:
         raise ValueError(f"fallback_profile must be {_REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}")
     failure = _require(payload, "primary_failure", Mapping)
+    failure_extra = set(failure) - _REROUTE_FAILURE_KEYS
+    if failure_extra:
+        raise ValueError(f"unexpected primary_failure keys {sorted(failure_extra)}")
     for key in ("exception_type", "message"):
         _require(failure, key, str)
     if failure["exception_type"] != _REROUTE_TRIGGER:
@@ -185,13 +214,13 @@ def _validate_review_rerouted(payload: Mapping[str, Any]) -> None:
         raise ValueError(f"relaxed_constraints must be exactly {_REROUTE_RELAXED} (the fallback "
                          f"always relaxes both, in that order), got {relaxed!r}")
 
-PAYLOAD_VALIDATORS["ReviewRerouted"] = _validate_review_rerouted
+TYPE_VALIDATORS["ReviewRerouted"] = _validate_review_rerouted
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_events.py -q`
-Expected: PASS (all, including the 12 new cases: 2 vocabulary/registration + 1 valid payload + 8 parametrized malformed + 1 missing-key).
+Expected: PASS (all, including the 14 new cases: 2 vocabulary/registration + 1 valid payload + 8 parametrized malformed + 1 missing-key + 2 unknown-key).
 
 - [ ] **Step 5: Commit**
 
@@ -271,9 +300,14 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
+_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
+                 # together with the call ceiling (Slice 1A Task 13), so every
+                 # ledger for this Attempt must present the SAME pair.
+
 def _ctx(repo, ceiling=4):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
-                            actor="reviewer", clock=_CLOCK, config=LaneLogConfig())
+                            attempt_budget_credits=_BUDGET, actor="reviewer", clock=_CLOCK,
+                            config=LaneLogConfig())
     return LaneRouteContext(
         repo=repo, problem_id="P1", attempt_id="A1", actor="reviewer", clock=_CLOCK,
         route_audit=_Sink(), reservation_authority=_Budget(), call_ledger=ledger,
@@ -300,6 +334,20 @@ def test_a_replayed_operation_reuses_its_route_id_and_is_not_recharged(repo):
     assert _ctx(repo, ceiling=3).claim_route(operation_id="lens-a") == first
     assert first == derive_route_id("A1", "lens-a", "primary")
     assert ctx.calls_used() == 1
+
+def test_a_DUPLICATE_WORKER_replays_instead_of_double_dispatching(repo):
+    # F2: this is the ONLY way a fresh process legitimately re-presents an existing
+    # attempt_id (spec 025 line 220: "a crashed Attempt is a failed Attempt"; a retry gets
+    # a NEW attempt_id). The zombie must land on the SAME route_id so slice-0's
+    # claim_dispatch reports a replay — never a second dispatch on a fresh id.
+    first = _ctx(repo, ceiling=5)
+    rid = first.claim_route(operation_id=first.next_operation_id("lens-a:identify:deadbeef"))
+
+    zombie = _ctx(repo, ceiling=5)          # a second process for the SAME attempt
+    zid = zombie.claim_route(operation_id=zombie.next_operation_id("lens-a:identify:deadbeef"))
+
+    assert zid == rid, "the duplicate worker minted a NEW route — it would dispatch twice"
+    assert zombie.calls_used() == 1, "the replay consumed a second call from the ceiling"
 
 def test_next_operation_id_separates_in_process_repeats_but_not_restarts(repo):
     # The engine re-invokes revise() with byte-identical arguments after a malformed reply
@@ -449,9 +497,23 @@ class LaneRouteContext:
         the dispatch gate.
 
         So: the FIRST use of a base in this process returns it unchanged; each repeat
-        appends ``#1``, ``#2``, …. A fresh process starts again at the bare base, which is
-        exactly the restart-replay semantics we want (a crashed Attempt then fails closed at
-        the dispatch gate and reconciles from durable state, per FR-033a)."""
+        appends ``#1``, ``#2``, …. A fresh process starts again at the bare base.
+
+        **Why a process-local ordinal is sufficient here, and exactly when it stops being
+        sufficient (round-5 review F2).** An ordinal cannot, in general, tell "resumed after
+        a completed identical call" from "replay of a crashed one" — both present the same
+        content in a fresh process. It is sufficient in THIS design because spec 025 has no
+        resumable convergence: "a crashed Attempt is a failed Attempt" (line 220) and an
+        unresolved dispatch "fails the Attempt closed" (line 212). One ``run_proposal_review``
+        drives R1→R3 in one process; a retry is a NEW Attempt with a NEW ``attempt_id`` and
+        therefore a disjoint route-id space. So the only way an existing ``attempt_id`` is
+        re-presented from a fresh process is a DUPLICATE/ZOMBIE worker — and for that, bare-base
+        re-derivation is precisely the behavior we want: same ``route_id`` → ``claim_dispatch``
+        reports a replay → the Attempt fails closed instead of double-dispatching.
+
+        If a later slice ever makes convergence resumable, this method MUST be replaced by a
+        durable workflow position (stage, run, round, lens, call kind, retry ordinal) — which
+        also means the engine must pass round metadata down. Do not add resume without it."""
         with self._seq_lock:
             n = self._seq.get(base, 0)
             self._seq[base] = n + 1
@@ -811,10 +873,15 @@ class _RecordingCtx(LaneRouteContext):
             raise self.record_error
         self.recorded.append(kw)
 
+_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
+                 # together with the call ceiling (Slice 1A Task 13), so every
+                 # ledger for this Attempt must present the SAME pair.
+
 def _ctx(repo_root, ceiling=10, cls=_RecordingCtx):
     ledger = LaneCallLedger(repo=repo_root, problem_id="P1", attempt_id="A1",
-                            call_ceiling=ceiling, actor="reviewer",
-                            clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
+                            call_ceiling=ceiling, attempt_budget_credits=_BUDGET,
+                            actor="reviewer", clock=lambda: "2026-07-25T00:00:00+00:00",
+                            config=LaneLogConfig())
     return cls(
         repo=repo_root, problem_id="P1", attempt_id="A1", actor="reviewer",
         clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
@@ -1202,10 +1269,14 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
+_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
+                 # together with the call ceiling (Slice 1A Task 13), so every
+                 # ledger for this Attempt must present the SAME pair.
+
 def _ctx(repo, ceiling=10):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
-                            actor="proposer", clock=lambda: "2026-07-25T00:00:00+00:00",
-                            config=LaneLogConfig())
+                            attempt_budget_credits=_BUDGET, actor="proposer",
+                            clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
     return LaneRouteContext(
         repo=repo, problem_id="P1", attempt_id="A1", actor="proposer",
         clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
@@ -1531,7 +1602,7 @@ from dataclasses import replace
 
 import pytest
 
-from llmxive.self_improvement.events import Event
+from llmxive.self_improvement.events import Event, derive_route_id
 from llmxive.self_improvement.invocation_identity import (
     InvocationIdentityError, build_invocation_identity,
 )
@@ -1554,17 +1625,22 @@ def _done(route_id):
     return _ev("DispatchCompleted", {"route_id": route_id, "candidate_index": 0,
                                      "candidate": _REF, "reservation_id": None}, "d")
 
-def _rerouted(primary, fallback):
+_OP = "worthwhile-improvement:identify:abc123"
+#: The two legs of _OP under attempt A1 — the ONLY route ids a valid reroute can name.
+_R_PRIMARY = derive_route_id("A1", _OP, "primary")
+_R_FALLBACK = derive_route_id("A1", _OP, "fallback")
+
+def _rerouted(primary=_R_PRIMARY, fallback=_R_FALLBACK, operation_id=_OP, message="none live"):
     return _ev("ReviewRerouted", {
-        "operation_id": primary, "lens": "worthwhile-improvement",
+        "operation_id": operation_id, "lens": "worthwhile-improvement",
         "primary_profile": "independent_review", "fallback_profile": "deep_review",
         "primary_route_id": primary, "fallback_route_id": fallback,
-        "primary_failure": {"exception_type": "ModelUnavailable", "message": "none live"},
+        "primary_failure": {"exception_type": "ModelUnavailable", "message": message},
         "relaxed_constraints": ["family_independence", "snapshot_freshness"]}, "rr")
 
-def _selfail(route_id, exception_type="ModelUnavailable", eid="s"):
+def _selfail(route_id, exception_type="ModelUnavailable", eid="s", message="none live"):
     return _ev("SelectionFailure", {"route_id": route_id, "exception_type": exception_type,
-                                    "message": "none live", "requirement_digest": "rq-1",
+                                    "message": message, "requirement_digest": "rq-1",
                                     "snapshot_provenance": _PROV}, eid)
 
 def _build(events, route_id="R"):
@@ -1585,8 +1661,8 @@ def test_degradation_joins_the_primary_leg_SelectionFailure():
     # F5: FR-002 (spec line 149) requires primary_failure to carry FOUR fields. The last
     # two live on the primary leg's SelectionFailure (route.py:236-240) — join, don't
     # duplicate, so the two records can never disagree.
-    events = [_selfail("R1"), _rerouted("R1", "R2"), _chain("R2"), _done("R2")]
-    ii = _build(events, route_id="R2")
+    events = [_selfail(_R_PRIMARY), _rerouted(), _chain(_R_FALLBACK), _done(_R_FALLBACK)]
+    ii = _build(events, route_id=_R_FALLBACK)
     assert ii.route_outcome == "independence_degraded"
     assert ii.degradation.primary_profile == "independent_review"
     assert ii.degradation.fallback_profile == "deep_review"
@@ -1601,12 +1677,35 @@ def test_a_reroute_without_its_primary_SelectionFailure_fails_closed():
     # An unjoinable degradation record cannot describe WHY the primary failed; emitting a
     # partial identity would be provenance that looks authoritative but isn't.
     with pytest.raises(InvocationIdentityError, match="SelectionFailure"):
-        _build([_rerouted("R1", "R2"), _chain("R2"), _done("R2")], route_id="R2")
+        _build([_rerouted(), _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
 def test_a_reroute_whose_primary_failed_for_another_reason_fails_closed():
     with pytest.raises(InvocationIdentityError, match="ModelUnavailable"):
-        _build([_selfail("R1", exception_type="ChainExhausted"), _rerouted("R1", "R2"),
-                _chain("R2"), _done("R2")], route_id="R2")
+        _build([_selfail(_R_PRIMARY, exception_type="ChainExhausted"), _rerouted(),
+                _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
+
+def test_a_reroute_whose_failure_message_diverges_fails_closed():
+    # F4: exception_type + message exist on BOTH records. Two sources for one fact can
+    # disagree; a silent disagreement is exactly the provenance drift the join removes.
+    with pytest.raises(InvocationIdentityError, match="divergent degradation provenance"):
+        _build([_selfail(_R_PRIMARY, message="no independent family"),
+                _rerouted(message="something else entirely"),
+                _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
+
+def test_a_reroute_from_ANOTHER_attempt_cannot_mark_this_route_degraded():
+    # F3: ReviewRerouted keys on fallback_route_id, not route_id, so the scoped Attempt
+    # check never saw it. A foreign reroute must not classify this route.
+    foreign = replace(_rerouted(), attempt_id="A2")
+    with pytest.raises(InvocationIdentityError, match="attempt"):
+        _build([_selfail(_R_PRIMARY), foreign, _chain(_R_FALLBACK), _done(_R_FALLBACK)],
+               route_id=_R_FALLBACK)
+
+def test_a_reroute_borrowing_a_foreign_primary_leg_fails_closed():
+    # Both legs must be THIS Attempt's own claims for the named operation.
+    borrowed = _rerouted(primary=derive_route_id("A2", _OP, "primary"))
+    with pytest.raises(InvocationIdentityError, match="primary_route_id"):
+        _build([_selfail(borrowed.payload["primary_route_id"]), borrowed,
+                _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
 def test_a_selection_failure_alone_does_not_imply_degradation():
     # F10: no inference from an event PATTERN — without an explicit ReviewRerouted record
@@ -1630,8 +1729,8 @@ def test_duplicate_dispatch_completed_is_corruption():
 
 def test_two_reroutes_naming_the_same_fallback_is_corruption():
     with pytest.raises(InvocationIdentityError, match="ReviewRerouted"):
-        _build([_selfail("R1"), _rerouted("R1", "R2"), _rerouted("R1", "R2"),
-                _chain("R2"), _done("R2")], route_id="R2")
+        _build([_selfail(_R_PRIMARY), _rerouted(), _rerouted(),
+                _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
 def test_an_event_from_another_attempt_fails_closed():
     other = _ev("DispatchCompleted", {"route_id": "R", "candidate_index": 0,
@@ -1665,7 +1764,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from llmxive.self_improvement.events import Event
+from llmxive.self_improvement.events import Event, derive_route_id
 
 class InvocationIdentityError(ValueError):
     """The audit stream cannot yield ONE unambiguous identity for this route (duplicate
@@ -1739,12 +1838,23 @@ def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
             f"primary leg {primary_route_id!r} failed with "
             f"{failure.payload.get('exception_type')!r}; FR-002 reroutes ONLY on ModelUnavailable"
         )
+    # F4: the reroute record and the SelectionFailure both carry exception_type + message.
+    # That is two sources for one fact, and two sources can DISAGREE — a reroute claiming
+    # one failure while the selection audit records another is exactly the kind of quiet
+    # provenance drift this join was meant to remove. Require them to agree exactly.
     declared = reroute_payload["primary_failure"]
+    for field in ("exception_type", "message"):
+        if declared[field] != failure.payload.get(field):
+            raise InvocationIdentityError(
+                f"reroute for primary route {primary_route_id!r} declares {field}="
+                f"{declared[field]!r} but its SelectionFailure recorded "
+                f"{failure.payload.get(field)!r} — divergent degradation provenance"
+            )
     return {
-        "exception_type": declared["exception_type"],
-        "message": declared["message"],
-        "requirement_digest": failure.payload["requirement_digest"],
-        "snapshot_provenance": failure.payload["snapshot_provenance"],
+        "exception_type": failure.payload["exception_type"],   # the SELECTION audit is
+        "message": failure.payload["message"],                 # authoritative; the reroute
+        "requirement_digest": failure.payload["requirement_digest"],   # copy was verified
+        "snapshot_provenance": failure.payload["snapshot_provenance"], # equal just above
     }
 
 def build_invocation_identity(events: list[Event], *, route_id: str,
@@ -1760,8 +1870,27 @@ def build_invocation_identity(events: list[Event], *, route_id: str,
     completed = _exactly_one(scoped, "DispatchCompleted", route_id)
     if chain is None or completed is None:
         return None  # nothing actually ran → a failed logical call, no identity
+    # F3: a ReviewRerouted keys on fallback_route_id, NOT route_id, so the scoped
+    # Attempt check above never saw it. Without this, a reroute recorded under ANOTHER
+    # Attempt could classify this route as independence_degraded.
     reroutes = [e for e in events
                 if e.event_type == "ReviewRerouted" and e.payload.get("fallback_route_id") == route_id]
+    for e in reroutes:
+        if e.attempt_id != attempt_id:
+            raise InvocationIdentityError(
+                f"route {route_id!r} is named as the fallback leg by a ReviewRerouted filed "
+                f"under attempt {e.attempt_id!r}, not {attempt_id!r}"
+            )
+        # and BOTH legs must be this Attempt's own claims — a reroute that borrows another
+        # Attempt's primary leg would attribute a degradation that never happened here
+        for field in ("primary_route_id", "fallback_route_id"):
+            leg = "primary" if field == "primary_route_id" else "fallback"
+            expected = derive_route_id(attempt_id, e.payload["operation_id"], leg)
+            if e.payload[field] != expected:
+                raise InvocationIdentityError(
+                    f"reroute {field}={e.payload[field]!r} is not attempt {attempt_id!r}'s "
+                    f"{leg} claim for operation {e.payload['operation_id']!r}"
+                )
     if len(reroutes) > 1:
         raise InvocationIdentityError(
             f"route {route_id!r} is named as the fallback leg by {len(reroutes)} "
@@ -1791,7 +1920,7 @@ def build_invocation_identity(events: list[Event], *, route_id: str,
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_invocation_identity.py -q`
-Expected: PASS (10 passed).
+Expected: PASS (13 passed).
 
 - [ ] **Step 5: Commit**
 
@@ -1855,11 +1984,16 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
+_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
+                 # together with the call ceiling (Slice 1A Task 13), so every
+                 # ledger for this Attempt must present the SAME pair.
+
 def _ctx(repo):
     ledger = LaneCallLedger(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
         clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig(),
         call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        attempt_budget_credits=_BUDGET,
     )
     return LaneRouteContext(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
@@ -2040,9 +2174,14 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
+_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
+                 # together with the call ceiling (Slice 1A Task 13), so every
+                 # ledger for this Attempt must present the SAME pair.
+
 def _ctx(repo):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1",
-                            call_ceiling=proposal_call_ceiling(5, 3), actor="lane",
+                            call_ceiling=proposal_call_ceiling(5, 3),
+                            attempt_budget_credits=_BUDGET, actor="lane",
                             clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
     return LaneRouteContext(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
@@ -2266,6 +2405,7 @@ def lane(tmp_path):
     calls = LaneCallLedger(
         repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane", clock=clock, config=cfg,
         call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        attempt_budget_credits=1000.0,      # the SAME budget the credit ledger binds
     )
     ctx = LaneRouteContext(
         repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane", clock=clock,
@@ -2466,6 +2606,7 @@ def _paid_ctx(repo, *, budget: float) -> tuple[LaneRouteContext, "_ThreadRecordi
     call_ledger = LaneCallLedger(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=_CLOCK, config=cfg,
         call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        attempt_budget_credits=budget,      # the SAME budget the credit ledger binds
     )
     ctx = LaneRouteContext(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=_CLOCK,
@@ -2606,13 +2747,24 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 
 | # | Finding | Resolved by |
 |-|-|-|
-| 1 | the call ceiling was in-memory, so NOT per-Attempt | **Slice 1A T13** `LaneCallLedger` (durable CAS admission + retry-stable `route_id`s); T2's `LaneRouteContext` now holds it and is frozen; T4/T5 claim per logical call; `next_operation_id` separates a legitimate in-process repeat from a restart replay |
+| 1 | the call ceiling was in-memory, so NOT per-Attempt | **Slice 1A T14** `LaneCallLedger` (durable CAS admission + retry-stable `route_id`s); T2's `LaneRouteContext` now holds it and is frozen; T4/T5 claim per logical call; `next_operation_id` separates a legitimate in-process repeat from a restart replay |
 | 2 | "paid is ineligible, add `RequirementOverrides(allow_paid=True)`" | **Premise corrected** (T10): `route_chat` derives `allow_paid` from `snap.credit.paid_opt_in` when the caller passes neither (`route.py:343-360`), and `build_requirement`'s `**overrides` replace the profile default — so the profile's `allow_paid=False` does not govern, and hard-coding `True` would assert the wrong policy. The real gap (the fixture's implicit snapshot contract) is fixed, plus the requested paid-opt-in-OFF counterpart test |
 | 3 | the lane reviser raised the wrong exception type | T5 raises `RuntimeError` with the two signatures `is_malformed_reply_error` recognizes; the reasoning is documented at the raise sites; **3 ENGINE-driven tests** (retry recovers / two malformed degrade / outage is a clean abort) live in T9's file |
 | 4 | reroute-record persistence failures bypassed the fail-closed classification | T2's `record_reroute` normalizes `GitLog*`/`Lane*`/`ValueError` to `RouteAuditError`; T4 records BEFORE the fallback dispatch and does not catch it, with a test asserting the fallback never runs |
 | 5 | degradation provenance was missing 2 of the 4 spec fields | T6 JOINS the reroute's `primary_route_id` to its `SelectionFailure` (which already carries `requirement_digest` + `snapshot_provenance`, `route.py:236-240`) instead of duplicating; fails closed on missing / non-`ModelUnavailable` / wrong-Attempt |
-| 6 | `ReviewRerouted` payload validation was nominal | **Slice 1A T2** adds the `PAYLOAD_VALIDATORS` mechanism; **T1** registers `_validate_review_rerouted` pinning the required keys, distinct route ids, both profiles, the `ModelUnavailable` trigger, and the exact relaxed-constraint list |
+| 6 | `ReviewRerouted` payload validation was nominal | **Slice 1A T2** adds the `TYPE_VALIDATORS` mechanism; **T1** registers `_validate_review_rerouted` pinning the required keys, distinct route ids, both profiles, the `ModelUnavailable` trigger, and the exact relaxed-constraint list |
 | 7 | `producer` not passed; producer identity thin | T8 forwards `producer` (documented as necessary-not-sufficient) and resolves an optional `proposer_route_id` to a full `InvocationIdentity`, failing closed when it does not resolve |
 | 8 | `next()` silently resolved duplicate authoritative events | T6 `_exactly_one` + the reroute-count check + Attempt binding; 4 corruption tests |
 | 9 | the paid concurrency invariant was too weak | T10 adds: multi-thread authority use, ≥1 completed paid dispatch, ≥1 cap refusal, every paid `DispatchStarted` backed by a reservation, admitted envelopes summing exactly to the projection — and derives the budget from the snapshot's prices instead of the unexplained `2.5` |
 | 10 | 1A's bootstrap concurrency test was sequential | **Slice 1A** T1 `_after_probe` seam + T3's real two-clone bootstrap race |
+
+## Round-5 review
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | the durable ceiling was checked against a constructor-local bound | **Slice 1A T13** `AttemptConfig` binds the ceiling AND the credit budget in ONE `AttemptConfigured` record; every ledger enforces the bound value and fails closed at construction on a mismatch. Every `LaneCallLedger` construction in this plan now passes both limits |
+| 2 | `next_operation_id` is not restart-safe for a legitimately repeated call | **Concern adopted, remedy scoped.** A durable workflow position is the right answer *if* convergence is resumable — but spec 025 says it is not: "a crashed Attempt is a failed Attempt" (line 220) and an unresolved dispatch "fails the Attempt closed" (line 212), and a retry is a NEW `attempt_id` with a disjoint route-id space. The invariant is now an explicit Global Constraint and a docstring paragraph, the ONLY cross-process case (a duplicate/zombie worker) has a test asserting it replays rather than double-dispatches, and both places carry an explicit instruction: any future slice that adds resumable convergence MUST first replace the ordinal with a durable position (which also means the engine must pass round metadata down) |
+| 3 | the reroute event escaped the scoped Attempt check | T6 checks `reroute.attempt_id`, and that BOTH legs are this Attempt's own claims for the named operation (`derive_route_id`); 2 new tests beside the cross-Attempt `DispatchCompleted` one |
+| 4 | "one source of truth" still allowed two copies to disagree | T6 requires the reroute's `exception_type`/`message` to equal the `SelectionFailure`'s exactly, then reads all four fields from the selection audit; divergence fails closed |
+| 5 | `LaneCallClaimed` validation checked only basic types | **Slice 1A T2**: validators now receive the whole event, so payload-vs-envelope `attempt_id` agreement, `leg ∈ LEGS`, and `route_id == derive_route_id(...)` are all enforced; cross-event ceiling consistency is finding 1's `AttemptConfig` |
+| 6 | the "pinned" `ReviewRerouted` schema accepted extra keys | T1 rejects unknown keys in both the payload and `primary_failure` (matching the convergence types' `extra="forbid"` house style), with tests |
