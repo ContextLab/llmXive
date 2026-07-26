@@ -1,49 +1,86 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Z-Reward Dataset Schema
-description: Schema for the raw input data from the Z-Reward evaluation dataset.
-type: object
-required:
-  - sample_id
-  - teacher_scores
-  - student_score
-  - human_annotations
-  - primary_dimension
-properties:
-  sample_id:
+# Dataset Schema Contract for Z-Reward Evaluation Dataset
+# This file defines the expected structure of the raw dataset.
+# It serves as a placeholder to be refined by T038 (Schema Discovery).
+#
+# Source: Z-Reward / ImagNet Rewards
+# Purpose: Define expected fields for teacher scores, student scalars, and human annotations.
+
+schema_version: "1.0.0"
+description: "Expected schema for the Z-Reward evaluation dataset containing multi-dimensional teacher scores and human annotations."
+
+fields:
+  - name: prompt
     type: string
-    description: "Unique identifier for the sample."
-  teacher_scores:
-    type: array
-    description: "Teacher model scores for 4 dimensions: Alignment, Realism, Aesthetics, Plausibility."
-    minItems: 4
-    maxItems: 4
-    items:
-      type: number
-      minimum: 0
-      maximum: 1
-  student_score:
-    type: number
-    description: "Scalar score from the student model."
-    minimum: 0
-    maximum: 1
-  human_annotations:
-    type: array
-    description: "Human annotated scores for 4 dimensions."
-    minItems: 4
-    maxItems: 4
-    items:
-      type: number
-      minimum: 0
-      maximum: 1
-  primary_dimension:
+    description: "The text prompt used to generate the image."
+    required: true
+    nullable: false
+
+  - name: image_url
     type: string
-    description: "The dimension used for fidelity loss calculation (e.g., 'alignment'). Defaults to 'alignment' if missing."
+    description: "URL or path to the generated image."
+    required: true
+    nullable: false
+
+  - name: teacher_scores
+    type: object
+    description: "Dictionary containing teacher model scores for multiple dimensions."
+    required: true
+    nullable: false
+    properties:
+      Alignment:
+        type: float
+        description: "Teacher score for alignment with the prompt."
+      Realism:
+        type: float
+        description: "Teacher score for visual realism."
+      Aesthetics:
+        type: float
+        description: "Teacher score for aesthetic quality."
+      Plausibility:
+        type: float
+        description: "Teacher score for physical plausibility."
+
+  - name: student_scalar
+    type: float
+    description: "Single scalar output from the student model (distilled value)."
+    required: true
+    nullable: false
+
+  - name: human_annotations
+    type: object
+    description: "Dictionary containing human-annotated scores for multiple dimensions."
+    required: true
+    nullable: false
+    properties:
+      Alignment:
+        type: float
+        description: "Human annotation score for alignment."
+      Realism:
+        type: float
+        description: "Human annotation score for realism."
+      Aesthetics:
+        type: float
+        description: "Human annotation score for aesthetics."
+      Plausibility:
+        type: float
+        description: "Human annotation score for plausibility."
+
+  - name: primary_dimension
+    type: string
+    description: "Metadata indicating the primary dimension for fidelity loss calculation."
+    required: true
+    nullable: false
     enum:
-      - alignment
-      - realism
-      - aesthetics
-      - plausibility
-  prompt:
-    type: string
-    description: "The text prompt used for generation."
-    nullable: true
+      - Alignment
+      - Realism
+      - Aesthetics
+      - Plausibility
+
+constraints:
+  - "All score values must be finite numbers (no NaN or Inf)."
+  - "The 'primary_dimension' must match one of the keys in 'teacher_scores' and 'human_annotations'."
+  - "If 'student_scalar' is missing, the ingestion pipeline must attempt to load a separate student inference file or raise an error."
+
+notes:
+  - "This schema is a placeholder. T038 will perform actual schema discovery on the downloaded data and update this file if column names differ (e.g., flattened columns like 'teacher_alignment' vs nested 'teacher_scores.Alignment')."
+  - "The ingestion logic (T012-T014) relies on 'primary_dimension' being present. If missing, it must raise a RuntimeError."

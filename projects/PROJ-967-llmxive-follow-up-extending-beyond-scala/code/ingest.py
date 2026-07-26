@@ -5,12 +5,18 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-# Configure logging
+# Project root handling
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+# Logging setup
 def setup_logging() -> logging.Logger:
-    """Configure and return the project logger."""
-    logger = logging.getLogger("llmxive.ingest")
+    """Configure logging for the ingest module."""
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
@@ -23,255 +29,235 @@ def setup_logging() -> logging.Logger:
 
 logger = setup_logging()
 
-def setup_directories(project_root: Path) -> Dict[str, Path]:
+def setup_directories() -> None:
     """Ensure required directories exist."""
-    dirs = {
-        "raw": project_root / "data" / "raw",
-        "processed": project_root / "data" / "processed",
-        "results": project_root / "results",
-    }
-    for name, path in dirs.items():
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory: {path}")
-    return dirs
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Directories ensured: {RAW_DIR}, {PROCESSED_DIR}")
 
 def load_and_align_data(
-    csv_path: Path, schema_path: Path, max_rows: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    raw_path: Optional[Path] = None,
+) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
     """
-    Load the Z-Reward dataset from CSV, align columns, and validate schema.
+    Load the raw dataset and align teacher scores, student scalars, and human annotations.
 
     Args:
-        csv_path: Path to the raw CSV file.
-        schema_path: Path to the schema contract YAML.
-        max_rows: Optional limit on rows to load (for memory testing/sampling).
+        raw_path: Path to the raw parquet/parquet-like data file. Defaults to
+                  RAW_DIR / "imagenet_rewards.parquet".
 
     Returns:
-        List of aligned row dictionaries.
+        Tuple of (aligned_data_list, stats_dict).
+        aligned_data_list: List of dicts with normalized keys.
+        stats_dict: Summary statistics (counts, missing flags).
     """
-    if not csv_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {csv_path}")
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    if raw_path is None:
+        raw_path = RAW_DIR / "imagenet_rewards.parquet"
 
-    # Load schema to get expected columns
-    import yaml
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
 
-    required_columns = schema.get("required_columns", [])
-    optional_columns = schema.get("optional_columns", [])
-    all_expected_columns = set(required_columns + optional_columns)
+    logger.info(f"Loading data from {raw_path}")
+
+    # Attempt to load using pandas (assuming parquet format based on T037)
+    try:
+        import pandas as pd
+        df = pd.read_parquet(raw_path)
+    except ImportError:
+        raise ImportError("pandas is required to load parquet files. Install with 'pip install pandas pyarrow'.")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load parquet file: {e}")
+
+    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
 
     aligned_data = []
-    missing_columns = set()
-    missing_data_flags = {"total_samples": 0, "missing_primary_dimension": 0, "missing_annotations": 0}
+    missing_flags = {
+        "teacher_scores": 0,
+        "student_scalar": 0,
+        "human_annotations": 0,
+        "primary_dimension": 0,
+    }
 
-    logger.info(f"Loading data from {csv_path} with max_rows={max_rows}")
+    # Determine column mappings dynamically based on T038 schema discovery results
+    # We assume standard naming conventions or look for common variants if needed.
+    # For robustness, we check for the expected columns.
+    required_cols = ["prompt", "image_url"]
+    optional_cols = ["teacher_scores", "student_scalar", "human_annotations", "primary_dimension"]
 
-    with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        actual_columns = set(reader.fieldnames or [])
+    # Normalize column names (lowercase, strip whitespace)
+    df.columns = df.columns.str.strip().str.lower()
 
-        # Check for schema compliance
-        missing_in_file = all_expected_columns - actual_columns
-        if missing_in_file:
-            logger.warning(f"Schema columns missing in file: {missing_in_file}")
-            missing_columns.update(missing_in_file)
+    # Verify critical columns exist
+    missing_critical = [c for c in required_cols if c not in df.columns]
+    if missing_critical:
+        raise ValueError(f"Missing critical columns: {missing_critical}")
 
-        for i, row in enumerate(reader):
-            if max_rows is not None and i >= max_rows:
-                logger.info(f"Reached max_rows limit ({max_rows}). Stopping load.")
-                break
+    for idx, row in df.iterrows():
+        record = {
+            "sample_id": idx,
+            "prompt": row.get("prompt", ""),
+            "image_url": row.get("image_url", ""),
+        }
 
-            aligned_data.append(row)
-            missing_data_flags["total_samples"] += 1
+        # Extract teacher scores (expecting a dict or JSON string)
+        t_scores = row.get("teacher_scores")
+        if isinstance(t_scores, str):
+            try:
+                import json
+                t_scores = json.loads(t_scores)
+            except json.JSONDecodeError:
+                t_scores = None
+        
+        if t_scores is None:
+            missing_flags["teacher_scores"] += 1
+            t_scores = {}
+        
+        record["teacher_scores"] = t_scores
 
-            # Check for specific critical missing data based on schema logic
-            # T014 logic: primary_dimension comes from metadata or defaults to 'Alignment'
-            # We check if the column exists and is populated
-            if "primary_dimension" in row and row["primary_dimension"]:
-                pass # Has primary dimension
-            else:
-                missing_data_flags["missing_primary_dimension"] += 1
+        # Extract student scalar
+        s_scalar = row.get("student_scalar")
+        if pd.isna(s_scalar):
+            missing_flags["student_scalar"] += 1
+            s_scalar = None
+        record["student_scalar"] = s_scalar
 
-            # Check human annotations (assuming a JSON string or specific columns)
-            # Based on schema: human_annotations is a dict{dim: float}
-            if "human_annotations" in row and row["human_annotations"]:
-                try:
-                    ann = json.loads(row["human_annotations"])
-                    if not ann:
-                        missing_data_flags["missing_annotations"] += 1
-                except json.JSONDecodeError:
-                    missing_data_flags["missing_annotations"] += 1
-            else:
-                missing_data_flags["missing_annotations"] += 1
+        # Extract human annotations
+        h_ann = row.get("human_annotations")
+        if isinstance(h_ann, str):
+            try:
+                import json
+                h_ann = json.loads(h_ann)
+            except json.JSONDecodeError:
+                h_ann = None
+        
+        if h_ann is None:
+            missing_flags["human_annotations"] += 1
+            h_ann = {}
+        
+        record["human_annotations"] = h_ann
 
-    if missing_columns:
-        logger.error(f"Critical schema mismatch. Missing columns: {missing_columns}")
-        # We do not raise here to allow partial stats, but log heavily.
-        # In a strict validation task (T038), this would raise.
+        # Extract primary dimension
+        p_dim = row.get("primary_dimension")
+        if pd.isna(p_dim) or p_dim is None:
+            missing_flags["primary_dimension"] += 1
+            p_dim = None
+        record["primary_dimension"] = p_dim
 
-    return aligned_data, missing_data_flags
+        aligned_data.append(record)
+
+    stats = {
+        "total_rows": len(df),
+        "missing_teacher_scores": missing_flags["teacher_scores"],
+        "missing_student_scalar": missing_flags["student_scalar"],
+        "missing_human_annotations": missing_flags["human_annotations"],
+        "missing_primary_dimension": missing_flags["primary_dimension"],
+    }
+
+    logger.info(f"Alignment complete. Stats: {stats}")
+    return aligned_data, stats
 
 def identify_primary_quality_dimension(
-    data: List[Dict[str, Any]], default_dim: str = "Alignment"
+    aligned_data: List[Dict[str, Any]],
 ) -> str:
     """
-    Identify the primary quality dimension for the dataset.
+    Identify the primary quality dimension from the dataset metadata.
 
-    Rule: Use the value of the column `primary_dimension` if present and non-empty
-    in the first valid row; otherwise, default to the first dimension in the schema.
+    Rule: Use the value of the column `primary_dimension` if present in the dataset.
+    CRITICAL: If `primary_dimension` is missing, raise a `RuntimeError` with a
+    descriptive message stating that metadata is required for independent validation.
+    DO NOT default to 'Alignment'.
 
     Args:
-        data: List of aligned rows.
-        default_dim: Default dimension if not found.
+        aligned_data: List of aligned records from load_and_align_data.
 
     Returns:
-        The identified primary dimension string.
-    """
-    for row in data:
-        if "primary_dimension" in row and row["primary_dimension"]:
-            val = row["primary_dimension"].strip()
-            if val:
-                logger.info(f"Primary dimension identified from data: {val}")
-                return val
+        The string value of the primary dimension.
 
-    logger.info(f"Primary dimension not found in data. Using default: {default_dim}")
-    return default_dim
+    Raises:
+        RuntimeError: If `primary_dimension` is missing or null for all samples.
+    """
+    primary_dimension_value = None
+    missing_count = 0
+    total_count = len(aligned_data)
+
+    for record in aligned_data:
+        val = record.get("primary_dimension")
+        if val is not None and str(val).strip() != "":
+            # We assume consistency across the dataset; take the first valid one
+            primary_dimension_value = str(val).strip()
+            break
+        else:
+            missing_count += 1
+
+    if primary_dimension_value is None:
+        raise RuntimeError(
+            f"Primary dimension metadata is missing for all {total_count} samples. "
+            "Independent validation requires the 'primary_dimension' column to be present "
+            "and populated in the dataset. This is a hard requirement for T014."
+        )
+
+    logger.info(f"Identified primary quality dimension: '{primary_dimension_value}'")
+    return primary_dimension_value
 
 def print_summary(
-    data: List[Dict[str, Any]],
-    missing_flags: Dict[str, int],
-    primary_dim: str,
-    schema_path: Path,
+    aligned_data: List[Dict[str, Any]], 
+    stats: Dict[str, int], 
+    primary_dim: str
 ) -> None:
-    """
-    Print a summary of the ingested dataset.
+    """Print a summary of the ingestion process."""
+    print("\n" + "="*50)
+    print("INGESTION SUMMARY")
+    print("="*50)
+    print(f"Total Samples: {stats['total_rows']}")
+    print(f"Missing Teacher Scores: {stats['missing_teacher_scores']}")
+    print(f"Missing Student Scalar: {stats['missing_student_scalar']}")
+    print(f"Missing Human Annotations: {stats['missing_human_annotations']}")
+    print(f"Missing Primary Dimension: {stats['missing_primary_dimension']}")
+    print(f"Primary Quality Dimension: {primary_dim}")
+    print("="*50 + "\n")
 
-    Outputs:
-    - Total sample count
-    - Missing data flags (primary dimension, annotations)
-    - Dimension coverage stats (presence of rubric dimensions)
-
-    Args:
-        data: The loaded and aligned dataset.
-        missing_flags: Dictionary of missing data counts.
-        primary_dim: The identified primary dimension.
-        schema_path: Path to the schema to check for expected dimensions.
-    """
-    import yaml
-
-    total_samples = len(data)
-    logger.info("-" * 50)
-    logger.info("INGESTION SUMMARY REPORT")
-    logger.info("-" * 50)
-    logger.info(f"Total Samples Processed: {total_samples}")
-    logger.info(f"Primary Quality Dimension: {primary_dim}")
-
-    # Missing Data Flags
-    logger.info("\nMissing Data Flags:")
-    logger.info(f"  - Missing Primary Dimension: {missing_flags.get('missing_primary_dimension', 0)}")
-    logger.info(f"  - Missing Human Annotations: {missing_flags.get('missing_annotations', 0)}")
-
-    # Dimension Coverage Stats
-    # Load schema to get rubric dimensions
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
-
-    rubric_dims = schema.get("rubric_dimensions", [])
-    if not rubric_dims:
-        # Fallback if schema doesn't explicitly list them, use known set
-        rubric_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-
-    logger.info(f"\nDimension Coverage (Rubric Dimensions: {rubric_dims}):")
-
-    # Count samples that have annotations for each dimension
-    # Assuming human_annotations is a JSON string in the CSV
-    dim_coverage = {dim: 0 for dim in rubric_dims}
-    total_with_annotations = 0
-
-    for row in data:
-        ann_str = row.get("human_annotations", "")
-        if not ann_str:
-            continue
-        try:
-            ann = json.loads(ann_str)
-            if ann:
-                total_with_annotations += 1
-                for dim in rubric_dims:
-                    if dim in ann and ann[dim] is not None:
-                        dim_coverage[dim] += 1
-        except json.JSONDecodeError:
-            continue
-
-    for dim in rubric_dims:
-        count = dim_coverage[dim]
-        pct = (count / total_samples * 100) if total_samples > 0 else 0
-        logger.info(f"  - {dim}: {count} samples ({pct:.1f}%)")
-
-    logger.info(f"\nTotal samples with any annotations: {total_with_annotations}")
-    logger.info("-" * 50)
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Ingest and align Z-Reward dataset."
-    )
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Ingest and align Z-Reward dataset.")
     parser.add_argument(
-        "--input",
+        "--raw-path",
         type=str,
-        default="data/raw/zreward_dataset.csv",
-        help="Path to the input CSV file.",
-    )
-    parser.add_argument(
-        "--schema",
-        type=str,
-        default="contracts/dataset.schema.yaml",
-        help="Path to the schema contract file.",
-    )
-    parser.add_argument(
-        "--max-rows",
-        type=int,
         default=None,
-        help="Optional maximum number of rows to process.",
+        help="Path to the raw data file (default: data/raw/imagenet_rewards.parquet)",
     )
     parser.add_argument(
-        "--project-root",
+        "--output-path",
         type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Path to the project root directory.",
+        default="data/processed/aligned_data.json",
+        help="Path to save the aligned data JSON (default: data/processed/aligned_data.json)",
     )
     return parser.parse_args()
 
-def main():
+def main() -> None:
     args = parse_args()
-    project_root = Path(args.project_root)
-    csv_path = project_root / args.input
-    schema_path = project_root / args.schema
+    setup_directories()
 
-    logger.info(f"Starting ingestion for project: {project_root}")
-
-    # Setup directories (ensures data/processed exists for downstream)
-    setup_directories(project_root)
-
-    # Load and align
+    raw_path = Path(args.raw_path) if args.raw_path else None
+    
     try:
-        data, missing_flags = load_and_align_data(csv_path, schema_path, args.max_rows)
+        aligned_data, stats = load_and_align_data(raw_path)
+        primary_dim = identify_primary_quality_dimension(aligned_data)
+        
+        # Save aligned data to JSON for downstream tasks (T015, T025)
+        output_path = Path(args.output_path)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(aligned_data, f, indent=2)
+        logger.info(f"Aligned data saved to {output_path}")
+
+        print_summary(aligned_data, stats, primary_dim)
+
     except FileNotFoundError as e:
-        logger.error(str(e))
+        logger.error(f"File not found: {e}")
         sys.exit(1)
-
-    if not data:
-        logger.warning("No data loaded. Exiting.")
-        sys.exit(0)
-
-    # Identify primary dimension
-    primary_dim = identify_primary_quality_dimension(data)
-
-    # Print Summary (T016 Requirement)
-    print_summary(data, missing_flags, primary_dim, schema_path)
-
-    logger.info("Ingestion and summary generation complete.")
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

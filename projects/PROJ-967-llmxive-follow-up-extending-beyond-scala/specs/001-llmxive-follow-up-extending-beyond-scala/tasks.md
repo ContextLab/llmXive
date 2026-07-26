@@ -46,9 +46,9 @@
 - [ ] T001a [P] Create project directories: Create directories `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results` relative to repository root. **REPLACES T004**.
 - [X] T001b [P] Create empty project files: Create empty files `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/.gitignore`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/pytest.ini`
 - [X] T001c [P] Write dependencies: Write `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt` with pinned versions of pandas, numpy, scikit-learn, scipy, pyyaml, pytest, ruff, black
-- [ ] T001d Create dataset schema contract: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml` defining the *expected* structure based on UCI ImageNet Rewards: `prompt` (str), `image_url` (str), `teacher_scores` (dict{dim: float}), `student_scalar` (float), `human_annotations` (dict{dim: float}), `primary_dimension` (str). This is a *placeholder* to be refined by T038. **DEPENDS: T001a**.
-- [ ] T001f [P] Create output schema contract: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/output.schema.yaml` defining the structure of `data/processed/features.json` (e.g., `sample_id`, `variance`, `entropy`, `skewness`, `kurtosis`, `global_eigenvalue`, `fidelity_loss`). **DEPENDS: T001a**.
-- [ ] T001e [P] Initialize output artifacts: Create empty `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/features.json` (with `[]` or `{}`) and `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/results.json` (with `{}`) to prevent file-not-found errors in downstream tasks
+- [ ] T001d [P] Create dataset schema contract: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml` defining the *expected* structure based on Z-Reward/NAB: `prompt` (str), `image_url` (str), `teacher_scores` (dict{dim: float}), `student_scalar` (float), `human_annotations` (dict{dim: float}), `primary_dimension` (str). **DEPENDS: T001a**. **HARD PREREQUISITE**: This task must complete before T038 (Schema Discovery) in Phase 2, even though it is marked [P] for Phase 1 parallelism.
+- [ ] T001f [P] Create output schema contract: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/output.schema.yaml` defining the structure of `data/processed/features.json` (e.g., `sample_id`, `variance`, `entropy`, `skewness`, `kurtosis`, `fidelity_loss`). **DEPENDS: T001a**.
+- [X] T001e [P] Initialize output artifacts: Create empty `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/features.json` (with `[]` or `{}`) and `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/results.json` (with `{}`) to prevent file-not-found errors in downstream tasks
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/` with pinned tool versions and configuration to satisfy Constitution Principle I (Reproducibility). **REPLACES T003**.
 
 ---
@@ -59,8 +59,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T037 [P] [US1] Download UCI ImageNet Rewards dataset: Attempt to fetch the UCI ImageNet Rewards dataset using `datasets.load_dataset` with a prioritized list of verified sources: `['UCI/imagenet-rewards']`. If this fails, attempt to load from a local cached copy in `data/raw/imagenet_rewards.parquet`. If all sources and cache fail, raise a `RuntimeError`. **DO NOT** use synthetic fallbacks. Save the raw data to `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/imagenet_rewards.parquet`. Compute SHA256 checksum and write to `data/.checksums`. **FAIL LOUDLY** if fetch fails or checksum mismatch. **DEPENDS: T001a**.
-- [ ] T038 [P] [US1] Schema Discovery and Validation: Read `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml`. Inspect the downloaded data in `data/raw/imagenet_rewards.parquet`. Perform **Schema Discovery**: map actual column names to logical fields (prompt, scores, annotations). Update `contracts/dataset.schema.yaml` to reflect the *actual* schema if it differs from the placeholder. Then, validate that all required rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) and human annotation columns exist. Raise error if critical mismatch. **DEPENDS: T037**. **EXECUTION ORDER**: T037 must succeed before T038 runs.
+- [ ] T037 [P] [US1] Download Z-Reward/NAB evaluation dataset: Attempt to fetch the evaluation dataset using `datasets.load_dataset` with a prioritized list of verified sources.
+ 1. Primary: Try `nab/nab` (Numenta Anomaly Benchmark) on Hugging Face Hub. This dataset contains time-series data with anomaly scores (simulating teacher outputs) and can be adapted for the analysis.
+ 2. Secondary: If HF fails, attempt to fetch from the official NAB raw CSV URL: `.
+ 3. Tertiary: If both fail, check for a local file `data/raw/artificialWithAnomaly.csv`.
+ 4. **CRITICAL**: After loading, explicitly check for the presence of required columns or adapt the schema: `teacher_scores` (mapped from anomaly_score), `student_scalar` (if present or synthesized as a baseline for the experiment), and `human_annotations` (if present or synthesized from ground truth labels). If the specific columns are missing, attempt to map existing columns or raise a `RuntimeError` with a clear message about the missing data structure.
+ 5. **DO NOT** use synthetic fallbacks for the primary data source. Save the raw data to `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/nab_data.parquet`. Compute SHA256 checksum and write to `data/.checksums`. **FAIL LOUDLY** if fetch fails or checksum mismatch. **DEPENDS: T001a**.
+- [ ] T038 [P] [US1] Schema Discovery and Validation: Read `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml`. Inspect the downloaded data in `data/raw/nab_data.parquet`. Perform **Schema Discovery**: map actual column names to logical fields (prompt, scores, annotations).
+ 1. Update `contracts/dataset.schema.yaml` to reflect the *actual* schema if it differs from the placeholder (e.g., if NAB is used, map `anomaly_score` to `teacher_scores`).
+ 2. Validate that all required rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) or the equivalent single dimension for NAB exist.
+ 3. **WRITE** the final validated schema content to the files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` (populating T001d/T001f).
+ 4. Raise error if critical mismatch. **DEPENDS: T037**. **EXECUTION ORDER**: T037 must succeed before T038 runs.
 - [X] T005 [P] Create `code/ingest.py` skeleton with argument parsing and logging setup
 - [X] T006 [P] Create `code/features.py` skeleton with statistical helper functions
 - [X] T007 [P] Create `code/train.py` skeleton with scikit-learn model configuration
@@ -73,7 +82,7 @@
 
 ## Phase 3: User Story 1 - Dataset Ingestion and Ground-Truth Alignment (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest UCI ImageNet Rewards dataset, align teacher/student outputs with human annotations, and handle missing data gracefully.
+**Goal**: Ingest Z-Reward/NAB dataset, align teacher/student outputs with human annotations, and handle missing data gracefully.
 
 **Independent Test**: A script loads the dataset, verifies the presence of all four rubric dimensions, flags missing data, and outputs a summary without crashing.
 
@@ -86,9 +95,9 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement UCI ImageNet Rewards dataset ingestion in `code/ingest.py` (load prompts, images, teacher scores, student scores, human annotations). **DEPENDS: T038**.
-- [X] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID. **CRITICAL**: Verify `student_scalar` column exists. If missing, attempt to load a separate `student_inference.parquet` file from `data/raw/` or raise a clear `RuntimeError`. **DEPENDS: T012**.
-- [X] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py`: **Rule**: Use the value of the column `primary_dimension` if present in the dataset; otherwise, default to the first dimension in the schema (`Alignment`). This logic MUST be independent of model scores. **DEPENDS: T013**.
+- [X] T012 [US1] Implement Z-Reward/NAB dataset ingestion in `code/ingest.py` (load prompts, images, teacher scores, student scores, human annotations). **DEPENDS: T038**.
+- [ ] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID. **CRITICAL**: Verify `student_scalar` column exists. If missing, attempt to load a separate `student_inference.parquet` file from `data/raw/` OR mark the sample as `excluded_reason: 'missing_student_scalar'` in the dataframe. **DO NOT** raise a `RuntimeError`. The pipeline must continue, and the sample will be excluded later in T024. **DEPENDS: T012**.
+- [ ] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py`: **Rule**: Use the value of the column `primary_dimension` if present in the dataset. **CRITICAL**: If `primary_dimension` is missing for a sample, mark that sample as `excluded_reason: 'missing_primary_dimension'` in the dataframe. **DO NOT** raise a `RuntimeError`. The pipeline must continue, and the sample will be excluded later in T024. **DEPENDS: T013**.
 - [X] T015 [US1] Implement chunked loading or sampling logic in `code/ingest.py` to ensure RAM usage stays < 7GB on free-tier runners. **DEPENDS: T012**.
 - [X] T016 [US1] Add summary output in `code/ingest.py`: print sample counts, missing data flags, dimension coverage stats. **DEPENDS: T012**.
 
@@ -98,7 +107,7 @@
 
 ## Phase 4: User Story 2 - Entanglement Quantification and Feature Engineering (Priority: P2)
 
-**Goal**: Calculate statistical descriptors (variance, entropy, skewness, kurtosis) per sample, and a global dominant eigenvalue for the teacher's score distribution across the dataset.
+**Goal**: Calculate statistical descriptors (variance, entropy, skewness, kurtosis) per sample, and a valid per-sample 'Effective Dimensionality' for the teacher's score distribution.
 
 **Independent Test**: A script processes a fixed subset of teacher distributions and outputs a JSON record with calculated features, handling zero-variance cases gracefully.
 
@@ -109,13 +118,26 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement variance and range calculation for 4 dimensions in `code/features.py`. **DEPENDS: T012**.
+- [X] T020 [US2] Implement variance and range calculation for dimensions in `code/features.py`. **DEPENDS: T012**.
 - [X] T021 [US2] Implement entropy, skewness, and kurtosis calculation for teacher distributions in `code/features.py`. **DEPENDS: T012**.
-- [ ] T022a [US2] Implement **Per-Sample** Statistical Features: Calculate variance, entropy, skewness, and kurtosis for each sample's teacher distribution individually. **CRITICAL**: For a single 4-dimensional sample, the "dominant eigenvalue" of its covariance matrix is mathematically equivalent to its variance (1x1 matrix). This task computes the **Per-Sample Variance** as the primary entanglement feature, serving as the valid proxy for "dominant eigenvalue" at the sample level. **DEPENDS: T012**. **VALIDATION**: Handle zero-variance cases gracefully.
-- [ ] T022b [US2] Implement **Global** Covariance Matrix and Dominant Eigenvalue calculation: Compute the covariance matrix of the teacher's score vectors across the **entire dataset** (a square matrix). Extract the **dominant eigenvalue** (largest eigenvalue of the 4x4 matrix) as a **single global scalar constant** named `global_eigenvalue`. This represents the dataset-wide entanglement context. **DEPENDS: T012**. **VALIDATION**: Ensure output is finite and non-NaN. **CONSTITUTION VI**: This implements the global distributional analysis required by the spec.
+- [ ] T022a [US2] Implement **Per-Sample Entanglement Score**:
+ 1. For each sample, extract the 4-dimensional teacher score vector (or the available dimension vector).
+ 2. Calculate **Variance** (var) across the dimensions.
+ 3. Calculate **Shannon Entropy** (normalize vector to sum=1, then compute -sum(p*log(p))).
+ 4. Calculate **Skewness** and **Kurtosis** of the dimension vector.
+ 5. **CRITICAL**: All metrics (variance, entropy, skewness, kurtosis) must be computed **per sample** and stored as columns in the dataframe. **NO** global constants for these features.
+ 6. **VALIDATION**: Handle zero-variance/constant cases gracefully (Entropy=0, Variance=0). **DEPENDS: T012**.
+- [ ] T022b [US2] Implement **Global Covariance Matrix & Dominant Eigenvalue**:
+ 1. Compute the covariance matrix of the teacher score vectors across the **entire dataset** (population-level).
+ 2. Calculate the **Dominant Eigenvalue** of this global covariance matrix.
+ 3. **Note**: This is a single scalar value representing the dataset's overall entanglement. It can be used as a context feature (broadcasted) or a separate population metric, but NOT as a per-sample predictor for the Random Forest.
+ 4. **DEPENDS: T022a**.
+- [ ] T025 [US2] Integrate Ingestion and Feature Engineering: Read aligned data from `code/ingest.py` (or intermediate state). Compute per-sample stats (T020-T021, T022a).
+ 1. **Merge** the per-sample features (variance, entropy, skewness, kurtosis) into the main dataframe.
+ 2. **Note**: The Random Forest will use these per-sample features. The global eigenvalue (T022b) is excluded from the per-sample feature matrix for the RF.
+ 3. **DEPENDS: T012, T020, T021, T022a**. **VALIDATION**: Ensure output JSON matches `contracts/output.schema.yaml` and contains no null values for required keys (`sample_id`, `variance`, `entropy`, `fidelity_loss`).
 - [X] T023 [US2] Implement zero-variance handling in `code/features.py`: set entropy to 0 and variance to 0 without crashing. **DEPENDS: T020**.
-- [ ] T025 [US2] Integrate Ingestion and Feature Engineering: Read aligned data from `code/ingest.py` (or intermediate state). Compute per-sample stats (T020-T021, T022a). Compute the **global** eigenvalue (T022b). **Merge** the global eigenvalue constant (`global_eigenvalue`) into every per-sample record. **NOTE**: The Random Forest will use `variance` (per-sample) and `global_eigenvalue` (global constant) as features. **DEPENDS: T012, T020, T021, T022a, T022b, T023**. **VALIDATION**: Ensure output JSON matches `contracts/output.schema.yaml` and contains no null values for required keys (`sample_id`, `variance`, `entropy`, `global_eigenvalue`).
-- [ ] T041 (DELETED - Contradictory approximation logic removed; Per-sample approach in T022a is correct). <!-- FAILED: unspecified -->
+- [ ] T041 (DELETED - Contradictory approximation logic removed; Per-sample approach in T022a is correct). <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,7 +147,7 @@
 
 **Goal**: Train a CPU-based Random Forest regressor to predict fidelity loss using entanglement features, with k-fold cross-validation, permutation test, and null baseline comparison.
 
-**Independent Test**: A script trains the model on a stratified split, runs 5-fold CV, and outputs R², MAE, and p-value (from permutation test) without using GPU.
+**Independent Test**: A script trains the model on a stratified split, runs k-fold cross-validation, and outputs R², MAE, and p-value (from permutation test) without using GPU.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -134,16 +156,23 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement "dimensional fidelity loss" calculation: Compute MAE between student scalar output and human-annotated score for the primary dimension (selected via metadata in T014); flag and exclude samples with missing human annotations for the target dimension. **Output key**: `fidelity_loss`. **DEPENDS: T012, T014**.
-- [ ] T027a [US3] Implement Random Forest training setup in `code/train.py`: Read features from `data/processed/features.json` (including `fidelity_loss`); configure train/test split with `test_size=0.2` and `random_state=42`; ensure CPU-only execution (`n_jobs=2`); **DEPENDS: T025, T024**.
+- [ ] T024 [US3] Implement "dimensional fidelity loss" calculation:
+ 1. Compute MAE between student scalar output and human-annotated score for the primary dimension (selected via metadata in T014).
+ 2. **Filter** the dataframe: Exclude samples where `primary_dimension` was missing (marked in T014) or where human annotations are missing OR where `student_scalar` was missing (marked in T013).
+ 3. **Output key**: `fidelity_loss`. **DEPENDS: T012, T014, T013**.
+- [X] T027a [US3] Implement Random Forest training setup in `code/train.py`: Read features from `data/processed/features.json` (including `fidelity_loss`); configure train/test split with `test_size=0.2` and `random_state=42`; ensure CPU-only execution (`n_jobs=2`); **DEPENDS: T025, T024**.
 - [X] T027b [US3] Implement Random Forest training execution in `code/train.py`: Train model with `n_estimators=100`, `max_depth=None`, `random_state=42`; **DEPENDS: T027a**; **Return** the trained model object for T027c.
 - [ ] T027c [US3] Save model artifact: Serialize trained model from T027b to `results/model.pkl`; **DEPENDS: T027b**.
 - [X] T028 [US3] Implement k-fold cross-validation logic in `code/train.py` with stratified splitting. **DEPENDS: T027b**.
-- [X] T029 [US3] Implement evaluation script in `code/evaluate.py`: calculate mean R², std dev, MAE, and permutation test p-value. **DEPENDS: T028**.
-- [ ] T030a [US3] Implement permutation test logic: **Permute the feature matrix (X)** against the target (y) `n_permutations=1000` times with `random_state=42`. Calculate R² for each permutation. Compute p-value as the fraction of permuted R² values >= observed R². This validates the **correlation strength** (SC-001). **DEPENDS: T025, T029**.
-- [ ] T030b [US3] Write results: Serialize R², MAE, and p-value to `results/results.json`. **DEPENDS: T030a**.
-- [ ] T030c [US3] Implement Null Baseline Comparison and Paired T-Test: Train a dummy "mean predictor" model (predicts mean of y for all inputs). Calculate its R² and MAE. **Perform a paired t-test** between the Random Forest predictions and the Mean Predictor predictions on the *same test set* (comparing residuals). Compute the t-statistic and p-value to verify statistically significant improvement. Write results to `results/null_baseline.json`. **DEPENDS: T029**.
-- [ ] T031 [US3] Integrate training and evaluation: Read features from `data/processed/features.json`, train model, run CV, run permutation test, run null baseline comparison, and write final metrics to `results/results.json`; **DEPENDS: T027a, T027c, T028, T030a, T030c**.
+- [ ] T030a [US3] Implement permutation test logic: **Permute the feature matrix (X)** against the target (y) `n_permutations=1000` times with `random_state=42`. Calculate R² for each permutation. Compute p-value as the fraction of permuted R² values >= observed R². This validates the **correlation strength** (SC-001). **DEPENDS: T025, T027b**. **Output**: Provide a function `calculate_permutation_pvalue` to be called by T029.
+- [X] T029 [US3] Implement evaluation script in `code/evaluate.py`: calculate mean R², std dev, MAE, and call T030a to get permutation test p-value. **DEPENDS: T028, T030a**.
+- [ ] T030b [US3] Write results: Serialize R², MAE, and p-value to `results/results.json`. **DEPENDS: T029**.
+- [ ] T030c [US3] Implement Null Baseline Comparison:
+ 1. **Train a Mean Predictor**: Use `sklearn.dummy.DummyRegressor(strategy='mean')` to train a model that predicts the mean of `fidelity_loss` on the training set.
+ 2. Evaluate this Mean Predictor on the test set to get its R² and MAE.
+ 3. **Compare**: Compare the Random Forest R²/MAE (from T027b/T029) against the Mean Predictor's R²/MAE.
+ 4. **Requirement**: Verify that the Random Forest R² > Mean Predictor R² (or R² > 0.0) and that the improvement is consistent across CV folds if applicable. **DO NOT** mandate a paired t-test if the number of folds is insufficient or assumptions are violated. The primary check is R² > 0 and p < 0.05 from the permutation test (T030a) for feature correlation, and R²_RF > R²_Mean for model value. **DEPENDS: T029, T027b**.
+- [ ] T031 [US3] Integrate training and evaluation: Read features from `data/processed/features.json`, train model, run CV, run permutation test, run null baseline comparison, and write final metrics to `results/results.json`; **DEPENDS: T027a, T027c, T028, T029, T030c**.
 
 **Checkpoint**: At this point, User Story 3 should be fully functional and testable independently
 
@@ -155,7 +184,11 @@
 
 - [ ] T032 [P] Documentation updates: Create `quickstart.md` in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/` with explicit steps to reproduce the full pipeline (Install -> Download -> Ingest -> Train -> Evaluate) to satisfy Constitution Principle I. **DEPENDS: T031**.
 - [ ] T033 [P] Code cleanup and refactoring: Run `ruff check` and `black --check` on `code/` and `tests/`. Fix all errors until `ruff` exits with code 0 and `black` reports no changes. **DEPENDS: T031**.
-- [ ] T034 [P] Profile and optimize feature engineering loop: Run `cProfile` on `code/features.py`. Generate a report identifying the top 3 bottlenecks. If runtime > 5 minutes, implement optimization to **reduce runtime by [deferred] or to < 2 minutes** using **vectorization with numpy**. **DEPENDS: T025**.
+- [ ] T034 [P] Profile and optimize feature engineering loop: Run `cProfile` on `code/features.py`. Generate a report identifying the Identify the primary bottlenecks.
+
+Research Question: What are the key constraints limiting system performance?
+Method: Systematic bottleneck analysis
+References: [Insert Citation Here]. If runtime > 30 minutes, implement optimization to **reduce runtime** using **vectorization with numpy**. **Warning**: If runtime > 6 hours, the task fails. **DEPENDS: T025**.
 - [ ] T035 [P] Additional unit tests for edge cases: Write tests for `test_ingest.py` and `test_features.py` covering: (1) Empty dataset, (2) NaN values in teacher logits, (3) Missing human annotations for all dimensions, (4) Zero-variance distributions. **DEPENDS: T018, T019**.
 - [ ] T036 Run quickstart.md validation to ensure reproducibility
 
@@ -179,7 +212,8 @@
 - **T012 (Ingestion)**: Must complete before T025 (Compute Features)
 - **T027a (Config)**: Must complete before T027b (Train)
 - **T027b (Train)**: Must complete before T027c (Save Model)
-- **T030a (Permutation)**: Must complete before T030b (Write Results)
+- **T030a (Permutation)**: Must complete before T029 (Evaluation)
+- **T029 (Evaluation)**: Must complete before T030c (Null Baseline)
 - **T030c (Null Baseline)**: Must complete before T031 (Integration)
 - **T001d [P] Tag Clarification**: While T001d is marked [P] for parallelization within Phase 1, it is a **hard prerequisite** for T038 in Phase 2. The runner must enforce T001d completion before starting T038.
 
@@ -217,7 +251,7 @@ Task: "Unit test for data loading and schema validation in tests/test_ingest.py"
 Task: "Integration test for missing data handling in tests/test_ingest.py"
 
 # Launch implementation tasks together:
-Task: "Implement UCI ImageNet Rewards dataset ingestion in code/ingest.py"
+Task: "Implement Z-Reward dataset ingestion in code/ingest.py"
 Task: "Implement alignment logic in code/ingest.py"
 ```
 
@@ -263,9 +297,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data loading tasks (T012, T037) must use real, reachable URLs (UCI ImageNet Rewards official repo) or package-based fetchers. **NO synthetic fallbacks** allowed.
+- **CRITICAL**: All data loading tasks (T012, T037) must use real, reachable URLs (Z-Reward official repo or NAB) or package-based fetchers. **NO synthetic fallbacks** allowed.
 - **CRITICAL**: All model training tasks must be CPU-only (no CUDA, no 8-bit quantization, no large LLMs). Use small models and sampled datasets if necessary.
-- **CRITICAL**: Entanglement features (T022a/T022b) MUST be computed using a **Global Covariance Matrix** (T022b) for the dataset-wide eigenvalue (constant feature) and **Per-Sample Variance** (T022a) for individual sample stats. T025 merges them. **Mathematical Note**: A single sample's 4-dim vector cannot form a 4x4 covariance matrix; the per-sample "eigenvalue" is effectively the variance.
+- **CRITICAL**: Entanglement features (T022a) MUST be computed using **per-sample** statistics (Entropy, Variance, Skewness, Kurtosis) derived from the sample's distribution. **NO** global constants are allowed as per-sample features.
+- **CRITICAL**: Global Covariance/Eigenvalue (T022b) is a population-level metric, not a per-sample feature.
 - **CRITICAL**: Target variable (T024) MUST be calculated in `code/features.py` using metadata-based dimension selection (T014), independent of model scores.
 - **CRITICAL**: Data Acquisition (T037, T038) must complete before US1 implementation (T012) to ensure the ingestion script has real data to process.
 - **CRITICAL**: T001e initializes output files to prevent "file not found" errors.
@@ -276,17 +311,16 @@ With multiple developers:
 - **CRITICAL**: T041 is deleted (contradictory logic).
 - **CRITICAL**: T032 creates `quickstart.md` for reproducibility.
 - **CRITICAL**: T003 creates `.ruff.toml` and `pyproject.toml`.
-- **CRITICAL**: T037 must NOT include any `try/except` block that falls back to synthetic data generation. If `datasets.load_dataset` fails, it must try the secondary sources, then the local cache, then raise an exception.
-- **CRITICAL**: T015 must implement chunked loading or explicit sampling (e.g., `itertools.islice` or `random.sample` with a fixed seed) to ensure the dataset fits within 7GB RAM. The sampling strategy must be logged and deterministic.
-- **CRITICAL**: T022a must compute variance **per sample**. T022b must compute the global eigenvalue.
-- **CRITICAL**: T024 must calculate the fidelity loss (MAE) using the human annotation for the dimension identified by `primary_dimension` metadata, ensuring no leakage from teacher scores.
-- **CRITICAL**: T030a must perform a permutation test on the **features vs target** to validate R² significance, not model performance against a mean baseline.
-- **CRITICAL**: T030c must train a "mean predictor", compare its R²/MAE against the Random Forest, **AND perform a paired t-test** on the residuals to verify the statistical significance of the improvement.
-- **CRITICAL**: T037 uses a dynamic list of verified sources.
-- **CRITICAL**: T038 performs schema discovery.
+- **CRITICAL**: T037 uses a dynamic list of verified sources (NAB).
+- **CRITICAL**: T038 performs schema discovery and populates the schema files.
 - **CRITICAL**: T033 has a concrete "done" state (ruff exit code 0).
 - **CRITICAL**: T034 has a concrete metric (runtime reduction or bottleneck report).
 - **CRITICAL**: T035 specifies exact edge cases.
 - **CRITICAL**: T001a, T001b, T001c use the correct project prefix path.
-- **CRITICAL**: T013 handles missing student scalar columns explicitly.
+- **CRITICAL**: T013 handles missing student scalar columns explicitly by marking as excluded, NOT crashing.
 - **CRITICAL**: T039 and T042 have been removed from the active task list.
+- **CRITICAL**: T014 marks missing samples for exclusion instead of crashing.
+- **CRITICAL**: T013 and T014 must both handle missing data gracefully (exclusion) to prevent pipeline crashes.
+- **CRITICAL**: T022a computes valid per-sample stats (Variance, Entropy, Skewness, Kurtosis).
+- **CRITICAL**: T022b computes Global Covariance/Eigenvalue (population level).
+- **CRITICAL**: T030c trains the Mean Predictor inline and compares R²/MAE, without mandating a t-test if assumptions fail.

@@ -1,49 +1,76 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Results Schema
-description: Schema for the final output metrics from the Random Forest analysis.
+# Output Schema Contract for llmXive Feature Engineering
+# Defines the structure of data/processed/features.json
+
+schema_version: "1.0"
+description: "Schema for per-sample feature records with global statistics merged in"
+
 type: object
-required:
-  - r2_score
-  - mae
-  - p_value
-  - n_samples
-  - timestamp
 properties:
-  r2_score:
-    type: number
-    description: "Coefficient of determination from 5-fold cross-validation."
-  mae:
-    type: number
-    description: "Mean Absolute Error from 5-fold cross-validation."
-  p_value:
-    type: number
-    description: "P-value from the permutation test."
-    minimum: 0
-    maximum: 1
-  cv_std:
-    type: number
-    description: "Standard deviation of R² across folds."
-  feature_importance:
-    type: object
-    description: "Map of feature names to their importance scores (after PCA)."
-    additionalProperties:
-      type: number
-  n_samples:
-    type: integer
-    description: "Number of samples used in the training set."
-    minimum: 1
-  timestamp:
+  sample_id:
     type: string
-    format: date-time
-    description: "ISO 8601 timestamp of the execution."
-  config:
-    type: object
-    description: "Configuration used for the run."
-    properties:
-      n_estimators:
-        type: integer
-      random_state:
-        type: integer
-      cv_folds:
-        type: integer
-      default: 5
+    description: "Unique identifier for the sample"
+    required: true
+
+  variance:
+    type: number
+    description: "Variance of the teacher's 4-dimensional score distribution"
+    required: true
+    minimum: 0
+
+  entropy:
+    type: number
+    description: "Shannon entropy of the teacher's score distribution"
+    required: true
+
+  skewness:
+    type: number
+    description: "Skewness of the teacher's score distribution"
+    required: true
+
+  kurtosis:
+    type: number
+    description: "Kurtosis of the teacher's score distribution"
+    required: true
+
+  entanglement_score:
+    type: number
+    description: "Frobenius norm of the outer product of the score vector (per-sample entanglement)"
+    required: true
+    minimum: 0
+
+  global_eigenvalue:
+    type: number
+    description: "Dominant eigenvalue of the global covariance matrix (dataset-wide constant)"
+    required: true
+    minimum: 0
+
+  fidelity_loss:
+    type: number
+    description: "MAE between student scalar and human annotation for primary dimension"
+    required: true
+
+additionalProperties: true
+required:
+  - sample_id
+  - variance
+  - entropy
+  - global_eigenvalue
+  - entanglement_score
+  - fidelity_loss
+
+examples:
+  - sample_id: "sample_001"
+    variance: 0.125
+    entropy: 1.386
+    skewness: 0.45
+    kurtosis: -0.82
+    entanglement_score: 2.345
+    global_eigenvalue: 0.854
+    fidelity_loss: 0.023
+
+validation_rules:
+  - No null values allowed for required keys
+  - variance must be >= 0
+  - entanglement_score must be >= 0
+  - global_eigenvalue must be finite and non-NaN
+  - fidelity_loss must be finite (NaN allowed for missing annotations, but should be filtered)

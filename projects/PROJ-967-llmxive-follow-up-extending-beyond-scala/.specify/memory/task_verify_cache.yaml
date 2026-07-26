@@ -1,40 +1,11 @@
-T001a:
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or screenshots were provided to demonstrate that the five\
-    \ required paths under `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`\
-    \ actually exist. Without concrete evidence of their creation, the task\u2019\
-    s requirement is not verified."
-T003:
-  c: false
-  h: 828aa01316ecaa564818fe6deaee930f416da4df8ecf6dbab73def0bc844869f
-  r: "The `pyproject.toml` file is present and contains pinned versions for ruff and\
-    \ black, but the required `.ruff.toml` file is missing entirely, so the task\u2019\
-    s specification of creating both configuration files is not satisfied. The implementer\
-    \ must add a `.ruff.toml` with the appropriate ruff configuration."
-T022a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file was supplied that actually computes\
-    \ per\u2011sample variance, entropy, skewness, and kurtosis (or the dominant eigenvalue)\
-    \ for the teacher distributions, nor any handling of zero\u2011variance cases.\
-    \ The claim lacks the required implementation artifact, so the task is not satisfied."
-T022b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, notebook, or output showing the 4\xD74 global covariance\
-    \ matrix or the extracted dominant eigenvalue was provided. The claim lacks the\
-    \ required artifact (e.g., a script/notebook that loads the full teacher score\
-    \ vectors, computes the covariance matrix, and returns a finite scalar), so the\
-    \ task is not satisfied."
-T025:
-  c: false
-  h: b84846058ba2b9b0cd000a8fb031bd781e744d2685021b38c38e6794d5a84af0
-  r: "The `data/processed/features.json` file is empty (`[]`) and contains no per\u2011\
-    sample records with the required fields, and the referenced `contracts/output.schema.yaml`\
-    \ (or `schema.yaml`) is missing entirely. Consequently, no per\u2011sample statistics,\
-    \ global eigenvalue, or fidelity loss were computed or written, so the task requirements\
-    \ are not met."
+  r: "No code, script, notebook, or data file implementing the \u201Cdimensional fidelity\
+    \ loss\u201D (MAE between student scalar output and human\u2011annotated score\
+    \ for the primary dimension, with exclusion of missing annotations) was provided.\
+    \ The required artifact \u2013 a runnable implementation that produces the `fidelity_loss`\
+    \ output key \u2013 is missing, so the task is not satisfied."
 T027a:
   c: false
   h: 899f3e299173b4e9e0d01d34e3bd8c7976cedaefd39e9cd81ec7f6b2e23c1488
@@ -43,13 +14,6 @@ T027a:
     \ this file triggers a `ValueError`, so the training setup cannot actually run\
     \ on real data. A non\u2011empty features JSON with the expected fields is needed\
     \ for the task to be genuinely complete."
-T030a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains no code, script, notebook, or output file implementing\
-    \ the permutation test, nor any reported R\xB2, MAE, or p\u2011value results.\
-    \ Without an actual artifact demonstrating the required logic and metrics, the\
-    \ task requirement is not satisfied."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -76,18 +40,10 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T038:
-  c: false
-  h: dc385ad1d505fc0859c0976e84f9fb3f7410bb72514553439155c46eaf7a6ac7
-  r: The required artifacts `contracts/dataset.schema.yaml` and `data/raw/zreward_dataset.parquet`
-    are missing, so no schema discovery, validation, or schema update could have been
-    performed. The implementer must provide the dataset file and the schema file,
-    then update the schema to match the actual columns and verify the presence of
-    the four rubric dimensions.
-T039:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and no actual code, scripts,
-    data files, or output artifacts (e.g., ingestion script, JSON feature records,
-    or Random Forest training results). Consequently, the required deliverables are
-    missing, so the task is not satisfied.
+  r: "No code, data files, or analysis outputs are present to demonstrate ingestion\
+    \ of the Z\u2011Reward dataset, computation of entanglement statistics, or training/validation\
+    \ of the Random Forest model as required by the user stories. The claim lacks\
+    \ any tangible artifact, so the task is not satisfied."

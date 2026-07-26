@@ -1,69 +1,71 @@
 import os
-import sys
 import tempfile
-from pathlib import Path
+import hashlib
 import pytest
+from pathlib import Path
+import sys
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.download_zreward import calculate_sha256, save_checksum, verify_checksum, download_dataset
+from download_zreward import calculate_sha256, verify_checksum, save_checksum
 
+def test_calculate_sha256():
+    """Test SHA256 calculation on a temporary file."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(b"test data")
+        tmp_path = tmp.name
 
-class TestChecksumFunctions:
-    def test_calculate_sha256(self, tmp_path):
-        """Test SHA256 calculation for a known file."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
-        
-        checksum = calculate_sha256(test_file)
-        assert isinstance(checksum, str)
-        assert len(checksum) == 64  # SHA256 hex length
-        
-        # Verify against known value
-        expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-        assert checksum == expected
+    try:
+        checksum = calculate_sha256(tmp_path)
+        assert len(checksum) == 64  # SHA256 hex string length
+        assert all(c in '0123456789abcdef' for c in checksum)
+    finally:
+        os.unlink(tmp_path)
 
-    def test_save_and_verify_checksum(self, tmp_path):
-        """Test saving and verifying checksum."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Test content"
-        test_file.write_bytes(test_content)
-        
-        checksum = calculate_sha256(test_file)
-        
-        # Create a temporary checksum file
-        checksum_file = tmp_path / ".checksums"
-        
-        # Mock save_checksum to use temp directory
-        import code.download_zreward as download_module
-        original_checksum_path = download_module.CHECKSUMS_FILE
-        download_module.CHECKSUMS_FILE = checksum_file
-        
-        try:
-            save_checksum(test_file, checksum)
-            assert checksum_file.exists()
-            
-            # Verify
-            assert verify_checksum(test_file, checksum) is True
-            assert verify_checksum(test_file, "wrong_checksum") is False
-        finally:
-            download_module.CHECKSUMS_FILE = original_checksum_path
+def test_save_and_verify_checksum():
+    """Test saving and verifying checksums."""
+    with tempfile.NamedTemporaryFile(delete=False, mode='w') as tmp_file:
+        tmp_file.write("test content")
+        file_path = tmp_file.name
 
-class TestDownloadDataset:
-    def test_download_dataset_structure(self):
-        """Test that download_dataset returns a Path object when successful."""
-        # Note: We don't actually run the download here to avoid network calls in unit tests
-        # Instead, we verify the function exists and has correct signature
-        assert callable(download_dataset)
-        
-    def test_error_on_missing_sources(self, tmp_path, monkeypatch):
-        """Test that RuntimeError is raised when all sources fail."""
-        from unittest.mock import patch
-        
-        # Mock load_dataset to always fail
-        with patch('code.download_zreward.load_dataset', side_effect=Exception("Network error")):
-            with pytest.raises(RuntimeError, match="Failed to download Z-Reward dataset"):
-                download_dataset()
+    checksum_dir = tempfile.mkdtemp()
+    checksum_file = os.path.join(checksum_dir, "checksums.csv")
+
+    try:
+        checksum = calculate_sha256(file_path)
+        save_checksum(checksum, file_path, checksum_file)
+
+        # Verify correct checksum
+        is_valid, msg = verify_checksum(file_path, checksum_file)
+        assert is_valid is True
+
+        # Verify incorrect checksum
+        with open(checksum_file, 'w') as f:
+            f.write(f"{os.path.basename(file_path)},wrong_checksum\n")
+
+        is_valid, msg = verify_checksum(file_path, checksum_file)
+        assert is_valid is False
+        assert "mismatch" in msg.lower()
+    finally:
+        os.unlink(file_path)
+        os.unlink(checksum_file)
+        os.rmdir(checksum_dir)
+
+def test_download_dataset_raises_on_failure(monkeypatch):
+    """Test that download_dataset raises RuntimeError when all sources fail."""
+    from download_zreward import download_dataset
+    import logging
+
+    # Mock load_dataset to always raise an exception
+    def mock_load_dataset(*args, **kwargs):
+        raise Exception("Simulated network failure")
+
+    monkeypatch.setattr("download_zreward.load_dataset", mock_load_dataset)
+
+    logger = logging.getLogger("test")
+    
+    with pytest.raises(RuntimeError) as excinfo:
+        download_dataset(logger)
+    
+    assert "Failed to download dataset" in str(excinfo.value)

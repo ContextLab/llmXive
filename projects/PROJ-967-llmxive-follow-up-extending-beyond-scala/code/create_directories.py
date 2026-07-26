@@ -1,55 +1,49 @@
 import os
 import sys
 from pathlib import Path
+import logging
 
-def ensure_directory(path: Path) -> bool:
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def ensure_directory(path: str) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
-
-    Args:
-        path: The directory path to ensure exists.
-
-    Returns:
-        True if the directory exists or was created successfully, False otherwise.
+    Creates a directory if it does not exist.
+    Returns True if successful, False otherwise.
     """
     try:
-        path.mkdir(parents=True, exist_ok=True)
+        p = Path(path)
+        if not p.exists():
+            p.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {p}")
+        else:
+            logger.info(f"Directory already exists: {p}")
         return True
-    except OSError as e:
-        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+    except Exception as e:
+        logger.error(f"Failed to create directory {path}: {e}")
         return False
 
-def main() -> int:
-    """
-    Main entry point for creating project directories.
-    Creates the standard directory structure for the project.
-
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    # Define the project root relative to repository root
+def main():
     project_root = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
-
-    # Define the required directories
+    
     directories = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "code",
         project_root / "tests",
-        project_root / "results",
+        project_root / "results"
     ]
 
-    print(f"Creating project structure in: {project_root}")
     success = True
-
-    for directory in directories:
-        if ensure_directory(directory):
-            print(f"Created: {directory}")
-        else:
+    for d in directories:
+        if not ensure_directory(str(d)):
             success = False
-            print(f"Failed to create: {directory}")
 
-    return 0 if success else 1
+    if success:
+        logger.info("All required directories created successfully.")
+    else:
+        logger.error("Some directories failed to create.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

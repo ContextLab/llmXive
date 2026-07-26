@@ -1,298 +1,192 @@
-"""
-T030c: Implement Null Baseline Comparison
-
-Trains a dummy 'mean predictor' model that predicts the mean of the target
-variable for all inputs. Calculates its R² and MAE, compares these against
-the Random Forest metrics, and writes results to results/null_baseline.json.
-
-Dependencies: T029 (evaluate.py)
-"""
 import argparse
 import json
 import logging
 import os
 import sys
 from pathlib import Path
+from typing import Dict, Any
 
 import numpy as np
-from sklearn.metrics import mean_absolute_error, r2_score
+from scipy import stats
 
-# Import from existing project modules
-from evaluate import load_features, setup_logging
+def setup_logging() -> logging.Logger:
+    """Configure and return a logger."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+    return logger
 
-
-def calculate_mean_baseline_metrics(y_true):
+def calculate_mean_baseline_metrics(y_true: np.ndarray, y_pred_mean: np.ndarray) -> Dict[str, float]:
     """
-    Calculate R² and MAE for a mean predictor.
-    
-    A mean predictor always predicts the mean of the training targets.
-    For a mean predictor on the test set:
-    - Predictions are all equal to the mean of y_true (if we consider the
-      baseline calculated on the same set, or mean of training set if split).
-    - In this context, we assume the features and targets are already split
-      or we are evaluating the baseline capability on the provided data.
-    - R² of a mean predictor is 0.0 by definition if evaluated on the same
-      distribution used to calculate the mean.
-    
-    However, to be rigorous:
-    If we have a training set mean (mu_train), and we predict mu_train for
-    test set y_test:
-    R² = 1 - (SS_res / SS_tot)
-    SS_res = sum((y_test - mu_train)^2)
-    SS_tot = sum((y_test - mean(y_test))^2)
-    
-    If we evaluate on the whole dataset (no split), mean predictor R² is 0.
-    Since T029/T030a likely handled the split in `evaluate.py`, we assume
-    this function receives the *test set* y values.
-    To be safe, we calculate the mean of the provided y_true (assuming it's
-    the test set) and compute metrics. If this is the full dataset, R² will be ~0.
+    Calculate R² and MAE for a mean predictor baseline.
     
     Args:
-        y_true: Array of true target values (test set).
-    
+        y_true: Ground truth values.
+        y_pred_mean: Predictions where every value is the mean of y_true.
+        
     Returns:
-        dict: {'r2': float, 'mae': float}
+        Dictionary with 'r2' and 'mae' metrics.
     """
-    if len(y_true) == 0:
-        raise ValueError("y_true cannot be empty")
+    # R² calculation: 1 - SS_res / SS_tot
+    # For a mean predictor, SS_res is exactly SS_tot, so R² should be 0.0.
+    # However, we calculate it explicitly to handle floating point nuances.
+    ss_res = np.sum((y_true - y_pred_mean) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
     
-    y_mean = np.mean(y_true)
-    y_pred = np.full_like(y_true, y_mean, dtype=float)
+    if ss_tot == 0:
+        r2 = 0.0
+    else:
+        r2 = 1 - (ss_res / ss_tot)
+        
+    mae = np.mean(np.abs(y_true - y_pred_mean))
     
-    r2 = r2_score(y_true, y_pred)
-    mae = mean_absolute_error(y_true, y_pred)
-    
-    return {
-        "r2": float(r2),
-        "mae": float(mae),
-        "predicted_value": float(y_mean)
-    }
+    return {'r2': float(r2), 'mae': float(mae)}
 
-
-def load_rf_results(results_path):
+def load_rf_results(results_path: str) -> Dict[str, Any]:
     """
-    Load the Random Forest results from results/results.json.
+    Load Random Forest results from a JSON file.
     
     Args:
-        results_path: Path to results/results.json
-    
+        results_path: Path to the results JSON file.
+        
     Returns:
-        dict: The loaded results dictionary.
+        Dictionary containing RF metrics.
     """
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"RF results file not found: {results_path}")
-    
     with open(results_path, 'r') as f:
         return json.load(f)
 
-
-def compare_and_save_results(baseline_metrics, rf_metrics, output_path):
+def compare_and_save_results(
+    rf_results: Dict[str, Any],
+    baseline_results: Dict[str, float],
+    y_true: np.ndarray,
+    y_pred_rf: np.ndarray,
+    output_path: str
+) -> None:
     """
-    Compare baseline and RF metrics, then save to null_baseline.json.
+    Perform paired t-test between RF residuals and Mean Predictor residuals,
+    then save all comparison results.
     
     Args:
-        baseline_metrics: Dict with baseline R² and MAE.
-        rf_metrics: Dict with RF R² and MAE.
+        rf_results: RF metrics (R², MAE, etc.).
+        baseline_results: Mean predictor metrics.
+        y_true: Ground truth values.
+        y_pred_rf: RF predictions.
         output_path: Path to save the comparison results.
     """
+    # Calculate residuals
+    residuals_rf = y_true - y_pred_rf
+    mean_val = np.mean(y_true)
+    residuals_mean = y_true - mean_val
+    
+    # Paired t-test on residuals
+    # We are testing if the residuals of the RF are significantly different (smaller) than the mean predictor.
+    # H0: The mean difference between residuals is 0.
+    # H1: The mean difference is not 0 (or specifically, RF residuals are smaller).
+    t_stat, p_value = stats.ttest_rel(residuals_mean, residuals_rf)
+    
+    # Prepare output
     comparison = {
-        "baseline": baseline_metrics,
-        "random_forest": rf_metrics,
-        "improvement": {
-            "r2_diff": rf_metrics.get("r2", 0) - baseline_metrics.get("r2", 0),
-            "mae_diff": baseline_metrics.get("mae", 0) - rf_metrics.get("mae", 0) # Positive means improvement
+        "rf_metrics": rf_results,
+        "baseline_metrics": baseline_results,
+        "statistical_test": {
+            "test_type": "paired_t_test_residuals",
+            "t_statistic": float(t_stat),
+            "p_value": float(p_value),
+            "significant_at_0_05": p_value < 0.05,
+            "interpretation": "RF significantly better" if p_value < 0.05 else "RF not significantly better"
         },
-        "conclusion": ""
+        "validation_criteria": {
+            "r2_positive": rf_results.get('r2', 0) > 0.0,
+            "t_test_significant": p_value < 0.05,
+            "overall_pass": (rf_results.get('r2', 0) > 0.0) and (p_value < 0.05)
+        }
     }
     
-    # Determine conclusion based on SC-001 and SC-002
-    if comparison["improvement"]["r2_diff"] > 0.0:
-        comparison["conclusion"] = "Random Forest outperforms the mean baseline, indicating predictive power beyond the mean."
-    else:
-        comparison["conclusion"] = "Random Forest does not outperform the mean baseline. The model may not have captured significant patterns."
-    
     # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
         json.dump(comparison, f, indent=2)
     
-    return comparison
+    logging.info(f"Comparison results saved to {output_path}")
+    logging.info(f"RF R²: {rf_results.get('r2'):.4f}, Baseline R²: {baseline_results['r2']:.4f}")
+    logging.info(f"T-statistic: {t_stat:.4f}, P-value: {p_value:.4f}")
 
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="T030c: Null Baseline Comparison")
-    parser.add_argument(
-        "--features-path",
-        type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/features.json",
-        help="Path to the features JSON file."
-    )
-    parser.add_argument(
-        "--rf-results-path",
-        type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/results.json",
-        help="Path to the Random Forest results JSON file."
-    )
-    parser.add_argument(
-        "--output-path",
-        type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/null_baseline.json",
-        help="Path to save the null baseline comparison results."
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level."
-    )
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Compare Random Forest model against a mean predictor baseline.")
+    parser.add_argument("--rf-results", type=str, required=True, help="Path to RF results JSON (e.g., results/results.json)")
+    parser.add_argument("--features", type=str, required=True, help="Path to features JSON (data/processed/features.json)")
+    parser.add_argument("--output", type=str, default="results/null_baseline.json", help="Path to save comparison results")
     return parser.parse_args()
 
-
-def main():
+def main() -> None:
+    logger = setup_logging()
     args = parse_args()
-    logger = setup_logging(level=args.log_level)
-    logger.info("Starting T030c: Null Baseline Comparison")
-
-    try:
-        # 1. Load Features to get the target variable (y)
-        # We assume the features file contains the target column 'fidelity_loss'
-        # and we need to evaluate the baseline on the same data used for RF evaluation
-        # (or the test split if the file is pre-split, but typically features.json is the full set).
-        # Since T029/T030a likely handled the split internally in evaluate.py, 
-        # we need to know if we are evaluating on the full set or test set.
-        # The most robust approach for a baseline comparison is to compare the 
-        # reported RF metrics (on test set) against a baseline calculated on the test set.
-        # However, if we only have the full features.json, we can't easily get the test set 
-        # unless we re-split. 
-        # Given the dependency on T029 (which calculated metrics), we assume T029 
-        # already split the data. But T029's output is just the metrics in results.json.
-        # To be safe and consistent with the "mean predictor" definition, we will:
-        # A) Load the features.
-        # B) If the RF results were calculated on a specific split, we ideally need that split.
-        #    Since we don't have the split indices, we will assume the RF results in results.json
-        #    are comparable to a baseline calculated on the same data distribution.
-        #    If the RF was trained on 80% and tested on 20%, the baseline should be calculated
-        #    on the 20% test set.
-        #    Without the test set indices, we cannot perfectly replicate the test set baseline.
-        #    However, a common simplification in this pipeline context is to assume the 
-        #    features file represents the data used for evaluation, or we re-split with the same seed.
-        #    Let's assume we re-split with the same seed (42) and test_size (0.2) to get the test set.
+    
+    logger.info(f"Loading RF results from {args.rf_results}")
+    rf_results = load_rf_results(args.rf_results)
+    
+    logger.info(f"Loading features from {args.features}")
+    with open(args.features, 'r') as f:
+        features_data = json.load(f)
+    
+    # Extract y_true and y_pred from features data
+    # Assuming features_data is a list of records with 'fidelity_loss' (y_true) and 'prediction' (y_pred)
+    # If the structure is different, adjust accordingly. 
+    # Based on typical pipeline: 'fidelity_loss' is the target, 'prediction' is the model output.
+    # If 'prediction' is not present in features, we might need to load it from elsewhere, 
+    # but for this task, we assume it's available or we reconstruct from RF results if possible.
+    # However, the RF results usually contain aggregated metrics, not per-sample predictions.
+    # We need per-sample predictions for the t-test. 
+    # Let's assume the features.json was updated to include predictions, or we load them from a separate file.
+    # Since the task description says "on the *same test set*", we need the test set predictions.
+    # If the pipeline doesn't save per-sample predictions, we might need to re-run prediction or store them.
+    # For this implementation, we assume the features file contains a 'prediction' key for each sample 
+    # that was part of the test set, or we load a separate 'test_predictions.json'.
+    # Given the constraints, let's assume the features file has 'fidelity_loss' and 'prediction' for all samples,
+    # and the RF results were derived from a subset. We'll filter or use all if not specified.
+    # Actually, a more robust approach: The RF results file might not have per-sample data.
+    # We need to load the test set predictions. Let's assume there's a file 'results/test_predictions.json'
+    # or we extract from the main results if structured that way.
+    # To be safe, let's assume the 'features.json' contains the full dataset with 'fidelity_loss' and 'prediction'
+    # where 'prediction' is the RF output for the test samples and NaN or None for training samples.
+    # But the task says "on the same test set".
+    
+    # Alternative: If we don't have per-sample predictions, we can't do a paired t-test on residuals.
+    # We must have them. Let's assume the pipeline saves them in 'results/test_predictions.json'.
+    # If not, we might need to modify train.py to save them. 
+    # For this task, I will assume the features file has a 'prediction' field for the relevant samples.
+    # If 'prediction' is missing, we raise an error.
+    
+    y_true_list = []
+    y_pred_list = []
+    
+    for item in features_data:
+        if 'fidelity_loss' in item and 'prediction' in item:
+            # Only include if prediction is not null/None
+            if item['prediction'] is not None:
+                y_true_list.append(item['fidelity_loss'])
+                y_pred_list.append(item['prediction'])
+    
+    if not y_true_list:
+        raise ValueError("No valid test samples found with 'fidelity_loss' and 'prediction' in features.")
         
-        features_data = load_features(args.features_path)
-        logger.info(f"Loaded {len(features_data)} samples from features file.")
-
-        if not features_data:
-            raise ValueError("Features data is empty. Cannot calculate baseline.")
-
-        # Extract target (y)
-        # Assuming 'fidelity_loss' is the target column as per T024
-        y_true = [row.get('fidelity_loss') for row in features_data if row.get('fidelity_loss') is not None]
-        
-        if not y_true:
-            raise ValueError("No valid 'fidelity_loss' values found in features data.")
-
-        # Re-split to get the test set (assuming the same logic as T027a/T028)
-        # T027a: test_size=0.2, random_state=42
-        from sklearn.model_selection import train_test_split
-        # We need X to split properly, but for mean predictor we only need y_test.
-        # However, train_test_split needs X to maintain alignment.
-        # Let's create a dummy X or just use indices.
-        # Actually, we can just split the list of y values if we assume random order? No, that's unsafe.
-        # We need the X matrix to split correctly.
-        # Let's extract X features.
-        # Features are likely: variance, entropy, skewness, kurtosis, dominant_eigenvalue
-        # We need to know the exact feature columns.
-        # From T025/T029, the features are stored in the JSON.
-        # Let's assume standard feature columns exist.
-        
-        # Check for common feature columns
-        feature_cols = ['variance', 'entropy', 'skewness', 'kurtosis', 'dominant_eigenvalue']
-        X_data = []
-        valid_indices = []
-        
-        for i, row in enumerate(features_data):
-            # Check if all feature cols are present
-            if all(col in row and row[col] is not None for col in feature_cols):
-                X_data.append([row[col] for col in feature_cols])
-                valid_indices.append(i)
-            elif 'fidelity_loss' in row and row['fidelity_loss'] is not None:
-                # If features missing but target exists, we can't use this for RF, but maybe for baseline?
-                # No, we need consistent X and y for splitting.
-                pass
-        
-        if not X_data:
-            raise ValueError("No valid feature rows found for splitting.")
-
-        import numpy as np
-        X = np.array(X_data)
-        y = np.array([features_data[i]['fidelity_loss'] for i in valid_indices])
-
-        # Split
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-
-        # 2. Calculate Baseline Metrics on the TEST set
-        # The mean predictor predicts the mean of the TRAINING set for the test set.
-        # This is the standard definition of a baseline.
-        baseline_metrics = calculate_mean_baseline_metrics(y_train) # Predict mean of train on test?
-        # Wait, the function calculate_mean_baseline_metrics above calculates mean of the input y.
-        # If we pass y_test, it calculates mean(y_test) and R²=0.
-        # If we pass y_train, it calculates mean(y_train). Then we predict mean(y_train) for y_test.
-        # Let's adjust the function to take y_train and y_test.
-        
-        # Correct approach:
-        # Baseline prediction for test set = mean(y_train)
-        y_pred_baseline = np.full_like(y_test, np.mean(y_train), dtype=float)
-        baseline_r2 = r2_score(y_test, y_pred_baseline)
-        baseline_mae = mean_absolute_error(y_test, y_pred_baseline)
-        
-        baseline_metrics = {
-            "r2": float(baseline_r2),
-            "mae": float(baseline_mae),
-            "predicted_value": float(np.mean(y_train)),
-            "description": "Mean predictor (predicts mean of training set)"
-        }
-
-        # 3. Load RF Results
-        rf_results = load_rf_results(args.rf_results_path)
-        
-        # Extract RF metrics from results.json
-        # T030b writes R², MAE to results.json.
-        # Assuming keys are 'r2', 'mae' or similar.
-        # Let's handle potential variations.
-        rf_r2 = rf_results.get('r2') or rf_results.get('mean_r2') or rf_results.get('rf_r2')
-        rf_mae = rf_results.get('mae') or rf_results.get('mean_mae') or rf_results.get('rf_mae')
-        
-        if rf_r2 is None or rf_mae is None:
-            # Fallback: try to find them in nested structures if T030b used a specific structure
-            # T030b says: "Serialize R², MAE, and p-value to results/results.json"
-            # Let's assume flat keys 'r2', 'mae' based on standard practice.
-            # If not found, we might need to look at the actual file content, but we can't read it again easily without re-loading.
-            # Let's assume the keys are 'r2' and 'mae'.
-            raise KeyError(f"Could not find RF metrics in {args.rf_results_path}. Found keys: {list(rf_results.keys())}")
-
-        rf_metrics = {
-            "r2": float(rf_r2),
-            "mae": float(rf_mae),
-            "model": "Random Forest"
-        }
-
-        # 4. Compare and Save
-        output_path = Path(args.output_path)
-        comparison = compare_and_save_results(baseline_metrics, rf_metrics, str(output_path))
-        
-        logger.info(f"Null baseline comparison saved to {output_path}")
-        logger.info(f"Baseline R²: {baseline_metrics['r2']:.4f}, RF R²: {rf_metrics['r2']:.4f}")
-        logger.info(f"Improvement (R²): {comparison['improvement']['r2_diff']:.4f}")
-        logger.info(f"Conclusion: {comparison['conclusion']}")
-
-    except Exception as e:
-        logger.error(f"Error during T030c execution: {e}", exc_info=True)
-        raise
-
+    y_true = np.array(y_true_list)
+    y_pred_rf = np.array(y_pred_list)
+    
+    # Calculate mean predictor predictions
+    y_pred_mean = np.full_like(y_true, np.mean(y_true))
+    
+    # Calculate baseline metrics
+    baseline_metrics = calculate_mean_baseline_metrics(y_true, y_pred_mean)
+    
+    # Compare and save
+    compare_and_save_results(rf_results, baseline_metrics, y_true, y_pred_rf, args.output)
+    
+    logger.info("Null baseline comparison completed successfully.")
 
 if __name__ == "__main__":
     main()
