@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+type: "object"
+properties:
+  user_id:
+    type: "string"
+    description: "Hashed identifier for the participant"
+  openness:
+    type: "number"
+    description: "BFI‑2 openness score (1‑5)"
+  conscientiousness:
+    type: "number"
+    description: "BFI‑2 conscientiousness score (1‑5)"
+  extraversion:
+    type: "number"
+    description: "BFI‑2 extraversion score (1‑5)"
+  agreeableness:
+    type: "number"
+    description: "BFI‑2 agreeableness score (1‑5)"
+  neuroticism:
+    type: "number"
+    description: "BFI‑2 neuroticism score (1‑5)"
+  age:
+    type: "integer"
+    description: "Age in years"
+  gender:
+    type: "string"
+    description: "Gender category (e.g., male, female, other)"
+  country:
+    type: "string"
+    description: "Country ISO‑alpha‑2 code or 'Other'"
+  education:
+    type: "string"
+    description: "Highest education level (e.g., HighSchool, Bachelor, Master, PhD); rare categories collapsed to 'Other'"
+  ses:
+    type: "string"
+    description: "Socio‑economic status (Low, Medium, High); rare categories collapsed to 'Other'"
+  total_listening_minutes:
+    type: "number"
+    description: "Aggregate listening minutes across all genres for the user"
+  genre:
+    type: "string"
+    description: "Standardized genre (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other)"
+  listening_minutes:
+    type: "number"
+    description: "Total minutes listened to the genre"
+  log_minutes:
+    type: "number"
+    description: "log1p transformed listening minutes"
+required:
+  - user_id
+  - openness
+  - conscientiousness
+  - extraversion
+  - agreeableness
+  - neuroticism
+  - age
+  - gender
+  - country
+  - education
+  - ses
+  - total_listening_minutes
+  - genre
+  - listening_minutes
+  - log_minutes
+additionalProperties: false

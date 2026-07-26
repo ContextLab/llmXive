@@ -17,10 +17,10 @@ properties:
     description: "Raw p-value"
   adjusted_p_value:
     type: "number"
-    description: "Benjamini-Hochberg corrected p-value"
+    description: "Bonferroni corrected p-value"
   is_significant:
     type: "boolean"
-    description: "True if adjusted p-value < 0.05"
+    description: "True if adjusted p-value < 0.001"
   effect_size_rho:
     type: "number"
     description: "Spearman's rho (primary effect size)"
@@ -44,7 +44,7 @@ properties:
     description: "95% CI upper bound for log-data (secondary)"
   status_label:
     type: "string"
-    description: "Human-readable status label (e.g., 'Non-significant (adjusted p ≥ 0.05)')"
+    description: "Human‑readable status label (e.g., 'Non‑significant (adjusted p ≥ 0.001)')"
 required:
   - trait
   - genre

@@ -17,10 +17,10 @@ properties:
     description: "Raw p-value from the correlation test."
   adjusted_p_value:
     type: "number"
-    description: "Benjamini-Hochberg FDR corrected p-value."
+    description: "Bonferroni corrected p-value."
   is_significant:
     type: "boolean"
-    description: "True if adjusted_p_value < 0.05."
+    description: "True if adjusted_p_value < 0.001."
   effect_size_rho:
     type: "number"
     description: "Spearman's rho (primary effect size)."
@@ -44,7 +44,7 @@ properties:
     description: "Upper bound of 95% CI for log-data (secondary)."
   effect_size_threshold_met:
     type: "boolean"
-    description: "True if |effect_size_rho| > 0.3, as per SC-001."
+    description: "True if |effect_size_rho| > 0.3, as per SC‑001."
   beta_baseline:
     type: "number"
     description: "Beta coefficient from baseline model (Trait only)."
