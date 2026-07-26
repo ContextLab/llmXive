@@ -1,115 +1,52 @@
 """
-Base generator logic for synthetic spin network datasets.
-
-This module provides the abstract base class and shared utilities for all
-topology generators (Erdős-Rényi, Watts-Strogatz, Barabási-Albert).
-It handles connectivity verification, retry limits, and timeout enforcement.
+Base generator logic for network topology generation.
+Implements shared connectivity checks, retry logic, and timeout handling.
 """
-
 import logging
 import time
+import signal
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple, TypeVar, Generic, List
-
 import networkx as nx
 import numpy as np
 
-from code.src.generators.timeout import timeout, TimeoutError
-from code.src.utils.logging import log_metric
-from code.src.utils.config import get_config_value
+from code.src.generators.timeout import TimeoutHandler, TimeoutError
+from code.src.utils.logging import log_run
 
 logger = logging.getLogger(__name__)
 
-# Type variable for graph types
-GraphT = TypeVar('GraphT', bound=nx.Graph)
+T = TypeVar('T')
 
-
-class BaseGenerator(ABC, Generic[GraphT]):
+class BaseGenerator(ABC, Generic[T]):
     """
-    Abstract base class for network topology generators.
-
-    Provides shared logic for:
-    - Connectivity verification
-    - Retry limits for generation failures
-    - Timeout enforcement
-    - Metric tracking and logging
+    Abstract base class for network graph generators.
+    Enforces connectivity verification and retry logic.
     """
 
-    def __init__(
-        self,
-        topology_class: str,
-        config: Optional[Dict[str, Any]] = None,
-        max_retries: Optional[int] = None,
-        timeout_seconds: Optional[float] = None
-    ):
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.timeout_handler = TimeoutHandler(config)
+        self.max_retries = config.get('max_retries', 10)
+        self.retry_delay = config.get('retry_delay', 0.1)
+        self.seed = config.get('seed', 42)
+        np.random.seed(self.seed)
+
+    def _log_event(self, event_type: str, details: Optional[Dict] = None):
+        """Helper to log events to run_log.json"""
+        log_run(event_type, details=details)
+
+    def _generate_candidate(self) -> Optional[nx.Graph]:
         """
-        Initialize the base generator.
-
-        Args:
-            topology_class: Name of the topology class (e.g., 'ErdosRenyi')
-            config: Configuration dictionary (optional, loads defaults if None)
-            max_retries: Maximum number of retry attempts for failed generation.
-                        If None, uses value from config or default (10).
-            timeout_seconds: Timeout in seconds for single generation attempt.
-                            If None, uses value from config or default (30.0).
-        """
-        self.topology_class = topology_class
-        self.config = config or {}
-
-        # Load retry limit from config or use default
-        if max_retries is not None:
-            self.max_retries = max_retries
-        else:
-            self.max_retries = get_config_value(
-                self.config,
-                'generators.max_retries',
-                default=10
-            )
-
-        # Load timeout from config or use default
-        if timeout_seconds is not None:
-            self.timeout_seconds = timeout_seconds
-        else:
-            self.timeout_seconds = get_config_value(
-                self.config,
-                'generators.timeout_seconds',
-                default=30.0
-            )
-
-        logger.info(f"Initialized {topology_class} generator with "
-                   f"max_retries={self.max_retries}, timeout={self.timeout_seconds}s")
-
-    @abstractmethod
-    def _generate_single(self, **kwargs) -> GraphT:
-        """
-        Abstract method to generate a single graph.
+        Generate a single candidate graph.
         Must be implemented by subclasses.
-
-        Args:
-            **kwargs: Generator-specific parameters (n, p, k, etc.)
-
-        Returns:
-            A networkx Graph instance
+        Returns None if generation fails immediately.
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
-    def _validate_params(self, **kwargs) -> None:
+    def _verify_connectivity(self, graph: nx.Graph) -> bool:
         """
-        Abstract method to validate generator-specific parameters.
-        Must be implemented by subclasses.
-        """
-        pass
-
-    def _check_connectivity(self, graph: GraphT) -> bool:
-        """
-        Check if the graph is connected.
-
-        Args:
-            graph: Networkx graph to check
-
-        Returns:
-            True if connected, False otherwise
+        Verify if the graph is connected.
+        Returns True if connected, False otherwise.
         """
         if graph.number_of_nodes() == 0:
             return False
@@ -117,123 +54,83 @@ class BaseGenerator(ABC, Generic[GraphT]):
             return True
         return nx.is_connected(graph)
 
-    def _log_failure(self, attempt: int, error: str) -> None:
+    def generate(self) -> Optional[Tuple[nx.Graph, Dict[str, Any]]]:
         """
-        Log a generation failure attempt.
-
-        Args:
-            attempt: Current attempt number
-            error: Description of the error
+        Generate a connected graph with retry logic.
+        Returns (graph, metrics) tuple if successful, None if all retries exhausted.
         """
-        logger.warning(
-            f"Generation attempt {attempt}/{self.max_retries} failed for "
-            f"{self.topology_class}: {error}"
-        )
-        log_metric(
-            "generation_failure",
-            {
-                "topology_class": self.topology_class,
-                "attempt": attempt,
-                "max_retries": self.max_retries,
-                "error": error
-            }
-        )
-
-    def generate(self, **kwargs) -> Tuple[GraphT, Dict[str, Any]]:
-        """
-        Generate a connected graph with retry logic and timeout enforcement.
-
-        This method:
-        1. Validates input parameters
-        2. Attempts generation with timeout enforcement
-        3. Checks connectivity
-        4. Retries up to max_retries on failure
-        5. Logs all attempts and final result
-
-        Args:
-            **kwargs: Generator-specific parameters
-
-        Returns:
-            Tuple of (generated_graph, metadata_dict)
-
-        Raises:
-            RuntimeError: If generation fails after all retries
-            ValueError: If parameters are invalid
-        """
-        self._validate_params(**kwargs)
-
-        last_error = None
         start_time = time.time()
+        attempt = 0
+        last_error = None
 
-        for attempt in range(1, self.max_retries + 1):
+        while attempt < self.max_retries:
+            attempt += 1
             try:
-                # Enforce timeout on generation attempt
-                graph = timeout(
-                    self._generate_single,
-                    timeout_seconds=self.timeout_seconds
-                )(**kwargs)
+                # Apply timeout if configured
+                with self.timeout_handler.timeout_context():
+                    candidate = self._generate_candidate()
 
-                # Verify connectivity
-                if not self._check_connectivity(graph):
-                    raise RuntimeError(
-                        f"Generated graph is not connected (nodes={graph.number_of_nodes()}, "
-                        f"edges={graph.number_of_edges()})"
-                    )
+                    if candidate is None:
+                        logger.warning(f"Attempt {attempt}: Graph generation returned None")
+                        last_error = "Generation returned None"
+                        continue
 
-                # Success!
-                elapsed = time.time() - start_time
-                metadata = {
-                    "topology_class": self.topology_class,
-                    "nodes": graph.number_of_nodes(),
-                    "edges": graph.number_of_edges(),
-                    "is_connected": True,
-                    "attempt_count": attempt,
-                    "elapsed_time_seconds": elapsed,
-                    "parameters": kwargs.copy()
-                }
+                    # Verify connectivity
+                    if not self._verify_connectivity(candidate):
+                        logger.debug(f"Attempt {attempt}: Graph disconnected, retrying...")
+                        last_error = "Disconnected graph"
+                        continue
 
-                logger.info(
-                    f"Successfully generated {self.topology_class} graph "
-                    f"on attempt {attempt} in {elapsed:.2f}s"
-                )
-                log_metric("generation_success", metadata)
+                    # Success
+                    duration = time.time() - start_time
+                    metrics = {
+                        'attempt': attempt,
+                        'duration_seconds': duration,
+                        'nodes': candidate.number_of_nodes(),
+                        'edges': candidate.number_of_edges(),
+                        'is_connected': True
+                    }
+                    self._log_event('graph_generated', {
+                        'status': 'success',
+                        'attempt': attempt,
+                        'metrics': metrics
+                    })
+                    return candidate, metrics
 
-                return graph, metadata
-
-            except TimeoutError as e:
-                last_error = f"Timeout after {self.timeout_seconds}s: {str(e)}"
-                self._log_failure(attempt, last_error)
-
+            except TimeoutError as te:
+                logger.warning(f"Attempt {attempt}: Timeout occurred - {te}")
+                last_error = str(te)
+                continue
             except Exception as e:
+                logger.warning(f"Attempt {attempt}: Generation failed - {e}")
                 last_error = str(e)
-                self._log_failure(attempt, last_error)
+                continue
+
+            # Brief delay before retry
+            if attempt < self.max_retries:
+                time.sleep(self.retry_delay)
 
         # All retries exhausted
-        elapsed = time.time() - start_time
-        error_msg = (
-            f"Failed to generate connected {self.topology_class} graph after "
-            f"{self.max_retries} attempts in {elapsed:.2f}s. Last error: {last_error}"
+        duration = time.time() - start_time
+        logger.warning(
+            f"Max retries ({self.max_retries}) exceeded. "
+            f"Last error: {last_error}. Proceeding to next graph."
         )
+        self._log_event('divergence_detected', {
+            'status': 'failed',
+            'max_retries': self.max_retries,
+            'total_duration_seconds': duration,
+            'last_error': last_error,
+            'reason': 'DISCONNECTED_NETWORK_FAILURE'
+        })
+        return None
 
-        logger.error(error_msg)
-        log_metric(
-            "generation_failed",
-            {
-                "topology_class": self.topology_class,
-                "attempts": self.max_retries,
-                "total_time_seconds": elapsed,
-                "final_error": last_error
-            }
-        )
+    @abstractmethod
+    def get_generator_name(self) -> str:
+        """Return the name of the generator algorithm."""
+        pass
 
-        raise RuntimeError(error_msg)
-
-    def get_default_params(self) -> Dict[str, Any]:
-        """
-        Return default parameters for this generator.
-        Should be overridden by subclasses.
-
-        Returns:
-            Dictionary of default parameters
-        """
-        return {}
+    @abstractmethod
+    def get_parameters(self) -> Dict[str, Any]:
+        """Return the parameters used for this generation."""
+        pass

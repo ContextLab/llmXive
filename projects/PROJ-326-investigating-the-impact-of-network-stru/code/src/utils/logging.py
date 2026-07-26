@@ -1,178 +1,172 @@
-"""
-Logging infrastructure for the llmXive automated science pipeline.
-
-Captures seeds, parameters, and runtime metrics, writing to data/run_log.json.
-This module provides a structured logging interface that appends run metadata
-to a persistent JSON log file.
-"""
 import json
+import logging
 import os
-import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-# Project root relative to this file (code/src/utils/ -> ../.. -> project root)
-# Assuming standard layout: project_root/code/src/utils/logging.py
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_DATA_DIR = _PROJECT_ROOT / "data"
-_LOG_FILE_PATH = _DATA_DIR / "run_log.json"
+LOG_FILE_PATH = Path("data/run_log.json")
 
-# Ensure data directory exists
-_DATA_DIR.mkdir(parents=True, exist_ok=True)
+def _ensure_log_file():
+    """
+    Ensures data/run_log.json exists and is a valid JSON array.
+    Creates it if missing or invalid.
+    """
+    if not LOG_FILE_PATH.parent.exists():
+        LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    if not LOG_FILE_PATH.exists():
+        LOG_FILE_PATH.write_text("[]")
+        return
 
-
-def _load_existing_log() -> List[Dict[str, Any]]:
-    """Load existing log entries from disk, or return empty list if file doesn't exist."""
-    if not _LOG_FILE_PATH.exists():
-        return []
     try:
-        with open(_LOG_FILE_PATH, "r", encoding="utf-8") as f:
+        with open(LOG_FILE_PATH, "r") as f:
             content = f.read().strip()
             if not content:
-                return []
-            data = json.loads(content)
-            if isinstance(data, list):
-                return data
-            # Handle case where file might contain a single object (legacy or error)
-            return [data] if isinstance(data, dict) else []
-    except (json.JSONDecodeError, IOError):
-        return []
+                LOG_FILE_PATH.write_text("[]")
+            else:
+                # Try to parse to ensure it's valid JSON
+                data = json.loads(content)
+                if not isinstance(data, list):
+                    # If it's not a list, reset to empty list
+                    LOG_FILE_PATH.write_text("[]")
+    except json.JSONDecodeError:
+        # If corrupted, reset to empty list
+        LOG_FILE_PATH.write_text("[]")
 
-
-def _save_log(entries: List[Dict[str, Any]]) -> None:
-    """Save log entries to disk with atomic write pattern (write to temp, then rename)."""
-    temp_path = _LOG_FILE_PATH.with_suffix(".tmp")
-    with open(temp_path, "w", encoding="utf-8") as f:
-        json.dump(entries, f, indent=2, default=str)
-    os.replace(temp_path, _LOG_FILE_PATH)
-
-
-def log_run(
-    seed: Optional[int] = None,
-    parameters: Optional[Dict[str, Any]] = None,
-    metrics: Optional[Dict[str, Any]] = None,
-    run_id: Optional[str] = None,
-    extra: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+def _save_log(entries: List[Dict[str, Any]]):
     """
-    Log a run's metadata to data/run_log.json.
-    
-    Args:
-        seed: Random seed used for the run.
-        parameters: Dictionary of configuration parameters used.
-        metrics: Dictionary of runtime metrics (e.g., duration, memory).
-        run_id: Unique identifier for the run. If None, generated automatically.
-        extra: Additional metadata to include.
-    
-    Returns:
-        The log entry that was written.
+    Saves the list of log entries to disk.
     """
-    timestamp = datetime.utcnow().isoformat() + "Z"
-    
-    # Generate run_id if not provided
-    if run_id is None:
-        run_id = f"run_{timestamp.replace(':', '-').replace('.', '_')}"
-    
-    entry = {
-        "timestamp": timestamp,
-        "run_id": run_id,
-        "seed": seed,
-        "parameters": parameters or {},
-        "metrics": metrics or {},
-    }
-    
-    if extra:
-        entry["extra"] = extra
-    
-    # Load existing, append, save
-    entries = _load_existing_log()
-    entries.append(entry)
-    _save_log(entries)
-    
-    return entry
+    _ensure_log_file()
+    with open(LOG_FILE_PATH, "w") as f:
+        json.dump(entries, f, indent=2)
 
-
-def log_metric(
-    metric_name: str,
-    value: Union[int, float, str],
-    run_id: Optional[str] = None,
-    seed: Optional[int] = None,
-    parameters: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+def load_log() -> List[Dict[str, Any]]:
     """
-    Log a single metric, optionally creating a new run entry if run_id is provided.
-    
-    If run_id is None, this function will append the metric to the most recent
-    run entry (or create a new one if none exist).
-    
-    Args:
-        metric_name: Name of the metric.
-        value: Value of the metric.
-        run_id: Optional run ID to associate the metric with.
-        seed: Optional seed for the run.
-        parameters: Optional parameters for the run.
-    
-    Returns:
-        The updated run entry.
+    Loads the existing log entries.
     """
-    entries = _load_existing_log()
-    
-    # Find the target entry
-    target_idx = None
-    if run_id:
-        for i, entry in enumerate(entries):
-            if entry.get("run_id") == run_id:
-                target_idx = i
-                break
-        if target_idx is None:
-            # Create new entry
-            target_idx = len(entries)
-            new_entry = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "run_id": run_id,
-                "seed": seed,
-                "parameters": parameters or {},
-                "metrics": {},
-            }
-            entries.append(new_entry)
-    else:
-        # Append to last entry or create new
-        if entries:
-            target_idx = len(entries) - 1
-        else:
-            target_idx = len(entries)
-            new_entry = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "run_id": f"run_{datetime.utcnow().isoformat().replace(':', '-').replace('.', '_')}",
-                "seed": seed,
-                "parameters": parameters or {},
-                "metrics": {},
-            }
-            entries.append(new_entry)
-    
-    # Update metrics
-    entries[target_idx]["metrics"][metric_name] = value
-    
-    _save_log(entries)
-    return entries[target_idx]
-
+    _ensure_log_file()
+    with open(LOG_FILE_PATH, "r") as f:
+        return json.load(f)
 
 def get_run_log() -> List[Dict[str, Any]]:
     """
-    Retrieve the entire run log.
-    
-    Returns:
-        List of all log entries.
+    Alias for load_log for compatibility.
     """
-    return _load_existing_log()
+    return load_log()
 
-
-def clear_run_log() -> None:
+def log_run(
+    event_type: str,
+    run_id: Optional[str] = None,
+    seed: Optional[int] = None,
+    message: Optional[str] = None,
+    duration_ms: Optional[float] = None,
+    status: str = "SUCCESS",
+    **kwargs
+) -> Dict[str, Any]:
     """
-    Clear the run log file.
+    Logs a run event to data/run_log.json.
+    Schema: { timestamp, event_type, run_id, seed, duration_ms, status, ... }
+    """
+    entries = load_log()
     
-    WARNING: This deletes all historical run data.
+    entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "event_type": event_type,
+        "run_id": run_id or f"run_{int(time.time())}",
+        "seed": seed,
+        "status": status,
+        "message": message
+    }
+    
+    if duration_ms is not None:
+        entry["duration_ms"] = duration_ms
+    
+    # Add any extra kwargs
+    entry.update(kwargs)
+    
+    entries.append(entry)
+    _save_log(entries)
+    
+    logging.info(f"Logged event: {event_type} - {message}")
+    return entry
+
+def log_metric(
+    metric_name: str,
+    value: Any,
+    run_id: Optional[str] = None,
+    seed: Optional[int] = None
+) -> Dict[str, Any]:
     """
-    if _LOG_FILE_PATH.exists():
-        _LOG_FILE_PATH.unlink()
+    Logs a specific metric value.
+    """
+    return log_run(
+        event_type="metric",
+        run_id=run_id,
+        seed=seed,
+        message=f"Metric: {metric_name}",
+        metric_name=metric_name,
+        metric_value=value
+    )
+
+def log_graph_generated(graph_id: str, topology: str, seed: int, run_id: Optional[str] = None):
+    """
+    Specific helper for T005 graph generated event.
+    """
+    return log_run(
+        event_type="graph_generated",
+        run_id=run_id,
+        seed=seed,
+        message=f"Graph {graph_id} generated",
+        graph_id=graph_id,
+        topology=topology
+    )
+
+def log_simulation_start(run_id: str, seed: int):
+    """
+    Specific helper for T005 simulation start event.
+    """
+    return log_run(
+        event_type="simulation_start",
+        run_id=run_id,
+        seed=seed,
+        message="Simulation started"
+    )
+
+def log_simulation_end(run_id: str, duration_ms: float, status: str = "SUCCESS"):
+    """
+    Specific helper for T005 simulation end event.
+    """
+    return log_run(
+        event_type="simulation_end",
+        run_id=run_id,
+        duration_ms=duration_ms,
+        status=status,
+        message="Simulation ended"
+    )
+
+def log_divergence_detected(run_id: str, seed: int):
+    """
+    Specific helper for T005 divergence detected event.
+    """
+    return log_run(
+        event_type="divergence_detected",
+        run_id=run_id,
+        seed=seed,
+        status="WARNING",
+        message="Simulation divergence detected"
+    )
+
+def log_timeout_reached(run_id: str, seed: int):
+    """
+    Specific helper for T005 timeout reached event.
+    """
+    return log_run(
+        event_type="timeout_reached",
+        run_id=run_id,
+        seed=seed,
+        status="FAILURE",
+        message="Simulation timeout reached"
+    )

@@ -12,19 +12,32 @@ topology_targets:
   barabasi_albert:
     n_nodes: 100
     m_edges: 2
-    
+
 simulation_params:
   steps: 100
   temperature: 1.0
   initial_energy: 1.0
   transient_steps: 10
-  
+
 analysis:
   sensitivity_thresholds: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
   regression_alpha: 1.0
   power_target: 0.8
   significance_level: 0.05
+
 output:
   base_dir: data
   figures_dir: paper
   analysis_dir: data/analysis
+
+# Stratification configuration for FR-001 and SC-005
+# Defines bins for clustering coefficient stratification
+stratification_params:
+  bins: [0.1, 0.2, 0.3, 0.4, 0.5]
+  target_counts:
+    0.1: 20
+    0.2: 20
+    0.3: 20
+    0.4: 20
+    0.5: 20
+  tolerance: 0.05

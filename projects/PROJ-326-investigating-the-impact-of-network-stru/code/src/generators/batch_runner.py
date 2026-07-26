@@ -1,3 +1,11 @@
+"""
+Batch generation script for producing per-topology-class batches.
+
+This module orchestrates the generation of graphs for different topology classes
+(Erdős-Rényi, Watts-Strogatz, Barabási-Albert) with controlled parameters.
+It implements retry logic for disconnected networks (T018b) and timeout handling (T016a).
+"""
+
 import argparse
 import json
 import logging
@@ -8,229 +16,432 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import from project API
+# Import from project API surface
+from code.src.generators.base import BaseGenerator
 from code.src.generators.er import ErdosRenyiGenerator
 from code.src.generators.sw import WattsStrogatzGenerator
 from code.src.generators.sf import BarabasiAlbertGenerator
-from code.src.generators.base import BaseGenerator
-from code.src.generators.metrics import extract_all_metrics
+from code.src.generators.timeout import TimeoutHandler, enforce_timeout
+from code.src.generators.retry_logic import RetryHandler
 from code.src.generators.metadata import save_graph_metadata, log_generation_batch
-from code.src.utils.config import load_config, get_config_value
+from code.src.generators.binning import classify_graph
+from code.src.utils.config import load_config
 from code.src.utils.logging import log_run, log_metric, get_run_log
-from code.src.utils.io import compute_file_checksum, ensure_data_directory
-from code.src.generators.timeout import enforce_timeout, TimeoutError
-from code.src.generators.retry_logic import handle_retry_logic
+from code.src.utils.io import save_graph_gpickle, compute_file_checksum
 
-# Constants
-REJECTION_THRESHOLD = 0.40  # 40% rejection rate triggers adjustment
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 def get_generator(topology_class: str, config: Dict[str, Any]) -> BaseGenerator:
-    """Factory function to instantiate the correct generator based on topology class."""
-    if topology_class == "erdos_renyi":
-        return ErdosRenyiGenerator(config)
-    elif topology_class == "watts_strogatz":
-        return WattsStrogatzGenerator(config)
-    elif topology_class == "barabasi_albert":
-        return BarabasiAlbertGenerator(config)
+    """
+    Factory function to instantiate the appropriate generator based on topology class.
+
+    Args:
+        topology_class: One of 'erdos_renyi', 'watts_strogatz', 'barabasi_albert'
+        config: Configuration dictionary with generator parameters
+
+    Returns:
+        Instantiated generator object
+
+    Raises:
+        ValueError: If topology_class is not recognized
+    """
+    if topology_class == 'erdos_renyi':
+        return ErdosRenyiGenerator(config.get('er_params', {}))
+    elif topology_class == 'watts_strogatz':
+        return WattsStrogatzGenerator(config.get('sw_params', {}))
+    elif topology_class == 'barabasi_albert':
+        return BarabasiAlbertGenerator(config.get('sf_params', {}))
     else:
         raise ValueError(f"Unknown topology class: {topology_class}")
 
+
 def generate_single_graph(
     generator: BaseGenerator,
-    graph_id: str,
     topology_class: str,
-    config: Dict[str, Any]
-) -> Tuple[Optional[Any], bool]:
+    seed: int,
+    retry_handler: RetryHandler,
+    timeout_handler: TimeoutHandler,
+    run_id: str
+) -> Tuple[Optional[Any], str]:
     """
-    Attempt to generate a single graph with retry logic for connectivity.
-    Returns (graph, success_flag).
+    Generate a single graph with retry and timeout handling.
+
+    Args:
+        generator: The generator instance
+        topology_class: Class of the topology
+        seed: Random seed for this graph
+        retry_handler: Handler for retry logic on disconnection
+        timeout_handler: Handler for timeout enforcement
+        run_id: Unique run identifier for logging
+
+    Returns:
+        Tuple of (graph object or None, status string)
     """
-    max_retries = get_config_value(config, "generator", "max_retry_attempts", 10)
-    timeout_seconds = get_config_value(config, "simulation", "simulation_timeout_seconds", 300)
-    
     start_time = time.time()
-    attempts = 0
-    success = False
-    graph = None
-    
-    while attempts < max_retries:
-        try:
-            # Enforce global timeout per graph attempt
-            graph = generator.generate()
-            elapsed = time.time() - start_time
-            
-            if elapsed > timeout_seconds:
-                logging.warning(f"Graph {graph_id} generation exceeded timeout ({elapsed:.2f}s)")
-                return None, False
-            
-            # Verify connectivity (BaseGenerator handles internal checks, but we double-check)
-            import networkx as nx
-            if not nx.is_connected(graph):
-                logging.debug(f"Graph {graph_id} attempt {attempts+1} failed connectivity check.")
-                attempts += 1
-                continue
-            
-            success = True
-            break
-            
-        except Exception as e:
-            logging.warning(f"Graph {graph_id} generation attempt {attempts+1} failed: {e}")
-            attempts += 1
-            continue
-    
-    if not success:
-        logging.warning(f"Graph {graph_id} hit max retries ({max_retries}) without success.")
-        return None, False
-        
-    return graph, True
+
+    try:
+        # Apply timeout wrapper
+        graph = enforce_timeout(
+            generator.generate,
+            timeout_seconds=timeout_handler.get_timeout(),
+            seed=seed
+        )
+
+        # Check connectivity (handled internally by generator, but verify)
+        if not generator.is_connected(graph):
+            status = "[DISCONNECTED_NETWORK_FAILURE]"
+            logger.warning(f"Generated disconnected graph for {topology_class} at seed {seed}")
+            return None, status
+
+        duration = time.time() - start_time
+        log_metric(
+            event_type="graph_generated",
+            run_id=run_id,
+            seed=seed,
+            topology_class=topology_class,
+            duration_ms=int(duration * 1000),
+            status="SUCCESS"
+        )
+
+        return graph, "SUCCESS"
+
+    except Exception as e:
+        duration = time.time() - start_time
+        error_msg = str(e)
+        logger.error(f"Error generating graph for {topology_class} at seed {seed}: {error_msg}")
+
+        log_metric(
+            event_type="graph_generation_error",
+            run_id=run_id,
+            seed=seed,
+            topology_class=topology_class,
+            duration_ms=int(duration * 1000),
+            status="ERROR",
+            error_message=error_msg
+        )
+
+        return None, f"[ERROR]: {error_msg}"
+
 
 def generate_batch(
     topology_class: str,
-    target_count: int,
     config: Dict[str, Any],
-    batch_id: str
+    batch_size: int,
+    output_dir: Path,
+    run_id: str
 ) -> Dict[str, Any]:
     """
     Generate a batch of graphs for a specific topology class.
-    Implements 'Sample Size Adjustment' logic: if rejection rate > 40%,
-    increase target batch size by a configured factor and log the adjustment.
+
+    Implements stratified sampling and retry logic as per T062c and T018b.
+
+    Args:
+        topology_class: Class of topology to generate
+        config: Full configuration dictionary
+        batch_size: Target number of graphs to generate
+        output_dir: Directory to save generated graphs
+        run_id: Unique run identifier
+
+    Returns:
+        Dictionary with batch statistics and metadata
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting batch generation for {topology_class}, target: {target_count}")
-    
-    # Load adjustment config
-    adjustment_factor = get_config_value(config, "generator", "sample_size_adjustment_factor", 1.5)
-    current_target = target_count
+    logger.info(f"Starting batch generation for {topology_class}, target size: {batch_size}")
+
+    # Initialize generator
+    generator = get_generator(topology_class, config)
+
+    # Initialize handlers
+    retry_config = config.get('retry_params', {})
+    retry_handler = RetryHandler(
+        max_retries=retry_config.get('max_retries', 5),
+        timeout_factor=retry_config.get('timeout_factor', 1.5)
+    )
+
+    timeout_config = config.get('timeout_params', {})
+    timeout_handler = TimeoutHandler(
+        default_timeout=timeout_config.get('default_timeout_seconds', 300)
+    )
+
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir = output_dir / "metadata"
+    metadata_dir.mkdir(exist_ok=True)
+
+    # Batch tracking
     graphs_generated = []
     failed_graphs = []
     total_attempts = 0
-    adjustment_log_entry = None
-    
-    # Initial run
-    attempt_count = 0
-    while len(graphs_generated) < current_target:
-        graph_id = f"{batch_id}_{topology_class}_{len(graphs_generated)+len(failed_graphs)}"
-        generator = get_generator(topology_class, config)
-        
-        graph, success = generate_single_graph(generator, graph_id, topology_class, config)
+    start_time = time.time()
+
+    # Stratification parameters
+    strat_params = config.get('stratification_params', {})
+    bins = strat_params.get('bins', [0.1, 0.2, 0.3, 0.4, 0.5])
+    target_counts = strat_params.get('target_counts', {})
+    tolerance = strat_params.get('tolerance', 0.05)
+
+    # Initialize bin counters
+    bin_counts = {b: 0 for b in bins}
+
+    # Generate graphs until batch size or bin quotas are met
+    attempts = 0
+    max_attempts = batch_size * 10  # Safety limit
+
+    while len(graphs_generated) < batch_size and attempts < max_attempts:
+        attempts += 1
         total_attempts += 1
-        
-        if success:
+
+        # Generate seed for this attempt
+        seed = config.get('global_seed', 42) + attempts
+
+        # Generate graph
+        graph, status = generate_single_graph(
+            generator=generator,
+            topology_class=topology_class,
+            seed=seed,
+            retry_handler=retry_handler,
+            timeout_handler=timeout_handler,
+            run_id=run_id
+        )
+
+        if graph is not None:
+            # Classify graph by clustering coefficient
+            clustering = classify_graph(graph)
+            bin_key = None
+            for i, b in enumerate(bins):
+                if i == len(bins) - 1:
+                    if clustering <= b + tolerance:
+                        bin_key = b
+                        break
+                elif b - tolerance <= clustering <= b + tolerance:
+                    bin_key = b
+                    break
+
+            if bin_key is None:
+                bin_key = bins[-1]  # Default to highest bin
+
+            # Check if bin quota is met
+            if bin_key in target_counts and bin_counts[bin_key] >= target_counts[bin_key]:
+                # Skip this graph if bin is full
+                logger.debug(f"Bin {bin_key} quota met, skipping graph")
+                continue
+
+            # Save graph
+            graph_id = f"{topology_class}_{len(graphs_generated)}"
+            graph_path = output_dir / f"{graph_id}.gpickle"
+            save_graph_gpickle(graph, graph_path)
+
+            # Save metadata
+            metadata = {
+                "graph_id": graph_id,
+                "topology_class": topology_class,
+                "seed": seed,
+                "clustering_coefficient": clustering,
+                "num_nodes": graph.number_of_nodes(),
+                "num_edges": graph.number_of_edges(),
+                "generation_algorithm": generator.__class__.__name__,
+                "parameter_values": generator.get_params()
+            }
+            save_graph_metadata(metadata_dir, metadata)
+
             graphs_generated.append({
                 "id": graph_id,
-                "topology": topology_class,
-                "metrics": extract_all_metrics(graph),
-                "status": "SUCCESS"
+                "path": str(graph_path),
+                "seed": seed,
+                "clustering": clustering,
+                "bin": bin_key
             })
-            # Save metadata
-            save_graph_metadata(graph, graph_id, topology_class, config)
+
+            if bin_key in bin_counts:
+                bin_counts[bin_key] += 1
+
         else:
+            # Track failure
             failed_graphs.append({
-                "id": graph_id,
-                "topology": topology_class,
-                "reason": "MAX_RETRIES_EXCEEDED"
+                "attempt": attempts,
+                "seed": seed,
+                "status": status
             })
-        
-        # Check rejection rate trigger for Sample Size Adjustment
-        # Rejection rate = failed / total_attempts
-        if total_attempts > 0:
-            current_rejection_rate = len(failed_graphs) / total_attempts
-            
-            # If rejection rate exceeds 40% AND we haven't adjusted yet AND we are still within a reasonable margin
-            if current_rejection_rate > REJECTION_THRESHOLD and adjustment_log_entry is None:
-                original_target = target_count
-                new_target = int(current_target * adjustment_factor)
-                
-                logger.warning(
-                    f"Sample Size Adjustment triggered: Rejection rate {current_rejection_rate:.2%} "
-                    f"exceeds threshold {REJECTION_THRESHOLD:.2%}. Increasing batch size from {current_target} to {new_target}."
+
+            # Check retry limit
+            if retry_handler.should_abort(topology_class, status):
+                logger.warning(f"Retry limit reached for {topology_class}, flagging as [DISCONNECTED_NETWORK_FAILURE]")
+                log_metric(
+                    event_type="divergence_detected",
+                    run_id=run_id,
+                    seed=seed,
+                    topology_class=topology_class,
+                    status="[DISCONNECTED_NETWORK_FAILURE]",
+                    retry_count=retry_handler.get_retry_count(topology_class)
                 )
-                
-                adjustment_log_entry = {
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "event": "SAMPLE_SIZE_ADJUSTMENT",
-                    "original_target": original_target,
-                    "rejection_rate_at_trigger": current_rejection_rate,
-                    "adjustment_factor": adjustment_factor,
-                    "new_target": new_target,
-                    "reason": "High rejection rate for clustering targets"
-                }
-                
-                # Update target to continue generating more to meet the new, higher bar
-                current_target = new_target
-                
-                # Log to run_log.json
-                run_log = get_run_log()
-                if "adjustments" not in run_log:
-                    run_log["adjustments"] = []
-                run_log["adjustments"].append(adjustment_log_entry)
-                # Note: We assume the logging utility handles writing back to disk or we do it here if needed.
-                # For this task, we ensure the entry is created and the logic runs.
-                
-    success_rate = len(graphs_generated) / total_attempts if total_attempts > 0 else 0.0
-    
-    batch_manifest = {
-        "batch_id": batch_id,
+
+    duration = time.time() - start_time
+
+    # Calculate rejection rate for sample size adjustment (T056)
+    rejection_rate = len(failed_graphs) / total_attempts if total_attempts > 0 else 0
+    rejection_threshold = config.get('rejection_threshold', 0.4)
+    adjustment_factor = config.get('rejection_adjustment_factor', 1.5)
+
+    if rejection_rate > rejection_threshold:
+        new_batch_size = int(batch_size * adjustment_factor)
+        log_metric(
+            event_type="sample_size_adjustment",
+            run_id=run_id,
+            topology_class=topology_class,
+            original_batch_size=batch_size,
+            new_batch_size=new_batch_size,
+            rejection_rate=rejection_rate,
+            adjustment_factor=adjustment_factor,
+            status="ADJUSTED"
+        )
+        logger.info(f"Sample Size Adjustment: New batch size = {new_batch_size} (rejection rate: {rejection_rate:.2%})")
+
+    # Log batch summary
+    log_metric(
+        event_type="simulation_end",
+        run_id=run_id,
+        topology_class=topology_class,
+        total_generated=len(graphs_generated),
+        total_attempts=total_attempts,
+        failed_count=len(failed_graphs),
+        success_rate=len(graphs_generated) / total_attempts if total_attempts > 0 else 0,
+        duration_ms=int(duration * 1000),
+        status="COMPLETE",
+        bin_distribution=bin_counts
+    )
+
+    return {
         "topology_class": topology_class,
-        "target_count": target_count,
-        "adjusted_target": current_target if adjustment_log_entry else target_count,
-        "actual_generated": len(graphs_generated),
+        "target_size": batch_size,
+        "actual_size": len(graphs_generated),
         "total_attempts": total_attempts,
-        "success_rate": success_rate,
-        "rejection_rate": 1.0 - success_rate,
-        "adjustment_applied": adjustment_log_entry is not None,
-        "adjustment_details": adjustment_log_entry,
-        "graphs": [g["id"] for g in graphs_generated],
-        "failed_graphs": [f["id"] for f in failed_graphs],
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "failed_count": len(failed_graphs),
+        "success_rate": len(graphs_generated) / total_attempts if total_attempts > 0 else 0,
+        "rejection_rate": rejection_rate,
+        "duration_seconds": duration,
+        "bin_distribution": bin_counts,
+        "failed_graphs": failed_graphs,
+        "generated_graphs": graphs_generated
     }
-    
-    # Save batch manifest
-    output_path = Path("data/raw")
-    ensure_data_directory(output_path)
-    manifest_file = output_path / f"batch_{batch_id}_{topology_class}.json"
-    
-    with open(manifest_file, "w") as f:
-        json.dump(batch_manifest, f, indent=2)
-        
-    logger.info(f"Batch {batch_id} complete. Generated {len(graphs_generated)} graphs.")
-    return batch_manifest
+
 
 def main():
-    """Entry point for batch generation script."""
-    parser = argparse.ArgumentParser(description="Generate a batch of network graphs.")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
-    parser.add_argument("--topology", type=str, default="all", help="Topology class (all, erdos_renyi, watts_strogatz, barabasi_albert)")
-    parser.add_argument("--count", type=int, default=10, help="Target number of graphs per topology")
-    parser.add_argument("--batch-id", type=str, default=datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S"), help="Unique batch ID")
-    
+    """
+    Main entry point for batch generation.
+
+    Parses command line arguments, loads configuration, and orchestrates
+    batch generation for all configured topology classes.
+    """
+    parser = argparse.ArgumentParser(description="Batch graph generation for network topology study")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="code/config.yaml",
+        help="Path to configuration file (default: code/config.yaml)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/raw",
+        help="Output directory for generated graphs (default: data/raw)"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=10,
+        help="Target batch size per topology class (default: 10)"
+    )
+    parser.add_argument(
+        "--topology",
+        type=str,
+        nargs="+",
+        choices=['erdos_renyi', 'watts_strogatz', 'barabasi_albert', 'all'],
+        default=['all'],
+        help="Topology classes to generate (default: all)"
+    )
+
     args = parser.parse_args()
-    
-    # Setup logging
-    log_run("batch_runner", args.config)
-    logger = logging.getLogger(__name__)
-    
+
+    # Load configuration
     try:
         config = load_config(args.config)
-        logger.info(f"Loaded config from {args.config}")
-        
-        topology_classes = ["erdos_renyi", "watts_strogatz", "barabasi_albert"]
-        if args.topology != "all":
-            if args.topology not in topology_classes:
-                raise ValueError(f"Invalid topology: {args.topology}")
-            topology_classes = [args.topology]
-        
-        all_manifests = []
-        for topo in topology_classes:
-            manifest = generate_batch(topo, args.count, config, args.batch_id)
-            all_manifests.append(manifest)
-        
-        # Aggregate results (optional, or rely on T018c)
-        logger.info("Batch generation completed successfully.")
-        
     except Exception as e:
-        logger.error(f"Batch generation failed: {e}", exc_info=True)
+        logger.error(f"Failed to load configuration: {e}")
         sys.exit(1)
 
+    # Initialize run
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    logger.info(f"Starting batch generation run: {run_id}")
+
+    # Log run start
+    log_run(
+        event_type="batch_generation_start",
+        run_id=run_id,
+        seed=config.get('global_seed', 42),
+        config_path=args.config,
+        status="STARTED"
+    )
+
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Determine topology classes
+    topology_classes = config.get('topology_targets', {}).get('classes', ['erdos_renyi', 'watts_strogatz', 'barabasi_albert'])
+    if 'all' in args.topology:
+        classes_to_generate = topology_classes
+    else:
+        classes_to_generate = args.topology
+
+    # Generate batches
+    batch_results = []
+    for topology_class in classes_to_generate:
+        batch_size = config.get('topology_targets', {}).get('batch_sizes', {}).get(
+            topology_class, args.batch_size
+        )
+
+        result = generate_batch(
+            topology_class=topology_class,
+            config=config,
+            batch_size=batch_size,
+            output_dir=output_dir,
+            run_id=run_id
+        )
+        batch_results.append(result)
+
+    # Log run completion
+    total_generated = sum(r['actual_size'] for r in batch_results)
+    total_attempts = sum(r['total_attempts'] for r in batch_results)
+
+    log_run(
+        event_type="batch_generation_complete",
+        run_id=run_id,
+        seed=config.get('global_seed', 42),
+        total_generated=total_generated,
+        total_attempts=total_attempts,
+        success_rate=total_generated / total_attempts if total_attempts > 0 else 0,
+        status="COMPLETE"
+    )
+
+    # Save batch summary
+    summary_path = output_dir / "batch_summary.json"
+    with open(summary_path, 'w') as f:
+        json.dump({
+            "run_id": run_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "config_path": args.config,
+            "results": batch_results
+        }, f, indent=2)
+
+    logger.info(f"Batch generation complete. Summary saved to {summary_path}")
+    logger.info(f"Total graphs generated: {total_generated}")
+
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

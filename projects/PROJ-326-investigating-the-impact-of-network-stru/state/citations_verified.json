@@ -1,0 +1,13 @@
+{
+  "plan_validation": [],
+  "spec_validation": [],
+  "summary": {
+    "total_citations": 0,
+    "valid_citations": 0,
+    "invalid_citations": 0,
+    "plan_citations": 0,
+    "spec_citations": 0
+  },
+  "status": "PASS",
+  "message": "No citations found in plan.md or spec.md. Validation passed with zero citations to verify."
+}

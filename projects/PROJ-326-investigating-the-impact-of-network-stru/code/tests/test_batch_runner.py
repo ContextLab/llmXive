@@ -1,152 +1,283 @@
-import pytest
+"""
+Unit tests for batch generation functionality (T018).
+
+Tests verify:
+- Correct generator instantiation for each topology class
+- Retry logic behavior on disconnected networks
+- Batch size adjustment logic
+- Proper logging and metadata generation
+"""
+
 import json
 import os
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 import networkx as nx
-import numpy as np
 
-from code.src.generators.batch_runner import generate_batch, REJECTION_THRESHOLD
-from code.src.utils.config import load_config
+from code.src.generators.batch_runner import (
+    get_generator,
+    generate_single_graph,
+    generate_batch,
+    main
+)
+from code.src.generators.er import ErdosRenyiGenerator
+from code.src.generators.sw import WattsStrogatzGenerator
+from code.src.generators.sf import BarabasiAlbertGenerator
+from code.src.generators.retry_logic import RetryHandler
+from code.src.generators.timeout import TimeoutHandler
 
-@pytest.fixture
-def mock_config(tmp_path):
-    """Create a minimal config file for testing."""
-    config_data = {
-        "global_seed": 42,
-        "topology_targets": {
-            "erdos_renyi": {"n": 10, "p": 0.3},
-            "watts_strogatz": {"n": 10, "k": 4, "p": 0.1},
-            "barabasi_albert": {"n": 10, "m": 2}
-        },
-        "generator": {
-            "max_retry_attempts": 5,
-            "sample_size_adjustment_factor": 1.5
-        },
-        "simulation": {
-            "simulation_timeout_seconds": 300
+
+class TestGetGenerator:
+    """Tests for the get_generator factory function."""
+
+    def test_er_generator_instantiation(self):
+        """Test that Erdős-Rényi generator is correctly instantiated."""
+        config = {'er_params': {'n': 10, 'p': 0.3}}
+        generator = get_generator('erdos_renyi', config)
+        assert isinstance(generator, ErdosRenyiGenerator)
+
+    def test_sw_generator_instantiation(self):
+        """Test that Watts-Strogatz generator is correctly instantiated."""
+        config = {'sw_params': {'n': 10, 'k': 4, 'p': 0.1}}
+        generator = get_generator('watts_strogatz', config)
+        assert isinstance(generator, WattsStrogatzGenerator)
+
+    def test_sf_generator_instantiation(self):
+        """Test that Barabási-Albert generator is correctly instantiated."""
+        config = {'sf_params': {'n': 10, 'm': 2}}
+        generator = get_generator('barabasi_albert', config)
+        assert isinstance(generator, BarabasiAlbertGenerator)
+
+    def test_unknown_topology_raises_error(self):
+        """Test that unknown topology class raises ValueError."""
+        config = {}
+        with pytest.raises(ValueError, match="Unknown topology class"):
+            get_generator('unknown_topology', config)
+
+
+class TestGenerateSingleGraph:
+    """Tests for single graph generation with retry and timeout handling."""
+
+    @pytest.fixture
+    def mock_generator(self):
+        """Create a mock generator that returns a connected graph."""
+        mock = MagicMock()
+        mock.generate.return_value = nx.erdos_renyi_graph(10, 0.3, seed=42)
+        mock.is_connected.return_value = True
+        mock.get_params.return_value = {'n': 10, 'p': 0.3}
+        mock.__class__.__name__ = 'MockGenerator'
+        return mock
+
+    @pytest.fixture
+    def retry_handler(self):
+        return RetryHandler(max_retries=5, timeout_factor=1.5)
+
+    @pytest.fixture
+    def timeout_handler(self):
+        return TimeoutHandler(default_timeout=300)
+
+    def test_successful_generation(self, mock_generator, retry_handler, timeout_handler):
+        """Test that a graph is successfully generated."""
+        graph, status = generate_single_graph(
+            generator=mock_generator,
+            topology_class='test',
+            seed=42,
+            retry_handler=retry_handler,
+            timeout_handler=timeout_handler,
+            run_id='test_run'
+        )
+        assert graph is not None
+        assert status == 'SUCCESS'
+        assert graph.number_of_nodes() == 10
+
+    def test_disconnected_graph_handling(self, mock_generator, retry_handler, timeout_handler):
+        """Test that disconnected graphs are handled correctly."""
+        mock_generator.is_connected.return_value = False
+        graph, status = generate_single_graph(
+            generator=mock_generator,
+            topology_class='test',
+            seed=42,
+            retry_handler=retry_handler,
+            timeout_handler=timeout_handler,
+            run_id='test_run'
+        )
+        assert graph is None
+        assert '[DISCONNECTED_NETWORK_FAILURE]' in status
+
+
+class TestGenerateBatch:
+    """Tests for batch generation logic."""
+
+    @pytest.fixture
+    def temp_output_dir(self):
+        """Create a temporary directory for test outputs."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    @pytest.fixture
+    def mock_config(self):
+        """Provide a mock configuration dictionary."""
+        return {
+            'global_seed': 42,
+            'er_params': {'n': 10, 'p': 0.3},
+            'sw_params': {'n': 10, 'k': 4, 'p': 0.1},
+            'sf_params': {'n': 10, 'm': 2},
+            'retry_params': {'max_retries': 3, 'timeout_factor': 1.5},
+            'timeout_params': {'default_timeout_seconds': 300},
+            'stratification_params': {
+                'bins': [0.1, 0.3, 0.5],
+                'target_counts': {},
+                'tolerance': 0.05
+            },
+            'rejection_threshold': 0.4,
+            'rejection_adjustment_factor': 1.5
         }
-    }
-    config_file = tmp_path / "config.yaml"
-    import yaml
-    with open(config_file, "w") as f:
-        yaml.dump(config_data, f)
-    return config_data
 
-@patch('code.src.generators.batch_runner.get_generator')
-@patch('code.src.generators.batch_runner.save_graph_metadata')
-@patch('code.src.generators.batch_runner.extract_all_metrics')
-@patch('code.src.generators.batch_runner.get_run_log')
-@patch('code.src.generators.batch_runner.ensure_data_directory')
-def test_sample_size_adjustment_logic(
-    mock_ensure_dir,
-    mock_get_run_log,
-    mock_extract_metrics,
-    mock_save_meta,
-    mock_get_gen,
-    mock_config,
-    tmp_path
-):
-    """
-    Test that if the rejection rate exceeds 40%, the batch size is increased
-    and an adjustment log entry is created.
-    """
-    # Setup mocks
-    mock_run_log = {"adjustments": []}
-    mock_get_run_log.return_value = mock_run_log
-    mock_extract_metrics.return_value = {"clustering": 0.5, "avg_path": 2.0}
-    
-    # Mock a generator that fails the first 3 times then succeeds
-    # Total attempts: 3 failures + 1 success = 4 attempts.
-    # Rejection rate = 3/4 = 0.75 (> 0.40) -> Should trigger adjustment.
-    # However, we need to simulate the loop logic carefully.
-    # To trigger the adjustment, we need a high failure rate early on.
-    # Let's mock the generator to return None (failure) for N times, then a graph.
-    
-    call_count = 0
-    def mock_gen_factory(*args, **kwargs):
-        gen = MagicMock()
-        def side_effect():
-            nonlocal call_count
-            call_count += 1
-            # Fail first 4 attempts to ensure high rejection rate
-            if call_count <= 4:
-                return None # Will cause retry loop to continue in generate_single_graph
-            else:
-                g = nx.erdos_renyi_graph(10, 0.3)
-                return g
-        gen.generate = side_effect
-        return gen
-    
-    mock_get_gen.side_effect = mock_gen_factory
+    def test_batch_generation_creates_files(self, temp_output_dir, mock_config):
+        """Test that batch generation creates graph files and metadata."""
+        with patch('code.src.generators.batch_runner.get_generator') as mock_get_gen:
+            mock_gen = MagicMock()
+            mock_graph = nx.erdos_renyi_graph(10, 0.3, seed=42)
+            mock_gen.generate.return_value = mock_graph
+            mock_gen.is_connected.return_value = True
+            mock_gen.get_params.return_value = {'n': 10, 'p': 0.3}
+            mock_gen.__class__.__name__ = 'MockGenerator'
+            mock_get_gen.return_value = mock_gen
 
-    # Run batch with target 1
-    # We expect the loop to run until it gets 1 success, but with high failure rate,
-    # the adjustment logic should trigger.
-    # Note: The logic in generate_batch checks rejection rate after every attempt.
-    
-    # We need to patch `generate_single_graph` to simulate the specific failure/success pattern
-    # more directly to ensure the threshold is hit.
-    from code.src.generators import batch_runner
-    
-    original_gen_single = batch_runner.generate_single_graph
-    
-    attempt_log = []
-    def mock_generate_single(generator, graph_id, topology_class, config):
-        nonlocal call_count
-        call_count += 1
-        attempt_log.append(graph_id)
-        
-        # Simulate failure for first 4 attempts, then success
-        if len(attempt_log) <= 4:
-            return None, False
-        else:
-            g = nx.erdos_renyi_graph(10, 0.3)
-            return g, True
+            result = generate_batch(
+                topology_class='erdos_renyi',
+                config=mock_config,
+                batch_size=3,
+                output_dir=temp_output_dir,
+                run_id='test_run'
+            )
 
-    with patch.object(batch_runner, 'generate_single_graph', side_effect=mock_generate_single):
-        with patch.object(batch_runner, 'get_generator', side_effect=mock_gen_factory):
-            # Run with target 1
-            result = generate_batch("erdos_renyi", target_count=1, config=mock_config, batch_id="test_batch")
-    
-    # Verify adjustment was triggered
-    assert result["adjustment_applied"] is True
-    assert "adjustment_details" in result
-    assert result["adjustment_details"]["event"] == "SAMPLE_SIZE_ADJUSTMENT"
-    assert result["adjustment_details"]["rejection_rate_at_trigger"] > REJECTION_THRESHOLD
+            # Verify result structure
+            assert result['topology_class'] == 'erdos_renyi'
+            assert result['actual_size'] == 3
+            assert result['total_attempts'] >= 3
+            assert 'generated_graphs' in result
+            assert 'failed_graphs' in result
 
-@patch('code.src.generators.batch_runner.get_generator')
-@patch('code.src.generators.batch_runner.save_graph_metadata')
-@patch('code.src.generators.batch_runner.extract_all_metrics')
-@patch('code.src.generators.batch_runner.get_run_log')
-@patch('code.src.generators.batch_runner.ensure_data_directory')
-def test_no_adjustment_on_low_rejection(
-    mock_ensure_dir,
-    mock_get_run_log,
-    mock_extract_metrics,
-    mock_save_meta,
-    mock_get_gen,
-    mock_config,
-    tmp_path
-):
-    """
-    Test that if rejection rate is low (< 40%), no adjustment is made.
-    """
-    mock_run_log = {"adjustments": []}
-    mock_get_run_log.return_value = mock_run_log
-    mock_extract_metrics.return_value = {"clustering": 0.5}
-    
-    def mock_gen_factory(*args, **kwargs):
-        gen = MagicMock()
-        g = nx.erdos_renyi_graph(10, 0.3)
-        gen.generate = lambda: g
-        return gen
-    
-    mock_get_gen.side_effect = mock_gen_factory
-    
-    # Run batch
-    result = generate_batch("erdos_renyi", target_count=2, config=mock_config, batch_id="test_batch_2")
-    
-    # Verify no adjustment
-    assert result["adjustment_applied"] is False
-    assert result["rejection_rate"] < REJECTION_THRESHOLD
+            # Verify files were created
+            assert len(list(temp_output_dir.glob('*.gpickle'))) == 3
+            assert len(list((temp_output_dir / 'metadata').glob('*.json'))) == 3
+
+    def test_sample_size_adjustment_logic(self, temp_output_dir, mock_config):
+        """Test that sample size adjustment is triggered when rejection rate is high."""
+        mock_config['rejection_threshold'] = 0.1  # Low threshold to trigger adjustment
+        mock_config['rejection_adjustment_factor'] = 2.0
+
+        with patch('code.src.generators.batch_runner.get_generator') as mock_get_gen:
+            mock_gen = MagicMock()
+            # First attempt fails, second succeeds
+            mock_gen.generate.side_effect = [None, nx.erdos_renyi_graph(10, 0.3, seed=42)]
+            mock_gen.is_connected.return_value = True
+            mock_gen.get_params.return_value = {'n': 10, 'p': 0.3}
+            mock_gen.__class__.__name__ = 'MockGenerator'
+            mock_get_gen.return_value = mock_gen
+
+            with patch('code.src.generators.batch_runner.log_metric') as mock_log:
+                result = generate_batch(
+                    topology_class='erdos_renyi',
+                    config=mock_config,
+                    batch_size=2,
+                    output_dir=temp_output_dir,
+                    run_id='test_run'
+                )
+
+                # Verify adjustment was logged
+                adjustment_logs = [
+                    call for call in mock_log.call_args_list
+                    if 'sample_size_adjustment' in str(call)
+                ]
+                assert len(adjustment_logs) > 0
+
+    def test_stratified_sampling(self, temp_output_dir, mock_config):
+        """Test that stratified sampling respects bin quotas."""
+        mock_config['stratification_params']['target_counts'] = {0.1: 1, 0.3: 1, 0.5: 1}
+
+        with patch('code.src.generators.batch_runner.get_generator') as mock_get_gen:
+            mock_gen = MagicMock()
+            mock_graph = nx.erdos_renyi_graph(10, 0.3, seed=42)
+            mock_gen.generate.return_value = mock_graph
+            mock_gen.is_connected.return_value = True
+            mock_gen.get_params.return_value = {'n': 10, 'p': 0.3}
+            mock_gen.__class__.__name__ = 'MockGenerator'
+            mock_get_gen.return_value = mock_gen
+
+            with patch('code.src.generators.binning.classify_graph', return_value=0.1):
+                result = generate_batch(
+                    topology_class='erdos_renyi',
+                    config=mock_config,
+                    batch_size=3,
+                    output_dir=temp_output_dir,
+                    run_id='test_run'
+                )
+
+                # Verify bin distribution
+                assert result['bin_distribution'][0.1] == 1
+
+
+class TestMain:
+    """Tests for the main entry point."""
+
+    def test_main_with_valid_config(self, temp_dir, mock_config):
+        """Test that main() runs successfully with valid arguments."""
+        # Create a temporary config file
+        config_path = temp_dir / "test_config.yaml"
+        # Note: In a real test, we'd write YAML, but for now we mock load_config
+        with patch('code.src.generators.batch_runner.load_config', return_value=mock_config):
+            with patch('code.src.generators.batch_runner.get_generator') as mock_get_gen:
+                mock_gen = MagicMock()
+                mock_graph = nx.erdos_renyi_graph(10, 0.3, seed=42)
+                mock_gen.generate.return_value = mock_graph
+                mock_gen.is_connected.return_value = True
+                mock_gen.get_params.return_value = {'n': 10, 'p': 0.3}
+                mock_gen.__class__.__name__ = 'MockGenerator'
+                mock_get_gen.return_value = mock_gen
+
+                # Mock sys.argv
+                with patch('sys.argv', [
+                    'batch_runner.py',
+                    '--config', str(config_path),
+                    '--output', str(temp_dir / 'output'),
+                    '--batch-size', '2',
+                    '--topology', 'erdos_renyi'
+                ]):
+                    result = main()
+                    assert result == 0
+
+    def test_main_creates_summary_file(self, temp_dir, mock_config):
+        """Test that main() creates a batch_summary.json file."""
+        config_path = temp_dir / "test_config.yaml"
+        output_dir = temp_dir / 'output'
+
+        with patch('code.src.generators.batch_runner.load_config', return_value=mock_config):
+            with patch('code.src.generators.batch_runner.get_generator') as mock_get_gen:
+                mock_gen = MagicMock()
+                mock_graph = nx.erdos_renyi_graph(10, 0.3, seed=42)
+                mock_gen.generate.return_value = mock_graph
+                mock_gen.is_connected.return_value = True
+                mock_gen.get_params.return_value = {'n': 10, 'p': 0.3}
+                mock_gen.__class__.__name__ = 'MockGenerator'
+                mock_get_gen.return_value = mock_gen
+
+                with patch('sys.argv', [
+                    'batch_runner.py',
+                    '--config', str(config_path),
+                    '--output', str(output_dir),
+                    '--batch-size', '1'
+                ]):
+                    main()
+
+                # Verify summary file exists
+                summary_path = output_dir / "batch_summary.json"
+                assert summary_path.exists()
+                with open(summary_path) as f:
+                    summary = json.load(f)
+                assert 'run_id' in summary
+                assert 'results' in summary

@@ -9,4 +9,3 @@ coverage>=7.2.0
 pyyaml>=6.0
 scikit-learn>=1.2.0
 statsmodels>=0.14.0
-pytest_cov  # auto-added: imported by run-book but missing from venv

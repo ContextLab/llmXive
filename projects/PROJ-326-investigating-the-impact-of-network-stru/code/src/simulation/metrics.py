@@ -1,11 +1,15 @@
 """
 Metrics module for simulation analysis.
-Implements energy density profile tracking and spatial variance calculation.
+Implements energy density profile tracking, spatial variance calculation, and transient phase extraction.
 """
 import numpy as np
 import networkx as nx
-from typing import List, Dict, Any, Tuple, Optional
+import json
 import logging
+from typing import List, Dict, Any, Tuple, Optional
+from pathlib import Path
+
+from code.src.utils.config import get_global_config
 
 logger = logging.getLogger(__name__)
 
@@ -135,3 +139,83 @@ def validate_metrics(metrics: Dict[str, Any]) -> bool:
         return False
 
     return True
+
+
+def extract_transient_metrics(
+    history: List[Dict[str, Any]],
+    transient_steps: int,
+    output_path: str
+) -> Dict[str, Any]:
+    """
+    Extract and save metrics specifically for the transient phase (first N steps).
+
+    This function filters the full simulation history to isolate the initial
+    transient period, calculates summary statistics for this period, and
+    writes the detailed step-wise variance to a JSON file.
+
+    Args:
+        history: Full list of simulation step snapshots (from track_metrics_history).
+        transient_steps: Number of steps to consider as the transient phase (from config).
+        output_path: File path where the transient metrics JSON will be saved.
+
+    Returns:
+        Dictionary containing summary statistics of the transient phase.
+    """
+    if transient_steps <= 0:
+        logger.warning("Transient steps is non-positive; returning empty transient metrics.")
+        return {"status": "skipped", "reason": "transient_steps <= 0"}
+
+    # Filter history for transient steps
+    transient_history = [
+        entry for entry in history if entry["step"] < transient_steps
+    ]
+
+    if not transient_history:
+        logger.warning(f"No history entries found for steps < {transient_steps}.")
+        return {"status": "empty", "reason": f"No entries for steps < {transient_steps}"}
+
+    # Extract spatial variances for the transient phase
+    transient_variances = [entry["spatial_variance"] for entry in transient_history]
+    
+    # Calculate summary statistics
+    stats = {
+        "mean_variance": float(np.mean(transient_variances)),
+        "std_variance": float(np.std(transient_variances)),
+        "min_variance": float(np.min(transient_variances)),
+        "max_variance": float(np.max(transient_variances)),
+        "steps_analyzed": len(transient_history),
+        "transient_steps_config": transient_steps
+    }
+
+    # Prepare output data
+    output_data = {
+        "transient_period": {
+            "start_step": 0,
+            "end_step": transient_steps - 1,
+            "total_steps": len(transient_history)
+        },
+        "summary_statistics": stats,
+        "stepwise_data": [
+            {
+                "step": entry["step"],
+                "spatial_variance": entry["spatial_variance"],
+                "energy_density_profile": entry["energy_density_profile"]
+            }
+            for entry in transient_history
+        ]
+    }
+
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write to file
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, indent=2)
+        logger.info(f"Transient metrics saved to {output_path}")
+    except IOError as e:
+        logger.error(f"Failed to write transient metrics to {output_path}: {e}")
+        raise
+
+    return output_data

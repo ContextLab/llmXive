@@ -1,52 +1,79 @@
 # Quickstart Guide
 
 ## Prerequisites
-- Python 3.9+
+
+- Python 3.8+
 - pip
+- git
 
 ## Installation
-1. Clone the repository.
-2. Navigate to the `code` directory.
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+
+```bash
+cd code
+pip install -r requirements.txt
+```
+
+## Usage
+
+The pipeline is orchestrated via `main.py` with specific phase commands.
+
+### 1. Initialize Directories and Logs
+
+```bash
+python setup_directories.py
+python scripts/run_logging_init.py
+```
+
+### 2. Generate Network Batch
+
+```bash
+python scripts/run_batch_generation.py --config code/config.yaml
+```
+
+### 3. Run Simulations
+
+```bash
+python scripts/run_simulation.py --config code/config.yaml
+```
+
+### 4. Run Sensitivity Sweep
+
+```bash
+python scripts/run_sensitivity_sweep.py --config code/config.yaml
+```
+
+### 5. Run Analysis
+
+```bash
+python scripts/run_analysis.py --config code/config.yaml
+```
+
+### 6. Aggregate Results
+
+```bash
+python scripts/run_aggregation.py --config code/config.yaml
+```
+
+### 7. Validate Batch
+
+```bash
+python scripts/validate_batch.py --config code/config.yaml
+```
+
+### 8. Generate Final Report
+
+```bash
+python scripts/run_final_serialization.py --config code/config.yaml
+```
 
 ## Configuration
-Edit `config.yaml` to set global seeds, topology targets, and simulation parameters.
 
-## Execution
-The following commands run the full pipeline:
-
-### 1. Generate Networks
-```bash
-python src/generators/batch_runner.py --config config.yaml
-```
-
-### 2. Run Simulations
-```bash
-python src/simulation/run_simulation.py --config config.yaml
-```
-
-### 3. Run Analysis
-```bash
-python src/analysis/run_analysis.py --config config.yaml
-```
-
-### 4. Run Power Analysis
-```bash
-python scripts/run_power_analysis.py --config config.yaml
-```
-
-### 5. Run Sensitivity Sweep
-```bash
-python scripts/run_sensitivity_sweep.py --config config.yaml
-```
-
-### 6. Validate Batch (SC-001, SC-002, SC-005)
-```bash
-python scripts/validate_batch.py --config config.yaml --output data/analysis/validation_report.json
-```
+All parameters are defined in `code/config.yaml`. Do not modify seeds manually; use the config file.
 
 ## Verification
-Check `data/analysis/validation_report.json` for the results of the validation checks.
+
+Run the validation script to ensure all artifacts are present:
+
+```bash
+python scripts/validate_quickstart.py
+```
