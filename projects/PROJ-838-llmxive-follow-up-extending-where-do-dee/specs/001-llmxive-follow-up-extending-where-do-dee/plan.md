@@ -13,7 +13,7 @@ This project implements a CPU-tractable pipeline to predict "collapse" in deep-r
 **Primary Dependencies**: `pandas`, `networkx`, `scikit-learn`, `spaCy`, `tqdm`, `pyyaml`, `requests`, `scipy` (no GPU/CUDA libraries).
 **Storage**: Local filesystem (`data/raw`, `data/processed`), JSON/CSV/Parquet formats.
 **Testing**: `pytest` (unit tests for graph construction, integration tests for pipeline flow).
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, sufficient RAM for standard build workloads.).
 **Project Type**: Research Data Pipeline / CLI Tool.
 **Performance Goals**: Process 100 trajectories in < 30 minutes; full dataset within 6 hours.
 **Constraints**: No GPU; strict memory limits (< 7 GB RAM); deterministic graph construction; no pre-labeled error data used in feature extraction.

@@ -24,7 +24,16 @@ seed = int(os.environ.get("LLMXIVE_SEED", 42))
 
 # Dataset URL / ID for TELBench
 # Using the HuggingFace dataset ID as specified in T007
-dataset_url = "HuggingFaceH4/tebench"
+# Note: The execution feedback indicated 'datasets' library issues.
+# The correct public ID for TELBench on HuggingFace is 'NJU-LINK/TELBench'.
+dataset_url = "NJU-LINK/TELBench"
+
+# Sensitivity analysis parameters (SC-004)
+# Thresholds for sensitivity analysis on connectivity values
+sensitivity_thresholds = [0.01, 0.05, 0.1]
+
+# Percentiles for sensitivity analysis on the success class
+sensitivity_percentiles = [10, 20, 30]
 
 # Hash algorithm for file verification
 hash_algorithm = "sha256"

@@ -256,3 +256,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T22:43:50Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: TELBench dataset HuggingFace ID NJU-LINK/TELBench
+  claim_id: c_f86f44cb
+  context: 'Implement code/downloader.py to fetch TELBench dataset from HuggingFace
+    (Primary ID: ''NJU-LINK/TELBench'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TELBench_dataset_HuggingFace_ID_NJU-LINK/TELBench
+  kind: entity_fact
+  raw_text: The TELBench dataset is hosted on HuggingFace with the Primary ID 'NJU-LINK/TELBench'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:17:27Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Use streaming=True to handle large datasets without exceeding RAM
+  claim_id: c_475b512c
+  context: 'T007: Implement `code/downloader.py` to fetch TELBench dataset from HuggingFace
+    (Primary ID: `NJU-LINK/TELBench`). MUST FAIL LOUDLY if dataset source is missing;
+    skip individual malformed trajectories with log. Streaming logic: Use `streaming=True`
+    to handle large datasets without exceeding RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_streaming=True_to_handle_large_datasets_without_exceedin
+  kind: entity_fact
+  raw_text: Use `streaming=True` to handle large datasets without exceeding RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:27:17Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Calculate 20th percentile of connectivity for success class in training
+    split
+  claim_id: c_294064ea
+  context: 'T030: Implement `calculate_20th_percentile_threshold` in `code/evaluator.py`
+    (Input: `data/processed/train_metrics.csv`, Success Class). PRIMARY THRESHOLD
+    per FR-004. Calculate the 20th percentile of the connectivity column for the success
+    class subset of the training split.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_20th_percentile_of_connectivity_for_success_class
+  kind: entity_fact
+  raw_text: Calculate the 20th percentile of the connectivity column for the success
+    class subset of the training split.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:27:34Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sweep thresholds over 0.01, 0.05, 0.1
+  claim_id: c_bff4aeb2
+  context: 'T036a: Implement `run_sensitivity_analysis_threshold` in `code/evaluator.py`
+    (Input: `data/processed/test_metrics.csv`, `code/config.py`). SC-004 MANDATORY.
+    Sweep thresholds over the set {0.01, 0.05, 0.1} read from `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds over the set {0.01, 0.05, 0.1} read from `code/config.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:27:46Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sweep percentiles 10, 20, 30
+  claim_id: c_113548d9
+  context: 'T036b: Implement `run_sensitivity_analysis_percentile` in `code/evaluator.py`
+    (Input: `data/processed/test_metrics.csv`, `code/config.py`). ADDITIONAL ANALYSIS.
+    Sweep percentiles {10, 20, 30} read from `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep percentiles {10, 20, 30} read from `code/config.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:27:57Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Perform permutation test with 1000 permutations
+  claim_id: c_5a3aaee7
+  context: 'T037a: Implement `calculate_null_distribution` in `code/evaluator.py`
+    (Input: `data/processed/test_metrics.csv`) to perform permutation test (1000 permutations),
+    read seed from `code/config.py`, shuffle labels column) to establish null distribution,
+    calculate correlation coefficient (r) and p-value, compare r against significance
+    threshold p < 0.05, report significance conclusion as boolean `sc_002_passed`,
+    and write results to `data/processed/sc_002_result.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test with 1000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:28:39Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Flag limitation if power is less than 0.8
+  claim_id: c_e63197ab
+  context: 'T044: Implement `calculate_power_analysis` in `code/evaluator.py` (Input:
+    `data/processed/train_metrics.csv`) to calculate effect size (Cohen''s d) and
+    perform post-hoc power analysis. If power < 0.8, flag the limitation in the final
+    report (`data/processed/results_report.json`).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_limitation_if_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: If power < 0.8, flag the limitation in the final report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:13Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Calculate low branching thresholds using mean minus 2 times std of connectivity
+    for success class
+  claim_id: c_d3b66dd2
+  context: 'T037b: ...Logic: Calculate a chain-like topology metric... Threshold Definition:
+    Calculate ''low branching/connectivity'' thresholds using mean - 2*std of connectivity
+    for the ''success class'' in the training split (from T029).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate low branching/connectivity thresholds using mean - 2*std of
+    connectivity for the success class in the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:15Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Filter early spans using first int(len(spans) * config.cutoff_depth)
+  claim_id: c_099157f0
+  context: 'T013: Implement `code/graph_builder.py` with `parse_trajectory` function
+    to extract first int(len(spans) * config.cutoff_depth) spans.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_early_spans_using_first_int(len(spans)_*_config.cutof
+  kind: entity_fact
+  raw_text: Filter early spans using first int(len(spans) * config.cutoff_depth).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:20Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Use spaCy en_core_web_sm and Matcher for co-reference resolution
+  claim_id: c_6274d658
+  context: 'T014: Implement co-reference resolution and citation detection using `spaCy`
+    (`en_core_web_sm`) and `Matcher` in `code/graph_builder.py` (CPU-tractable, no
+    neuralcoref, no spacy-experimental), explicitly excluding any ground-truth labels
+    as per FR-002.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_spaCy_en_core_web_sm_and_Matcher_for_co-reference_resolu
+  kind: entity_fact
+  raw_text: Use `spaCy` (`en_core_web_sm`) and `Matcher` for co-reference resolution
+    and citation detection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:24Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project
+  claim_id: c_8120ef4a
+  context: 'T002: Initialize Python 3.11 project with `requirements.txt` (pandas,
+    networkx, scikit-learn, spaCy, tqdm, pyyaml, requests, scipy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:28Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Set black line-length to 88
+  claim_id: c_d81f675c
+  context: 'T003: Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml`
+    with explicit `[tool.black]` (line-length=88, target-version=[''py311''])...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set black line-length to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:32Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Fetch TELBench dataset from HuggingFace ID NJU-LINK/TELBench
+  claim_id: c_e5a1f2ea
+  context: 'T007: Implement `code/downloader.py` to fetch TELBench dataset from HuggingFace
+    (Primary ID: `NJU-LINK/TELBench`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_TELBench_dataset_from_HuggingFace_ID_NJU-LINK/TELBench
+  kind: entity_fact
+  raw_text: 'Fetch TELBench dataset from HuggingFace (Primary ID: `NJU-LINK/TELBench`).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:38Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Global connectivity is ratio of edges to total possible connections among
+    N nodes
+  claim_id: c_a835d5b7
+  context: 'T021: Implement `code/metrics.py` with `calculate_global_connectivity`
+    AND `calculate_average_branching_factor`. Input: `data/processed/graphs/`. Output:
+    `metrics.csv`. Formulas: Connectivity is defined as the ratio of edges to the
+    total number of possible connections among N nodes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_connectivity_is_ratio_of_edges_to_total_possible_conn
+  kind: entity_fact
+  raw_text: Calculate Global Connectivity as the ratio of edges to the total number
+    of possible connections among N nodes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:44Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Branching factor is sum of out-degrees divided by N
+  claim_id: c_b7df88a0
+  context: 'T021: ...Formulas: ... Branching = sum(out-degrees) / N.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_factor_is_sum_of_out-degrees_divided_by_N
+  kind: entity_fact
+  raw_text: Calculate Branching Factor as sum(out-degrees) / N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:50Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Chain-like topology metric is ratio of nodes with in-degree 1, out-degree
+    1, and edges equal to nodes minus 1
+  claim_id: c_90ab0004
+  context: 'T037b: ...Logic: Calculate a chain-like topology metric (ratio of nodes
+    with in-degree=1 AND out-degree=1 AND total edges = total nodes - 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate a chain-like topology metric as the ratio of nodes with in-degree=1
+    AND out-degree=1 AND total edges = total nodes - 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:29:55Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Calculate effect size using Cohen's d
+  claim_id: c_e06891c4
+  context: 'T044: ...to calculate effect size (Cohen''s d) and perform post-hoc power
+    analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_effect_size_using_Cohen's_d
+  kind: entity_fact
+  raw_text: Calculate effect size using Cohen's d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T03:30:02Z'

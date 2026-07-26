@@ -14,12 +14,12 @@ T003:
     that linting (ruff) and formatting (black) are configured are missing.
 T023:
   c: false
-  h: bdf42aaa734d7128e2ce3bf7ba4c8479b3741bd05b26882ae3ab3d53062b237e
-  r: "The `process_batch` function is implemented, but it does not produce the required\
-    \ `data/processed/metrics.csv` file (the file is missing) and the CSV columns\
-    \ (`filename`, `connectivity`, `branching_factor`) do not match the specification\u2019\
-    s expected columns (`trajectory_id`, `avg_branching_factor`, `global_connectivity`).\
-    \ The task\u2019s output artifact is therefore absent and incorrectly formatted."
+  h: 60290ad63aff99553b8ef09825f024f2869bc81b95853a3974348051f49f0509
+  r: "The `process_batch` function in `code/metrics.py` is cut off mid\u2011statement\
+    \ (the `csv.DictWriter` line is incomplete and no rows are written), so the batch\
+    \ logic cannot actually produce a CSV file. Consequently the integration test\
+    \ cannot pass and the required `data/processed/metrics.csv` does not exist. The\
+    \ implementation must be completed and verified."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,13 +32,23 @@ T025:
   r: No code, script, or documentation showing that batch processing now logs its
     progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
     is not satisfied.
+T029:
+  c: false
+  h: 740387ca62e1c7e38552dd0983e5bbb18c91165ec9693b83cb415461523f4c83
+  r: The repository lacks the required `data/processed/metrics.csv`, `train_metrics.csv`,
+    and `test_metrics.csv` files, and the `stratified_split` implementation does not
+    read/write these files (it only splits a passed DataFrame and even references
+    an undefined `train_test_split`). Moreover, the unit test `test_stratified_split_preserves_label_ratio_in_metrics_csv`
+    is absent from `tests/unit/test_evaluator.py`. These missing artifacts and incomplete
+    functionality mean the task is not genuinely completed.
 T030:
   c: false
-  h: ef083063a691edc65d175a374b504900bed25bb9279cb74e0b2b1492554b6917
-  r: The repository lacks the required `data/processed/train_metrics.csv` and `data/processed/threshold_config.json`
-    files, and `code/evaluator.py` does not contain an implementation of `calculate_20th_percentile_threshold`.
-    Moreover, the unit test `test_20th_percentile_threshold` is absent from `tests/unit/test_evaluator.py`.
-    These missing artifacts prevent the task from being considered complete.
+  h: cbdec122ad02090a41eee122ae0be73c61a2219a6483d93b341b7bbce77703e8
+  r: "The `calculate_20th_percentile_threshold` function is implemented and the unit\
+    \ test `test_20th_percentile_threshold` exists, but the required output step (writing\
+    \ the threshold to `data/processed/threshold_config.json`) is not present, and\
+    \ the input file `data/processed/train_metrics.csv` is missing. The task therefore\
+    \ lacks the necessary artifacts and side\u2011effects."
 T031:
   c: false
   h: d462fdc009272411d90ecbbd75821e82a0c303a59ffcda26f5beb3ec5d2bca10
@@ -61,24 +71,14 @@ T033:
     the provided `code/evaluator.py` does not contain an implemented `evaluate_performance`
     function (the file is truncated before any such definition). Consequently the
     task of computing Precision, Recall, F1, and a Confusion Matrix cannot be satisfied.
-T034:
+T037b:
   c: false
-  h: 291438b8336db6c266bbb9095377f3c62010827a3186a7d5547135fcd400669e
-  r: The `calculate_baseline` function in `code/evaluator.py` is truncated and not
-    fully implemented. The required input file `data/processed/train_metrics.csv`
-    does not exist, and the expected output file `data/processed/baseline_report.json`
-    is missing. Moreover, the unit test `test_baseline_mean_connectivity` is not present
-    in `tests/unit/test_evaluator.py`. These missing artifacts and incomplete implementation
-    mean the task is not satisfied.
-T036:
-  c: false
-  h: dcd1c09397a1cc407b9533f246c280071cf97a4c4d09a79e441c4f8c97293fe7
-  r: "The repository lacks the required `data/processed/test_metrics.csv` and the\
-    \ generated `data/processed/sensitivity_matrix.json`. The `code/evaluator.py`\
-    \ shown does not contain an implementation of `run_sensitivity_analysis`, and\
-    \ the unit test `test_sensitivity_analysis_matrix` is not present in the provided\
-    \ `tests/unit/test_evaluator.py`. Consequently the task\u2019s core functionality\
-    \ and verification are missing."
+  h: 28e11f86eca016f8d9ac6e3f0d83c1fbdc2a1be6d756e3dbfe3dffac2a882be8
+  r: "The repository lacks a `calculate_linear_reasoning_index` function in `code/evaluator.py`,\
+    \ the required `data/processed/train_metrics.csv` and `data/processed/linear_reasoning_report.json`\
+    \ files are absent, and the unit test `test_linear_reasoning_data_driven` does\
+    \ not appear in `tests/unit/test_evaluator.py`. These missing pieces mean the\
+    \ task\u2019s specification is not satisfied."
 T046:
   c: false
   h: 89228361f1d19a2e8784eeaab16601331d08a54c3c5469271780d315166a4b7a

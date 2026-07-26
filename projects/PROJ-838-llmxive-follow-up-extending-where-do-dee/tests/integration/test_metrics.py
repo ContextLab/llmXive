@@ -1,13 +1,13 @@
 import pytest
 import json
 import os
-import tempfile
+import csv
 from pathlib import Path
 import networkx as nx
 from metrics import process_batch
 
-def test_integration_batch_processing():
-    """Integration test for batch metric calculation."""
+def test_process_batch_writes_csv():
+    """Integration test to confirm process_batch writes metrics.csv correctly."""
     with tempfile.TemporaryDirectory() as temp_dir:
         # Create a set of test graphs with known metrics
         graphs_data = [
@@ -63,4 +63,4 @@ def test_integration_batch_processing():
             assert abs(actual_conn - graph_data['expected_connectivity']) < 1e-6
             assert abs(actual_branch - graph_data['expected_branching']) < 1e-6
 
-import csv
+import tempfile

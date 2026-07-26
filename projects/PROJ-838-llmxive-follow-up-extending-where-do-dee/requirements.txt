@@ -7,5 +7,5 @@ pyyaml
 requests
 scipy
 datasets
-pytest
 numpy
+pytest

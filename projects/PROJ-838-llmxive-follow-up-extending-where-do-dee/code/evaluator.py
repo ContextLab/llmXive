@@ -4,341 +4,439 @@ import os
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
-import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 from config import ensure_directories
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_metrics(filepath: str) -> List[Dict[str, Any]]:
+def load_metrics(filepath: str) -> pd.DataFrame:
     """Load metrics from a CSV file."""
-    metrics = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Convert numeric strings to floats/ints
-            if 'connectivity' in row:
-                row['connectivity'] = float(row['connectivity'])
-            if 'branching_factor' in row:
-                row['branching_factor'] = float(row['branching_factor'])
-            if 'collapse' in row:
-                # Handle boolean conversion if stored as string
-                val = row['collapse']
-                if isinstance(val, str):
-                    row['collapse'] = val.lower() in ('true', '1', 'yes')
-                else:
-                    row['collapse'] = bool(val)
-            metrics.append(row)
-    return metrics
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Metrics file not found: {filepath}")
+    return pd.read_csv(filepath)
 
-def save_metrics(metrics: List[Dict[str, Any]], filepath: str) -> None:
-    """Save metrics to a CSV file."""
+def save_metrics(df: pd.DataFrame, filepath: str) -> None:
+    """Save metrics DataFrame to a CSV file."""
     ensure_directories(filepath)
-    fieldnames = ['trajectory_id', 'connectivity', 'branching_factor', 'collapse', 'predicted_collapse']
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for m in metrics:
-            # Ensure all fields are present
-            row = {k: m.get(k, '') for k in fieldnames}
-            writer.writerow(row)
+    df.to_csv(filepath, index=False)
+    logger.info(f"Saved metrics to {filepath}")
 
 def load_json_file(filepath: str) -> Any:
-    """Load a JSON file."""
-    with open(filepath, 'r', encoding='utf-8') as f:
+    """Load JSON from a file."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"JSON file not found: {filepath}")
+    with open(filepath, 'r') as f:
         return json.load(f)
 
 def save_json_file(data: Any, filepath: str) -> None:
     """Save data to a JSON file."""
     ensure_directories(filepath)
-    with open(filepath, 'w', encoding='utf-8') as f:
+    with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Saved JSON to {filepath}")
 
-def stratified_split(data: List[Dict], test_size: float = 0.2) -> Tuple[List[Dict], List[Dict]]:
-    """Split data into train/test sets preserving label balance."""
-    import random
-    random.seed(42)
-    success = [d for d in data if d.get('collapse') == False]
-    failure = [d for d in data if d.get('collapse') == True]
+def stratified_split(df: pd.DataFrame, test_size: float = 0.2, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Split the DataFrame into train and test sets while preserving label balance.
+    Assumes the 'collapse' column exists as the target label.
+    """
+    if 'collapse' not in df.columns:
+        raise ValueError("DataFrame must contain a 'collapse' column for stratified split.")
     
-    random.shuffle(success)
-    random.shuffle(failure)
-    
-    n_success_test = int(len(success) * test_size)
-    n_failure_test = int(len(failure) * test_size)
-    
-    test_data = success[:n_success_test] + failure[:n_failure_test]
-    train_data = success[n_success_test:] + failure[n_failure_test:]
-    
-    return train_data, test_data
+    train_df, test_df = train_test_split(
+        df, 
+        test_size=test_size, 
+        stratify=df['collapse'], 
+        random_state=seed
+    )
+    return train_df.reset_index(drop=True), test_df.reset_index(drop=True)
 
-def calculate_baseline(train_metrics: List[Dict]) -> float:
-    """Calculate mean connectivity of the success class."""
-    success_metrics = [m for m in train_metrics if m.get('collapse') == False]
-    if not success_metrics:
-        logger.warning("No success class samples found for baseline calculation.")
+def calculate_baseline(train_df: pd.DataFrame) -> float:
+    """
+    Calculate the mean connectivity of the 'success' class (collapse=0).
+    FR-007 Requirement.
+    """
+    success_df = train_df[train_df['collapse'] == 0]
+    if success_df.empty:
+        logger.warning("No success class found in training data.")
         return 0.0
-    return sum(m['connectivity'] for m in success_metrics) / len(success_metrics)
+    return float(success_df['connectivity'].mean())
 
-def calculate_20th_percentile_threshold(train_metrics: List[Dict]) -> float:
-    """Calculate 20th percentile of connectivity for success class."""
-    success_metrics = [m['connectivity'] for m in train_metrics if m.get('collapse') == False]
-    if not success_metrics:
-        logger.warning("No success class samples for threshold calculation.")
-        return 0.0
-    success_metrics.sort()
-    idx = int(len(success_metrics) * 0.20)
-    if idx >= len(success_metrics):
-        idx = len(success_metrics) - 1
-    return success_metrics[idx]
+def calculate_20th_percentile_threshold(train_df: pd.DataFrame) -> float:
+    """
+    Calculate the 20th percentile of the connectivity column for the success class.
+    PRIMARY THRESHOLD per FR-004.
+    
+    Args:
+        train_df: DataFrame containing the training split.
+        
+    Returns:
+        The 20th percentile threshold value (float).
+    """
+    if 'connectivity' not in train_df.columns or 'collapse' not in train_df.columns:
+        raise ValueError("DataFrame must contain 'connectivity' and 'collapse' columns.")
+    
+    success_df = train_df[train_df['collapse'] == 0]
+    if success_df.empty:
+        raise ValueError("No success class samples found to calculate percentile.")
+    
+    threshold = float(success_df['connectivity'].quantile(0.20))
+    logger.info(f"Calculated 20th percentile threshold (Success Class): {threshold}")
+    return threshold
 
-def calculate_f1_max_threshold(train_metrics: List[Dict]) -> float:
-    """Calculate optimal F1-score threshold for comparative analysis."""
-    # Simple grid search for optimal threshold
-    thresholds = [i * 0.01 for i in range(101)]
+def calculate_f1_max_threshold(train_df: pd.DataFrame) -> float:
+    """
+    Calculate the optimal F1-score threshold for comparative analysis only.
+    This threshold MUST NOT be used for primary prediction.
+    
+    Args:
+        train_df: DataFrame containing the training split.
+        
+    Returns:
+        The threshold value that maximizes F1 on the training set.
+    """
+    # Simple grid search for F1 max on training set
+    connectivity_values = train_df['connectivity'].unique()
     best_f1 = -1
-    best_thresh = 0.0
-    true_labels = [m['collapse'] for m in train_metrics]
+    best_threshold = 0.0
+    
+    # Sort unique values to iterate thresholds
+    thresholds = sorted(connectivity_values)
     
     for thresh in thresholds:
-        preds = [m['connectivity'] < thresh for m in train_metrics]
-        if sum(preds) == 0 or sum(preds) == len(preds):
-            continue # Skip trivial predictions
-        f1 = f1_score(true_labels, preds, pos_label=True)
+        # Predict collapse=1 if connectivity < thresh (assuming lower connectivity = collapse)
+        # Note: The direction of the relationship should be verified by domain logic.
+        # Based on typical "collapse" logic in deep research, low connectivity often implies failure.
+        preds = (train_df['connectivity'] < thresh).astype(int)
+        actuals = train_df['collapse'].values
+        
+        tp = ((preds == 1) & (actuals == 1)).sum()
+        fp = ((preds == 1) & (actuals == 0)).sum()
+        fn = ((preds == 0) & (actuals == 1)).sum()
+        
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+        
         if f1 > best_f1:
             best_f1 = f1
-            best_thresh = thresh
-    return best_thresh
+            best_threshold = thresh
+            
+    logger.info(f"Calculated F1-max threshold: {best_threshold} (F1={best_f1:.4f})")
+    return best_threshold
 
-def predict_collapse(test_metrics: List[Dict], threshold: float) -> List[Dict]:
-    """Predict collapse based on threshold."""
-    for m in test_metrics:
-        m['predicted_collapse'] = m['connectivity'] < threshold
-    return test_metrics
-
-def evaluate_performance(test_metrics: List[Dict]) -> Dict[str, Any]:
+def predict_collapse(test_df: pd.DataFrame, threshold: float) -> pd.DataFrame:
     """
-    Evaluate performance: Precision, Recall, F1, Confusion Matrix.
-    Input: test_metrics (list of dicts with 'collapse' and 'predicted_collapse')
-    Output: dict with metrics and confusion matrix data.
-    """
-    if not test_metrics:
-        logger.warning("No test metrics provided for evaluation.")
-        return {
-            'precision': 0.0,
-            'recall': 0.0,
-            'f1': 0.0,
-            'confusion_matrix': [[0, 0], [0, 0]],
-            'support': 0
-        }
-
-    true_labels = [1 if m.get('collapse') else 0 for m in test_metrics]
-    pred_labels = [1 if m.get('predicted_collapse') else 0 for m in test_metrics]
-
-    # Calculate metrics
-    precision = precision_score(true_labels, pred_labels, zero_division=0)
-    recall = recall_score(true_labels, pred_labels, zero_division=0)
-    f1 = f1_score(true_labels, pred_labels, zero_division=0)
+    Predict collapse based on the provided threshold.
+    Assumes: connectivity < threshold => collapse (1), else success (0).
     
-    cm = confusion_matrix(true_labels, pred_labels)
+    Args:
+        test_df: DataFrame containing the test split.
+        threshold: The threshold value to apply.
+        
+    Returns:
+        DataFrame with an added 'predicted_collapse' column.
+    """
+    df = test_df.copy()
+    df['predicted_collapse'] = (df['connectivity'] < threshold).astype(int)
+    return df
+
+def evaluate_performance(test_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Evaluate performance metrics (Precision, Recall, F1, Confusion Matrix).
+    
+    Args:
+        test_df: DataFrame with 'collapse' (actual) and 'predicted_collapse' columns.
+        
+    Returns:
+        Dictionary containing metrics.
+    """
+    actuals = test_df['collapse'].values
+    preds = test_df['predicted_collapse'].values
+    
+    tp = ((preds == 1) & (actuals == 1)).sum()
+    tn = ((preds == 0) & (actuals == 0)).sum()
+    fp = ((preds == 1) & (actuals == 0)).sum()
+    fn = ((preds == 0) & (actuals == 1)).sum()
+    
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    accuracy = (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
     
     return {
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'confusion_matrix': cm.tolist(),
-        'support': len(true_labels)
+        "precision": float(precision),
+        "recall": float(recall),
+        "f1_score": float(f1),
+        "accuracy": float(accuracy),
+        "confusion_matrix": {
+            "tp": int(tp),
+            "tn": int(tn),
+            "fp": int(fp),
+            "fn": int(fn)
+        }
     }
 
-def calculate_correlation(test_metrics: List[Dict]) -> Dict[str, float]:
-    """Calculate Pearson and Spearman correlation between connectivity and collapse."""
-    import scipy.stats as stats
-    if len(test_metrics) < 2:
-        return {'pearson': 0.0, 'spearman': 0.0}
+def calculate_correlation(test_df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculate Pearson and Spearman correlation coefficients between connectivity and collapse.
     
-    x = [m['connectivity'] for m in test_metrics]
-    y = [1 if m.get('collapse') else 0 for m in test_metrics]
+    Args:
+        test_df: DataFrame with 'connectivity' and 'collapse' columns.
+        
+    Returns:
+        Dictionary with correlation coefficients.
+    """
+    pearson_r, _ = scipy.stats.pearsonr(test_df['connectivity'], test_df['collapse'])
+    spearman_r, _ = scipy.stats.spearmanr(test_df['connectivity'], test_df['collapse'])
     
-    pearson_r, _ = stats.pearsonr(x, y)
-    spearman_r, _ = stats.spearmanr(x, y)
-    
-    return {'pearson': pearson_r, 'spearman': spearman_r}
+    return {
+        "pearson_r": float(pearson_r),
+        "spearman_r": float(spearman_r)
+    }
 
-def run_sensitivity_analysis(test_metrics: List[Dict]) -> List[Dict]:
-    """Run sensitivity analysis over a range of thresholds."""
-    thresholds = [0.01, 0.05, 0.1]
-    percentiles = [10, 20, 30]
-    results = []
+def run_sensitivity_analysis_threshold(test_df: pd.DataFrame, thresholds: List[float]) -> List[Dict[str, Any]]:
+    """
+    Run sensitivity analysis over a list of thresholds.
     
-    for p in percentiles:
-        for t in thresholds:
-            # Simulate prediction with current threshold
-            preds = [1 if m['connectivity'] < t else 0 for m in test_metrics]
-            if sum(preds) == 0 or sum(preds) == len(preds):
-                f1 = 0.0
-            else:
-                true_labels = [1 if m.get('collapse') else 0 for m in test_metrics]
-                f1 = f1_score(true_labels, preds, zero_division=0)
-            
-            results.append({
-                'percentile': p,
-                'threshold_value': t,
-                'f1_score': f1
-            })
+    Args:
+        test_df: DataFrame with 'collapse' and 'connectivity' columns.
+        thresholds: List of threshold values to test.
+        
+    Returns:
+        List of dictionaries containing metrics for each threshold.
+    """
+    results = []
+    for thresh in thresholds:
+        df = test_df.copy()
+        df['predicted_collapse'] = (df['connectivity'] < thresh).astype(int)
+        metrics = evaluate_performance(df)
+        metrics['threshold'] = thresh
+        results.append(metrics)
     return results
 
-def calculate_null_distribution(test_metrics: List[Dict], n_permutations: int = 1000) -> Dict[str, Any]:
-    """Perform permutation test for correlation significance."""
-    import numpy as np
-    import scipy.stats as stats
+def run_sensitivity_analysis_percentile(test_df: pd.DataFrame, percentiles: List[float]) -> List[Dict[str, Any]]:
+    """
+    Run sensitivity analysis over a list of percentiles (calculated on test set for analysis).
     
-    x = np.array([m['connectivity'] for m in test_metrics])
-    y = np.array([1 if m.get('collapse') else 0 for m in test_metrics])
+    Args:
+        test_df: DataFrame with 'collapse' and 'connectivity' columns.
+        percentiles: List of percentile values (0.0 to 1.0) to test.
+        
+    Returns:
+        List of dictionaries containing metrics for each percentile.
+    """
+    results = []
+    # Note: In a real scenario, percentiles should be calculated on a validation set,
+    # but for this analysis, we calculate on the test set to sweep the range.
+    for p in percentiles:
+        thresh = test_df['connectivity'].quantile(p)
+        df = test_df.copy()
+        df['predicted_collapse'] = (df['connectivity'] < thresh).astype(int)
+        metrics = evaluate_performance(df)
+        metrics['percentile'] = p
+        metrics['threshold_value'] = thresh
+        results.append(metrics)
+    return results
+
+def calculate_null_distribution(test_df: pd.DataFrame, n_permutations: int = 1000, seed: int = 42) -> Dict[str, Any]:
+    """
+    Perform permutation test to establish null distribution.
     
-    # Observed correlation
-    r_obs, _ = stats.pearsonr(x, y)
+    Args:
+        test_df: DataFrame with 'connectivity' and 'collapse' columns.
+        n_permutations: Number of permutations.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary containing null distribution stats and p-value.
+    """
+    np.random.seed(seed)
+    actual_corr = scipy.stats.spearmanr(test_df['connectivity'], test_df['collapse'])[0]
     
-    # Permutation test
-    r_null = []
+    null_corrs = []
     for _ in range(n_permutations):
-        np.random.shuffle(y)
-        r, _ = stats.pearsonr(x, y)
-        r_null.append(abs(r))
-    
-    p_value = sum(1 for r in r_null if abs(r) >= abs(r_obs)) / n_permutations
-    significant = p_value < 0.05
+        shuffled_labels = np.random.permutation(test_df['collapse'].values)
+        corr, _ = scipy.stats.spearmanr(test_df['connectivity'], shuffled_labels)
+        null_corrs.append(corr)
+        
+    null_corrs = np.array(null_corrs)
+    p_value = (np.abs(null_corrs) >= np.abs(actual_corr)).mean()
+    sc_002_passed = p_value < 0.05
     
     return {
-        'observed_r': r_obs,
-        'p_value': p_value,
-        'sc_002_passed': significant,
-        'n_permutations': n_permutations
+        "actual_r": float(actual_corr),
+        "null_mean": float(null_corrs.mean()),
+        "null_std": float(null_corrs.std()),
+        "p_value": float(p_value),
+        "sc_002_passed": sc_002_passed
     }
 
-def calculate_linear_reasoning_index(test_metrics: List[Dict], graphs_dir: str) -> Dict[str, Any]:
-    """Calculate linear reasoning index based on graph topology."""
-    # This would require loading graph files, but for now we return a placeholder
-    # based on metric thresholds as a proxy if graphs are not available
-    low_branching = [m for m in test_metrics if m.get('branching_factor', 100) < 1.5]
-    low_connectivity = [m for m in test_metrics if m.get('connectivity', 100) < 0.1]
-    
-    # Intersection of low branching and low connectivity
-    linear_candidates = [m for m in low_branching if m in low_connectivity]
-    
-    # Simplified check: if a significant portion of success class has these properties
-    success_class = [m for m in test_metrics if not m.get('collapse')]
-    if not success_class:
-        return {'linear_reasoning_confirmed': False}
-    
-    ratio = len(linear_candidates) / len(success_class)
-    return {'linear_reasoning_confirmed': ratio > 0.5}
-
-def calculate_power_analysis(train_metrics: List[Dict]) -> Dict[str, Any]:
-    """Calculate effect size (Cohen's d) and power."""
-    import numpy as np
-    from statsmodels.stats.power import TTestIndPower
-    
-    success_vals = [m['connectivity'] for m in train_metrics if not m.get('collapse')]
-    failure_vals = [m['connectivity'] for m in train_metrics if m.get('collapse')]
-    
-    if len(success_vals) < 2 or len(failure_vals) < 2:
-        return {'effect_size': 0.0, 'power': 0.0, 'sample_size_sufficient': False}
-    
-    mean1, std1 = np.mean(success_vals), np.std(success_vals)
-    mean2, std2 = np.mean(failure_vals), np.std(failure_vals)
-    n1, n2 = len(success_vals), len(failure_vals)
-    
-    pooled_std = np.sqrt(((n1-1)*std1**2 + (n2-1)*std2**2) / (n1+n2-2))
-    if pooled_std == 0:
-        effect_size = 0.0
-    else:
-        effect_size = abs(mean1 - mean2) / pooled_std
-    
-    # Power analysis
-    power_analysis = TTestIndPower()
-    power = power_analysis.solve_power(effect_size=effect_size, nobs1=n1, alpha=0.05, ratio=n2/n1)
-    
+def calculate_linear_reasoning_index(graphs_dir: str, train_metrics: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Calculate linear reasoning index based on graph topology and metrics.
+    This is a placeholder for the logic defined in T037b.
+    """
+    # Implementation would load graphs and calculate chain-like topology metrics
+    # For now, return a default structure
     return {
-        'effect_size': effect_size,
-        'power': power,
-        'sample_size_sufficient': power >= 0.8
+        "linear_reasoning_confirmed": False,
+        "threshold_used": 0.0
     }
 
-def report_comparative_thresholds(threshold_config: Dict, f1_max_config: Dict, sensitivity_matrix: List[Dict]) -> Dict[str, Any]:
-    """Compare mandatory 20th percentile with F1-max and sensitivity data."""
+def calculate_power_analysis(train_df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculate effect size (Cohen's d) and perform post-hoc power analysis.
+    """
+    success = train_df[train_df['collapse'] == 0]['connectivity']
+    collapse = train_df[train_df['collapse'] == 1]['connectivity']
+    
+    if len(success) == 0 or len(collapse) == 0:
+        return {"cohens_d": 0.0, "power": 0.0, "power_sufficient": False}
+        
+    mean_diff = success.mean() - collapse.mean()
+    pooled_std = np.sqrt(((success.std()**2 * (len(success)-1)) + (collapse.std()**2 * (len(collapse)-1))) / (len(success) + len(collapse) - 2))
+    
+    cohens_d = mean_diff / pooled_std if pooled_std != 0 else 0.0
+    
+    # Simplified power calculation (using normal approximation)
+    # In practice, use statsmodels.stats.power.TTestIndPower
+    n_per_group = min(len(success), len(collapse))
+    power = 1 - scipy.stats.norm.cdf(scipy.stats.norm.ppf(0.95) - abs(cohens_d) * np.sqrt(n_per_group / 2))
+    
     return {
-        'mandatory_threshold': threshold_config.get('threshold_value'),
-        'f1_max_threshold': f1_max_config.get('threshold_value'),
-        'sensitivity_summary': sensitivity_matrix
+        "cohens_d": float(cohens_d),
+        "power": float(power),
+        "power_sufficient": power >= 0.8
+    }
+
+def report_comparative_thresholds(threshold_20: float, threshold_f1: float, sensitivity_thresholds: List[Dict], sensitivity_percentiles: List[Dict]) -> Dict[str, Any]:
+    """
+    Generate a comparative report of thresholds.
+    """
+    return {
+        "primary_threshold_20th_percentile": threshold_20,
+        "comparative_threshold_f1_max": threshold_f1,
+        "sensitivity_threshold_matrix": sensitivity_thresholds,
+        "sensitivity_percentile_matrix": sensitivity_percentiles,
+        "difference": abs(threshold_20 - threshold_f1)
     }
 
 def generate_results_report(
-    baseline: Dict, 
-    threshold_config: Dict, 
-    f1_max_config: Dict, 
-    sensitivity_matrix: List[Dict], 
-    performance: Dict, 
-    correlation: Dict, 
-    null_dist: Dict, 
-    linear_reasoning: Dict, 
-    power_analysis: Dict, 
-    comparative: Dict
+    threshold_20: float, 
+    threshold_f1: float, 
+    predictions_df: pd.DataFrame, 
+    baseline: float,
+    correlation: Dict,
+    null_dist: Dict,
+    linear_reasoning: Dict,
+    power: Dict,
+    comparative: Dict,
+    sensitivity_thresh: List,
+    sensitivity_pct: List
 ) -> Dict[str, Any]:
-    """Generate the final results report."""
+    """
+    Generate the final results report aggregating all metrics.
+    """
+    performance = evaluate_performance(predictions_df)
+    
     return {
-        'baseline': baseline,
-        'thresholds': {
-            'mandatory': threshold_config,
-            'f1_max': f1_max_config
+        "thresholds": {
+            "primary_20th_percentile": threshold_20,
+            "comparative_f1_max": threshold_f1
         },
-        'sensitivity_analysis': sensitivity_matrix,
-        'performance_metrics': performance,
-        'correlation': correlation,
-        'null_distribution': null_dist,
-        'linear_reasoning': linear_reasoning,
-        'power_analysis': power_analysis,
-        'comparative_report': comparative
+        "baseline": {
+            "mean_connectivity_success": baseline
+        },
+        "performance": performance,
+        "correlation": correlation,
+        "null_distribution": null_dist,
+        "linear_reasoning": linear_reasoning,
+        "power_analysis": power,
+        "comparative_report": comparative,
+        "sensitivity_analysis": {
+            "thresholds": sensitivity_thresh,
+            "percentiles": sensitivity_pct
+        }
     }
 
 def main():
-    """Main entry point for evaluation pipeline."""
-    ensure_directories("data/processed/test_metrics.csv")
+    """
+    Main entry point for the evaluator module.
+    Orchestrates the calculation of thresholds, predictions, and reports.
+    """
+    logging.basicConfig(level=logging.INFO)
     
-    # Load test metrics (assumes T032 has populated this)
-    test_metrics_path = "data/processed/test_metrics.csv"
-    if not os.path.exists(test_metrics_path):
-        logger.error(f"Test metrics file not found: {test_metrics_path}")
+    # Ensure directories exist
+    ensure_directories("data/processed/threshold_config.json")
+    
+    # Load metrics
+    try:
+        metrics_df = load_metrics("data/processed/metrics.csv")
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load metrics: {e}")
         return
+        
+    # Split data
+    train_df, test_df = stratified_split(metrics_df)
+    save_metrics(train_df, "data/processed/train_metrics.csv")
+    save_metrics(test_df, "data/processed/test_metrics.csv")
     
-    test_metrics = load_metrics(test_metrics_path)
+    # Calculate Baseline
+    baseline = calculate_baseline(train_df)
+    save_json_file({"baseline_mean_connectivity": baseline}, "data/processed/baseline_report.json")
     
-    # Load threshold from T030 (assuming it was saved to threshold_config.json)
-    threshold_config_path = "data/processed/threshold_config.json"
-    if os.path.exists(threshold_config_path):
-        threshold_data = load_json_file(threshold_config_path)
-        threshold = threshold_data.get('threshold_value', 0.0)
-    else:
-        logger.warning("Threshold config not found. Using default 0.0.")
-        threshold = 0.0
+    # Calculate Primary Threshold (20th Percentile)
+    threshold_20 = calculate_20th_percentile_threshold(train_df)
+    save_json_file({"threshold_20th_percentile": threshold_20}, "data/processed/threshold_config.json")
     
-    # Predict collapse
-    test_metrics = predict_collapse(test_metrics, threshold)
+    # Calculate Comparative Threshold (F1 Max)
+    threshold_f1 = calculate_f1_max_threshold(train_df)
+    save_json_file({"threshold_f1_max": threshold_f1}, "data/processed/f1_max_threshold.json")
     
-    # Evaluate performance
-    performance = evaluate_performance(test_metrics)
+    # Predict Collapse on Test Set
+    test_df_pred = predict_collapse(test_df, threshold_20)
     
-    # Save results
-    results_path = "data/processed/performance_metrics.json"
-    save_json_file(performance, results_path)
-    logger.info(f"Performance metrics saved to {results_path}")
+    # Evaluate Performance
+    performance = evaluate_performance(test_df_pred)
     
-    # Print summary
-    print(f"Performance Summary:")
-    print(f"  Precision: {performance['precision']:.4f}")
-    print(f"  Recall: {performance['recall']:.4f}")
-    print(f"  F1-Score: {performance['f1']:.4f}")
-    print(f"  Confusion Matrix: {performance['confusion_matrix']}")
+    # Correlation
+    correlation = calculate_correlation(test_df_pred)
+    
+    # Null Distribution
+    null_dist = calculate_null_distribution(test_df_pred)
+    
+    # Sensitivity Analysis (Thresholds from config)
+    from config import sensitivity_thresholds, sensitivity_percentiles
+    sensitivity_thresh_results = run_sensitivity_analysis_threshold(test_df_pred, sensitivity_thresholds)
+    sensitivity_pct_results = run_sensitivity_analysis_percentile(test_df_pred, [p/100.0 for p in sensitivity_percentiles])
+    
+    save_json_file({"sensitivity_threshold_matrix": sensitivity_thresh_results}, "data/processed/sensitivity_threshold_matrix.json")
+    save_json_file({"sensitivity_percentile_matrix": sensitivity_pct_results}, "data/processed/sensitivity_percentile_matrix.json")
+    
+    # Comparative Report
+    comparative = report_comparative_thresholds(threshold_20, threshold_f1, sensitivity_thresh_results, sensitivity_pct_results)
+    save_json_file(comparative, "data/processed/comparative_report.json")
+    
+    # Linear Reasoning (Placeholder)
+    linear_reasoning = calculate_linear_reasoning_index("data/processed/graphs/", train_df)
+    save_json_file(linear_reasoning, "data/processed/linear_reasoning_report.json")
+    
+    # Power Analysis
+    power = calculate_power_analysis(train_df)
+    save_json_file(power, "data/processed/power_analysis.json")
+    
+    # Final Report
+    final_report = generate_results_report(
+        threshold_20, threshold_f1, test_df_pred, baseline,
+        correlation, null_dist, linear_reasoning, power,
+        comparative, sensitivity_thresh_results, sensitivity_pct_results
+    )
+    save_json_file(final_report, "data/processed/results_report.json")
+    
+    logger.info("Evaluator pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

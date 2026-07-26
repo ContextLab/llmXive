@@ -1,12 +1,12 @@
 status: none
-intent: download TELBench deep research trajectories as python package dataset
+intent: download TELBench dataset from Hugging Face Datasets python package dataset
 required_fields:
 - trajectory_id
-- span_index
-- span_text
-- claim_id
-- citations
-- coreference_links
-cache_key: 7f944975caee22cdb03c21438512b1d865e5cd69d066756642202d9959c5d481
-searched_at: '2026-07-22T10:13:29.680025+00:00'
+- spans
+- spans.span_id
+- spans.text
+- spans.citations
+- label
+cache_key: f84482cc3ab17b945eab5fe36dd6d6efeed3f7570019f70edbda4bf0a12279c3
+searched_at: '2026-07-26T03:15:08.098524+00:00'
 retry_count: 1
