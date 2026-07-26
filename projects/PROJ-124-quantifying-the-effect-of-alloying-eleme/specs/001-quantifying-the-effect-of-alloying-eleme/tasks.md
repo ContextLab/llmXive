@@ -41,7 +41,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan by executing: `mkdir -p code/data code/models code/utils code/config data/raw data/processed state output tests/contract tests/integration tests/unit docs/paper docs/reports` (projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/)
+- [ ] T001 [P] Initialize project directory structure. **Action**: Execute `mkdir -p code/data code/models code/utils code/config data/raw data/processed state output tests/contract tests/integration tests/unit docs/paper docs/reports` (projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/). **Verification**: Run `stat -c "%n" code data state output tests docs` to ensure all directories exist and are writable. (Plan Phase 1)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, shap, statsmodels, scipy)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -60,9 +60,9 @@
 - [X] T006b [P] Configure log rotation and file size limits in `code/utils/logger.py` to prevent disk exhaustion.
 - [X] T007a [P] Create `code/config/env.py` to manage environment variables (random seeds, paths) with a function `load_config()` that validates required keys and returns a `dict`. (Spec Assumptions)
 - [X] T007b [P] Create `code/utils/novelty.py` (stub) and `code/utils/shap_utils.py` (stub) with placeholder functions to ensure importability.
-- [X] T008a [P] Configure environment configuration management for random seeds in `code/config/env.py`. **Note**: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D2/pilot_flags`) and is NOT stored in this config file. (Spec Assumptions)
-- [X] T008b [P] Define and save the list of the most abundant metallic elements to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc). **Verification**: Add a comment in the file noting that Si, Na, and K are included per spec assumption but may not form stable metallic glasses in all ternary systems. (FR-005)
-- [X] T008c [P] Download or generate `data/known_alloys.csv` for novelty checks (FR-013). **Logic**: If external source is unavailable, create an empty file with a header row only (`composition,novelty_status`) and log a warning. **Requirement**: Ensure the file path exists before T036 runs. (Plan, Edge Cases)
+- [X] T008a [P] Configure environment configuration management for random seeds in `code/config/env.py`. **Note**: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D/pilot_flags`) and is NOT stored in this config file. (Spec Assumptions)
+- [X] T008b [P] Define and save the list of the most abundant metallic elements to `data/config/elements.yaml` and `code/config/elements.py` (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc). **Verification**: Add a comment in the file noting that Si, Na, and K are included per spec assumption but may not form stable metallic glasses in all ternary systems. [UNRESOLVED-CLAIM: c_6935e53d — status=not_enough_info] (FR-005)
+- [X] T008c [P] Implement `code/utils/novelty.py` to query external databases for the Known Alloys List. **Primary Logic**: Attempt to query the Materials Project API or a verified literature database source for known alloy compositions. **Fallback**: If external queries fail or the source is unavailable, create an empty file `data/known_alloys.csv` with a header row only (`composition,novelty_status`) and log a warning. **Requirement**: Ensure the file path exists before T036 runs. (FR-013, Plan)
 - [X] T009a [P] Create `contracts/candidates_csv.schema.yaml` defining the schema for `output/candidates.csv` (columns: composition, predicted_log10_Rc, ci_lower, ci_upper, risk_score, final_score, novelty_status) (Plan, FR-006, FR-007)
 - [X] T009b [P] Create `contracts/verification.schema.yaml` defining the schema for `output/verification_requests.json` (fields: composition, predicted_log10_Rc, confidence_interval, novelty_status, status) with `novelty_status` enum strictly ["novel", "known", "unverified_external"] (Plan, FR-008, FR-013)
 
@@ -78,19 +78,25 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Contract test in `tests/contract/test_data_schema.py::test_schema_matches_contracts` validating against the *expected* schema defined in `contracts/data_schema.yaml` (derived from FR-001), ensuring the test can run before data download (US-1)
 - [X] T011 [P] [US1] Integration test in `tests/integration/test_data_pipeline.py` for end-to-end data ingestion and feature engineering
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA) from HuggingFace (`https://huggingface.co/datasets/GFA-D2/pilot_flags`). **Requirements**: Use `huggingface_hub.hf_hub_download` (preferred) or `requests` with **explicit retry logic (3 attempts, 5s exponential backoff)**. **Output**: Save the raw file to `data/raw/gfa_dataset.csv`. **Schema Verification**: Immediately after download, verify the CSV contains `composition` and `log10_Rc` (or `Rc`) columns. **Failure Condition**: If columns are missing, raise an exception and halt execution. **Checksum**: Generate `data/raw/gfa_dataset.csv.sha` using `code/data/checksums.py` ONLY after schema verification passes. **Error Handling**: Explicitly handle authentication and permission errors and fail with a clear message if they persist. **CRITICAL**: Do NOT implement any fallback to synthetic data; if the download fails after retries or schema check fails, the script MUST raise an exception and halt execution. (FR-001, Edge Cases)
+- [X] T012 [US1] Implement `code/data/download.py` to fetch Dataset (Recent Experimental GFA) from HuggingFace (`https://huggingface.co/datasets/GFA-D2/pilot_flags`). **Requirements**:
+ 1. **Retry Logic**: Use `huggingface_hub.hf_hub_download` or `requests` with **explicit retry logic with a configurable number of attempts and exponential backoff**.
+ 2. **Schema Verification**: Immediately after download, verify the CSV contains `composition` and `log10_Rc` (or `Rc`) columns. Check that `composition` is a string and `log10_Rc` is numeric.
+ 3. **Checksum**: Generate `data/raw/gfa_dataset.csv.sha256` using `code/data/checksums.py` ONLY after schema verification passes.
+ 4. **Failure Handling**: If columns are missing, types mismatch, or download fails after retries, the script MUST raise an exception and halt execution immediately.
+ 5. **Synthetic Data Prohibition**: Under no circumstances should the script implement a fallback to synthetic data; if the real data fetch or schema check fails, the pipeline must fail explicitly to prevent fabrication.
+ **Deliverable**: Output file `data/raw/gfa_dataset.csv`. **Verification**: Confirm file exists and matches schema. (FR-001, Edge Cases)
 - [X] T013 [US1] Implement `code/data/ingest.py` to parse CSV, normalize elemental fractions to sum to 1.0 ± 0.01, and log warnings for unknown elements (US-1, FR-001)
-- [ ] T014 [US1] Implement `code/data/features.py` to compute atomic radius, electronegativity, VEC_raw, and weighted mean VEC_avg using Pymatgen. **Output**: `data/processed/features.csv` matching the schema in `contracts/data_schema.yaml` (columns: composition, log10_Rc, atomic_radius_mean, electronegativity_mean, VEC_avg, size_mismatch, etc. as defined in contract). (FR-002) <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement `code/data/features.py` to compute atomic radius, electronegativity, VEC_raw, and weighted mean VEC_avg using Pymatgen. **Output**: `data/processed/features.csv`. **Columns**: `composition`, `log10_Rc`, `atomic_radius_mean`, `electronegativity_mean`, `VEC_avg`, `size_mismatch`, `pairwise_size_mismatch_1`, `pairwise_size_mismatch_2` (for ternary), `source_row_id`. **Logic**: Iterate through elements in each composition, fetch properties from Pymatgen, compute weighted means and variances. Handle variable composition sizes. **Pairwise Logic**: For every unique pair of elements in a composition (e.g., A-B, A-C, B-C for ternary), calculate the size mismatch descriptor dynamically. (FR-002, FR-002b)
 - [X] T015 [US1] Implement pairwise size mismatch descriptor calculation in `code/data/features.py` for every unique pair of elements within each composition row. **Logic**: Iterate through all unique element pairs in a row (e.g., for ternary A-B-C, calculate for A-B, A-C, B-C). Handle variable composition sizes (binary, ternary, etc.) by calculating pairs dynamically. **Verification**: Ensure the feature dimensionality matches the number of unique pairs in the composition (3 for ternary). (FR-002b)
-- [ ] T016 [US1] Add validation logic to exclude rows with unknown elements and log specific warnings (US-1, Edge Cases)
-- [ ] T017 [US1] Save processed feature-engineered dataset to `data/processed/features.csv` with `source_row_id` traceability (Constitution Principle IV)
+- [ ] T016 [US1] Add validation logic to exclude rows with unknown elements and log specific warnings. **Logic**: If an element is not found in Pymatgen, log the specific element name and composition ID, then exclude that row from the final dataset. Do not crash. (US-1, Edge Cases)
+- [ ] T017 [US1] Save processed feature-engineered dataset to `data/processed/features.csv` with `source_row_id` traceability (Constitution Principle IV). **Verification**: Ensure row count matches the sum of valid source rows and no null values exist for computed descriptors. (FR-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,13 +110,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_artifacts.py` <!-- FAILED: unspecified -->
+- [X] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_artifacts.py`
 - [X] T019 [P] [US2] Integration test for LOCO CV and model selection in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/models/train.py` to train RandomForestRegressor and GradientBoostingRegressor with hyperparameter grids ≤30; output: `best_model.pkl` and `best_model_weighted.pkl` (if applicable) and print LOCO-MAE scores (FR-003) <!-- FAILED: unspecified -->
-- [ ] T021 [US2] Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families; **CRITICAL**: Fit a StandardScaler on the training features, save the fitted scaler as `data/processed/scaler.pkl`, and save the transformed `X_train.pkl` and `y_train.pkl` (FR-004)
+- [X] T020 [US2] Implement `code/models/train.py` to train RandomForestRegressor and GradientBoostingRegressor with hyperparameter grids ≤30; output: `best_model.pkl` and `best_model_weighted.pkl` (if applicable) and print LOCO-MAE scores (FR-003)
+- [ ] T021 [US2] Implement LOCO cross-validation logic in `code/models/train.py` based on primary metallic element families. **Logic**:
+ 1. Assign each composition to a cluster based on the element with the **highest atomic fraction**. If tied, choose the element with the **higher atomic number**.
+ 2. **Iterate**: For each unique cluster, hold it out as the test set, train on the remaining data.
+ 3. **Aggregate**: Calculate Mean Absolute Error (MAE) across all folds.
+ 4. **Scale**: Fit a StandardScaler on the training features of each fold, save the fitted scaler as `data/processed/scaler.pkl`.
+ 5. **Final Artifacts**: After model selection, fit the scaler on the *entire* training set and save the transformed training data as `data/processed/X_train_raw.pkl` and `data/processed/y_train.pkl`. (FR-004)
+- [ ] T021b [US2] **Depends on: T021** Implement PCA reduction for Domain of Applicability. **Logic**: Load `data/processed/X_train_raw.pkl` and `data/processed/scaler.pkl`. Fit a PCA model on the scaled training data, retaining sufficient variance (e.g., a high threshold or fixed components). Save the PCA model as `data/processed/pca_model.pkl` and the transformed training features as `data/processed/X_train_pca.pkl`. **Verification**: Ensure `X_train_pca.pkl` has the correct number of samples and components. (FR-009, Plan Phase 3 Step 3)
 - [ ] T022 [US2] Implement model selection logic to save `best_model.pkl` based on lowest LOCO-MAE (US-2, FR-003)
 - [ ] T023 [US2] Implement `code/models/validate.py` to perform Breusch-Pagan test for heteroscedasticity; output: `state/heteroscedasticity_test.json` containing `p_value` and `heteroscedasticity_flag` (boolean) (FR-010)
 - [ ] T024 [US2] Implement weighted loss retraining in `code/models/validate.py` **ONLY IF** `heteroscedasticity_flag` is true. **Logic**: Bin residuals by feature-space quantiles (ensure sufficient samples per bin), fit a local variance estimator, derive weights inversely proportional to the estimated local variance. Retrain the model with these weights. Save as `best_model_weighted.pkl`. **Fallback**: If binning is unstable, use a global log-variance model or Huber loss, **BUT** explicitly log this as a "deviation from strict FR-010 binning requirement" and flag the model accordingly. (FR-010)
@@ -134,18 +146,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/models/predict.py` to generate all unique ternary combinations from the most abundant metallic elements defined in `data/config/elements.yaml` (FR-005)
-- [ ] T031 [US3] Implement prediction logic using the best model (or weighted if applicable) for all ternary combinations (FR-005)
-- [ ] T032a [US3] **Depends on: T021, T030, T031** Implement `code/models/predict.py::calculate_doa` to calculate the Domain of Applicability (DoA). **Logic**:
- 1. **Load the PCA model fitted on training data** (from T021) and **load `X_train.pkl`**.
- 2. Reduce candidate features to PCA components (retaining [deferred] variance).
- 3. Calculate the **Convex Hull** of the training feature space in the reduced PCA space.
- 4. **Calculate Mahalanobis distance** for each candidate using the covariance matrix of the training data and the mean of the training data in PCA space.
- 5. **Threshold**: Flag as "high_extrapolation_risk" if the candidate is outside the Convex Hull OR if the Mahalanobis distance exceeds the 95th percentile of the chi-squared distribution (df = num_pca_components).
- **Artifacts**: Save `state/convex_hull_model.pkl`. **Verification**: Ensure `output/candidates.csv` contains the `high_extrapolation_risk` column. (FR-009, Plan Phase 3 Step 3)
-- [ ] T033 [US3] Apply +1.0 penalty to $log_{10}(R_c)$ for candidates where `high_extrapolation_risk` is true before ranking (FR-009)
-- [ ] T034 [US3] **Depends on: T030, T031, T017, T021** Implement filtering logic: **Step 1**: Calculate the 10th percentile of the `log10_Rc` distribution in the training data (from T017/T021). **Step 2**: If the 10th percentile can be calculated, retain candidates with `predicted_log10_Rc` < 10th percentile. **Fallback**: If the percentile cannot be calculated (e.g., insufficient data), **use the absolute cutoff of 4.0** as specified in FR-006. **Verification**: Ensure `output/candidates.csv` contains the filtered list. (FR-006)
-- [ ] T035 [US3] **Depends on: T022, T030, T031, T021** Generate an ensemble of bootstrapped Random Forest models on the training data. **Requirements**: Load the **exact hyperparameters** (n_estimators, max_depth, etc.) from `best_model.pkl` (T022). **Load `X_train` and `y_train` from T021**. Train 10 models on **resampled subsets** (bootstrapping with replacement) of the training data using these fixed hyperparameters. Save each model as `state/bootstrapped_models/ensemble_{i}.pkl` (i=0..9). Predict on candidates; calculate confidence intervals (lower and upper percentiles) from the variance of these 10 predictions; output confidence intervals for each candidate. **Verification**: Ensure `output/candidates.csv` contains `ci_lower` and `ci_upper` columns. Verify hyperparameters match `best_model.pkl`. (FR-003, FR-007)
+- [ ] T030 [US3] Implement `code/models/predict.py` to generate all unique ternary combinations from the most abundant metallic elements defined in `data/config/elements.yaml` (FR-005). **Output**: Save combinations to `data/config/ternary_combinations.csv`.
+- [ ] T031 [US3] Implement prediction logic using the best model (or weighted if applicable) for all ternary combinations. **Logic**: Load the output of T030 (`data/config/ternary_combinations.csv`), compute features using `code/data/features.py` logic, and predict $log_{10}(R_c)$. (FR-005)
+- [ ] T032a [US3] **Depends on: T021, T021b, T030, T031** Implement `code/models/predict.py::calculate_doa` to calculate the Domain of Applicability (DoA). **Logic**:
+ 1. **Load Artifacts**: Load the PCA model from `data/processed/pca_model.pkl` and the transformed training data `data/processed/X_train_pca.pkl`.
+ 2. **Reduce Dimensions**: Transform candidate features using the loaded PCA model.
+ 3. **Construct Convex Hull**: Compute the convex hull of the training data points in the reduced PCA space using `scipy.spatial.ConvexHull`.
+ 4. **Calculate Mahalanobis Distance**: Compute the mean vector and covariance matrix of the training data in PCA space. Calculate the Mahalanobis distance for each candidate.
+ 5. **Determine Threshold**: Calculate the threshold as a high quantile of the chi-squared distribution with degrees of freedom equal to the number of PCA components.
+ 6. **Flag Risk**: Flag a candidate as "high_extrapolation_risk" if it lies outside the convex hull OR if its Mahalanobis distance exceeds the threshold.
+ 7. **Artifacts**: Save the convex hull object as `state/convex_hull_model.pkl`. **Verification**: Ensure `output/candidates.csv` contains the `high_extrapolation_risk` column and the `risk_score`. (FR-009, Plan Phase 3 Step 3)
+- [ ] T033 [US3] **Depends on: T032a** Apply penalty to $log_{10}(R_c)$ for candidates where `high_extrapolation_risk` is true. **Logic**: If a candidate is flagged as high risk, add a **fixed value of ** to its predicted $log_{10}(R_c)$ to calculate the `final_score`. **Verification**: Ensure `output/candidates.csv` contains the `final_score` column and that the penalty is strictly +1.0 for flagged items. (FR-009, Plan Phase 3 Step 3)
+- [ ] T034 [US3] **Depends on: T030, T031, T017, T021** Implement filtering logic: **Step 1**: Calculate the th percentile of the `log10_Rc` distribution in the training data. **Step 2**: If the dataset is empty or the percentile is mathematically undefined, use the absolute cutoff of 4.0 as specified in FR-006. **Step 3**: Retain candidates with `predicted_log10_Rc` < 10th percentile (or < 4.0 if fallback triggered). **Verification**: Log the calculated threshold to `state/threshold.json` and ensure `output/candidates.csv` contains the filtered list. (FR-006)
+- [ ] T035 [US3] **Depends on: T022, T030, T031, T021b** Generate a bootstrapped ensemble of Random Forest models for CI estimation. **Logic**: Load the **exact hyperparameters** from `best_model.pkl`. **Load `data/processed/X_train_pca.pkl` and `y_train` from T021**. **Ensure `state/bootstrapped_models/` exists**. Train multiple separate models on resampled subsets (bootstrapping with replacement) of the transformed training data. Save each model as `state/bootstrapped_models/ensemble_{i}.pkl` (i=0..9). Predict on candidates; calculate confidence intervals (2.5th and 97.5th percentiles) from the sorted list of 10 predictions. **Verification**: Ensure `output/candidates.csv` contains `ci_lower` and `ci_upper` columns. (FR-003, FR-007)
 - [ ] T036 [US3] **Depends on: T030, T031** Implement novelty check in `code/utils/novelty.py` against `data/known_alloys.csv`. **Logic**: If the list exists, check and set `novelty_status` to `"novel"` or `"known"`. **Fallback**: If `data/known_alloys.csv` is missing or empty, set `novelty_status` to `"unverified_external"` and log a warning. **Do NOT fail the pipeline** if the list is missing. **Verification**: Ensure `output/verification_requests.json` contains `novelty_status: unverified_external` for all rows when the list is missing. (FR-013, Plan Phase 3 Step 5)
 - [ ] T037 [US3] Rank candidates by ascending `final_score` (predicted + penalty) and select a representative subset of top-ranked items (FR-006)
 - [ ] T038 [US3] Generate `output/candidates.csv` with top-ranked candidates, predictions, CIs, and risk scores (FR-006, FR-007)
@@ -165,7 +178,7 @@
 - [ ] T042 Code cleanup and refactoring across `code/` modules
 - [ ] T043a [P] Refactor `code/models/predict.py` to use vectorized operations for the prediction loop to reduce runtime (Performance optimization)
 - [ ] T043b [P] Refactor DoA calculation to process candidates in batches to reduce memory usage (Performance optimization)
-- [ ] T043c [P] Profile the pipeline and optimize bottlenecks to ensure total runtime < 6 hours on CPU-only runner. **Deliverable**: Generate `output/profiling_report.json` with runtime metrics for each phase and memory usage peaks. (SC-004)
+- [ ] T043c [P] Profile the pipeline and optimize bottlenecks to ensure total runtime <= 6 hours on CPU-only runner. **Deliverable**: Generate `output/profiling_report.json` with runtime metrics for each phase and memory usage peaks. (SC-004)
 - [ ] T043d [P] **Depends on: T043c** Verify the runtime of the combinatorial generation step ([deferred] combinations) against the 6-hour constraint in `output/profiling_report.json`. If exceeded, flag for further optimization. (SC-004)
 - [ ] T044 [P] Additional unit tests for feature engineering logic in `tests/unit/test_features.py`
 - [ ] T045 Run `quickstart.md` validation to ensure end-to-end reproducibility
@@ -206,7 +219,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Phase 5 Parallelism**: T030 and T031 can run in parallel. T032a is sequential after T030/T031. T035 is sequential after T022 and T030/T031. T036 is sequential after T030/T031.
+- **Phase 5 Parallelism**: T030 and T031 cannot run in parallel; T031 depends on T030 output file. T032a is sequential after T030/T031. T035 is sequential after T022 and T030/T031. T036 is sequential after T030/T031.
 
 ---
 

@@ -66,9 +66,20 @@
   verification_status: pending
   verified_against_url: https://github.com/psf/black
   verified_at: '2026-07-16T22:01:03.312939Z'
-- artifact_hash: 96f909e4b46f6df8265582a46a98460fc9ef6fa46d2363ef96145b578437a076
+- artifact_hash: fc18fff68789a2b2117161dfd33968ff8bbe63c3ebd94b72c8309aadd6efeaa7
   artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/GFA-D/pilot_flags`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/GFA-D/pilot_flags
+  verified_at: '2026-07-26T09:36:03.572190Z'
+- artifact_hash: fc18fff68789a2b2117161dfd33968ff8bbe63c3ebd94b72c8309aadd6efeaa7
+  artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: "GFA-D2/pilot_flags \xB7 Datasets at Hugging Face"
@@ -76,4 +87,4 @@
   value: https://huggingface.co/datasets/GFA-D2/pilot_flags`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/GFA-D2/pilot_flags
-  verified_at: '2026-07-23T15:26:21.162768Z'
+  verified_at: '2026-07-26T09:36:03.572190Z'

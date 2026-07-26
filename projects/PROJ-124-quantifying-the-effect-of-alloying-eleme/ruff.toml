@@ -1,0 +1,48 @@
+[lint]
+# Select rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "S",  # flake8-bandit
+]
+
+# Ignore specific rules
+ignore = [
+    "E501", # Line too long (handled by black)
+    "S101", # Use of assert (acceptable in tests)
+]
+
+# Allow autofix for all enabled rules (when possible)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude files/directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "data/",
+    "output/",
+    "state/",
+    "docs/",
+]
+
+# Per-file ignores
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[lint.isort]
+known-first-party = ["code"]
+
+[format]
+# Use Black's formatting settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

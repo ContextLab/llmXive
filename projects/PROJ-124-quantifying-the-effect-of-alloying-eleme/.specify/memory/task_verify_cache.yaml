@@ -1,3 +1,27 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories being created (e.g., no `stat` output,\
+    \ directory listings, or screenshots) is provided, so we cannot confirm that the\
+    \ `mkdir -p \u2026` command was executed and that the listed directories exist\
+    \ and are writable. The implementer must supply concrete verification output showing\
+    \ the presence and writability of the `code`, `data`, `state`, `output`, `tests`,\
+    \ and `docs` directories."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8` or equivalent) are present, nor
+    any scripts or documentation showing that ruff/flake8 and Black have been set
+    up for the project. Without these concrete artifacts, the requirement to configure
+    linting and formatting tools is not satisfied.
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that the `data/raw/` and `data/processed/`\
+    \ directories actually exist in the repository; the response contains no file\u2011\
+    system listing, screenshots, or code that creates these folders. Without concrete\
+    \ proof of the required directory structure, the task cannot be considered completed."
 T005:
   c: true
   h: 5d2c5af92a4d279ce4e077bd02e3c91d1bb6d76add991a268d46b08a3ec718e8
@@ -14,13 +38,15 @@ T012:
     \ `data/raw/gfa_dataset.csv` and its `.sha` file are absent. The implementation\
     \ does not demonstrably satisfy the download, verification, and checksum steps\
     \ mandated by the task."
-T016:
+T014:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, log files, or test results were provided that demonstrate the
-    addition of validation logic to detect unknown elements, exclude those rows, and
-    emit specific warnings. The required artifact (implementation and evidence of
-    its behavior) is missing.
+  h: 136fb182491330ac326fda809be943b1c9f7e25dee8bebfb460140428ef4799a
+  r: "The repository contains a `code/data/features.py` file, but it is truncated\
+    \ and does not demonstrably implement the full logic (weighted means, VEC calculations,\
+    \ pairwise size\u2011mismatch descriptors, handling of variable composition sizes)\
+    \ required by the task. Moreover, the required output artifact `data/processed/features.csv`\
+    \ is absent. Both the missing output file and the incomplete implementation mean\
+    \ the task is not genuinely completed."
 T021:
   c: false
   h: 6feccdd41f7d114178886a0ab21dc30110be2833c958ebfe6eb1faedaf2fb93f
