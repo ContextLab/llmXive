@@ -39,7 +39,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 
 ## File Structure
 
-- `src/llmxive/self_improvement/route_context.py` — `LaneRouteContext` (the three mandatory hooks, `next_operation_id`, `claim_route`, `record_reroute`) + `proposal_call_ceiling`. One responsibility: what every lane LLM call needs. `LaneCallCeilingExceeded` is re-exported from Slice 1A's `call_ledger`, not redefined.
+- `src/llmxive/self_improvement/route_context.py` — `LaneRouteContext` (the three mandatory hooks, `next_operation_id`, `claim_route`, `record_reroute`) + the ceiling arithmetic (`proposal_call_ceiling`, `patch_call_ceiling`, `attempt_call_ceiling`). One responsibility: what every lane LLM call needs. `LaneCallCeilingExceeded` is re-exported from Slice 1A's `call_ledger`, not redefined.
 - `src/llmxive/self_improvement/events.py` — **modified**: add `ReviewRerouted` to `KNOWN_EVENT_TYPES_V1` (a vocabulary extension — no `SCHEMA_VERSION` bump, per Slice 1A's F7 rule) and register its validator in `TYPE_VALIDATORS`.
 - `src/llmxive/self_improvement/invocation_identity.py` — `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. One responsibility: the audit-derived provenance record.
 - `src/llmxive/convergence/lane_reviser.py` — `LaneProposalReviser` (implements `Reviser`; exactly one routed call per `revise()`).
@@ -83,20 +83,38 @@ def test_review_rerouted_is_a_known_event_type():
     assert "ReviewRerouted" in KNOWN_EVENT_TYPES_V1
     assert SCHEMA_VERSION == 1
 
+_OP = "op-1"
+
 def _reroute_payload(**kw):
+    from llmxive.self_improvement.events import derive_route_id
     base = {
-        "operation_id": "op-1", "lens": "worthwhile-improvement",
+        "operation_id": _OP, "lens": "worthwhile-improvement",
         "primary_profile": "independent_review", "fallback_profile": "deep_review",
-        "primary_route_id": "r1", "fallback_route_id": "r2",
+        "primary_route_id": derive_route_id("A1", _OP, "primary"),
+        "fallback_route_id": derive_route_id("A1", _OP, "fallback"),
         "primary_failure": {"exception_type": "ModelUnavailable", "message": "no independent family live"},
         "relaxed_constraints": ["family_independence", "snapshot_freshness"],
     }
     base.update(kw)
     return base
 
+def _reroute_event(**kw):
+    return _raw(event_type="ReviewRerouted", attempt_id="A1", payload=_reroute_payload(**kw))
+
 def test_review_rerouted_event_validates():
     from llmxive.self_improvement.events import validate_lane_event
-    validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload()))  # no raise
+    validate_lane_event(_reroute_event())  # no raise
+
+def test_review_rerouted_route_ids_are_recomputed_at_write_time():
+    # Round-6 hardening: the same binding build_invocation_identity checks at projection
+    # time is now enforced at WRITE time, so a foreign/borrowed leg never becomes durable.
+    from llmxive.self_improvement.events import derive_route_id, validate_lane_event
+    foreign = derive_route_id("A2", _OP, "primary")
+    with pytest.raises(ValueError, match="primary_route_id"):
+        validate_lane_event(_reroute_event(primary_route_id=foreign))
+    with pytest.raises(ValueError, match="attempt_id"):
+        validate_lane_event(_raw(event_type="ReviewRerouted", attempt_id=None,
+                                 payload=_reroute_payload()))
 
 def test_review_rerouted_is_registered_for_payload_validation():
     # F6: vocabulary membership alone leaves the payload unchecked.
@@ -107,15 +125,16 @@ def test_review_rerouted_rejects_unknown_keys():
     # Round-5 F6: the schema is EXACT, not merely "required fields present" — otherwise a
     # typo'd key is indistinguishable from a new one and the contract is untestable.
     from llmxive.self_improvement.events import validate_lane_event
-    with pytest.raises(ValueError, match="unexpected payload keys"):
-        validate_lane_event(_raw(event_type="ReviewRerouted",
-                                 payload=_reroute_payload(surprise="extra")))
-    with pytest.raises(ValueError, match="unexpected primary_failure keys"):
-        validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload(
-            primary_failure={"exception_type": "ModelUnavailable", "message": "x", "extra": 1})))
+    with pytest.raises(ValueError, match="unexpected ReviewRerouted payload keys"):
+        validate_lane_event(_reroute_event(surprise="extra"))
+    with pytest.raises(ValueError, match="unexpected ReviewRerouted primary_failure keys"):
+        validate_lane_event(_reroute_event(
+            primary_failure={"exception_type": "ModelUnavailable", "message": "x", "extra": 1}))
 
 @pytest.mark.parametrize("bad, why", [
-    ({"primary_route_id": "same", "fallback_route_id": "same"}, "distinct"),
+    # both legs the same id: caught by the write-time derivation check (two identical ids
+    # cannot both be correct derivations), with the distinctness guard behind it
+    ({"primary_route_id": "same", "fallback_route_id": "same"}, "route_id"),
     ({"primary_profile": "deep_review"}, "primary_profile"),
     ({"fallback_profile": "standard_generation"}, "fallback_profile"),
     ({"primary_failure": {"exception_type": "ChainExhausted", "message": "x"}}, "ModelUnavailable"),
@@ -129,14 +148,14 @@ def test_review_rerouted_rejects_malformed_payloads(bad, why):
     # build_invocation_identity or assert a FALSE claim about what the fallback relaxed.
     from llmxive.self_improvement.events import validate_lane_event
     with pytest.raises(ValueError, match=why):
-        validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload(**bad)))
+        validate_lane_event(_reroute_event(**bad))
 
 def test_review_rerouted_rejects_a_missing_key():
     from llmxive.self_improvement.events import validate_lane_event
     payload = _reroute_payload()
     del payload["fallback_route_id"]
     with pytest.raises(ValueError, match="fallback_route_id"):
-        validate_lane_event(_raw(event_type="ReviewRerouted", payload=payload))
+        validate_lane_event(_raw(event_type="ReviewRerouted", attempt_id="A1", payload=payload))
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -186,11 +205,23 @@ def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
     this payload, so an unchecked key is either a KeyError in the projection or — worse —
     a FALSE claim about which safeguards the fallback gave up."""
     payload = raw["payload"]
-    extra = set(payload) - _REROUTE_KEYS
-    if extra:
-        raise ValueError(f"unexpected payload keys {sorted(extra)} — the schema is exact")
+    _exact_keys(payload, _REROUTE_KEYS, "ReviewRerouted payload")
     for key in ("operation_id", "lens", "primary_route_id", "fallback_route_id"):
         _require(payload, key, str)
+    # Round-6 hardening: recompute BOTH legs at WRITE time from the envelope's attempt_id,
+    # the same check build_invocation_identity performs at projection time. The projection
+    # already fails closed, so this is defense in depth — but a record that can never
+    # become durable is strictly better than one that is rejected only when read.
+    attempt_id = raw.get("attempt_id")
+    if not attempt_id:
+        raise ValueError("a ReviewRerouted event must carry its envelope attempt_id")
+    for key, leg in (("primary_route_id", "primary"), ("fallback_route_id", "fallback")):
+        expected = derive_route_id(attempt_id, payload["operation_id"], leg)
+        if payload[key] != expected:
+            raise ValueError(
+                f"{key}={payload[key]!r} is not attempt {attempt_id!r}'s {leg} claim for "
+                f"operation {payload['operation_id']!r} — expected {expected!r}"
+            )
     if payload["primary_route_id"] == payload["fallback_route_id"]:
         raise ValueError("primary_route_id and fallback_route_id must be distinct "
                          "(the two legs are two logical route_chat invocations)")
@@ -201,9 +232,7 @@ def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
     if fallback != _REROUTE_FALLBACK_PROFILE:
         raise ValueError(f"fallback_profile must be {_REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}")
     failure = _require(payload, "primary_failure", Mapping)
-    failure_extra = set(failure) - _REROUTE_FAILURE_KEYS
-    if failure_extra:
-        raise ValueError(f"unexpected primary_failure keys {sorted(failure_extra)}")
+    _exact_keys(failure, _REROUTE_FAILURE_KEYS, "ReviewRerouted primary_failure")
     for key in ("exception_type", "message"):
         _require(failure, key, str)
     if failure["exception_type"] != _REROUTE_TRIGGER:
@@ -215,12 +244,14 @@ def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
                          f"always relaxes both, in that order), got {relaxed!r}")
 
 TYPE_VALIDATORS["ReviewRerouted"] = _validate_review_rerouted
+
+# (`_exact_keys`, `_require`, and `derive_route_id` all come from Slice 1A Task 2.)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_events.py -q`
-Expected: PASS (all, including the 14 new cases: 2 vocabulary/registration + 1 valid payload + 8 parametrized malformed + 1 missing-key + 2 unknown-key).
+Expected: PASS (all, including the 16 new cases: 2 vocabulary/registration + 1 valid payload + 1 write-time route-id binding + 8 parametrized malformed + 1 missing-key + 2 unknown-key + 1 missing-envelope-attempt).
 
 - [ ] **Step 5: Commit**
 
@@ -240,7 +271,11 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T1): ReviewReroute
 **Interfaces:**
 - Consumes: slice-0 `RouteAudit`/`ReservationAuthority` protocols and `RouteAuditError`; Slice-1A `LaneCallLedger`, `LaneCallCeilingExceeded`, `LaneLogConfig`, `lane_log.append`, `LaneContention`, `LaneRevisionConflict`, `Event`, `derive_event_id`, `GitLogError`.
 - Produces:
-  - `def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int` — `4 * panel_size + max_rounds * (2 * panel_size + 2)` (Policy Contract line 313). Pure function, unit-tested against the spec's arithmetic. (The stage FORMULA lives here; the durable ENFORCEMENT lives in Slice 1A's `LaneCallLedger`.)
+  - `def proposal_call_ceiling(panel_size, max_rounds) -> int` — `4N + R·(2N + 2)`, and `def patch_call_ceiling(panel_size, max_rounds) -> int` — `2N + R·(N + 2)` (Policy Contract line 313). **Stage COMPONENTS, not limits.**
+  - `def attempt_call_ceiling(*, proposal_panel, patch_panel, max_rounds, impl_regen_retries=1) -> int` — the WHOLE line-313 expression: `proposer + implementer·(1 + impl_regen_retries) + proposal component + patch component`. **This is the only value that may be written into `AttemptConfigured`** (round-5 review F1).
+    **Why this replaces the round-4 wiring:** every `LaneCallLedger` in the round-4 plan was constructed with `proposal_call_ceiling(...)` — 56. That was survivable while the ceiling was per-panel, but round-5's `AttemptConfig` makes the first bound value **immutable for the Attempt**, which turns it into two defects: (a) the proposer's and implementer's calls, claimed against the same Attempt, eat the proposal panel's allowance; and (b) when a later slice tries to bind the real whole-Attempt figure, `AttemptConfigMismatch` rejects it because 56 was bound first. Spec 025 defines ONE per-Attempt ceiling spanning all stages, so that is what gets bound.
+  - `IMPL_REGEN_RETRIES = 1` (Policy Contract line 312).
+  - `PATCH_LENSES` and `LANE_ATTEMPT_CEILING` are produced by **Task 7** (`self_improvement_specs.py`), which already owns `PROPOSAL_LENSES`/`PROPOSAL_MAX_ROUNDS` and can import this module — `route_context` must NOT import it back (cycle). `LANE_ATTEMPT_CEILING` = `attempt_call_ceiling(proposal_panel=len(PROPOSAL_LENSES), patch_panel=len(PATCH_LENSES), max_rounds=PROPOSAL_MAX_ROUNDS)` = **90** for the canonical panels (`N_p = N_q = 5`, `R = 3`). Every lane ledger in this plan binds THAT.
   - Re-export of `LaneCallCeilingExceeded` for the lane's callers — **imported from `self_improvement.call_ledger`, not redefined** (round-4 F1: the ceiling is a substrate condition).
   - `@dataclass(frozen=True) class LaneRouteContext`: fields `repo: Path`, `problem_id: str`, `attempt_id: str`, `actor: str`, `clock: Callable[[], str]`, `route_audit: RouteAudit`, `reservation_authority: ReservationAuthority`, `call_ledger: LaneCallLedger`, `config: LaneLogConfig = LaneLogConfig()`. All three hooks are **REQUIRED** (no `None` default — F2/F3/F1: there is no unaudited, unbudgeted, or unadmitted lane call). **Frozen** — it holds no mutable counter any more, because the spend now lives in the durable log.
   - `def next_operation_id(self, base: str) -> str` — resolves a caller's content-derived `base` into this call's operation id: the first use in a process returns it unchanged, each in-process repeat appends `#1`, `#2`, …. **This is not decoration — it is what keeps the durable claim correct in both directions.** A pure content digest gives the two properties we need (distinct logical calls differ; a RESTART re-derives the same id so `claim_dispatch` recognizes the replay), but two callers legitimately re-issue an *identical* call inside one process: the engine re-invokes `revise(artifacts, concerns)` with byte-identical arguments after a malformed reply (`engine.py:519-533`), and a round with no artifact change can produce a rereview prompt identical to the previous round's. Those are new logical calls that already dispatched once, so they need new ids and their own ceiling charge — the ceiling's `+2` per round exists exactly for the reviser's second attempt. Without the sequencer they would replay the first claim, receive the first `route_id`, and be REFUSED at the dispatch gate.
@@ -265,7 +300,9 @@ from llmxive.self_improvement.call_ledger import (
     LaneCallCeilingExceeded, LaneCallLedger, derive_route_id,
 )
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
-from llmxive.self_improvement.route_context import LaneRouteContext, proposal_call_ceiling
+from llmxive.self_improvement.route_context import (
+    LaneRouteContext, attempt_call_ceiling, patch_call_ceiling, proposal_call_ceiling,
+)
 
 _CLOCK = lambda: "2026-07-25T00:00:00+00:00"
 
@@ -313,10 +350,28 @@ def _ctx(repo, ceiling=4):
         route_audit=_Sink(), reservation_authority=_Budget(), call_ledger=ledger,
     )
 
-def test_proposal_ceiling_matches_the_spec_formula():
-    # Policy Contract line 313: proposal run = 4N + R*(2N + 2); N=5, R=3 -> 56.
+def test_stage_components_match_the_spec_formulas():
+    # Policy Contract line 313: proposal run = 4N + R*(2N + 2) (the reroute doubles every
+    # reviewer term); patch run = 2N + R*(N + 2) (single-route, fail closed).
     assert proposal_call_ceiling(5, 3) == 56
     assert proposal_call_ceiling(1, 1) == 4 * 1 + 1 * (2 * 1 + 2)  # == 8
+    assert patch_call_ceiling(5, 3) == 31
+    assert patch_call_ceiling(1, 1) == 2 * 1 + 1 * (1 + 2)         # == 5
+
+def test_the_ATTEMPT_ceiling_is_the_whole_line_313_expression():
+    # F1: this — not a stage component — is what AttemptConfigured binds. Spec 025 line
+    # 313: proposer + implementer*(1 + impl_regen_retries) + proposal + patch.
+    total = attempt_call_ceiling(proposal_panel=5, patch_panel=5, max_rounds=3)
+    assert total == 1 + 2 + 56 + 31 == 90
+    # and it is STRICTLY larger than any one stage — binding a component would both
+    # starve the other stages and permanently lock out the real figure (immutable record)
+    assert total > proposal_call_ceiling(5, 3) and total > patch_call_ceiling(5, 3)
+
+def test_impl_regen_retries_moves_the_attempt_ceiling():
+    from llmxive.self_improvement.route_context import IMPL_REGEN_RETRIES
+    assert IMPL_REGEN_RETRIES == 1                       # Policy Contract line 312 (hard max 1)
+    assert attempt_call_ceiling(proposal_panel=5, patch_panel=5, max_rounds=3,
+                                impl_regen_retries=0) == 89
 
 def test_each_operation_leg_gets_a_distinct_durable_route_id(repo):
     ctx = _ctx(repo, ceiling=3)
@@ -445,7 +500,8 @@ from llmxive.self_improvement.lane_log import (
     LaneContention, LaneLogConfig, LaneRevisionConflict, append,
 )
 
-__all__ = ["LaneCallCeilingExceeded", "LaneRouteContext", "proposal_call_ceiling"]
+__all__ = ["IMPL_REGEN_RETRIES", "LaneCallCeilingExceeded", "LaneRouteContext",
+           "attempt_call_ceiling", "patch_call_ceiling", "proposal_call_ceiling"]
 
 #: The constraints the FR-002 fallback ALWAYS relaxes — factual (what changed), NOT a
 #: causal claim about which one made the primary attempt fail (ModelUnavailable carries
@@ -454,12 +510,45 @@ RELAXED_CONSTRAINTS = ("family_independence", "snapshot_freshness")
 PRIMARY_PROFILE = "independent_review"
 FALLBACK_PROFILE = "deep_review"
 
+#: Policy Contract line 313: "impl_regen_retries = 1 (hard max 1)".
+IMPL_REGEN_RETRIES = 1
+
 def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int:
-    """The PROPOSAL stage ceiling ``4N + R*(2N + 2)`` (Policy Contract line 313): every
-    reviewer operation is up to TWO logical route_chat invocations (the FR-002 reroute),
-    so each reviewer term doubles; the reviser's ``+2`` (producer — no independence, no
-    reroute) does not. This is the FORMULA; ``LaneCallLedger`` is the ENFORCEMENT."""
+    """The PROPOSAL stage COMPONENT ``4N + R*(2N + 2)`` (Policy Contract line 313): every
+    reviewer operation is up to TWO logical route_chat invocations (the FR-002 reroute), so
+    each reviewer term doubles; the reviser's ``+2`` (producer — no independence, no
+    reroute) does not.
+
+    **This is a component, NOT the Attempt's limit** (round-5 F1) — see
+    :func:`attempt_call_ceiling`. Binding it as the Attempt ceiling would both let the
+    proposal panel eat the proposer's and implementer's allowance and, because
+    ``AttemptConfigured`` is immutable, permanently lock out the real figure."""
     return 4 * panel_size + max_rounds * (2 * panel_size + 2)
+
+def patch_call_ceiling(panel_size: int, max_rounds: int) -> int:
+    """The PATCH stage component ``2N + R*(N + 2)`` (Policy Contract line 313). The patch
+    review is single-route (fail closed, no reroute), so its reviewer term does NOT double.
+    Used only as a term of :func:`attempt_call_ceiling`; the patch stage itself is a later
+    slice."""
+    return 2 * panel_size + max_rounds * (panel_size + 2)
+
+def attempt_call_ceiling(*, proposal_panel: int, patch_panel: int, max_rounds: int,
+                         impl_regen_retries: int = IMPL_REGEN_RETRIES) -> int:
+    """THE per-Attempt ceiling — the whole Policy Contract line 313 expression:
+
+        ``proposer + implementer·(1 + impl_regen_retries)
+          + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]``
+
+    This is the number that goes into ``AttemptConfigured``. Spec 025 defines ONE ceiling
+    per Attempt covering every stage, not a per-stage sub-budget, and the record is
+    immutable once bound — so a stage component must never be written as the Attempt's
+    limit (round-5 F1)."""
+    return (
+        1                                                        # the proposer's one call
+        + (1 + impl_regen_retries)                               # implementer + regenerations
+        + proposal_call_ceiling(proposal_panel, max_rounds)
+        + patch_call_ceiling(patch_panel, max_rounds)
+    )
 
 @dataclass(frozen=True)
 class LaneRouteContext:
@@ -571,7 +660,7 @@ class LaneRouteContext:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/integration/test_self_improvement_route_context.py -q`
-Expected: PASS (8 passed).
+Expected: PASS (11 passed).
 
 - [ ] **Step 5: Commit**
 
@@ -1939,7 +2028,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T6): complete Invo
 - Test: `tests/integration/test_self_improvement_review_spec.py`
 
 **Interfaces:**
-- Consumes: `LLMReviewer` with the lane params (Task 4); `LaneProposalReviser` (Task 5); `LaneRouteContext` + `proposal_call_ceiling` (Task 2); `ReviewSpec` (`convergence/types.py:295-313`).
+- Consumes: `LLMReviewer` with the lane params (Task 4); `LaneProposalReviser` (Task 5); `LaneRouteContext` + `attempt_call_ceiling` (Task 2); `ReviewSpec` (`convergence/types.py:295-313`).
+- Produces (beyond the spec builder): `PATCH_LENSES` and `LANE_ATTEMPT_CEILING` — see Task 2's interface block for why the patch lens NAMES must be declared before the patch slice exists.
 - Produces:
   - `PROPOSAL_STAGE = "self_improvement_proposal"` (matches the `_STAGE_PREFIX` entry from Task 4).
   - `PROPOSAL_LENSES: tuple[str, ...] = ("worthwhile-improvement", "diagnosis-correctness", "tractability", "testability", "blast-radius-sanity")` — the exact lens set from the Self-improvement ReviewSpec table (spec line 278).
@@ -1960,7 +2050,8 @@ from pathlib import Path
 import pytest
 
 from llmxive.convergence.self_improvement_specs import (
-    PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, PROPOSAL_STAGE, build_proposal_review_spec,
+    LANE_ATTEMPT_CEILING, PATCH_LENSES, PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, PROPOSAL_STAGE,
+    build_proposal_review_spec,
 )
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.call_ledger import LaneCallLedger
@@ -1992,7 +2083,7 @@ def _ctx(repo):
     ledger = LaneCallLedger(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
         clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig(),
-        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        call_ceiling=LANE_ATTEMPT_CEILING,      # the WHOLE-Attempt figure, never a component
         attempt_budget_credits=_BUDGET,
     )
     return LaneRouteContext(
@@ -2025,8 +2116,14 @@ def test_context_is_mandatory():
             backend=object(), repo_root=Path("."),
             proposer_baseline=IndependenceBaseline(), )  # no route_context
 
-def test_ceiling_matches_the_panel_it_builds():
+def test_the_bound_ceiling_is_the_WHOLE_attempt_not_this_panel():
+    # F1: AttemptConfigured binds ONE immutable number for the whole Attempt. Binding the
+    # proposal component would starve the proposer/implementer/patch stages AND make the
+    # real figure unbindable later.
     assert proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS) == 56  # N=5, R=3
+    assert len(PATCH_LENSES) == 5                        # the ceiling's N_q
+    assert LANE_ATTEMPT_CEILING == 90
+    assert LANE_ATTEMPT_CEILING > proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS)
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -2057,7 +2154,7 @@ from llmxive.convergence.lane_reviser import LaneProposalReviser
 from llmxive.convergence.llm_reviewer import LLMReviewer
 from llmxive.convergence.types import ReviewSpec
 from llmxive.model_selection.types import IndependenceBaseline
-from llmxive.self_improvement.route_context import LaneRouteContext
+from llmxive.self_improvement.route_context import LaneRouteContext, attempt_call_ceiling
 
 PROPOSAL_STAGE = "self_improvement_proposal"
 #: The proposal lens set (Self-improvement ReviewSpec table, spec line 278).
@@ -2065,9 +2162,28 @@ PROPOSAL_LENSES = (
     "worthwhile-improvement", "diagnosis-correctness", "tractability",
     "testability", "blast-radius-sanity",
 )
+#: The PATCH lens set (same table, line 278). The patch `ReviewSpec` BUILDER is a later
+#: slice; the lens NAMES are declared now because the Attempt ceiling below needs N_q and
+#: `AttemptConfigured` binds that ceiling IMMUTABLY (round-5 F1). The later slice MUST
+#: build its panel from this tuple — if it uses a different size, the ceiling bound for
+#: every Attempt today is wrong for the Attempt it governs.
+PATCH_LENSES = (
+    "implementation-correctness", "safety-blast-radius", "test-adequacy",
+    "spec-adherence", "security-of-diff",
+)
 PROPOSAL_MAX_ROUNDS = 3          # table line 281 (the engine default)
 #: A proposal the panel does not accept is REJECTED pre-claim (transition table line 245).
 PROPOSAL_KICKBACK_STAGE = "rejected"
+
+#: THE per-Attempt LLM-call ceiling (Policy Contract line 313) — the value bound into
+#: `AttemptConfigured`. It spans EVERY stage of the Attempt, not just this panel: a stage
+#: component would starve the other stages and, because the record is immutable, would
+#: permanently lock out the real figure. == 90 for the canonical 5-lens panels at R=3.
+LANE_ATTEMPT_CEILING = attempt_call_ceiling(
+    proposal_panel=len(PROPOSAL_LENSES),
+    patch_panel=len(PATCH_LENSES),
+    max_rounds=PROPOSAL_MAX_ROUNDS,
+)
 
 def build_proposal_review_spec(
     *,
@@ -2153,9 +2269,8 @@ from llmxive.model_selection.attempt_hooks import RouteAuditError, RouteReplayEr
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.call_ledger import LaneCallLedger
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
-from llmxive.self_improvement.route_context import (
-    LaneCallCeilingExceeded, LaneRouteContext, proposal_call_ceiling,
-)
+from llmxive.convergence.self_improvement_specs import LANE_ATTEMPT_CEILING
+from llmxive.self_improvement.route_context import LaneCallCeilingExceeded, LaneRouteContext
 
 class _Sink:
     def record(self, event) -> None: ...
@@ -2180,7 +2295,7 @@ _BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds
 
 def _ctx(repo):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1",
-                            call_ceiling=proposal_call_ceiling(5, 3),
+                            call_ceiling=LANE_ATTEMPT_CEILING,
                             attempt_budget_credits=_BUDGET, actor="lane",
                             clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
     return LaneRouteContext(
@@ -2378,7 +2493,9 @@ import subprocess
 
 import pytest
 
-from llmxive.convergence.self_improvement_specs import PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review
+from llmxive.convergence.self_improvement_specs import (
+    LANE_ATTEMPT_CEILING, PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review,
+)
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
 from llmxive.self_improvement.call_ledger import LaneCallLedger
@@ -2404,7 +2521,7 @@ def lane(tmp_path):
                                  attempt_budget_credits=1000.0, actor="lane", clock=clock, config=cfg)
     calls = LaneCallLedger(
         repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane", clock=clock, config=cfg,
-        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        call_ceiling=LANE_ATTEMPT_CEILING,  # the WHOLE-Attempt figure, never a component
         attempt_budget_credits=1000.0,      # the SAME budget the credit ledger binds
     )
     ctx = LaneRouteContext(
@@ -2454,7 +2571,10 @@ def test_full_proposal_panel_audits_every_call_and_records_the_reroute(lane, mon
     # the ceiling accounted BOTH legs of every reviewer op plus the reviser's calls, and it
     # is the DURABLE count read back from the lane log (round-4 F1)
     assert ctx.calls_used() >= 2 * len(PROPOSAL_LENSES)
+    # The Attempt's bound limit is the WHOLE-Attempt figure; a proposal-only run must also
+    # stay inside its own stage COMPONENT, which is the tighter of the two checks.
     assert ctx.calls_used() <= proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS)
+    assert ctx.calls_used() <= LANE_ATTEMPT_CEILING
     # and NOTHING routed without first being admitted: every route id the router touched
     # (resolved a chain for, or failed selection on) has a durable LaneCallClaimed
     claimed = {e.payload["route_id"] for e in events if e.event_type == "LaneCallClaimed"}
@@ -2541,7 +2661,9 @@ import threading
 
 import pytest
 
-from llmxive.convergence.self_improvement_specs import PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review
+from llmxive.convergence.self_improvement_specs import (
+    LANE_ATTEMPT_CEILING, PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review,
+)
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
 from llmxive.self_improvement.call_ledger import LaneCallLedger
@@ -2549,7 +2671,7 @@ from llmxive.self_improvement.credit_ledger import (
     AttemptCreditLedger, counting_total, project_reservations,
 )
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
-from llmxive.self_improvement.route_context import LaneRouteContext, proposal_call_ceiling
+from llmxive.self_improvement.route_context import LaneRouteContext
 
 def _git(repo, *a):
     subprocess.run(["git", *a], cwd=str(repo), check=True, capture_output=True, text=True)
@@ -2605,7 +2727,7 @@ def _paid_ctx(repo, *, budget: float) -> tuple[LaneRouteContext, "_ThreadRecordi
                                 actor="lane", clock=_CLOCK, config=cfg)
     call_ledger = LaneCallLedger(
         repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=_CLOCK, config=cfg,
-        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+        call_ceiling=LANE_ATTEMPT_CEILING,  # the WHOLE-Attempt figure, never a component
         attempt_budget_credits=budget,      # the SAME budget the credit ledger binds
     )
     ctx = LaneRouteContext(
@@ -2719,7 +2841,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 
 ## Final verification (before the whole-branch review)
 
-- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): add `LaneRouteContext`, `proposal_call_ceiling`, `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. (`LaneCallCeilingExceeded`, `LaneCallLedger`, `derive_route_id` are already exported by Slice 1A — re-export, never redefine.) Test they import.
+- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): add `LaneRouteContext`, `proposal_call_ceiling`, `patch_call_ceiling`, `attempt_call_ceiling`, `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. (`LaneCallCeilingExceeded`, `LaneCallLedger`, `derive_route_id` are already exported by Slice 1A — re-export, never redefine.) Test they import.
 - [ ] `ruff check` clean on every touched file.
 - [ ] Full non-slow suite green: `pytest tests/unit tests/contract tests/integration -m "not slow" -q` → 0 failed (network-restricted-sandbox artifacts itemized).
 - [ ] `enforcement.py` guard passes: no model-id literal in lane code (`pytest tests/unit -k enforcement -q`).
@@ -2768,3 +2890,12 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | 4 | "one source of truth" still allowed two copies to disagree | T6 requires the reroute's `exception_type`/`message` to equal the `SelectionFailure`'s exactly, then reads all four fields from the selection audit; divergence fails closed |
 | 5 | `LaneCallClaimed` validation checked only basic types | **Slice 1A T2**: validators now receive the whole event, so payload-vs-envelope `attempt_id` agreement, `leg ∈ LEGS`, and `route_id == derive_route_id(...)` are all enforced; cross-event ceiling consistency is finding 1's `AttemptConfig` |
 | 6 | the "pinned" `ReviewRerouted` schema accepted extra keys | T1 rejects unknown keys in both the payload and `primary_failure` (matching the convergence types' `extra="forbid"` house style), with tests |
+
+## Round-6 review
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | `AttemptConfigured.call_ceiling` was being populated with the PROPOSAL component (56) | T2 adds `attempt_call_ceiling(...)` — the whole Policy Contract line-313 expression (`proposer + implementer·(1 + impl_regen_retries) + proposal + patch`) — and T7 exports `LANE_ATTEMPT_CEILING` (= **90** for the canonical 5-lens panels at R=3). Every ledger in this plan binds THAT; `proposal_call_ceiling`/`patch_call_ceiling` remain as components with docstrings saying they must never be bound. T7 declares `PATCH_LENSES` because the immutable record needs `N_q` before the patch slice exists — the later patch builder MUST consume that tuple |
+| 2 | the credit budget accepted `nan`/`inf` | **Slice 1A T13/T2** — finite/bool/numeric checks at both boundaries plus `allow_nan=False` in the canonical serializers |
+| 3 | `AttemptConfigured` / `LaneCallClaimed` accepted unknown keys | **Slice 1A T2** — shared `_exact_keys`, both schemas pinned |
+| — | hardening suggestion (adopted) | T1's `ReviewRerouted` validator now enforces the envelope `attempt_id` and recomputes BOTH route ids at WRITE time — the same binding `build_invocation_identity` checks at projection time, so a foreign/borrowed leg can never become durable in the first place |

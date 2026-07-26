@@ -306,6 +306,34 @@ def test_attempt_configured_validates_and_rejects_malformed():
         with pytest.raises(ValueError, match="AttemptConfigured payload invalid"):
             v(_raw(event_type="AttemptConfigured", attempt_id="A1", payload=bad))
 
+def test_the_new_safety_events_reject_unknown_keys():
+    # F3: AttemptConfigured binds MONEY and a call cap; LaneCallClaimed binds routing
+    # identity. Both get the same exact-schema rule ReviewRerouted already has — an
+    # unrecognized key is indistinguishable from a typo, and once it is in append-only
+    # history readers must guess at semantics nobody defined.
+    with pytest.raises(ValueError, match="unexpected LaneCallClaimed payload keys"):
+        validate_lane_event(_claim_event(surprise="extra"))
+    cfg = {"attempt_id": "A1", "call_ceiling": 56, "attempt_budget_credits": 50.0,
+           "surprise": "extra"}
+    with pytest.raises(ValueError, match="unexpected AttemptConfigured payload keys"):
+        validate_lane_event(_raw(event_type="AttemptConfigured", attempt_id="A1", payload=cfg))
+
+@pytest.mark.parametrize("budget", [float("nan"), float("inf"), True])
+def test_attempt_configured_rejects_a_non_finite_budget(budget):
+    # F2 at the EVENT boundary (bind_attempt_config guards the API boundary separately):
+    # a hand-written or corrupted record must not be able to install an unbounded cap.
+    payload = {"attempt_id": "A1", "call_ceiling": 56, "attempt_budget_credits": budget}
+    with pytest.raises(ValueError, match="AttemptConfigured payload invalid"):
+        validate_lane_event(_raw(event_type="AttemptConfigured", attempt_id="A1", payload=payload))
+
+def test_the_canonical_serializer_refuses_non_finite_numbers():
+    # F2: json.dumps emits bare `NaN`/`Infinity` by default — valid to Python, invalid
+    # JSON to everyone else. The ref must never carry it.
+    from llmxive.self_improvement.events import Event, event_to_json
+    ev = Event(**_raw(payload={"credits": float("nan")}))
+    with pytest.raises(ValueError, match="not JSON compliant"):
+        event_to_json(ev)
+
 def test_types_without_a_validator_are_envelope_only():
     # By design: the audit-mirror types re-serialize already-typed slice-0 dataclasses.
     from llmxive.self_improvement.events import TYPE_VALIDATORS
@@ -333,6 +361,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -388,11 +417,38 @@ def _require(payload: Mapping[str, Any], key: str, types: type | tuple[type, ...
         raise ValueError(f"payload key {key!r} must be a non-empty {types}, got {value!r}")
     return value
 
+def _exact_keys(mapping: Mapping[str, Any], allowed: frozenset[str], label: str) -> None:
+    """Reject unknown keys (round-6 F3). Every event that binds a LIMIT or a ROUTING
+    IDENTITY has an EXACT schema, not merely required fields: an unrecognized key cannot be
+    told from a typo, and once it is in append-only history readers must guess at semantics
+    nobody defined. (Matches the convergence types' ``extra="forbid"``, ``types.py:128``.)"""
+    extra = set(mapping) - allowed
+    if extra:
+        raise ValueError(f"unexpected {label} keys {sorted(extra)} — the schema is exact")
+
 def _positive_int(payload: Mapping[str, Any], key: str) -> int:
     value = _require(payload, key, int)
     if isinstance(value, bool) or value <= 0:   # bool IS an int in Python
         raise ValueError(f"payload key {key!r} must be a positive int, got {value!r}")
     return value
+
+def _finite_non_negative(payload: Mapping[str, Any], key: str) -> float:
+    """A MONEY limit must be a real, finite, non-negative number (round-6 F2).
+
+    ``nan``/``inf`` slip past a naive ``value < 0`` guard — and a NaN budget is the worst
+    possible failure: the ledger's admission test is ``counting_total + credits > budget``,
+    and EVERY comparison against NaN is False, so the cap silently becomes "always admit".
+    ``inf`` is an unbounded cap by another name. ``bool`` is rejected too, since ``True``
+    is a perfectly good ``int`` to Python and a nonsense credit budget to us."""
+    value = _require(payload, key, (int, float))
+    if isinstance(value, bool):
+        raise ValueError(f"payload key {key!r} must be a number, not a bool")
+    if not math.isfinite(value):
+        raise ValueError(f"payload key {key!r} must be FINITE, got {value!r} — a non-finite "
+                         "credit budget disables the cap (every comparison against NaN is False)")
+    if value < 0:
+        raise ValueError(f"payload key {key!r} must be non-negative, got {value!r}")
+    return float(value)
 
 def _same_attempt(raw: Mapping[str, Any]) -> str:
     """The payload's attempt_id MUST equal the envelope's (round-5 F5). Projections filter
@@ -407,15 +463,17 @@ def _same_attempt(raw: Mapping[str, Any]) -> str:
         )
     return attempt
 
+_ATTEMPT_CONFIG_KEYS = frozenset({"attempt_id", "call_ceiling", "attempt_budget_credits"})
+_CALL_CLAIM_KEYS = frozenset({"attempt_id", "operation_id", "leg", "route_id", "call_ceiling"})
+
 def _validate_attempt_configured(raw: Mapping[str, Any]) -> None:
-    """Task 13's durable limits. These two numbers ARE the Attempt's safety envelope, so
-    they must be well-formed before they can bind anything."""
+    """Task 13's durable limits. These two numbers ARE the Attempt's safety envelope and
+    they are IMMUTABLE once written, so they must be exactly well-formed before binding."""
     payload = raw["payload"]
+    _exact_keys(payload, _ATTEMPT_CONFIG_KEYS, "AttemptConfigured payload")
     _same_attempt(raw)
     _positive_int(payload, "call_ceiling")
-    budget = _require(payload, "attempt_budget_credits", (int, float))
-    if isinstance(budget, bool) or budget < 0:
-        raise ValueError(f"'attempt_budget_credits' must be a non-negative number, got {budget!r}")
+    _finite_non_negative(payload, "attempt_budget_credits")
 
 def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
     """Task 14's admission record. The ceiling projection COUNTS these and the router ROUTES
@@ -423,6 +481,7 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
     SELF-CONSISTENT (round-5 F5) — a claim whose route_id was not derived from its own
     (attempt, operation, leg) would route one logical call onto another's identity."""
     payload = raw["payload"]
+    _exact_keys(payload, _CALL_CLAIM_KEYS, "LaneCallClaimed payload")
     attempt = _same_attempt(raw)
     operation_id = _require(payload, "operation_id", str)
     leg = _require(payload, "leg", str)
@@ -525,7 +584,11 @@ def validate_lane_event(raw: dict) -> None:
             raise ValueError(f"{raw['event_type']} payload invalid: {exc}") from exc
 
 def event_to_json(event: Event) -> str:
-    return json.dumps(_as_dict(event), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    # allow_nan=False (round-6 F2): Python's json happily emits bare `NaN`/`Infinity`,
+    # which are NOT valid JSON — they round-trip through json.loads but break every other
+    # reader of this append-only log. A non-finite number must never reach the ref at all.
+    return json.dumps(_as_dict(event), sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False, allow_nan=False)
 
 def event_from_json(text: str) -> Event:
     d = json.loads(text)
@@ -537,7 +600,7 @@ def event_from_json(text: str) -> Event:
                  resulting_problem_revision=d.get("resulting_problem_revision"), seq=d.get("seq"))
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (20 passed: 9 envelope + 1 valid claim + 7 parametrized malformed-claim cases + the envelope/payload attempt mismatch + `AttemptConfigured` + the envelope-only case).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (27 passed: 9 envelope + 1 valid claim + 7 parametrized malformed-claim cases + the envelope/payload attempt mismatch + `AttemptConfigured` + 2 unknown-key + 3 non-finite-budget + the serializer guard + the envelope-only case).
 
 - [ ] **Step 5: Commit**
 
@@ -805,7 +868,10 @@ def _sorted_by_seq(raw: list[dict]) -> list[dict]:
     return sorted(raw, key=lambda r: r.get("seq", -1))  # seq is the AUTHORITATIVE order
 
 def _to_json(raw: dict) -> str:
-    return json.dumps(raw, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    # allow_nan=False mirrors event_to_json (round-6 F2) — the canonical form is the SAME
+    # in both directions, and neither may produce non-standard JSON.
+    return json.dumps(raw, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False, allow_nan=False)
 
 def _check_continuity(raw_sorted: list[dict], problem_id: str) -> None:
     seqs = [r.get("seq") for r in raw_sorted]
@@ -1614,6 +1680,39 @@ def test_two_concurrent_binders_converge_on_one_record(tmp_path, bare_remote):
     assert len([e for e in read(c1, "P1", config=_CFG)
                 if e.event_type == "AttemptConfigured"]) == 1
 
+@pytest.mark.parametrize("budget", [
+    float("nan"),        # THE dangerous one: `total + credits > nan` is False -> always admit
+    float("inf"),        # an unbounded cap by another name
+    float("-inf"),
+    True,                # bool IS an int in Python, and a nonsense credit budget
+    "50",                # not a number at all
+])
+def test_a_non_finite_or_non_numeric_budget_is_refused(tmp_path, bare_remote, budget):
+    # F2: `value < 0` does NOT reject nan/inf — verify with the real comparison, then the
+    # real binder. A NaN budget would silently disable the money cap for the whole Attempt.
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    with pytest.raises(ValueError):
+        _bind(c, budget=budget)
+    assert not [e for e in read(c, "P1", config=_CFG) if e.event_type == "AttemptConfigured"]
+
+def test_a_nan_budget_would_have_defeated_the_cap():
+    # The reason the check above is REQUIRED, asserted directly so the rationale cannot
+    # rot: every comparison against NaN is False, so the ledger's admission test passes
+    # for any amount.
+    import math
+    nan = float("nan")
+    assert not (nan < 0)                 # the naive guard lets it through
+    assert not (10_000.0 + 1.0 > nan)    # ...and then the cap never denies anything
+    assert not math.isfinite(nan)        # the check that actually catches it
+
+@pytest.mark.parametrize("ceiling", [0, -1, True, 5.0, "56"])
+def test_a_non_positive_or_non_int_ceiling_is_refused(tmp_path, bare_remote, ceiling):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=_CFG)
+    with pytest.raises(ValueError):
+        _bind(c, ceiling=ceiling)
+
 def test_an_unconfigured_attempt_fails_closed(tmp_path, bare_remote):
     c = _clone(bare_remote, tmp_path / "c")
     bootstrap_lane_log(c, config=_CFG)
@@ -1656,6 +1755,7 @@ must present identical values or fail closed."""
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -1720,8 +1820,20 @@ def bind_attempt_config(repo: Path, *, problem_id: str, attempt_id: str, call_ce
     """Bind (or verify) this Attempt's limits. Idempotent for identical values; raises
     ``AttemptConfigMismatch`` for any difference. Concurrent binders converge: exactly one
     CAS lands and the loser re-reads and compares."""
-    if call_ceiling <= 0:
-        raise ValueError(f"call_ceiling must be positive, got {call_ceiling!r}")
+    # Round-6 F2: validate at the PUBLIC boundary as well as the event boundary. A caller
+    # must be refused with a clear error before anything is serialized, and neither check
+    # may be the only one — the event validator also guards a hand-written record.
+    if isinstance(call_ceiling, bool) or not isinstance(call_ceiling, int) or call_ceiling <= 0:
+        raise ValueError(f"call_ceiling must be a positive int, got {call_ceiling!r}")
+    if isinstance(attempt_budget_credits, bool) or not isinstance(attempt_budget_credits, (int, float)):
+        raise ValueError(f"attempt_budget_credits must be a number, got {attempt_budget_credits!r}")
+    if not math.isfinite(attempt_budget_credits):
+        # THE dangerous one: the ledger admits while `counting_total + credits > budget` is
+        # False, and every comparison against NaN is False — a NaN budget admits everything.
+        raise ValueError(
+            f"attempt_budget_credits must be FINITE, got {attempt_budget_credits!r} — a "
+            "non-finite budget disables the per-Attempt spend cap"
+        )
     if attempt_budget_credits < 0:
         raise ValueError(f"attempt_budget_credits must be non-negative, got {attempt_budget_credits!r}")
     presented = AttemptConfig(attempt_id, call_ceiling, float(attempt_budget_credits))
@@ -1773,7 +1885,7 @@ Then modify `AttemptCreditLedger.__init__` (Task 7) to bind through it:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/integration/test_self_improvement_attempt_config.py tests/integration/test_self_improvement_credit_ledger.py -q`
-Expected: PASS (6 config tests + the credit-ledger suite including the new mismatch test).
+Expected: PASS (6 config tests + 5 non-finite-budget cases + the NaN-rationale test + 5 bad-ceiling cases + the credit-ledger suite including the new mismatch test).
 
 - [ ] **Step 5: Commit**
 
@@ -2154,3 +2266,10 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T14): durable per-
 | 5 | `LaneCallClaimed` validation checked only basic types | T2's validators now receive the **whole event**, so `payload["attempt_id"]` must equal the envelope's (the projection filters by the payload's, so a disagreement misattributes the claim); `leg ∈ LEGS`; and `route_id` must equal `derive_route_id(attempt, operation, leg)`. `derive_route_id` + `LEGS` moved to `events.py` to make that check possible without an import cycle. The cross-EVENT ceiling-consistency check is finding 1's `AttemptConfig`, where it belongs |
 
 Renumbering note: round-4's Task 13 (`LaneCallLedger`) is now **Task 14**; the new `AttemptConfig` task takes 13, because the ledger's ceiling is read from it.
+
+**Round 6:**
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 2 | the credit budget accepted `nan`/`inf` (and `bool`) | `nan < 0` is False, and the ledger admits while `counting_total + credits > budget` is False — so a NaN budget makes the money cap "always admit". T13 now validates `math.isfinite` + rejects `bool`/non-numeric at BOTH the `bind_attempt_config` API boundary and the `AttemptConfigured` event boundary, with a test that asserts the failure mode directly so the rationale cannot rot. T2's canonical serializers also pass `allow_nan=False`: `json.dumps` emits bare `NaN`/`Infinity` (invalid JSON that round-trips only in Python), so a non-finite number can never reach the ref |
+| 3 | `AttemptConfigured` / `LaneCallClaimed` still accepted unknown keys | T2 adds a shared `_exact_keys` helper and pins both schemas, matching `ReviewRerouted`. An unrecognized key cannot be told from a typo, and in append-only history it forces later readers to guess at semantics nobody defined |
