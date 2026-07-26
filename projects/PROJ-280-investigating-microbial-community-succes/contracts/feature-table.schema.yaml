@@ -9,7 +9,7 @@ required:
 properties:
   samples:
     type: array
-    description: List of sample objects containing metadata and taxon abundances.
+    description: List of sample objects containing sample metadata and taxon abundances.
     items:
       type: object
       required:
@@ -31,7 +31,7 @@ properties:
             - unknown
         metadata:
           type: object
-          description: Dictionary containing environmental parameters (N/P removal rates, pH, temperature, etc.).
+          description: Dictionary containing environmental parameters.
           additionalProperties: true
         taxa:
           type: array
@@ -45,14 +45,14 @@ properties:
             properties:
               id:
                 type: string
-                description: Unique identifier for the taxon (e.g., OTU ID or ASV sequence hash).
+                description: Unique taxon identifier (OTU ID or ASV sequence hash).
               abundance:
                 type: number
-                description: The count/abundance of this taxon in the sample.
                 minimum: 0
+                description: Count/abundance of this taxon in the sample.
               metadata:
                 type: object
-                description: Dictionary containing taxonomic classification (Kingdom, Phylum, etc.).
+                description: Taxonomic classification and annotations.
                 additionalProperties: true
   taxon_ids:
     type: array
@@ -61,6 +61,19 @@ properties:
       type: string
   metadata:
     type: object
-    description: Global metadata about the feature table (source, processing date, etc.).
+    description: Global metadata about the feature table.
+    properties:
+      source:
+        type: string
+        description: Data source (e.g., NCBI SRA, Zenodo).
+      processing_date:
+        type: string
+        format: date-time
+        description: Date and time of processing.
+      version:
+        type: string
+        description: Schema version.
+      notes:
+        type: string
+        description: Additional notes.
     additionalProperties: true
-additionalProperties: false

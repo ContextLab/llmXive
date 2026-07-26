@@ -5,8 +5,16 @@ properties:
     items:
       type: object
       properties:
-        id: { type: string }
-        source: { type: string, enum: ["NCBI_SRA", "Zenodo"] }
-        url: { type: string }
-      required: ["id", "source", "url"]
-required: ["datasets"]
+        id:
+          type: string
+        source:
+          type: string
+          enum: ["NCBI_SRA", "Zenodo"]
+        url:
+          type: string
+      required:
+        - id
+        - source
+        - url
+required:
+  - datasets

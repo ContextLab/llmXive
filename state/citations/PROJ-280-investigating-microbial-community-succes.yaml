@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 65749431f5568c58718b566eb0d47cc0675c9d454da2ab1cc8182d814aa0b998
+  artifact_path: projects/PROJ-280-investigating-microbial-community-succes/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/example
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/example
+  verified_at: '2026-07-26T19:06:52.029617Z'
+- artifact_hash: 2b5b8157ee4743ed3f03841660b06fc293713c214b711309adc68d3a678059ae
+  artifact_path: projects/PROJ-280-investigating-microbial-community-succes/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/XXXXX
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/XXXXX
+  verified_at: '2026-07-26T19:06:54.380496Z'

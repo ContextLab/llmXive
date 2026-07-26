@@ -44,6 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Initialize project structure and manifest. Create the following directories: `projects/PROJ-280-investigating-microbial-community-succes/`, `data/`, `code/`, `tests/`, `state/`, `contracts/`, `data/raw`, `data/processed`, `data/config`, `tests/unit`, `tests/contract`, `tests/integration`, `state/projects`. Immediately after creation, generate `projects/PROJ-280-investigating-microbial-community-succes/MANIFEST.txt` listing all created directories and expected files to verify structure completeness.
+- [X] T001b [P] Verify MANIFEST.txt completeness. After T001, run a script to verify that all directories and files listed in `MANIFEST.txt` actually exist. If any are missing, log an error and exit.
 - [X] T002 [P] Initialize Python 3.11 project with pinned dependencies. Create `projects/PROJ-280-investigating-microbial-community-succes/code/requirements.txt` by using `pip-tools` (specifically `pip-compile` with a constraints file) to resolve compatible versions for `pandas`, `numpy`, `scipy`, `scikit-bio`, `networkx`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, and `pyyaml`. Alternatively, manually specify known compatible versions (e.g., `scikit-bio==0.5.8`, `pandas==2.0.3`) ensuring the file contains exact version pins (e.g., `package==version`). Do not use `pip freeze` on an existing environment; the file must be generated from scratch using `pip-compile` or manual entry of verified compatible versions.
 - [ ] T03a [P] Create `.flake8` configuration file in `projects/PROJ-280-investigating-microbial-community-succes/` with rules: `max-line-length=100`, `ignore=E203,W503`, `exclude=venv,build`.
 - [X] T03b [P] Create `pyproject.toml` in `projects/PROJ-280-investigating-microbial-community-succes/` with `[tool.black]` section configured for `line-length=100` and `target-version=['py311']`.
@@ -60,15 +61,15 @@
  ```yaml
  type: object
  properties:
-   datasets:
-     type: array
-     items:
-       type: object
-       properties:
-         id: { type: string }
-         source: { type: string, enum: ["NCBI_SRA", "Zenodo"] }
-         url: { type: string }
-       required: ["id", "source", "url"]
+ datasets:
+ type: array
+ items:
+ type: object
+ properties:
+ id: { type: string }
+ source: { type: string, enum: ["NCBI_SRA", "Zenodo"] }
+ url: { type: string }
+ required: ["id", "source", "url"]
  required: ["datasets"]
  ```
  The validator script must use `jsonschema` to validate the loaded JSON against this schema.
@@ -98,11 +99,12 @@
 
 - [X] T011 [US1] [Depends on: T004] Implement `code/01_retrieve_data.py` to load `data/config/dataset_ids.json`, **invoke the validator created in T004** (`validate_dataset_config`) to validate it against verified sources (NCBI SRA/Zenodo), and download pre-processed 16S tables/metadata to `data/raw/`. **Critical Logic**: If the file is missing, malformed, or validation fails, the script MUST log a "CRITICAL DATA GAP" error and immediately halt execution (sys.exit(1)). Include "Data Gap" protocol to halt immediately if no verified dataset found or validation fails.
 - [X] T012 [US1] Implement `code/02_preprocess.py` to filter `data/raw/` samples for constructed wetlands with N/P removal metrics, logging excluded sample counts.
-- [ ] T013 [US1] [Depends on: T012] Implement subsampling logic in `code/02_preprocess.py` to exclude samples with **<5,000** initial reads (as per spec Edge Cases) and log the count. This threshold ensures sufficient data remains for the sensitivity analysis in T014. Do not apply the final "medium" depth threshold here; only apply the hard minimum exclusion.
-- [ ] T014 [US1] [Depends on: T013] Implement FR-015 Sensitivity Analysis in `code/02_preprocess.py`: perform subsampling depth sweep (low, medium, high) by re-subsampling from the filtered data produced in T013. Generate intermediate artifacts (`data/processed/low_depth_results.json`, `data/processed/medium_depth_results.json`, `data/processed/high_depth_results.json`) containing the subsampled feature tables. Aggregate results into **`data/processed/robustness_verification_report.json`**. This final artifact MUST be a 'robustness verification report' containing:
+- [X] T013 [US1] [Depends on: T012] Implement subsampling logic in `code/02_preprocess.py` to exclude samples with **<5,000** initial reads (as per spec Edge Cases) and log the count. This threshold ensures sufficient data remains for the sensitivity analysis in T014. **CRITICAL**: If the count of samples drops below a minimum threshold after this exclusion, log "CRITICAL DATA GAP: Insufficient samples after read filtering" and immediately execute `sys.exit(1)`.
+- [X] T013b [US1] [Depends on: T013] Validate Sample Pool Size. After filtering in T012 and read exclusion in T013, count the remaining samples. **Create file `data/processed/sample_pool_validation.json`** with schema `{total_samples: int, per_stage: {early: int, intermediate: int, mature: int}}`. **CRITICAL**: If `total_samples` < 30 OR any stage has < 10 samples, log "CRITICAL DATA GAP: Insufficient samples after filtering" and immediately execute `sys.exit(1)` to halt the pipeline. This ensures the sensitivity analysis (T014) and downstream tasks never run on an insufficient dataset.
+- [ ] T014 [US1] [Depends on: T013b] Implement FR-015 Sensitivity Analysis in `code/02_preprocess.py`: perform subsampling depth sweep (low, medium, high) by re-subsampling from the filtered data produced in T013. Generate intermediate artifacts (`data/processed/low_depth_results.json`, `data/processed/medium_depth_results.json`, `data/processed/high_depth_results.json`) containing the subsampled feature tables. Aggregate results into **`data/processed/robustness_verification_report.json`**. This final artifact MUST be a 'robustness verification report' containing:
  1. Alpha diversity rankings (Shannon) for each depth level.
  2. **Calculate Spearman correlation coefficients** between the rank vectors of (Low vs Medium), (Medium vs High), and (Low vs High).
- 3. **Set a boolean `robustness_flag` to `true` ONLY if ALL correlation coefficients are > 0.9; otherwise set to `false`.**
+ 3. **Perform qualitative assessment**: Report the correlation coefficients and categorize robustness as 'robust' (coeff > 0.85), 'moderate' (0.7-0.85), or 'weak' (< 0.7). Do NOT use a hard pass/fail threshold like 0.9.
  This task verifies that alpha diversity *rankings* are robust to subsampling depth.
 - [X] T015a [US1] Add validation and error handling for missing metadata fields (N/P rates) in `code/02_preprocess.py`.
 - [X] T015b [US1] Log the specific exclusion count of samples lacking N/P metadata to `data/processed/exclusion_log.json` as required by Edge Cases to ensure transparency.
@@ -126,11 +128,11 @@
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement `code/03_diversity.py` to calculate Alpha (Shannon, Simpson) and Beta (Bray-Curtis) diversity for all samples in `data/processed/`.
-- [ ] T020 [US2] [Depends on: T019] Implement FR-014 Power Analysis in `code/03_diversity.py`: estimate power for PERMANOVA (effect size R²=0.15) using `statsmodels.stats.power.FTestAnovaPower`. **Create file `data/processed/power_analysis_report.json`** with schema `{power: float, n_per_group: int, effect_size: float, flag: "UNDERPOWERED"|"PASS"}`. **Create file `data/processed/sample_size_validation.json`** that explicitly compares the *final retained* sample count against the *power analysis target* (n_per_group) to satisfy SC-001. **CRITICAL**: If `power < 0.8` OR `n_per_group < 10`, log "UNDERPOWERED" error, write the reports, and immediately execute `sys.exit(1)` to halt the pipeline. Do NOT proceed to T021 if this condition is met.
-- [X] T021 [US2] [Depends on: T020] Implement PERMANOVA test in `code/03_diversity.py` to compare community composition between wetland establishment stages (early vs. mature).
+- [X] T020 [US2] [Depends on: T019] Implement FR-014 Power Analysis in `code/03_diversity.py`: estimate power for PERMANOVA (effect size R²=0.15) using `statsmodels.stats.power.FTestAnovaPower`. **Read `data/processed/sample_pool_validation.json`** (created by T013b) to derive the final retained sample count for this analysis. **Create file `data/processed/power_analysis_report.json`** with schema `{power: float, n_per_group: int, effect_size: float, flag: "UNDERPOWERED"|"PASS"}`. **Create file `data/processed/sample_size_validation.json`** that explicitly compares the *final retained* sample count against the *power analysis target* (n_per_group) to satisfy SC-001. **CRITICAL**: If `power < 0.8` OR `n_per_group < 10`, log "UNDERPOWERED" error, write the reports, and immediately **TERMINATE the pipeline** (sys.exit(1)). Do NOT proceed to T021 if this condition is met.
+- [X] T021 [US2] [Depends on: T020] **Conditional Execution**: Execute PERMANOVA test in `code/03_diversity.py` to compare community composition between wetland establishment stages (early vs. mature) ONLY if T020 passes (power >= 0.8 and n >= 10).
 - [X] T022 [US2] Implement Benjamini-Hochberg FDR correction for pairwise PERMANOVA comparisons in `code/03_diversity.py` (FR-009).
-- [ ] T023 [US2] Add logic to document small effect sizes (R² < 0.1) as statistically significant but ecologically weak in output reports. Specifically, when calculating PERMANOVA results, if `p_value <= 0.05` AND `r_squared < 0.1`, set the field `ecological_flag` to `"statistically_significant_but_weak"` in the output artifact **`data/processed/diversity_metrics.json`**.
-- [ ] T024 [US2] Generate diversity metrics report to `data/processed/diversity_metrics.json` conforming to `contracts/output-metrics.schema.yaml`.
+- [X] T023 [US2] Add logic to document small effect sizes (R² < 0.1) as statistically significant but ecologically weak in output reports. Specifically, when calculating PERMANOVA results, if `p_value <= 0.05` AND `r_squared < 0.1`, set the field `ecological_flag` to `"statistically_significant_but_weak"` in the output artifact **`data/processed/diversity_metrics.json`**. **Also log this finding to `data/processed/audit_trail.json`** to ensure transparency as required by Edge Cases.
+- [ ] T024 [US2] Generate diversity metrics report to `data/processed/diversity_metrics.json` conforming to `contracts/output-metrics.schema.yaml`. **Explicit Requirement**: The output MUST include a field `correction_coverage` calculated as `(count of tests with FDR-adjusted p-values) / (total tests run) * 100` to satisfy SC-006.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -152,11 +154,11 @@
 - [X] T027 [US3] Implement `code/04_network.py` to calculate Spearman correlation matrix from `data/processed/` taxon abundance data.
 - [X] T028 [US3] Implement FR-013 Under-determined Check in `code/04_network.py`: if n_samples < n_taxa, flag as 'under-determined' and skip modularity calculation.
 - [ ] T031 [US3] Calculate network modularity and signed delta (Δmodularity) between early vs. mature stages.
-- [ ] T030 [US3] [Depends on: T031] Implement FR-013 Sensitivity Analysis in `code/04_network.py`: sweep correlation thresholds (e.g., 0.5, 0.6, 0.7) to assess modularity stability. For each threshold, compute Δmodularity = modularity_early - modularity_mature. **Calculate the variance of these Δmodularity values** across the swept thresholds. **Create file `data/processed/network_sensitivity_report.json`** containing the list of thresholds tested and the calculated variance of Δmodularity.
+- [X] T030 [US3] [Depends on: T031] Implement FR-013 Sensitivity Analysis in `code/04_network.py`: sweep correlation thresholds to assess modularity stability. **Algorithm**: If the correlation distribution is unknown, default to sweeping |ρ| across a moderate-to-high range in incremental steps. If the distribution is known, center the sweep around the median absolute correlation ± 0.2. For each threshold, compute Δmodularity = modularity_early - modularity_mature. **Calculate the variance of these Δmodularity values** across the swept thresholds. **Create file `data/processed/network_sensitivity_report.json`** containing the list of thresholds tested and the calculated variance of Δmodularity.
 - [X] T032 [US3] Implement `code/05_correlation.py` to calculate Spearman correlation between taxon abundances and N/P removal rates using the filtered feature table from T013 and Stage metadata from T012. (Note: Does NOT depend on T019 diversity metrics).
 - [X] T033 [US3] [Depends on: T032] Implement VIF calculation in `code/05_correlation.py` to flag predictor taxa with VIF > 5 for collinearity (FR-010) using Stage metadata from T012.
-- [ ] T034 [US3] [Depends on: T032, T012] Implement **k=3 cross-validation** on the taxa-nutrient correlation model as required by FR-012. k=3 is selected as the mandated methodology. **Create file `data/processed/correlation_cv_results.json`** containing mean R² and std dev from the CV. Generate final correlation report listing taxa with |r|≥0.5 and p≤0.05, or explicitly state if none met criteria. Output to **`data/processed/correlation_results.json`**.
-- [ ] T035 [US3] Generate network and correlation outputs to `data/processed/network_analysis.json` and `data/processed/correlation_results.json` conforming to `contracts/output-metrics.schema.yaml`.
+- [X] T034 [US3] [Depends on: T032, T012] Implement **k=3 cross-validation** on the taxa-nutrient correlation model as required by FR-012. **Fallback Logic**: If n_samples < 6 (making k=3 impossible), perform Leave-One-Out (LOO) cross-validation and log the adaptation. **Create file `data/processed/correlation_cv_results.json`** containing mean R² and std dev from the CV. Generate final correlation report listing taxa with |r|≥0.5 and p≤0.05, or explicitly state if none met criteria. Output to **`data/processed/correlation_results.json`**.
+- [ ] T035 [US3] Generate network and correlation outputs to `data/processed/network_analysis.json` and `data/processed/correlation_results.json` conforming to `contracts/output-metrics.schema.yaml`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 

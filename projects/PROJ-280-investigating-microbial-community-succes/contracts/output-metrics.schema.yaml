@@ -1,168 +1,126 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Diversity Metrics Report Schema"
-description: "Schema for diversity metrics analysis output including alpha/beta diversity, PERMANOVA, and power analysis results"
-
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Metrics Schema
+description: Schema for network and correlation analysis outputs in microbial succession study.
 type: object
-required:
-  - alpha_diversity
-  - beta_diversity_summary
-  - permanova
-  - power_analysis
-  - metadata
-
-properties:
-  alpha_diversity:
+definitions:
+  taxon_correlation:
     type: object
-    description: "Alpha diversity metrics (Shannon, Simpson) for each sample"
-    additionalProperties:
-      type: object
-      required:
-        - shannon
-        - simpson
-      properties:
-        shannon:
-          type: number
-          description: "Shannon diversity index"
-          minimum: 0
-        simpson:
-          type: number
-          description: "Simpson diversity index"
-          minimum: 0
-          maximum: 1
-  
-  beta_diversity_summary:
-    type: object
-    description: "Summary statistics for beta diversity analysis"
-    required:
-      - num_samples
-      - distance_type
-      - mean_distance
     properties:
-      num_samples:
-        type: integer
-        description: "Number of samples in the analysis"
-        minimum: 1
-      distance_type:
+      taxon:
         type: string
-        description: "Type of distance metric used"
-        enum: ["braycurtis", "jaccard", "unweighted_unifrac", "weighted_unifrac"]
-      mean_distance:
+        description: Taxon identifier
+      correlation:
         type: number
-        description: "Mean pairwise distance"
-        minimum: 0
-  
-  permanova:
-    type: object
-    description: "PERMANOVA test results for community differences"
-    required:
-      - pseudo_f
-      - r_squared
-      - p_value
-      - n_permutations
-      - groups
-    properties:
-      pseudo_f:
-        type: number
-        description: "Pseudo-F statistic"
-      r_squared:
-        type: number
-        description: "R-squared effect size"
-        minimum: 0
-        maximum: 1
+        description: Correlation coefficient (e.g., Spearman's rho)
       p_value:
         type: number
-        description: "Raw p-value from permutation test"
-        minimum: 0
-        maximum: 1
-      n_permutations:
-        type: integer
-        description: "Number of permutations performed"
-        minimum: 1
-      groups:
+        description: P-value of the correlation test
+      vif:
+        type: number
+        description: Variance Inflation Factor (if applicable)
+        minimum: 1.0
+      ecological_flag:
+        type: string
+        enum: ["statistically_significant_but_weak", "strong", "none"]
+        description: Flag for ecological significance
+    required:
+      - taxon
+      - correlation
+      - p_value
+properties:
+  network_analysis:
+    type: object
+    description: Network analysis results including modularity and graph stats.
+    properties:
+      metadata:
+        type: object
+        properties:
+          total_taxa:
+            type: integer
+          total_edges:
+            type: integer
+          threshold_applied:
+            type: number
+          early_stage_modularity:
+            type: number
+          mature_stage_modularity:
+            type: number
+          delta_modularity:
+            type: number
+          under_determined_flag:
+            type: boolean
+            description: True if n_samples < n_taxa
+        required:
+          - total_taxa
+          - total_edges
+          - threshold_applied
+      nodes:
         type: array
-        description: "List of groups compared"
         items:
           type: string
-  
-  fdr_correction:
-    type: array
-    description: "FDR corrected results for multiple comparisons"
-    items:
-      type: object
-      required:
-        - comparison_id
-        - p_raw
-        - p_corrected
-        - significant
-      properties:
-        comparison_id:
-          type: integer
-        p_raw:
-          type: number
-          minimum: 0
-          maximum: 1
-        p_corrected:
-          type: number
-          minimum: 0
-          maximum: 1
-        significant:
-          type: boolean
-  
-  power_analysis:
-    type: object
-    description: "Statistical power analysis results"
+      edges:
+        type: array
+        items:
+          type: object
+          properties:
+            source:
+              type: string
+            target:
+              type: string
+            correlation:
+              type: number
+            p_value:
+              type: number
+            weight:
+              type: number
+          required:
+            - source
+            - target
+            - correlation
+            - p_value
     required:
-      - power
-      - n_per_group
-      - effect_size
-      - flag
-    properties:
-      power:
-        type: number
-        description: "Calculated statistical power"
-        minimum: 0
-        maximum: 1
-      n_per_group:
-        type: integer
-        description: "Number of samples per group"
-        minimum: 1
-      effect_size:
-        type: number
-        description: "Effect size used for power calculation"
-        minimum: 0
-        maximum: 1
-      flag:
-        type: string
-        description: "Power status flag"
-        enum: ["PASS", "UNDERPOWERED"]
-  
-  metadata:
+      - metadata
+      - nodes
+      - edges
+  correlation_results:
     type: object
-    description: "Metadata about the analysis"
-    required:
-      - generated_at
-      - sample_count
+    description: Taxon-nutrient correlation results.
     properties:
-      generated_at:
-        type: string
-        format: date-time
-        description: "Timestamp when the report was generated"
-      sample_count:
+      total_correlations_calculated:
         type: integer
-        description: "Number of samples analyzed"
-        minimum: 1
-      taxon_count:
+      significant_correlations_count:
         type: integer
-        description: "Number of taxa in the feature table"
-        minimum: 1
-      checksum:
-        type: string
-        description: "SHA256 checksum of the output file"
-        pattern: "^[a-f0-9]{64}$"
-  
-  checksum:
-    type: string
-    description: "SHA256 checksum of the output file"
-    pattern: "^[a-f0-9]{64}$"
-
-additionalProperties: false
+      thresholds:
+        type: object
+        properties:
+          abs_r:
+            type: number
+          p_value:
+            type: number
+        required:
+          - abs_r
+          - p_value
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/taxon_correlation"
+      cross_validation:
+        type: object
+        properties:
+          method:
+            type: string
+            enum: ["k-fold", "LOO"]
+          k:
+            type: integer
+          mean_r_squared:
+            type: number
+          std_r_squared:
+            type: number
+    required:
+      - total_correlations_calculated
+      - significant_correlations_count
+      - thresholds
+      - results
+required:
+  - network_analysis
+  - correlation_results
