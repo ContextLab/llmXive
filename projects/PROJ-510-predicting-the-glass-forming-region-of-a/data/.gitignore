@@ -1,0 +1,12 @@
+# Data directory: Store raw and processed datasets here.
+# These files are often large and should not be committed to git.
+
+# Ignore all files in the data directory
+*
+
+# Explicitly keep .gitignore and README files if needed
+!.gitignore
+!README.md
+
+# Re-include specific small config files if necessary (currently none)
+# !config.yaml

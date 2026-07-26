@@ -56,7 +56,7 @@
 - [X] T006 [P] Setup environment configuration management (`.env` for paths, seeds)
 - [X] T007 Create base data models (Participant, Task, Summary, AnalysisResult) in `code/utils/models.py`
 - [X] T008 Configure error handling and logging infrastructure (`code/utils/logging_utils.py`)
-- [ ] T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert ≤7GB RAM and ≤6h runtime via in-script assertions as per FR-007's CI test procedure
+- [X] T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert ≤7GB RAM and ≤6h runtime via in-script assertions as per FR-007's CI test procedure
 - [ ] T018a [P] [US1] Define API contract for participant interaction data collection in `contracts/api_participant.md` (endpoints, request/response bodies, session management)
 - [ ] T018b [US1] Implement `frontend/src/ParticipantForm.jsx` (or equivalent) based on the API contract defined in T018a (`contracts/api_participant.md`) to collect interaction data
 - [ ] T018c [US1] Implement `backend/src/api/participant.py` (or equivalent) to handle submissions, manage session state, and apply Latin-square assignment logic. **Depends on T007 (Base data models)**. (Note: [P] tag removed as it depends on T007)
@@ -75,13 +75,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [US1] Unit test for latency calibrator in `code/tests/test_latency_calibrator.py`. **Depends on T012** (Note: [P] tag removed as it depends on T012) <!-- FAILED: unspecified -->
-- [ ] T011 [US1] Unit test for Defects4J download integrity in `code/tests/test_defects4j_download.py`. **Depends on T013** (Note: [P] tag removed as it depends on T013) <!-- FAILED: unspecified -->
+- [X] T010 [US1] Unit test for latency calibrator in `code/tests/test_latency_calibrator.py`. **Depends on T012** (Note: [P] tag removed as it depends on T012) <!-- FAILED: unspecified -->
+- [X] T011 [US1] Unit test for Defects4J download integrity in `code/tests/test_defects4j_download.py`. **Depends on T013** (Note: [P] tag removed as it depends on T013) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/utils/latency_calibrator.py` to verify timestamp precision ≤100ms (FR-003)
-- [~] T012a [US1] Integrate `code/utils/latency_calibrator.py` into the application startup flow (e.g., in `backend/src/main.py` or `frontend/src/App.jsx`) to ensure the test runs at startup as mandated by FR-003
+- [ ] T012a [US1] Integrate `code/utils/latency_calibrator.py` into the application startup flow (e.g., in `backend/src/main.py` or `frontend/src/App.jsx`) to ensure the test runs at startup as mandated by FR-003
 - [X] T013 [US1] Implement `code/data_prep/download_defects4j.py` to fetch DefectsJ and extract 60 stratified buggy methods (FR-001)
 - [X] T014 [US1] Implement `code/data_prep/generate_summaries.py` with:
  - Deterministic "LLM-Sim" generator (CPU-tractable, no GPU) mimicking LLM structure as a **staged implementation**; the real `codellama/CodeLlama-7b-hf` integration is deferred for GPU environments to satisfy CI constraints without violating FR-002's intent.
@@ -91,10 +91,10 @@
  - Output: `data/summaries/llm_sim_summaries.csv` and `data/summaries/rule_summaries.csv`
  - **Depends on T013** (Note: [P] tag removed as it depends on T013)
 - [X] T014a [US1] Implement `code/data_prep/generate_summaries_real_llm.py` for Real LLM generation path (HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization) for non-CI environments. **Requires GPU/CUDA**. If generation fails (timeout, empty output), fall back to rule-based summary (FR-002).
-- [~] T015 [US1] Implement `code/utils/interaction_logger.py` to record CSV logs (participant_id, task_id, condition, timestamp_ms, selected_line, ground_truth_line) to `data/interaction_logs/raw_logs.csv` (FR-003)
-- [~] T016 [US1] Implement data anonymization script `code/utils/anonymize_logs.py` to generate `data/interaction_logs/anonymized_logs.csv` (VI) - creates new file, does not overwrite raw logs
+- [ ] T015 [US1] Implement `code/utils/interaction_logger.py` to record CSV logs (participant_id, task_id, condition, timestamp_ms, selected_line, ground_truth_line) to `data/interaction_logs/raw_logs.csv` (FR-003)
+- [ ] T016 [US1] Implement data anonymization script `code/utils/anonymize_logs.py` to generate `data/interaction_logs/anonymized_logs.csv` (VI) - creates new file, does not overwrite raw logs
 - [X] T017 [US1] Implement dropout handling logic in `code/utils/interaction_logger.py` to flag partial data (Edge Case)
-- [~] T019 [US1] Implement secure storage logic for raw consent forms in non-public `data/consent/` directory with `.gitignore` exclusion and access control (Constitution Principle VI). **Implementation**: Set file permissions to `chmod 600` for all files in `data/consent/` and add explicit `.gitignore` rule.
+- [ ] T019 [US1] Implement secure storage logic for raw consent forms in non-public `data/consent/` directory with `.gitignore` exclusion and access control (Constitution Principle VI). **Implementation**: Set file permissions to `chmod 600` for all files in `data/consent/` and add explicit `.gitignore` rule.
 - [X] T020 [US1] Implement Latin-square design assignment logic in `code/utils/assignment_generator.py` to generate balanced task conditions for a cohort of participants (US-1, Assumptions)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -174,10 +174,10 @@
 - [X] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
 - [X] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
 - [X] T038 Performance optimization: Reduce memory usage to <6GB in `code/analysis/run_statistics.py`
-- [ ] T039 Performance optimization: Reduce runtime to <5h in `code/analysis/run_statistics.py`
-- [ ] T040 [P] Add unit tests for edge cases in `code/tests/test_statistics.py`
-- [ ] T041 [P] Add unit tests for data integrity in `code/tests/test_data_integrity.py`
-- [ ] T042 Security hardening (ensure no sensitive data leaks in logs)
+- [X] T039 Performance optimization: Reduce runtime to <5h in `code/analysis/run_statistics.py`
+- [X] T040 [P] Add unit tests for edge cases in `code/tests/test_statistics.py`
+- [X] T041 [P] Add unit tests for data integrity in `code/tests/test_data_integrity.py`
+- [~] T042 Security hardening (ensure no sensitive data leaks in logs)
 - [ ] T043 Run `quickstart.md` validation
 
 ---

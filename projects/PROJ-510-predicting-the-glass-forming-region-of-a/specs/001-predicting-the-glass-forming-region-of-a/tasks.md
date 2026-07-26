@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,9 +44,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create root project structure: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/`, `data/`, `code/`, `tests/`, `docs/`
-- [ ] T001b [P] Create source code structure: `code/__init__.py`, `code/utils.py`, `code/ingestion.py`, `code/features.py`, `code/train.py`, `code/analyze.py`, `requirements.txt`
-- [ ] T001c [P] Create test structure: `tests/__init__.py`, `tests/test_features.py`, `tests/test_ingestion.py`, `tests/test_train.py`, `tests/test_analyze.py`
-- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `datasets`, `mendeleev` in `requirements.txt`
+- [X] T001b [P] Create source code structure: `code/__init__.py`, `code/utils.py`, `code/ingestion.py`, `code/features.py`, `code/train.py`, `code/analyze.py`, `requirements.txt`
+- [X] T001c [P] Create test structure: `tests/__init__.py`, `tests/test_features.py`, `tests/test_ingestion.py`, `tests/test_train.py`, `tests/test_analyze.py`
+- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `datasets`, `mendeleev` in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -60,11 +60,11 @@
 Examples of foundational tasks (adjust based on your plan):
 
 - [ ] T004 Setup `data/raw/` and `data/processed/` directory structure with `.gitignore` rules for large files
-- [ ] T005 [P] Implement `code/utils.py` with periodic table lookup helpers using `mendeleev` and logging infrastructure
+- [X] T005 [P] Implement `code/utils.py` with periodic table lookup helpers using `mendeleev` and logging infrastructure
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining `AlloyRecord` fields (composition, critical_cooling_rate, mixing_enthalpy, atomic_size_mismatch, electronegativity_variance, source_label derived from dataset metadata)
 - [ ] T007 Create `contracts/model_output.schema.yaml` defining `ModelMetrics` and `SensitivityReport` structures
 - [ ] T008 Configure error handling: Ensure data loading fails loudly (no synthetic fallback) if `matsci/glass-forming-ability` fetch fails
-- [ ] T009 Setup `pytest` configuration and seed management (`random_state=42`) in `code/utils.py`
+- [X] T009 Setup `pytest` configuration and seed management (`random_state=42`) in `code/utils.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,15 +80,15 @@ Examples of foundational tasks (adjust based on your plan):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. Note: These tests depend on T012-T017 for execution.**
 
-- [ ] T010 [US1] Unit test for thermodynamic formula calculation (mixing enthalpy, atomic size mismatch) in `tests/test_features.py`
-- [ ] T011 [US1] Integration test for data ingestion pipeline ensuring ≥500 rows and no NaN in target columns in `tests/test_ingestion.py`
+- [X] T010 [US1] Unit test for thermodynamic formula calculation (mixing enthalpy, atomic size mismatch) in `tests/test_features.py`
+- [X] T011 [US1] Integration test for data ingestion pipeline ensuring ≥500 rows and no NaN in target columns in `tests/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingestion.py`: Download `matsci/glass-forming-ability` dataset using `datasets.load_dataset` (streaming=False for <7GB check, then filter). Ensure strict error on missing `critical_cooling_rate` column. Explicitly reconcile: Use MatsSci-Glass for CCR values and Mendeleev for elemental properties (Constitution Principle VI).
-- [ ] T013 [US1] Implement `code/ingestion.py`: Filter dataset for ternary alloys (3 elements) and exclude rows with missing elemental data or unknown glass-forming labels. Log exclusion counts.
-- [ ] T014 [P] [US1] Implement `code/features.py`: Calculate `mixing_enthalpy` using `mendeleev` elemental properties and ternary composition weights.
-- [ ] T015 [P] [US1] Implement `code/features.py`: Calculate `atomic_size_mismatch` and `electronegativity_variance` using standard periodic table definitions.
+- [X] T012 [US1] Implement `code/ingestion.py`: Download `matsci/glass-forming-ability` dataset using `datasets.load_dataset` (streaming=False for <7GB check, then filter). Ensure strict error on missing `critical_cooling_rate` column. Explicitly reconcile: Use MatsSci-Glass for CCR values and Mendeleev for elemental properties (Constitution Principle VI).
+- [X] T013 [US1] Implement `code/ingestion.py`: Filter dataset for ternary alloys (3 elements) and exclude rows with missing elemental data or unknown glass-forming labels. Log exclusion counts.
+- [X] T014 [P] [US1] Implement `code/features.py`: Calculate `mixing_enthalpy` using `mendeleev` elemental properties and ternary composition weights.
+- [X] T015 [P] [US1] Implement `code/features.py`: Calculate `atomic_size_mismatch` and `electronegativity_variance` using standard periodic table definitions.
 - [ ] T016 [US1] Implement `code/features.py`: Validate computed features (tolerance 1e-6) and save processed data to `data/processed/processed_alloys.csv`.
 - [ ] T017 [US1] Add validation to ensure `critical_cooling_rate` has non-zero variance and ≥500 entries; fail gracefully with specific error if not.
 
@@ -165,8 +165,8 @@ Examples of foundational tasks (adjust based on your plan):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -233,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Model Training) - *Wait for US1 data*
-   - Developer C: User Story 3 (Analysis) - *Wait for US2 model*
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Model Training) - *Wait for US1 data*
+ - Developer C: User Story 3 (Analysis) - *Wait for US2 model*
 3. Stories complete and integrate independently
 
 ---

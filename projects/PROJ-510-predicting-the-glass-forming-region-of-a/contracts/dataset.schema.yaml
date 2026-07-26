@@ -1,0 +1,80 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyRecord
+description: |
+  Schema for a single alloy record in the glass-forming region prediction dataset.
+  This schema defines the structure of the processed data produced by the ingestion
+  and feature engineering pipeline (User Story 1).
+  
+  Fields are derived from the `matsci/glass-forming-ability` dataset and computed
+  thermodynamic descriptors using `mendeleev` periodic table data.
+type: object
+required:
+  - composition
+  - elements
+  - critical_cooling_rate
+  - mixing_enthalpy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - source_label
+properties:
+  composition:
+    type: string
+    description: |
+      The chemical composition string of the alloy (e.g., "Zr50Cu40Al10").
+      Derived from the raw dataset metadata or composition field.
+    minLength: 1
+  elements:
+    type: array
+    description: |
+      List of unique chemical elements present in the alloy.
+      Sorted alphabetically.
+    items:
+      type: string
+      pattern: "^[A-Z][a-z]?$"
+    minItems: 3
+    maxItems: 3
+    uniqueItems: true
+  critical_cooling_rate:
+    type: number
+    description: |
+      The critical cooling rate (CCR) in K/s required to form a glass.
+      Derived from the `critical_cooling_rate` column in the source dataset.
+      Must be strictly positive.
+    exclusiveMinimum: 0
+  mixing_enthalpy:
+    type: number
+    description: |
+      The mixing enthalpy of the alloy in kJ/mol.
+      Computed using the Miedema model or similar thermodynamic approximations
+      based on elemental properties from `mendeleev`.
+    type: number
+  atomic_size_mismatch:
+    type: number
+    description: |
+      The atomic size mismatch parameter (delta) in percent (%).
+      Computed as the standard deviation of atomic radii weighted by atomic fraction.
+      Formula: delta = 100 * sqrt(sum(c_i * (1 - r_i/r_bar)^2))
+    minimum: 0
+  electronegativity_variance:
+    type: number
+    description: |
+      The variance of electronegativity values in the alloy.
+      Computed as the weighted variance of Pauling electronegativity values.
+    minimum: 0
+  source_label:
+    type: string
+    description: |
+      Label indicating the source of the data point, derived from dataset metadata.
+      Typically "matsci-glass" for entries from the matsci/glass-forming-ability dataset.
+    enum:
+      - matsci-glass
+      - unknown
+additionalProperties: false
+examples:
+  - composition: "Zr50Cu40Al10"
+    elements: ["Al", "Cu", "Zr"]
+    critical_cooling_rate: 100.0
+    mixing_enthalpy: -15.2
+    atomic_size_mismatch: 6.5
+    electronegativity_variance: 0.045
+    source_label: "matsci-glass"

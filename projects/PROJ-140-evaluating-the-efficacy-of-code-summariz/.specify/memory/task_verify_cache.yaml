@@ -1,0 +1,44 @@
+T012a:
+  c: false
+  h: 50a80cce8f49d3343a5cdace47bb4f7c63107fb39d78eba405a939d76d81f8dd
+  r: The latency calibrator script exists, but the required startup files (`backend/src/main.py`
+    or `frontend/src/App.jsx`) are missing, and there is no evidence that the calibrator
+    is imported or executed at application launch. Integration into the startup flow
+    has not been demonstrated.
+T015:
+  c: false
+  h: 72505f3ec27d2fc5d4c563d24417d251ad7984060a01e477c93ef725c93380f1
+  r: "The `code/utils/interaction_logger.py` file is present but ends abruptly inside\
+    \ the `log_interaction` definition, so the core logging functionality is not fully\
+    \ implemented. Additionally, the required `data/interaction_logs/raw_logs.csv`\
+    \ file does not exist. Both the incomplete module and missing CSV output mean\
+    \ the task\u2019s requirement\u2014to record the specified columns to that CSV\u2014\
+    is not satisfied."
+T016:
+  c: false
+  h: 3083ebb7f8cd3f5f1deb8e6409d9d063cc38764967493f614e9da85fcac2689a
+  r: The `code/utils/anonymize_logs.py` script is truncated and contains an unfinished
+    `save_anonymized_logs` function (e.g., `logger.wa`), indicating it cannot run
+    successfully. Moreover, the required output file `data/interaction_logs/anonymized_logs.csv`
+    does not exist. Both the functional script and the generated CSV are missing,
+    so the task is not satisfied.
+T018a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/api_participant.md` file or its contents were provided; therefore
+    the required API contract (endpoints, request/response schemas, session management
+    details) is missing. The implementer must create the markdown file with the full
+    specification.
+T018c:
+  c: false
+  h: 91ebfcf9610bddd9d17acfe5d311d57be4bfc60d6803347ef43fb86eaa24a35b
+  r: "The required file `backend/src/api/participant.py` (or an equivalent implementation)\
+    \ is missing from the repository, so no code handling submissions, session state,\
+    \ or Latin\u2011square assignment is present. The task\u2019s core artifact is\
+    \ absent, making the implementation incomplete."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/consent/` directory, a `.gitignore` entry excluding it,\
+    \ or any script/command that sets file permissions to `chmod 600` is provided.\
+    \ The implementer\u2019s claim cannot be verified without these artifacts."

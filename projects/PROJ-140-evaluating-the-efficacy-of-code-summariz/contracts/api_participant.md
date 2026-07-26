@@ -1,192 +1,166 @@
 # API Contract: Participant Interaction Data Collection
 
-**Project**: PROJ-140-evaluating-the-efficacy-of-code-summariz
-**User Story**: US1 - Human Subject Study Data Collection
-**Task**: T018a
-**Status**: Draft
+**Version**: 1.0.0
+**Status**: Draft (Implemented in T018b)
+**Related User Story**: US1 - Human Subject Study Data Collection
 
 ## Overview
 
-This document defines the API contract for collecting participant interaction data during the bug localization study. The API supports session management, task assignment, and interaction logging.
+This document defines the API contract for collecting interaction data from participants during the bug localization study. The API supports session management, task assignment, and interaction logging.
 
 ## Base URL
 
-```
-/api/v1/participant
-```
-
-## Authentication
-
-No authentication required for the study interface. Session management is handled via a unique `session_id` returned upon initialization.
+All endpoints are relative to the backend server base URL.
 
 ## Endpoints
 
 ### 1. Initialize Session
 
-**Endpoint**: `POST /api/v1/participant/session/init`
+**POST** `/api/participant/session/init`
 
-**Description**: Creates a new study session and assigns a participant ID and initial task based on the Latin-square design.
+Initializes a new study session for a participant.
 
 **Request Body**:
 ```json
 {
- "consent_verified": true,
- "demographics": {
- "years_experience": 3,
- "primary_language": "Python",
- "education_level": "Bachelor"
- }
+ "participant_id": "string (UUID)",
+ "consent_verified": "boolean"
 }
 ```
 
-**Response (201 Created)**:
+**Response**: `200 OK`
 ```json
 {
- "session_id": "sess_8f3a2b1c",
- "participant_id": "p_001",
- "assigned_task": {
- "task_id": "task_defects4j_042",
- "condition": "baseline",
- "buggy_method_id": "method_042",
- "source_code": "def example_method(self, x, y):\n #... code...",
- "ground_truth_line": 15,
- "summary": "Calculates the sum of x and y"
- },
- "expires_at": "2023-10-27T10:00:00Z"
+ "session_id": "string (UUID)",
+ "assigned_tasks": [
+ {
+ "task_id": "string",
+ "condition": "string (llm_sim | rule | baseline)",
+ "buggy_method_id": "string",
+ "source_code": "string",
+ "summary": "string (optional, based on condition)"
+ }
+ ],
+ "latin_square_assignment": "string"
 }
 ```
 
-**Errors**:
-- `400 Bad Request`: Invalid demographics or consent verification.
-- `409 Conflict`: Participant ID already exists (duplicate submission attempt).
+**Error Responses**:
+- `400 Bad Request`: Invalid participant_id or missing consent
+- `409 Conflict`: Participant already has an active session
 
 ---
 
 ### 2. Submit Interaction
 
-**Endpoint**: `POST /api/v1/participant/interaction`
+**POST** `/api/participant/interaction`
 
-**Description**: Records a single interaction event (line selection, time elapsed) for the current session.
+Logs a single interaction event (line selection, timestamp, etc.).
 
 **Request Body**:
 ```json
 {
- "session_id": "sess_8f3a2b1c",
- "task_id": "task_defects4j_042",
- "condition": "baseline",
- "selected_line": 14,
- "timestamp_ms": 1698400000123,
- "latency_ms": 4500,
- "decision_type": "submit"
+ "session_id": "string (UUID)",
+ "task_id": "string",
+ "condition": "string",
+ "timestamp_ms": "integer",
+ "selected_line": "integer",
+ "ground_truth_line": "integer",
+ "latency_ms": "integer"
 }
 ```
 
-**Response (200 OK)**:
+**Response**: `200 OK`
 ```json
 {
  "status": "recorded",
- "interaction_id": "int_992a1b",
- "remaining_attempts": 2
+ "interaction_id": "string (UUID)"
 }
 ```
 
-**Validation**:
-- `selected_line` must be an integer > 0.
-- `timestamp_ms` must be a valid Unix timestamp in milliseconds.
-- `session_id` must be active.
-
-**Errors**:
-- `404 Not Found`: Invalid `session_id` or `task_id`.
-- `400 Bad Request`: Invalid line number or timestamp.
+**Error Responses**:
+- `400 Bad Request`: Invalid schema or missing required fields
+- `404 Not Found`: Session ID does not exist
+- `409 Conflict`: Task already completed for this session
 
 ---
 
-### 3. Get Next Task (Latin-Square Assignment)
+### 3. Complete Task
 
-**Endpoint**: `GET /api/v1/participant/session/{session_id}/next_task`
+**POST** `/api/participant/task/complete`
 
-**Description**: Retrieves the next task for a participant based on the Latin-square design, ensuring balanced condition assignment across the cohort.
-
-**Path Parameters**:
-- `session_id`: The active session ID.
-
-**Response (200 OK)**:
-```json
-{
- "task_id": "task_defects4j_089",
- "condition": "llm_sim",
- "buggy_method_id": "method_089",
- "source_code": "def next_method(...):...",
- "summary": "Processes input data",
- "ground_truth_line": 22
-}
-```
-
-**Response (404 Not Found)**:
-```json
-{
- "error": "No remaining tasks for this participant condition"
-}
-```
-
----
-
-### 4. Complete Session
-
-**Endpoint**: `POST /api/v1/participant/session/{session_id}/complete`
-
-**Description**: Finalizes the session, triggers data anonymization logic, and marks the participant as completed.
-
-**Path Parameters**:
-- `session_id`: The active session ID.
+Marks a specific task as completed and finalizes the interaction log for that task.
 
 **Request Body**:
 ```json
 {
- "final_feedback": "Optional text feedback"
+ "session_id": "string (UUID)",
+ "task_id": "string",
+ "final_selected_line": "integer",
+ "time_to_decision_ms": "integer"
 }
 ```
 
-**Response (200 OK)**:
+**Response**: `200 OK`
 ```json
 {
  "status": "completed",
- "anonymized_log_path": "data/interaction_logs/anonymized_logs.csv",
- "message": "Thank you for participating. Your data has been anonymized."
+ "next_task_available": "boolean"
 }
 ```
 
 ---
 
-## Data Model (Reference)
+### 4. End Session
 
-The interaction data is structured according to the `InteractionLog` model defined in `code/utils/models.py`:
+**POST** `/api/participant/session/end`
 
-```python
-@dataclass
-class InteractionLog:
- participant_id: str
- task_id: str
- condition: str # 'baseline', 'llm_sim', 'rule'
- timestamp_ms: int
- selected_line: int
- ground_truth_line: int
- latency_ms: int
- session_id: str
+Finalizes the participant session and triggers anonymization pipeline.
+
+**Request Body**:
+```json
+{
+ "session_id": "string (UUID)",
+ "dropout_flag": "boolean (optional)"
+}
 ```
+
+**Response**: `200 OK`
+```json
+{
+ "status": "ended",
+ "anonymized_log_path": "string (internal path)"
+}
+```
+
+---
 
 ## Session Management
 
-- Sessions are time-bound (default 2 hours).
-- If a session expires, the participant must re-initialize (new `session_id`), but `participant_id` remains consistent to track dropout.
-- Latin-square assignment logic is managed server-side in `code/utils/assignment_generator.py`.
+- Sessions are identified by a UUID (`session_id`).
+- A session remains active until explicitly ended or timed out (configurable).
+- Task assignments are determined by the Latin-square design logic (see `code/utils/assignment_generator.py`).
+
+## Data Schema Definitions
+
+### InteractionLog
+| Field | Type | Description |
+|-------|------|-------------|
+| participant_id | UUID | Anonymized participant identifier |
+| task_id | string | Unique identifier for the bug localization task |
+| condition | string | Study condition: 'llm_sim', 'rule', or 'baseline' |
+| timestamp_ms | integer | Unix timestamp in milliseconds |
+| selected_line | integer | 1-based line number selected by participant |
+| ground_truth_line | integer | 1-based line number of the actual bug |
+| latency_ms | integer | Time taken to make the selection |
 
 ## Error Handling
 
-All errors return a JSON body:
+All errors follow the standard JSON API error format:
 ```json
 {
- "error_code": "ERR_CODE",
- "message": "Human readable description"
+ "error": "string",
+ "message": "string",
+ "code": "integer"
 }
 ```

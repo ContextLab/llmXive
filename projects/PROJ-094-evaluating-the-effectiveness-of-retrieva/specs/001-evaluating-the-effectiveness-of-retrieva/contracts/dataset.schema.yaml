@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSnippet Dataset Schema"
+type: "object"
+properties:
+  doc_id:
+    type: "string"
+    description: "Unique identifier for the document."
+  func_name:
+    type: ["string", "null"]
+    description: "Function name (if available)."
+  language:
+    type: "string"
+    description: "Programming language (e.g., 'python', 'java')."
+  path:
+    type: "string"
+    description: "File path in the repository."
+  repo:
+    type: "string"
+    description: "Repository name."
+  code:
+    type: "string"
+    description: "Original code snippet."
+  code_truncated:
+    type: "string"
+    description: "Code snippet truncated to ≤ 256 tokens."
+  api_density:
+    type: "number"
+    description: "Ratio of API calls to total tokens (computed on query/GT)."
+  doc_density:
+    type: "number"
+    description: "Ratio of comment tokens to total tokens (computed on query/GT)."
+  naming_consistency:
+    type: ["number", "string"]
+    description: "Average pairwise cosine similarity of identifier embeddings (computed on query/GT, orthogonalized). Missing values are 'NaN'."
+required:
+  - doc_id
+  - language
+  - code
+  - code_truncated
+  - api_density
+  - doc_density
+  - naming_consistency

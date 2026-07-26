@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QueryResult Output Schema"
+type: "object"
+properties:
+  query_id:
+    type: "string"
+    description: "Unique identifier for the query."
+  method:
+    type: "string"
+    description: "Retrieval method ('bm25', 'dual_encoder', 'rag')."
+  ndcg_at_10:
+    type: "number"
+    description: "Normalized Discounted Cumulative Gain at 10."
+  precision_at_10:
+    type: "number"
+    description: "Precision at 10."
+  recall_at_10:
+    type: "number"
+    description: "Recall at 10."
+  api_density:
+    type: ["number", "string"]
+    description: "API density of the **query/GT**. Missing values are 'NaN'."
+  doc_density:
+    type: ["number", "string"]
+    description: "Documentation density of the **query/GT**. Missing values are 'NaN'."
+  naming_consistency:
+    type: ["number", "string"]
+    description: "Naming consistency of the **query/GT** (orthogonalized). Missing values are 'NaN'."
+  bleu_score:
+    type: ["number", "null"]
+    description: "BLEU score of the generated answer (RAG only)."
+  rouge_score:
+    type: ["number", "null"]
+    description: "ROUGE-L score of the generated answer (RAG only)."
+required:
+  - query_id
+  - method
+  - ndcg_at_10
+  - precision_at_10
+  - recall_at_10
+  - api_density
+  - doc_density
+  - naming_consistency

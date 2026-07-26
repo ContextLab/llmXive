@@ -1,0 +1,25 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure was presented; the required root folder `projects/PROJ-510-predicting-the-glass-forming-region-of-a/`\
+    \ and its sub\u2011folders `data/`, `code/`, `tests/`, and `docs/` are not shown\
+    \ or listed, so the core artifact the task demanded is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting configuration files (e.g., .flake8, pyproject.toml/black settings,\
+    \ pre\u2011commit hooks) or documentation of flake8/black setup are present. The\
+    \ task required delivering those artifacts, but none were provided."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
+    \ a `.gitignore` file containing rules for large files was provided. The implementer\u2019\
+    s claim cannot be verified without these artifacts present in the repository."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or test showing that the data loading step now\
+    \ raises an explicit error when the `matsci/glass-forming-ability` fetch fails\
+    \ (and that no synthetic fallback is used) was provided. Without such artifact,\
+    \ we cannot confirm the required error\u2011handling behavior is implemented."

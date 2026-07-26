@@ -1,0 +1,28 @@
+status: verified
+kind: pypi_package
+ref: ir-datasets
+access_python: "import ir_datasets\n\nds = ir_datasets.load(\"codesearchnet\")\ncount\
+  \ = ds.docs_count()\nprint(f\"RECORDS={count}\")\n\nsample_doc = next(ds.docs_iter())\n\
+  if hasattr(sample_doc, \"_fields\"):\n    fields = \",\".join(sorted(sample_doc._fields))\n\
+  elif hasattr(sample_doc, \"__dict__\"):\n    fields = \",\".join(sorted(sample_doc.__dict__.keys()))\n\
+  else:\n    raise TypeError(\"Unable to determine fields of the sample document\"\
+  )\nprint(f\"FIELDS={fields}\")"
+record_count: 2070536
+sample_fields:
+- code
+- doc_id
+- func_name
+- language
+- path
+- repo
+field_coverage: 0.667
+required_fields:
+- function_name
+- docstring
+- code
+- language
+- repo
+- filepath
+intent: download CodeSearchNet Python Java dataset pip install code-search-net python
+  package dataset
+cache_key: b4070e76d8f2d7efce385b3bd111906f3ae02891759387886dc48a956fdde842
