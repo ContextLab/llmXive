@@ -1,0 +1,25 @@
+# Ruff configuration file
+# This file duplicates settings in pyproject.toml for CLI compatibility
+
+target-version = "py311"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[per-file-ignores]
+"__init__.py" = ["F401"]
+
+[isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
