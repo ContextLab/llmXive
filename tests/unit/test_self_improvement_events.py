@@ -79,6 +79,71 @@ def test_validate_rejects_bad_schema_version():
         validate_lane_event(_raw(schema_version=999))
 
 
+# ---- envelope TYPES (not just presence) ----
+
+
+def _coord(**kw):
+    """The same event on the COORDINATOR stream, which uses the lane revision scope."""
+    base = _raw(problem_id=COORDINATOR_STREAM, event_type="ClaimAcquired",
+                expected_problem_revision=None, resulting_problem_revision=None,
+                expected_lane_revision=0, resulting_lane_revision=1)
+    base.update(kw)
+    return base
+
+
+@pytest.mark.parametrize("stream", ["problem", "coordinator"])
+@pytest.mark.parametrize("bad, why", [
+    ({"problem_id": ""}, "problem_id"),          # names no stream
+    ({"actor": ""}, "actor"),                    # attributes provenance to nobody
+    ({"event_id": ""}, "event_id"),
+    ({"actor": 123}, "actor"),
+    ({"schema_version": True}, "schema_version"),  # True == 1, and hashes as 1
+    ({"attempt_id": 123}, "attempt_id"),           # contaminates attribution
+    ({"attempt_id": ""}, "attempt_id"),
+    ({"timestamp": "2026-07-24"}, "instant"),      # a date is not an instant
+    ({"timestamp": "2026-07-24T00:00:00"}, "instant"),  # naive: no timezone
+    ({"timestamp": 20260724}, "timestamp"),
+])
+def test_envelope_rejects_malformed_values(stream, bad, why):
+    # Presence alone is not a schema: every field here lands in IMMUTABLE history that
+    # later readers must trust (issue #1242), so each is checked for the type it needs.
+    make = _raw if stream == "problem" else _coord
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(make(**bad))
+
+
+@pytest.mark.parametrize("stream", ["problem", "coordinator"])
+def test_envelope_rejects_boolean_and_negative_sequence_fields(stream):
+    # seq is the lane's ORDERING authority. `True == 1` sails through every arithmetic
+    # check and then orders the projection as position 1 — a corruption of the sequence
+    # itself, not a cosmetic type issue.
+    make = _raw if stream == "problem" else _coord
+    field = "problem" if stream == "problem" else "lane"
+    with pytest.raises(ValueError, match="seq"):
+        validate_lane_event(make(**{"seq": True,
+                                    f"expected_{field}_revision": True,
+                                    f"resulting_{field}_revision": 2}))
+    with pytest.raises(ValueError, match="seq"):
+        validate_lane_event(make(**{"seq": -1,
+                                    f"expected_{field}_revision": -1,
+                                    f"resulting_{field}_revision": 0}))
+    with pytest.raises(ValueError, match="revision"):
+        validate_lane_event(make(**{"seq": 0,
+                                    f"expected_{field}_revision": False,
+                                    f"resulting_{field}_revision": 1}))
+
+
+@pytest.mark.parametrize("stream", ["problem", "coordinator"])
+def test_a_well_formed_event_on_either_stream_still_passes(stream):
+    validate_lane_event(_raw() if stream == "problem" else _coord())
+
+
+def test_a_timezone_aware_timestamp_is_accepted_in_several_forms():
+    for ts in ("2026-07-24T00:00:00+00:00", "2026-07-24T12:30:05.123456+02:00",
+               "2026-07-24T00:00:00Z"):
+        validate_lane_event(_raw(timestamp=ts))
+
+
 # ---- per-type payload validation ----
 
 

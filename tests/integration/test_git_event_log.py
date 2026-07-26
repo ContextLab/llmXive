@@ -386,6 +386,73 @@ def test_sustained_contention_raises_contention(repo: Path, monkeypatch):
         _append(repo, {"event_id": "e0", "kind": "a"}, max_retries=3)
 
 
+# ---- absence vs failure: never project an operational error as an empty log ----
+
+
+def test_read_log_against_a_non_git_directory_raises(tmp_path: Path):
+    """The sharpest fail-open: `[]` means "no claim / no reservation / no spend" to
+    every projection built on this, so a wrong or missing repository must NOT produce
+    it."""
+    not_a_repo = tmp_path / "plain"
+    not_a_repo.mkdir()
+    with pytest.raises(GitLogError, match="refusing to treat an unreadable ref"):
+        _read(not_a_repo)
+
+
+def test_a_ref_whose_object_is_unreadable_raises(repo: Path):
+    """`rev-parse --verify --quiet` exits 1 for BOTH a missing ref and a ref whose
+    object cannot be read, so exit code alone is not enough — `show-ref` separates
+    them, and a damaged log must never read as an empty one."""
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    tip = _git(repo, "rev-parse", "refs/llmxive/test-log")
+    obj = repo / ".git" / "objects" / tip[:2] / tip[2:]
+    assert obj.exists(), "expected a loose object (the test repo is not packed)"
+    obj.rename(obj.with_suffix(".hidden"))
+    with pytest.raises(GitLogError, match="could not be resolved"):
+        _read(repo)
+
+
+def test_a_genuinely_absent_ref_is_still_an_empty_log(repo: Path):
+    """The counterpart: cold start must NOT raise."""
+    assert _read(repo) == []
+
+
+def test_an_absent_event_path_is_absent_not_an_error(repo: Path):
+    """The append-only guard's read: a path that is genuinely not in the tree returns
+    None so the append proceeds."""
+    from llmxive.git_event_log import _read_event_blob
+
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    tip = _git(repo, "rev-parse", "refs/llmxive/test-log")
+    assert _read_event_blob(repo, _log(), "never-written", tip) is None
+    assert _read_event_blob(repo, _log(), "e0", tip) is not None
+
+
+def test_a_failed_blob_read_raises_rather_than_reporting_absence(repo: Path):
+    """If this reported absence on failure, a caller could append OVER an event that is
+    already committed — the append-only guard would simply not fire."""
+    from llmxive.git_event_log import _read_event_blob
+
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    with pytest.raises(GitLogError):
+        _read_event_blob(repo, _log(), "e0", "deadbeef" * 5)  # a tip that is not a tree
+
+
+def test_a_corrupt_tree_raises_instead_of_listing_nothing(repo: Path):
+    """`ls-tree` failing has EMPTY stdout, so an unchecked call would project a damaged
+    repository as "no events" — the same fail-open as an unreadable ref. Here the
+    COMMIT is readable but its TREE object is gone, so `_rev` succeeds and the listing
+    is what fails."""
+    _append(repo, {"event_id": "e0", "kind": "a"})
+    tip = _git(repo, "rev-parse", "refs/llmxive/test-log")
+    tree = _git(repo, "rev-parse", f"{tip}^{{tree}}")
+    obj = repo / ".git" / "objects" / tree[:2] / tree[2:]
+    assert obj.exists(), "expected a loose tree object"
+    obj.rename(obj.with_suffix(".hidden"))
+    with pytest.raises(GitLogError):
+        _read(repo)
+
+
 # ---- exception compatibility with the credit ledger's names (round-2 F8) ----
 
 

@@ -277,6 +277,34 @@ TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
 }
 
 
+def _envelope_str(raw: Mapping[str, Any], key: str) -> str:
+    """An authoritative envelope field must be a NON-EMPTY string.
+
+    Presence alone is not a schema. An empty ``problem_id`` names no stream, an empty
+    ``actor`` attributes a provenance record to nobody, and either would be written
+    into immutable history that later readers must trust (issue #1242).
+    """
+    value = raw[key]
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"lane event {key}={value!r} must be a non-empty string")
+    return value
+
+
+def _envelope_int(raw: Mapping[str, Any], key: str, value: Any, *, minimum: int = 0) -> int:
+    """An authoritative envelope integer — and NOT a bool.
+
+    ``True`` is an ``int`` to Python (``True == 1``, and it hashes as 1), so a boolean
+    ``seq`` or revision anchor sails through every arithmetic check and then orders the
+    projection as position 1. ``seq`` is the lane's ORDERING authority, so that is a
+    corruption of the sequence itself, not a cosmetic type sloppiness.
+    """
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"lane event {key}={value!r} must be an int (bool is not an int here)")
+    if value < minimum:
+        raise ValueError(f"lane event {key}={value!r} must be >= {minimum}")
+    return value
+
+
 def validate_lane_event(raw: dict) -> None:
     """Fail-closed schema validation, run at the write boundary (after the store stamps
     seq + the revision fields) AND on every read. Rejects any event that could corrupt a
@@ -290,14 +318,24 @@ def validate_lane_event(raw: dict) -> None:
                 "schema_version"):
         if key not in raw:
             raise ValueError(f"lane event missing required field {key!r}")
+    # TYPES, not just presence. Every field below lands in immutable history that later
+    # readers must trust, so each is checked for the type it actually needs to be.
+    for key in ("event_id", "event_type", "problem_id", "actor"):
+        _envelope_str(raw, key)
+    _envelope_int(raw, "schema_version", raw["schema_version"], minimum=1)
     if raw["schema_version"] not in SUPPORTED_SCHEMA_VERSIONS:  # never reject prior history
         raise ValueError(
             f"lane event schema_version {raw['schema_version']!r} not in {SUPPORTED_SCHEMA_VERSIONS}"
         )
     if raw["event_type"] not in KNOWN_EVENT_TYPES_V1:
         raise ValueError(f"lane event_type {raw['event_type']!r} not in KNOWN_EVENT_TYPES_V1")
-    if not _SAFE_ID.match(str(raw["event_id"])):
+    if not _SAFE_ID.match(raw["event_id"]):
         raise ValueError(f"lane event_id {raw['event_id']!r} must match {_SAFE_ID.pattern}")
+    attempt_id = raw.get("attempt_id")
+    if attempt_id is not None and (not isinstance(attempt_id, str) or not attempt_id):
+        # A non-string attempt_id contaminates attribution for every event type without
+        # a specialized validator — the projections filter on this field.
+        raise ValueError(f"lane event attempt_id {attempt_id!r} must be None or a non-empty string")
     is_coord = raw["problem_id"] == COORDINATOR_STREAM
     scope = "lane" if is_coord else "problem"
     other = "problem" if is_coord else "lane"
@@ -308,15 +346,30 @@ def validate_lane_event(raw: dict) -> None:
             or raw.get(f"resulting_{other}_revision") is not None):
         raise ValueError(f"{scope}-stream event must NOT set the {other} revision scope")
     seq = raw.get("seq")
-    if seq is None or exp != seq or res != seq + 1:
+    if seq is None:
+        raise ValueError("lane event must carry the store-assigned seq")
+    _envelope_int(raw, "seq", seq)
+    _envelope_int(raw, f"expected_{scope}_revision", exp)
+    _envelope_int(raw, f"resulting_{scope}_revision", res, minimum=1)
+    if exp != seq or res != seq + 1:
         raise ValueError(
             f"revision anchors inconsistent: seq={seq}, expected={exp}, resulting={res} "
             "(require expected==seq and resulting==seq+1)"
         )
+    timestamp = _envelope_str(raw, "timestamp")
     try:
-        datetime.fromisoformat(str(raw["timestamp"]))
+        parsed = datetime.fromisoformat(timestamp)
     except ValueError as exc:
-        raise ValueError(f"lane event timestamp {raw['timestamp']!r} is not ISO-8601") from exc
+        raise ValueError(f"lane event timestamp {timestamp!r} is not ISO-8601") from exc
+    if parsed.tzinfo is None:
+        # FR-011 records an INSTANT, not a calendar day: "2026-07-24" parses fine and
+        # would order events from different runners by an offset nobody recorded. A
+        # timezone-aware value is also what makes the conservative reconciliation
+        # timeout (Task 12) comparable across processes.
+        raise ValueError(
+            f"lane event timestamp {timestamp!r} must include a time AND a timezone "
+            "(an instant, not a date)"
+        )
     payload = raw["payload"]
     if not isinstance(payload, Mapping):
         raise ValueError(f"lane event payload must be a mapping, got {type(payload).__name__}")

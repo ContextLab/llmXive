@@ -113,11 +113,18 @@ class GitLogDenied(GitLogError):
 class LogRef:
     """WHICH log, and how to trust it.
 
-    ``ref``/``event_dir`` locate the records; ``remote`` (when set) makes that remote
-    authoritative — the ref must already exist there (bootstrap is the only creator),
-    and every read/mutation syncs from it. ``expected_anchor`` pins the bootstrap
-    commit so a wrong/divergent log is rejected. The default is local-only: tests, a
-    single runner, or a degenerate mode.
+    ``ref``/``event_dir`` locate the records. ``remote`` (when set) names the
+    authoritative copy: the ref must already exist there (bootstrap is the only
+    creator), and ``expected_anchor`` pins the bootstrap commit so a wrong/divergent
+    log is rejected. The default is local-only: tests, a single runner, or a
+    degenerate mode.
+
+    **Setting ``remote`` does NOT make every read authoritative.** Only
+    :func:`sync_and_verify` and :func:`append_to_log` (which calls it) fetch the remote
+    and check the anchor; :func:`read_log` is a pure local object-store read by design
+    — see its docstring. A wrapper that exposes a public read MUST call
+    :func:`sync_and_verify` first, or it will project a stale (possibly empty) local
+    ref while appearing to be remote-backed.
     """
 
     ref: str
@@ -169,39 +176,100 @@ def _git(
 
 
 def _rev(repo: Path, ref: str, *, identity: Mapping[str, str]) -> str | None:
-    """The commit OID the ref points at, or ``None`` if the ref does not exist."""
+    """The commit OID the ref points at, or ``None`` iff the ref GENUINELY does not
+    exist.
+
+    Absence and failure MUST NOT collapse into the same answer. ``None`` propagates as
+    "empty log", and an empty log means "no claim / no reservation / no spend" to every
+    projection built on this — so returning it for a wrong repository or a damaged
+    object store would be fail-OPEN on an admission decision.
+
+    ``rev-parse --verify --quiet`` exits 128 for an operational failure (e.g. not a git
+    repository) and 1 for BOTH a missing ref and a ref whose object cannot be read. The
+    second case is disambiguated with ``show-ref``, which reports on the REF itself
+    independently of object readability: exit 1 there means the ref is truly absent;
+    anything else means the ref exists but could not be resolved — corruption, which
+    raises.
+    """
     proc = _git(
         ["rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
         cwd=repo, identity=identity, check=False,
     )
-    oid = proc.stdout.strip()
-    return oid or None
+    if proc.returncode == 0:
+        oid = proc.stdout.strip()
+        if not oid:
+            raise GitLogError(f"git rev-parse {ref!r} succeeded but returned no OID")
+        return oid
+    if proc.returncode != 1:
+        raise GitLogError(
+            f"cannot resolve {ref!r} ({proc.returncode}): {proc.stderr.strip()} — refusing "
+            "to treat an unreadable ref as an empty log"
+        )
+    exists = _git(
+        ["show-ref", "--verify", "--quiet", ref], cwd=repo, identity=identity, check=False
+    )
+    if exists.returncode == 1:
+        return None  # the ref genuinely does not exist (cold start)
+    raise GitLogError(
+        f"ref {ref!r} exists but its object could not be resolved "
+        f"({exists.returncode}): {exists.stderr.strip() or proc.stderr.strip()} — refusing "
+        "to treat a damaged log as an empty one"
+    )
 
 
 def _read_event_blob(repo: Path, log: LogRef, event_id: str, tip: str) -> str | None:
-    """The stored body of ``<event_id>.json`` at ``tip``, or ``None`` if absent."""
-    proc = _git(
-        ["cat-file", "-p", f"{tip}:{log.event_dir}/{event_id}.json"],
-        cwd=repo, identity=log.git_identity, check=False,
-    )
-    return proc.stdout if proc.returncode == 0 else None
+    """The stored body of ``<event_id>.json`` at ``tip``, or ``None`` iff that path is
+    GENUINELY absent from the tree.
+
+    Same fail-closed reasoning as :func:`_rev`, and it matters more here: this is the
+    append-only guard's read. A failure reported as "absent" would let a caller append
+    over an event that is already committed.
+
+    ``cat-file`` cannot distinguish the two cases — a missing path and a damaged object
+    both exit 128 — so existence is tested with ``ls-tree``, which exits 0 with EMPTY
+    output for an absent path and 128 for any operational failure.
+    """
+    listing = _git(
+        ["ls-tree", tip, "--", f"{log.event_dir}/{event_id}.json"],
+        cwd=repo, identity=log.git_identity,
+    ).stdout.strip()
+    if not listing:
+        return None  # the path genuinely is not in this tree
+    return _git(
+        ["cat-file", "blob", f"{tip}:{log.event_dir}/{event_id}.json"],
+        cwd=repo, identity=log.git_identity,
+    ).stdout
 
 
 def read_log(repo: Path, *, log: LogRef, validate: Callable[[dict], None]) -> list[dict]:
-    """Every event currently recorded on ``log.ref`` (empty if the ref is absent).
+    """Every event recorded on the LOCAL ``log.ref`` (empty iff the ref is absent).
     Reads straight from the object store — the log ref is never checked out.
 
-    Fails CLOSED on corruption: this is an authoritative log, not a cache. Skipping a
-    malformed event could drop a record from the projection and silently change a
-    safety decision. ``validate`` runs on READ as well as write, so a manually
-    corrupted or older malformed event cannot slip past write-time validation.
+    **LOCAL by design — this does NOT fetch or verify the anchor**, even when
+    ``log.remote`` is set. That mirrors the credit ledger's split, where syncing is the
+    caller's explicit decision (``fetch_ledger``) because a projection may legitimately
+    be taken repeatedly against one synced tip. The consequence is sharp: calling this
+    on a fresh checkout with ``remote=`` set returns ``[]`` — an EMPTY log — because
+    an ordinary clone does not fetch these refs. **Any public read a caller exposes
+    MUST call :func:`sync_and_verify` first.**
+
+    Fails CLOSED on everything else: this is an authoritative log, not a cache. A
+    corrupt blob, an unreadable ref, a failed listing, or a payload the caller's
+    ``validate`` rejects all RAISE rather than shrinking the projection — dropping a
+    record would silently change an admission, ownership, or budget decision.
+    ``validate`` runs on READ as well as write, so a manually corrupted or older
+    malformed event cannot slip past write-time validation.
     """
     tip = _rev(repo, log.ref, identity=log.git_identity)
     if tip is None:
         return []
+    # CHECKED (not check=False): a failed listing has empty stdout, and projecting that
+    # as "no events" would report a damaged or wrong repository as an empty log — the
+    # same fail-open `_rev` guards against. An exit-0 empty listing genuinely means the
+    # subtree holds no events.
     listing = _git(
         ["ls-tree", "-r", "--name-only", tip, "--", f"{log.event_dir}/"],
-        cwd=repo, identity=log.git_identity, check=False,
+        cwd=repo, identity=log.git_identity,
     ).stdout
     events: list[dict] = []
     for path in filter(None, (line.strip() for line in listing.splitlines())):
