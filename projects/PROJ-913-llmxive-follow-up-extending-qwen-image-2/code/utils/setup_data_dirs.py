@@ -5,52 +5,50 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def setup_data_directories() -> None:
+def setup_data_directories():
     """
     Creates the required data directory structure for the project.
-    This ensures that all necessary folders for prompts, models, and outputs
-    exist before data acquisition or inference begins.
-    
-    Creates:
-      - data/prompts/
-      - data/models/
-      - data/outputs/base/
-      - data/outputs/rl_unified/
-      - data/results/
-      - data/reports/
-      - figures/
-    
-    Adds .gitkeep files to ensure directories are tracked by git.
+    This includes prompts, models, and specific output directories for base and RL-unified runs.
+    Also creates .gitkeep files to ensure directories are tracked in version control.
     """
-    data_dirs = [
+    base_data_path = Path(PROJECT_ROOT) / "data"
+    
+    directories = [
         "prompts",
         "models",
         "outputs/base",
         "outputs/rl_unified",
-        "results",
-        "reports",
+        "raw",
+        "processed",
+        "logs"
     ]
+
+    created_count = 0
     
-    figures_dir = "figures"
-    
-    base_path = Path(PROJECT_ROOT) / "data"
-    
-    logger.info(f"Setting up data directories under: {base_path}")
-    
-    for dir_name in data_dirs:
-        dir_path = base_path / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Add .gitkeep to ensure empty directories are tracked
-        gitkeep_path = dir_path / ".gitkeep"
-        gitkeep_path.touch()
-        logger.debug(f"Created directory: {dir_path} with .gitkeep")
-    
-    # Create figures directory separately as it's often at root level or parallel to data
-    figures_path = Path(PROJECT_ROOT) / figures_dir
-    figures_path.mkdir(parents=True, exist_ok=True)
-    figures_gitkeep = figures_path / ".gitkeep"
-    figures_gitkeep.touch()
-    logger.debug(f"Created directory: {figures_path} with .gitkeep")
-    
-    logger.info("Data directory structure setup complete.")
+    for dir_path in directories:
+        full_path = base_data_path / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            logger.debug(f"Directory ensured: {full_path}")
+            
+            # Create .gitkeep to ensure directory is tracked by git
+            gitkeep_path = full_path / ".gitkeep"
+            if not gitkeep_path.exists():
+                gitkeep_path.touch()
+                logger.debug(f"Created .gitkeep in: {full_path}")
+                
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+
+    logger.info(f"Data directory structure setup complete. {created_count} directories ensured.")
+    return True
+
+def main():
+    logger.info("Starting data directory structure setup...")
+    setup_data_directories()
+    logger.info("Data directory structure setup finished.")
+
+if __name__ == "__main__":
+    main()

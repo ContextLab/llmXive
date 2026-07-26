@@ -1,0 +1,19 @@
+# Explicit configuration for Black
+# Note: Black primarily reads from pyproject.toml, but this file
+# serves as a fallback or explicit marker for tools that look for it.
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

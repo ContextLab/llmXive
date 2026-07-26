@@ -1,1 +1,3 @@
-# Integration test package initialization
+"""
+Integration tests for the llmXive OPD Generalization Gap pipeline.
+"""

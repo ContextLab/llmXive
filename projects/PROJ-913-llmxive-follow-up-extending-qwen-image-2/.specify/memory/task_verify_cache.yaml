@@ -1,3 +1,40 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or proof that `projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/`
+    actually exists on disk is provided; the evidence contains no artifacts confirming
+    the required folder was created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other proof was provided showing that `projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/code/`
+    and its subdirectories `data/`, `inference/`, `analysis/`, `utils/` actually exist;
+    without such evidence the requirement cannot be confirmed.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory `projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/data/`
+    or its subdirectories (`raw/`, `models/`, `processed/`, `outputs/`) was provided;
+    the implementer did not supply any artifact confirming the structure exists.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directory `projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/tests/`
+    (or its `unit/` and `integration/` subdirectories) actually exists; the claim
+    is unsubstantiated. The required folder structure must be created and verified.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) are present in the `code/` directory, nor
+    any evidence that ruff/flake8 and Black have been set up. The required artifacts
+    are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`data/prompts/`, `data/models/`,
+    `data/outputs/base/`, `data/outputs/rl_unified/`) or accompanying `.gitkeep` files
+    is provided; without these artifacts the task is not satisfied.
 T016:
   c: false
   h: a1ec8f5999594cef88e5015380e307d30f549c9c2d1bbe33b579c904ad4eca08

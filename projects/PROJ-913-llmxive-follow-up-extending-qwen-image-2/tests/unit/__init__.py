@@ -1,1 +1,3 @@
-# Unit test package initialization
+"""
+Unit tests for the llmXive OPD Generalization Gap pipeline.
+"""
