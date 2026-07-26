@@ -1,102 +1,152 @@
 """
-Unit tests for T020: Schema validation logic.
+Unit tests for schema validation logic.
 """
-import csv
+
+import pytest
+from pathlib import Path
 import json
+import csv
 import tempfile
 import os
-from pathlib import Path
+
+# Import the validation logic
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from code.validate_network_metrics_schema import validate_row, SCHEMA, REQUIRED_FIELDS
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+class TestSchemaValidation:
+    """Tests for the schema validation functions."""
 
-from validate_network_metrics_schema import validate_row, VALID_FLAGS, REQUIRED_FIELDS
+    def test_valid_row(self):
+        """Test that a valid row passes validation."""
+        valid_row = {
+            "participant_id": "P001",
+            "age": 45,
+            "sex": "M",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Good",
+            "trace_id": "a" * 64  # Valid 64-char hex string
+        }
+        
+        is_valid, errors = validate_row(valid_row, SCHEMA)
+        assert is_valid is True
+        assert len(errors) == 0
 
-def test_validate_row_missing_required():
-    """Test that missing required fields are caught."""
-    schema = {"required": REQUIRED_FIELDS}
-    row = {"subject_id": "123", "age": 30} # Missing many fields
-    errors = validate_row(row, schema, 1)
-    
-    assert len(errors) > 0
-    assert any("Missing or empty required field" in e for e in errors)
+    def test_missing_required_field(self):
+        """Test that missing required fields are detected."""
+        incomplete_row = {
+            "participant_id": "P001",
+            "age": 45,
+            # Missing other required fields
+            "trace_id": "a" * 64
+        }
+        
+        is_valid, errors = validate_row(incomplete_row, SCHEMA)
+        assert is_valid is False
+        assert len(errors) > 0
+        assert any("Missing required field" in err for err in errors)
 
-def test_validate_row_valid():
-    """Test that a valid row passes."""
-    schema = {"required": REQUIRED_FIELDS}
-    row = {
-        "subject_id": "123",
-        "age": 30,
-        "global_efficiency": 0.5,
-        "local_efficiency": 0.4,
-        "characteristic_path_length": 2.0,
-        "clustering_coefficient": 0.3,
-        "modularity": 0.4,
-        "signal_quality_flag": "High Signal Quality",
-        "trace_id": "abc123"
-    }
-    errors = validate_row(row, schema, 1)
-    assert len(errors) == 0
+    def test_invalid_sex_value(self):
+        """Test that invalid sex values are detected."""
+        row = {
+            "participant_id": "P001",
+            "age": 45,
+            "sex": "INVALID",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Good",
+            "trace_id": "a" * 64
+        }
+        
+        is_valid, errors = validate_row(row, SCHEMA)
+        assert is_valid is False
+        assert any("invalid value" in err for err in errors)
 
-def test_validate_row_invalid_flag():
-    """Test that invalid signal quality flag is caught."""
-    schema = {"required": REQUIRED_FIELDS, "properties": {"signal_quality_flag": {"enum": VALID_FLAGS}}}
-    row = {
-        "subject_id": "123",
-        "age": 30,
-        "global_efficiency": 0.5,
-        "local_efficiency": 0.4,
-        "characteristic_path_length": 2.0,
-        "clustering_coefficient": 0.3,
-        "modularity": 0.4,
-        "signal_quality_flag": "Bad Flag",
-        "trace_id": "abc123"
-    }
-    errors = validate_row(row, schema, 1)
-    assert len(errors) == 1
-    assert "Invalid signal_quality_flag" in errors[0]
+    def test_invalid_trace_id_length(self):
+        """Test that trace_id with wrong length is detected."""
+        row = {
+            "participant_id": "P001",
+            "age": 45,
+            "sex": "M",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Good",
+            "trace_id": "abc"  # Too short
+        }
+        
+        is_valid, errors = validate_row(row, SCHEMA)
+        assert is_valid is False
+        assert any("64-character" in err for err in errors)
 
-def test_validate_row_non_numeric():
-    """Test that non-numeric values in numeric fields are caught."""
-    schema = {"required": REQUIRED_FIELDS}
-    row = {
-        "subject_id": "123",
-        "age": "not_a_number",
-        "global_efficiency": 0.5,
-        "local_efficiency": 0.4,
-        "characteristic_path_length": 2.0,
-        "clustering_coefficient": 0.3,
-        "modularity": 0.4,
-        "signal_quality_flag": "High Signal Quality",
-        "trace_id": "abc123"
-    }
-    errors = validate_row(row, schema, 1)
-    assert len(errors) == 1
-    assert "is not a valid number" in errors[0]
+    def test_invalid_trace_id_non_hex(self):
+        """Test that non-hex trace_id is detected."""
+        row = {
+            "participant_id": "P001",
+            "age": 45,
+            "sex": "M",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Good",
+            "trace_id": "g" * 64  # 'g' is not hex
+        }
+        
+        is_valid, errors = validate_row(row, SCHEMA)
+        assert is_valid is False
+        assert any("hex string" in err for err in errors)
 
-def test_validate_row_empty_string():
-    """Test that empty strings in required fields are caught."""
-    schema = {"required": REQUIRED_FIELDS}
-    row = {
-        "subject_id": "",
-        "age": 30,
-        "global_efficiency": 0.5,
-        "local_efficiency": 0.4,
-        "characteristic_path_length": 2.0,
-        "clustering_coefficient": 0.3,
-        "modularity": 0.4,
-        "signal_quality_flag": "High Signal Quality",
-        "trace_id": "abc123"
-    }
-    errors = validate_row(row, schema, 1)
-    assert len(errors) > 0
-    assert any("Missing or empty" in e for e in errors)
+    def test_invalid_signal_quality_flag(self):
+        """Test that invalid signal_quality_flag values are detected."""
+        row = {
+            "participant_id": "P001",
+            "age": 45,
+            "sex": "M",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Invalid Flag",
+            "trace_id": "a" * 64
+        }
+        
+        is_valid, errors = validate_row(row, SCHEMA)
+        assert is_valid is False
+        assert any("invalid value" in err for err in errors)
 
-if __name__ == "__main__":
-    test_validate_row_missing_required()
-    test_validate_row_valid()
-    test_validate_row_invalid_flag()
-    test_validate_row_non_numeric()
-    test_validate_row_empty_string()
-    print("All unit tests passed.")
+    def test_invalid_age_type(self):
+        """Test that non-integer age is detected."""
+        row = {
+            "participant_id": "P001",
+            "age": "forty-five",
+            "sex": "M",
+            "education_years": 16,
+            "global_efficiency": 0.45,
+            "characteristic_path_length": 2.22,
+            "local_efficiency": 0.38,
+            "clustering_coefficient": 0.52,
+            "modularity": 0.41,
+            "signal_quality_flag": "Good",
+            "trace_id": "a" * 64
+        }
+        
+        is_valid, errors = validate_row(row, SCHEMA)
+        assert is_valid is False
+        assert any("must be an integer" in err for err in errors)

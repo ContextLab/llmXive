@@ -1,1 +1,3 @@
-"""Documentation directory initialization."""
+"""
+Documentation and design decisions.
+"""

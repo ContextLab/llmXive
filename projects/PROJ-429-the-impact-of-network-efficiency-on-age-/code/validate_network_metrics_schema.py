@@ -1,138 +1,125 @@
 """
-T020: Validate output schema against contracts/network_metric.schema.yaml.
-
-This script loads the generated network_metrics.csv and validates it against
-the defined JSON schema. It exits with code 0 if valid, or code 1 if invalid.
+Validates the output of network metric calculations against the defined schema.
+Task: T020 - Validate output schema against contracts/network_metric.schema.yaml.
 """
 import csv
 import json
 import sys
 from pathlib import Path
-
-# Try to import jsonschema, fallback to manual check if not available
-try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
-    print("WARNING: jsonschema not installed. Performing manual field validation.")
+from typing import Dict, Any, List, Tuple
 
 from config import ensure_dirs
 
-SCHEMA_PATH = Path("contracts/network_metric.schema.yaml")
-OUTPUT_PATH = Path("data/results/network_metrics.csv")
 
-REQUIRED_FIELDS = [
-    "subject_id",
-    "age",
-    "global_efficiency",
-    "local_efficiency",
-    "characteristic_path_length",
-    "clustering_coefficient",
-    "modularity",
-    "signal_quality_flag",
-    "trace_id"
-]
-
-VALID_FLAGS = ["High Signal Quality", "Low Signal Quality"]
-
-def load_schema(path: Path) -> dict:
-    """Load YAML schema. If yaml lib missing, return basic structure for manual check."""
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the JSON/YAML schema from file."""
+    # Simple YAML loader for this specific schema (no external deps if possible, 
+    # but standard PyYAML is expected in requirements)
     try:
         import yaml
-        with open(path, 'r') as f:
+        with open(schema_path, 'r') as f:
             return yaml.safe_load(f)
     except ImportError:
-        # Fallback: construct expected schema from constants if yaml is missing
-        # This is a soft fallback; ideally yaml is installed.
-        print("WARNING: PyYAML not installed. Cannot parse schema file. Using hardcoded expectations.")
-        return {
-            "required": REQUIRED_FIELDS,
-            "properties": {
-                "signal_quality_flag": {"enum": VALID_FLAGS}
-            }
-        }
+        # Fallback if yaml is not installed, though requirements.txt should have it
+        # For this specific schema, we can parse it manually if needed, 
+        # but let's assume PyYAML is available as per T002.
+        print("Error: PyYAML is required to load the schema.", file=sys.stderr)
+        sys.exit(1)
 
-def validate_row(row: dict, schema: dict, row_num: int) -> list:
+
+def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validates a single row from the CSV against the schema.
+    Returns (is_valid, list_of_errors).
+    """
     errors = []
-    required = schema.get("required", [])
-    props = schema.get("properties", {})
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
 
     # Check required fields
-    for field in required:
-        if field not in row or row[field] is None or row[field] == "":
-            errors.append(f"Row {row_num}: Missing or empty required field '{field}'")
+    for field in required_fields:
+        if field not in row or row[field] is None or row[field] == '':
+            errors.append(f"Missing required field: {field}")
 
-    # Check enum constraints
-    if "signal_quality_flag" in row:
-        val = row["signal_quality_flag"]
-        if val not in VALID_FLAGS:
-            errors.append(f"Row {row_num}: Invalid signal_quality_flag '{val}'. Must be in {VALID_FLAGS}")
+    # Type and format validation
+    for field, value in row.items():
+        if field in properties:
+            field_schema = properties[field]
+            field_type = field_schema.get('type')
+            
+            # Check for empty strings in required fields (already checked above, but double check)
+            if not value and field in required_fields:
+                continue # Already reported
 
-    # Check numeric types (basic check)
-    numeric_fields = ["age", "global_efficiency", "local_efficiency", "characteristic_path_length", "clustering_coefficient", "modularity"]
-    for field in numeric_fields:
-        if field in row:
             try:
-                float(row[field])
-            except ValueError:
-                errors.append(f"Row {row_num}: Field '{field}' is not a valid number: {row[field]}")
+                if field_type == 'integer':
+                    int(value)
+                elif field_type == 'number':
+                    float(value)
+                elif field_type == 'string':
+                    if 'pattern' in field_schema:
+                        import re
+                        if not re.match(field_schema['pattern'], value):
+                            errors.append(f"Field '{field}' does not match pattern: {field_schema['pattern']}")
+                    if 'enum' in field_schema:
+                        if value not in field_schema['enum']:
+                            errors.append(f"Field '{field}' value '{value}' not in allowed enum: {field_schema['enum']}")
+                # Add more type checks if necessary
+            except ValueError as e:
+                errors.append(f"Field '{field}' has invalid type (expected {field_type}): {value}")
 
-    return errors
+    return len(errors) == 0, errors
+
 
 def main():
+    """Main entry point for schema validation."""
     ensure_dirs()
-
-    if not OUTPUT_PATH.exists():
-        print(f"ERROR: Output file not found: {OUTPUT_PATH}")
-        print("T020 FAILED: network_metrics.csv does not exist.")
+    
+    csv_path = Path("data/results/network_metrics.csv")
+    schema_path = Path("contracts/network_metric.schema.yaml")
+    
+    if not csv_path.exists():
+        print(f"Error: Input file not found: {csv_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    if not schema_path.exists():
+        print(f"Error: Schema file not found: {schema_path}", file=sys.stderr)
         sys.exit(1)
 
-    if not SCHEMA_PATH.exists():
-        print(f"ERROR: Schema file not found: {SCHEMA_PATH}")
-        print("T020 FAILED: Schema definition missing.")
-        sys.exit(1)
+    schema = load_schema(schema_path)
+    
+    valid_count = 0
+    invalid_count = 0
+    total_count = 0
+    errors_log = []
 
-    schema = load_schema(SCHEMA_PATH)
+    with open(csv_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader):
+            total_count += 1
+            is_valid, errors = validate_row(row, schema)
+            if is_valid:
+                valid_count += 1
+            else:
+                invalid_count += 1
+                errors_log.append({
+                    "row_index": i + 1, # 1-based index
+                    "participant_id": row.get('participant_id', 'N/A'),
+                    "errors": errors
+                })
 
-    all_errors = []
-    total_rows = 0
+    print(f"Validation Complete: {total_count} rows processed.")
+    print(f"Valid: {valid_count}, Invalid: {invalid_count}")
 
-    try:
-        with open(OUTPUT_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            
-            # Validate header
-            if reader.fieldnames is None:
-                print("ERROR: CSV file is empty or has no header.")
-                sys.exit(1)
-            
-            missing_headers = set(REQUIRED_FIELDS) - set(reader.fieldnames)
-            if missing_headers:
-                print(f"ERROR: CSV missing required columns: {missing_headers}")
-                sys.exit(1)
-
-            for i, row in enumerate(reader, start=2): # Start at 2 because 1 is header
-                total_rows += 1
-                errors = validate_row(row, schema, i)
-                all_errors.extend(errors)
-
-    except Exception as e:
-        print(f"ERROR: Failed to read CSV: {e}")
-        sys.exit(1)
-
-    if all_errors:
-        print(f"VALIDATION FAILED: {len(all_errors)} error(s) found.")
-        for err in all_errors[:10]: # Show first 10
-            print(f"  - {err}")
-        if len(all_errors) > 10:
-            print(f"  ... and {len(all_errors) - 10} more.")
-        print("T020 FAILED: Schema validation errors detected.")
+    if invalid_count > 0:
+        print("Validation failed for some rows. Details:")
+        for err in errors_log:
+            print(f"  Row {err['row_index']} (ID: {err['participant_id']}): {err['errors']}")
         sys.exit(1)
     else:
-        print(f"VALIDATION PASSED: {total_rows} rows validated successfully against {SCHEMA_PATH}.")
-        print("T020 COMPLETED: Output schema is valid.")
+        print("All rows validated successfully against the schema.")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

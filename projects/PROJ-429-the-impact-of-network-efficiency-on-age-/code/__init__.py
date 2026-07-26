@@ -1,3 +1,3 @@
 """
-LLMXive Research Pipeline: Network Efficiency & Aging
+llmXive Research Pipeline: Network Efficiency on Age-Related EEG Changes.
 """

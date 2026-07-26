@@ -1,10 +1,21 @@
+# Existing dependencies
 mne
 networkx
 scipy
 pandas
 statsmodels
 pywavelets
-datasets
-matplotlib
 numpy
+matplotlib
+seaborn
 scikit-learn
+pyyaml
+ruff
+black
+pytest
+pytest-cov
+jupyter
+jupyterlab
+
+# New dependencies (if any)
+# None required for T028

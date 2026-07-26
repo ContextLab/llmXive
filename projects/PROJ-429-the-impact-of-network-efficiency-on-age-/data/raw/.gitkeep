@@ -1,2 +1,2 @@
-# Raw data directory
-# Stores downloaded EEG data (e.g., TUH EEG corpus) in original format.
+# Placeholder for raw TUH EEG data downloads
+# This directory is populated by code/data/download.py

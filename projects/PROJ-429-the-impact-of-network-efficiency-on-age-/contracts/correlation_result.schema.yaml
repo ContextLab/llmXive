@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Result Schema
+description: Schema for validating the output of the correlation analysis (T023_run) and subsequent validation (T029).
+type: object
+required:
+  - participant_id
+  - age
+  - cognitive_score
+  - cognitive_instrument
+  - global_efficiency
+  - local_efficiency
+  - characteristic_path_length
+  - clustering_coefficient
+  - modularity
+  - age_correlation_rho
+  - age_correlation_pvalue
+  - age_correlation_pvalue_adj
+  - cognition_correlation_rho
+  - cognition_correlation_pvalue
+  - cognition_correlation_pvalue_adj
+  - signal_quality_flag
+  - trace_id
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+  age:
+    type: integer
+    minimum: 18
+    description: Age of the participant in years.
+  cognitive_score:
+    type: number
+    nullable: true
+    description: Cognitive assessment score (e.g., MMSE or MoCA).
+  cognitive_instrument:
+    type: string
+    description: The instrument used for cognitive assessment (e.g., MMSE, MoCA).
+  global_efficiency:
+    type: number
+    description: Global network efficiency metric.
+  local_efficiency:
+    type: number
+    description: Local network efficiency metric.
+  characteristic_path_length:
+    type: number
+    description: Average shortest path length in the network.
+  clustering_coefficient:
+    type: number
+    description: Clustering coefficient of the network.
+  modularity:
+    type: number
+    description: Modularity of the network community structure.
+  age_correlation_rho:
+    type: number
+    description: Spearman correlation coefficient between metric and age.
+  age_correlation_pvalue:
+    type: number
+    description: Raw p-value for the age correlation.
+  age_correlation_pvalue_adj:
+    type: number
+    description: Adjusted p-value (Bonferroni/FDR) for the age correlation.
+  cognition_correlation_rho:
+    type: number
+    description: Spearman correlation coefficient between metric and cognitive score.
+  cognition_correlation_pvalue:
+    type: number
+    description: Raw p-value for the cognition correlation.
+  cognition_correlation_pvalue_adj:
+    type: number
+    description: Adjusted p-value (Bonferroni/FDR) for the cognition correlation.
+  signal_quality_flag:
+    type: string
+    enum:
+      - Good
+      - Low Signal Quality
+    description: Flag indicating the quality of the EEG signal.
+  trace_id:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    description: SHA-256 hash of the source code and data used to generate this result.
+additionalProperties: false

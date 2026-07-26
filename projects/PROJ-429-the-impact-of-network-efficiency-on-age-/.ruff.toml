@@ -1,17 +1,19 @@
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501", # line-too-long (handled by black)
-    "B008", # do-not-perform-function-calls-in-argument-defaults (mne sometimes does this)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # assert allowed in tests
 
 [format]
 quote-style = "double"

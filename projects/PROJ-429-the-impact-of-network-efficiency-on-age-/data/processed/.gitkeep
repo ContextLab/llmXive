@@ -1,2 +1,2 @@
-# Processed data directory
-# Stores cleaned epochs, connectivity matrices, and intermediate results.
+# Placeholder for preprocessed epochs and connectivity matrices
+# Populated by code/data/preprocess.py and code/network/connectivity.py
