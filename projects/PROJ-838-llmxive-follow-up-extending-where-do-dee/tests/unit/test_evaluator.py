@@ -1,21 +1,14 @@
 import pytest
 import pandas as pd
-import numpy as np
 import json
 import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import sys
+import tempfile
+import numpy as np
+from scipy import stats
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from evaluator import (
-    load_metrics,
-    save_metrics,
-    load_json_file,
-    save_json_file,
-    stratified_split,
+# Import the functions to test
+from code.evaluator import (
     calculate_baseline,
     calculate_20th_percentile_threshold,
     calculate_f1_max_threshold,
@@ -25,274 +18,264 @@ from evaluator import (
     run_sensitivity_analysis_threshold,
     run_sensitivity_analysis_percentile,
     calculate_null_distribution,
+    calculate_linear_reasoning_index,
     calculate_power_analysis,
     report_comparative_thresholds,
-    generate_results_report
+    generate_results_report,
+    stratified_split,
+    load_metrics,
+    save_metrics
 )
 
 @pytest.fixture
-def sample_train_df():
-    """Create a sample training DataFrame."""
+def sample_train_metrics():
+    """Create a sample train_metrics.csv for testing."""
     data = {
-        'connectivity': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-        'branching': [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0],
-        'collapse': [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]  # 3 collapse, 7 success
+        'trajectory_id': [1, 2, 3, 4, 5, 6],
+        'connectivity': [0.1, 0.2, 0.3, 0.8, 0.9, 1.0],
+        'label': ['success', 'success', 'success', 'failure', 'failure', 'failure'],
+        'collapse': [0, 0, 0, 1, 1, 1]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df
 
 @pytest.fixture
-def sample_test_df():
-    """Create a sample test DataFrame."""
+def sample_test_metrics():
+    """Create a sample test_metrics.csv for testing."""
     data = {
-        'connectivity': [0.15, 0.25, 0.35, 0.45, 0.55],
-        'branching': [1.15, 1.25, 1.35, 1.45, 1.55],
-        'collapse': [1, 1, 0, 0, 0]
+        'trajectory_id': [7, 8, 9, 10],
+        'connectivity': [0.15, 0.25, 0.85, 0.95],
+        'label': ['success', 'success', 'failure', 'failure'],
+        'collapse': [0, 0, 1, 1]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df
 
-def test_20th_percentile_threshold(sample_train_df):
-    """Test the calculation of the 20th percentile threshold for the success class."""
-    # Success class connectivity: [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    # Sorted: [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    # 20th percentile of 7 items: index = 0.2 * (7-1) = 1.2 -> interpolate between 0.5 and 0.6
-    # Expected: 0.5 + 0.2 * (0.6 - 0.5) = 0.52
-    
-    threshold = calculate_20th_percentile_threshold(sample_train_df)
-    
-    # Using numpy quantile for verification
-    success_values = sample_train_df[sample_train_df['collapse'] == 0]['connectivity']
-    expected = float(success_values.quantile(0.20))
-    
-    assert abs(threshold - expected) < 1e-6, f"Expected {expected}, got {threshold}"
-    assert threshold > 0.4 and threshold < 0.6, "Threshold should be in the expected range"
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for file I/O tests."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-def test_20th_percentile_threshold_empty_success(sample_train_df):
-    """Test that empty success class raises an error."""
-    df = sample_train_df.copy()
-    df['collapse'] = 1  # All collapse
+def test_baseline_mean_connectivity(sample_train_metrics, temp_dir):
+    """Test T034: Calculate baseline mean connectivity for success class."""
+    # Save sample data
+    csv_path = os.path.join(temp_dir, "train_metrics.csv")
+    sample_train_metrics.to_csv(csv_path, index=False)
     
-    with pytest.raises(ValueError, match="No success class samples found"):
-        calculate_20th_percentile_threshold(df)
+    # Run baseline calculation
+    result = calculate_baseline(csv_path, success_label="success")
+    
+    # Verify result
+    assert 'baseline_mean_connectivity' in result
+    expected_mean = sample_train_metrics[sample_train_metrics['label'] == 'success']['connectivity'].mean()
+    assert abs(result['baseline_mean_connectivity'] - expected_mean) < 1e-6
 
-def test_f1_max_threshold(sample_train_df):
-    """Test the calculation of the F1-max threshold."""
-    threshold = calculate_f1_max_threshold(sample_train_df)
+def test_20th_percentile_threshold(sample_train_metrics, temp_dir):
+    """Test T030: Calculate 20th percentile threshold."""
+    csv_path = os.path.join(temp_dir, "train_metrics.csv")
+    sample_train_metrics.to_csv(csv_path, index=False)
     
-    # The threshold should be one of the connectivity values
-    assert threshold in sample_train_df['connectivity'].values
-    assert threshold >= 0.0
-    assert threshold <= 1.0
+    result = calculate_20th_percentile_threshold(csv_path, success_label="success")
+    
+    assert 'threshold_20th_percentile' in result
+    expected_threshold = sample_train_metrics[sample_train_metrics['label'] == 'success']['connectivity'].quantile(0.20)
+    assert abs(result['threshold_20th_percentile'] - expected_threshold) < 1e-6
 
-def test_predict_collapse(sample_test_df):
-    """Test the prediction of collapse based on a threshold."""
-    threshold = 0.4
-    predicted_df = predict_collapse(sample_test_df, threshold)
+def test_f1_max_threshold_calculation(sample_train_metrics, temp_dir):
+    """Test T031: Calculate F1-max threshold."""
+    csv_path = os.path.join(temp_dir, "train_metrics.csv")
+    sample_train_metrics.to_csv(csv_path, index=False)
     
-    assert 'predicted_collapse' in predicted_df.columns
-    assert len(predicted_df) == len(sample_test_df)
+    result = calculate_f1_max_threshold(csv_path, success_label="success")
     
-    # Check predictions
-    # connectivity < 0.4 -> 1 (collapse), else 0
-    expected_preds = [1, 1, 0, 0, 0] # 0.15, 0.25 < 0.4; 0.35, 0.45, 0.55 >= 0.4? 
-    # Wait: 0.35 < 0.4 is True. So 0.35 -> 1.
-    # 0.15 < 0.4 -> 1
-    # 0.25 < 0.4 -> 1
-    # 0.35 < 0.4 -> 1
-    # 0.45 < 0.4 -> 0
-    # 0.55 < 0.4 -> 0
-    expected_preds = [1, 1, 1, 0, 0]
-    
-    assert list(predicted_df['predicted_collapse']) == expected_preds
+    assert 'f1_max_threshold' in result
+    assert 'max_f1_score' in result
+    assert 0.0 <= result['f1_max_threshold'] <= 1.0
+    assert 0.0 <= result['max_f1_score'] <= 1.0
 
-def test_evaluate_performance_metrics(sample_test_df):
-    """Test the calculation of performance metrics."""
-    threshold = 0.4
-    predicted_df = predict_collapse(sample_test_df, threshold)
-    metrics = evaluate_performance(predicted_df)
+def test_predict_collapse_threshold_application(sample_test_metrics, temp_dir):
+    """Test T032: Apply threshold to predict collapse."""
+    csv_path = os.path.join(temp_dir, "test_metrics.csv")
+    sample_test_metrics.to_csv(csv_path, index=False)
     
-    assert 'precision' in metrics
-    assert 'recall' in metrics
-    assert 'f1_score' in metrics
-    assert 'accuracy' in metrics
-    assert 'confusion_matrix' in metrics
+    threshold = 0.5
+    result_df = predict_collapse(csv_path, threshold)
     
-    # Verify confusion matrix keys
-    cm = metrics['confusion_matrix']
-    assert 'tp' in cm
-    assert 'tn' in cm
-    assert 'fp' in cm
-    assert 'fn' in cm
+    assert 'predicted_collapse' in result_df.columns
+    # Check predictions: connectivity > 0.5 -> 1 (collapse)
+    expected_preds = (sample_test_metrics['connectivity'] > threshold).astype(int)
+    assert all(result_df['predicted_collapse'] == expected_preds)
 
-def test_correlation_coefficient_calculation(sample_test_df):
-    """Test the calculation of correlation coefficients."""
-    # Predict first to ensure columns exist
-    threshold = 0.4
-    predicted_df = predict_collapse(sample_test_df, threshold)
+def test_confusion_matrix_metrics(sample_test_metrics, temp_dir):
+    """Test T033: Evaluate performance metrics."""
+    csv_path = os.path.join(temp_dir, "test_metrics.csv")
+    sample_test_metrics.to_csv(csv_path, index=False)
     
-    # Recalculate correlation on original columns
-    corr = calculate_correlation(sample_test_df)
+    # First predict
+    threshold = 0.5
+    test_df = predict_collapse(csv_path, threshold)
     
-    assert 'pearson_r' in corr
-    assert 'spearman_r' in corr
-    assert -1.0 <= corr['pearson_r'] <= 1.0
-    assert -1.0 <= corr['spearman_r'] <= 1.0
+    result = evaluate_performance(test_df)
+    
+    assert 'precision' in result
+    assert 'recall' in result
+    assert 'f1_score' in result
+    assert 'accuracy' in result
+    assert 'confusion_matrix' in result
+    
+    # Verify confusion matrix values
+    cm = result['confusion_matrix']
+    assert cm['true_positive'] >= 0
+    assert cm['true_negative'] >= 0
+    assert cm['false_positive'] >= 0
+    assert cm['false_negative'] >= 0
 
-def test_null_distribution_permutation(sample_test_df):
-    """Test the null distribution permutation test."""
-    # Predict first
-    threshold = 0.4
-    predicted_df = predict_collapse(sample_test_df, threshold)
+def test_correlation_coefficient_calculation(sample_test_metrics, temp_dir):
+    """Test T035: Calculate correlation coefficient."""
+    csv_path = os.path.join(temp_dir, "test_metrics.csv")
+    sample_test_metrics.to_csv(csv_path, index=False)
     
-    result = calculate_null_distribution(predicted_df, n_permutations=100, seed=42)
+    result = calculate_correlation(csv_path)
     
-    assert 'actual_r' in result
-    assert 'null_mean' in result
-    assert 'null_std' in result
-    assert 'p_value' in result
-    assert 'sc_002_passed' in result
-    assert isinstance(result['sc_002_passed'], bool)
+    assert 'pearson_r' in result
+    assert 'pearson_p' in result
+    assert 'spearman_r' in result
+    assert 'spearman_p' in result
+    
+    # Verify ranges
+    assert -1.0 <= result['pearson_r'] <= 1.0
+    assert -1.0 <= result['spearman_r'] <= 1.0
 
-def test_baseline_mean_connectivity(sample_train_df):
-    """Test the calculation of baseline mean connectivity."""
-    baseline = calculate_baseline(sample_train_df)
+def test_sensitivity_analysis_threshold(sample_test_metrics, temp_dir):
+    """Test T036a: Run sensitivity analysis on thresholds."""
+    csv_path = os.path.join(temp_dir, "test_metrics.csv")
+    sample_test_metrics.to_csv(csv_path, index=False)
     
-    success_values = sample_train_df[sample_train_df['collapse'] == 0]['connectivity']
-    expected = float(success_values.mean())
-    
-    assert abs(baseline - expected) < 1e-6
-
-def test_power_analysis_cohen_d(sample_train_df):
-    """Test the power analysis calculation."""
-    result = calculate_power_analysis(sample_train_df)
-    
-    assert 'cohens_d' in result
-    assert 'power' in result
-    assert 'power_sufficient' in result
-    assert isinstance(result['power_sufficient'], bool)
-
-def test_stratified_split_preserves_label_ratio_in_metrics_csv(sample_train_df):
-    """Test that stratified split preserves label ratio."""
-    train_split, test_split = stratified_split(sample_train_df, test_size=0.3, seed=42)
-    
-    # Check total length
-    assert len(train_split) + len(test_split) == len(sample_train_df)
-    
-    # Check label ratios are roughly preserved
-    train_ratio = train_split['collapse'].mean()
-    test_ratio = test_split['collapse'].mean()
-    original_ratio = sample_train_df['collapse'].mean()
-    
-    # With small sample, exact preservation is hard, but should be close
-    assert abs(train_ratio - original_ratio) < 0.2
-    assert abs(test_ratio - original_ratio) < 0.2
-
-def test_save_metrics_writes_csv(tmp_path):
-    """Test that save_metrics writes a CSV file."""
-    df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
-    filepath = str(tmp_path / "test.csv")
-    
-    save_metrics(df, filepath)
-    
-    assert os.path.exists(filepath)
-    loaded_df = pd.read_csv(filepath)
-    assert loaded_df.equals(df)
-
-def test_load_metrics_reads_csv(tmp_path):
-    """Test that load_metrics reads a CSV file."""
-    df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
-    filepath = str(tmp_path / "test.csv")
-    df.to_csv(filepath, index=False)
-    
-    loaded_df = load_metrics(filepath)
-    assert loaded_df.equals(df)
-
-def test_save_json_file_writes_json(tmp_path):
-    """Test that save_json_file writes a JSON file."""
-    data = {"key": "value", "num": 42}
-    filepath = str(tmp_path / "test.json")
-    
-    save_json_file(data, filepath)
-    
-    assert os.path.exists(filepath)
-    with open(filepath, 'r') as f:
-        loaded_data = json.load(f)
-    assert loaded_data == data
-
-def test_load_json_file_reads_json(tmp_path):
-    """Test that load_json_file reads a JSON file."""
-    data = {"key": "value", "num": 42}
-    filepath = str(tmp_path / "test.json")
-    with open(filepath, 'w') as f:
-        json.dump(data, f)
-    
-    loaded_data = load_json_file(filepath)
-    assert loaded_data == data
-
-def test_run_sensitivity_analysis_threshold(sample_test_df):
-    """Test sensitivity analysis over thresholds."""
-    thresholds = [0.2, 0.4, 0.6]
-    results = run_sensitivity_analysis_threshold(sample_test_df, thresholds)
+    thresholds = [0.1, 0.5, 0.9]
+    results = run_sensitivity_analysis_threshold(csv_path, thresholds)
     
     assert len(results) == len(thresholds)
-    for i, res in enumerate(results):
+    for res in results:
         assert 'threshold' in res
-        assert res['threshold'] == thresholds[i]
         assert 'precision' in res
         assert 'recall' in res
+        assert 'f1_score' in res
 
-def test_run_sensitivity_analysis_percentile(sample_test_df):
-    """Test sensitivity analysis over percentiles."""
-    percentiles = [0.1, 0.2, 0.3]
-    results = run_sensitivity_analysis_percentile(sample_test_df, percentiles)
+def test_sensitivity_analysis_percentile(sample_test_metrics, temp_dir):
+    """Test T036b: Run sensitivity analysis on percentiles."""
+    csv_path = os.path.join(temp_dir, "test_metrics.csv")
+    sample_test_metrics.to_csv(csv_path, index=False)
+    
+    percentiles = [10, 20, 30]
+    results = run_sensitivity_analysis_percentile(csv_path, percentiles)
     
     assert len(results) == len(percentiles)
-    for i, res in enumerate(results):
+    for res in results:
         assert 'percentile' in res
-        assert abs(res['percentile'] - percentiles[i]) < 1e-6
-        assert 'threshold_value' in res
+        assert 'threshold' in res
+        assert 'precision' in res
+        assert 'recall' in res
+        assert 'f1_score' in res
 
-def test_report_comparative_thresholds():
-    """Test the comparative thresholds report generation."""
-    threshold_20 = 0.5
-    threshold_f1 = 0.6
-    sensitivity_thresh = [{"threshold": 0.1}]
-    sensitivity_pct = [{"percentile": 0.1}]
+def test_linear_reasoning_data_driven(temp_dir):
+    """Test T037b: Calculate linear reasoning index."""
+    # Create dummy graph files
+    graphs_dir = os.path.join(temp_dir, "graphs")
+    os.makedirs(graphs_dir)
     
-    report = report_comparative_thresholds(threshold_20, threshold_f1, sensitivity_thresh, sensitivity_pct)
+    # Create a chain-like graph
+    chain_graph = {
+        "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}],
+        "edges": [{"source": "a", "target": "b"}, {"source": "b", "target": "c"}]
+    }
+    with open(os.path.join(graphs_dir, "chain.json"), 'w') as f:
+        json.dump(chain_graph, f)
+        
+    # Create a non-chain graph
+    non_chain_graph = {
+        "nodes": [{"id": "x"}, {"id": "y"}, {"id": "z"}],
+        "edges": [{"source": "x", "target": "y"}, {"source": "x", "target": "z"}]
+    }
+    with open(os.path.join(graphs_dir, "non_chain.json"), 'w') as f:
+        json.dump(non_chain_graph, f)
+        
+    # Create dummy train metrics
+    train_df = pd.DataFrame({
+        'trajectory_id': [1, 2],
+        'connectivity': [0.1, 0.2],
+        'label': ['success', 'success']
+    })
+    train_path = os.path.join(temp_dir, "train_metrics.csv")
+    train_df.to_csv(train_path, index=False)
     
-    assert report['primary_threshold_20th_percentile'] == threshold_20
-    assert report['comparative_threshold_f1_max'] == threshold_f1
-    assert report['sensitivity_threshold_matrix'] == sensitivity_thresh
-    assert report['sensitivity_percentile_matrix'] == sensitivity_pct
-    assert report['difference'] == abs(threshold_20 - threshold_f1)
+    result = calculate_linear_reasoning_index(graphs_dir, train_path)
+    
+    assert 'linear_reasoning_confirmed' in result
+    assert 'threshold_definition' in result
+    assert 'chain_ratio' in result
+    assert result['chain_ratio'] == 0.5 # 1 chain out of 2
 
-def test_generate_results_report(sample_test_df):
-    """Test the final results report generation."""
-    # Prepare inputs
-    threshold_20 = 0.5
-    threshold_f1 = 0.6
-    predicted_df = predict_collapse(sample_test_df, threshold_20)
-    baseline = 0.7
-    correlation = {'pearson_r': 0.5, 'spearman_r': 0.6}
-    null_dist = {'p_value': 0.04, 'sc_002_passed': True}
-    linear_reasoning = {'linear_reasoning_confirmed': False}
-    power = {'cohens_d': 0.5, 'power': 0.85, 'power_sufficient': True}
-    comparative = {'difference': 0.1}
-    sensitivity_thresh = []
-    sensitivity_pct = []
+def test_baseline_mean_connectivity_empty_success_class(temp_dir):
+    """Test baseline with no success class."""
+    data = {
+        'trajectory_id': [1, 2],
+        'connectivity': [0.8, 0.9],
+        'label': ['failure', 'failure']
+    }
+    df = pd.DataFrame(data)
+    csv_path = os.path.join(temp_dir, "train_metrics.csv")
+    df.to_csv(csv_path, index=False)
     
-    report = generate_results_report(
-        threshold_20, threshold_f1, predicted_df, baseline,
-        correlation, null_dist, linear_reasoning, power,
-        comparative, sensitivity_thresh, sensitivity_pct
-    )
+    result = calculate_baseline(csv_path, success_label="success")
+    assert result['baseline_mean_connectivity'] == 0.0
+
+def test_power_analysis_cohen_d(sample_train_metrics, temp_dir):
+    """Test T044: Power analysis with Cohen's d."""
+    csv_path = os.path.join(temp_dir, "train_metrics.csv")
+    sample_train_metrics.to_csv(csv_path, index=False)
     
-    assert 'thresholds' in report
-    assert 'baseline' in report
-    assert 'performance' in report
-    assert 'correlation' in report
-    assert 'null_distribution' in report
-    assert 'linear_reasoning' in report
-    assert 'power_analysis' in report
-    assert 'comparative_report' in report
-    assert 'sensitivity_analysis' in report
+    result = calculate_power_analysis(csv_path)
+    
+    assert 'effect_size' in result
+    assert 'power' in result
+    assert 'limitation_flag' in result
+    assert isinstance(result['limitation_flag'], bool)
+
+def test_stratified_split_preserves_label_ratio_in_metrics_csv(sample_train_metrics, temp_dir):
+    """Test T029: Stratified split preserves label distribution."""
+    csv_path = os.path.join(temp_dir, "input.csv")
+    train_path = os.path.join(temp_dir, "train.csv")
+    test_path = os.path.join(temp_dir, "test.csv")
+    
+    sample_train_metrics.to_csv(csv_path, index=False)
+    
+    train_df, test_df = stratified_split(csv_path, train_path, test_path, test_size=0.33, random_state=42)
+    
+    # Check files exist
+    assert os.path.exists(train_path)
+    assert os.path.exists(test_path)
+    
+    # Check distributions
+    total_ratio = sample_train_metrics['label'].value_counts(normalize=True)
+    train_ratio = train_df['label'].value_counts(normalize=True)
+    test_ratio = test_df['label'].value_counts(normalize=True)
+    
+    for label in total_ratio.index:
+        assert abs(train_ratio.get(label, 0) - total_ratio[label]) < 0.1
+        assert abs(test_ratio.get(label, 0) - total_ratio[label]) < 0.1
+
+def test_comparative_thresholds_report(temp_dir):
+    """Test T046: Comparative thresholds report."""
+    threshold_config = {"threshold_20th_percentile": 0.2}
+    f1_max = {"f1_max_threshold": 0.5}
+    sens_thresh = [{"threshold": 0.1, "f1_score": 0.8}]
+    sens_perc = [{"percentile": 10, "f1_score": 0.7}]
+    
+    result = report_comparative_thresholds(threshold_config, f1_max, sens_thresh, sens_perc)
+    
+    assert 'primary_threshold' in result
+    assert 'f1_max_threshold' in result
+    assert 'sensitivity_threshold_results' in result
+    assert 'comparison_note' in result
+    assert result['primary_threshold'] == 0.2

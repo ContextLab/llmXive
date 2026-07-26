@@ -22,6 +22,8 @@ def calculate_global_connectivity(G: nx.DiGraph) -> float:
     Calculate normalized Global Connectivity.
     Formula: edges / (N * (N-1))
     Returns 0.0 if N < 2 to avoid division by zero.
+    
+    Verification: See tests/unit/test_metrics.py::test_calculate_global_connectivity
     """
     n = G.number_of_nodes()
     if n < 2:
@@ -32,16 +34,18 @@ def calculate_global_connectivity(G: nx.DiGraph) -> float:
         return 0.0
     return num_edges / max_edges
 
-def calculate_avg_branching_factor(G: nx.DiGraph) -> float:
+def calculate_average_branching_factor(G: nx.DiGraph) -> float:
     """
     Calculate Average Branching Factor.
     Formula: sum of out-degrees / node count.
     Returns 0.0 if node count is 0.
+    
+    Verification: See tests/unit/test_metrics.py::test_calculate_average_branching_factor
     """
     n = G.number_of_nodes()
     if n == 0:
         return 0.0
-    total_out_degree = sum(d for n, d in G.out_degree())
+    total_out_degree = sum(d for _, d in G.out_degree())
     return total_out_degree / n
 
 def process_batch(graph_dir: str, output_path: str) -> None:
@@ -50,6 +54,8 @@ def process_batch(graph_dir: str, output_path: str) -> None:
     Includes progress logging using tqdm.
     Handles zero-node/zero-edge cases by returning 0.0 instead of NaN.
     Output columns: trajectory_id, global_connectivity, avg_branching_factor.
+    
+    This function implements the core logic for T023.
     """
     graph_path = Path(graph_dir)
     if not graph_path.exists():
@@ -66,7 +72,7 @@ def process_batch(graph_dir: str, output_path: str) -> None:
         try:
             G = load_graph_from_json(str(file_path))
             connectivity = calculate_global_connectivity(G)
-            branching = calculate_avg_branching_factor(G)
+            branching = calculate_average_branching_factor(G)
             
             # Extract trajectory_id from filename (remove .json extension)
             trajectory_id = file_path.stem

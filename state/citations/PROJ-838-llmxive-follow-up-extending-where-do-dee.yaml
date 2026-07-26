@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/NJU-LINK/TELBench
   verified_at: '2026-07-22T10:19:36.815687Z'
+- artifact_hash: 413cf58926a1306fd4343eab47b83a3f59e1c66d8cc9f8e1c73c1829f3eec73c
+  artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/example
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/example
+  verified_at: '2026-07-26T20:22:14.618316Z'

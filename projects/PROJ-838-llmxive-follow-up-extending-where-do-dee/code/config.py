@@ -30,10 +30,16 @@ dataset_url = "NJU-LINK/TELBench"
 
 # Sensitivity analysis parameters (SC-004)
 # Thresholds for sensitivity analysis on connectivity values
-sensitivity_thresholds = [0.01, 0.05, 0.1]
+# Updated to include denser threshold set for robustness (T050 integration)
+sensitivity_thresholds = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]
 
 # Percentiles for sensitivity analysis on the success class
+# Updated to include specific percentiles for robustness checks
 sensitivity_percentiles = [10, 20, 30]
+
+# Number of permutations for null distribution testing
+# Updated to 5000 for higher precision in p-value estimation (T052 integration)
+null_permutations = int(os.environ.get("LLMXIVE_NULL_PERMUTATIONS", 5000))
 
 # Hash algorithm for file verification
 hash_algorithm = "sha256"

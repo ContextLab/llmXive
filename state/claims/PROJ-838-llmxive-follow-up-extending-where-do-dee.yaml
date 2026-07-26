@@ -573,3 +573,629 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T03:30:02Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: TELBench dataset streaming mode enabled for RAM efficiency
+  claim_id: c_ea5ffc00
+  context: '**Streaming logic**: Use `streaming=True` to handle large datasets without
+    exceeding RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TELBench_dataset_streaming_mode_enabled_for_RAM_efficiency
+  kind: entity_fact
+  raw_text: The pipeline is designed to handle large datasets using `streaming=True`
+    to avoid exceeding RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:35:07Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds set 0.01 to 0.10
+  claim_id: c_8f7c3b37
+  context: Sweep thresholds over the set **{0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
+    0.08, 0.09, 0.10}** read from `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis thresholds are defined as the set {0.01, 0.02,
+    0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:35:42Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis percentiles set 10 20 30
+  claim_id: c_5eb11163
+  context: Sweep percentiles **{10, 20, 30}** read from `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis percentiles are defined as the set {10, 20, 30}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:36:00Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Null distribution permutation test 5000 iterations
+  claim_id: c_bb35ad59
+  context: perform permutation test (**5000 permutations**), **read seed from `code/config.py`**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null distribution permutation test uses 5000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:36:15Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Primary collapse prediction threshold 20th percentile success class connectivity
+  claim_id: c_38127d8f
+  context: 'Calculate the 20th percentile of the **connectivity** column for the success
+    class subset of the training split. **Do NOT optimize**; calculate the deterministic
+    percentile. **Override Note**: This task explicitly overrides Plan Phase 3 Step
+    2 to satisfy Spec FR-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_collapse_prediction_threshold_20th_percentile_succes
+  kind: entity_fact
+  raw_text: The primary decision boundary for predicting collapse is the 20th percentile
+    of the connectivity column for the success class subset of the training split.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:36:47Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 30 minutes benchmark
+  claim_id: c_63b28d69
+  context: Assert execution time < 30 minutes (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_under_30_minutes_benchmark
+  kind: magnitude
+  raw_text: The benchmarking task asserts that execution time must be less than 30
+    minutes for a set of trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:37:43Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Power analysis flags limitation if power below 0.8
+  claim_id: c_184c1ff4
+  context: If power < 0.8, flag the limitation in the final report (`data/processed/results_report.json`).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_limitation_if_power_below_0.8
+  kind: magnitude
+  raw_text: The power analysis flags a limitation if the calculated power is less
+    than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:38:32Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning threshold mean minus 2 standard deviations connectivity
+  claim_id: c_642d5bcb
+  context: Calculate 'low branching/connectivity' thresholds using **mean - 2*std
+    of connectivity** for the 'success class' in the **training split**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear reasoning index threshold definition uses the mean minus 2
+    standard deviations of connectivity for the success class.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:39:00Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Connectivity metric definition edges over possible connections
+  claim_id: c_3a09a6ad
+  context: 'Formulas: Connectivity is defined as the ratio of edges to the total number
+    of possible connections among N nodes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_metric_definition_edges_over_possible_connectio
+  kind: entity_fact
+  raw_text: The connectivity metric is defined as the ratio of edges to the total
+    number of possible connections among N nodes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:39:21Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Branching factor definition sum of out-degrees over N
+  claim_id: c_9e38ab32
+  context: Branching = sum(out-degrees) / N.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_factor_definition_sum_of_out-degrees_over_N
+  kind: entity_fact
+  raw_text: The branching factor metric is defined as the sum of out-degrees divided
+    by N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:40:07Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Co-reference resolution using spaCy en_core_web_sm
+  claim_id: c_29e0aa87
+  context: Implement co-reference resolution and citation detection using `spaCy`
+    (`en_core_web_sm`) and `Matcher` in `code/graph_builder.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Co-reference_resolution_using_spaCy_en_core_web_sm
+  kind: entity_fact
+  raw_text: The co-reference resolution and citation detection uses the `en_core_web_sm`
+    model from spaCy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:40:19Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Pipeline CPU-only execution constraint no CUDA GPU
+  claim_id: c_7c936506
+  context: 'Critical Constraint: All graph algorithms and NLP must run on CPU only
+    (no CUDA/GPU); use `spaCy` in CPU mode (`en_core_web_sm`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_CPU-only_execution_constraint_no_CUDA_GPU
+  kind: entity_fact
+  raw_text: The pipeline is required to execute on CPU only without using CUDA or
+    GPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:44:25Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Benchmark execution time less than 30 minutes
+  claim_id: c_a64b2188
+  context: 'Goal: Assert execution time < 30 minutes (SC-003).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_execution_time_less_than_30_minutes
+  kind: magnitude
+  raw_text: The benchmark task asserts that the pipeline execution time must be less
+    than 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:44:53Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold set 0.01 to 0.10
+  claim_id: c_c6736616
+  context: Sweep thresholds over the set **{0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
+    0.08, 0.09, 0.10}** read from `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis threshold sweep uses the set of values {0.01,
+    0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:45:11Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis percentile set 10 20 30
+  claim_id: c_d7f708ca
+  context: Sweep percentiles **{10, 20, 30}** read from `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis percentile sweep uses the set of values {10,
+    20, 30}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:45:28Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Null distribution permutation test 5000 permutations
+  claim_id: c_d07d470a
+  context: Perform permutation test (**5000 permutations**), **read seed from `code/config.py`**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null distribution permutation test is configured to run 5000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:45:43Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Primary threshold 20th percentile connectivity success class
+  claim_id: c_8d5e38da
+  context: Calculate the 20th percentile of the **connectivity** column for the success
+    class subset of the training split. **PRIMARY THRESHOLD per FR-004**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_threshold_20th_percentile_connectivity_success_class
+  kind: entity_fact
+  raw_text: The primary decision boundary for predicting collapse is the 20th percentile
+    of the connectivity column for the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:45:57Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning threshold mean minus 2 standard deviations connectivity
+  claim_id: c_b8ec9161
+  context: Calculate 'low branching/connectivity' thresholds using **mean - 2*std
+    of connectivity** for the 'success class' in the **training split**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear reasoning threshold is derived using the formula mean minus
+    2 times the standard deviation of connectivity for the success class.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:46:15Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Benchmark evaluation 100 trajectories
+  claim_id: c_1cf47cad
+  context: Measuring and asserting the 30-minute CPU limit for 100 trajectories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark evaluation involves 100 trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:46:29Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Power analysis limitation flag if power less than 0.8
+  claim_id: c_5df93942
+  context: If power < 0.8, flag the limitation in the final report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_limitation_flag_if_power_less_than_0.8
+  kind: magnitude
+  raw_text: The power analysis flags a limitation if the calculated power is less
+    than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:46:31Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Global Connectivity definition ratio edges possible connections
+  claim_id: c_b53d5729
+  context: 'Formulas: Connectivity is defined as the ratio of edges to the total number
+    of possible connections among N nodes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_Connectivity_definition_ratio_edges_possible_connecti
+  kind: entity_fact
+  raw_text: The Global Connectivity metric is defined as the ratio of edges to the
+    total number of possible connections among N nodes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:47:06Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Average Branching Factor definition sum out-degrees divided by N
+  claim_id: c_15b2cd16
+  context: Branching = sum(out-degrees) / N.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Average_Branching_Factor_definition_sum_out-degrees_divided
+  kind: entity_fact
+  raw_text: The Average Branching Factor is defined as the sum of out-degrees divided
+    by N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:47:30Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 3
+  canonical: TELBench dataset HuggingFace ID NJU-LINK/TELBench
+  claim_id: c_5046cc29
+  context: 'Implement `code/downloader.py` to fetch TELBench dataset from HuggingFace
+    (Primary ID: `NJU-LINK/TELBench`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TELBench_dataset_HuggingFace_ID_NJU-LINK/TELBench
+  kind: entity_fact
+  raw_text: 'The TELBench dataset is hosted on HuggingFace with the Primary ID: ''NJU-LINK/TELBench''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:51:27Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold set 0.01 to 0.10 step 0.01
+  claim_id: c_f756aa8f
+  context: Sweep thresholds over the set {0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
+    0.08, 0.09, 0.10} read from `code/config.py`.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We consider estimation at c = 0, 0.01, ...,0.1. When c >0.1, the identified
+        set is unbounded. Conversely,
+      source_id: '2309.06305'
+      url: https://arxiv.org/abs/2309.06305
+      value: '0.01'
+    filled: true
+  kind: numeric
+  raw_text: The sensitivity analysis threshold set includes values {0.01, 0.02, 0.03,
+    0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10}.
+  resolved_value: '0.01'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T19:51:47Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis percentile set 10 20 30
+  claim_id: c_7e1e0e2c
+  context: Sweep percentiles {10, 20, 30} read from `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis percentile set includes values {10, 20, 30}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:52:05Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Null distribution permutation test 5000 permutations
+  claim_id: c_50fb3c0a
+  context: Perform permutation test (5000 permutations), read seed from `code/config.py`,
+    shuffle labels column to establish null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null distribution permutation test uses 5000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:52:06Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Primary threshold 20th percentile of success class connectivity
+  claim_id: c_2fc8f49c
+  context: FR-004 (Spec) mandates the '20th percentile of the success class' as the
+    primary decision boundary.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_threshold_20th_percentile_of_success_class_connectiv
+  kind: entity_fact
+  raw_text: The primary decision boundary for predicting collapse is the 20th percentile
+    of the connectivity column for the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:52:07Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning threshold mean minus 2 std success class connectivity
+  claim_id: c_2423c02e
+  context: Calculate 'low branching/connectivity' thresholds using mean - 2*std of
+    connectivity for the 'success class' in the training split.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_reasoning_threshold_mean_minus_2_std_success_class_co
+  kind: entity_fact
+  raw_text: The linear reasoning threshold is defined as mean minus 2 times the standard
+    deviation of connectivity for the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:52:31Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Performance benchmark execution time less than 30 minutes for 100 trajectories
+  claim_id: c_e0883d11
+  context: Assert execution time < 30 minutes (SC-003) for 100 trajectories.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_benchmark_execution_time_less_than_30_minutes_fo
+  kind: magnitude
+  raw_text: The performance benchmark asserts execution time must be less than 30
+    minutes for 100 trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:52:51Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Power analysis flag limitation if power less than 0.8
+  claim_id: c_0a880524
+  context: If power < 0.8, flag the limitation in the final report.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flag_limitation_if_power_less_than_0.8
+  kind: magnitude
+  raw_text: The power analysis flags a limitation if statistical power is less than
+    0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:53:39Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Global connectivity defined as ratio of edges to total possible connections
+    among N nodes
+  claim_id: c_6a1ca165
+  context: Connectivity is defined as the ratio of edges to the total number of possible
+    connections among N nodes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_connectivity_defined_as_ratio_of_edges_to_total_possi
+  kind: entity_fact
+  raw_text: The global connectivity metric is defined as the ratio of edges to the
+    total number of possible connections among N nodes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:53:40Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Average branching factor sum of out-degrees divided by N
+  claim_id: c_ab819954
+  context: Branching = sum(out-degrees) / N.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Average_branching_factor_sum_of_out-degrees_divided_by_N
+  kind: entity_fact
+  raw_text: The average branching factor is calculated as the sum of out-degrees divided
+    by N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:53:52Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Dataset fetching uses streaming true to handle large datasets
+  claim_id: c_7fbf60e2
+  context: Use `streaming=True` to handle large datasets without exceeding RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetching_uses_streaming_true_to_handle_large_dataset
+  kind: entity_fact
+  raw_text: The dataset fetching logic uses `streaming=True` to handle large datasets
+    without exceeding RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:54:11Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Pipeline requires CPU only execution using spaCy en_core_web_sm
+  claim_id: c_92a9f743
+  context: All graph algorithms and NLP must run on CPU only (no CUDA/GPU); use `spaCy`
+    in CPU mode (`en_core_web_sm`).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_requires_CPU_only_execution_using_spaCy_en_core_web
+  kind: entity_fact
+  raw_text: The pipeline requires all graph algorithms and NLP to run on CPU only,
+    using `spaCy` in CPU mode (`en_core_web_sm`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:54:23Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Label distribution train test match source within 5% tolerance
+  claim_id: c_e56304b4
+  context: Verify label distribution in train/test matches source within 5% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label distribution in train/test splits must match the source within
+    5% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:54:23Z'

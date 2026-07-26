@@ -1,10 +1,9 @@
-"""
-Entry point script to execute the metrics calculation batch process.
-This script loads graphs from data/processed/graphs/, calculates metrics,
-and writes the result to data/processed/metrics.csv.
-"""
 import sys
 from pathlib import Path
+
+# Ensure code directory is in path
+sys.path.insert(0, str(Path(__file__).parent))
+
 from metrics import main
 
 if __name__ == "__main__":

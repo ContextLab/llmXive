@@ -12,14 +12,6 @@ T003:
     evidence, nor any documentation showing that ruff and black have been installed
     and integrated into the project workflow. The required artifacts to demonstrate
     that linting (ruff) and formatting (black) are configured are missing.
-T023:
-  c: false
-  h: 60290ad63aff99553b8ef09825f024f2869bc81b95853a3974348051f49f0509
-  r: "The `process_batch` function in `code/metrics.py` is cut off mid\u2011statement\
-    \ (the `csv.DictWriter` line is incomplete and no rows are written), so the batch\
-    \ logic cannot actually produce a CSV file. Consequently the integration test\
-    \ cannot pass and the required `data/processed/metrics.csv` does not exist. The\
-    \ implementation must be completed and verified."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,15 +24,6 @@ T025:
   r: No code, script, or documentation showing that batch processing now logs its
     progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
     is not satisfied.
-T029:
-  c: false
-  h: 740387ca62e1c7e38552dd0983e5bbb18c91165ec9693b83cb415461523f4c83
-  r: The repository lacks the required `data/processed/metrics.csv`, `train_metrics.csv`,
-    and `test_metrics.csv` files, and the `stratified_split` implementation does not
-    read/write these files (it only splits a passed DataFrame and even references
-    an undefined `train_test_split`). Moreover, the unit test `test_stratified_split_preserves_label_ratio_in_metrics_csv`
-    is absent from `tests/unit/test_evaluator.py`. These missing artifacts and incomplete
-    functionality mean the task is not genuinely completed.
 T030:
   c: false
   h: cbdec122ad02090a41eee122ae0be73c61a2219a6483d93b341b7bbce77703e8
@@ -71,14 +54,14 @@ T033:
     the provided `code/evaluator.py` does not contain an implemented `evaluate_performance`
     function (the file is truncated before any such definition). Consequently the
     task of computing Precision, Recall, F1, and a Confusion Matrix cannot be satisfied.
-T037b:
+T034:
   c: false
-  h: 28e11f86eca016f8d9ac6e3f0d83c1fbdc2a1be6d756e3dbfe3dffac2a882be8
-  r: "The repository lacks a `calculate_linear_reasoning_index` function in `code/evaluator.py`,\
-    \ the required `data/processed/train_metrics.csv` and `data/processed/linear_reasoning_report.json`\
-    \ files are absent, and the unit test `test_linear_reasoning_data_driven` does\
-    \ not appear in `tests/unit/test_evaluator.py`. These missing pieces mean the\
-    \ task\u2019s specification is not satisfied."
+  h: 00fe2f5e0e8c214eb81fb40b8259dc298ffd6c2602bc51f4651673227230e5e8
+  r: "The repository contains the unit test `test_baseline_mean_connectivity`, but\
+    \ the required output file `data/processed/baseline_report.json` is missing, and\
+    \ there is no evidence that `calculate_baseline` writes the `baseline_mean_connectivity`\
+    \ field to that JSON (or even that the function is fully implemented). The task\u2019\
+    s output artifact and its consumption by downstream tasks are therefore not satisfied."
 T046:
   c: false
   h: 89228361f1d19a2e8784eeaab16601331d08a54c3c5469271780d315166a4b7a
