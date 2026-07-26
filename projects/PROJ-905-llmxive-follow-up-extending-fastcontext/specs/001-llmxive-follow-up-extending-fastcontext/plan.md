@@ -88,7 +88,7 @@ projects/PROJ-905-llmxive-follow-up-extending-fastcontext/
 | **Deterministic Engine (FR-003)** | Required to test the "FastContext-Lite" hypothesis without GPU. | Re-using the neural subagent would fail the "CPU-only" constraint and not test the hypothesis. |
 | **Paired T-Test (FR-005)** | Required by SC-005 to establish statistical significance. | Descriptive statistics alone are insufficient for scientific claims about performance differences. |
 | **Pilot Validation (New)** | Required to verify that the Regularity Score actually correlates with retrieval difficulty. | A stratification based on an uncorrelated metric would lead to a Type II error (false negative). |
-| **Distilled Baseline (New)** | Required to run the neural baseline within 6h/7GB RAM constraints. | The original large-scale model is computationally infeasible on the target hardware.. |
+| **Distilled Baseline (New)** | Required to run the neural baseline within 6h/GB RAM constraints. | The original large-scale model is computationally infeasible on the target hardware.. |
 
 ## Phase Breakdown
 

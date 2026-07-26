@@ -1,15 +1,36 @@
 """
-Configuration management for the project.
+Configuration management for the llmXive project.
 
-This module provides utility functions for path resolution and directory creation.
+This module provides utilities for managing dataset paths, model IDs,
+and other configuration settings.
 """
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Project root is assumed to be the parent of the 'code' directory
-# or can be explicitly set via environment variable.
+# Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
+
+# Default configuration
+DEFAULT_CONFIG = {
+    "dataset": {
+        "swe_bench_lite": "princeton-nlp/SWE-bench_Lite",
+        "swe_bench_full": "princeton-nlp/SWE-bench",
+    },
+    "model": {
+        "fastcontext_lite": "fastcontext-lite-v1",
+        "fastcontext_4b": "princeton-nlp/fastcontextb",
+    },
+    "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
+        "data_results": "data/results",
+        "code": "code",
+        "tests": "tests",
+        "specs": "specs",
+        "state": "state",
+    }
+}
 
 
 def get_path(relative_path: str) -> Path:
@@ -17,7 +38,7 @@ def get_path(relative_path: str) -> Path:
     Resolves a relative path to an absolute path within the project root.
 
     Args:
-        relative_path: Path relative to the project root.
+        relative_path: Relative path string (e.g., "data/raw/file.csv").
 
     Returns:
         Absolute Path object.
@@ -25,29 +46,27 @@ def get_path(relative_path: str) -> Path:
     return PROJECT_ROOT / relative_path
 
 
-def ensure_directories(file_paths: list) -> None:
+def ensure_directories(paths: list) -> None:
     """
-    Ensures that the directories containing the given file paths exist.
+    Ensures that the given paths (files or directories) exist.
+    If a path is a file, ensures its parent directory exists.
 
     Args:
-        file_paths: List of Path objects or strings representing file paths.
+        paths: List of Path objects or strings.
     """
-    for path in file_paths:
-        if isinstance(path, str):
-            path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
+    for path in paths:
+        path_obj = Path(path)
+        path_obj.parent.mkdir(parents=True, exist_ok=True)
+        if not path_obj.exists() and not str(path_obj).endswith("/"):
+            # Create the file as an empty file if it doesn't exist
+            path_obj.touch()
 
 
 def get_config_dict() -> Dict[str, Any]:
     """
-    Returns a dictionary of configuration values.
+    Returns the default configuration dictionary.
 
     Returns:
-        Dictionary containing project configuration.
+        Configuration dictionary.
     """
-    return {
-        "project_root": str(PROJECT_ROOT),
-        "data_dir": str(get_path("data")),
-        "code_dir": str(get_path("code")),
-        "tests_dir": str(get_path("tests")),
-    }
+    return DEFAULT_CONFIG.copy()

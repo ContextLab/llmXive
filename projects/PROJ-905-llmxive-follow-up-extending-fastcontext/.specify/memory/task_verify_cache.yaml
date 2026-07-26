@@ -1,3 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`
+    contains the required subfolders (`data/raw`, `data/processed`, `data/results`,
+    `code`, `tests/unit`, `tests/integration`, `specs/contracts`, `state`). Without
+    this concrete artifact, the task requirement is not verified.
+T002:
+  c: false
+  h: c7d00ea36061a5c0f5c6bfed09a66d1c55e09ab403529f881a67946d7d50767e
+  r: "The required file `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt`\
+    \ does not exist, and the existing `code/requirements.txt` does not contain the\
+    \ specification excerpt required by the task. The task\u2019s core requirement\
+    \ is therefore unmet."
+T007b:
+  c: false
+  h: f3bd9527fd19a3ccf71fb1725813ba54c529b9fde5334cf69086343e91d0dad0
+  r: The required output file `data/raw/ground_truth_annotations.csv` does not exist,
+    and the provided `code/annotation_extractor.py` is truncated before completing
+    the extraction logic and writing the CSV, so the implementation is incomplete.
+T007c:
+  c: false
+  h: a512104581871d498ff7a81585d2d2abf1fbfe7890e7e6bf52241a9e6dd9a90d
+  r: "The required input file `data/processed/regularity_scores.csv` is absent, so\
+    \ the script cannot load the sample or compute any correlation. Moreover, the\
+    \ provided `pilot_validation.py` is truncated and does not show the correlation\
+    \ calculation or the flag\u2011ging logic. The missing CSV (and incomplete script)\
+    \ means the task\u2019s core requirement is not met."
 T023:
   c: false
   h: 882bb003344b96dbe2e11e8457192682aa149f02342da9508a0dd8ae5146df93
@@ -12,13 +40,6 @@ T032a:
   r: No README.md content from `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`
     was provided; thus we cannot verify that installation instructions, usage examples,
     and contribution guidelines were added. The required artifact is missing.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or documentation artifacts showing any cleanup or refactoring\
-    \ were provided; the only material present is a feature specification unrelated\
-    \ to the claimed \u201Ccode cleanup and refactoring\u201D task. Consequently the\
-    \ requirement is not satisfied."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

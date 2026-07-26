@@ -1,0 +1,128 @@
+# Data Model Contracts for llmXive FastContext Pipeline
+# Version: 1.0.0
+# This file defines the strict schema contracts for all data artifacts
+# generated and consumed by the pipeline.
+
+version: "1.0.0"
+generated_at: "2024-01-01T00:00:00Z" # Placeholder, updated by versioning.py
+
+schemas:
+  ground_truth_annotations:
+    description: "Mapping of SWE-bench tasks to their ground truth relevant files."
+    source: "princeton-nlp/SWE-bench_Lite (field: ground_truth_files)"
+    output_path: "data/raw/ground_truth_annotations.csv"
+    format: "CSV"
+    columns:
+      - name: repo_id
+        type: string
+        description: "Unique repository identifier (e.g., 'repo-owner/repo-name')"
+        nullable: false
+      - name: issue_id
+        type: string
+        description: "Unique issue identifier within the repository"
+        nullable: false
+      - name: ground_truth_file_paths
+        type: json_string
+        description: "JSON-encoded list of file paths relevant to the issue"
+        nullable: true
+        example: '["src/module.py", "tests/test_module.py"]'
+
+  regularity_scores:
+    description: "Calculated structural regularity scores for repositories."
+    source: "code/static_analysis.py (calculate_regularity_score)"
+    output_path: "data/processed/regularity_scores.csv"
+    format: "CSV"
+    columns:
+      - name: repo_id
+        type: string
+        description: "Unique repository identifier"
+        nullable: false
+      - name: regularity_score
+        type: float
+        description: "Normalized score [0.0, 1.0] indicating structural regularity"
+        nullable: false
+        constraints:
+          min: 0.0
+          max: 1.0
+      - name: split
+        type: string
+        description: "Stratification assignment based on median score"
+        enum: ["regular", "irregular"]
+        nullable: false
+
+  exploration_logs:
+    description: "Execution logs for FastContext-Lite and Baseline runs."
+    source: "code/metrics_logger.py"
+    output_path: "data/results/exploration_logs.jsonl"
+    format: "JSONL"
+    fields:
+      - name: repo_id
+        type: string
+        nullable: false
+      - name: issue_id
+        type: string
+        nullable: false
+      - name: model_name
+        type: string
+        enum: ["fastcontext-lite", "fastcontext-4b"]
+        nullable: false
+      - name: context_precision
+        type: float
+        description: "Precision of retrieved context"
+        nullable: false
+      - name: total_tokens
+        type: integer
+        nullable: false
+      - name: wall_clock_latency_ms
+        type: float
+        nullable: false
+      - name: exploration_latency_ms
+        type: float
+        nullable: true
+      - name: error
+        type: string
+        nullable: true
+
+  statistical_summary:
+    description: "Aggregated statistical comparison results."
+    source: "code/analysis.py"
+    output_path: "data/results/statistical_summary.json"
+    format: "JSON"
+    fields:
+      - name: p_value
+        type: float
+        description: "P-value from t-test or Wilcoxon test"
+        nullable: false
+      - name: effect_size
+        type: object
+        properties:
+          cohen_d:
+            type: float
+            description: "Cohen's d effect size"
+        nullable: false
+      - name: degradation_percent
+        type: float
+        description: "Percentage performance drop in Irregular set"
+        nullable: false
+      - name: boundary_threshold
+        type: [float, null]
+        description: "Identified regularity threshold for degradation (null if not found)"
+        nullable: true
+      - name: regression_slope
+        type: float
+        description: "Slope of linear regression (regularity_score vs performance_delta)"
+        nullable: false
+      - name: r_squared
+        type: float
+        description: "R-squared value of the regression"
+        nullable: false
+
+constraints:
+  data_integrity:
+    - "All numeric fields must be valid numbers (no NaN/Inf unless explicitly allowed)"
+    - "All dates must be ISO 8601 format"
+    - "File paths must be relative to project root"
+  processing_rules:
+    - "ground_truth_file_paths must be extracted from real dataset, never synthetic"
+    - "regularity_score must be calculated on real file system structures"
+    - "exploration_logs must contain real execution metrics, not mocks"

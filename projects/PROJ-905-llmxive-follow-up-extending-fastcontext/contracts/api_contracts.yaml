@@ -1,0 +1,99 @@
+# API Contracts for llmXive FastContext Pipeline
+# Defines the expected interfaces between modules
+
+version: "1.0.0"
+
+modules:
+  static_analysis:
+    path: "code/static_analysis.py"
+    functions:
+      calculate_dir_score:
+        input:
+          - repo_path: string
+        output:
+          - score: float (0.0 to 1.0)
+      calculate_test_score:
+        input:
+          - repo_path: string
+        output:
+          - score: float (0.0 to 1.0)
+      calculate_import_score:
+        input:
+          - file_content: string
+        output:
+          - score: float (0.0 to 1.0)
+      calculate_regularity_score:
+        input:
+          - repo_path: string
+          - weights: dict (optional, defaults to w1=0.3, w2=0.3)
+        output:
+          - score: float (0.0 to 1.0)
+
+  stratification:
+    path: "code/stratification.py"
+    functions:
+      split_repos:
+        input:
+          - scores_list: list of dict (repo_id, score)
+        output:
+          - regular_set: list of repo_ids
+          - irregular_set: list of repo_ids
+
+  fastcontext_lite:
+    path: "code/fastcontext_lite.py"
+    functions:
+      run_fastcontext_lite:
+        input:
+          - repo_path: string
+          - issue_text: string
+        output:
+          - retrieved_snippets: list of dict
+          - token_count: int
+          - latency_ms: float
+
+  baseline_runner:
+    path: "code/baseline_runner.py"
+    functions:
+      run_baseline_4b:
+        input:
+          - repo_path: string
+          - issue_text: string
+        output:
+          - retrieved_snippets: list of dict
+          - token_count: int
+          - latency_ms: float
+
+  analysis:
+    path: "code/analysis.py"
+    functions:
+      run_ttest:
+        input:
+          - group_a: list of float
+          - group_b: list of float
+        output:
+          - t_statistic: float
+          - p_value: float
+      calculate_effect_size:
+        input:
+          - group_a: list of float
+          - group_b: list of float
+        output:
+          - cohen_d: float
+      calculate_regression_analysis:
+        input:
+          - x: list of float (regularity scores)
+          - y: list of float (performance deltas)
+        output:
+          - slope: float
+          - r_squared: float
+          - p_value: float
+
+error_handling:
+  - "All functions must raise ValueError for invalid input types"
+  - "File not found errors must be wrapped in FileNotFoundError with helpful message"
+  - "OOM conditions must trigger graceful shutdown with log entry"
+
+performance_requirements:
+  - "static_analysis.calculate_regularity_score must complete < 10s per repo"
+  - "fastcontext_lite must complete < 5s per repo on CPU"
+  - "stratification.split_repos must complete < 1s for 10k repos"

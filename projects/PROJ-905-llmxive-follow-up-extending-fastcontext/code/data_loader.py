@@ -1,9 +1,8 @@
 """
 Data Loader for SWE-bench Lite.
 
-This module handles the downloading and verification of the SWE-bench Lite dataset.
-It ensures the correct version is fetched and checksums are verified before returning
-the dataset object for processing.
+This module handles downloading and verifying the SWE-bench Lite dataset
+from HuggingFace datasets.
 """
 import hashlib
 import json
@@ -12,30 +11,30 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
-from datasets import load_dataset
+# Add the code directory to the path to allow relative imports if running as script
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-# Configuration for the dataset
-DATASET_NAME = "princeton-nlp/SWE-bench_Lite"
-DATASET_VERSION = "v.0"  # As specified in T007
-SPLIT = "test"
+from config import get_path, ensure_directories
 
-# Checksums for the dataset files (example placeholders, updated at runtime if needed)
-# In a real scenario, these would be the known SHA256 hashes of the specific version files.
-# For the HuggingFace datasets library, we rely on the library's internal caching and versioning
-# unless specific file-level checksums are required by the project.
-# We will implement a mechanism to verify the downloaded cache if a checksum file exists.
-CHECKSUM_FILE = "data/raw/checksums.json"
+try:
+    from datasets import load_dataset
+except ImportError:
+    raise ImportError(
+        "The 'datasets' package is required. Install it via: pip install datasets"
+    )
 
 
 def compute_file_sha256(file_path: Path) -> str:
     """
-    Computes the SHA256 hash of a file.
+    Computes the SHA-256 hash of a file.
 
     Args:
-        file_path: Path to the file to hash.
+        file_path: Path to the file.
 
     Returns:
-        Hexadecimal string of the SHA256 hash.
+        Hexadecimal string of the SHA-256 hash.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -46,11 +45,11 @@ def compute_file_sha256(file_path: Path) -> str:
 
 def verify_checksum(file_path: Path, expected_hash: str) -> bool:
     """
-    Verifies the SHA256 hash of a file against an expected value.
+    Verifies the SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file to verify.
-        expected_hash: Expected SHA256 hash string.
+        file_path: Path to the file.
+        expected_hash: Expected SHA-256 hash.
 
     Returns:
         True if the hash matches, False otherwise.
@@ -60,84 +59,92 @@ def verify_checksum(file_path: Path, expected_hash: str) -> bool:
 
 
 def download_dataset(
-    dataset_name: str = DATASET_NAME,
-    split: str = SPLIT,
-    version: str = DATASET_VERSION
-) -> Dict:
+    dataset_name: str = "princeton-nlp/SWE-bench_Lite",
+    split: str = "test",
+    revision: str = "main",
+    cache_dir: Optional[Path] = None
+) -> Any:
     """
     Downloads and loads the SWE-bench Lite dataset.
 
-    This function uses the HuggingFace `datasets` library to fetch the specified
-    version and split. It ensures the dataset is cached and returns the dataset
-    object.
+    This function ensures the dataset is downloaded (or loaded from cache)
+    and returns the dataset object for the specified split.
 
     Args:
         dataset_name: The HuggingFace dataset identifier.
-        split: The dataset split to load (e.g., 'test').
-        version: The specific version tag of the dataset.
+        split: The dataset split to load (default: 'test').
+        revision: The git revision to load (default: 'main').
+        cache_dir: Optional cache directory for the dataset.
 
     Returns:
-        A HuggingFace Dataset object.
+        The loaded dataset object (Dataset or DatasetDict).
 
     Raises:
-        FileNotFoundError: If the dataset cannot be downloaded or found.
-        ValueError: If the version tag is invalid or missing.
+        FileNotFoundError: If the dataset cannot be downloaded or loaded.
+        ValueError: If the dataset structure is unexpected.
     """
-    # The datasets library handles versioning via the 'revision' parameter if available,
-    # or by dataset tags. For SWE-bench Lite, we rely on the default latest or specific
-    # tag if the library supports it directly.
-    # Since 'v.0' is a specific tag mentioned in T007, we attempt to use it.
-    # Note: The datasets library might not expose 'v.0' directly as a revision if it's
-    # a dataset card tag, but we try to pass it as revision.
-    
     try:
-        # Attempt to load with the specific revision/version if supported
-        # If the version tag is not a valid git revision in the HF repo, we might fall back
-        # to the default. However, the task requires version tag v.0.
-        # We will try to load with revision=version.
+        # Load the dataset from HuggingFace
+        # The datasets library handles caching automatically
         dataset = load_dataset(
             dataset_name,
             split=split,
-            revision=version,
-            trust_remote_code=True
+            revision=revision,
+            cache_dir=str(cache_dir) if cache_dir else None
         )
         
-        # Verify the loaded dataset has the expected structure
-        if not dataset:
-            raise FileNotFoundError(f"Dataset '{dataset_name}' split '{split}' is empty.")
+        # Verify that the dataset contains expected fields
+        if len(dataset) == 0:
+            raise ValueError(f"Dataset '{dataset_name}' split '{split}' is empty.")
         
-        # If a checksum file exists, we could verify the cache files here.
-        # For now, we assume the HF library handles integrity for the specific revision.
+        # Check for key fields expected in SWE-bench Lite
+        expected_fields = ["repo", "instance_id", "problem_statement"]
+        sample_row = dataset[0]
+        missing_fields = [f for f in expected_fields if f not in sample_row]
+        
+        if missing_fields:
+            raise ValueError(
+                f"Dataset '{dataset_name}' is missing expected fields: {missing_fields}"
+            )
         
         return dataset
-
+        
     except Exception as e:
-        # If the specific revision fails, we might need to check if the dataset exists
-        # and if the version is correct.
         raise FileNotFoundError(
-            f"Failed to download dataset '{dataset_name}' with version '{version}' and split '{split}'. "
-            f"Ensure the version tag exists on HuggingFace. Error: {e}"
+            f"Failed to download or load dataset '{dataset_name}' split '{split}'. "
+            f"Ensure internet connectivity and valid HuggingFace credentials. "
+            f"Error: {e}"
         )
 
 
 def main():
     """
     Main entry point for the data loader script.
-    Downloads the dataset and prints basic info.
+    Downloads the dataset and prints basic statistics.
     """
-    print(f"Downloading dataset: {DATASET_NAME} (Version: {DATASET_VERSION}, Split: {SPLIT})...")
+    print("Starting dataset download for SWE-bench Lite...")
     
     try:
         dataset = download_dataset()
-        print(f"Successfully loaded dataset with {len(dataset)} examples.")
+        
+        print(f"Successfully loaded dataset: {dataset}")
+        print(f"Number of examples: {len(dataset)}")
         print(f"Columns: {dataset.column_names}")
         
-        # Save a small sample or metadata to verify
-        # This is just a verification step for the script execution
-        print("Dataset download verified.")
+        # Show a sample row
+        if len(dataset) > 0:
+            sample = dataset[0]
+            print("\nSample row:")
+            for key, value in sample.items():
+                if isinstance(value, str) and len(value) > 100:
+                    print(f"  {key}: {value[:100]}...")
+                else:
+                    print(f"  {key}: {value}")
+        
+        print("Task T007 completed.")
         
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Error during download: {e}", file=sys.stderr)
         sys.exit(1)
 
 

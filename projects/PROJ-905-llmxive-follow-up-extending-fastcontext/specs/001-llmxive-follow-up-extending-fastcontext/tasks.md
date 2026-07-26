@@ -24,7 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` by executing: `mkdir -p data/raw data/processed data/results code tests/unit tests/integration specs/contracts state` <!-- FAILED: unspecified -->
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` by executing: `mkdir -p data/raw data/processed data/results code tests/unit tests/integration specs/contracts state`
+
 - [X] T001b Initialize `state/` directory structure and create empty `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` file to ensure T004 has a valid target path.
 
 ---
@@ -35,22 +36,25 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python project with `requirements.txt` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt` by executing: `cat > requirements.txt << 'EOF'
-scikit-learn==1.4.0
-pandas==2.1.0
-networkx==3.2.1
-transformers==4.40.0
-datasets==2.18.0
-pytest==8.1.0
-torch==2.2.0
+- [ ] T002 Initialize Python project with `requirements.txt` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt` by executing: `cat > requirements.txt << 'EOF'
+scikit-learn==1.4.0 [UNRESOLVED-CLAIM: c_1038dcf4 — status=not_enough_info]
+pandas==2.1.0 [UNRESOLVED-CLAIM: c_fdcbd1bb — status=not_enough_info]
+networkx==3.2.1 [UNRESOLVED-CLAIM: c_ab8801c4 — status=not_enough_info]
+transformers==4.40.0 [UNRESOLVED-CLAIM: c_fd7341fd — status=not_enough_info]
+datasets==2.18.0 [UNRESOLVED-CLAIM: c_1324a662 — status=not_enough_info]
+pytest==8.1.0 [UNRESOLVED-CLAIM: c_acb52c72 — status=not_enough_info]
+torch==2.2.0 [UNRESOLVED-CLAIM: c_3d2c6253 — status=not_enough_info]
+scipy==1.12.0 [UNRESOLVED-CLAIM: c_f8109eb3 — status=not_enough_info]
+nltk==3.8.1 [UNRESOLVED-CLAIM: c_74432bef — status=not_enough_info]
 EOF`
-- [X] T003a [P] Create `.ruff.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with rules: `["E", "F", "I", "W"]` and `target-version = "py311"` (FR-001)
-- [X] T003b [P] Create `pyproject.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with black configuration: `line-length = 88 `, `target-version = ["py311"]` (FR-001)
+- [ ] T003a [P] Create `.ruff.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with rules: `["E", "F", "I", "W"]` and `target-version = "py3"` (FR-001)
+- [ ] T003b [P] Create `pyproject.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with black configuration: `line-length = 88 `, `target-version = ["py311"]` (FR-001)
 - [X] T004 Implement `code/versioning.py` to compute content hashes for `data/` and `code/` artifacts and update `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` (Requires T001b completion) with a JSON schema containing `artifact_hashes` (map of filename: sha256 string) and `updated_at` (ISO 8601 timestamp string) (Constitution Principle V)
 - [X] T005 [P] Create base data models and schema definitions in `code/__init__.py` and `contracts/`
 - [X] T006 [P] Setup environment configuration management for dataset paths and model IDs in `code/config.py`
-- [X] T007 Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag: v.0, split: test, and verify checksums (FR-001)
-- [ ] T007b Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`) containing `repo_id`, `issue_id`, and `ground_truth_file_paths` for validation (FR-001)
+- [X] T007 [P] Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically revision: main, split: test, and verify checksums (FR-001)
+- [ ] T007b Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`) containing `repo_id`, `issue_id`, and `ground_truth_file_paths`. The source field to extract is `ground_truth_files` from the SWE-bench JSONL. The output CSV must have columns: `repo_id` (string), `issue_id` (string), `ground_truth_file_paths` (list of strings, JSON-encoded). **Requires T007 completion** (FR-001)
+- [ ] T007c [P] Implement `code/pilot_validation.py` to run a simple retrieval baseline on a small sample (n=20) from `data/processed/regularity_scores.csv` (once T014 is done) and compute correlation between `regularity_score` and retrieval precision. If correlation < 0.3, flag the stratification strategy for review. (Phase 0.5 Risk Mitigation, Requires T014 completion)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,20 +70,20 @@ EOF`
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment. <!-- FAILED: unspecified -->
-- [X] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value <!-- FAILED: unspecified -->
-- [X] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
+- [ ] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score__0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment.
+- [ ] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score__5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value
+- [ ] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `* dir_score + w1 * test_score + w2 * import_score, where w1 and w2 are adjustable weights determined during the optimization phase.`.
+- [ ] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `dir_score + w1 * test_score + w2 * import_score`, where `w1=0.3` and `w2=0.3` are hardcoded default weights.
  - `dir_score`: Binary check for presence of `src/`, `tests/`, `docs/` (A binary indicator where 1 if all present, 0 if none, linear interpolation for partial).
  - `test_score`: Binary check for `tests/` directory presence (The presence of the feature, coded as a binary indicator, is evaluated using the method described in [Citation]. This approach aligns with the research question regarding the occurrence of the phenomenon, as outlined in [Citation].).
  - `import_score`: Ratio of absolute imports (`import pkg`) to total imports (Maximum if all absolute, 0.0 if all relative).
  (FR-001)
-- [X] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
-- [X] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
-- [X] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
+- [ ] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
+- [ ] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
+- [ ] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -93,17 +97,17 @@ EOF`
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T016 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_fastcontext_lite_runs_on_regular_repo` using fixture `sample_regular_repo` to assert `run_lite_pipeline` completes in < 5s and returns valid JSON log <!-- FAILED: unspecified -->
-- [X] T017 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_original_fastcontext_4b_runs_on_cpu` using fixture `sample_regular_repo` to assert `run_baseline_4b` completes on CPU (no CUDA) with explicit OOM/timeout handling (max limited duration, 7GB RAM) and returns valid JSON log (FR-004)
-- [X] T018 [P] [US2] Unit test `tests/unit/test_metrics_logger.py::test_log_schema_validates_required_fields` using mock data to assert `validate_log` passes for schema containing `context_precision`, `total_tokens`, `wall_clock_latency`
+- [ ] T016 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_fastcontext_lite_runs_on_regular_repo` using fixture `sample_regular_repo` to assert `run_lite_pipeline` completes in < 5s and returns valid JSON log
+- [ ] T017 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_original_fastcontext_4b_runs_on_cpu` using fixture `sample_regular_repo` to assert `run_baseline_4b` completes on CPU (no CUDA) with explicit OOM/timeout handling (max limited duration, sufficient RAM) and returns valid JSON log (FR-004)
+- [ ] T018 [P] [US2] Unit test `tests/unit/test_metrics_logger.py::test_log_schema_validates_required_fields` using mock data to assert `validate_log` passes for schema containing `context_precision`, `total_tokens`, `wall_clock_latency`
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords, search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(variable lower bound,)`, `max_features=10000 `, `analyzer='word'`) ensuring CPU-only execution (FR-003)
-- [X] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
-- [X] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
-- [X] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
-- [X] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
+- [ ] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords using TF-IDF on issue text, remove stop-words using the NLTK English stop-word list, and use regex pattern `[A-Za-z_][A-Za-z0-9_]*::[A-Za-z0-9_]*` for code identifiers to search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(, 2)`, `max_features=10000`, `analyzer='word'`) ensuring CPU-only execution. MUST implement chunking or sampling fallback logic specifically for the TF-IDF index construction phase to handle repositories where index size exceeds available RAM capacity. (FR-003, Requires T007b completion)
+- [ ] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on GB runners.
+- [ ] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main`, `prompt_template: fastcontext-v`, and `device_map: cpu` with `max_memory: {"cpu": "sufficient capacity"}`. The baseline MUST run on BOTH the "Regular" and "Irregular" sets to enable stratified comparison and degradation calculation. (FR-004)
+- [ ] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
+- [ ] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T019, T021a, and T014 completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,17 +121,16 @@ EOF`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[,, 0.15]) to assert `run_ttest` returns p < 0.05
-- [X] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
-- [X] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
+- [ ] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[0.1, 0.15, 0.2]) to assert `run_ttest` returns p < 0.05
+- [ ] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
+- [ ] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) and select between paired t-test and Wilcoxon signed-rank test based on sample size. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. (FR-005)
-- [X] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta for the "Regular" set (FR-005) (Requires T023 completion)
-- [X] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) (FR-006, SC-004)
-- [X] T030 [US3] Implement `code/analysis.py` to perform regression analysis correlating `regularity_score` with performance delta (Redundant with T028b for Regular set, but covers Irregular set trend if needed)
-- [ ] T031 [US3] Implement output generation to write `data/results/statistical_summary.json` with exact schema: `{ "p_value": float, "effect_size": { "cohen_d": float }, "degradation_percent": float, "boundary_threshold": float, "regression_slope": float, "r_squared": float }` (FR-005, FR-006)
+- [ ] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, alpha=0.05, effect_size derived from pilot data (T007c) or default to 0.2 if pilot data is missing/failed), select between paired t-test and Wilcoxon signed-rank test based on sample size, AND perform continuous regression analysis correlating `regularity_score` with performance delta for the full dataset. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. Citations: Scipy 1.12.0 stats docs (https://docs.scipy.org/doc/scipy/reference/stats.html) and Cohen (1988) for power analysis. [UNRESOLVED-CLAIM: c_df4479b6 — status=not_enough_info] (FR-005, Requires T023 completion)
+- [ ] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta across the FULL dataset (both Regular and Irregular sets) to identify boundary conditions (FR-005) (Requires T023 completion)
+- [ ] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) AND explicitly compare this result against the % precision drop threshold defined in SC-004 to flag the boundary condition (FR-006, SC-004)
+- [ ] T031 [US3] Implement output generation to write `data/results/statistical_summary.json` with exact schema: `{ "p_value": float, "effect_size": { "cohen_d": float }, "degradation_percent": float, "boundary_threshold": null | float, "regression_slope": float, "r_squared": float }`. If `boundary_threshold` is deferred per SC-005, output `null`. (FR-005, FR-006, Requires T023 completion)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,10 +141,14 @@ EOF`
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T032a [P] Update `README.md` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` with installation instructions, usage examples, and contribution guidelines (FR-001)
-- [X] T032b [P] Update `docs/` with API documentation for `code/static_analysis.py`, `code/fastcontext_lite.py`, and `code/analysis.py` (FR-001)
-- [ ] T033 Code cleanup and refactoring <!-- ATOMIZE: requested -->
-- [ ] T034 Performance optimization for TF-IDF indexing on large repos
-- [ ] T035 [P] Additional unit tests for edge cases in `tests/unit/`
+- [ ] T032b [P] Update `docs/` with API documentation for `code/static_analysis.py`, `code/fastcontext_lite.py`, and `code/analysis.py` (FR-001)
+- [ ] T033a [P] Code cleanup: Remove unused imports from all files in `code/`
+- [ ] T033b [P] Code cleanup: Enforce line length < 88 in all `code/` files
+- [ ] T033c [P] Code cleanup: Add type hints to all public functions in `code/`
+- [ ] T034 Performance optimization for TF-IDF indexing on large repos to reduce peak memory usage and complete indexing in < 5s using chunked TF-IDF with `max_features` scaling.
+- [ ] T035a [P] Unit test `tests/unit/test_edge_cases.py::test_empty_repo_handling` for empty repository handling.
+- [ ] T035b [P] Unit test `tests/unit/test_edge_cases.py::test_binary_files_only_handling` for binary-only repository handling.
+- [ ] T035c [P] Unit test `tests/unit/test_edge_cases.py::test_circular_imports_handling` for circular import handling.
 - [ ] T036 Run quickstart.md validation and end-to-end pipeline check
 
 ---
@@ -175,7 +182,7 @@ EOF`
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models/Utilities within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -236,4 +243,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Reminder**: All models must run on CPU-only (no CUDA/8-bit quantization). Data must be real (SWE-bench Lite). **CRITICAL**: The primary baseline for comparison MUST be the original FastContext (4B model) as per FR-004 and Constitution Principle VII. T021a is the mandatory implementation for this baseline.
+- **Constraint Reminder**: All models must run on CPU-only (no CUDA/8-bit quantization). Data must be real (SWE-bench Lite). [UNRESOLVED-CLAIM: c_e0a1af55 — status=not_enough_info] **CRITICAL**: The primary baseline for comparison MUST be the original FastContext (4B model) as per FR-004 and Constitution Principle VII. T021a is the mandatory implementation for this baseline and must run on both Regular and Irregular sets.
