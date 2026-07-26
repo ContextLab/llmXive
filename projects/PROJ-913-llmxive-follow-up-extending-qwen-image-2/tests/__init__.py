@@ -1,1 +1,2 @@
-# Test package initialization
+# Test suite
+pass

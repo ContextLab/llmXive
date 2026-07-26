@@ -1,12 +1,27 @@
-# Explicit configuration file for Ruff
-# Extends the settings in pyproject.toml but allows for command-line overrides
-extend = "pyproject.toml"
-
-# Specific overrides for the codebase if needed
-# For now, we rely on pyproject.toml settings
-line-length = 88
-target-version = "py39"
+# Ruff configuration for llmXive project
+# Linter rules and settings
 
 [lint]
-select = ["E", "W", "F", "I", "C", "B"]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
+# Ignore lines that are too long (handled by Black)
 ignore = ["E501"]
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py files for public API exposure
+"__init__.py" = ["F401"]
+# Allow shadowing built-ins in specific utility scripts if necessary
+"code/utils/logger.py" = ["A001"]
+
+[lint.flake8-annotations]
+allow-star-arg-any = true
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Respect the line length limit (set to 88 to match Black)
+line-ending = "lf"
+docstring-code-format = true
+docstring-code-line-length = 88

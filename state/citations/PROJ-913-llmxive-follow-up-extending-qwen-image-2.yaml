@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/qwen-image-bench/datasets
   verified_at: '2026-07-20T01:28:47.610677Z'
-- artifact_hash: bb97d00ca725e2c060bf090c4839a70b768c3c4de51d60008acbbb8a1849b0da
+- artifact_hash: da6a7db586ea03e581f6b9c30f1cd220c9069d8a644afdf6584e3765d4bd3eef
   artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,15 +19,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-26T10:27:59.079112Z'
-- artifact_hash: bb97d00ca725e2c060bf090c4839a70b768c3c4de51d60008acbbb8a1849b0da
-  artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-26T10:27:59.079112Z'
+  verified_at: '2026-07-26T10:44:36.207842Z'

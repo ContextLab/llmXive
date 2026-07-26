@@ -1,16 +1,18 @@
-# PROJ-913: llmXive Follow-up: OPD Generalization Gap in Unified Diffusion
+# PROJ-913: llmXive Follow-up: Extending Qwen Image 2
 
-## Project Overview
-This project investigates the generalization gap in Qwen-Image-2.0 models, specifically comparing Base vs. RL-Unified versions on In-Distribution (ID) vs. Out-of-Distribution (OOD) prompts.
+## Overview
+This project investigates the "OPD Generalization Gap" in unified diffusion models, specifically comparing the base Qwen-Image-2.0 model against its RL-Unified variant.
 
 ## Structure
-- `code/`: Source code for data acquisition, inference, and analysis.
-- `data/`: Raw inputs, processed data, model weights, and generated outputs.
+- `code/`: Python source code for data acquisition, inference, and analysis.
+- `data/`: Input datasets, model weights, and intermediate outputs.
 - `tests/`: Unit and integration tests.
-- `specs/`: Design documents and contracts.
+- `outputs/`: Final generated artifacts and reports.
 
-## Usage
-See `quickstart.md` for execution instructions.
+## Setup
+1. Ensure Python 3.9+ is installed.
+2. Install dependencies: `pip install -r code/requirements.txt`
+3. Configure environment variables in `.env` (HF_TOKEN, etc.).
 
-## License
-Research use only.
+## Execution
+Follow the pipeline steps defined in `tasks.md` or run the `quickstart.md` guide.

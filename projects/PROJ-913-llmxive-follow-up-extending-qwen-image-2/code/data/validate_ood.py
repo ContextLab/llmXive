@@ -14,185 +14,219 @@ import csv
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 
-# Import project utilities and config
+from transformers import CLIPModel, CLIPProcessor
+import torch
+
+# Local imports based on API surface
 from config import PROJECT_ROOT
 from utils.logger import get_logger
 from utils.seeding import set_global_seed
 
-# CLIP imports
-try:
-    import torch
-    from transformers import CLIPModel, CLIPProcessor
-except ImportError as e:
-    print(f"CRITICAL: Required libraries for CLIP not found. Run: pip install transformers torch")
-    sys.exit(1)
-
-# Configuration constants
-CLIP_MODEL_ID = "openai/clip-vit-large-patch14"
+# Constants
 SIMILARITY_THRESHOLD = 0.3
-OUTPUT_REPORT_PATH = PROJECT_ROOT / "data" / "prompts" / "validation_report.json"
-ID_PROMPTS_PATH = PROJECT_ROOT / "data" / "prompts" / "pilot_in_distribution.csv"
-OOD_PROMPTS_PATH = PROJECT_ROOT / "data" / "prompts" / "pilot_ood.csv"
-
-# Initialize logger
-logger = get_logger(__name__)
+CLIP_MODEL_NAME = "clip-vit-large-patch14"
 
 def load_prompts(file_path: Path) -> List[str]:
-    """
-    Load prompts from a CSV file. Expects a 'prompt' column.
-    """
+    """Load prompts from a CSV file (expects a 'prompt' column)."""
     if not file_path.exists():
-        logger.error(f"Prompt file not found: {file_path}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Prompt file not found: {file_path}")
     
     prompts = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            if 'prompt' not in reader.fieldnames:
-                logger.error(f"CSV file {file_path} missing 'prompt' column. Headers: {reader.fieldnames}")
-                sys.exit(1)
-            for row in reader:
-                text = row['prompt'].strip()
-                if text:
-                    prompts.append(text)
-    except Exception as e:
-        logger.error(f"Failed to load prompts from {file_path}: {e}")
-        sys.exit(1)
-    
-    if not prompts:
-        logger.error(f"No valid prompts found in {file_path}")
-        sys.exit(1)
-        
-    logger.info(f"Loaded {len(prompts)} prompts from {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        if 'prompt' not in reader.fieldnames:
+            raise ValueError(f"CSV file {file_path} must contain a 'prompt' column.")
+        for row in reader:
+            prompts.append(row['prompt'])
     return prompts
 
-def compute_embeddings(prompts: List[str], processor: CLIPProcessor, model: CLIPModel, device: str) -> np.ndarray:
+def compute_embeddings(prompts: List[str], logger: logging.Logger) -> np.ndarray:
     """
-    Compute CLIP embeddings for a list of text prompts.
+    Compute CLIP embeddings for a list of prompts.
+    Uses CLIP-ViT-Large-Patch14 as specified in T016.
     Returns a numpy array of shape (N, D).
     """
-    logger.info("Computing embeddings with CLIP...")
-    inputs = processor(text=prompts, return_tensors="pt", padding=True, truncation=True)
-    inputs = {k: v.to(device) for k, v in inputs.items()}
-    
-    with torch.no_grad():
-        text_outputs = model.get_text_features(**inputs)
-        # Normalize embeddings for cosine similarity
-        text_outputs = text_outputs / text_outputs.norm(p=2, dim=-1, keepdim=True)
-    
-    embeddings = text_outputs.cpu().numpy()
-    logger.info(f"Computed embeddings with shape: {embeddings.shape}")
-    return embeddings
-
-def compute_cosine_similarity(id_embeddings: np.ndarray, ood_embeddings: np.ndarray) -> Tuple[float, int]:
-    """
-    Compute the maximum cosine similarity between any OOD embedding and any ID centroid.
-    Returns (max_similarity, index_of_max).
-    """
-    # Compute centroids for ID set (mean of all ID embeddings)
-    # The task asks for similarity to "ID centroids" (plural). 
-    # Standard practice for "similarity to ID" is similarity to the ID cluster centroid.
-    # If multiple centroids were intended (e.g., per class), the data structure would differ.
-    # We assume a single centroid for the ID set.
-    id_centroid = np.mean(id_embeddings, axis=0, keepdims=True)
-    
-    # Normalize centroid
-    id_centroid = id_centroid / (np.linalg.norm(id_centroid, axis=1, keepdims=True) + 1e-9)
-    
-    # Compute cosine similarities (dot product since vectors are normalized)
-    similarities = np.dot(ood_embeddings, id_centroid.T).flatten()
-    
-    max_sim = float(np.max(similarities))
-    max_idx = int(np.argmax(similarities))
-    
-    return max_sim, max_idx
-
-def validate_ood_prompts() -> Dict[str, Any]:
-    """
-    Main validation logic.
-    """
-    set_global_seed() # Ensure reproducibility if needed for any internal ops
-    
-    # Check input files exist
-    if not ID_PROMPTS_PATH.exists():
-        logger.error(f"ID Prompts file not found: {ID_PROMPTS_PATH}. Ensure T015a-1 has run.")
-        sys.exit(1)
-    if not OOD_PROMPTS_PATH.exists():
-        logger.error(f"OOD Prompts file not found: {OOD_PROMPTS_PATH}. Ensure T015a has run.")
-        sys.exit(1)
-
-    # Load data
-    id_prompts = load_prompts(ID_PROMPTS_PATH)
-    ood_prompts = load_prompts(OOD_PROMPTS_PATH)
-
-    # Setup CLIP
-    device = "cpu" # Force CPU as per project constraints
-    logger.info(f"Loading CLIP model {CLIP_MODEL_ID} on {device}...")
-    
+    logger.info(f"Loading CLIP model: {CLIP_MODEL_NAME}")
     try:
-        processor = CLIPProcessor.from_pretrained(CLIP_MODEL_ID)
-        model = CLIPModel.from_pretrained(CLIP_MODEL_ID)
-        model.to(device)
-        model.eval()
+        model = CLIPModel.from_pretrained(CLIP_MODEL_NAME)
+        processor = CLIPProcessor.from_pretrained(CLIP_MODEL_NAME)
     except Exception as e:
         logger.error(f"Failed to load CLIP model: {e}")
-        sys.exit(1)
+        raise
 
-    # Compute embeddings
-    id_embeddings = compute_embeddings(id_prompts, processor, model, device)
-    ood_embeddings = compute_embeddings(ood_prompts, processor, model, device)
+    # Move to CPU (project is CPU-only)
+    device = torch.device("cpu")
+    model.to(device)
+    model.eval()
 
-    # Compute similarity
-    max_sim, max_idx = compute_cosine_similarity(id_embeddings, ood_embeddings)
+    logger.info(f"Computing embeddings for {len(prompts)} prompts...")
+    all_embeddings = []
+
+    # Batch processing to manage memory, though CLIP is relatively lightweight
+    batch_size = 32
+    with torch.no_grad():
+        for i in range(0, len(prompts), batch_size):
+            batch_prompts = prompts[i : i + batch_size]
+            inputs = processor(
+                text=batch_prompts, 
+                return_tensors="pt", 
+                padding=True, 
+                truncation=True,
+                max_length=77
+            )
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            
+            # Get text embeddings
+            outputs = model.get_text_features(**inputs)
+            # Normalize embeddings (CLIP embeddings are usually normalized, but explicit is good)
+            embeddings = outputs / outputs.norm(dim=-1, keepdim=True)
+            all_embeddings.append(embeddings.cpu().numpy())
+
+    embeddings_np = np.vstack(all_embeddings)
+    logger.info(f"Embeddings computed. Shape: {embeddings_np.shape}")
+    return embeddings_np
+
+def compute_cosine_similarity(ood_embeddings: np.ndarray, id_centroid: np.ndarray) -> np.ndarray:
+    """
+    Compute cosine similarity between OOD embeddings and the ID centroid.
+    id_centroid is expected to be a 1D array (D,).
+    Returns a 1D array of similarities.
+    """
+    # Ensure centroid is 2D for broadcasting if necessary, though dot product handles 1D
+    # Normalize centroid just in case
+    id_centroid_norm = id_centroid / (np.linalg.norm(id_centroid) + 1e-8)
     
-    logger.info(f"Max Cosine Similarity: {max_sim:.4f} (Threshold: {SIMILARITY_THRESHOLD})")
-    logger.info(f"Most similar OOD prompt index: {max_idx}")
+    # Normalize OOD embeddings (should already be normalized from CLIP, but safe to do)
+    ood_norms = np.linalg.norm(ood_embeddings, axis=1, keepdims=True)
+    ood_normalized = ood_embeddings / (ood_norms + 1e-8)
 
-    # Determine status
-    status = "pass" if max_sim <= SIMILARITY_THRESHOLD else "fail"
-    
+    # Cosine similarity is dot product of normalized vectors
+    similarities = np.dot(ood_normalized, id_centroid_norm)
+    return similarities
+
+def validate_ood_prompts(
+    id_prompts_path: Path, 
+    ood_prompts_path: Path, 
+    output_path: Path, 
+    logger: logging.Logger
+) -> bool:
+    """
+    Main validation logic.
+    1. Load ID and OOD prompts.
+    2. Compute ID centroid.
+    3. Compute OOD embeddings.
+    4. Compute cosine similarities.
+    5. Check threshold.
+    6. Save report.
+    7. Return True if valid, False if leakage detected.
+    """
+    # 1. Load Prompts
+    logger.info(f"Loading ID prompts from {id_prompts_path}")
+    id_prompts = load_prompts(id_prompts_path)
+    logger.info(f"Loading OOD prompts from {ood_prompts_path}")
+    ood_prompts = load_prompts(ood_prompts_path)
+
+    if not id_prompts:
+        raise ValueError("ID prompt list is empty. Cannot compute centroid.")
+    if not ood_prompts:
+        logger.warning("OOD prompt list is empty. Validation passed trivially.")
+        # Write empty report
+        report = {
+            "status": "PASS",
+            "message": "No OOD prompts to validate.",
+            "max_similarity": 0.0,
+            "threshold": SIMILARITY_THRESHOLD,
+            "failed_prompts": []
+        }
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2)
+        return True
+
+    # 2. Compute Embeddings
+    id_embeddings = compute_embeddings(id_prompts, logger)
+    ood_embeddings = compute_embeddings(ood_prompts, logger)
+
+    # 3. Compute ID Centroid (Mean of ID embeddings)
+    id_centroid = np.mean(id_embeddings, axis=0)
+    logger.info(f"ID Centroid computed. Shape: {id_centroid.shape}")
+
+    # 4. Compute Similarities
+    similarities = compute_cosine_similarity(ood_embeddings, id_centroid)
+    max_sim = float(np.max(similarities))
+    failed_indices = np.where(similarities > SIMILARITY_THRESHOLD)[0]
+
+    # 5. Check Threshold
     report = {
-        "status": status,
-        "max_similarity": float(max_sim),
-        "threshold": float(SIMILARITY_THRESHOLD),
-        "id_prompt_count": len(id_prompts),
-        "ood_prompt_count": len(ood_prompts),
-        "most_similar_ood_index": max_idx,
-        "most_similar_ood_prompt": ood_prompts[max_idx] if max_idx < len(ood_prompts) else None
+        "status": "PASS",
+        "message": "All OOD prompts are sufficiently distinct from ID centroid.",
+        "threshold": SIMILARITY_THRESHOLD,
+        "max_similarity": max_sim,
+        "mean_similarity": float(np.mean(similarities)),
+        "num_id_prompts": len(id_prompts),
+        "num_ood_prompts": len(ood_prompts),
+        "failed_prompts": []
     }
 
-    # Write report
-    OUTPUT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
+    if len(failed_indices) > 0:
+        report["status"] = "FAIL"
+        report["message"] = f"DATA LEAKAGE DETECTED: {len(failed_indices)} OOD prompts exceed similarity threshold."
+        logger.error(f"[CRITICAL: DATA LEAKAGE DETECTED] {len(failed_indices)} prompts exceeded threshold {SIMILARITY_THRESHOLD}")
+        
+        # Collect details of failed prompts
+        failed_details = []
+        for idx in failed_indices:
+            failed_details.append({
+                "index": int(idx),
+                "prompt": ood_prompts[idx],
+                "similarity": float(similarities[idx])
+            })
+        report["failed_prompts"] = failed_details
+        
+        # Save report before aborting
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2)
+        
+        return False
+    
+    # 6. Save Report (Pass)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Validation report written to {OUTPUT_REPORT_PATH}")
-
-    # Abort Mechanism
-    if status == "fail":
-        logger.critical("[CRITICAL: DATA LEAKAGE DETECTED]")
-        logger.critical(f"OOD prompts are too similar to ID prompts (max sim: {max_sim:.4f} > {SIMILARITY_THRESHOLD}).")
-        sys.exit(101)
-    
-    return report
+    logger.info(f"Validation passed. Max similarity: {max_sim:.4f} < {SIMILARITY_THRESHOLD}")
+    return True
 
 def main():
-    """
-    Entry point.
-    """
+    """Entry point for the validation script."""
+    logger = get_logger("validate_ood")
+    logger.info("Starting OOD Validation...")
+
+    # Define paths based on T015a output and T016 requirement
+    # T015a outputs: data/prompts/pilot_in_distribution.csv, data/prompts/pilot_ood.csv
+    id_prompts_path = PROJECT_ROOT / "data" / "prompts" / "pilot_in_distribution.csv"
+    ood_prompts_path = PROJECT_ROOT / "data" / "prompts" / "pilot_ood.csv"
+    output_path = PROJECT_ROOT / "data" / "prompts" / "validation_report.json"
+
     try:
-        result = validate_ood_prompts()
-        print(f"Validation Successful: {result['status']}")
+        is_valid = validate_ood_prompts(id_prompts_path, ood_prompts_path, output_path, logger)
+        
+        if not is_valid:
+            logger.critical("[CRITICAL: DATA LEAKAGE DETECTED] Exiting with code 1.")
+            sys.exit(1)
+        
+        logger.info("Validation completed successfully.")
         sys.exit(0)
-    except SystemExit as e:
-        # Re-raise system exits to allow correct exit codes
-        raise
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.critical(f"Validation failed with unexpected error: {e}")
+        logger.error(f"Unexpected error during validation: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

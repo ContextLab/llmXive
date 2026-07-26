@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-qwen-image-2"
+name = "llmxive-research"
 version = "0.1.0"
-description = "Automated science pipeline for OPD Generalization Gap in Unified Diffusion"
-requires-python = ">=3.9"
+description = "Automated science pipeline for LLMXive research"
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
     "diffusers",
     "transformers",
@@ -20,9 +21,7 @@ dependencies = [
     "datasets",
     "pytest",
     "statsmodels",
-    "robust",
-    "ruff",
-    "black",
+    "robust"
 ]
 
 [tool.ruff]
@@ -65,7 +64,22 @@ exclude = '''
 )/
 '''
 
+[tool.ruff]
+# Same as .ruff.toml but defined here for single-file config if preferred
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
+ignore = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Marks tests as slow to run"
+]

@@ -1,27 +1,15 @@
-diffusers
-transformers
-torch
-scikit-learn
-pandas
-numpy
-requests
-huggingface_hub
-seaborn
-datasets
-pytest
-statsmodels
-robust
-presidio-analyzer
-spacy
-# Download spaCy English model (required by presidio)
-# Note: This is a command to run, not a pip installable package in requirements.txt usually,
-# but we list the dependency. The user should run: python -m spacy download en_core_web_sm
-# However, to keep requirements.txt clean for pip install, we rely on the script handling the check.
-# If strict pip install is needed, we might need a post-install script, but for now, 
-# we assume the environment has spacy and the model or the script handles the missing model error.
-# Actually, presidio-analyzer requires spacy.
-spacy>=3.0.0
-# The model 'en_core_web_sm' is usually installed via CLI, not pip requirements.
-# We will assume the CI/Pre-commit hook runs: python -m spacy download en_core_web_sm
-# if it's not present, or we catch the error in the script.
-# For the purpose of this task, we add the library dependency.
+diffusers>=0.29.0
+transformers>=4.40.0
+torch>=2.2.0
+scikit-learn>=1.4.0
+pandas>=2.2.0
+numpy>=1.26.0
+requests>=2.31.0
+huggingface_hub>=0.21.0
+seaborn>=0.13.0
+datasets>=2.18.0
+pytest>=8.0.0
+statsmodels>=0.14.0
+robust>=0.1.0
+pillow>=10.2.0
+tqdm>=4.66.0

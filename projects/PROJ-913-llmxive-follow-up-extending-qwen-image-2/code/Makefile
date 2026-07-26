@@ -1,29 +1,30 @@
-.PHONY: lint format check lint-check
+.PHONY: lint format check lint-fix clean
 
-# Lint code using ruff (primary) and flake8 (secondary)
+# Default target
+all: lint format
+
+# Run linter (Ruff)
 lint:
-	@echo "Running Ruff..."
-	@ruff check code/
-	@echo "Running Flake8..."
-	@flake8 code/
+	@echo "Running Ruff linter..."
+	ruff check code/
 
-# Format code using Black
+# Run formatter (Black)
 format:
 	@echo "Running Black formatter..."
-	@black code/
+	black code/
 
-# Check linting without auto-fixing (for CI)
-lint-check:
-	@echo "Checking Ruff (no fix)..."
-	@ruff check --diff code/ || exit 1
-	@echo "Checking Flake8..."
-	@flake8 code/
+# Fix linting issues automatically (Ruff)
+lint-fix:
+	@echo "Running Ruff fixer..."
+	ruff check --fix code/
 
-# Check formatting without applying changes (for CI)
-format-check:
-	@echo "Checking Black formatting..."
-	@black --check code/
+# Combined check: format then lint
+check: format lint
+	@echo "Code style check complete."
 
-# Full pre-commit style check
-pre-commit: lint-check format-check
-	@echo "All checks passed!"
+# Clean temporary files
+clean:
+	@echo "Cleaning up..."
+	find code/ -type f -name "*.pyc" -delete
+	find code/ -type d -name "__pycache__" -delete
+	rm -rf .mypy_cache .pytest_cache
