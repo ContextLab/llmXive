@@ -1,176 +1,131 @@
 """
-Unit tests for baseline_score_extractor module (T031a).
-
-Tests the extraction of baseline accuracy scores from neural evaluation results.
+Unit tests for T031a: Baseline Score Extractor.
 """
+
 import json
 import csv
+import os
 import tempfile
 from pathlib import Path
 import pytest
+
 from evaluation.baseline_score_extractor import (
     calculate_baseline_accuracy,
     save_baseline_score,
     extract_baseline_score
 )
 
+
 class TestCalculateBaselineAccuracy:
-    """Tests for calculate_baseline_accuracy function."""
-    
-    def test_calculate_accuracy_single_task(self, tmp_path):
-        """Test accuracy calculation with a single task."""
+    """Tests for the calculate_baseline_accuracy function."""
+
+    def test_calculate_mean_accuracy(self, tmp_path):
+        """Test calculating mean accuracy from a valid CSV."""
         scores_file = tmp_path / "neural_scores.csv"
-        
-        # Write a single score
+        scores = [0.8, 0.9, 0.7, 0.85]
+        expected_mean = sum(scores) / len(scores)
+
         with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '1.0'])
-        
-        accuracy = calculate_baseline_accuracy(scores_file)
-        assert accuracy == 1.0
-    
-    def test_calculate_accuracy_multiple_tasks(self, tmp_path):
-        """Test accuracy calculation with multiple tasks."""
-        scores_file = tmp_path / "neural_scores.csv"
-        
-        # Write multiple scores
-        with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '1.0'])
-            writer.writerow(['task_2', '0.5'])
-            writer.writerow(['task_3', '0.0'])
-        
-        accuracy = calculate_baseline_accuracy(scores_file)
-        assert accuracy == pytest.approx(0.5, rel=1e-6)
-    
-    def test_calculate_accuracy_all_zero(self, tmp_path):
-        """Test accuracy calculation when all scores are zero."""
-        scores_file = tmp_path / "neural_scores.csv"
-        
-        with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '0.0'])
-            writer.writerow(['task_2', '0.0'])
-        
-        accuracy = calculate_baseline_accuracy(scores_file)
-        assert accuracy == 0.0
-    
-    def test_calculate_accuracy_all_full(self, tmp_path):
-        """Test accuracy calculation when all scores are perfect."""
-        scores_file = tmp_path / "neural_scores.csv"
-        
-        with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '1.0'])
-            writer.writerow(['task_2', '1.0'])
-            writer.writerow(['task_3', '1.0'])
-        
-        accuracy = calculate_baseline_accuracy(scores_file)
-        assert accuracy == 1.0
-    
-    def test_file_not_found(self, tmp_path):
-        """Test that FileNotFoundError is raised when file doesn't exist."""
-        non_existent = tmp_path / "non_existent.csv"
-        
+            writer = csv.DictWriter(f, fieldnames=["task_id", "exact_match"])
+            writer.writeheader()
+            for i, score in enumerate(scores):
+                writer.writerow({"task_id": f"task_{i}", "exact_match": score})
+
+        result = calculate_baseline_accuracy(str(scores_file))
+        assert abs(result - expected_mean) < 1e-6
+
+    def test_missing_file_raises_error(self, tmp_path):
+        """Test that FileNotFoundError is raised when file is missing."""
         with pytest.raises(FileNotFoundError):
-            calculate_baseline_accuracy(non_existent)
-    
-    def test_empty_file_raises_error(self, tmp_path):
-        """Test that ValueError is raised for empty file."""
-        scores_file = tmp_path / "empty_scores.csv"
-        
-        # Write only header
+            calculate_baseline_accuracy(str(tmp_path / "nonexistent.csv"))
+
+    def test_missing_column_raises_error(self, tmp_path):
+        """Test that ValueError is raised when score column is missing."""
+        scores_file = tmp_path / "scores.csv"
         with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-        
-        with pytest.raises(ValueError, match="Neural scores file is empty"):
-            calculate_baseline_accuracy(scores_file)
+            writer = csv.DictWriter(f, fieldnames=["task_id", "other_score"])
+            writer.writeheader()
+            writer.writerow({"task_id": "t1", "other_score": 0.5})
+
+        with pytest.raises(ValueError, match="Column 'exact_match' not found"):
+            calculate_baseline_accuracy(str(scores_file))
+
+    def test_invalid_score_raises_error(self, tmp_path):
+        """Test that ValueError is raised for non-numeric scores."""
+        scores_file = tmp_path / "scores.csv"
+        with open(scores_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["task_id", "exact_match"])
+            writer.writeheader()
+            writer.writerow({"task_id": "t1", "exact_match": "invalid"})
+
+        with pytest.raises(ValueError, match="Invalid score value"):
+            calculate_baseline_accuracy(str(scores_file))
+
+    def test_empty_file_raises_error(self, tmp_path):
+        """Test that ValueError is raised if no valid scores are found."""
+        scores_file = tmp_path / "scores.csv"
+        with open(scores_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["task_id", "exact_match"])
+            writer.writeheader()
+            # No data rows
+
+        with pytest.raises(ValueError, match="No valid scores found"):
+            calculate_baseline_accuracy(str(scores_file))
+
 
 class TestSaveBaselineScore:
-    """Tests for save_baseline_score function."""
-    
-    def test_save_creates_file(self, tmp_path):
-        """Test that the function creates the output file."""
-        output_file = tmp_path / "baseline_score.json"
+    """Tests for the save_baseline_score function."""
+
+    def test_save_creates_json(self, tmp_path):
+        """Test that the function creates a valid JSON file."""
+        output_file = tmp_path / "baseline.json"
         accuracy = 0.85
-        
-        save_baseline_score(accuracy, output_file)
-        
+        metadata = {"source": "test_run"}
+
+        save_baseline_score(accuracy, str(output_file), metadata)
+
         assert output_file.exists()
-    
-    def test_save_correct_format(self, tmp_path):
-        """Test that the saved file has correct JSON structure."""
-        output_file = tmp_path / "baseline_score.json"
-        accuracy = 0.75
-        
-        save_baseline_score(accuracy, output_file)
-        
         with open(output_file, 'r') as f:
             data = json.load(f)
-        
-        assert data["accuracy"] == accuracy
-        assert data["source"] == "neural_evaluation"
-        assert data["metric"] == "exact_match"
-        assert "description" in data
-    
-    def test_creates_parent_directory(self, tmp_path):
-        """Test that parent directories are created if they don't exist."""
-        output_file = tmp_path / "subdir" / "nested" / "baseline_score.json"
-        accuracy = 0.90
-        
-        save_baseline_score(accuracy, output_file)
-        
+
+        assert data["baseline_accuracy"] == accuracy
+        assert data["metadata"] == metadata
+        assert data["source"] == "neural_scores.csv"
+
+    def test_creates_parent_directories(self, tmp_path):
+        """Test that parent directories are created if missing."""
+        output_file = tmp_path / "subdir" / "baseline.json"
+        accuracy = 0.85
+
+        save_baseline_score(accuracy, str(output_file))
+
         assert output_file.exists()
 
+
 class TestExtractBaselineScore:
-    """Tests for the main extract_baseline_score function."""
-    
-    def test_full_extraction(self, tmp_path):
-        """Test complete extraction workflow."""
-        # Create input scores file
+    """Tests for the main orchestration function."""
+
+    def test_full_workflow(self, tmp_path):
+        """Test the full workflow: calculate and save."""
         scores_file = tmp_path / "neural_scores.csv"
+        output_file = tmp_path / "baseline.json"
+        scores = [0.9, 0.95, 0.88]
+        expected_mean = sum(scores) / len(scores)
+
         with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '1.0'])
-            writer.writerow(['task_2', '0.5'])
-        
-        output_file = tmp_path / "baseline_score.json"
-        
+            writer = csv.DictWriter(f, fieldnames=["task_id", "exact_match"])
+            writer.writeheader()
+            for i, score in enumerate(scores):
+                writer.writerow({"task_id": f"t{i}", "exact_match": score})
+
         result = extract_baseline_score(
-            neural_scores_path=scores_file,
-            output_path=output_file
+            scores_path=str(scores_file),
+            output_path=str(output_file)
         )
-        
-        assert result["accuracy"] == pytest.approx(0.75, rel=1e-6)
-        assert result["output_path"] == str(output_file)
-        assert result["source_path"] == str(scores_file)
+
+        assert abs(result - expected_mean) < 1e-6
         assert output_file.exists()
-        
-        # Verify JSON content
+
         with open(output_file, 'r') as f:
             data = json.load(f)
-        assert data["accuracy"] == pytest.approx(0.75, rel=1e-6)
-    
-    def test_creates_output_directory(self, tmp_path):
-        """Test that output directory is created if it doesn't exist."""
-        scores_file = tmp_path / "neural_scores.csv"
-        with open(scores_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['task_id', 'exact_match'])
-            writer.writerow(['task_1', '1.0'])
-        
-        output_file = tmp_path / "results" / "baseline_score.json"
-        
-        result = extract_baseline_score(
-            neural_scores_path=scores_file,
-            output_path=output_file
-        )
-        
-        assert output_file.exists()
-        assert result["accuracy"] == 1.0
+        assert data["baseline_accuracy"] == result

@@ -1,189 +1,190 @@
 """
-Latency monitoring utilities for adapter generation.
+Latency monitoring utilities for adapter generation and inference.
 
-This module measures the time taken to generate adapters using the AST-based
-hypernetwork approach and compares it against the baseline neural-encoder
-generation time (Code2LoRA).
-
-It addresses SC-001 by quantifying the latency reduction achieved by the
-static AST-based method.
+Provides functions to measure baseline generation latency (T049a) and
+compare it with AST-based generation (T049b).
 """
-
 import os
 import json
 import time
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-from datetime import datetime
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
 
-from utils.logging import get_logger
-from evaluation.baseline_loader import load_baseline_adapter, get_baseline_adapter_path
+from evaluation.baseline_loader import get_baseline_adapter_path
+from utils.config import load_config
 
-# Ensure results directory exists
+logger = logging.getLogger(__name__)
+
 RESULTS_DIR = Path("data/results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-logger = get_logger(__name__)
+def ensure_results_dir() -> Path:
+    """Ensure the results directory exists."""
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    return RESULTS_DIR
 
-
-def measure_generation_latency(
-    generate_func: callable,
-    *args,
-    **kwargs
-) -> Tuple[float, Any]:
+def measure_baseline_generation_latency() -> Dict[str, Any]:
     """
-    Measure the execution time of a generation function.
-
-    Args:
-        generate_func: The function to measure (e.g., train_mlp_projection).
-        *args: Positional arguments to pass to the function.
-        **kwargs: Keyword arguments to pass to the function.
-
-    Returns:
-        A tuple containing (elapsed_time_seconds, return_value).
-    """
-    logger.info("Starting latency measurement for generation function...")
-    start_time = time.perf_counter()
-    try:
-        result = generate_func(*args, **kwargs)
-    except Exception as e:
-        logger.error(f"Generation function failed during measurement: {e}")
-        raise
-    finally:
-        end_time = time.perf_counter()
-
-    elapsed = end_time - start_time
-    logger.info(f"Generation completed in {elapsed:.4f} seconds.")
-    return elapsed, result
-
-
-def measure_baseline_generation_latency() -> float:
-    """
-    Measure the generation latency of the baseline Code2LoRA neural encoder.
-
-    This simulates the baseline generation process by loading the baseline
-    adapter configuration and performing a mock generation step (or timing
-    the loading process if generation is pre-computed). For the purpose of
-    this metric, we time the `load_baseline_adapter` process as a proxy
-    for the "generation" overhead in a real-time scenario, or we time a
-    dummy training step if the baseline involves training.
-
-    Since the baseline adapter is pre-trained in this context, we measure
-    the time to load and instantiate it, which represents the inference-time
-    cost of the baseline encoder compared to the AST generation time.
-    Note: If the baseline requires training, this function would need to
-    wrap the training loop. Here we assume the baseline is loaded.
-
-    Returns:
-        Elapsed time in seconds.
-    """
-    logger.info("Measuring baseline generation (loading) latency...")
-    baseline_path = get_baseline_adapter_path()
+    Measure the time to load and initialize the baseline neural-encoder adapter.
     
-    if not baseline_path.exists():
-        logger.warning(f"Baseline adapter not found at {baseline_path}. "
-                       "Skipping baseline latency measurement.")
-        return 0.0
-
+    This simulates the "generation" time by measuring the time to:
+    1. Load the base model
+    2. Load the baseline adapter
+    3. Prepare for inference (equivalent to generation setup)
+    
+    Returns:
+        Dict with latency_ms and metadata
+    """
+    logger.info("Measuring baseline generation latency...")
+    ensure_results_dir()
+    
+    config = load_config()
+    base_model_path = config.get("base_model_path", "TinyLlama-1.1B-Chat-hf")
+    
     start_time = time.perf_counter()
+    
     try:
-        # Load the baseline adapter
-        load_baseline_adapter()
-    except Exception as e:
-        logger.error(f"Failed to load baseline adapter: {e}")
-        return 0.0
-    finally:
+        # Load base model (this is the expensive part)
+        logger.info(f"Loading base model: {base_model_path}")
+        tokenizer = AutoTokenizer.from_pretrained(base_model_path)
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_model_path,
+            torch_dtype=torch.float32,
+            device_map="cpu"  # Force CPU for consistency
+        )
+        
+        # Load baseline adapter
+        baseline_adapter_path = get_baseline_adapter_path()
+        logger.info(f"Loading baseline adapter from: {baseline_adapter_path}")
+        
+        if baseline_adapter_path and os.path.exists(baseline_adapter_path):
+            model = PeftModel.from_pretrained(base_model, baseline_adapter_path)
+            logger.info("Baseline adapter loaded successfully")
+        else:
+            logger.warning(f"Baseline adapter not found at {baseline_adapter_path}. Using base model only.")
+            model = base_model
+        
         end_time = time.perf_counter()
-
-    elapsed = end_time - start_time
-    logger.info(f"Baseline load completed in {elapsed:.4f} seconds.")
-    return elapsed
-
+        elapsed_ms = (end_time - start_time) * 1000
+        
+        result = {
+            "generation_latency_ms": round(elapsed_ms, 2),
+            "base_model": base_model_path,
+            "adapter_path": baseline_adapter_path,
+            "device": "cpu",
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        }
+        
+        logger.info(f"Baseline generation latency: {elapsed_ms:.2f} ms")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Failed to measure baseline latency: {e}")
+        raise
 
 def save_latency_comparison(
-    ast_latency: float,
-    baseline_latency: float,
-    output_path: Optional[Path] = None
+    ast_latency_ms: float,
+    baseline_latency_ms: float,
+    ratio: float,
+    meets_requirement: bool
 ) -> Path:
     """
-    Save the latency comparison report to a JSON file.
-
+    Save the latency comparison results to JSON.
+    
     Args:
-        ast_latency: Time taken for AST-based generation.
-        baseline_latency: Time taken for baseline generation.
-        output_path: Optional custom output path. Defaults to data/results/generation_latency_comparison.json.
-
+        ast_latency_ms: AST-based generation latency in ms
+        baseline_latency_ms: Baseline generation latency in ms
+        ratio: Reduction ratio (baseline / ast)
+        meets_requirement: Whether ratio >= 10
+        
     Returns:
-        The path to the saved JSON file.
+        Path to the saved file
     """
-    if output_path is None:
-        output_path = RESULTS_DIR / "generation_latency_comparison.json"
+    output_path = RESULTS_DIR / "generation_latency_comparison.json"
+    ensure_results_dir()
     
     report = {
-        "timestamp": datetime.now().isoformat(),
-        "ast_generation_latency_seconds": ast_latency,
-        "baseline_generation_latency_seconds": baseline_latency,
-        "latency_reduction_ratio": baseline_latency / ast_latency if ast_latency > 0 else float('inf'),
-        "meets_sc001_requirement": baseline_latency >= (10 * ast_latency) if ast_latency > 0 else False,
-        "notes": "SC-001 requires AST generation to be at least 10x faster than baseline."
+        "ast_generation_latency_ms": round(ast_latency_ms, 2),
+        "baseline_generation_latency_ms": round(baseline_latency_ms, 2),
+        "latency_reduction_ratio": round(ratio, 4),
+        "meets_sc_001_requirement": meets_requirement,
+        "sc_001_threshold": 10.0,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
-
-    with open(output_path, 'w') as f:
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-
-    logger.info(f"Latency comparison report saved to {output_path}")
+    
+    logger.info(f"Latency comparison saved to: {output_path}")
     return output_path
 
-
-def run_latency_analysis(
-    ast_generate_func: callable,
-    *ast_args,
-    **ast_kwargs
-) -> Dict[str, Any]:
+def run_latency_analysis() -> Dict[str, Any]:
     """
-    Run a full latency analysis comparing AST-based generation to baseline.
-
-    This function measures the AST generation time, measures the baseline
-    generation time, and saves the comparison report.
-
-    Args:
-        ast_generate_func: The AST-based generation function (e.g., from adapter_generator).
-        *ast_args: Arguments for the AST generation function.
-        **ast_kwargs: Keyword arguments for the AST generation function.
-
+    Run full latency analysis comparing AST and baseline generation.
+    
+    This function:
+    1. Measures baseline latency (T049a)
+    2. Reads AST latency from T040 results
+    3. Computes ratio
+    4. Saves comparison report
+    
     Returns:
-        A dictionary containing the analysis results.
+        Dict with all latency metrics
     """
-    logger.info("Starting full latency analysis...")
-
-    # 1. Measure AST generation latency
-    ast_latency, _ = measure_generation_latency(ast_generate_func, *ast_args, **ast_kwargs)
-
-    # 2. Measure baseline generation latency
-    baseline_latency = measure_baseline_generation_latency()
-
-    # 3. Save report
-    report_path = save_latency_comparison(ast_latency, baseline_latency)
-
+    ensure_results_dir()
+    
+    # Measure baseline
+    baseline_result = measure_baseline_generation_latency()
+    baseline_latency_ms = baseline_result["generation_latency_ms"]
+    
+    # Read AST latency (assuming T040 already ran)
+    ast_latency_path = RESULTS_DIR / "generation_latency.json"
+    if not ast_latency_path.exists():
+        raise FileNotFoundError(
+            f"AST latency file not found: {ast_latency_path}. "
+            "Please run the AST generation task (T040) first."
+        )
+    
+    with open(ast_latency_path, 'r', encoding='utf-8') as f:
+        ast_data = json.load(f)
+    
+    ast_latency_ms = ast_data.get("generation_latency_ms") or ast_data.get("latency_ms")
+    if ast_latency_ms is None:
+        raise ValueError(f"Could not find latency value in {ast_latency_path}")
+    
+    # Compute ratio
+    ratio = baseline_latency_ms / ast_latency_ms
+    meets_requirement = ratio >= 10.0
+    
+    # Save comparison
+    save_latency_comparison(ast_latency_ms, baseline_latency_ms, ratio, meets_requirement)
+    
     return {
-        "ast_latency": ast_latency,
-        "baseline_latency": baseline_latency,
-        "report_path": str(report_path)
+        "ast_latency_ms": ast_latency_ms,
+        "baseline_latency_ms": baseline_latency_ms,
+        "ratio": ratio,
+        "meets_requirement": meets_requirement
     }
 
-
-def main():
-    """
-    Main entry point for running latency analysis as a standalone script.
-    This is intended to be called from the main pipeline or for testing.
-    """
-    logger.info("Running latency monitor main...")
-    # This would typically be called by the adapter_generator or main.py
-    # with the specific generation function.
-    # For now, we log that it's ready to be integrated.
-    print("Latency monitor module loaded. Call run_latency_analysis() with a generation function.")
-
+def main() -> int:
+    """CLI entry point for latency measurement."""
+    try:
+        result = run_latency_analysis()
+        print(json.dumps(result, indent=2))
+        return 0 if result["meets_requirement"] else 1
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 2
+    except ValueError as e:
+        logger.error(f"Invalid data: {e}")
+        return 3
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return 4
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

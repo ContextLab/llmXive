@@ -1,0 +1,41 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no evidence of the required `data/raw/`, `data/processed/`,
+    or `data/adapters/` directories, nor any `.gitkeep` files within them. Without
+    visible artifacts confirming these directories exist and contain the placeholder
+    files, the task requirement is not satisfied.
+T011:
+  c: false
+  h: be295d32c7508bfe7345c1456649b306c212c5f2f70ae2cb62c2c1ba9f617319
+  r: "The required integration test file `tests/integration/test_adapter_generation.py`\
+    \ is absent, and the expected adapter file `data/adapters/sample_adapter.safetensors`\
+    \ does not exist, so the task\u2019s stated requirement is not met."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence contains only the task description and project requirements,
+    but lacks the actual `ast_parser.py` file or any code snippet demonstrating the
+    implementation of the control-flow logic. Without seeing the file content, it
+    is impossible to verify if the logic to skip malformed files, the specific logging
+    calls using the T006 handler, and the `continue` statement for FR-007 are genuinely
+    implemented rather than just described.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `adapter_generator.py` containing a RAM\u2011usage\
+    \ check that aborts when usage exceeds 7\u202FGB and logs the required error (FR\u2011\
+    008) was provided. The artifact is missing, so the task is not verified as completed."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `adapter_generator.py` containing checkpoint validation\
+    \ logic is provided; the required code artifact is missing, so we cannot confirm\
+    \ that the abort\u2011on\u2011incompatible\u2011base\u2011model behavior was implemented."
+T021:
+  c: false
+  h: a46bbdabbb28a1f2115ebc57f1706f7328bfab5b578eaa0f92172f19a9630433
+  r: "The repository contains a partially implemented `runner.py`, but the provided\
+    \ excerpt stops before any scoring logic or CSV writing, and the required output\
+    \ file `data/results/ast_scores.csv` is missing. Consequently the task of computing\
+    \ exact\u2011match scores and saving them to the specified CSV has not been fulfilled."

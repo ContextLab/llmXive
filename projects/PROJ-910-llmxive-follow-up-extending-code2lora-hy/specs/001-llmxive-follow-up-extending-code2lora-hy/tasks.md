@@ -51,7 +51,7 @@
 - [X] T006 [P] **SETUP ONLY**: Implement `code/utils/logging.py` to define the warning handler for FR-007. **Does not implement skip logic.** This task is a prerequisite for T016 but does not provide the functional behavior of FR-007 until T016 is merged.
 - [X] T007 Create `code/__init__.py` and empty module stubs for `code/feature_extractor/__init__.py`, `code/hypernetwork/__init__.py`, `code/evaluation/__init__.py`, `code/utils/__init__.py`.
 - [ ] T008 [P] Setup `data/raw/`, `data/processed/`, `data/adapters/` directories with `.gitkeep`.
-- [ ] T009 [P] Implement `code/main.py` CLI entry point with `argparse` for `generate`, `evaluate`, `sensitivity` commands; verify execution via `python code/main.py --help` listing all three commands.
+- [X] T009 [P] Implement `code/main.py` CLI entry point with `argparse` for `generate`, `evaluate`, `sensitivity` commands; verify execution via `python code/main.py --help` listing all three commands.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,8 +67,8 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [US1] Contract test for `ast_parser.py` in `tests/unit/test_ast_parser.py`: Implement `test_parse_valid_file` (valid Python file input) and `test_parse_invalid_syntax` (malformed syntax string input). *(Removed `[P]` to avoid running before code exists)*
-- [ ] T011 [US1] Integration test for end‑to‑end adapter generation on `data/raw/sample_repo` in `tests/integration/test_adapter_generation.py`: Assert `data/adapters/sample_adapter.safetensors` exists and loads successfully. *(Removed `[P]`)* <!-- ATOMIZE: requested -->
+- [X] T010 [US1] Contract test for `ast_parser.py` in `tests/unit/test_ast_parser.py`: Implement `test_parse_valid_file` (valid Python file input) and `test_parse_invalid_syntax` (malformed syntax string input). *(Removed `[P]` to avoid running before code exists)*
+- [ ] T011 [US1] Integration test for end‑to‑end adapter generation on `data/raw/sample_repo` in `tests/integration/test_adapter_generation.py`: Assert `data/adapters/sample_adapter.safetensors` exists and loads successfully. *(Removed `[P]`)* <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -76,9 +76,9 @@
 - [X] T013 [P] [US1] Implement `code/feature_extractor/graph_builder.py` to compute import graph centrality using `networkx` (FR-001).
 - [X] T014 [US1] Implement `code/hypernetwork/mlp_projection.py`: Define a small MLP (ReLU) mapping AST feature vectors to the original embedding dimension. **Derive `input_dim` from `config.feature_vector_size` and `output_dim` from `config.hidden_size` (or `embedding_dim`) loaded from the base model config.** Verify model forward pass returns tensor of shape (batch, embedding_dim).
 - [X] T015 [US1] Implement `code/hypernetwork/adapter_generator.py`: Load frozen base model **and preserve the original GRU‑based hypernetwork weights** (FR-003), train **ONLY** the new MLP projection layer, and output a `.safetensors` adapter (FR-003). **Depends on configuration from T005.**
-- [~] T016 [US1] **FUNCTIONAL IMPLEMENTATION**: Implement the control-flow logic in `ast_parser.py` to skip malformed files, log warnings using the handler from T006, and **continue processing** (FR-007). **This task is the functional prerequisite for FR-007; T006 alone is insufficient.**
-- [~] T017 [US1] Add memory check in `adapter_generator.py` to abort if RAM > **7 GB** and log specific error (FR-008).
-- [~] T018 [US1] Add checkpoint validation in `adapter_generator.py` to abort on incompatible base models (FR-009).
+- [ ] T016 [US1] **FUNCTIONAL IMPLEMENTATION**: Implement the control-flow logic in `ast_parser.py` to skip malformed files, log warnings using the handler from T006, and **continue processing** (FR-007). **This task is the functional prerequisite for FR-007; T006 alone is insufficient.**
+- [ ] T017 [US1] Add memory check in `adapter_generator.py` to abort if RAM > **7 GB** and log specific error (FR-008).
+- [ ] T018 [US1] Add checkpoint validation in `adapter_generator.py` to abort on incompatible base models (FR-009).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,7 +98,7 @@
 ### Implementation for User Story 2
 
 - [X] T024 [P] [US2] Create `code/evaluation/baseline_loader.py` to load the original Code2LoRA neural‑encoder adapter for comparison (produces artifact required by T021). *(Retained for convenience; does not duplicate functionality of existing loaders.)*
-- [~] T021 [US2] Implement `code/evaluation/runner.py` to load RepoPeftBench data, apply the **AST‑based** adapter, and compute exact‑match scores. Output scores to `data/results/ast_scores.csv`. **(Note: This task does NOT record generation latency; that is handled by T040/T049a).**
+- [ ] T021 [US2] Implement `code/evaluation/runner.py` to load RepoPeftBench data, apply the **AST‑based** adapter, and compute exact‑match scores. Output scores to `data/results/ast_scores.csv`. **(Note: This task does NOT record generation latency; that is handled by T040/T049a).**
 - [ ] T022 [US2] Instrument the evaluation runner to measure inference latency per task in milliseconds, saving results to `data/results/latency.csv` with columns `task_id, latency_ms`. (Addresses FR-004.)
 - [~] T023 [US2] Implement failure‑mode classification (`'Syntax Error'`, `'Semantic Mismatch'`, `'Timeout'`) for complex tasks; verify logging for a mock `SyntaxError`.
 - [X] T025 [US2] Implement `code/evaluation/comparison_report.py` to generate a paired comparison report (AST vs Neural) with performance delta (US‑2 Scenario 2).
@@ -126,7 +126,7 @@
 - [ ] T031a [US3] **NEW**: Implement logic to extract the **baseline accuracy score** from the neural evaluation results (T021/T024) and save it to `data/results/baseline_score.json`. **Must be completed before T032.**
 - [~] T031 [US3] Within `sensitivity.py`, calculate the drop in exact‑match score when specific features are removed (US‑3 Scenario 3).
 - [~] T032 [US3] **Depends on T031a**: Identify the minimal feature set meeting a threshold **calculated dynamically as >80% of the baseline accuracy score** (derived from T031a).
-- [ ] T033 [US3] Generate a **CSV summary** `data/results/sensitivity_summary.csv` with columns `feature_set, accuracy, meets_threshold`. The research question investigates the sensitivity of model accuracy to different feature sets. The method involves training models across various feature combinations and evaluating performance against a predefined accuracy threshold. References: (Author et al.,).. Verify the file exists and is non‑empty. *(No visual plot is produced, respecting the spec.)*
+- [ ] T033 [US3] Generate a **CSV summary** `data/results/sensitivity_summary.csv` with columns `feature_set, accuracy, meets_threshold`. The research question investigates the sensitivity of model accuracy to different feature sets. [UNRESOLVED-CLAIM: c_7b1a71e2 — status=not_enough_info] The method involves training models across various feature combinations and evaluating performance against a predefined accuracy threshold. References: (Author et al.,).. Verify the file exists and is non‑empty. *(No visual plot is produced, respecting the spec.)*
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,9 +148,9 @@
 - [ ] T049a [US2] **NEW**: Measure baseline neural-encoder generation latency (run the baseline loader T024 and measure time) and save to `data/results/baseline_generation_latency.json`. **Must be completed before T049b.**
 - [ ] T049b [US2] **NEW**: Compute the latency reduction ratio (AST generation latency from T040 / baseline generation latency from T049a) and store a comparison report in `data/results/generation_latency_comparison.json`. Ensure the reduction is ≥ 10× as required by SC‑001. **Depends on T049a.**
 - [ ] T050 [P] Aggregate peak memory usage logs from `data/results/memory_log.csv`, compute total runtime per stage, and write a summary `data/results/resource_summary.csv`. Verify that peak RAM stays ≤ 7 GB and total runtime ≤ 6 h.
-- [ ] T051 [P] Add unit tests for `graph_builder.py` centrality algorithms in `tests/unit/test_graph_builder.py`.
+- [X] T051 [P] Add unit tests for `graph_builder.py` centrality algorithms in `tests/unit/test_graph_builder.py`.
 - [ ] T052 [P] Create `scripts/validate_quickstart.sh` that executes the commands in `quickstart.md` and asserts successful exit codes.
-- [ ] T053 [P] Polish documentation updates in `README.md` and `specs/001-ast-based-adapter-generation/quickstart.md`.
+- [~] T053 [P] Polish documentation updates in `README.md` and `specs/001-ast-based-adapter-generation/quickstart.md`.
 
 ---
 
@@ -158,7 +158,7 @@
 
 **Purpose**: Ensure real data availability and prevent fabrication (Rule: Real data + real results only).
 
-- [ ] T054 [P] Implement `code/data/download_repopeftbench.py` to fetch the RepoPeftBench Python subset from the official HuggingFace dataset (`datasets.load_dataset("repo-peft-bench", "python")`) or Zenodo mirror, verifying checksums before writing to `data/raw/`.
+- [X] T054 [P] Implement `code/data/download_repopeftbench.py` to fetch the RepoPeftBench Python subset from the official HuggingFace dataset (`datasets.load_dataset("repo-peft-bench", "python")`) or Zenodo mirror, verifying checksums before writing to `data/raw/`.
 - [ ] T055 [P] Implement `code/data/download_sample_repo.py` to fetch a small, real Python repository (e.g., `requests` or `flask` subset) from GitHub via `git clone` or `requests` API for local AST parsing tests, ensuring no synthetic/fake code is used.
 - [ ] T056 [P] Add a validation step in `code/main.py` that checks for the existence of `data/raw/` datasets before running `generate` or `evaluate` commands, failing fast with a clear error message if data is missing.
 

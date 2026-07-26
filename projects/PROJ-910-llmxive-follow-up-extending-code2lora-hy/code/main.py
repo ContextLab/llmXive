@@ -1,190 +1,154 @@
 """
-CLI entry point for the llmXive Code2LoRA follow-up pipeline.
+Main CLI entry point for the llmXive pipeline.
 
-Commands:
-  generate   : Generate a repository-specific LoRA adapter using AST features.
-  evaluate   : Evaluate adapter performance on RepoPeftBench tasks.
-  sensitivity: Perform sensitivity analysis on feature complexity.
+Provides commands: generate, evaluate, sensitivity, and latency-compare.
 """
 import argparse
 import sys
 import time
 import traceback
 from pathlib import Path
-
-# Import configuration and logging from existing modules
 from utils.config import load_config, Config
 from utils.logging import setup_logging, get_logger
 
-def cmd_generate(args: argparse.Namespace, logger: any) -> int:
-    """
-    Execute the adapter generation pipeline.
-    Delegates to code/hypernetwork/adapter_generator.py (T015).
-    """
+# Import command modules
+from hypernetwork.adapter_generator import main as cmd_generate_main
+from evaluation.runner import main as cmd_evaluate_main
+from evaluation.sensitivity import main as cmd_sensitivity_main
+from utils.latency_monitor import main as cmd_baseline_latency_main
+from utils.latency_ratio_comparator import main as cmd_latency_compare_main
+
+logger = get_logger(__name__)
+
+def cmd_generate(args: argparse.Namespace) -> int:
+    """Execute the adapter generation pipeline."""
     logger.info("Starting adapter generation...")
     try:
-        config = load_config(args.config)
-        logger.info(f"Loaded config from {args.config}")
-
-        # Validate data availability
-        raw_data_path = Path(config.data_raw_dir)
-        if not raw_data_path.exists():
-            logger.error(f"Data directory {raw_data_path} does not exist. Run data download tasks first.")
-            return 1
-
-        # Import the actual generator implementation
-        from hypernetwork.adapter_generator import main as generator_main
-        
-        # Prepare arguments for the generator
-        gen_args = argparse.Namespace(
-            repo_path=args.repo_path or config.repo_path,
-            output_path=args.output or str(Path(config.adapters_dir) / "generated_adapter.safetensors"),
-            config_path=args.config,
-            log_level=args.log_level
-        )
-        
-        # Execute generation
-        return generator_main(gen_args)
-
+        return cmd_generate_main()
     except Exception as e:
         logger.error(f"Generation failed: {e}")
-        logger.error(traceback.format_exc())
+        traceback.print_exc()
         return 1
 
-def cmd_evaluate(args: argparse.Namespace, logger: any) -> int:
-    """
-    Execute the evaluation pipeline.
-    Delegates to code/evaluation/runner.py (T021).
-    """
-    logger.info("Starting adapter evaluation...")
+def cmd_evaluate(args: argparse.Namespace) -> int:
+    """Execute the evaluation pipeline."""
+    logger.info("Starting evaluation...")
     try:
-        config = load_config(args.config)
-        logger.info(f"Loaded config from {args.config}")
-
-        # Validate data availability
-        raw_data_path = Path(config.data_raw_dir)
-        if not raw_data_path.exists():
-            logger.error(f"Data directory {raw_data_path} does not exist. Run data download tasks first.")
-            return 1
-
-        # Import the actual evaluator implementation
-        from evaluation.runner import main as evaluator_main
-        
-        # Prepare arguments for the evaluator
-        eval_args = argparse.Namespace(
-            adapter_path=args.adapter_path,
-            benchmark=args.benchmark,
-            config_path=args.config,
-            log_level=args.log_level
-        )
-        
-        # Execute evaluation
-        return evaluator_main(eval_args)
-
+        return cmd_evaluate_main()
     except Exception as e:
         logger.error(f"Evaluation failed: {e}")
-        logger.error(traceback.format_exc())
+        traceback.print_exc()
         return 1
 
-def cmd_sensitivity(args: argparse.Namespace, logger: any) -> int:
-    """
-    Execute the sensitivity analysis pipeline.
-    Delegates to code/evaluation/sensitivity.py (T030).
-    """
+def cmd_sensitivity(args: argparse.Namespace) -> int:
+    """Execute the sensitivity analysis pipeline."""
     logger.info("Starting sensitivity analysis...")
     try:
-        config = load_config(args.config)
-        logger.info(f"Loaded config from {args.config}")
-
-        # Validate data availability
-        raw_data_path = Path(config.data_raw_dir)
-        if not raw_data_path.exists():
-            logger.error(f"Data directory {raw_data_path} does not exist. Run data download tasks first.")
-            return 1
-
-        # Import the actual sensitivity implementation
-        from evaluation.sensitivity import main as sensitivity_main
-        
-        # Prepare arguments for sensitivity analysis
-        sens_args = argparse.Namespace(
-            feature_sets=args.feature_sets or config.sensitivity_feature_sets,
-            config_path=args.config,
-            log_level=args.log_level
-        )
-        
-        # Execute sensitivity analysis
-        return sensitivity_main(sens_args)
-
+        return cmd_sensitivity_main()
     except Exception as e:
         logger.error(f"Sensitivity analysis failed: {e}")
-        logger.error(traceback.format_exc())
+        traceback.print_exc()
         return 1
 
-def main():
+def cmd_baseline_latency(args: argparse.Namespace) -> int:
+    """Measure baseline neural-encoder generation latency (T049a)."""
+    logger.info("Measuring baseline generation latency...")
+    try:
+        return cmd_baseline_latency_main()
+    except Exception as e:
+        logger.error(f"Baseline latency measurement failed: {e}")
+        traceback.print_exc()
+        return 1
+
+def cmd_latency_compare(args: argparse.Namespace) -> int:
+    """Compute latency reduction ratio (T049b)."""
+    logger.info("Computing latency reduction ratio...")
+    try:
+        return cmd_latency_compare_main()
+    except Exception as e:
+        logger.error(f"Latency comparison failed: {e}")
+        traceback.print_exc()
+        return 1
+
+def main() -> int:
+    """Main entry point with argparse CLI."""
     parser = argparse.ArgumentParser(
-        description="llmXive Code2LoRA Follow-up Pipeline CLI",
+        description="llmXive: Automated Science Pipeline for Code2LoRA Extension",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
-    # Global arguments
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config.yaml",
-        help="Path to the configuration file (default: config.yaml)"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level (default: INFO)"
-    )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Path to log file (default: stdout)"
-    )
-
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
+    
     # Generate command
-    gen_parser = subparsers.add_parser("generate", help="Generate a repository-specific LoRA adapter")
-    gen_parser.add_argument("--repo-path", type=str, help="Path to the repository to analyze")
-    gen_parser.add_argument("--output", type=str, help="Output path for the adapter")
-
+    gen_parser = subparsers.add_parser(
+        "generate", 
+        help="Generate AST-based LoRA adapter from repository features"
+    )
+    gen_parser.add_argument(
+        "--config", 
+        type=str, 
+        default="config.yaml",
+        help="Path to configuration file"
+    )
+    gen_parser.set_defaults(func=cmd_generate)
+    
     # Evaluate command
-    eval_parser = subparsers.add_parser("evaluate", help="Evaluate adapter performance")
-    eval_parser.add_argument("--adapter-path", type=str, help="Path to the adapter to evaluate")
-    eval_parser.add_argument("--benchmark", type=str, default="repopeftbench", help="Benchmark dataset to use")
-
+    eval_parser = subparsers.add_parser(
+        "evaluate", 
+        help="Evaluate adapter performance on RepoPeftBench"
+    )
+    eval_parser.add_argument(
+        "--adapter", 
+        type=str, 
+        required=True,
+        help="Path to adapter file (.safetensors)"
+    )
+    eval_parser.add_argument(
+        "--dataset", 
+        type=str, 
+        default="data/raw/repopeftbench",
+        help="Path to dataset directory"
+    )
+    eval_parser.set_defaults(func=cmd_evaluate)
+    
     # Sensitivity command
-    sens_parser = subparsers.add_parser("sensitivity", help="Perform sensitivity analysis on feature complexity")
-    sens_parser.add_argument("--feature-sets", type=str, nargs="+", help="Feature sets to analyze")
-
+    sens_parser = subparsers.add_parser(
+        "sensitivity", 
+        help="Perform sensitivity analysis on feature subsets"
+    )
+    sens_parser.add_argument(
+        "--config", 
+        type=str, 
+        default="config.yaml",
+        help="Path to configuration file"
+    )
+    sens_parser.set_defaults(func=cmd_sensitivity)
+    
+    # Baseline latency command (T049a)
+    baseline_parser = subparsers.add_parser(
+        "baseline-latency", 
+        help="Measure baseline neural-encoder generation latency"
+    )
+    baseline_parser.set_defaults(func=cmd_baseline_latency)
+    
+    # Latency compare command (T049b)
+    compare_parser = subparsers.add_parser(
+        "latency-compare", 
+        help="Compute latency reduction ratio (AST vs Baseline)"
+    )
+    compare_parser.set_defaults(func=cmd_latency_compare)
+    
     args = parser.parse_args()
-
-    if not args.command:
+    
+    if args.command is None:
         parser.print_help()
-        sys.exit(0)
-
+        return 0
+    
     # Setup logging
-    logger = setup_logging(level=args.log_level, log_file=args.log_file)
-    logger.info(f"Starting command: {args.command}")
-
+    setup_logging()
+    
     # Execute command
-    if args.command == "generate":
-        exit_code = cmd_generate(args, logger)
-    elif args.command == "evaluate":
-        exit_code = cmd_evaluate(args, logger)
-    elif args.command == "sensitivity":
-        exit_code = cmd_sensitivity(args, logger)
-    else:
-        logger.error(f"Unknown command: {args.command}")
-        exit_code = 1
-
-    sys.exit(exit_code)
+    return args.func(args)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

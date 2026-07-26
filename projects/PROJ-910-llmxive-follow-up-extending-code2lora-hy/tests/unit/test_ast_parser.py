@@ -1,36 +1,22 @@
 """
 Contract tests for code/feature_extractor/ast_parser.py.
 
-These tests verify the AST parsing logic before the full implementation is available.
+These tests verify the AST parsing logic.
 They test:
 1. Parsing of a valid Python file (should succeed).
-2. Parsing of malformed syntax (should raise a syntax error or return None depending on implementation).
+2. Parsing of malformed syntax (should raise a syntax error).
 """
 import pytest
 import tempfile
 import os
+import ast
 from pathlib import Path
 
 # Import the module under test.
-# Since T012 (implementation) is not yet done, this import might fail initially.
-# The test framework should handle this by failing the import, which is expected
-# until T012 is implemented.
-try:
-    from code.feature_extractor.ast_parser import parse_file, parse_string
-    MODULE_EXISTS = True
-except ImportError:
-    MODULE_EXISTS = False
-    # Define stubs if module doesn't exist yet to allow test collection
-    # In a real scenario, pytest would fail on import error.
-    # Here we simulate the expected behavior for the contract test description.
-    def parse_file(path: str):
-        raise NotImplementedError("Implementation pending T012")
-
-    def parse_string(code: str):
-        raise NotImplementedError("Implementation pending T012")
+# T012 implementation provides these functions.
+from code.feature_extractor.ast_parser import parse_file, parse_string
 
 
-@pytest.mark.skipif(not MODULE_EXISTS, reason="AST parser module not yet implemented (T012)")
 class TestAstParser:
     """Contract tests for AST parser functionality."""
 
@@ -52,13 +38,19 @@ class TestAstParser:
 
         try:
             result = parse_file(temp_path)
-            # Contract: Result should not be None and should be a valid AST or feature dict
+            # Contract: Result should not be None
             assert result is not None, "Parser returned None for valid file"
-            # If returning an AST node:
-            # assert isinstance(result, ast.AST)
-            # If returning a feature dict:
-            # assert isinstance(result, dict)
-            # assert 'cyclomatic_complexity' in result or 'tokens' in result
+            
+            # Depending on implementation, result might be an AST node or a dict
+            if isinstance(result, ast.AST):
+                # If returning an AST, verify it's valid
+                assert result is not None
+            elif isinstance(result, dict):
+                # If returning features, verify structure
+                assert 'cyclomatic_complexity' in result or 'tokens' in result or 'ast' in result
+            else:
+                # Fallback: just ensure it's not None and is a meaningful object
+                assert result is not None
         finally:
             os.unlink(temp_path)
 
@@ -73,7 +65,7 @@ class TestAstParser:
             # Missing closing parenthesis and colon
         """
         
-        # Test parse_string
+        # Test parse_string - should raise SyntaxError
         with pytest.raises(SyntaxError):
             parse_string(invalid_code)
 
@@ -87,6 +79,7 @@ class TestAstParser:
             # The contract requires it to NOT return a valid AST for invalid code.
             try:
                 result = parse_file(temp_path)
+                # If it returns a result, it must be None for invalid syntax
                 assert result is None, "Parser should return None for invalid syntax"
             except SyntaxError:
                 # Also acceptable: raising SyntaxError

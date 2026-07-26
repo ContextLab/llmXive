@@ -1,75 +1,120 @@
-# Quickstart: llmXive follow-up: extending "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
+# Quickstart: AST-Based Adapter Generation
 
-## 1. Prerequisites
+This guide provides a step-by-step walkthrough to generate an AST-based LoRA adapter and evaluate it on the RepoPeftBench dataset.
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI execution) or a local environment with ≥7 GB RAM.
+## Prerequisites
 
-## 2. Installation
+- Python 3.9+
+- Installed dependencies: `pip install -r requirements.txt`
+- Access to a machine with at least 8 GB RAM (GPU optional for evaluation)
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy
- ```
+## Step 1: Download Real Data
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+The pipeline requires real data. Do not use synthetic data.
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins CPU-only versions of `torch` and `transformers`.*
+### Download RepoPeftBench (Evaluation Dataset)
 
-## 3. Data Setup
-
-1. **Download the dataset**:
- The script will automatically download `RepoPeftBench` from the verified HuggingFace URL.
- ```bash
- python -m code.main --setup-data
- ```
- *Alternatively, manually download from:
-
-2. **Verify checksums**:
- Ensure the downloaded file matches the expected hash in `state/artifact_hashes.yaml`.
-
-## 4. Running the Pipeline
-
-### 4.1 Feature Extraction & Adapter Generation
 ```bash
-python -m code.main --mode generate --repo-id <repo_id>
+python code/data/download_repopeftbench.py
 ```
-- Extracts AST features.
-- Generates LoRA adapter.
-- Saves to `data/adapters/`.
 
-### 4.2 Evaluation
+This script fetches the Python subset of RepoPeftBench from HuggingFace and saves it to `data/raw/`.
+
+### Download Sample Repository (Adapter Generation)
+
 ```bash
-python -m code.main --mode evaluate --adapter-path data/adapters/<repo_id>.safetensors
+python code/data/download_sample_repo.py
 ```
-- Runs on RepoPeftBench test set.
-- Outputs exact-match scores and latency.
 
-### 4.3 Sensitivity Analysis
+This script fetches a small, real Python repository (e.g., `requests` or `flask`) from GitHub and saves it to `data/raw/`.
+
+## Step 2: Generate AST-Based Adapter
+
+Run the adapter generation pipeline on the sample repository:
+
 ```bash
-python -m code.main --mode sensitivity
+python code/main.py generate --repo-path data/raw/sample_repo --output data/adapters/sample_adapter.safetensors
 ```
-- Runs multiple feature subsets.
-- Generates `sensitivity_curve.csv`.
 
-## 5. Reproducibility
+**What happens:**
+1. The system extracts AST features (cyclomatic complexity, inheritance depth, token histograms, import graph centrality).
+2. The hypernetwork (MLP) projects these features into LoRA adapter weights.
+3. The adapter is saved as a `.safetensors` file.
 
-- **Random Seeds**: Set in `code/utils/config.py`.
-- **Environment**: Use the provided `Dockerfile` (if available) or `requirements.txt` to ensure identical dependencies.
-- **CI Execution**: Push to `001-ast-based-adapter-generation` branch to trigger GitHub Actions workflow.
+**Resource Limits:**
+- CPU: Restricted to 2 cores.
+- RAM: Aborts if usage exceeds 7 GB.
 
-## 6. Troubleshooting
+## Step 3: Evaluate Adapter Performance
 
-- **Memory Error**: Reduce the number of repositories processed in one batch.
-- **AST Parsing Error**: Check `logs/parsing_warnings.log` for skipped files.
-- **Checkpoint Incompatibility**: Ensure the base model path matches the expected architecture.
+Evaluate the generated adapter on RepoPeftBench:
+
+```bash
+python code/main.py evaluate --adapter data/adapters/sample_adapter.safetensors --output data/results/ast_scores.csv
+```
+
+This computes exact-match scores for each task in the benchmark.
+
+## Step 4: Compare with Neural Baseline
+
+Compare the AST-based adapter against the original Code2LoRA neural baseline:
+
+```bash
+# Load baseline adapter and compute scores
+python code/evaluation/baseline_loader.py
+
+# Generate comparison report
+python code/evaluation/comparison_report.py
+```
+
+Output: `data/results/comparison_report.csv` and `data/results/stats.json` (Wilcoxon signed-rank test).
+
+## Step 5: Sensitivity Analysis (Optional)
+
+Determine the minimal feature set required to maintain >80% of baseline accuracy:
+
+```bash
+python code/main.py sensitivity --output data/results/sensitivity_summary.csv
+```
+
+## Step 6: Verify Resource Constraints
+
+Check that resource limits were respected:
+
+```bash
+cat data/results/resource_summary.csv
+```
+
+Verify:
+- Peak RAM ≤ 7 GB
+- Total runtime ≤ 6 hours
+- CPU restricted to 2 cores
+
+## Troubleshooting
+
+### Data Missing Error
+
+If you see an error about missing data, ensure you ran the download scripts in Step 1.
+
+```bash
+python code/data/download_repopeftbench.py
+python code/data/download_sample_repo.py
+```
+
+### Memory Limit Exceeded
+
+If the process aborts due to memory usage > 7 GB, try:
+- Running on a machine with more RAM.
+- Reducing the size of the input repository.
+
+### CUDA Out of Memory
+
+Evaluation may require GPU memory. If you encounter this error, try:
+- Running evaluation on CPU (slower but functional).
+- Reducing the batch size in `code/evaluation/runner.py`.
+
+## Next Steps
+
+- Review `specs/001-ast-based-adapter-generation/` for detailed design documents.
+- Run the full test suite: `pytest tests/`
+- Explore sensitivity analysis results in `data/results/sensitivity_summary.csv`.

@@ -1,1 +1,2 @@
-# This directory holds generated LoRA adapters (.safetensors).
+# This directory holds generated LoRA adapter weights (.safetensors).
+# Output of the adapter generation process.

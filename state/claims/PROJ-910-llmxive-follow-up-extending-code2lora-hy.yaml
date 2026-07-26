@@ -184,3 +184,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T00:01:32Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: 'Research question: sensitivity of model accuracy to feature sets'
+  claim_id: c_7b1a71e2
+  context: T033 [US3] Generate a CSV summary data/results/sensitivity_summary.csv
+    with columns feature_set, accuracy, meets_threshold. The research question investigates
+    the sensitivity of model accuracy to different feature sets.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_sensitivity_of_model_accuracy_to_feature
+  kind: entity_fact
+  raw_text: The research question investigates the sensitivity of model accuracy to
+    different feature sets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T01:03:26Z'

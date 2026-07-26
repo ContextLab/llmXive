@@ -1,144 +1,170 @@
 """
-Extracts the baseline accuracy score from neural evaluation results.
+Baseline Score Extractor for User Story 3 (Sensitivity Analysis).
 
-This module implements T031a: Extract baseline accuracy score from the neural
-evaluation results (T021/T024) and save to data/results/baseline_score.json.
+This module implements T031a: Extract the baseline accuracy score from the neural
+evaluation results (T021/T024) and save it to data/results/baseline_score.json.
 
-The baseline score is derived from the neural adapter evaluation results generated
-by the baseline loader (T024) and evaluation runner (T021).
+It relies on the evaluation runner's output (neural_scores.csv) to compute the
+mean exact-match score, which serves as the baseline for sensitivity analysis.
 """
+
 import json
 import csv
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+
 from evaluation.baseline_loader import load_baseline_adapter, get_baseline_adapter_path
-from evaluation.runner import run_evaluation, load_repopeftbench_data, load_ast_adapter
-from evaluation.comparison_report import load_scores_from_csv
-from utils.config import load_config
-import logging
 
-# Set up logging
-logger = logging.getLogger(__name__)
 
-def calculate_baseline_accuracy(neural_scores_path: Path) -> float:
+def calculate_baseline_accuracy(
+    scores_path: str,
+    score_column: str = "exact_match"
+) -> float:
     """
-    Calculate the baseline accuracy score from neural evaluation results.
-    
+    Calculate the mean exact-match score from the neural evaluation results.
+
     Args:
-        neural_scores_path: Path to the neural scores CSV file (data/results/neural_scores.csv)
-        
-    Returns:
-        The average exact-match score as a float (0.0 to 1.0)
-        
-    Raises:
-        FileNotFoundError: If the neural scores file does not exist
-        ValueError: If the scores file is empty or has invalid format
-    """
-    if not neural_scores_path.exists():
-        raise FileNotFoundError(f"Neural scores file not found: {neural_scores_path}")
-    
-    scores = load_scores_from_csv(neural_scores_path)
-    
-    if not scores:
-        raise ValueError(f"Neural scores file is empty: {neural_scores_path}")
-    
-    # Calculate average exact-match score
-    total_score = sum(score for score in scores)
-    accuracy = total_score / len(scores)
-    
-    logger.info(f"Calculated baseline accuracy from {len(scores)} tasks: {accuracy:.4f}")
-    return accuracy
+        scores_path: Path to the CSV file containing neural evaluation scores.
+                     Expected to be 'data/results/neural_scores.csv'.
+        score_column: The column name in the CSV containing the score values.
+                      Default is 'exact_match'.
 
-def save_baseline_score(accuracy: float, output_path: Path) -> None:
+    Returns:
+        float: The mean score (baseline accuracy).
+
+    Raises:
+        FileNotFoundError: If the scores file does not exist.
+        ValueError: If the score column is missing or contains non-numeric values.
+    """
+    path = Path(scores_path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Neural scores file not found at {scores_path}. "
+            "Ensure T021 (evaluation runner) has been executed first."
+        )
+
+    scores = []
+    with open(path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        if score_column not in reader.fieldnames:
+            raise ValueError(
+                f"Column '{score_column}' not found in {scores_path}. "
+                f"Available columns: {reader.fieldnames}"
+            )
+
+        for row in reader:
+            try:
+                score = float(row[score_column])
+                scores.append(score)
+            except (ValueError, TypeError):
+                raise ValueError(
+                    f"Invalid score value '{row[score_column]}' in row: {row}"
+                )
+
+    if not scores:
+        raise ValueError(f"No valid scores found in {scores_path}")
+
+    return sum(scores) / len(scores)
+
+
+def save_baseline_score(
+    baseline_accuracy: float,
+    output_path: str,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
     """
     Save the baseline accuracy score to a JSON file.
-    
+
     Args:
-        accuracy: The baseline accuracy score (float)
-        output_path: Path to save the JSON file (data/results/baseline_score.json)
+        baseline_accuracy: The calculated baseline accuracy.
+        output_path: Path to save the JSON file (e.g., 'data/results/baseline_score.json').
+        metadata: Optional dictionary of additional metadata to include.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    baseline_data = {
-        "accuracy": accuracy,
-        "source": "neural_evaluation",
-        "description": "Baseline accuracy score from neural adapter evaluation",
-        "metric": "exact_match"
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    data = {
+        "baseline_accuracy": baseline_accuracy,
+        "source": "neural_scores.csv",
+        "metadata": metadata or {}
     }
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(baseline_data, f, indent=2)
-    
-    logger.info(f"Saved baseline score to {output_path}")
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+
 
 def extract_baseline_score(
-    neural_scores_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> Dict[str, Any]:
+    scores_path: str = "data/results/neural_scores.csv",
+    output_path: str = "data/results/baseline_score.json",
+    score_column: str = "exact_match"
+) -> float:
     """
-    Main function to extract and save baseline accuracy score.
-    
+    Main entry point to extract and save the baseline score.
+
+    This function orchestrates the calculation and saving of the baseline accuracy.
+
     Args:
-        neural_scores_path: Path to neural scores CSV. Defaults to data/results/neural_scores.csv
-        output_path: Path to output JSON. Defaults to data/results/baseline_score.json
-        
+        scores_path: Path to the neural scores CSV.
+        output_path: Path to save the baseline score JSON.
+        score_column: Column name for the score.
+
     Returns:
-        Dictionary containing the baseline score and metadata
+        float: The calculated baseline accuracy.
     """
-    config = load_config()
-    
-    # Set default paths if not provided
-    if neural_scores_path is None:
-        neural_scores_path = Path(config.data_dir) / "results" / "neural_scores.csv"
-    
-    if output_path is None:
-        output_path = Path(config.data_dir) / "results" / "baseline_score.json"
-    
-    # Extract baseline accuracy
-    accuracy = calculate_baseline_accuracy(neural_scores_path)
-    
-    # Save to JSON
+    accuracy = calculate_baseline_accuracy(scores_path, score_column)
     save_baseline_score(accuracy, output_path)
-    
-    return {
-        "accuracy": accuracy,
-        "output_path": str(output_path),
-        "source_path": str(neural_scores_path)
-    }
+    return accuracy
+
 
 def main():
-    """CLI entry point for baseline score extraction."""
+    """CLI entry point for T031a."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
-        description="Extract baseline accuracy score from neural evaluation results"
+        description="Extract baseline accuracy from neural evaluation results."
     )
     parser.add_argument(
-        "--neural-scores",
-        type=Path,
-        default=None,
-        help="Path to neural scores CSV file (default: data/results/neural_scores.csv)"
+        "--scores",
+        type=str,
+        default="data/results/neural_scores.csv",
+        help="Path to the neural scores CSV file."
     )
     parser.add_argument(
         "--output",
-        type=Path,
-        default=None,
-        help="Path to output JSON file (default: data/results/baseline_score.json)"
+        type=str,
+        default="data/results/baseline_score.json",
+        help="Path to save the baseline score JSON."
     )
-    
+    parser.add_argument(
+        "--column",
+        type=str,
+        default="exact_match",
+        help="Column name containing the scores."
+    )
+
     args = parser.parse_args()
-    
+
     try:
-        result = extract_baseline_score(
-            neural_scores_path=args.neural_scores,
-            output_path=args.output
+        accuracy = extract_baseline_score(
+            scores_path=args.scores,
+            output_path=args.output,
+            score_column=args.column
         )
-        print(f"Baseline accuracy: {result['accuracy']:.4f}")
-        print(f"Saved to: {result['output_path']}")
+        print(f"Baseline accuracy extracted: {accuracy:.4f}")
+        print(f"Saved to: {args.output}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return 1
+    except ValueError as e:
+        print(f"Error processing scores: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Failed to extract baseline score: {e}")
-        raise
+        print(f"Unexpected error: {e}")
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

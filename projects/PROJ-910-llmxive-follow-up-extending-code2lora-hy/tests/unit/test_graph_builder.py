@@ -1,5 +1,8 @@
 """
 Unit tests for code/feature_extractor/graph_builder.py
+
+These tests verify the correctness of the import graph building and
+centrality metric computation logic.
 """
 
 import tempfile
@@ -69,10 +72,11 @@ def test_build_with_files(sample_repo):
     builder = ImportGraphBuilder(sample_repo)
     graph = builder.build()
 
-    # Should have nodes for each module
+    # Should have nodes for each module (at least the ones we created)
     assert graph.number_of_nodes() > 0
-    # Should have edges for imports
-    assert graph.number_of_edges() >= 0  # Could be 0 if no valid imports found
+    # Should have edges for imports (could be 0 if imports are relative and not resolved)
+    # We assert >= 0 to be safe, but typically we expect some edges
+    assert graph.number_of_edges() >= 0
 
 
 def test_compute_centrality_metrics_empty_graph():
@@ -136,7 +140,9 @@ def test_extract_graph_features_non_empty(sample_repo):
 def test_get_graph_feature_vector_size():
     """Test that the feature vector size is correct."""
     size = get_graph_feature_vector_size()
-    assert size == 6  # num_nodes, num_edges, avg_in, avg_out, max_bet, max_close
+    # Expected features: num_nodes, num_edges, avg_in_degree, avg_out_degree,
+    # max_betweenness, max_closeness
+    assert size == 6
 
 
 def test_get_aggregated_graph_features_empty():
