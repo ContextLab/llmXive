@@ -13,13 +13,13 @@
 
 **Why this priority**: Without the ability to generate controlled, reproducible data with known heterogeneity parameters, the core research question (relationship between heterogeneity and estimator performance) cannot be answered. This is the foundational capability.
 
-**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau^ \in \{, 0.1\}$) and 10 replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
+**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau$) and 10 replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid Cochrane meta-analysis dataset with study-level effect sizes and standard errors, **When** the simulation engine is invoked with $\tau^2 = 0.5$ and 500 replicates, **Then** the system generates 500 synthetic datasets where the empirical between-study variance approximates 0.5, and the process completes without memory overflow.
+1. **Given** a valid Cochrane meta-analysis dataset with study-level effect sizes and standard errors, **When** the simulation engine is invoked with $\tau^2 = 0.5$ and 500 replicates, **Then** the system generates multiple synthetic datasets where the empirical between-study variance approximates 0.5, and the process completes without memory overflow.
 2. **Given** a dataset with $N=20$ studies, **When** the simulation is run with $\tau^2 = 2.0$, **Then** the generated effect sizes exhibit a wider distribution consistent with the high heterogeneity parameter, and the standard error of the pooled estimate increases relative to the $\tau^2 = 0$ baseline.
-3. **Given** the GitHub Actions runner environment (2 CPU, 7GB RAM), **When** the full simulation (5 levels $\times$ 500 replicates) is executed, **Then** the job completes within 360 minutes (6 hours) and utilizes less than 6GB of RAM.
+3. **Given** the GitHub Actions runner environment (2 CPU, 7GB RAM), **When** the full simulation (5 levels $\times$ 500 replicates) is executed, **Then** the job completes within 360 minutes (6 hours) and utilizes a moderate amount of RAM.
 
 ---
 
@@ -34,8 +34,8 @@
 **Acceptance Scenarios**:
 
 1. **Given** a set of 500 simulated datasets with a known true effect size of 0.5, **When** the Random-Effects (DerSimonian-Laird) estimator is applied, **Then** the system calculates the pooled estimate and 95% CI for each, and correctly flags the proportion of CIs containing 0.5 (coverage).
-2. **Given** the same 500 datasets, **When** the Fixed-Effects estimator is applied, **Then** the system calculates the pooled estimate and CI, and the resulting bias (pooled estimate - 0.5) is recorded for each replicate.
-3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from % (within Monte Carlo error defined as $\pm 1.5\%$ at 95% confidence, calculated as $1.96 \times \sqrt{0.95 \times 0.05 / 500}$), confirming the baseline validity of the implementation. (See US-2)
+2. **Given** the same 500 datasets, **When** the Fixed-Effects estimator is applied, **Then** the system calculates the pooled estimate and CI, and the resulting bias (pooled estimate - expected value) is recorded for each replicate.
+3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from % (within a Monte Carlo error defined as $\pm$ a small margin at 95% confidence, calculated as $1.96 \times \sqrt{0.95 \times 0.05 / 500}$), confirming the baseline validity of the implementation. (See US-2)
 
 ---
 
@@ -97,6 +97,6 @@
 - **Dataset Availability**: Publicly available Cochrane Review meta-analyses with sufficient study-level data (effect sizes, standard errors, sample sizes) exist and can be programmatically accessed or manually extracted for an initial set of meta-analyses.
 - **Methodological Framing**: The study design is observational (simulation based on existing data structures); therefore, all findings regarding estimator performance are framed as associational relationships between heterogeneity magnitude and estimator reliability, not causal effects of heterogeneity on truth.
 - **Computational Tractability**: The simulation of 500+ replicates across 5 heterogeneity levels using standard R/Python statistical libraries (e.g., `metafor`, `statsmodels`) will complete within 6 hours on a 2-core CPU without requiring GPU acceleration or 8-bit quantization.
-- **Threshold Justification**: The selected heterogeneity levels ($\tau^ \in \{0, 0.1, 0.5, 1.0, 2.0\}$) are based on community standards for low, moderate, and high heterogeneity in medical meta-analysis. To ensure scale independence, the simulation will normalize heterogeneity using the $I^2$ statistic alongside $\tau^2$ and will explicitly specify the effect size metric (e.g., Log Odds Ratio) used for the base data, ensuring results are generalizable. A sensitivity analysis will sweep these values to ensure results are not artifacts of specific cutoff choices.
+- **Threshold Justification**: The selected heterogeneity levels ($\tau^ \in \{, 0.1, 0.5, 1.0, 2.0\}$) are based on community standards for low, moderate, and high heterogeneity in medical meta-analysis. To ensure scale independence, the simulation will normalize heterogeneity using the $I^2$ statistic alongside $\tau^2$ and will explicitly specify the effect size metric (e.g., Log Odds Ratio) used for the base data, ensuring results are generalizable. A sensitivity analysis will sweep these values to ensure results are not artifacts of specific cutoff choices.
 - **Measurement Validity**: The Cochrane data used as the base for simulation represents valid, peer-reviewed effect size estimates, ensuring the "ground truth" for the simulation is grounded in real-world statistical properties.
 - **Multiplicity Control**: Since multiple hypothesis tests (coverage at 5 levels, bias at 5 levels) are performed, a Bonferroni correction is applied to the significance thresholds to control family-wise error rate, as mandated by FR-007.

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: data/results/test_variance_check.json
+- `T040b` (rejected 1x): The script `code/scripts/generate_synthetic_base.py` exists and matches the required parameters, and the README has been updated, but the required output file `data/raw/cochrane_base_synthetic.csv` was not created (it is missing). Additionally, there is no evidence that `research.md` was updated. The task therefore remains incomplete.
 
 ## Required change
 

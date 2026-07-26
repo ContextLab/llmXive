@@ -1,52 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AggregatedMetric
-description: Schema for aggregated metrics and sensitivity sweep results (T034a).
+description: >
+  Schema for aggregated meta-analysis metrics derived from simulation results.
+  This includes summary statistics (mean, variance) and statistical test results
+  (binomial test p-values, normality test results) across replicates for each
+  heterogeneity level.
 type: object
 required:
-  - aggregates
+  - heterogeneity_level
+  - tau2_injected
+  - estimator_type
+  - mean_bias
+  - std_bias
+  - coverage_rate
+  - coverage_test_p_value
+  - normality_test_statistic
+  - normality_test_p_value
+  - statistical_test_used
+  - n_replicates
+  - n_reliable
+  - n_unreliable
 properties:
-  aggregates:
-    type: array
-    description: Aggregated metrics grouped by tau^2 level and estimator.
-    items:
-      type: object
-      required:
-        - tau2_level
-        - estimator_name
-        - n_replicates
-        - mean_bias
-        - coverage_rate
-        - coverage_test_pvalue
-        - i_squared_mean
-      properties:
-        tau2_level:
-          type: number
-          description: The tau^2 level for this aggregation.
-        estimator_name:
-          type: string
-          enum:
-            - FixedEffects
-            - DerSimonianLaird
-            - REML
-          description: Name of the estimator.
-        n_replicates:
-          type: integer
-          minimum: 1
-          description: Number of replicates included in this aggregate.
-        mean_bias:
-          type: number
-          description: Mean of the bias across replicates.
-        coverage_rate:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: Proportion of replicates where the CI covered the true effect.
-        coverage_test_pvalue:
-          type: number
-          description: P-value from the exact binomial test against nominal coverage (0.95).
-        i_squared_mean:
-          type: number
-          description: Mean I^2 statistic across replicates.
-        reliability_rate:
-          type: number
-          description: Proportion of replicates marked as reliable.
+  heterogeneity_level:
+    type: number
+    description: The injected between-study variance (tau^2) level for this aggregation.
+  tau2_injected:
+    type: number
+    description: Alias for heterogeneity_level, explicitly named for clarity in results.
+  estimator_type:
+    type: string
+    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
+    description: The meta-analysis estimator used for this aggregation.
+  mean_bias:
+    type: number
+    description: Mean of (pooled_estimate - true_effect) across replicates.
+  std_bias:
+    type: number
+    description: Standard deviation of bias across replicates.
+  coverage_rate:
+    type: number
+    description: Proportion of replicates where the 95% CI contained the true effect.
+  coverage_test_p_value:
+    type: number
+    description: P-value from the exact binomial test checking if coverage deviates from nominal (e.g., 0.95).
+  normality_test_statistic:
+    type: number
+    description: Test statistic from Shapiro-Wilk test on the bias distribution.
+  normality_test_p_value:
+    type: number
+    description: P-value from Shapiro-Wilk test for normality of bias distribution.
+  statistical_test_used:
+    type: string
+    enum: ["ANOVA", "Kruskal-Wallis"]
+    description: The statistical test selected based on normality (FR-008, T037).
+  n_replicates:
+    type: integer
+    minimum: 1
+    description: Total number of replicates included in this aggregation.
+  n_reliable:
+    type: integer
+    minimum: 0
+    description: Number of replicates with reliability_flag=True (N_studies >= 5).
+  n_unreliable:
+    type: integer
+    minimum: 0
+    description: Number of replicates with reliability_flag=False (N_studies < 5).
+  aggregated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when aggregation was performed.
+  config_snapshot:
+    type: object
+    description: Snapshot of relevant config parameters (e.g., nominal_confidence_level) used.
+    properties:
+      nominal_confidence_level:
+        type: number
+        description: The nominal confidence level (e.g., 0.95) used for coverage checks.
+additionalProperties: false

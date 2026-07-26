@@ -1,3 +1,9 @@
+T006c:
+  c: false
+  h: 77bb937600497bfbfb3cdb1f0f7ed31a9d40e2fefbd7ab94d1ecc88a6546bb07
+  r: "The required file `code/config_loader.py` does not exist, so there is no implementation\
+    \ that parses `code/config.yaml` or handles `FileNotFoundError` with fallback\
+    \ logic. The task\u2019s core artifact is missing."
 T010:
   c: false
   h: 621bc64f788fb6f4ba15ff7b93163f043983275242770487023a036ba5d05615
@@ -24,10 +30,3 @@ T012:
     \ the actual implementation (or a description of the changes) we cannot confirm\
     \ the required functionality exists. The next implementer must supply the updated\
     \ `generator.py` showing the zero\u2011variance handling logic."
-T040b:
-  c: false
-  h: a7d141eabeccb02ddaa8565d04c592426df24f79c6bbb3f0cbe2f3d4b4bfa893
-  r: "The required `data/raw/cochrane_base_synthetic.csv` file does not exist, and\
-    \ there is no evidence that the script was run or that `research.md` was updated\
-    \ to document the synthetic fallback source. Consequently the task\u2019s core\
-    \ deliverable is missing."

@@ -1,68 +1,66 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
-description: Schema for the output of the estimation pipeline (T021).
+description: >
+  Schema for the output of meta-analysis estimation procedures.
+  This artifact records the pooled effect estimates, heterogeneity statistics (Q, I^2),
+  and reliability flags for each simulated replicate.
 type: object
 required:
-  - results
+  - replicate_id
+  - estimator_type
+  - pooled_effect
+  - se_pooled
+  - ci_lower
+  - ci_upper
+  - Q
+  - I_squared
+  - reliability_flag
+  - injected_true_effect
+  - injected_tau2
+  - N_studies
 properties:
-  results:
-    type: array
-    description: List of estimation results for each replicate and estimator.
-    items:
-      type: object
-      required:
-        - replicate_id
-        - tau2_level
-        - true_effect
-        - estimator_name
-        - pooled_estimate
-        - se_pooled
-        - ci_lower
-        - ci_upper
-        - i_squared
-        - coverage_flag
-        - reliability_flag
-      properties:
-        replicate_id:
-          type: string
-          description: Reference to the simulated replicate.
-        tau2_level:
-          type: number
-          description: The injected tau^2 value.
-        true_effect:
-          type: number
-          description: The injected true effect size.
-        estimator_name:
-          type: string
-          enum:
-            - FixedEffects
-            - DerSimonianLaird
-            - REML
-          description: Name of the estimator used.
-        pooled_estimate:
-          type: number
-          description: The calculated pooled effect size.
-        se_pooled:
-          type: number
-          description: Standard error of the pooled estimate.
-        ci_lower:
-          type: number
-          description: Lower bound of the 95% confidence interval.
-        ci_upper:
-          type: number
-          description: Upper bound of the 95% confidence interval.
-        i_squared:
-          type: number
-          minimum: 0
-          maximum: 100
-          description: The calculated I^2 statistic (percentage).
-          # CRITICAL REQUIREMENT: Must include I^2 as a required field.
-        coverage_flag:
-          type: boolean
-          description: True if the true_effect falls within [ci_lower, ci_upper].
-        reliability_flag:
-          type: boolean
-          description: True if the replicate is considered reliable (e.g., N >= 5).
-        bias:
-          type: number
-          description: Calculated bias (pooled_estimate - true_effect).
+  replicate_id:
+    type: integer
+    description: Unique identifier for the simulation replicate.
+  estimator_type:
+    type: string
+    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
+    description: The estimation method used.
+  pooled_effect:
+    type: number
+    description: The calculated pooled effect size (theta_hat).
+  se_pooled:
+    type: number
+    description: Standard error of the pooled effect.
+  ci_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  Q:
+    type: number
+    description: Cochran's Q statistic for heterogeneity.
+  I_squared:
+    type: number
+    description: I^2 statistic representing the percentage of variation across studies due to heterogeneity rather than chance.
+  reliability_flag:
+    type: boolean
+    description: >
+      Flag indicating data quality. Set to False if N_studies < 5,
+      otherwise True.
+  injected_true_effect:
+    type: number
+    description: The ground-truth effect size injected during simulation.
+  injected_tau2:
+    type: number
+    description: The ground-truth between-study variance (tau^2) injected during simulation.
+  N_studies:
+    type: integer
+    description: Number of studies included in this replicate.
+  convergence_status:
+    type: string
+    enum: ["converged", "failed", "skipped"]
+    description: Status of the estimation algorithm (relevant for REML).
+    default: "converged"
+additionalProperties: false
