@@ -56,13 +56,11 @@
 
 - [X] T005 [P] Setup environment configuration management: Create `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml` for dataset version traceability
 
-- [ ] T006 [P] Create base data model classes (ExpressionMatrix, MetaboliteMatrix, FeatureSet, ModelArtifact) in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`
+- [ ] T006 [P] Create base data model classes (ExpressionMatrix, MetaboliteMatrix, FeatureSet, ModelArtifact) in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`. **Define classes with explicit attributes: `ExpressionMatrix` (gene_id, sample_id, value), `MetaboliteMatrix` (metabolite_id, sample_id, value).**
 
 - [ ] T007 Implement error handling framework with E-DATASET, E-PAIRING, E-TIMEOUT, and E-POWER error codes per plan.md (Note: E-POWER is required for power analysis failures)
 
 - [X] T008 Setup CI resource monitoring: Implement runtime timer in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/main.py` that logs elapsed CPU time and raises E-TIMEOUT if >4h per FR-008
-
-- [ ] T009 Create power analysis utility for Phase 0: Implement calculation for effect size r=0.5, alpha=0.05, power=0.8; output JSON summary of required n to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/power_analysis.json`. **MUST abort with E-POWER if n < 28** per plan.md Phase 0 T009 and T015.
 
 - [ ] T010 [P] Create SHA-256 checksum validation utility for data integrity (SC-004)
 
@@ -74,7 +72,7 @@
 
 **Purpose**: Verify dataset availability before proceeding to Phase 1
 
-**⚠️ ABORT CRITERIA**: If no verified plant omics datasets with ≥95% pairing (or sufficient condition-level fallback), project halts with E-DATASET
+**⚠️ ABORT CRITERIA**: If no verified plant omics datasets are found, project halts with E-DATASET
 
 - [X] T011 [P] [US1] Search GEO for Arabidopsis herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
 
@@ -82,15 +80,13 @@
 
 - [ ] T013 [P] [US1] Search Metabolomics Workbench for defense metabolite experiments (terpenoids, alkaloids, phenylpropanoids)
 
-- [ ] T014 [US1] Verify sample-level pairing feasibility (≥95% match rate per FR-009) using metadata comparison <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Verify sample-level pairing feasibility (≥95% match rate per FR-009) using metadata comparison. **Output: `logs/pairing_feasibility.json` with fields {pairing_rate, total_samples, matched_samples}. ABORT with E-PAIRING if rate < 0.95.**
 
-- [ ] T015 [US1] Run power analysis utility (T009) to log required sample size (n) for r=0.5; **ABORT with E-POWER if n < 28** (Plan T009/T015, FR-009). If n >= 28, proceed to T016.
-
-- [ ] T016 [US1] Document verified dataset sources in `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml` with accession IDs + version/release date (VI. Dataset Version Traceability)
-
-- [ ] T016b [US1] Implement fallback to condition-level aggregation if sample-level pairing <95% but condition-level aggregation yields sufficient n (Plan T016 mitigation strategy). **MUST log a warning and proceed ONLY if aggregated n >= 28; otherwise ABORT with E-PAIRING.**
+- [ ] T016 [US1] Document verified dataset sources in `projects/PROJ-503-predicting-plant-defense-compound-produc/data/sources.yaml` with accession IDs + version/release date (VI. Dataset Version Traceability). **If T014 fails, ABORT with E-PAIRING.**
 
 - [ ] T017 [US1] Create research.md with dataset citations and availability status for Phase 0
+
+- [ ] T017b [US1] **Log** instrument validation status: Check downloaded Metabolomics Workbench datasets for LC-MS calibration curve documentation. **Log findings to `logs/instrument_validation.log`. Do NOT abort.** (Spec Assumption: Instrument validation - deferred)
 
 **Checkpoint**: Phase 0 complete - datasets verified OR project aborted with E-DATASET
 
@@ -110,14 +106,21 @@
 
 ### Implementation for User Story 1
 
-- [X] T021 [P] [US1] Implement GEO expression matrix downloader in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-001) <!-- FAILED: unspecified -->
-- [X] T022 [P] [US1] Implement Metabolomics Workbench metabolite retriever in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-002)
-- [ ] T023 [US1] Implement sample-level pairing logic using biological sample identifiers (not condition IDs alone) (FR-002)
-- [ ] T027 [US1] Implement validation to halt with E-PAIRING if <95% samples have matched pairs (FR-009, SC-005). **MUST precede T024/T025. If T016b fallback was triggered, this task validates the aggregated pairing rate.**
-- [ ] T024 [US1] Create expression CSV with normalized TPM/FPKM values for each sample. Rule: Prefer TPM; if missing, calculate from raw counts using standard formula. If neither available, log error and skip sample (US-1 acceptance scenario 1). **Conditional on T027 passing.**
-- [ ] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Conditional on T027 passing.**
+- [ ] T021 [P] [US1] Implement GEO expression matrix downloader in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-001). **Output: `data/raw/geo_expression_matrix.csv`. Logic: Normalize to TPM if raw counts provided.**
+
+- [ ] T022 [P] [US1] Implement Metabolomics Workbench metabolite retriever in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py` (FR-002)
+
+- [ ] T028 [P] [US1] Verify downloaded files match expected SHA-256 checksums for ≥99% of requested IDs (SC-004). **Source: `data/raw/checksums.json` (from T010). Logic: Abort if <99% match.**
+
+- [ ] T023 [US1] Implement sample-level pairing logic using biological sample identifiers (not condition IDs alone) (FR-002). **Algorithm: Exact match on biosample_id. Output: `data/paired/paired_index.csv`. Handle: Log mismatches to `logs/data_pairing.json`.**
+
+- [ ] T027 [US1] Implement validation to halt with E-PAIRING if <95% samples have matched pairs (FR-009, SC-005). **MUST precede T024/T025.**
+
+- [ ] T024 [US1] Create expression CSV with normalized TPM/FPKM values for each sample. **Output: `data/processed/expression_matrix.csv`. Schema: {gene_id, sample_id, value}. Conditional on T027 passing.**
+
+- [ ] T025 [US1] Create metabolite CSV with log‑transformed concentrations aligned by experimental sample identifier (US-1 acceptance scenario 2). **Output: `data/processed/metabolite_matrix.csv`. Logic: log2 transform. Handle zeros/negatives by adding small epsilon.** Conditional on T027 passing.
+
 - [ ] T026 [US1] Log mismatches to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json` with fields {sample_id, expression_source, metabolite_source, reason: "no_sample_level_pair"} (edge case handling)
-- [~] T028 [US1] Verify downloaded files match expected SHA-256 checksums for ≥99% of requested IDs (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -138,15 +141,15 @@
 
 - [ ] T031 [P] [US2] Implement expression normalization to TPM/FPKM in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py` (FR-003)
 - [ ] T032 [P] [US2] Implement metabolite log‑transformation in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py` (FR-003)
-- [ ] T035 [US2] Implement KEGG pathway ID mapping for defense biosynthetic genes (terpenoid, alkaloid, phenylpropanoid) (FR-004)
+- [ ] T035 [US2] Implement KEGG pathway ID mapping for defense biosynthetic genes (terpenoid, alkaloid, phenylpropanoid) (FR-004). **Input: KEGG API or local JSON. Output: `data/processed/kegg_mapping.json`. Handle: Log unmapped genes.**
 - [ ] T036 [US2] Create FeatureSet output matrix containing only pathway-mapped genes (US-2 acceptance scenario 1)
-- [ ] T035b [US2] **Mandatory PCA**: If features (p) > 2 * samples (n), reduce to top components. Log components to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/pca_summary.csv` (Plan T025).
 - [ ] T033 [US2] Implement zero‑variance gene filtering (variance < 1e-10) in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py` (FR-003)
-- [ ] T034 [US2] Log zero-variance genes to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/feature_filtering.csv` with columns gene_id, variance, reason: "zero_variance" (edge case handling)
-- [ ] T037 [US2] Implement ortholog fallback for unannotated Solanum genes using Arabidopsis reference (≥60% sequence identity) (edge case handling)
+- [ ] T034 [US2] Log zero-variance genes to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/feature_filtering.csv` with columns gene_id, variance, reason: "zero_variance". **Append a summary row with the total count of removed genes.** (edge case handling)
+- [ ] T035b [US2] **Mandatory PCA**: If features (p) > 2 * samples (n), reduce to top components. **Output: `data/processed/pca_reduced_matrix.csv`.** Log components to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/pca_summary.csv` (Plan T025). **Conditional on T027 (sample count n finalized).**
+- [ ] T037 [US2] Implement ortholog fallback for unannotated Solanum genes using Arabidopsis reference. **Threshold: Use value from `docs/assumption_resolution_log.md` or `config.yaml`. Log substitutions.** (edge case handling)
 - [ ] T038 [US2] Document ortholog substitutions in `projects/PROJ-503-predicting-plant-defense-compound-produc/docs/edge_cases.md` with original gene ID, substituted gene ID, and sequence identity percentage
 - [ ] T039 [US2] Verify ≥75% of known defense pathway genes retained per species (SC-006)
-- [ ] T040 [US2] Implement species-specific z-score normalization in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py` (FR-010) **After T036**
+- [ ] T040 [US2] Implement species-specific z-score normalization in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py` (FR-010). **Input: Raw matrix from T036. After T036.**
 - [ ] T041 [US2] Implement ComBat batch correction for cross-species expression scale differences (FR-010)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -167,17 +170,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T045 [P] [US3] Implement species-specific Ridge Regression model training **with k-fold cross-validation** in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/modeling.py` (FR-005)
+- [ ] T045 [P] [US3] Implement species-specific Ridge Regression model training **with k-fold cross-validation** in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/modeling.py` (FR-005). **Output: `outputs/models/ridge_species_A_model.pkl`. k=5 fold. Seed: Set random_state.**
 - [ ] T045b [US3] Implement outer k-fold cross-validation split with constraint of maintaining paired samples (Plan T031).
 - [ ] T046 [US3] Implement inner cross-validation to select Ridge alpha (grid search) within each outer fold (Plan T032).
-- [ ] T047 [US3] Implement permutation test with 1 000 iterations in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/evaluation.py` (FR-006). **Depends on T045**.
-- [ ] T048 [US3] Report two‑sided p‑value ≤ 0.05 for metabolites showing true predictive signal (US-3 acceptance scenario 2) (FR-006)
-- [ ] T049 [US3] Apply Bonferroni correction across all metabolites tested (FR-007)
+- [ ] T047 [US3] Implement permutation test with 1 000 iterations in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/evaluation.py` (FR-006). **Output: `outputs/metrics/permutation_pvalues.csv`. n_iter=1000. random_state.** **Depends on T045.**
+- [ ] T048 [US3] Report two‑sided p‑value ≤ 0.05 for metabolites showing true predictive signal (US-3 acceptance scenario 2) (FR-006). **Input: Raw p-values from T047.**
+- [ ] T049 [US3] Apply Bonferroni correction across all metabolites tested (FR-007). **Input: Output from T048.**
 - [ ] T050 [US3] Verify Pearson r ≥ 0.5 for metabolite with highest correlation across 5‑fold CV (SC-001)
-- [ ] T051 [US3] Verify permutation-test p‑value ≤ 0.05 after Bonferroni correction for highest-correlation metabolite (SC-002)
+- [ ] T051 [US3] Verify **Bonferroni-corrected** p‑value ≤ 0.05 for metabolite with highest correlation (SC-002). **Input: Output from T049.**
 - [ ] T052 [US3] Log runtime and resource usage; abort if CPU time exceeds a predefined computational budget (FR-008)
 - [ ] T053 [US3] Serialize ModelArtifact (coefficients and evaluation metrics) to `projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/models/`
-- [ ] T054 [US3] Implement VIF collinearity diagnostics and create `projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/vif_diagnostics.csv` with columns gene_id, vif_score, threshold_exceeded (multicollinearity handling assumption)
+- [ ] T054 [US3] Implement VIF collinearity diagnostics and create `projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/vif_diagnostics.csv` with columns gene_id, vif_score, threshold_exceeded. **Threshold: Use value from `config.yaml` or `docs/assumption_resolution_log.md`.** (multicollinearity handling assumption)
 - [ ] T055 [US3] Create exploratory cross-species model: Create `projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/models/cross_species_model.pkl` **only if paired samples ≥50**; otherwise log E-SAMPLESIZE. (FR-010, Plan T039)
 - [ ] T056 [US3] **Mandatory**: Evaluate species‑holdout generalization (train on A, test on S; train on S, test on A). If holdout fails, discard cross-species model. (Plan T040)
 
@@ -193,9 +196,12 @@
 - [ ] T057b [P] Update `projects/PROJ-503-predicting-plant-defense-compound-produc/docs/data-model.md` with schema definitions for ExpressionMatrix, MetaboliteMatrix, FeatureSet, ModelArtifact
 - [ ] T057c [P] Create `projects/PROJ-503-predicting-plant-defense-compound-produc/contracts/` directory with module specifications
 
-- [ ] T058 Code cleanup and refactoring: Run `black --check` and `flake8`; fix all violations; document changes in `projects/PROJ-503-predicting-plant-defense-compound-produc/docs/refactoring_log.md`
+- [ ] T058a [P] Run linting and formatting: Execute `black --check` and `flake8`; fix all violations.
+- [ ] T058b [P] Update `projects/PROJ-503-predicting-plant-defense-compound-produc/docs/refactoring_log.md` with changes made.
 
-- [ ] T059 Performance optimization: Profile pipeline with cProfile; identify bottlenecks; optimize data loading and model training; verify E2E runtime <4h in `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/integration/test_e2e_runtime.py` (SC-003)
+- [ ] T059a [P] Profile pipeline: Run `cProfile`; identify bottlenecks.
+- [ ] T059b [P] Optimize bottlenecks: Optimize data loading and model training.
+- [ ] T059c [P] Verify E2E runtime: Run `tests/integration/test_e2e_runtime.py` to verify E2E runtime <4h (SC-003).
 
 - [ ] T060 [P] Create unit tests with ≥80% line coverage: `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_data_download.py`, `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_preprocessing.py`, `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_modeling.py`
 
@@ -207,7 +213,7 @@
 
 - [ ] T066 [Plan Update] Update plan.md Constitution Check: Add explicit verification steps for Principles I, II, VI to transition from PENDING VERIFICATION to PASS status
 
-- [ ] T067 [Spec Update] Update spec.md Assumptions: Change power analysis from [deferred] to Phase 0 mandatory blocker (n≥28-30 samples) per plan.md
+- [ ] T067 [Spec Update] Update spec.md Assumptions: Change power analysis from [deferred] to Phase 1 mandatory check (n≥28-30 samples) per plan.md
 
 - [ ] T068 [Spec Update] Update spec.md FR-010: Change cross-species model from primary to exploratory-only per plan.md Complexity Tracking note
 
@@ -321,12 +327,12 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: Phase 0 Data Discovery MUST complete successfully before any data acquisition tasks (T021-T028) can proceed
-- **CRITICAL**: All tasks must run on free CPU-only CI (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤4 hours) per FR-008 and SC-003
+- **CRITICAL**: All tasks must run on free CPU-only CI (CPU cores, ~7 GB RAM, A substantial disk capacity is required., NO GPU, ≤4 hours) per FR-008 and SC-003
 - **CRITICAL**: Do NOT use 8-bit/4-bit quantization, CUDA, or large LLMs - use scikit-learn Ridge Regression only
 - **CRITICAL**: All paths use full repo path: `projects/PROJ-503-predicting-plant-defense-compound-produc/`
-- **CRITICAL**: T015 and T009 enforce mandatory abort on power analysis failure (n<28)
+- **CRITICAL**: T015 (moved to Phase 1) and T009 enforce mandatory abort on power analysis failure (n<28) AFTER data discovery
 - **CRITICAL**: T027 (pairing validation) MUST precede T024/T025 (matrix creation)
 - **CRITICAL**: T055 exploratory model does NOT automatically satisfy SC-001/SC-002 unless explicitly validated
-- **CRITICAL**: T016b implements the mandatory fallback to condition-level aggregation if sample-level pairing fails but aggregated n >= 28; otherwise E-PAIRING aborts.
+- **CRITICAL**: T016 strictly enforces E-PAIRING abort if pairing < 95% (No fallback)
 - **SUPERSEDED**: T057 superseded by T057a/b/c; T063/T064 superseded by T057b/T057c (removed from list)
 - **SUPERSEDED**: T004a removed (redundant with T001)

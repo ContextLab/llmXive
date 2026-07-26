@@ -1,81 +1,97 @@
 """
-Custom exception classes for the plant defense prediction pipeline.
-Defines specific error codes and exception types for different failure modes.
+Custom exception classes for the plant defense compound prediction pipeline.
+Implements specific error codes as per plan.md:
+- E-DATASET: Data acquisition failures
+- E-PAIRING: Sample pairing failures
+- E-TIMEOUT: Execution time limit exceeded
+- E-POWER: Power analysis failures (insufficient sample size)
+- E-SAMPLESIZE: General sample size validation failures
 """
 import sys
 from typing import Optional, Dict, Any
 
 
 class PipelineError(Exception):
-    """Base exception for pipeline errors."""
+    """Base exception for all pipeline errors."""
     
-    def __init__(self, message: str, error_code: str = None, details: Dict[str, Any] = None):
+    def __init__(self, message: str, error_code: str, details: Optional[Dict[str, Any]] = None):
         super().__init__(message)
-        self.message = message
         self.error_code = error_code
         self.details = details or {}
-    
-    def __str__(self):
-        if self.error_code:
-            return f"[{self.error_code}] {self.message}"
-        return self.message
+        self.message = message
+        
+        # Log the error to stderr for immediate visibility
+        print(f"[ERROR] {error_code}: {message}", file=sys.stderr)
+        if self.details:
+            print(f"Details: {self.details}", file=sys.stderr)
 
 
 class E_DATASET(PipelineError):
-    """Exception raised when dataset verification fails."""
-    
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        super().__init__(message, error_code="E-DATASET", details=details)
+    """
+    Raised when dataset acquisition fails or no verified plant omics datasets are found.
+    Triggers project halt per Phase 0 abort criteria.
+    """
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "E-DATASET", details)
 
 
 class E_PAIRING(PipelineError):
-    """Exception raised when sample pairing validation fails."""
-    
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        super().__init__(message, error_code="E-PAIRING", details=details)
+    """
+    Raised when sample-level pairing rate falls below the required threshold (FR-009: ≥95%).
+    Triggers immediate abort as per spec.md edge case handling.
+    """
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "E-PAIRING", details)
 
 
 class E_TIMEOUT(PipelineError):
-    """Exception raised when computational time limit is exceeded."""
-    
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        super().__init__(message, error_code="E-TIMEOUT", details=details)
+    """
+    Raised when execution time exceeds the computational budget (FR-008: ≤4h).
+    Used by the runtime timer in main.py and task T008.
+    """
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "E-TIMEOUT", details)
 
 
 class E_POWER(PipelineError):
-    """Exception raised when power analysis fails (n < 28)."""
-    
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        super().__init__(message, error_code="E-POWER", details=details)
+    """
+    Raised when power analysis indicates insufficient sample size for statistical validity.
+    Required for task T007 and power analysis failures per plan.md.
+    """
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "E-POWER", details)
 
 
 class E_SAMPLESIZE(PipelineError):
-    """Exception raised when sample size is insufficient for specific operations."""
-    
-    def __init__(self, message: str, details: Dict[str, Any] = None):
-        super().__init__(message, error_code="E-SAMPLESIZE", details=details)
+    """
+    Raised for general sample size validation failures (e.g., exploratory model requirements).
+    Distinct from E-POWER which is specific to statistical power calculations.
+    """
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "E-SAMPLESIZE", details)
 
 
-def raise_dataset_error(message: str, details: Dict[str, Any] = None):
-    """Convenience function to raise E_DATASET exception."""
+# Helper functions to raise errors with consistent formatting
+def raise_dataset_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Convenience function to raise E_DATASET."""
     raise E_DATASET(message, details)
 
 
-def raise_pairing_error(message: str, details: Dict[str, Any] = None):
-    """Convenience function to raise E_PAIRING exception."""
+def raise_pairing_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Convenience function to raise E_PAIRING."""
     raise E_PAIRING(message, details)
 
 
-def raise_timeout_error(message: str, details: Dict[str, Any] = None):
-    """Convenience function to raise E_TIMEOUT exception."""
+def raise_timeout_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Convenience function to raise E_TIMEOUT."""
     raise E_TIMEOUT(message, details)
 
 
-def raise_power_error(message: str, details: Dict[str, Any] = None):
-    """Convenience function to raise E_POWER exception."""
+def raise_power_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Convenience function to raise E_POWER."""
     raise E_POWER(message, details)
 
 
-def raise_samplesize_error(message: str, details: Dict[str, Any] = None):
-    """Convenience function to raise E_SAMPLESIZE exception."""
+def raise_samplesize_error(message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Convenience function to raise E_SAMPLESIZE."""
     raise E_SAMPLESIZE(message, details)

@@ -1,134 +1,154 @@
-"""
-Unit tests for T014: run_pairing_feasibility.py
-"""
 import json
 import os
 import sys
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 
 # Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from code.run_pairing_feasibility import (
     load_json_safe,
-    load_geo_search_results,
-    load_mw_search_results,
     extract_geo_biosample_ids,
     extract_mw_biosample_ids,
     run_pairing_feasibility
 )
+from code.exceptions import E_PAIRING
 
-def test_load_json_safe_not_found():
-    """Test that load_json_safe returns empty dict for missing file."""
-    result = load_json_safe(Path("/nonexistent/path/file.json"))
-    assert result == {}
-
-def test_load_json_safe_valid(tmp_path):
-    """Test loading a valid JSON file."""
-    test_file = tmp_path / "test.json"
-    data = {"key": "value"}
-    with open(test_file, 'w') as f:
-        json.dump(data, f)
+class TestRunPairingFeasibility:
     
-    result = load_json_safe(test_file)
-    assert result == data
+    def test_load_json_safe_missing_file(self, tmp_path):
+        non_existent = tmp_path / "non_existent.json"
+        result = load_json_safe(non_existent)
+        assert result == {}
 
-def test_extract_geo_biosample_ids():
-    """Test extraction of biosample IDs from GEO structure."""
-    geo_results = {
-        "Arabidopsis": [
-            {
-                "study_id": "GSE123",
-                "samples": [
-                    {"sample_id": "GSM1", "biosample_accession": "SAMN001"},
-                    {"sample_id": "GSM2", "biosample_accession": "SAMN002"},
-                    {"sample_id": "GSM3", "biosample_accession": "SAMN001"} # Duplicate
+    def test_load_json_safe_invalid_json(self, tmp_path):
+        invalid_file = tmp_path / "invalid.json"
+        invalid_file.write_text("{ invalid json }")
+        result = load_json_safe(invalid_file)
+        assert result == {}
+
+    def test_extract_geo_biosample_ids(self):
+        geo_data = {
+            "arabidopsis": {
+                "results": [
+                    {
+                        "accession": "GSE123",
+                        "samples": [
+                            {"biosample_id": "SAM001"},
+                            {"biosample_id": "SAM002"}
+                        ]
+                    }
                 ]
             }
-        ],
-        "Solanum": [
-            {
-                "study_id": "GSE456",
-                "samples": [
-                    {"sample_id": "GSM4", "geo_biosample": "SAMN003"}
-                ]
-            }
-        ]
-    }
-    
-    ids, count = extract_geo_biosample_ids(geo_results)
-    assert count == 4
-    assert ids == {"SAMN001", "SAMN002", "SAMN003"}
+        }
+        ids = extract_geo_biosample_ids(geo_data)
+        assert ids == {"SAM001", "SAM002"}
 
-def test_extract_mw_biosample_ids():
-    """Test extraction of biosample IDs from MW structure."""
-    mw_results = [
-        {
-            "experiment_id": "MW001",
-            "samples": [
-                {"sample_name": "SampleA", "biosample_id": "SAMN001"},
-                {"sample_name": "SampleB", "biosample_id": "SAMN004"}
-            ]
-        },
-        {
-            "experiment_id": "MW002",
-            "analyses": [
+    def test_extract_mw_biosample_ids(self):
+        mw_data = {
+            "experiments": [
                 {
+                    "id": "STUDY001",
                     "samples": [
-                        {"external_id": "SAMN005"}
+                        {"biosample_id": "SAM001"},
+                        {"biosample_id": "SAM003"}
                     ]
                 }
             ]
         }
-    ]
-    
-    ids, count = extract_mw_biosample_ids(mw_results)
-    assert count == 3
-    assert ids == {"SAMN001", "SAMN004", "SAMN005"}
+        ids = extract_mw_biosample_ids(mw_data)
+        assert ids == {"SAM001", "SAM003"}
 
-def test_run_pairing_feasibility_high_rate():
-    """Test pairing feasibility when rate is >= 95%."""
-    geo_ids = {"SAMN001", "SAMN002", "SAMN003", "SAMN004", "SAMN005"}
-    mw_ids = {"SAMN001", "SAMN002", "SAMN003", "SAMN004", "SAMN005", "SAMN006"}
-    
-    # Mock the extraction functions to return these sets
-    with patch('code.run_pairing_feasibility.extract_geo_biosample_ids', return_value=(geo_ids, 5)), \
-         patch('code.run_pairing_feasibility.extract_mw_biosample_ids', return_value=(mw_ids, 6)):
+    def test_run_pairing_feasibility_high_rate(self, tmp_path):
+        # Setup mock data files
+        data_raw_dir = tmp_path / "data" / "raw"
+        data_raw_dir.mkdir(parents=True)
         
-        report = run_pairing_feasibility({}, [])
+        # GEO data with 10 samples
+        geo_data = {
+            "arabidopsis": {
+                "results": [
+                    {
+                        "accession": "GSE123",
+                        "samples": [{"biosample_id": f"SAM{i}"} for i in range(10)]
+                    }
+                ]
+            }
+        }
+        with open(data_raw_dir / "geo_arabidopsis_search.json", 'w') as f:
+            json.dump(geo_data, f)
         
-        assert report["status"] == "success"
-        assert report["pairing_rate"] == 1.0
-        assert report["recommendation"] == "PROCEED"
+        # MW data with 10 samples, 9 matching
+        mw_data = {
+            "experiments": [
+                {
+                    "id": "STUDY001",
+                    "samples": [{"biosample_id": f"SAM{i}"} for i in range(9)] + [{"biosample_id": "SAM99"}]
+                }
+            ]
+        }
+        with open(data_raw_dir / "metabolomics_workbench_search.json", 'w') as f:
+            json.dump(mw_data, f)
+        
+        # Run analysis
+        result = run_pairing_feasibility(tmp_path)
+        
+        # Total unique: SAM0-SAM9 (10) + SAM99 (1) = 11
+        # Matched: SAM0-SAM8 (9)
+        # Rate: 9/11 = 0.818... which is < 0.95
+        # Let's adjust: 10 geo, 10 mw, 10 match -> rate 10/10 = 1.0
+        
+        mw_data_high = {
+            "experiments": [
+                {
+                    "id": "STUDY001",
+                    "samples": [{"biosample_id": f"SAM{i}"} for i in range(10)]
+                }
+            ]
+        }
+        with open(data_raw_dir / "metabolomics_workbench_search.json", 'w') as f:
+            json.dump(mw_data_high, f)
+        
+        result = run_pairing_feasibility(tmp_path)
+        
+        assert result["pairing_rate"] == 1.0
+        assert result["matched_samples"] == 10
+        assert result["total_samples"] == 10
+        assert result["status"] == "OK"
 
-def test_run_pairing_feasibility_low_rate():
-    """Test pairing feasibility when rate is < 95%."""
-    geo_ids = {"SAMN001", "SAMN002", "SAMN003", "SAMN004", "SAMN005"}
-    mw_ids = {"SAMN001"} # Only 1 match out of 5 -> 20%
-    
-    with patch('code.run_pairing_feasibility.extract_geo_biosample_ids', return_value=(geo_ids, 5)), \
-         patch('code.run_pairing_feasibility.extract_mw_biosample_ids', return_value=(mw_ids, 1)):
+    def test_run_pairing_feasibility_low_rate_raises(self, tmp_path):
+        # Setup mock data files
+        data_raw_dir = tmp_path / "data" / "raw"
+        data_raw_dir.mkdir(parents=True)
         
-        report = run_pairing_feasibility({}, [])
+        # GEO: 100 samples
+        geo_data = {
+            "arabidopsis": {
+                "results": [
+                    {
+                        "accession": "GSE123",
+                        "samples": [{"biosample_id": f"SAM{i}"} for i in range(100)]
+                    }
+                ]
+            }
+        }
+        with open(data_raw_dir / "geo_arabidopsis_search.json", 'w') as f:
+            json.dump(geo_data, f)
         
-        assert report["status"] == "failed"
-        assert abs(report["pairing_rate"] - 0.2) < 0.01
-        assert report["recommendation"] == "TRIGGER_FALLBACK_T016b"
-        assert "Pairing rate" in report["message"]
-
-def test_run_pairing_feasibility_empty_geo():
-    """Test handling of empty GEO results."""
-    with patch('code.run_pairing_feasibility.extract_geo_biosample_ids', return_value=(set(), 0)), \
-         patch('code.run_pairing_feasibility.extract_mw_biosample_ids', return_value=({"SAMN001"}, 1)):
+        # MW: 10 samples, all matching (10% rate)
+        mw_data = {
+            "experiments": [
+                {
+                    "id": "STUDY001",
+                    "samples": [{"biosample_id": f"SAM{i}"} for i in range(10)]
+                }
+            ]
+        }
+        with open(data_raw_dir / "metabolomics_workbench_search.json", 'w') as f:
+            json.dump(mw_data, f)
         
-        report = run_pairing_feasibility({}, [])
-        
-        assert report["status"] == "failed"
-        assert report["reason"] == "missing_biosample_ids"
-
-if __name__ == "__main__":
-    import pytest
-    pytest.main([__file__, "-v"])
+        # This should raise E_PAIRING because rate < 0.95
+        with pytest.raises(E_PAIRING):
+            run_pairing_feasibility(tmp_path)

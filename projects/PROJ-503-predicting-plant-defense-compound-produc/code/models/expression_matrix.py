@@ -1,5 +1,10 @@
 """
-ExpressionMatrix class for handling gene expression data.
+ExpressionMatrix data model class.
+
+Represents a gene expression matrix with explicit attributes:
+- gene_id: Identifier for the gene
+- sample_id: Identifier for the biological sample
+- value: Expression value (e.g., TPM, FPKM, or counts)
 """
 import pandas as pd
 import numpy as np
@@ -10,130 +15,124 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ExpressionMatrix:
     """
-    Represents a matrix of gene expression values (genes x samples).
-    
+    Container for gene expression data.
+
     Attributes:
-        data (pd.DataFrame): Expression values with gene IDs as index and sample IDs as columns.
-        metadata (Dict[str, Any]): Additional metadata about the matrix (e.g., normalization method).
+        data (pd.DataFrame): DataFrame with columns ['gene_id', 'sample_id', 'value']
     """
-    
-    def __init__(self, data: Optional[pd.DataFrame] = None, metadata: Optional[Dict[str, Any]] = None):
-        self.data = data if data is not None else pd.DataFrame()
-        self.metadata = metadata if metadata is not None else {}
-        
-        if not self.data.empty:
-            self._validate_structure()
 
-    def _validate_structure(self):
-        """Validate that the dataframe has the expected structure."""
-        if self.data.index.name != "gene_id" and "gene_id" not in self.data.columns:
-            logger.warning("Index is not named 'gene_id'. Setting index name.")
-            if self.data.index.name is None:
-                self.data.index.name = "gene_id"
-        
-        # Ensure no duplicate gene IDs
-        if self.data.index.duplicated().any():
-            raise ValueError("Duplicate gene IDs found in expression matrix index.")
+    REQUIRED_COLUMNS = ['gene_id', 'sample_id', 'value']
 
-    def add_metadata(self, key: str, value: Any):
-        """Add or update a metadata field."""
-        self.metadata[key] = value
-        logger.debug(f"Added metadata: {key} = {value}")
-
-    def filter_genes(self, gene_ids: List[str]) -> "ExpressionMatrix":
+    def __init__(self, data: Optional[pd.DataFrame] = None):
         """
-        Filter the matrix to keep only specified gene IDs.
-        
+        Initialize ExpressionMatrix.
+
         Args:
-            gene_ids: List of gene IDs to keep.
-        
-        Returns:
-            A new ExpressionMatrix instance with filtered data.
+            data: DataFrame with columns gene_id, sample_id, value.
+                  If None, creates an empty DataFrame with required columns.
         """
-        filtered_data = self.data.loc[self.data.index.intersection(gene_ids)]
-        new_metadata = self.metadata.copy()
-        new_metadata["filtered_genes"] = gene_ids
-        return ExpressionMatrix(data=filtered_data, metadata=new_metadata)
+        if data is None:
+            self.data = pd.DataFrame(columns=self.REQUIRED_COLUMNS)
+        else:
+            self._validate_data(data)
+            self.data = data.copy()
 
-    def filter_samples(self, sample_ids: List[str]) -> "ExpressionMatrix":
-        """
-        Filter the matrix to keep only specified sample IDs.
-        
-        Args:
-            sample_ids: List of sample IDs to keep.
-        
-        Returns:
-            A new ExpressionMatrix instance with filtered data.
-        """
-        filtered_data = self.data.loc[:, self.data.columns.intersection(sample_ids)]
-        new_metadata = self.metadata.copy()
-        new_metadata["filtered_samples"] = sample_ids
-        return ExpressionMatrix(data=filtered_data, metadata=new_metadata)
-
-    def normalize_per_species(self, species_map: Dict[str, str]) -> "ExpressionMatrix":
-        """
-        Apply Z-score normalization per species.
-        
-        Args:
-            species_map: Dict mapping sample_id -> species_name.
-        
-        Returns:
-            Normalized ExpressionMatrix.
-        """
-        if self.data.empty:
-            return self
-
-        normalized_data = self.data.copy()
-        for species, samples in self._group_samples_by_species(species_map).items():
-            if len(samples) > 1:
-                subset = normalized_data.loc[:, [s for s in samples if s in normalized_data.columns]]
-                if not subset.empty:
-                    mean_val = subset.mean(axis=1)
-                    std_val = subset.std(axis=1)
-                    # Avoid division by zero
-                    std_val[std_val == 0] = 1.0
-                    normalized_data.loc[:, subset.columns] = (subset - mean_val) / std_val
-        
-        new_metadata = self.metadata.copy()
-        new_metadata["normalization"] = "z_score_per_species"
-        return ExpressionMatrix(data=normalized_data, metadata=new_metadata)
-
-    def _group_samples_by_species(self, species_map: Dict[str, str]) -> Dict[str, List[str]]:
-        """Group sample IDs by species."""
-        groups = {}
-        for sample_id, species in species_map.items():
-            if sample_id in self.data.columns:
-                groups.setdefault(species, []).append(sample_id)
-        return groups
-
-    def to_csv(self, path: str):
-        """Save the matrix to a CSV file."""
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.data.to_csv(path)
-        # Save metadata separately as JSON
-        metadata_path = Path(path).with_suffix('.json')
-        with open(metadata_path, 'w') as f:
-            json.dump(self.metadata, f, indent=2)
-        logger.info(f"Saved expression matrix to {path}")
+    def _validate_data(self, df: pd.DataFrame) -> None:
+        """Validate that the DataFrame has the required columns."""
+        missing = set(self.REQUIRED_COLUMNS) - set(df.columns)
+        if missing:
+            raise ValueError(f"ExpressionMatrix requires columns {self.REQUIRED_COLUMNS}, missing: {missing}")
 
     @classmethod
-    def from_csv(cls, path: str) -> "ExpressionMatrix":
-        """Load a matrix from a CSV file."""
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Expression matrix file not found: {path}")
-        
-        data = pd.read_csv(path, index_col=0)
-        
-        metadata = {}
-        metadata_path = path.with_suffix('.json')
-        if metadata_path.exists():
-            with open(metadata_path, 'r') as f:
-                metadata = json.load(f)
-        
-        return cls(data=data, metadata=metadata)
+    def load(cls, file_path: str) -> 'ExpressionMatrix':
+        """
+        Load expression matrix from a CSV file.
 
-    def __repr__(self):
-        return f"ExpressionMatrix(shape={self.data.shape}, metadata_keys={list(self.metadata.keys())})"
+        Args:
+            file_path: Path to the CSV file.
+
+        Returns:
+            ExpressionMatrix instance.
+        """
+        logger.info(f"Loading expression matrix from {file_path}")
+        df = pd.read_csv(file_path)
+        return cls(df)
+
+    def save(self, file_path: str) -> None:
+        """
+        Save expression matrix to a CSV file.
+
+        Args:
+            file_path: Path to save the CSV file.
+        """
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+        self.data.to_csv(file_path, index=False)
+        logger.info(f"Saved expression matrix to {file_path}")
+
+    def filter_by_samples(self, sample_ids: List[str]) -> 'ExpressionMatrix':
+        """
+        Filter the matrix to keep only specified sample IDs.
+
+        Args:
+            sample_ids: List of sample IDs to keep.
+
+        Returns:
+            New ExpressionMatrix instance with filtered data.
+        """
+        filtered = self.data[self.data['sample_id'].isin(sample_ids)]
+        return ExpressionMatrix(filtered)
+
+    def filter_by_genes(self, gene_ids: List[str]) -> 'ExpressionMatrix':
+        """
+        Filter the matrix to keep only specified gene IDs.
+
+        Args:
+            gene_ids: List of gene IDs to keep.
+
+        Returns:
+            New ExpressionMatrix instance with filtered data.
+        """
+        filtered = self.data[self.data['gene_id'].isin(gene_ids)]
+        return ExpressionMatrix(filtered)
+
+    def to_pivot(self) -> pd.DataFrame:
+        """
+        Convert long-form data to a wide pivot table (genes x samples).
+
+        Returns:
+            DataFrame with gene_id as index and sample_id as columns.
+        """
+        return self.data.pivot(index='gene_id', columns='sample_id', values='value')
+
+    @classmethod
+    def from_pivot(cls, pivot_df: pd.DataFrame) -> 'ExpressionMatrix':
+        """
+        Create an ExpressionMatrix from a wide pivot DataFrame.
+
+        Args:
+            pivot_df: DataFrame with genes as index and samples as columns.
+
+        Returns:
+            ExpressionMatrix instance in long format.
+        """
+        df = pivot_df.reset_index()
+        df_long = df.melt(id_vars=['gene_id'], var_name='sample_id', value_name='value')
+        return cls(df_long)
+
+    def get_unique_genes(self) -> List[str]:
+        """Return a list of unique gene IDs."""
+        return self.data['gene_id'].unique().tolist()
+
+    def get_unique_samples(self) -> List[str]:
+        """Return a list of unique sample IDs."""
+        return self.data['sample_id'].unique().tolist()
+
+    def __len__(self) -> int:
+        """Return the number of rows in the matrix."""
+        return len(self.data)
+
+    def __repr__(self) -> str:
+        return f"ExpressionMatrix(n_genes={len(self.get_unique_genes())}, n_samples={len(self.get_unique_samples())}, n_rows={len(self)})"

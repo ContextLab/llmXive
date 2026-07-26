@@ -1,97 +1,128 @@
 """
-FeatureSet class for handling selected features (genes) for modeling.
+FeatureSet data model class.
+
+Represents a subset of features (genes) selected for modeling,
+typically filtered by pathway membership or variance.
 """
 import pandas as pd
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Set
 from pathlib import Path
 import json
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 class FeatureSet:
     """
-    Represents a set of selected features (genes) with their associated metadata.
-    
+    Container for a set of selected features (genes).
+
     Attributes:
-        genes (List[str]): List of gene IDs included in the feature set.
-        metadata (Dict[str, Any]): Metadata about the selection process (e.g., pathway, method).
-        gene_info (Optional[pd.DataFrame]): Detailed info about each gene (e.g., pathway, orthologs).
+        gene_ids (Set[str]): Set of gene identifiers included in this feature set.
+        metadata (Dict[str, Any]): Optional metadata (e.g., pathway names, selection method).
     """
-    
-    def __init__(self, genes: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None, 
-                 gene_info: Optional[pd.DataFrame] = None):
-        self.genes = genes if genes is not None else []
-        self.metadata = metadata if metadata is not None else {}
-        self.gene_info = gene_info if gene_info is not None else pd.DataFrame()
-        
-        if self.gene_info.empty and self.genes:
-            # Create a basic gene_info dataframe if not provided
-            self.gene_info = pd.DataFrame({"gene_id": self.genes})
-            self.gene_info.set_index("gene_id", inplace=True)
 
-    def add_gene_info(self, gene_id: str, info: Dict[str, Any]):
-        """Add or update information for a specific gene."""
-        if gene_id not in self.genes:
-            self.genes.append(gene_id)
-        
-        if gene_id not in self.gene_info.index:
-            self.gene_info.loc[gene_id] = info
-        else:
-            self.gene_info.loc[gene_id, info.keys()] = info.values()
-        
-        logger.debug(f"Updated info for gene: {gene_id}")
-
-    def filter_by_pathway(self, pathway: str) -> "FeatureSet":
+    def __init__(self, gene_ids: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None):
         """
-        Filter the feature set to keep only genes associated with a specific pathway.
-        
+        Initialize FeatureSet.
+
         Args:
-            pathway: Pathway name to filter by.
-        
-        Returns:
-            A new FeatureSet instance with filtered genes.
+            gene_ids: List of gene IDs to include.
+            metadata: Optional dictionary of metadata.
         """
-        if "pathway" not in self.gene_info.columns:
-            logger.warning("Pathway column not found in gene_info. Returning original set.")
-            return self
+        self.gene_ids = set(gene_ids) if gene_ids else set()
+        self.metadata = metadata or {}
 
-        filtered_genes = self.gene_info[self.gene_info["pathway"] == pathway].index.tolist()
-        filtered_info = self.gene_info.loc[filtered_genes]
-        new_metadata = self.metadata.copy()
-        new_metadata["filtered_by_pathway"] = pathway
-        return FeatureSet(genes=filtered_genes, metadata=new_metadata, gene_info=filtered_info)
+    def add_gene(self, gene_id: str) -> None:
+        """Add a gene to the set."""
+        self.gene_ids.add(gene_id)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the FeatureSet to a dictionary."""
-        return {
-            "genes": self.genes,
-            "metadata": self.metadata,
-            "gene_info": self.gene_info.to_dict(orient="index")
+    def remove_gene(self, gene_id: str) -> None:
+        """Remove a gene from the set."""
+        self.gene_ids.discard(gene_id)
+
+    def contains(self, gene_id: str) -> bool:
+        """Check if a gene is in the set."""
+        return gene_id in self.gene_ids
+
+    def to_list(self) -> List[str]:
+        """Return the gene IDs as a list."""
+        return list(self.gene_ids)
+
+    def save(self, file_path: str) -> None:
+        """
+        Save the feature set to a JSON file.
+
+        Args:
+            file_path: Path to save the JSON file.
+        """
+        data = {
+            'gene_ids': sorted(list(self.gene_ids)),
+            'metadata': self.metadata
         }
-
-    def to_json(self, path: str):
-        """Save the FeatureSet to a JSON file."""
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-        logger.info(f"Saved feature set to {path}")
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Saved FeatureSet with {len(self.gene_ids)} genes to {file_path}")
 
     @classmethod
-    def from_json(cls, path: str) -> "FeatureSet":
-        """Load a FeatureSet from a JSON file."""
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Feature set file not found: {path}")
-        
-        with open(path, 'r') as f:
-            data = json.load(f)
-        
-        gene_info_df = pd.DataFrame.from_dict(data["gene_info"], orient="index")
-        if "gene_id" in gene_info_df.columns:
-            gene_info_df.set_index("gene_id", inplace=True)
-        
-        return cls(genes=data["genes"], metadata=data["metadata"], gene_info=gene_info_df)
+    def load(cls, file_path: str) -> 'FeatureSet':
+        """
+        Load a feature set from a JSON file.
 
-    def __repr__(self):
-        return f"FeatureSet(n_genes={len(self.genes)}, metadata_keys={list(self.metadata.keys())})"
+        Args:
+            file_path: Path to the JSON file.
+
+        Returns:
+            FeatureSet instance.
+        """
+        logger.info(f"Loading FeatureSet from {file_path}")
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return cls(gene_ids=data.get('gene_ids', []), metadata=data.get('metadata', {}))
+
+    def intersect(self, other: 'FeatureSet') -> 'FeatureSet':
+        """
+        Return a new FeatureSet containing the intersection with another.
+
+        Args:
+            other: Another FeatureSet.
+
+        Returns:
+            New FeatureSet with common genes.
+        """
+        common = self.gene_ids.intersection(other.gene_ids)
+        return FeatureSet(gene_ids=list(common), metadata={'source': 'intersection'})
+
+    def union(self, other: 'FeatureSet') -> 'FeatureSet':
+        """
+        Return a new FeatureSet containing the union with another.
+
+        Args:
+            other: Another FeatureSet.
+
+        Returns:
+            New FeatureSet with all unique genes.
+        """
+        all_genes = self.gene_ids.union(other.gene_ids)
+        return FeatureSet(gene_ids=list(all_genes), metadata={'source': 'union'})
+
+    def difference(self, other: 'FeatureSet') -> 'FeatureSet':
+        """
+        Return a new FeatureSet containing genes in self but not in other.
+
+        Args:
+            other: Another FeatureSet.
+
+        Returns:
+            New FeatureSet with difference.
+        """
+        diff = self.gene_ids.difference(other.gene_ids)
+        return FeatureSet(gene_ids=list(diff), metadata={'source': 'difference'})
+
+    def __len__(self) -> int:
+        """Return the number of genes in the set."""
+        return len(self.gene_ids)
+
+    def __repr__(self) -> str:
+        return f"FeatureSet(n_genes={len(self.gene_ids)}, metadata={self.metadata})"

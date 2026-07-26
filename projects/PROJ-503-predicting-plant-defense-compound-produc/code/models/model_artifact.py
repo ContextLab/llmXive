@@ -1,5 +1,7 @@
 """
-ModelArtifact class for storing trained model information and metrics.
+ModelArtifact data model class.
+
+Represents a serialized model along with its coefficients and evaluation metrics.
 """
 import pickle
 import json
@@ -10,94 +12,104 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ModelArtifact:
     """
-    Represents a serialized model artifact including coefficients, metrics, and metadata.
-    
+    Container for a trained model and its metadata.
+
     Attributes:
-        model (Any): The trained model object (e.g., Ridge regression).
-        coefficients (np.ndarray): Model coefficients.
-        metrics (Dict[str, Any]): Evaluation metrics (RMSE, Pearson r, p-values).
-        metadata (Dict[str, Any]): Additional metadata (e.g., training parameters).
+        model: The trained model object (e.g., scikit-learn estimator).
+        coefficients (Optional[np.ndarray]): Model coefficients if applicable.
+        metrics (Dict[str, Any]): Evaluation metrics (e.g., RMSE, R2, p-values).
+        metadata (Dict[str, Any]): Additional metadata (e.g., training date, parameters).
     """
-    
-    def __init__(self, model: Optional[Any] = None, coefficients: Optional[np.ndarray] = None, 
-                 metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        model: Any,
+        coefficients: Optional[np.ndarray] = None,
+        metrics: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Initialize ModelArtifact.
+
+        Args:
+            model: The trained model object.
+            coefficients: Optional array of coefficients.
+            metrics: Dictionary of evaluation metrics.
+            metadata: Dictionary of additional metadata.
+        """
         self.model = model
         self.coefficients = coefficients
-        self.metrics = metrics if metrics is not None else {}
-        self.metadata = metadata if metadata is not None else {}
+        self.metrics = metrics or {}
+        self.metadata = metadata or {}
 
-    def add_metric(self, key: str, value: Any):
-        """Add or update an evaluation metric."""
-        self.metrics[key] = value
-        logger.debug(f"Added metric: {key} = {value}")
-
-    def add_metadata(self, key: str, value: Any):
-        """Add or update a metadata field."""
-        self.metadata[key] = value
-        logger.debug(f"Added metadata: {key} = {value}")
-
-    def save(self, path: str):
+    def save(self, file_path: str) -> None:
         """
         Save the model artifact to disk.
-        
+
+        The model is pickled, while metrics and metadata are saved as JSON.
+
         Args:
-            path: Directory path where the artifact will be saved.
-        
-        The model object is pickled, while coefficients, metrics, and metadata are saved as JSON.
+            file_path: Path to save the artifact (e.g., .pkl).
         """
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+
         # Save pickled model
-        model_path = Path(path) / "model.pkl"
-        with open(model_path, 'wb') as f:
-            pickle.dump(self.model, f)
-        
-        # Save JSON components
-        json_data = {
-            "coefficients": self.coefficients.tolist() if self.coefficients is not None else None,
-            "metrics": self.metrics,
-            "metadata": self.metadata
-        }
-        json_path = Path(path) / "model_artifact.json"
-        with open(json_path, 'w') as f:
-            json.dump(json_data, f, indent=2)
-        
-        logger.info(f"Saved model artifact to {path}")
+        with open(file_path, 'wb') as f:
+            pickle.dump({
+                'model': self.model,
+                'coefficients': self.coefficients,
+                'metrics': self.metrics,
+                'metadata': self.metadata
+            }, f)
+
+        logger.info(f"Saved ModelArtifact to {file_path}")
 
     @classmethod
-    def load(cls, path: str) -> "ModelArtifact":
+    def load(cls, file_path: str) -> 'ModelArtifact':
         """
         Load a model artifact from disk.
-        
+
         Args:
-            path: Directory path where the artifact is stored.
-        
+            file_path: Path to the pickled artifact.
+
         Returns:
-            Loaded ModelArtifact instance.
+            ModelArtifact instance.
         """
-        path = Path(path)
-        model_path = path / "model.pkl"
-        json_path = path / "model_artifact.json"
-        
-        if not model_path.exists() or not json_path.exists():
-            raise FileNotFoundError(f"Model artifact files not found in {path}")
-        
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
-        
-        with open(json_path, 'r') as f:
-            json_data = json.load(f)
-        
-        coefficients = np.array(json_data["coefficients"]) if json_data["coefficients"] is not None else None
-        
+        logger.info(f"Loading ModelArtifact from {file_path}")
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+
         return cls(
-            model=model,
-            coefficients=coefficients,
-            metrics=json_data["metrics"],
-            metadata=json_data["metadata"]
+            model=data['model'],
+            coefficients=data.get('coefficients'),
+            metrics=data.get('metrics', {}),
+            metadata=data.get('metadata', {})
         )
 
-    def __repr__(self):
-        return f"ModelArtifact(metrics={list(self.metrics.keys())}, metadata_keys={list(self.metadata.keys())})"
+    def get_metric(self, key: str, default: Any = None) -> Any:
+        """
+        Retrieve a specific metric.
+
+        Args:
+            key: Metric key name.
+            default: Default value if key not found.
+
+        Returns:
+            Metric value or default.
+        """
+        return self.metrics.get(key, default)
+
+    def update_metrics(self, new_metrics: Dict[str, Any]) -> None:
+        """
+        Update metrics with new values.
+
+        Args:
+            new_metrics: Dictionary of metrics to update.
+        """
+        self.metrics.update(new_metrics)
+
+    def __repr__(self) -> str:
+        return f"ModelArtifact(metrics={self.metrics}, n_coefficients={len(self.coefficients) if self.coefficients is not None else 0})"

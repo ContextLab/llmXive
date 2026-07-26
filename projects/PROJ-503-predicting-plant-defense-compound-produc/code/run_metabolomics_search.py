@@ -1,9 +1,3 @@
-"""
-Task T013: Search Metabolomics Workbench for defense metabolite experiments.
-
-Searches for experiments containing terpenoids, alkaloids, and phenylpropanoids.
-Outputs a JSON file with experiment metadata to data/raw/metabolomics_search_results.json.
-"""
 import json
 import logging
 import sys
@@ -11,192 +5,242 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Add project root to path to import sibling modules
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+import requests
 
-from code.data_download import create_session
-from code.exceptions import raise_dataset_error
-
+# Configure logging to stderr for immediate visibility
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(PROJECT_ROOT / 'logs' / 'metabolomics_search.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stderr
 )
 logger = logging.getLogger(__name__)
 
-# Metabolomics Workbench API endpoints
-MW_API_BASE = "https://www.metabolomicsworkbench.org/rest"
-STUDY_SEARCH_URL = f"{MW_API_BASE}/study"
-ANALYSIS_SEARCH_URL = f"{MW_API_BASE}/analysis"
+# Metabolomics Workbench API endpoint
+MW_API_URL = "https://www.metabolomicsworkbench.org/rest/v1/study/study_list"
+MW_ANALYSIS_URL = "https://www.metabolomicsworkbench.org/rest/v1/analysis/analysis_list"
 
-# Keywords for defense compounds
-DEFENSE_KEYWORDS = [
-    "terpenoid", "terpene",
-    "alkaloid", "alkaloids",
-    "phenylpropanoid", "phenylpropanoids",
-    "defense", "herbivore", "stress", "insect"
+# Defense compound categories to search for
+DEFENSE_CATEGORIES = [
+    "terpenoid",
+    "terpenoids",
+    "alkaloid",
+    "alkaloids",
+    "phenylpropanoid",
+    "phenylpropanoids",
+    "defense",
+    "stress",
+    "herbivore",
+    "insect"
 ]
 
 def search_metabolomics_workbench(
-    keywords: List[str],
+    keywords: Optional[List[str]] = None,
     organism: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    Search Metabolomics Workbench for studies matching keywords.
-    
+    Search Metabolomics Workbench for studies related to plant defense compounds.
+
     Args:
-        keywords: List of search terms (defense compound classes)
-        organism: Optional organism filter (e.g., 'Arabidopsis', 'Solanum')
-        
+        keywords: List of keywords to search for in study titles/abstracts
+        organism: Optional organism filter (e.g., "Arabidopsis", "Solanum")
+
     Returns:
-        List of study metadata dictionaries
+        List of study dictionaries with metadata
     """
-    session = create_session()
-    found_studies = []
-    seen_ids = set()
+    params = {
+        "project_type": "METABOLOMICS",
+        "data_type": "BOTH"
+    }
 
-    # Construct search query
-    query_terms = " ".join(keywords)
+    if keywords:
+        # Combine keywords into a search string
+        search_term = " ".join(keywords)
+        params["search"] = search_term
+
     if organism:
-        query_terms = f"{query_terms} {organism}"
+        params["organism"] = organism
 
-    logger.info(f"Searching MW for: '{query_terms}'")
+    logger.info(f"Searching Metabolomics Workbench with params: {params}")
 
     try:
-        # MW REST API search endpoint
-        params = {
-            "STUDY_TITLE": query_terms,
-            "FORMAT": "JSON"
-        }
-        
-        response = session.get(STUDY_SEARCH_URL, params=params, timeout=60)
+        response = requests.get(MW_API_URL, params=params, timeout=30)
         response.raise_for_status()
-        
         data = response.json()
-        
-        # Parse results
-        if isinstance(data, list):
-            for study in data:
-                study_id = study.get("STUDY_ID") or study.get("studies", [{}])[0].get("STUDY_ID")
-                if not study_id:
-                    continue
-                
-                if study_id in seen_ids:
-                    continue
-                seen_ids.add(study_id)
-                
-                # Extract relevant metadata
-                study_meta = {
-                    "study_id": study_id,
-                    "title": study.get("STUDY_TITLE", "Unknown"),
-                    "organism": study.get("ORGANISM", "Unknown"),
-                    "treatment": study.get("TREATMENT", "Unknown"),
-                    "sample_count": study.get("SAMPLE_COUNT", 0),
-                    "metabolite_count": study.get("METABOLITE_COUNT", 0),
-                    "database": "Metabolomics Workbench",
-                    "source_url": f"https://www.metabolomicsworkbench.org/studies/study.php?STUDY_ID={study_id}"
-                }
-                
-                # Check if it contains defense-related terms in title/treatment
-                combined_text = f"{study_meta['title']} {study_meta['treatment']}".lower()
-                if any(kw in combined_text for kw in ["terpen", "alkaloid", "phenylprop", "defense", "herbivore", "stress"]):
-                    found_studies.append(study_meta)
-                    logger.info(f"Found study: {study_id} - {study_meta['title']}")
-                    
-    except Exception as e:
-        logger.error(f"Error searching Metabolomics Workbench: {e}")
-        raise_dataset_error(f"Failed to search Metabolomics Workbench: {e}")
 
-    return found_studies
+        studies = data.get("STUDY", [])
+        logger.info(f"Found {len(studies)} studies from Metabolomics Workbench")
 
-def search_by_analysis_type(keywords: List[str]) -> List[Dict[str, Any]]:
+        # Filter for relevant studies
+        relevant_studies = []
+        for study in studies:
+            title = study.get("STUDY_TITLE", "").lower()
+            abstract = study.get("ABSTRACT", "").lower()
+            organism_name = study.get("ORGANISM", "").lower()
+
+            # Check if study mentions defense compounds or related terms
+            is_relevant = False
+            for category in DEFENSE_CATEGORIES:
+                if category in title or category in abstract:
+                    is_relevant = True
+                    break
+
+            # Also check if organism matches (if specified)
+            if organism and organism.lower() not in organism_name:
+                continue
+
+            if is_relevant:
+                relevant_studies.append(study)
+
+        logger.info(f"Filtered to {len(relevant_studies)} relevant studies")
+        return relevant_studies
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to search Metabolomics Workbench: {e}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse Metabolomics Workbench response: {e}")
+        raise
+
+def search_by_analysis_type(
+    study_id: str,
+    analysis_type: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
-    Search by analysis type to find specific metabolite profiles.
-    """
-    session = create_session()
-    found_analyses = []
-    
-    for keyword in keywords:
-        try:
-            params = {
-                "ANALYSIS_TYPE": keyword,
-                "FORMAT": "JSON"
-            }
-            response = session.get(ANALYSIS_SEARCH_URL, params=params, timeout=60)
-            response.raise_for_status()
-            data = response.json()
-            
-            if isinstance(data, list):
-                for analysis in data:
-                    analysis_id = analysis.get("ANALYSIS_ID")
-                    if analysis_id:
-                        found_analyses.append({
-                            "analysis_id": analysis_id,
-                            "type": keyword,
-                            "source": "Metabolomics Workbench Analysis"
-                        })
-        except Exception as e:
-            logger.warning(f"Error searching analysis type {keyword}: {e}")
-            continue
-            
-    return found_analyses
+    Get analysis details for a specific study.
 
-def save_search_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+    Args:
+        study_id: Metabolomics Workbench study ID (e.g., ST000001)
+        analysis_type: Optional filter for analysis type
+
+    Returns:
+        List of analysis dictionaries
+    """
+    params = {
+        "study_id": study_id
+    }
+
+    if analysis_type:
+        params["analysis_type"] = analysis_type
+
+    logger.info(f"Fetching analyses for study {study_id}")
+
+    try:
+        response = requests.get(MW_ANALYSIS_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+
+        analyses = data.get("ANALYSIS", [])
+        logger.info(f"Found {len(analyses)} analyses for study {study_id}")
+
+        return analyses
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch analyses for study {study_id}: {e}")
+        raise
+
+def save_search_results(
+    results: List[Dict[str, Any]],
+    output_path: Path
+) -> None:
     """
     Save search results to a JSON file.
+
+    Args:
+        results: List of study dictionaries
+        output_path: Path to output file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    search_metadata = {
-        "search_date": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "query_terms": DEFENSE_KEYWORDS,
-        "total_results": len(results),
-        "results": results
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(search_metadata, f, indent=2)
-    
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+
     logger.info(f"Saved {len(results)} results to {output_path}")
 
 def main():
     """
-    Main entry point for T013: Search Metabolomics Workbench.
+    Main entry point for Metabolomics Workbench search.
+    Searches for defense compound experiments and saves results.
     """
-    logger.info("Starting Metabolomics Workbench search (Task T013)")
-    
     # Define output path
-    output_path = PROJECT_ROOT / "data" / "raw" / "metabolomics_search_results.json"
-    
-    # Perform search
+    base_path = Path("projects/PROJ-503-predicting-plant-defense-compound-produc")
+    output_dir = base_path / "data" / "raw"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = output_dir / "metabolomics_workbench_defense_studies.json"
+
+    logger.info("Starting Metabolomics Workbench search for defense compounds...")
+
     try:
-        # Search for general defense compound studies
-        studies = search_metabolomics_workbench(DEFENSE_KEYWORDS)
-        
-        # Also search for specific plant organisms if needed
-        arabidopsis_studies = search_metabolomics_workbench(DEFENSE_KEYWORDS, organism="Arabidopsis")
-        solanum_studies = search_metabolomics_workbench(DEFENSE_KEYWORDS, organism="Solanum")
-        
-        # Combine and deduplicate
-        all_results = {s["study_id"]: s for s in studies + arabidopsis_studies + solanum_studies}
-        combined_results = list(all_results.values())
-        
-        if not combined_results:
-            logger.warning("No relevant studies found in Metabolomics Workbench.")
-            # Create empty result file to indicate search was performed
-            save_search_results([], output_path)
-            return
-        
-        logger.info(f"Found {len(combined_results)} relevant studies")
-        save_search_results(combined_results, output_path)
-        
+        # Search for defense-related studies
+        # Search broadly first, then filter
+        all_results = []
+
+        # Search for terpenoids
+        terpenoid_results = search_metabolomics_workbench(
+            keywords=["terpenoid", "defense", "plant"]
+        )
+        all_results.extend(terpenoid_results)
+
+        # Search for alkaloids
+        alkaloid_results = search_metabolomics_workbench(
+            keywords=["alkaloid", "defense", "plant"]
+        )
+        all_results.extend(alkaloid_results)
+
+        # Search for phenylpropanoids
+        phenylpropanoid_results = search_metabolomics_workbench(
+            keywords=["phenylpropanoid", "defense", "plant"]
+        )
+        all_results.extend(phenylpropanoid_results)
+
+        # Search for herbivore stress
+        herbivore_results = search_metabolomics_workbench(
+            keywords=["herbivore", "insect", "stress", "plant"]
+        )
+        all_results.extend(herbivore_results)
+
+        # Deduplicate by study ID
+        unique_studies = {}
+        for study in all_results:
+            study_id = study.get("STUDY_ID")
+            if study_id and study_id not in unique_studies:
+                unique_studies[study_id] = study
+
+        final_results = list(unique_studies.values())
+        logger.info(f"Total unique relevant studies: {len(final_results)}")
+
+        # Log details of found studies
+        for study in final_results[:10]:  # Log first 10
+            logger.info(f"  - {study.get('STUDY_ID')}: {study.get('STUDY_TITLE', 'No title')[:80]}")
+
+        if len(final_results) > 10:
+            logger.info(f"  ... and {len(final_results) - 10} more")
+
+        # Save results
+        save_search_results(final_results, output_file)
+
+        # Also create a summary CSV for quick reference
+        summary_path = output_dir / "metabolomics_workbench_defense_studies_summary.csv"
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            f.write("study_id,title,organism,platform,public_date\n")
+            for study in final_results:
+                study_id = study.get("STUDY_ID", "")
+                title = study.get("STUDY_TITLE", "").replace("\n", " ").replace(",", " ")
+                organism = study.get("ORGANISM", "")
+                platform = study.get("DATA_PROCESSING_PLATFORM", "")
+                public_date = study.get("PUBLIC_RELEASE_DATE", "")
+
+                f.write(f"{study_id},{title},{organism},{platform},{public_date}\n")
+
+        logger.info(f"Search complete. Results saved to {output_file}")
+        logger.info(f"Summary saved to {summary_path}")
+
+        # Return success
+        return 0
+
     except Exception as e:
         logger.error(f"Search failed: {e}")
-        raise_dataset_error(f"Task T013 failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

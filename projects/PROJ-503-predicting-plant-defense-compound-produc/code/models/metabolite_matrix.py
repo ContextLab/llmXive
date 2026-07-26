@@ -1,5 +1,10 @@
 """
-MetaboliteMatrix class for handling metabolite concentration data.
+MetaboliteMatrix data model class.
+
+Represents a metabolite concentration matrix with explicit attributes:
+- metabolite_id: Identifier for the metabolite
+- sample_id: Identifier for the biological sample
+- value: Concentration value (e.g., log-transformed or raw)
 """
 import pandas as pd
 import numpy as np
@@ -7,117 +12,127 @@ from typing import Optional, List, Dict, Any
 from pathlib import Path
 import json
 import logging
-import math
 
 logger = logging.getLogger(__name__)
 
+
 class MetaboliteMatrix:
     """
-    Represents a matrix of metabolite concentrations (metabolites x samples).
-    
+    Container for metabolite concentration data.
+
     Attributes:
-        data (pd.DataFrame): Concentration values with metabolite IDs as index and sample IDs as columns.
-        metadata (Dict[str, Any]): Additional metadata (e.g., transformation method).
+        data (pd.DataFrame): DataFrame with columns ['metabolite_id', 'sample_id', 'value']
     """
-    
-    def __init__(self, data: Optional[pd.DataFrame] = None, metadata: Optional[Dict[str, Any]] = None):
-        self.data = data if data is not None else pd.DataFrame()
-        self.metadata = metadata if metadata is not None else {}
-        
-        if not self.data.empty:
-            self._validate_structure()
 
-    def _validate_structure(self):
-        """Validate that the dataframe has the expected structure."""
-        if self.data.index.name != "metabolite_id" and "metabolite_id" not in self.data.columns:
-            logger.warning("Index is not named 'metabolite_id'. Setting index name.")
-            if self.data.index.name is None:
-                self.data.index.name = "metabolite_id"
-        
-        if self.data.index.duplicated().any():
-            raise ValueError("Duplicate metabolite IDs found in metabolite matrix index.")
+    REQUIRED_COLUMNS = ['metabolite_id', 'sample_id', 'value']
 
-    def add_metadata(self, key: str, value: Any):
-        """Add or update a metadata field."""
-        self.metadata[key] = value
-        logger.debug(f"Added metadata: {key} = {value}")
-
-    def log_transform(self, base: float = np.e, offset: float = 1.0) -> "MetaboliteMatrix":
+    def __init__(self, data: Optional[pd.DataFrame] = None):
         """
-        Apply log transformation to the data.
-        
+        Initialize MetaboliteMatrix.
+
         Args:
-            base: Log base (default e).
-            offset: Value to add before log to avoid log(0).
-        
-        Returns:
-            Transformed MetaboliteMatrix.
+            data: DataFrame with columns metabolite_id, sample_id, value.
+                  If None, creates an empty DataFrame with required columns.
         """
-        if self.data.empty:
-            return self
+        if data is None:
+            self.data = pd.DataFrame(columns=self.REQUIRED_COLUMNS)
+        else:
+            self._validate_data(data)
+            self.data = data.copy()
 
-        transformed_data = np.log(self.data + offset) / np.log(base)
-        new_metadata = self.metadata.copy()
-        new_metadata["transformation"] = f"log_{base}_with_offset_{offset}"
-        return MetaboliteMatrix(data=pd.DataFrame(transformed_data, index=self.data.index, columns=self.data.columns), 
-                                metadata=new_metadata)
-
-    def filter_metabolites(self, metabolite_ids: List[str]) -> "MetaboliteMatrix":
-        """
-        Filter the matrix to keep only specified metabolite IDs.
-        
-        Args:
-            metabolite_ids: List of metabolite IDs to keep.
-        
-        Returns:
-            A new MetaboliteMatrix instance with filtered data.
-        """
-        filtered_data = self.data.loc[self.data.index.intersection(metabolite_ids)]
-        new_metadata = self.metadata.copy()
-        new_metadata["filtered_metabolites"] = metabolite_ids
-        return MetaboliteMatrix(data=filtered_data, metadata=new_metadata)
-
-    def filter_samples(self, sample_ids: List[str]) -> "MetaboliteMatrix":
-        """
-        Filter the matrix to keep only specified sample IDs.
-        
-        Args:
-            sample_ids: List of sample IDs to keep.
-        
-        Returns:
-            A new MetaboliteMatrix instance with filtered data.
-        """
-        filtered_data = self.data.loc[:, self.data.columns.intersection(sample_ids)]
-        new_metadata = self.metadata.copy()
-        new_metadata["filtered_samples"] = sample_ids
-        return MetaboliteMatrix(data=filtered_data, metadata=new_metadata)
-
-    def to_csv(self, path: str):
-        """Save the matrix to a CSV file."""
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.data.to_csv(path)
-        # Save metadata separately as JSON
-        metadata_path = Path(path).with_suffix('.json')
-        with open(metadata_path, 'w') as f:
-            json.dump(self.metadata, f, indent=2)
-        logger.info(f"Saved metabolite matrix to {path}")
+    def _validate_data(self, df: pd.DataFrame) -> None:
+        """Validate that the DataFrame has the required columns."""
+        missing = set(self.REQUIRED_COLUMNS) - set(df.columns)
+        if missing:
+            raise ValueError(f"MetaboliteMatrix requires columns {self.REQUIRED_COLUMNS}, missing: {missing}")
 
     @classmethod
-    def from_csv(cls, path: str) -> "MetaboliteMatrix":
-        """Load a matrix from a CSV file."""
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Metabolite matrix file not found: {path}")
-        
-        data = pd.read_csv(path, index_col=0)
-        
-        metadata = {}
-        metadata_path = path.with_suffix('.json')
-        if metadata_path.exists():
-            with open(metadata_path, 'r') as f:
-                metadata = json.load(f)
-        
-        return cls(data=data, metadata=metadata)
+    def load(cls, file_path: str) -> 'MetaboliteMatrix':
+        """
+        Load metabolite matrix from a CSV file.
 
-    def __repr__(self):
-        return f"MetaboliteMatrix(shape={self.data.shape}, metadata_keys={list(self.metadata.keys())})"
+        Args:
+            file_path: Path to the CSV file.
+
+        Returns:
+            MetaboliteMatrix instance.
+        """
+        logger.info(f"Loading metabolite matrix from {file_path}")
+        df = pd.read_csv(file_path)
+        return cls(df)
+
+    def save(self, file_path: str) -> None:
+        """
+        Save metabolite matrix to a CSV file.
+
+        Args:
+            file_path: Path to save the CSV file.
+        """
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+        self.data.to_csv(file_path, index=False)
+        logger.info(f"Saved metabolite matrix to {file_path}")
+
+    def filter_by_samples(self, sample_ids: List[str]) -> 'MetaboliteMatrix':
+        """
+        Filter the matrix to keep only specified sample IDs.
+
+        Args:
+            sample_ids: List of sample IDs to keep.
+
+        Returns:
+            New MetaboliteMatrix instance with filtered data.
+        """
+        filtered = self.data[self.data['sample_id'].isin(sample_ids)]
+        return MetaboliteMatrix(filtered)
+
+    def filter_by_metabolites(self, metabolite_ids: List[str]) -> 'MetaboliteMatrix':
+        """
+        Filter the matrix to keep only specified metabolite IDs.
+
+        Args:
+            metabolite_ids: List of metabolite IDs to keep.
+
+        Returns:
+            New MetaboliteMatrix instance with filtered data.
+        """
+        filtered = self.data[self.data['metabolite_id'].isin(metabolite_ids)]
+        return MetaboliteMatrix(filtered)
+
+    def to_pivot(self) -> pd.DataFrame:
+        """
+        Convert long-form data to a wide pivot table (metabolites x samples).
+
+        Returns:
+            DataFrame with metabolite_id as index and sample_id as columns.
+        """
+        return self.data.pivot(index='metabolite_id', columns='sample_id', values='value')
+
+    @classmethod
+    def from_pivot(cls, pivot_df: pd.DataFrame) -> 'MetaboliteMatrix':
+        """
+        Create a MetaboliteMatrix from a wide pivot DataFrame.
+
+        Args:
+            pivot_df: DataFrame with metabolites as index and samples as columns.
+
+        Returns:
+            MetaboliteMatrix instance in long format.
+        """
+        df = pivot_df.reset_index()
+        df_long = df.melt(id_vars=['metabolite_id'], var_name='sample_id', value_name='value')
+        return cls(df_long)
+
+    def get_unique_metabolites(self) -> List[str]:
+        """Return a list of unique metabolite IDs."""
+        return self.data['metabolite_id'].unique().tolist()
+
+    def get_unique_samples(self) -> List[str]:
+        """Return a list of unique sample IDs."""
+        return self.data['sample_id'].unique().tolist()
+
+    def __len__(self) -> int:
+        """Return the number of rows in the matrix."""
+        return len(self.data)
+
+    def __repr__(self) -> str:
+        return f"MetaboliteMatrix(n_metabolites={len(self.get_unique_metabolites())}, n_samples={len(self.get_unique_samples())}, n_rows={len(self)})"

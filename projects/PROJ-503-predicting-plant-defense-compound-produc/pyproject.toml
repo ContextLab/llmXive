@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-plant-defense-pipeline"
 version = "0.1.0"
-description = "Automated science pipeline for predicting plant defense compound production"
+description = "Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -20,40 +20,61 @@ dependencies = [
     "pytest",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "pytest-cov>=4.0.0",
+]
+
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \.eggs
-  | \.egg-info
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | \.eggs
+    | \.egg-info
 )/
 '''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+# Skip string normalization to align with flake8's quote preferences
+skip-string-normalization = true
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code", "tests"]
+known_first_party = ["code", "tests", "specs"]
+skip_gitignore = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
 
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+strict_optional = true
+
+[tool.setuptools]
+packages = ["code", "tests"]
+package-dir = {"" = "."}
