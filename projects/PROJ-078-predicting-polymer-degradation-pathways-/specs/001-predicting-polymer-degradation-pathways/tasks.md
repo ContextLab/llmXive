@@ -46,7 +46,7 @@
 - [ ] T001a Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/`, `state/`
 - [ ] T001b Generate `setup.sh` script to automate directory creation and verify existence
 - [X] T002 Initialize Python 3.11 project by generating `code/requirements.txt` with pinned versions: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`, `statsmodels`
-- [ ] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/.ruff.toml` or `code/.flake8`
+- [X] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/.ruff.toml` or `code/.flake8`
 
 ---
 
@@ -112,7 +112,7 @@
 - [ ] T021 [US2] (Depends on T016) Implement `model.py`: Define lightweight GNN architecture (≤3 layers, hidden dim ≤128) CPU-only (FR-003)
 - [ ] T022 [US2] (Depends on T014) Implement `preprocess.py`: Apply functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization for augmentation (FR-004 Alternative)
 - [ ] T022b [US2] (Depends on T014) Implement `preprocess.py`: Apply data augmentation via functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization; ensure chemical validity checks are logged (FR-004)
-- [ ] T022c [US2] (Depends on T022b) Implement `preprocess.py`: Run validation experiment comparing edge dropout vs baseline; verify if validation macro-F1 score improves or stabilizes; log results to `data/reports/augmentation_comparison.json` (US-2 Scenario 3)
+- [ ] T022c [US2] (Depends on T022b) Implement `preprocess.py`: Run validation experiment comparing edge dropout vs baseline; verify if validation macro-F1 score improves or stabilizes; log results to `data/reports/augmentation_comparison.json` (US-2 Scenario 3) <!-- FAILED: unspecified -->
 - [ ] T022d [US2] (Depends on T022b) Implement `preprocess.py`: Measure and enforce a bounded runtime constraint for augmentation.
 
 Research Question: How can augmentation processes be constrained within a bounded runtime to ensure feasibility?

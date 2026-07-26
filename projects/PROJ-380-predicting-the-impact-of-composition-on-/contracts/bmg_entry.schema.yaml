@@ -1,44 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: BMGEntry
-description: |
-  Schema for a single Bulk Metallic Glass (BMG) entry.
-  Defines the structure for raw and processed data including
-  source metadata, elemental composition (atomic percent),
-  and shear modulus measurements.
+description: >
+  Schema for a single Bulk Metallic Glass (BMG) data entry.
+  Defines the structure for source metadata, elemental composition,
+  and the target shear modulus property.
 type: object
 required:
   - source
   - composition
-  - modulus
+  - modulus_gpa
 properties:
   source:
     type: object
-    description: Metadata regarding the origin of this data point.
+    description: Metadata regarding the origin of the data point.
     required:
       - database
-      - material_id
-      - reference
+      - id
+      - retrieval_date
     properties:
       database:
         type: string
-        description: Name of the source database (e.g., 'Materials Project', 'Synthetic').
+        description: Name of the source database (e.g., "Materials Project", "Synthetic").
         enum:
           - Materials Project
           - Synthetic
-      material_id:
+          - Literature
+      id:
         type: string
-        description: Unique identifier in the source database (e.g., 'mp-12345').
-      reference:
+        description: Unique identifier for the entry within the source database.
+      retrieval_date:
         type: string
-        description: Citation or DOI for the data source.
-      fetch_date:
+        format: date
+        description: Date the data was retrieved (ISO 8601 format YYYY-MM-DD).
+      original_formula:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the data was retrieved.
-      provenance_checksum:
-        type: string
-        description: SHA-256 checksum of the raw source record.
-
+        description: Original chemical formula string as found in the source (optional).
+    
   composition:
     type: object
     description: Elemental composition of the alloy.
@@ -50,21 +47,28 @@ properties:
         type: array
         items:
           type: string
-        description: List of chemical symbols (e.g., ['Zr', 'Ti', 'Cu']).
+        description: List of chemical symbols (e.g., ["Zr", "Ti", "Cu", "Ni", "Be"]).
+        minItems: 2
       atomic_fractions:
         type: array
         items:
           type: number
-          minimum: 0
-          maximum: 1
-        description: Atomic fractions corresponding to the elements list. Sum must be ~1.0.
+          minimum: 0.0
+          maximum: 1.0
+        description: >
+          List of atomic fractions corresponding to the elements list.
+          Must sum to 1.0 (within floating point tolerance).
+        minItems: 2
       weight_fractions:
         type: array
         items:
           type: number
-          minimum: 0
-        description: Optional weight fractions if original data was in wt%.
-
+          minimum: 0.0
+          maximum: 1.0
+        description: >
+          Optional: List of weight fractions corresponding to elements.
+          Used for standardization steps.
+    
   modulus:
     type: object
     description: Shear modulus measurement.
@@ -74,52 +78,69 @@ properties:
     properties:
       value:
         type: number
-        description: Shear modulus value (GPa).
+        description: Shear modulus value.
+        minimum: 0.0
       unit:
         type: string
+        description: Unit of measurement.
         enum:
           - GPa
           - MPa
         default: GPa
       method:
         type: string
-        description: Measurement or calculation method (e.g., 'DFT', 'Ultrasound').
+        description: Measurement or calculation method (e.g., "DFT", "Experimental", "Rule of Mixtures").
+        enum:
+          - DFT
+          - Experimental
+          - Rule of Mixtures
+          - Estimated
       uncertainty:
         type: number
-        description: Estimated uncertainty of the measurement.
-
-  descriptors:
+        minimum: 0.0
+        description: Optional uncertainty value (standard deviation or error margin).
+  
+  derived_features:
     type: object
-    description: Optional pre-calculated compositional descriptors.
+    description: >
+      Optional: Pre-calculated compositional descriptors (δ, ΔHmix, VEC, Δχ).
+      If present, these are used to skip calculation in the feature engineering pipeline.
     properties:
-      delta:
+      delta_r:
         type: number
-        description: Atomic size difference (delta).
-      delta_hmix:
+        description: Atomic radius mismatch (δ).
+      delta_h_mix:
         type: number
-        description: Enthalpy of mixing (kJ/mol).
+        description: Enthalpy of mixing (ΔHmix) in kJ/mol.
       vec:
         type: number
-        description: Valence electron concentration.
+        description: Valence Electron Concentration (VEC).
       delta_chi:
         type: number
-        description: Electronegativity difference.
-      vif:
+        description: Electronegativity difference (Δχ).
+      omega:
         type: number
-        description: Variance Inflation Factor for this sample's feature set.
-
-  metadata:
-    type: object
-    description: Internal processing metadata.
-    properties:
-      cleaned:
-        type: boolean
-        default: false
-      filtered:
-        type: boolean
-        default: false
-      alloy_family:
-        type: string
-        description: Classified alloy family (e.g., 'Zr-based', 'Pd-based').
-
+        description: Omega parameter (optional).
+      atomic_percent:
+        type: number
+        description: Total atomic percent (should be ~100).
 additionalProperties: false
+examples:
+  - source:
+      database: Materials Project
+      id: "mp-123456"
+      retrieval_date: "2023-10-27"
+      original_formula: "Zr41.2Ti13.8Cu12.5Ni10Be22.5"
+    composition:
+      elements: ["Zr", "Ti", "Cu", "Ni", "Be"]
+      atomic_fractions: [0.412, 0.138, 0.125, 0.10, 0.225]
+    modulus:
+      value: 35.5
+      unit: GPa
+      method: DFT
+    derived_features:
+      delta_r: 4.2
+      delta_h_mix: -12.5
+      vec: 4.15
+      delta_chi: 0.85
+      atomic_percent: 100.0

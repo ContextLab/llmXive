@@ -50,3 +50,117 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T13:11:14Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Wiener index values for benzene, toluene, and nitrobenzene
+  claim_id: c_32f27fb9
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:42Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: tolerance for Wiener index verification
+  claim_id: c_c2b564da
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify values within \xB10.1 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: minimum count of EAS reactions required
+  claim_id: c_3a8d3699
+  context: 'Implement logic to log critical errors and halt if N_EAS < 100 (FR-001).
+    Gate Logic: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST
+    exit with code 1 and prevent Phase 5 execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_EAS < 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: performance constraint for descriptor calculation
+  claim_id: c_10459d56
+  context: Unit test for Balaban and Zagreb index calculations in tests/unit/test_descriptors.py.
+    Performance test ensuring full dataset calculation < 15 mins on 2-core runner
+    in tests/perf/test_descriptor_perf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full dataset calculation < 15 mins on 2-core runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: cross-validation switch threshold
+  claim_id: c_70ad5c73
+  context: Implement 5-fold CV logic with automatic switch to LOO if N < 20 in code/modeling.py
+    (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: automatic switch to LOO if N < 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: threshold for degenerate target detection
+  claim_id: c_dbafea5b
+  context: Implement degenerate target detection (variance=0) and switch to Binary
+    Classification (threshold > 1) in code/modeling.py (FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold > 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: symmetry violation threshold for pipeline halt
+  claim_id: c_b2b828b5
+  context: 'Logic: If SymmetryValidator (from Phase 7) fails for >1% of the dataset,
+    halt with Data Integrity: Symmetry Violation error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SymmetryValidator fails for >1% of the dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:53:59Z'

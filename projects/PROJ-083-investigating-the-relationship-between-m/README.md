@@ -1,41 +1,55 @@
 # PROJ-083: Investigating the Relationship Between Molecular Topology and Reaction Selectivity
 
 ## Overview
-This project investigates the correlation between topological molecular descriptors (Wiener, Balaban, Zagreb indices) and regioselectivity in Electrophilic Aromatic Substitution (EAS) reactions.
+This project investigates the relationship between molecular topology (Wiener, Balaban, Zagreb indices) and reaction selectivity in Electrophilic Aromatic Substitution (EAS) reactions.
+
+## Setup
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ ```
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. Run the ingestion pipeline:
+ ```bash
+ python -m code.ingestion
+ ```
+4. Run tests:
+ ```bash
+ pytest
+ ```
 
 ## Project Structure
-```
-.
-├── code/ # Source code modules
-│ ├── ingestion.py # Data download and filtering
-│ ├── descriptors.py # Topological index calculations
-│ ├── modeling.py # Statistical modeling
-│ ├── config.py # Configuration management
-│ └── utils/ # Utilities (smiles_parser, logger, symmetry)
-├── data/
-│ ├── raw/ # Raw downloaded datasets
-│ ├── processed/ # Cleaned and filtered data
-│ └── models/ # Trained models and results
-├── tests/ # Unit and integration tests
-├── specs/ # Project specifications
-│ └── 001-molecular-topology-selectivity/
-├── docs/ # Documentation and reports
-└── requirements.txt # Python dependencies
-```
+- `code/`: Source code
+ - `ingestion.py`: Data ingestion pipeline
+ - `descriptors.py`: Topological descriptor calculation
+ - `modeling.py`: Statistical modeling
+ - `utils/`: Utility functions (smiles_parser, logger, symmetry)
+ - `config.py`: Configuration management
+- `data/`: Data directories
+ - `raw/`: Raw data (USPTO-50k)
+ - `processed/`: Processed data (EAS reactions, descriptors)
+ - `models/`: Model outputs
+- `tests/`: Test suite
+ - `unit/`: Unit tests
+ - `integration/`: Integration tests
+- `docs/`: Documentation
+- `specs/`: Feature specifications
 
-## Prerequisites
+## Dependencies
 - Python 3.11+
-- pip
+- RDKit
+- Pandas
+- Scikit-learn
+- Statsmodels
+- PyYAML
+- Pytest
+- Black
+- Ruff
+- NetworkX
 
-## Installation
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-Refer to `docs/quickstart.md` for execution instructions.
-
-## Key Constraints
-- **Symmetry Invariance**: All topological indices must be proven invariant under the defined symmetry group of the aromatic ring (see `docs/reports/symmetry_group_definition.md`).
-- **Data Integrity**: Pipeline halts if EAS reaction count < 100.
-- **Model Validation**: Models must meet R² > 0.05 threshold or report project failure.
+## License
+MIT License

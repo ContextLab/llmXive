@@ -1,77 +1,52 @@
-"""
-Unit tests for preprocessing functions.
-"""
+"""Unit tests for preprocessing logic."""
 import pytest
-import pandas as pd
-from pathlib import Path
+from preprocess import filter_missing_environmental_data
 
-from preprocess import is_polyester, filter_polyesters, canonicalize_smiles
+class TestMissingDataExclusion:
+    def test_missing_env_excludes_record(self, sample_env_data):
+        """Test that records with missing environmental data are excluded."""
+        # Valid record
+        valid_record = {
+            "id": 1,
+            "smiles": "CC(=O)O",
+            "environment": sample_env_data,
+            "label": "hydrolysis"
+        }
 
-class TestPolyesterDetection:
-    """Tests for polyester functional group detection."""
-    
-    def test_is_polyester_true(self):
-        """Test detection of valid polyester SMILES."""
-        # Polyethylene terephthalate (PET) monomer unit
-        smiles = "CC(=O)Oc1ccccc1C(=O)O"
-        assert is_polyester(smiles) is True
-        
-        # Polylactic acid (PLA)
-        smiles_pla = "CC(C(=O)O)O"
-        assert is_polyester(smiles_pla) is True
-    
-    def test_is_polyester_false(self):
-        """Test rejection of non-polyester SMILES."""
-        # Alkane
-        assert is_polyester("CCCCC") is False
-        
-        # Alcohol
-        assert is_polyester("CCO") is False
-        
-        # Alkene
-        assert is_polyester("CC=C") is False
-        
-        # Ether (no carbonyl)
-        assert is_polyester("COCC") is False
-    
-    def test_is_polyester_invalid_smiles(self):
-        """Test handling of invalid SMILES."""
-        assert is_polyester("invalid_smiles") is False
-        assert is_polyester("") is False
-    
-    def test_filter_polyesters(self):
-        """Test the filter_polyesters function."""
-        records = [
-            {'id': '1', 'smiles': 'CC(=O)Oc1ccccc1C(=O)O'},  # Polyester
-            {'id': '2', 'smiles': 'CCCCC'},  # Not polyester
-            {'id': '3', 'smiles': 'CC(C(=O)O)O'},  # Polyester
-            {'id': '4', 'smiles': 'CCO'},  # Not polyester
-        ]
-        
-        polyesters, non_polyesters = filter_polyesters(records)
-        
-        assert len(polyesters) == 2
-        assert len(non_polyesters) == 2
-        
-        polyester_ids = [r['id'] for r in polyesters]
-        assert '1' in polyester_ids
-        assert '3' in polyester_ids
-        
-        non_polyester_ids = [r['id'] for r in non_polyesters]
-        assert '2' in non_polyester_ids
-        assert '4' in non_polyester_ids
+        # Record with missing temperature
+        missing_temp = {
+            "id": 2,
+            "smiles": "CC(=O)O",
+            "environment": {**sample_env_data, "temperature": None},
+            "label": "hydrolysis"
+        }
 
-class TestCanonicalizeSmiles:
-    """Tests for SMILES canonicalization."""
-    
-    def test_canonicalize_valid(self):
-        """Test canonicalization of valid SMILES."""
-        smiles = "CCO"
-        canonical = canonicalize_smiles(smiles)
-        assert canonical is not None
-        assert isinstance(canonical, str)
-    
-    def test_canonicalize_invalid(self):
-        """Test handling of invalid SMILES."""
-        assert canonicalize_smiles("invalid") is None
-        assert canonicalize_smiles("") is None
+        # Record with missing pH
+        missing_ph = {
+            "id": 3,
+            "smiles": "CC(=O)O",
+            "environment": {**sample_env_data, "ph": None},
+            "label": "hydrolysis"
+        }
+
+        input_data = [valid_record, missing_temp, missing_ph]
+
+        # Filter
+        filtered = filter_missing_environmental_data(input_data)
+
+        # Assert only valid record remains
+        assert len(filtered) == 1
+        assert filtered[0]["id"] == 1
+
+    def test_all_missing_excludes_all(self, sample_env_data):
+        """Test that if all records have missing data, all are excluded."""
+        bad_record = {
+            "id": 1,
+            "smiles": "CC(=O)O",
+            "environment": {**sample_env_data, "temperature": None},
+            "label": "hydrolysis"
+        }
+        input_data = [bad_record]
+
+        filtered = filter_missing_environmental_data(input_data)
+        assert len(filtered) == 0

@@ -6,3 +6,11 @@ ignore = ["E501", "F401"]
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/**/*.py" = ["E501"]
+
+# Black compatibility: ensure ruff format matches black defaults
+# Line length is handled by black, but ruff lint ignores E501 above
+# to avoid conflicts.

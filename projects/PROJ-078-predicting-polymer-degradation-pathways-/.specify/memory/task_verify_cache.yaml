@@ -15,13 +15,12 @@ T001b:
     creation automation script exists or verifies its creation. The required artifact\
     \ is missing."
 T003:
-  c: false
-  h: 4d84dd185300b7871d56caec9103663f2586cd54e244aa75f6f203cd729e979c
-  r: "The repository contains a non\u2011empty `code/.ruff.toml` that configures ruff\
-    \ linting, but it does not include any configuration for the Black formatter (e.g.,\
-    \ a `[tool.black]` section or a separate Black config file). Since the task explicitly\
-    \ requires configuring both linting **and** formatting with Black, the required\
-    \ Black configuration is missing."
+  c: true
+  h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
+  r: "The `code/.ruff.toml` file exists, is non\u2011empty, and contains both ruff\
+    \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
+    \ fulfilling the requirement to configure linting/formatting in the specified\
+    \ location."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -63,3 +62,25 @@ T022:
     \ that functional\u2011group\u2011preserving edge dropout (non\u2011ester bonds\
     \ only) and SMILES canonicalization were implemented. The required artifact is\
     \ missing, so the task is not satisfied."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no `preprocess.py` file, no code implementing edge\u2011\
+    dropout augmentation, SMILES canonicalization, or validity\u2011check logging,\
+    \ and no evidence (e.g., logs, tests) that such functionality exists. Consequently\
+    \ the required artifact is missing."
+T022c:
+  c: false
+  h: 2b2a89f88cfb0d275f1bf91b9f83a2e6466220774a183aca8f398cc8639052b9
+  r: "The required output file `data/reports/augmentation_comparison.json` is missing,\
+    \ so the validation experiment results are not logged and the task\u2019s deliverable\
+    \ does not exist. No evidence of the edge\u2011dropout vs baseline comparison\
+    \ or macro\u2011F1 verification is present."
+T022d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `preprocess.py` file or any code snippet was provided that measures and enforces
+    a bounded runtime for data augmentation. Without the actual implementation (e.g.,
+    timing logic, timeout handling, or tests demonstrating the constraint), the task
+    requirement is not satisfied. The next implementer must add the script with runtime
+    measurement and enforcement logic and include the file as evidence.

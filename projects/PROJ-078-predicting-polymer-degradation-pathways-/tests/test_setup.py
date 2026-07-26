@@ -1,51 +1,75 @@
 """
-Tests to verify the project directory structure created by T001.
-
-These tests ensure that the required folders exist after the setup script runs.
+Tests for project setup and directory structure verification.
 """
 import os
-import pytest
+import tempfile
 from pathlib import Path
+import pytest
+import sys
 
-@pytest.fixture
-def project_root(tmp_path):
-    """
-    Create a temporary directory to simulate the project root for testing.
-    We change the current working directory to this temp path for the test duration.
-    """
-    original_cwd = Path.cwd()
-    os.chdir(tmp_path)
-    yield tmp_path
-    os.chdir(original_cwd)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_setup_script_creates_directories(project_root):
-    """Test that the setup script creates the required directory structure."""
-    # Import the function to test (simulating the script execution)
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-    
-    # We can't easily import the function if it's in a script, so we run the logic directly
-    # or we assume the script has been run. Since we are testing the *result* of T001,
-    # we verify the existence of the directories that T001 should have created.
-    
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/reports",
-        "tests",
-        "state"
-    ]
-    
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        assert dir_path.exists(), f"Directory {dir_path} was not created."
-        assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
+from setup_project import create_directories, verify_directories
 
-def test_nested_directories_exist(project_root):
-    """Test that nested directories (e.g., data/raw) are created correctly."""
-    # This is implicitly covered by test_setup_script_creates_directories,
-    # but we can be explicit about the nested structure.
-    assert (project_root / "data" / "raw").exists()
-    assert (project_root / "data" / "processed").exists()
-    assert (project_root / "data" / "reports").exists()
+
+class TestSetupProject:
+    """Test cases for setup_project module."""
+
+    def test_create_directories_creates_all_required(self, tmp_path):
+        """Test that create_directories creates all required directories."""
+        required_dirs = ["code", "data/raw", "data/processed", "data/reports", "tests", "state"]
+        
+        created = create_directories(tmp_path)
+        
+        # Check all directories were created
+        for dir_name in required_dirs:
+            full_path = tmp_path / dir_name
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"
+
+    def test_create_directories_idempotent(self, tmp_path):
+        """Test that calling create_directories multiple times doesn't fail."""
+        create_directories(tmp_path)
+        created_first = create_directories(tmp_path)
+        
+        # Should not raise any exceptions
+        assert len(created_first) == 6
+
+    def test_verify_directories_success(self, tmp_path):
+        """Test verify_directories returns True when all directories exist."""
+        create_directories(tmp_path)
+        result = verify_directories(tmp_path)
+        
+        assert result is True
+
+    def test_verify_directories_failure(self, tmp_path):
+        """Test verify_directories returns False when directories are missing."""
+        # Don't create directories, just verify
+        result = verify_directories(tmp_path)
+        
+        assert result is False
+
+    def test_nested_directories_created(self, tmp_path):
+        """Test that nested directories (data/raw) are created with parents."""
+        created = create_directories(tmp_path)
+        
+        # Check nested directories exist
+        assert (tmp_path / "data/raw").exists()
+        assert (tmp_path / "data/processed").exists()
+        assert (tmp_path / "data/reports").exists()
+
+    def test_current_directory_default(self):
+        """Test that create_directories works with default (current) directory."""
+        # Use a temporary directory to avoid polluting current dir
+        with tempfile.TemporaryDirectory() as tmpdir:
+            original_dir = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                created = create_directories()
+                
+                required_dirs = ["code", "data/raw", "data/processed", "data/reports", "tests", "state"]
+                for dir_name in required_dirs:
+                    assert os.path.exists(dir_name), f"Directory {dir_name} was not created"
+            finally:
+                os.chdir(original_dir)

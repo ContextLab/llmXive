@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `projects/PROJ-083-investigating-the-relationship-between-m/`\
+    \ directory (or any files within it) was provided; the claim lacks the required\
+    \ project\u2011structure artifact, so the task is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no linting or formatting configuration files (e.g., `pyproject.toml`\
+    \ with ruff/black settings, `.ruff.toml`, or CI steps invoking them). No artifacts\
+    \ exist on disk to demonstrate that ruff and black have been set up, so the requirement\
+    \ is not satisfied. The implementer must add the appropriate configuration files\
+    \ and ensure they are non\u2011empty and correctly reference ruff and black."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/models/`,
+    `code/`, `tests/`) is provided; the only artifact shown is a feature specification,
+    not the actual folder structure. The task remains undone until the specified directory
+    hierarchy exists in the repository.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No schema files were presented; there is no evidence that `contracts/ReactionRecord`\
+    \ or `contracts/TopologicalDescriptor` definitions exist, are non\u2011empty,\
+    \ or contain the required fields. The implementer must add the two schema definition\
+    \ files in the `contracts/` directory."
+T010:
+  c: false
+  h: 4124003d48e49d627499c0893203b20f2aae092ced6d468e5c5455c92572c978
+  r: The required file `tests/integration/test_ingestion_pipeline.py` does not exist,
+    so no integration test artifact is present to verify the ingestion pipeline. The
+    task cannot be considered completed until this test file is added with appropriate
+    test code.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that shows the implementation of a\
+    \ check for the number of EAS reactions (N_EAS) and the required critical\u2011\
+    error logging and halting behavior when N_EAS\u202F<\u202F100. Without such an\
+    \ artifact, we cannot confirm the task\u2019s requirement has been met. The missing\
+    \ artifact is the implementation (e.g., Python module, shell script, or pipeline\
+    \ step) that performs the count, logs a critical error, and aborts the pipeline\
+    \ with status \u201CInsufficient Data\u201D."

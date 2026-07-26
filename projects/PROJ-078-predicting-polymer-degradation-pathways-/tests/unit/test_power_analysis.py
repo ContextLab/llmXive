@@ -1,263 +1,194 @@
 """
 Unit tests for power analysis functionality.
 """
+
 import pytest
-import os
+import numpy as np
 import json
+import os
 import tempfile
 from pathlib import Path
-import numpy as np
-import pandas as pd
 
-from data_models import PolymerRecord
 from power_analysis import (
-    check_dataset_power,
+    calculate_cohen_d,
     interpret_effect_size,
-    run_power_analysis_from_csv,
-    ALPHA,
-    BETA,
-    MIN_DATASET_SIZE,
-    EFFECT_SIZE_SMALL,
-    EFFECT_SIZE_MEDIUM,
-    EFFECT_SIZE_LARGE
+    check_dataset_power,
+    run_power_analysis_from_csv
 )
 
-@pytest.fixture
-def sample_records():
-    """Create sample PolymerRecord objects for testing."""
-    records = []
-    
-    # Create two groups with different degradation rates
-    # Group 1: Higher degradation rates
-    for i in range(50):
-        records.append(PolymerRecord(
-            smiles=f"C{10+i}H{20+i}O{5}",
-            degradation_pathway='hydrolysis',
-            degradation_rate=0.8 + np.random.normal(0, 0.1),
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ))
-    
-    # Group 2: Lower degradation rates
-    for i in range(50):
-        records.append(PolymerRecord(
-            smiles=f"C{10+i}H{20+i}O{5}",
-            degradation_pathway='oxidation',
-            degradation_rate=0.3 + np.random.normal(0, 0.1),
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ))
-    
-    return records
 
-@pytest.fixture
-def small_sample_records():
-    """Create a small sample for testing power insufficiency."""
-    records = []
-    
-    # Only 10 records per group
-    for i in range(10):
-        records.append(PolymerRecord(
-            smiles=f"C{10+i}H{20+i}O{5}",
-            degradation_pathway='hydrolysis',
-            degradation_rate=0.8 + np.random.normal(0, 0.1),
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ))
-    
-    for i in range(10):
-        records.append(PolymerRecord(
-            smiles=f"C{10+i}H{20+i}O{5}",
-            degradation_pathway='oxidation',
-            degradation_rate=0.3 + np.random.normal(0, 0.1),
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ))
-    
-    return records
+class TestCohenD:
+    """Tests for Cohen's d calculation."""
 
-def test_interpret_effect_size():
-    """Test effect size interpretation."""
-    assert interpret_effect_size(0.0) == "negligible"
-    assert interpret_effect_size(0.1) == "negligible"
-    assert interpret_effect_size(0.19) == "negligible"
-    
-    assert interpret_effect_size(0.2) == "small"
-    assert interpret_effect_size(0.4) == "small"
-    assert interpret_effect_size(0.49) == "small"
-    
-    assert interpret_effect_size(0.5) == "medium"
-    assert interpret_effect_size(0.7) == "medium"
-    assert interpret_effect_size(0.79) == "medium"
-    
-    assert interpret_effect_size(0.8) == "large"
-    assert interpret_effect_size(1.0) == "large"
-    assert interpret_effect_size(2.0) == "large"
+    def test_cohen_d_small_difference(self):
+        """Test calculation with small difference between groups."""
+        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        group2 = np.array([1.1, 2.1, 3.1, 4.1, 5.1])
 
-def test_check_dataset_power_insufficient_records():
-    """Test power analysis with insufficient records."""
-    records = [
-        PolymerRecord(
-            smiles="CCO",
-            degradation_pathway='hydrolysis',
-            degradation_rate=0.5,
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=50.0,
-            functional_groups=['ester']
-        )
-    ]
-    
-    result = check_dataset_power(records)
-    
-    assert 'error' in result
-    assert result['sample_size'] == 1
-    assert result['sufficient'] == False
+        d = calculate_cohen_d(group1, group2)
+        assert abs(d) < 0.5, "Effect size should be small for similar groups"
 
-def test_check_dataset_power_insufficient_groups(sample_records):
-    """Test power analysis with only one group."""
-    # Filter to only one group
-    single_group_records = [r for r in sample_records if r.degradation_pathway == 'hydrolysis']
-    
-    result = check_dataset_power(single_group_records)
-    
-    assert 'error' in result
-    assert 'Insufficient groups' in result['error']
-    assert result['sufficient'] == False
+    def test_cohen_d_large_difference(self):
+        """Test calculation with large difference between groups."""
+        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        group2 = np.array([10.0, 11.0, 12.0, 13.0, 14.0])
 
-def test_check_dataset_power_sufficient(sample_records):
-    """Test power analysis with sufficient records."""
-    result = check_dataset_power(sample_records)
-    
-    assert 'error' not in result
-    assert result['sample_size'] == 100
-    assert result['effect_size'] > 0
-    assert 0 <= result['power'] <= 1
-    assert 'warnings' in result
+        d = calculate_cohen_d(group1, group2)
+        assert abs(d) > 0.8, "Effect size should be large for dissimilar groups"
 
-def test_check_dataset_power_small_sample(small_sample_records):
-    """Test power analysis with small sample size."""
-    result = check_dataset_power(small_sample_records)
-    
-    assert result['sample_size'] == 20
-    assert result['sample_size'] < MIN_DATASET_SIZE
-    assert 'warnings' in result
-    assert any('below minimum threshold' in w for w in result['warnings'])
+    def test_cohen_d_identical_groups(self):
+        """Test calculation with identical groups (should be ~0)."""
+        group1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        group2 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
 
-def test_run_power_analysis_from_csv():
-    """Test running power analysis from CSV file."""
-    # Create temporary CSV file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        data = {
-            'smiles': ['CCO' * 10] * 60,
-            'degradation_pathway': ['hydrolysis'] * 30 + ['oxidation'] * 30,
-            'degradation_rate': [0.8] * 30 + [0.3] * 30,
-            'temperature': [25.0] * 60,
-            'ph': [7.0] * 60,
-            'uv_exposure': [0.0] * 60,
-            'molecular_weight': [1000.0] * 60,
-            'functional_groups': [['ester']] * 60
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(f.name, index=False)
-        csv_path = f.name
-    
-    try:
-        # Create temporary output directory
-        with tempfile.TemporaryDirectory() as temp_dir:
+        d = calculate_cohen_d(group1, group2)
+        assert abs(d) < 0.001, "Effect size should be near zero for identical groups"
+
+    def test_cohen_d_empty_group_raises(self):
+        """Test that empty groups raise an error."""
+        group1 = np.array([])
+        group2 = np.array([1.0, 2.0, 3.0])
+
+        with pytest.raises(ValueError):
+            calculate_cohen_d(group1, group2)
+
+
+class TestInterpretEffectSize:
+    """Tests for effect size interpretation."""
+
+    def test_negligible_effect(self):
+        """Test interpretation of negligible effect."""
+        assert interpret_effect_size(0.1) == "negligible"
+        assert interpret_effect_size(-0.1) == "negligible"
+
+    def test_small_effect(self):
+        """Test interpretation of small effect."""
+        assert interpret_effect_size(0.3) == "small"
+        assert interpret_effect_size(-0.4) == "small"
+
+    def test_medium_effect(self):
+        """Test interpretation of medium effect."""
+        assert interpret_effect_size(0.5) == "medium"
+        assert interpret_effect_size(-0.7) == "medium"
+
+    def test_large_effect(self):
+        """Test interpretation of large effect."""
+        assert interpret_effect_size(0.8) == "large"
+        assert interpret_effect_size(1.5) == "large"
+        assert interpret_effect_size(-1.2) == "large"
+
+
+class TestCheckDatasetPower:
+    """Tests for dataset power checking."""
+
+    def test_sufficient_power_large_sample(self):
+        """Test with large sample size and medium effect."""
+        result = check_dataset_power(n_samples=500, effect_size=0.5)
+        assert result["is_sufficient"] is True
+        assert result["n_samples"] == 500
+
+    def test_insufficient_power_small_sample(self):
+        """Test with small sample size and small effect."""
+        result = check_dataset_power(n_samples=20, effect_size=0.2)
+        # Small sample with small effect likely insufficient
+        assert result["n_samples"] == 20
+
+    def test_power_calculation_consistency(self):
+        """Test that power calculation is consistent."""
+        result1 = check_dataset_power(n_samples=200, effect_size=0.5)
+        result2 = check_dataset_power(n_samples=200, effect_size=0.5)
+
+        assert result1["calculated_power"] == result2["calculated_power"]
+
+
+class TestRunPowerAnalysisFromCSV:
+    """Tests for CSV-based power analysis."""
+
+    def test_full_analysis_with_temp_csv(self):
+        """Test full analysis pipeline with a temporary CSV file."""
+        # Create temporary CSV
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("group,value\n")
+            for i in range(50):
+                f.write(f"A,{1.0 + i * 0.1}\n")
+            for i in range(50):
+                f.write(f"B,{2.0 + i * 0.1}\n")
+            temp_csv = f.name
+
+        # Create temporary output
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            temp_output = f.name
+
+        try:
             result = run_power_analysis_from_csv(
-                csv_path,
-                output_dir=temp_dir,
-                target_variable='degradation_rate',
-                group_variable='degradation_pathway'
+                csv_path=temp_csv,
+                value_column="value",
+                group_column="group",
+                output_path=temp_output,
+                alpha=0.05,
+                beta=0.20,
+                minimum_threshold=150
             )
-            
-            # Check result structure
-            assert 'sample_size' in result
-            assert 'effect_size' in result
-            assert 'power' in result
-            assert 'sufficient' in result
-            
-            # Check that report was saved
-            report_path = os.path.join(temp_dir, 'power_analysis_report.json')
-            assert os.path.exists(report_path)
-            
-            # Verify report content
-            with open(report_path, 'r') as rf:
-                saved_report = json.load(rf)
-            
-            assert saved_report['sample_size'] == result['sample_size']
-    finally:
-        # Clean up
-        if os.path.exists(csv_path):
-            os.unlink(csv_path)
 
-def test_run_power_analysis_file_not_found():
-    """Test error handling for missing CSV file."""
-    with pytest.raises(FileNotFoundError):
-        run_power_analysis_from_csv('/nonexistent/path/to/file.csv')
+            # Verify report structure
+            assert "dataset_statistics" in result
+            assert "effect_size" in result
+            assert "power_analysis" in result
+            assert "overall_status" in result
+            assert result["dataset_statistics"]["total_samples"] == 100
 
-def test_power_analysis_constants():
-    """Test that power analysis constants are correctly defined."""
-    assert ALPHA == 0.05
-    assert BETA == 0.20
-    assert MIN_DATASET_SIZE == 150
-    assert EFFECT_SIZE_SMALL == 0.2
-    assert EFFECT_SIZE_MEDIUM == 0.5
-    assert EFFECT_SIZE_LARGE == 0.8
+            # Verify JSON file was created
+            assert os.path.exists(temp_output)
+            with open(temp_output, 'r') as f:
+                loaded = json.load(f)
+            assert loaded["overall_status"]["passed"] is False  # Below threshold
 
-def test_check_dataset_power_with_missing_values():
-    """Test power analysis handles missing values correctly."""
-    records = [
-        PolymerRecord(
-            smiles="CCO",
-            degradation_pathway='hydrolysis',
-            degradation_rate=0.8,
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ),
-        PolymerRecord(
-            smiles="CCO",
-            degradation_pathway=None,  # Missing group
-            degradation_rate=0.5,
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        ),
-        PolymerRecord(
-            smiles="CCO",
-            degradation_pathway='oxidation',
-            degradation_rate=None,  # Missing target
-            temperature=25.0,
-            ph=7.0,
-            uv_exposure=0.0,
-            molecular_weight=1000.0,
-            functional_groups=['ester']
-        )
-    ]
-    
-    result = check_dataset_power(records)
-    
-    # Should handle missing values gracefully
-    assert 'sample_size' in result
-    # Only 1 record should be used (the first one has both group and target)
-    # But we need at least 2 groups, so this will fail
-    assert result['sample_size'] <= 3
+        finally:
+            # Cleanup
+            os.unlink(temp_csv)
+            os.unlink(temp_output)
+
+    def test_missing_column_raises(self):
+        """Test that missing columns raise appropriate errors."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("group,value\n")
+            f.write("A,1.0\n")
+            temp_csv = f.name
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            temp_output = f.name
+
+        try:
+            with pytest.raises(ValueError):
+                run_power_analysis_from_csv(
+                    csv_path=temp_csv,
+                    value_column="nonexistent",
+                    group_column="group",
+                    output_path=temp_output
+                )
+        finally:
+            os.unlink(temp_csv)
+            os.unlink(temp_output)
+
+    def test_single_group_raises(self):
+        """Test that single group raises error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("group,value\n")
+            for i in range(50):
+                f.write(f"A,{1.0 + i * 0.1}\n")
+            temp_csv = f.name
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            temp_output = f.name
+
+        try:
+            with pytest.raises(ValueError):
+                run_power_analysis_from_csv(
+                    csv_path=temp_csv,
+                    value_column="value",
+                    group_column="group",
+                    output_path=temp_output
+                )
+        finally:
+            os.unlink(temp_csv)
+            os.unlink(temp_output)

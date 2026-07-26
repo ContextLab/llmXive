@@ -1,3 +1,3 @@
 """
-Test package for the research pipeline.
+Test package for the llmXive pipeline.
 """

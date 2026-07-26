@@ -1,30 +1,27 @@
+"""
+Project setup utilities for llmXive research-implementer.
+Creates the required directory structure for the polymer degradation project.
+"""
 import os
 import sys
 from pathlib import Path
+from typing import List, Optional
 
-def create_directories():
+def create_directories(root_dir: Optional[Path] = None) -> List[str]:
     """
-    Creates the required project directory structure if they do not exist.
-    Verifies existence after creation.
+    Create the standard project directory structure.
     
-    Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - data/reports/
-    - tests/
-    - state/
-    
+    Args:
+        root_dir: Base directory for the project. Defaults to current working directory.
+        
     Returns:
-        bool: True if all directories were created or already existed successfully.
-        Raises FileNotFoundError if verification fails.
+        List of created directory paths.
     """
-    # Define the project root relative to where this script is called or the current working directory
-    # Since this script lives in 'code/', we go up one level to the project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    if root_dir is None:
+        root_dir = Path.cwd()
     
-    directories = [
+    # Define required directories relative to root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -35,38 +32,66 @@ def create_directories():
     
     created_paths = []
     
-    for dir_name in directories:
-        full_path = project_root / dir_name
-        
+    for dir_path in required_dirs:
+        full_path = root_dir / dir_path
         if not full_path.exists():
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                created_paths.append(str(full_path))
-                print(f"Created directory: {full_path}")
-            except OSError as e:
-                print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-                return False
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(str(full_path))
+            print(f"Created directory: {full_path}")
         else:
-            if not full_path.is_dir():
-                print(f"Error: {full_path} exists but is not a directory.", file=sys.stderr)
-                return False
             print(f"Directory already exists: {full_path}")
+            created_paths.append(str(full_path))
     
-    # Verification step
+    return created_paths
+
+def verify_directories(root_dir: Optional[Path] = None) -> bool:
+    """
+    Verify that all required directories exist.
+    
+    Args:
+        root_dir: Base directory for the project. Defaults to current working directory.
+        
+    Returns:
+        True if all directories exist, False otherwise.
+    """
+    if root_dir is None:
+        root_dir = Path.cwd()
+    
+    required_dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/reports",
+        "tests",
+        "state"
+    ]
+    
     all_exist = True
-    for dir_name in directories:
-        full_path = project_root / dir_name
+    for dir_path in required_dirs:
+        full_path = root_dir / dir_path
         if not full_path.exists() or not full_path.is_dir():
-            print(f"Verification Failed: Directory {full_path} does not exist or is not a directory.", file=sys.stderr)
+            print(f"Missing or invalid directory: {full_path}")
             all_exist = False
+        else:
+            print(f"Verified: {full_path}")
     
-    if all_exist:
-        print("\n✅ All required directories verified successfully.")
-        return True
-    else:
-        print("\n❌ Verification failed. Some directories are missing.", file=sys.stderr)
-        return False
+    return all_exist
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Setup project directory structure")
+    parser.add_argument("--root", type=str, default=None, help="Root directory for project")
+    parser.add_argument("--verify", action="store_true", help="Only verify directories exist")
+    
+    args = parser.parse_args()
+    
+    root_path = Path(args.root) if args.root else None
+    
+    if args.verify:
+        success = verify_directories(root_path)
+        sys.exit(0 if success else 1)
+    else:
+        created = create_directories(root_path)
+        print(f"\nSetup complete. Created {len(created)} directories.")
+        sys.exit(0)

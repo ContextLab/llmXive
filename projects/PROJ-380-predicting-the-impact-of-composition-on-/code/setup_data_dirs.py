@@ -1,26 +1,36 @@
 """
-Script to initialize the project directory structure.
+Setup script to create the required data directory structure.
+Creates data/raw, data/processed, and data/artifacts directories.
 """
 import os
 from pathlib import Path
-
 from utils.config import get_paths, ensure_directories
 
 def main():
-    """Create all necessary directories for the project."""
-    paths = get_paths()
-    dirs_to_create = [
-        paths["data_raw"],
-        paths["data_processed"],
-        paths["data_artifacts"],
-        paths["state_projects"],
-        paths["figures"],
-        paths["contracts"],
-        paths["specs"]
+    """Create the data directory structure."""
+    # Get base paths from config
+    base_dir = get_paths()
+    
+    # Define the data subdirectories to create
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/artifacts"
     ]
-    ensure_directories(dirs_to_create)
-    print(f"Created {len(dirs_to_create)} directories.")
-    print(f"Project root: {paths['root']}")
+    
+    # Create directories
+    for dir_path in data_dirs:
+        full_path = base_dir / dir_path
+        ensure_directories([full_path])
+        print(f"Created directory: {full_path}")
+    
+    # Create a .gitkeep file in each directory to ensure they are tracked by git
+    for dir_path in data_dirs:
+        full_path = base_dir / dir_path
+        gitkeep_path = full_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep in: {full_path}")
 
 if __name__ == "__main__":
     main()

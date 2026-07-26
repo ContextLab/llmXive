@@ -1,3 +1,3 @@
 """
-Model training, evaluation, and importance analysis modules.
+Model training and evaluation modules.
 """

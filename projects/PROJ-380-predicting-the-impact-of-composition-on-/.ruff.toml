@@ -1,15 +1,18 @@
-# This file is a legacy fallback; prefer [tool.ruff] in pyproject.toml
-# It is included to ensure compatibility with older ruff versions if needed.
-line-length = 100
-target-version = "py311"
+# Standalone Ruff configuration file
+# Extends settings from pyproject.toml if needed, but this file
+# ensures linter configuration is explicitly available in the root.
+
+[lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
 ignore = ["E501", "B008"]
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
-    "build",
-    "dist",
-    "data",
-    "artifacts",
-]
+line-length = 100
+target-version = "py311"
+
+[lint.isort]
+known-first-party = ["code", "utils", "data", "models", "viz"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

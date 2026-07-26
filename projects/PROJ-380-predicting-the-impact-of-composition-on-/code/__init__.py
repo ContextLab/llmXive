@@ -1,5 +1,5 @@
 """
-llmXive Automated Science Pipeline - Code Package
-Project: PROJ-380-predicting-the-impact-of-composition-on-
+llmXive Automated Science Pipeline - Code Package.
+Contains all implementation modules for data ingestion, feature engineering,
+model training, evaluation, and visualization.
 """
-__version__ = "0.1.0"

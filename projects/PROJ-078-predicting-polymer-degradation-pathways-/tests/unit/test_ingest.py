@@ -1,22 +1,29 @@
-"""
-Unit tests for ingestion validation logic.
-"""
+"""Unit tests for ingestion logic."""
 import pytest
-from code.ingest import is_valid_smiles, validate_degradation_label
+from rdkit import Chem
+from ingest import is_valid_smiles, validate_degradation_label
 
-def test_smiles_validation_rejects_invalid():
-    """Test that invalid SMILES strings are rejected."""
-    assert is_valid_smiles("") is False
-    assert is_valid_smiles(None) is False
-    assert is_valid_smiles("invalid_smiles_string") is False
-    assert is_valid_smiles("CCO") is True
-    assert is_valid_smiles("c1ccccc1") is True
+class TestSMILESValidation:
+    def test_is_valid_smiles_accepts_valid(self):
+        """Test that valid SMILES are accepted."""
+        assert is_valid_smiles("CC(=O)O") is True
+        assert is_valid_smiles("C1CCCCC1") is True
 
-def test_missing_env_excludes_record():
-    """Test that records with missing environmental data are handled."""
-    # This is more of a logic test. The actual exclusion happens in preprocess.
-    # Here we test the validation logic for degradation labels.
-    assert validate_degradation_label(None) is False
-    assert validate_degradation_label("") is False
-    assert validate_degradation_label("   ") is False
-    assert validate_degradation_label("hydrolysis") is True
+    def test_is_valid_smiles_rejects_invalid(self):
+        """Test that invalid SMILES are rejected."""
+        assert is_valid_smiles("invalid_smiles_123") is False
+        assert is_valid_smiles("") is False
+        assert is_valid_smiles(None) is False
+
+class TestLabelValidation:
+    def test_validate_degradation_label_accepts_valid(self):
+        """Test valid labels are accepted."""
+        assert validate_degradation_label("hydrolysis") is True
+        assert validate_degradation_label("oxidation") is True
+        assert validate_degradation_label("photolysis") is True
+
+    def test_validate_degradation_label_rejects_invalid(self):
+        """Test invalid labels are rejected."""
+        assert validate_degradation_label("unknown_type") is False
+        assert validate_degradation_label("") is False
+        assert validate_degradation_label(None) is False

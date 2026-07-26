@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-083-investigating-the-relationship-between-m/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, pandas, scikit-learn, statsmodels, pyyaml)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, pandas, scikit-learn, statsmodels, pyyaml)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -37,10 +37,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `data/raw/`, `data/processed/`, `data/models/`, `code/`, `tests/` directory structure
-- [ ] T005 [P] Implement base data loader and SMILES parser utility in `code/utils/smiles_parser.py`
-- [ ] T006 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [X] T005 [P] Implement base data loader and SMILES parser utility in `code/utils/smiles_parser.py`
+- [X] T006 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
 - [ ] T007 Create base schema definitions for `ReactionRecord` and `TopologicalDescriptor` in `contracts/`
-- [ ] T008 Setup environment configuration management for random seeds and file paths in `code/config.py`
+- [X] T008 Setup environment configuration management for random seeds and file paths in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,15 +56,15 @@
 
 > **NOTE**: Write these tests FIRST (TDD style). They will fail initially. **Run** them only after T011-T015 are implemented.
 
-- [ ] T009 [P] [US1] Contract test for EAS pattern matching in `tests/unit/test_ingestion.py`
+- [X] T009 [P] [US1] Contract test for EAS pattern matching in `tests/unit/test_ingestion.py`
 - [ ] T010 [P] [US1] Integration test for full ingestion pipeline on small subset in `tests/integration/test_ingestion_pipeline.py`
  - **Execution Note**: This test MUST run after T011-T015 are complete to verify the implementation.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement USPTO-50k downloader in `code/ingestion.py` (FR-001)
-- [ ] T012 [US1] Implement SMILES parser with error handling for malformed data in `code/ingestion.py` (FR-006)
-- [ ] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
+- [X] T011 [US1] Implement USPTO-50k downloader in `code/ingestion.py` (FR-001)
+- [X] T012 [US1] Implement SMILES parser with error handling for malformed data in `code/ingestion.py` (FR-006)
+- [X] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
 - [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < 100 (FR-001)
  - **Gate Logic**: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST exit with code 1 and prevent Phase 5 execution.
 - [ ] T015 [US1] Write filtered dataset to `data/processed/eas_reactions.csv` with checksum generation
@@ -78,13 +78,13 @@
 
 **Goal**: Compute Wiener, Balaban, and Zagreb indices for reactant molecules and verify symmetry invariance.
 
-**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45); verify values within ±0.1 tolerance. [UNRESOLVED-CLAIM: c_87f4555b — status=not_enough_info]
+**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45); verify values within ±0.1 tolerance.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
+- [X] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
 - [ ] T017 [P] [US2] Unit test for Balaban and Zagreb index calculations in `tests/unit/test_descriptors.py`
-- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner [UNRESOLVED-CLAIM: c_4d9e6929 — status=not_enough_info] in `tests/perf/test_descriptor_perf.py`
+- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner in `tests/perf/test_descriptor_perf.py`
 - [ ] T019 [P] [US2] Unit test for graph automorphism detection in `tests/unit/test_symmetry.py`
 
 ### Implementation for User Story 2 & Symmetry (FR-002, FR-008)

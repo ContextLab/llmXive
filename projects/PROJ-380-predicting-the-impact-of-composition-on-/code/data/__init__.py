@@ -1,3 +1,3 @@
 """
-Data ingestion, cleaning, and feature engineering modules.
+Data ingestion and feature engineering modules.
 """

@@ -1,3 +1,1 @@
-"""
-Test suite for the Polymer Degradation Prediction Pipeline.
-"""
+"""Test package for llmXive polymer degradation project."""

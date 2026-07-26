@@ -38,3 +38,44 @@ T012a:
     \ is present in the provided artifacts; the only evidence relates to a shear\u2011\
     modulus prediction pipeline, which does not address the required provenance checksum\
     \ feature. The missing implementation must be added to `utils/provenance.py`."
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/provenance.py` script was shown, nor any evidence (e.g., log files,
+    checksum records, or code snippets) that it was invoked to record checksums for
+    the artifacts produced by T016 and T011. The required artifact (the provenance
+    recording) is missing.
+T014:
+  c: false
+  h: 5caa6515a88d6d0b17332335363dc2bca6171ec6c91dfc2bf3e3ee254eac2bcb
+  r: The required artifact `tests/unit/test_features.py` does not exist on disk, so
+    no unit test for the descriptor calculations is present. The task cannot be considered
+    completed until this file is added with appropriate tests.
+T015:
+  c: false
+  h: bd79e0eacf997d268ebb024bfdf3ce63f3955499de6167166da6ffbcd8c79368
+  r: "The required file `tests/integration/test_ingest_pipeline.py` does not exist\
+    \ in the repository, so the integration test for the full ingestion pipeline is\
+    \ missing. Without this test file, the task\u2019s requirement is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, test, or documentation was provided showing that a validation
+    step was added to the data ingestion/cleaning pipeline to guarantee the target
+    variable (shear modulus) contains no missing values after filtering. Without such
+    artifacts, we cannot confirm the requirement was met. The implementer must supply
+    the modified code (e.g., a function or pipeline step) and evidence (e.g., unit
+    test, log output, or description) demonstrating the validation works.
+T024:
+  c: false
+  h: a5e5a6c2baff184faf250515e43f88995a7baeb5c45acd79f67c7970bdd98983
+  r: "The required file `tests/integration/test_model_eval.py` does not exist in the\
+    \ repository, so no integration test for model evaluation and statistical comparison\
+    \ is present. The task\u2019s primary deliverable is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/model_report.json` file was presented; the response contains only
+    the task description and specifications, with no JSON content showing the required
+    `metrics`, `hyperparameters`, or `statistical_test` fields. The required artifact
+    is missing, so the task is not satisfied.
