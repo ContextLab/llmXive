@@ -4,7 +4,7 @@ title: Recipe Ingredient Substitution Dataset Schema
 version: 1.0.0
 description: >
   Schema for the processed recipe dataset containing ingredient pairs,
-  co-occurrence statistics, flavor similarity, and functional roles.
+  co-occurrence statistics, semantic similarity, and functional roles.
   Used to validate data produced by code/data/preprocess.py.
 
 type: object
@@ -39,7 +39,7 @@ properties:
   flavor_similarity:
     type: number
     format: float
-    description: Cosine similarity between FlavorDB chemical vectors for the pair.
+    description: Cosine similarity between Recipe1M visual/text embeddings (proxy for flavor).
     minimum: -1.0
     maximum: 1.0
 
@@ -64,11 +64,9 @@ properties:
 
   source_dataset:
     type: string
-    description: Source of the recipe data (e.g., Recipe1M, Counterfactual).
+    description: Source of the recipe data (e.g., Recipe1M).
     enum:
       - Recipe1M
-      - Counterfactual
-      - FlavorDB-derived
 
   is_train:
     type: boolean

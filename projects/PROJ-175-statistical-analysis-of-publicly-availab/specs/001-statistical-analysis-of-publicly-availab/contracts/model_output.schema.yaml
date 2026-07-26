@@ -94,6 +94,10 @@ properties:
         type: number
         format: float
         description: P-value for Likelihood Ratio Test.
+      leakage_metric:
+        type: number
+        format: float
+        description: Quantified data leakage (predicting frequency from similarity).
 
   timestamp:
     type: string

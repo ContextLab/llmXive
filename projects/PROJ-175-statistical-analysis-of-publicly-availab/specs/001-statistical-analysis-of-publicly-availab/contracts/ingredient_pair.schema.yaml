@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IngredientPair"
+description: "Schema for the processed ingredient pair dataset used in modeling."
+type: object
+properties:
+  ingredient_a:
+    type: string
+    description: "Canonical ID of the first ingredient."
+  ingredient_b:
+    type: string
+    description: "Canonical ID of the second ingredient."
+  log_co_occurrence:
+    type: number
+    description: "Log-transformed co-occurrence count."
+  semantic_similarity:
+    type: number
+    description: "Cosine similarity of visual/text embeddings (proxy for flavor)."
+  functional_role:
+    type: string
+    enum:
+      - "primary"
+      - "secondary"
+      - "garnish"
+    description: "Functional role derived from position and frequency."
+  compatibility_label:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Binary compatibility label (from Recipe1M ratings)."
+  validation_score:
+    type: number
+    description: "Correlation score of semantic similarity proxy with known chemical pairs."
+required:
+  - ingredient_a
+  - ingredient_b
+  - log_co_occurrence
+  - semantic_similarity
+  - functional_role
+  - compatibility_label
+  - validation_score
+additionalProperties: false
