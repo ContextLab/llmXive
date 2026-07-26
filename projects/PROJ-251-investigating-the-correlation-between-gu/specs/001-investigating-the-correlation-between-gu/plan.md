@@ -98,7 +98,7 @@ projects/PROJ-251-investigating-the-correlation-between-gu/
 - **T011**: Implement data download/fetch logic with Strategy A and Strategy B.
   - *Strategy A (Primary)*: Fetch pre-processed CSV/Parquet for a specific NCBI SRA accession..
   - *Strategy B (Fallback)*: If Strategy A fails, download raw FASTQ files from SRA for the same accession and run a lightweight 16S processing pipeline (QIIME2 or DADA2) to generate the OTU table and taxonomy.
-  - *Input*: Accession ID SRP053178.
+  - *Input*: Accession ID SRP.
   - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.
   - *Error Handling*: If both strategies fail, raise `DataUnavailableError`.
 - **T012**: Implement data filtering logic.

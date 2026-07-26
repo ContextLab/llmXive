@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-gut-influenza"
+name = "llmxive-gut-immune"
 version = "0.1.0"
-description = "Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination"
+description = "Investigating the correlation between Gut Microbiome Composition and Immune Response to Influenza Vaccination"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -15,31 +15,47 @@ dependencies = [
     "pyyaml",
     "requests",
     "biom-format",
+    "sra-tools",
+    "qiime2",
+    "dada2",
+    "python-dotenv",
     "jsonschema",
+    "statsmodels",
     "psutil",
 ]
 
 [tool.black]
-# Black formatting configuration for T003
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
 )/
 '''
 
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["data", "figures"]
+src = ["code"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"code/utils/*.py" = ["B008"]
+
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+pythonpath = ["code"]

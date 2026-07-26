@@ -3089,3 +3089,1292 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T04:39:04Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NCBI SRA study accession SRP053178
+  claim_id: c_20bbf87f
+  context: 'T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files
+    from NCBI SRA for the designated study accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_SRA_study_accession_SRP053178
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:48:36Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 1000 permutations for null distribution
+  claim_id: c_0546d527
+  context: 'T034a-Null [US3] Implement permutation baseline testing: Generate null
+    distribution of accuracy scores by permuting microbiome rows relative to serology
+    labels with random_seed=42. Perform 1000 permutations to ensure statistical robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 permutations to ensure statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:48:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: download raw FASTQ files for study accession SRP053178 from NCBI SRA
+  claim_id: c_803dbae6
+  context: 'Task T011b: Execute Strategy B - Download raw FASTQ files from NCBI SRA
+    for the designated study accession SRP053178.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_raw_FASTQ_files_for_study_accession_SRP053178_from
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:50:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: perform 1000 permutations for null distribution generation
+  claim_id: c_6cfcbda5
+  context: 'Task T034a-Null: Implement permutation baseline testing... Perform 1000
+    permutations to ensure statistical robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 permutations to ensure statistical robustness in null distribution
+    generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:50:33Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: assert total runtime is less than 6 hours or 21600 seconds
+  claim_id: c_a0e44a6d
+  context: 'Task T042: Log to data/results/resource_usage.json with key total_runtime_seconds.
+    Assert < 6h (21600s).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The Bengal Files is the third and final installment in Agnihotri's The
+        Files Trilogy based on modern Indian history, following The Tashkent Files
+        (2019) and The Kashmir Files (2022). With a runtime of 204 minutes, it is
+        one of the longest Indian films and was released on 5 September 2025. The
+        film received criticism over its distortion of history, and was commercially
+        unsuccessful.
+      source_id: The Bengal Files
+      url: https://en.wikipedia.org/wiki/The_Bengal_Files
+      value: '204'
+    filled: true
+  kind: magnitude
+  raw_text: Assert total runtime is less than 6 hours (21600s).
+  resolved_value: '204'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:50:45Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: assert peak memory usage is less than 7 gigabytes or 7340 megabytes
+  claim_id: c_3caf838e
+  context: 'Task T043: Log to data/results/resource_usage.json with key peak_memory_mb.
+    Assert < 7GB (7340 MB).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_memory_usage_is_less_than_7_gigabytes_or_7340_me
+  kind: magnitude
+  raw_text: Assert peak memory usage is less than 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:51:09Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: select top 10 taxa by absolute correlation coefficient for feature selection
+  claim_id: c_570c611a
+  context: 'Task T032: Select the top 10 taxa by absolute correlation coefficient
+    (or those with adj-p < 0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the top 10 taxa by absolute correlation coefficient for feature
+    selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:51:37Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: random forest classifier uses n_estimators equal to 100
+  claim_id: c_7a14cddb
+  context: 'Task T033: Hyperparameters: n_estimators=100, max_depth=None.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest classifier uses n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:52:02Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: verify null distribution has more than 100 permutations
+  claim_id: c_5f97ad64
+  context: 'Task T052: Add a check in T034a-Null to ensure the null distribution has
+    non-zero variance and a sufficient number of samples (e.g., > 100 permutations).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_null_distribution_has_more_than_100_permutations
+  kind: magnitude
+  raw_text: Verify that the null distribution has a sufficient number of samples (e.g.,
+    > 100 permutations).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:52:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: verify reported significant taxa meet adj_pvalue less than 0.05
+  claim_id: c_00568953
+  context: 'Task T025: Verify that all reported significant taxa strictly meet adj_pvalue
+    < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_reported_significant_taxa_meet_adj_pvalue_less_than_0
+  kind: magnitude
+  raw_text: Verify that all reported significant taxa strictly meet adj_pvalue < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:53:15Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: halt execution if sample size N is less than 50
+  claim_id: c_ecc7886d
+  context: 'Task T015: Count subjects (N) in filtered.csv. CRITICAL: If N < 50, raise
+    InsufficientSampleSizeError immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_sample_size_N_is_less_than_50
+  kind: magnitude
+  raw_text: Count subjects (N) in filtered.csv and halt execution if N < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:54:08Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: check available memory and calculate max_rows if less than 6 gigabytes
+  claim_id: c_ecae356b
+  context: 'Task T014b: Step 1: Check Memory: If available memory < 6GB: Calculate
+    max_rows based on memory.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_available_memory_and_calculate_max_rows_if_less_than_6
+  kind: magnitude
+  raw_text: Check available memory and calculate max_rows if available memory < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:54:25Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: log peak memory usage in megabytes to data/results/resource_usage.json
+  claim_id: c_6f1e10f9
+  context: 'Task T043: Log to data/results/resource_usage.json with key peak_memory_mb.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_peak_memory_usage_in_megabytes_to_data/results/resource
+  kind: entity_fact
+  raw_text: Log peak memory usage in MB to data/results/resource_usage.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:54:49Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 0
+  canonical: Assert total runtime < 6 hours
+  claim_id: c_fc32f4bf
+  context: T042 [P] ... Assert < 6h (21600s). If violated, raise RuntimeError.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The Bengal Files is the third and final installment in Agnihotri's The
+        Files Trilogy based on modern Indian history, following The Tashkent Files
+        (2019) and The Kashmir Files (2022). With a runtime of 204 minutes, it is
+        one of the longest Indian films and was released on 5 September 2025. The
+        film received criticism over its distortion of history, and was commercially
+        unsuccessful.
+      source_id: The Bengal Files
+      url: https://en.wikipedia.org/wiki/The_Bengal_Files
+      value: '204'
+    filled: true
+  kind: magnitude
+  raw_text: Assert total runtime is less than 6 hours (21600 seconds).
+  resolved_value: '204'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:56:26Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download raw FASTQ files from NCBI SRA for accession SRP053178
+  claim_id: c_93c3a329
+  context: 'T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files
+    from NCBI SRA for the designated study accession **SRP053178**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_raw_FASTQ_files_from_NCBI_SRA_for_accession_SRP0531
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:56:40Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Assert peak memory < 7GB
+  claim_id: c_d392eace
+  context: T043 [P] ... Assert < 7GB (7340 MB). If violated, raise RuntimeError.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_memory_%3C_7GB
+  kind: magnitude
+  raw_text: Assert peak memory usage is less than 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:56:59Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify output CSV contains at least 50 rows
+  claim_id: c_ff351244
+  context: "Independent Test: The system can be tested by running the ingestion script\
+    \ against a known valid subset and verifying the output CSV contains exactly N\
+    \ rows (N \u2265 50) with no nulls in required columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_contains_at_least_50_rows
+  kind: magnitude
+  raw_text: "The system can be tested by running the ingestion script against a known\
+    \ valid subset and verifying the output CSV contains exactly N rows (N \u2265\
+    \ 50)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:57:56Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if sample size < 50
+  claim_id: c_a63f319e
+  context: 'T015 [US1] ... **CRITICAL**: If N < 50, raise `InsufficientSampleSizeError`
+    immediately...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 50, raise InsufficientSampleSizeError immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:57:57Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Check memory threshold of 6GB
+  claim_id: c_8668e2b3
+  context: 'T014b [US1] ... **Step 1: Check Memory**: If available memory < 6GB: ...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_memory_threshold_of_6GB
+  kind: magnitude
+  raw_text: If available memory is less than 6GB, calculate max_rows based on memory.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:58:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if max_rows < 50
+  claim_id: c_a67db7fb
+  context: T014b [US1] ... b. If `max_rows < 50`, raise `InsufficientSampleSizeError`...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_max_rows_%3C_50
+  kind: magnitude
+  raw_text: If max_rows is less than 50, raise InsufficientSampleSizeError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:58:25Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Select top 10 taxa for feature selection
+  claim_id: c_86303be6
+  context: T032 [US3] ... 3. Select the **top 10 taxa** by absolute correlation coefficient
+    (or those with adj-p < 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the top 10 taxa by absolute correlation coefficient for feature
+    selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:58:26Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify null distribution has > 100 samples
+  claim_id: c_8a81dfcd
+  context: T052 [US3] ... 1. Add a check in T034a-Null to ensure the null distribution
+    has non-zero variance and a sufficient number of samples (e.g., > 100 permutations).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the null distribution has a sufficient number of samples (e.g.,
+    > 100 permutations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:58:27Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stream data if file size > 6GB
+  claim_id: c_0d13ee10
+  context: T054 [US2] ... 2. If the file size suggests it will exceed 6GB RAM, implement
+    a chunked processing strategy...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_data_if_file_size_%3E_6GB
+  kind: entity_fact
+  raw_text: If the file size suggests it will exceed 6GB RAM, implement a chunked
+    processing strategy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:59:06Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Impute LOD values as 0.5 * LOD
+  claim_id: c_31bfb51e
+  context: 'T021 [US2] ... 1. **LOD Handling**: For any titer value < Limit of Detection
+    (LOD), impute as `0.5 * LOD`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Impute titers < Limit of Detection as 0.5 * LOD.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:59:49Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Compare mean accuracy against 0.60
+  claim_id: c_6b27698e
+  context: T036b [US3] ... 2. Compare mean accuracy against 0.60.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare mean accuracy against 0.60 to determine if it meets the accuracy
+    target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:12Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Identify significant taxa with adj-p < 0.05
+  claim_id: c_c5aba850
+  context: T020b [US2] ... 6. Identify the set of significant taxa (adj-p < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify significant taxa using an adjusted p-value threshold of < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify adj_pvalue < 0.05 for significant taxa
+  claim_id: c_0deae454
+  context: 'T025 [US2] ... 3. **Threshold Verification**: Verify that all reported
+    significant taxa strictly meet `adj_pvalue < 0.05`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that all reported significant taxa strictly meet adj_pvalue < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:13Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Flag significant taxa count if < 1 or > 20
+  claim_id: c_83b7c26c
+  context: T025 [US2] ... 5. If count < 1 or count > 20, set `within_expected_range`
+    to `False`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the count of significant taxa is < 1 or > 20, set within_expected_range
+    to False.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:14Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Flag if Jaccard Index > 0.5
+  claim_id: c_39e4508d
+  context: T013b [US2] ... - A boolean flag `robust` if Jaccard > 0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag for review if Jaccard Index of significant taxa sets between LOD
+    branches is > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:15Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use random_seed 42 for null distribution
+  claim_id: c_62c2c6a1
+  context: T034a-Null [US3] ... Generate null distribution ... with `random_seed=42`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate null distribution using a random_seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:38Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Select taxa with adj-p < 0.1
+  claim_id: c_e69f9692
+  context: T032 [US3] ... 3. Select the **top 10 taxa** by absolute correlation coefficient
+    (or those with adj-p < 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select taxa with adjusted p-value < 0.1 for feature selection in the inner
+    loop.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:00:39Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 0
+  canonical: Pipeline total runtime limit is 6 hours
+  claim_id: c_e7727695
+  context: T042 [P] ... Log to `data/results/resource_usage.json` with key `total_runtime_seconds`.
+    Assert < 6h (21600s).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The Bengal Files is the third and final installment in Agnihotri's The
+        Files Trilogy based on modern Indian history, following The Tashkent Files
+        (2019) and The Kashmir Files (2022). With a runtime of 204 minutes, it is
+        one of the longest Indian films and was released on 5 September 2025. The
+        film received criticism over its distortion of history, and was commercially
+        unsuccessful.
+      source_id: The Bengal Files
+      url: https://en.wikipedia.org/wiki/The_Bengal_Files
+      value: '204'
+    filled: true
+  kind: magnitude
+  raw_text: Assert total runtime is less than 6 hours (21600 seconds).
+  resolved_value: '204'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:01:24Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NCBI SRA study accession SRP053178 contains raw FASTQ files for influenza
+    vaccination study
+  claim_id: c_6c0380e7
+  context: 'T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files
+    from NCBI SRA for the designated study accession **SRP053178**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_SRA_study_accession_SRP053178_contains_raw_FASTQ_files
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:01:31Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Permutation baseline testing uses 1000 permutations
+  claim_id: c_7e259be5
+  context: T034a-Null [US3] ... Perform **1000 permutations** to ensure statistical
+    robustness. Output `data/results/null_distribution.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 permutations to ensure statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:01:32Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Feature selection selects top 10 taxa by absolute correlation coefficient
+  claim_id: c_ebe47b96
+  context: T032 [US3] ... Select the **top 10 taxa** by absolute correlation coefficient
+    (or those with adj-p < 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the top 10 taxa by absolute correlation coefficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:02:11Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline peak memory usage limit is 7GB
+  claim_id: c_4e7384fe
+  context: T043 [P] ... Log to `data/results/resource_usage.json` with key `peak_memory_mb`.
+    Assert < 7GB (7340 MB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_peak_memory_usage_limit_is_7GB
+  kind: magnitude
+  raw_text: Assert peak memory usage is less than 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:02:14Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: LOD imputation strategy uses 0.5 times the Limit of Detection
+  claim_id: c_e5c56613
+  context: 'T021 [US2] **Log-Transform Titers & LOD Handling**: ... For any titer
+    value < Limit of Detection (LOD), impute as `0.5 * LOD`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Impute titer values below Limit of Detection as 0.5 * LOD.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:02:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Seroconversion definition is 4-fold rise in titer
+  claim_id: c_8c66e0b9
+  context: "T030a [US3] Implement seroconversion logic (\u22654-fold rise in titer)\
+    \ in `code/04_modeling.py`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seroconversion_definition_is_4-fold_rise_in_titer
+  kind: entity_fact
+  raw_text: Seroconversion is defined as a 4-fold rise in titer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:03:33Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Absolute titer responder threshold is 40
+  claim_id: c_0cd86a20
+  context: "T030b [US3] Implement absolute titer logic (e.g., HAI \u2265 40) in `code/04_modeling.py`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Absolute titer responder definition uses HAI \u2265 40."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:03:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Random Forest n_estimators is 100
+  claim_id: c_28289b78
+  context: 'T033 [US3] Implement Random Forest classifier training ... *Hyperparameters*:
+    `n_estimators=100`, `max_depth=None`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest classifier uses 100 estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:03:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Minimum sample size for analysis is 50 subjects
+  claim_id: c_d11dc142
+  context: 'T015 [US1] ... **CRITICAL**: If N < 50, raise `InsufficientSampleSizeError`
+    immediately with message "Insufficient sample size (N < 50) in full dataset."'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_for_analysis_is_50_subjects
+  kind: magnitude
+  raw_text: Sample size validation requires at least 50 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:04:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 0
+  canonical: Flag expected range violation if significant taxa count is less than
+    1 or greater than 20
+  claim_id: c_c0357426
+  context: T025 [US2] ... 5. If count < 1 or count > 20, set `within_expected_range`
+    to `False (Wikidata Q105812849, https://www.wikidata.org/wiki/Q105812849)` in
+    the output JSON and log a warning.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'False'
+      source_id: Q105812849
+      url: https://www.wikidata.org/wiki/Q105812849
+      value: 'False'
+    filled: true
+  kind: magnitude
+  raw_text: If count < 1 or count > 20, set within_expected_range to False.
+  resolved_value: 'False'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:05:18Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download FASTQ files from NCBI SRA for accession SRP053178
+  claim_id: c_d9917e60
+  context: 'T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files
+    from NCBI SRA for the designated study accession **SRP053178**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_FASTQ_files_from_NCBI_SRA_for_accession_SRP053178
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:05:27Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if sample size N is less than 50
+  claim_id: c_d1661fbd
+  context: 'T015 [US1] **Sample Size Validation Gate (Full Dataset)**: ... **CRITICAL**:
+    If N < 50, raise `InsufficientSampleSizeError` immediately with message ''Insufficient
+    sample size (N < 50) in full dataset.'' and halt execution.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_sample_size_N_is_less_than_50
+  kind: magnitude
+  raw_text: If N < 50, raise InsufficientSampleSizeError immediately with message
+    'Insufficient sample size (N < 50) in full dataset.' and halt execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:06:17Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Trigger memory constraint check if available memory is less than 6GB
+  claim_id: c_6e64460e
+  context: 'T014b [US1] **Dynamic Sampling**: ... **Step 1: Check Memory**: If available
+    memory < 6GB: a. Calculate `max_rows` based on memory.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_memory_constraint_check_if_available_memory_is_less
+  kind: magnitude
+  raw_text: If available memory < 6GB, calculate max_rows based on memory.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:06:29Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if memory constraints force sample size below 50
+  claim_id: c_4098eb79
+  context: 'T014b [US1] **Dynamic Sampling**: ... b. If `max_rows < 50`, raise `InsufficientSampleSizeError`
+    with message ''Memory constraints force sample size < 50.'' and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If max_rows < 50, raise InsufficientSampleSizeError with message 'Memory
+    constraints force sample size < 50.' and halt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:06:30Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Perform random sampling with random state 42
+  claim_id: c_ed012209
+  context: 'T014b [US1] **Dynamic Sampling**: ... c. Perform simple random sampling
+    using `pandas.DataFrame.sample` with `random_state=42` and `frac` adjusted to
+    fit memory.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform simple random sampling using pandas.DataFrame.sample with random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:06:54Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Impute titer values below LOD as 0.5 times the LOD
+  claim_id: c_88125318
+  context: 'T021 [US2] **Log-Transform Titers & LOD Handling**: ... 1. **LOD Handling**:
+    For any titer value < Limit of Detection (LOD), impute as `0.5 * LOD`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For any titer value < Limit of Detection (LOD), impute as 0.5 * LOD.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:07:09Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Set robust flag to true if Jaccard index is greater than 0.5
+  claim_id: c_e9e8cdfa
+  context: T013b [US2] ... - A boolean flag `robust` if Jaccard > 0.5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_robust_flag_to_true_if_Jaccard_index_is_greater_than_0.5
+  kind: magnitude
+  raw_text: A boolean flag robust if Jaccard > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:07:57Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define seroconversion as at least 4-fold rise in titer
+  claim_id: c_0240e7df
+  context: "T030a [US3] Implement seroconversion logic (\u22654-fold rise in titer)\
+    \ in `code/04_modeling.py`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_seroconversion_as_at_least_4-fold_rise_in_titer
+  kind: magnitude
+  raw_text: "Implement seroconversion logic (\u22654-fold rise in titer)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:08:21Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Define absolute titer responder as HAI greater than or equal to 40
+  claim_id: c_e2cd7bff
+  context: "T030b [US3] Implement absolute titer logic (e.g., HAI \u2265 40) in `code/04_modeling.py`."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_absolute_titer_responder_as_HAI_greater_than_or_equal
+  kind: magnitude
+  raw_text: "Implement absolute titer logic (e.g., HAI \u2265 40)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:08:44Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 2
+  canonical: Perform 1000 permutations for null distribution
+  claim_id: c_0b4d7eaf
+  context: T034a-Null [US3] ... Perform **1000 permutations** to ensure statistical
+    robustness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 permutations to ensure statistical robustness for the null
+    distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:08:44Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify accuracy is mean of 5 outer folds
+  claim_id: c_ee19ba8c
+  context: 'T036b [US3] ... 1. **Verify Metric Source**: Explicitly verify that the
+    accuracy value used is the **mean of the 5 outer folds** (not a single fold or
+    training metric).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the accuracy value used is the mean of the 5 outer folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:09:16Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Assert total runtime is less than 6 hours
+  claim_id: c_2faaa2f4
+  context: T042 [P] Implement runtime monitoring ... Assert < 6h (21600s). If violated,
+    raise `RuntimeError`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Assert < 6h (21600s).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:09:34Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Assert peak memory is less than 7340 MB
+  claim_id: c_6e22bd91
+  context: T043 [P] Implement memory & runtime verification ... Assert < 7GB (7340
+    MB). If violated, raise `RuntimeError`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_memory_is_less_than_7340_MB
+  kind: magnitude
+  raw_text: Assert < 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:09:53Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if null distribution is degenerate
+  claim_id: c_a815f1b2
+  context: T052 [US3] ... 2. If the null distribution is degenerate (e.g., all zeros),
+    raise `StatisticalRigorError` and halt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_null_distribution_is_degenerate
+  kind: entity_fact
+  raw_text: If the null distribution is degenerate (e.g., all zeros), raise StatisticalRigorError.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:09Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Trigger chunked processing if file size suggests exceeding 6GB RAM
+  claim_id: c_d37eac1d
+  context: T054 [US2] ... 2. If the file size suggests it will exceed 6GB RAM, implement
+    a chunked processing strategy using `pandas.read_csv(..., chunksize=...)` or `datasets.load_dataset(...,
+    streaming=True)`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trigger_chunked_processing_if_file_size_suggests_exceeding_6
+  kind: entity_fact
+  raw_text: If the file size suggests it will exceed 6GB RAM, implement a chunked
+    processing strategy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:11Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 0
+  canonical: Assert total runtime < 6 hours
+  claim_id: c_2a8175b5
+  context: T042 [P] Implement runtime monitoring... Assert < 6h (21600s). If violated,
+    raise RuntimeError.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The Bengal Files is the third and final installment in Agnihotri's The
+        Files Trilogy based on modern Indian history, following The Tashkent Files
+        (2019) and The Kashmir Files (2022). With a runtime of 204 minutes, it is
+        one of the longest Indian films and was released on 5 September 2025. The
+        film received criticism over its distortion of history, and was commercially
+        unsuccessful.
+      source_id: The Bengal Files
+      url: https://en.wikipedia.org/wiki/The_Bengal_Files
+      value: '204'
+    filled: true
+  kind: magnitude
+  raw_text: Assert total runtime is less than 6 hours (21600 seconds).
+  resolved_value: '204'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:10:42Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Download FASTQ files for study accession SRP053178 from NCBI SRA
+  claim_id: c_3a5248b3
+  context: 'Strategy B: Fallback Raw FASTQ Processing (Conditional) - T011b [US1]
+    **Execute Strategy B - Download**: Download raw FASTQ files from NCBI SRA for
+    the designated study accession **SRP053178**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_FASTQ_files_for_study_accession_SRP053178_from_NCBI
+  kind: entity_fact
+  raw_text: Download raw FASTQ files from NCBI SRA for the designated study accession
+    SRP053178.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Perform 1000 permutations for null distribution
+  claim_id: c_596f1bec
+  context: 'T034a-Null [US3] Implement permutation baseline testing: Generate null
+    distribution of accuracy scores by permuting microbiome rows relative to serology
+    labels with random_seed=42. Perform **1000 permutations** to ensure statistical
+    robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 permutations to ensure statistical robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:55Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Assert peak memory usage < 7GB
+  claim_id: c_4451584b
+  context: T043 [P] Implement memory & runtime verification... Assert < 7GB (7340
+    MB). If violated, raise RuntimeError.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_memory_usage_%3C_7GB
+  kind: magnitude
+  raw_text: Assert peak memory usage is less than 7GB (7340 MB).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:57Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Select top 10 taxa by absolute correlation coefficient
+  claim_id: c_be3bc585
+  context: T032 [US3] ... Select the **top 10 taxa** by absolute correlation coefficient
+    (or those with adj-p < 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the top 10 taxa by absolute correlation coefficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:10:58Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Impute titer values below LOD as 0.5 * LOD
+  claim_id: c_a558faa7
+  context: 'T021 [US2] **Log-Transform Titers & LOD Handling**: ... For any titer
+    value < Limit of Detection (LOD), impute as `0.5 * LOD`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Impute titer values < Limit of Detection as 0.5 * LOD.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:20Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Raise error if sample size N < 50
+  claim_id: c_78547222
+  context: 'T015 [US1] **Sample Size Validation Gate (Full Dataset)**: ... **CRITICAL**:
+    If N < 50, raise InsufficientSampleSizeError immediately with message ''Insufficient
+    sample size (N < 50) in full dataset.'' and halt execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise InsufficientSampleSizeError if N < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:21Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify significant taxa meet adj_pvalue < 0.05
+  claim_id: c_848977c6
+  context: 'T025 [US2] ... **Threshold Verification**: Verify that all reported significant
+    taxa strictly meet `adj_pvalue < 0.05`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that all reported significant taxa strictly meet adj_pvalue < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:22Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Flag expected range violation if significant taxa count < 1 or > 20
+  claim_id: c_b29afb1e
+  context: T025 [US2] ... If count < 1 or count > 20, set within_expected_range to
+    False in the output JSON and log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set within_expected_range to False if count < 1 or count > 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:22Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Set robust flag if Jaccard Index > 0.5
+  claim_id: c_ad618368
+  context: T013b [US2] ... A boolean flag robust if Jaccard > 0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set robust flag to True if Jaccard Index > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:23Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use random_state=42 for sampling
+  claim_id: c_dd62e8f0
+  context: T014b [US1] ... Perform simple random sampling using pandas.DataFrame.sample
+    with random_state=42 and frac adjusted to fit memory.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for random sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:46Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use n_estimators=100 for Random Forest
+  claim_id: c_1f894d9a
+  context: 'T033 [US3] Implement Random Forest classifier training ... Hyperparameters:
+    n_estimators=100, max_depth=None.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use n_estimators=100 for Random Forest classifier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:11:47Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Use 5 outer folds for cross-validation
+  claim_id: c_22da2d6b
+  context: T036b [US3] ... Explicitly verify that the accuracy value used is the mean
+    of the 5 outer folds (not a single fold or training metric).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5 outer folds for cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:12:19Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Verify null distribution has > 100 samples
+  claim_id: c_c263633d
+  context: T052 [US3] ... Add a check in T034a-Null to ensure the null distribution
+    has non-zero variance and a sufficient number of samples (e.g., > 100 permutations).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the null distribution has a sufficient number of samples (e.g.,
+    > 100 permutations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:12:19Z'
+- artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Leave 1-hour buffer for runtime estimation
+  claim_id: c_a0f1742e
+  context: T053 [US3] ... If the estimated runtime exceeds a substantial duration
+    (leaving a 1-hour buffer), raise RuntimeWarning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Leave a 1-hour buffer for runtime estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:12:38Z'

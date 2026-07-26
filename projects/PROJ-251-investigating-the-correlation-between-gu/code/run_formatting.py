@@ -1,6 +1,5 @@
 """
-Script to run ruff and black formatting on the project code.
-This script is the entry point for task T039.
+Script to run formatting checks and fixes on the codebase.
 """
 import os
 import sys
@@ -9,125 +8,70 @@ import json
 import logging
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-def run_command(command: list, cwd: Path) -> dict:
-    """
-    Run a command and capture return code, stdout, stderr.
-    """
-    logger.info(f"Running command: {' '.join(command)}")
-    try:
-        result = subprocess.run(
-            command,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        return {
-            "returncode": result.returncode,
-            "stdout": result.stdout,
-            "stderr": result.stderr
-        }
-    except Exception as e:
-        logger.error(f"Error running command: {e}")
-        return {
-            "returncode": -1,
-            "stdout": "",
-            "stderr": str(e)
-        }
+from code.formatting_utils import run_command
+
+def setup_logging():
+    """Configure logging for the formatting script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 def main():
-    """
-    Main function to execute ruff and black formatting.
-    """
-    project_root = Path.cwd()
+    """Main entry point for running formatting checks."""
+    setup_logging()
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Starting formatting checks...")
+    
+    # Import formatting utilities
+    from code.formatting_utils import run_ruff_check_and_fix, run_black_format
+    
     code_dir = project_root / "code"
     
     if not code_dir.exists():
         logger.error(f"Code directory not found: {code_dir}")
         sys.exit(1)
     
-    logger.info(f"Starting formatting check on {code_dir}")
+    # Run Ruff
+    logger.info("Running Ruff check and fix...")
+    ruff_success, ruff_msg = run_ruff_check_and_fix(code_dir)
+    logger.info(ruff_msg)
     
-    results = {
-        "ruff_check": None,
-        "ruff_fix": None,
-        "black_format": None,
-        "success": False
+    # Run Black
+    logger.info("Running Black format...")
+    black_success, black_msg = run_black_format(code_dir)
+    logger.info(black_msg)
+    
+    # Generate report
+    report = {
+        "ruff_passed": ruff_success,
+        "black_passed": black_success,
+        "ruff_message": ruff_msg,
+        "black_message": black_msg
     }
     
-    # Step 1: Run ruff check
-    logger.info("Step 1: Running ruff check...")
-    ruff_check_result = run_command(["ruff", "check", str(code_dir)], project_root)
-    results["ruff_check"] = {
-        "returncode": ruff_check_result["returncode"],
-        "output": ruff_check_result["stdout"] + ruff_check_result["stderr"]
-    }
+    results_dir = project_root / "data" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
     
-    if ruff_check_result["returncode"] != 0:
-        logger.warning("Ruff check found issues. Attempting to fix...")
-        ruff_fix_result = run_command(["ruff", "check", str(code_dir), "--fix"], project_root)
-        results["ruff_fix"] = {
-            "returncode": ruff_fix_result["returncode"],
-            "output": ruff_fix_result["stdout"] + ruff_fix_result["stderr"]
-        }
-        
-        if ruff_fix_result["returncode"] != 0:
-            logger.error("Ruff fix failed or issues remain.")
-            logger.error(ruff_fix_result["stdout"])
-            logger.error(ruff_fix_result["stderr"])
-        else:
-            logger.info("Ruff fix successful.")
-    else:
-        logger.info("Ruff check passed.")
+    report_path = results_dir / "formatting_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    # Step 2: Run black format
-    logger.info("Step 2: Running black format...")
-    black_result = run_command(["black", str(code_dir)], project_root)
-    results["black_format"] = {
-        "returncode": black_result["returncode"],
-        "output": black_result["stdout"] + black_result["stderr"]
-    }
+    logger.info(f"Formatting report saved to {report_path}")
     
-    if black_result["returncode"] == 0:
-        logger.info("Black formatting successful.")
-    else:
-        logger.error("Black formatting failed.")
-        logger.error(black_result["stderr"])
-    
-    # Determine overall success
-    ruff_ok = (ruff_check_result["returncode"] == 0) or (
-        ruff_check_result["returncode"] != 0 and 
-        results.get("ruff_fix") and 
-        results["ruff_fix"]["returncode"] == 0
-    )
-    black_ok = black_result["returncode"] == 0
-    
-    results["success"] = ruff_ok and black_ok
-    
-    # Write results to log file
-    log_file = project_root / "data" / "results" / "formatting_log.json"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_file, "w") as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Formatting log written to {log_file}")
-    
-    if results["success"]:
-        logger.info("All formatting and linting checks passed.")
+    if ruff_success and black_success:
+        logger.info("All formatting checks passed!")
         sys.exit(0)
     else:
-        logger.error("Formatting or linting checks failed.")
+        logger.warning("Some formatting issues remain.")
         sys.exit(1)
 
 if __name__ == "__main__":
