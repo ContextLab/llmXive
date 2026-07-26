@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-258-the-effect-of-simulated-social-rejection",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026subject directories with dummy data     # In real implementa\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json; 2 command(s) failed: python code/preprocess.py --input data/raw --output data/processed/analysis_ready.csv (rc=1); python code/report.py --input results/analysis_output.json --output paper/report.md (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/preprocess.py --input data/raw --output data/processed/analysis_ready.csv -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.",
+    "python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/analyze.py': [Errno 2] No such file or directory",
+    "python code/report.py --input results/analysis_output.json --output paper/report.md -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py\", line 192, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py\", line 189, in main\n    run_reporting_pipeline(analysis_path, report_path, final_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-26T01:38:13Z"
+}

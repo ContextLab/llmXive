@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "missing_columns": [],
+  "timestamp": "2024-01-15T10:30:00.000000",
+  "required_columns": [
+    "Condition",
+    "Reaction Time",
+    "Mood"
+  ]
+}

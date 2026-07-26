@@ -1,154 +1,152 @@
 import pytest
-import pandas as pd
-import json
 import os
-import sys
+import json
+import yaml
 from pathlib import Path
+import pandas as pd
 from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Import functions to test
+from code.ingest import (
+    save_checksums,
+    calculate_file_hash,
+    decide_design_branch,
+    verify_conditions_present,
+    check_participant_overlap
+)
+from code.config import get_path
 
-from ingest import validate_separate_datasets, setup_paths
+class TestChecksums:
+    @pytest.fixture
+    def temp_file(self, tmp_path):
+        """Create a temporary file with known content."""
+        file_path = tmp_path / "test_file.txt"
+        file_path.write_text("test content for checksum")
+        return str(file_path)
 
-class TestValidateSeparateDatasets:
-    """Tests for validate_separate_datasets function."""
-    
-    def test_both_datasets_valid(self):
-        """Test when both datasets are valid."""
-        # Create valid DataFrames
-        df_rejection = pd.DataFrame({
-            'participant_id': ['sub-01', 'sub-02', 'sub-03'],
-            'condition': ['rejection', 'rejection', 'rejection'],
-            'mood': [3, 2, 4]
+    @pytest.fixture
+    def temp_state_file(self, tmp_path):
+        """Create a temporary state file."""
+        state_path = tmp_path / "state.yaml"
+        state_path.write_text("")
+        return str(state_path)
+
+    def test_calculate_file_hash(self, temp_file):
+        """Test SHA-256 calculation."""
+        hash_val = calculate_file_hash(temp_file)
+        assert len(hash_val) == 64  # SHA-256 hex length
+        assert isinstance(hash_val, str)
+
+    def test_save_checksums_creates_entry(self, temp_file, temp_state_file):
+        """Test that save_checksums creates the correct entry in state file."""
+        dataset_id = "ds000208"
+        save_checksums(dataset_id, temp_file, temp_state_file)
+        
+        with open(temp_state_file, 'r') as f:
+            state = yaml.safe_load(f)
+        
+        assert 'artifact_hashes' in state
+        assert dataset_id in state['artifact_hashes']
+        assert 'sha256' in state['artifact_hashes'][dataset_id]
+        assert 'size_bytes' in state['artifact_hashes'][dataset_id]
+        assert 'updated_at' in state
+
+    def test_save_checksums_updates_existing(self, temp_file, temp_state_file):
+        """Test that save_checksums updates an existing entry."""
+        dataset_id = "ds000208"
+        
+        # Create initial state
+        initial_state = {
+            'artifact_hashes': {
+                'ds000001': {'sha256': 'old_hash', 'size_bytes': 100}
+            },
+            'updated_at': '2023-01-01T00:00:00Z'
+        }
+        with open(temp_state_file, 'w') as f:
+            yaml.dump(initial_state, f)
+        
+        save_checksums(dataset_id, temp_file, temp_state_file)
+        
+        with open(temp_state_file, 'r') as f:
+            state = yaml.safe_load(f)
+        
+        assert 'ds000001' in state['artifact_hashes']
+        assert state['artifact_hashes']['ds000001']['sha256'] == 'old_hash'
+        assert dataset_id in state['artifact_hashes']
+        assert state['artifact_hashes'][dataset_id]['sha256'] != 'old_hash'
+
+class TestDesignBranch:
+    def test_within_subjects_decision(self):
+        """Test decision when single cohort and overlap."""
+        result = decide_design_branch(
+            validation_passed=True,
+            condition_report={'rejection_present': True, 'control_present': True},
+            single_cohort=True,
+            overlap=True
+        )
+        assert result['design_type'] == 'Within-Subjects'
+        assert result['branch'] == 'single_cohort'
+
+    def test_between_subjects_decision_no_overlap(self):
+        """Test decision when single cohort but no overlap."""
+        result = decide_design_branch(
+            validation_passed=True,
+            condition_report={'rejection_present': True, 'control_present': True},
+            single_cohort=True,
+            overlap=False
+        )
+        assert result['design_type'] == 'Between-Subjects'
+        assert result['branch'] == 'between_subjects'
+
+    def test_halt_on_validation_failure(self):
+        """Test decision when validation fails."""
+        result = decide_design_branch(
+            validation_passed=False,
+            condition_report={},
+            single_cohort=True,
+            overlap=True
+        )
+        assert result['branch'] == 'halt'
+        assert result['design_type'] is None
+
+class TestConditions:
+    def test_verify_conditions_present_valid(self):
+        """Test condition verification with valid data."""
+        df = pd.DataFrame({
+            'Condition': ['Rejection', 'Control', 'Rejection'],
+            'Reaction Time': [200, 300, 250],
+            'Mood': [1, 2, 1]
         })
-        
-        df_reward = pd.DataFrame({
-            'participant_id': ['sub-04', 'sub-05', 'sub-06'],
-            'condition': ['reward', 'reward', 'reward'],
-            'reaction_time': [250, 300, 280]
-        })
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        assert result['status'] == 'valid'
-        assert result['rejection_valid'] == True
-        assert result['reward_valid'] == True
-        assert 'Both datasets are valid' in result['reason']
-        
-        # Verify report file was created
-        paths = setup_paths()
-        report_path = paths['interim'] / 'separate_validation_report.json'
-        assert report_path.exists()
-        
-        # Verify report content
-        with open(report_path, 'r') as f:
-            report = json.load(f)
+        report = verify_conditions_present(df)
+        assert report['rejection_present'] is True
+        assert report['control_present'] is True
         assert report['status'] == 'valid'
-    
-    def test_rejection_dataset_invalid(self):
-        """Test when rejection dataset is invalid."""
-        # Create invalid rejection DataFrame (missing columns)
-        df_rejection = pd.DataFrame({
-            'participant_id': ['sub-01', 'sub-02'],
-            'condition': ['rejection', 'rejection']
-            # Missing 'mood' column
-        })
-        
-        df_reward = pd.DataFrame({
-            'participant_id': ['sub-03', 'sub-04'],
-            'condition': ['reward', 'reward'],
-            'reaction_time': [250, 300]
-        })
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        assert result['status'] == 'invalid'
-        assert result['rejection_valid'] == False
-        assert result['reward_valid'] == True
-        assert 'Missing columns' in result['reason']
-    
-    def test_reward_dataset_invalid(self):
-        """Test when reward dataset is invalid."""
-        df_rejection = pd.DataFrame({
-            'participant_id': ['sub-01', 'sub-02'],
-            'condition': ['rejection', 'rejection'],
-            'mood': [3, 4]
-        })
-        
-        # Create invalid reward DataFrame (missing columns)
-        df_reward = pd.DataFrame({
-            'participant_id': ['sub-03', 'sub-04'],
-            'condition': ['reward', 'reward']
-            # Missing 'reaction_time' column
-        })
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        assert result['status'] == 'invalid'
-        assert result['rejection_valid'] == True
-        assert result['reward_valid'] == False
-        assert 'Missing columns' in result['reason']
-    
-    def test_both_datasets_invalid(self):
-        """Test when both datasets are invalid."""
-        df_rejection = pd.DataFrame({
-            'participant_id': ['sub-01'],
-            # Missing required columns
-        })
-        
-        df_reward = pd.DataFrame({
-            'participant_id': ['sub-02'],
-            # Missing required columns
-        })
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        assert result['status'] == 'invalid'
-        assert result['rejection_valid'] == False
-        assert result['reward_valid'] == False
-    
-    def test_empty_datasets(self):
-        """Test with empty DataFrames."""
-        df_rejection = pd.DataFrame()
-        df_reward = pd.DataFrame()
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        assert result['status'] == 'invalid'
-        assert result['rejection_valid'] == False
-        assert result['reward_valid'] == False
-    
-    def test_none_datasets(self):
-        """Test with None values."""
-        result = validate_separate_datasets(None, None)
-        
-        assert result['status'] == 'invalid'
-        assert result['rejection_valid'] == False
-        assert result['reward_valid'] == False
-    
-    def test_report_schema(self):
-        """Test that the report follows the required schema."""
-        df_rejection = pd.DataFrame({
-            'participant_id': ['sub-01'],
-            'condition': ['rejection'],
-            'mood': [3]
-        })
-        
-        df_reward = pd.DataFrame({
-            'participant_id': ['sub-02'],
-            'condition': ['reward'],
-            'reaction_time': [250]
-        })
-        
-        result = validate_separate_datasets(df_rejection, df_reward)
-        
-        # Check required keys
-        assert 'status' in result
-        assert 'reason' in result
-        assert result['status'] in ['valid', 'invalid']
-        assert isinstance(result['reason'], str)
-        assert len(result['reason']) > 0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_verify_conditions_present_missing(self):
+        """Test condition verification with missing condition."""
+        df = pd.DataFrame({
+            'Condition': ['Rejection', 'Rejection', 'Rejection'],
+            'Reaction Time': [200, 300, 250],
+            'Mood': [1, 2, 1]
+        })
+        report = verify_conditions_present(df)
+        assert report['rejection_present'] is True
+        assert report['control_present'] is False
+        assert report['status'] == 'invalid'
+
+class TestOverlap:
+    def test_check_participant_overlap_true(self):
+        """Test overlap detection with shared IDs."""
+        df = pd.DataFrame({
+            'Participant': [1, 1, 2, 2],
+            'Condition': ['Rejection', 'Control', 'Rejection', 'Control']
+        })
+        assert check_participant_overlap(df) is True
+
+    def test_check_participant_overlap_false(self):
+        """Test overlap detection with no shared IDs."""
+        df = pd.DataFrame({
+            'Participant': [1, 1, 2, 2],
+            'Condition': ['Rejection', 'Rejection', 'Control', 'Control']
+        })
+        assert check_participant_overlap(df) is False

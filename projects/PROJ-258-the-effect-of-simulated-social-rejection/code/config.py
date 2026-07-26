@@ -2,20 +2,36 @@ import os
 import random
 from typing import Set, List
 
-def set_random_seed(seed: int = 42):
-    """Set random seeds for reproducibility."""
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+# Project Root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def get_path(relative_path: str) -> str:
-    """Get absolute path relative to project root."""
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(project_root, relative_path)
+# Memory Threshold
+MAX_RAM_GB = 7
+
+# Alpha Set for Sensitivity Analysis
+ALPHA_SET = {0.01, 0.05, 0.1}
+
+# Random Seed
+RANDOM_SEED = 42
+
+def set_random_seed(seed: int = RANDOM_SEED):
+    random.seed(seed)
+    if 'numpy' in globals() or 'numpy' in locals():
+        import numpy as np
+        np.random.seed(seed)
+
+def get_path(key: str) -> str:
+    """Get a specific path based on key."""
+    paths = {
+        "project_root": PROJECT_ROOT,
+        "raw": os.path.join(PROJECT_ROOT, "data", "raw"),
+        "interim": os.path.join(PROJECT_ROOT, "data", "interim"),
+        "processed": os.path.join(PROJECT_ROOT, "data", "processed"),
+    }
+    return paths.get(key, "")
 
 def get_alpha_set() -> Set[float]:
-    """Return the set of alpha thresholds for sensitivity analysis."""
-    return {0.01, 0.05, 0.1}
+    return ALPHA_SET
 
 def get_memory_threshold_mb() -> int:
-    """Return memory threshold in MB (7 GB)."""
-    return 7 * 1024  # 7 GB in MB
+    return MAX_RAM_GB * 1024

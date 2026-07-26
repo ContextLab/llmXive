@@ -9,3 +9,4 @@ psutil>=5.9.0
 pytest>=7.4.0
 black>=23.0.0
 flake8>=6.1.0
+tqdm  # auto-added: imported by run-book but missing from venv

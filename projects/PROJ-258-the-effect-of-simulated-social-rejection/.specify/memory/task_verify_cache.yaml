@@ -1,3 +1,23 @@
+T013:
+  c: false
+  h: de374b2426a587f8e0cf98371c925a0c444ede2c470ba69cebd0c87a94a270b7
+  r: "The repository lacks a `validate_schema(df)` function in `code/ingest.py`, and\
+    \ the required `data/interim/validation_report.json` file does not exist, so the\
+    \ schema\u2011checking behavior and the output artifact are missing."
+T018:
+  c: false
+  h: 40a76abfe750de3d3740edeed3c71e8804980974d32da3d809e2d9ac2e9799da
+  r: The repository lacks a `log_design_switch()` implementation in `code/ingest.py`
+    (the file shown does not contain such a function) and the required `data/processed/metadata.json`
+    file is missing, so the design transition cannot be recorded as specified.
+T019:
+  c: false
+  h: 40a76abfe750de3d3740edeed3c71e8804980974d32da3d809e2d9ac2e9799da
+  r: The repository lacks the required `data/processed/metadata.json` file, and the
+    provided `code/ingest.py` excerpt does not contain a `write_metadata(design_type,
+    used_datasets)` implementation (the file is truncated before any such function
+    could appear). Both the function and its output file are missing, so the task
+    is not satisfied.
 T033:
   c: false
   h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9
