@@ -1,7 +1,3 @@
-"""
-Setup project structure for llmXive automated science pipeline.
-Creates the required directory hierarchy: code/, tests/, data/, data/raw/, data/processed/, figures/, state/.
-"""
 import os
 import sys
 from pathlib import Path
@@ -9,63 +5,69 @@ from typing import List
 
 def get_project_root() -> Path:
     """
-    Returns the project root directory (parent of the 'code' directory).
-    Assumes this script is located at code/setup_project_structure.py.
+    Determine the project root directory.
+    Assumes the script is run from the project root or a subdirectory.
     """
-    current_file = Path(__file__).resolve()
-    # Go up two levels: code/setup_project_structure.py -> code -> root
-    return current_file.parent.parent
+    # Look for a marker file or specific directory structure to identify root
+    # Here we assume the script is run from the root, so we use the current working directory
+    # In a more robust setup, you might look for a specific file like 'pyproject.toml' or 'README.md'
+    current_dir = Path.cwd()
+    return current_dir
 
-def create_directory_structure(root: Path) -> List[str]:
+def create_directory_structure(root: Path) -> List[Path]:
     """
-    Creates the standard directory structure for the project.
-    Returns a list of created directory paths as strings.
+    Create the standard project directory structure.
+    
+    Args:
+        root: The project root directory.
+        
+    Returns:
+        A list of created directory paths.
     """
+    # Define the directories to create relative to the project root
     directories = [
         "code",
         "tests",
         "data",
         "data/raw",
         "data/processed",
-        "figures",
         "state",
         "state/projects",
         "specs",
-        "docs",
+        "specs/001-molecular-flexibility-permeability",
+        "specs/001-molecular-flexibility-permeability/contracts",
+        "figures",
     ]
-
-    created = []
-    for dir_name in directories:
-        dir_path = root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
-        elif not dir_path.is_dir():
-            raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
     
-    return created
+    created_dirs = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            os.makedirs(full_path, exist_ok=True)
+            created_dirs.append(full_path)
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
+            
+    return created_dirs
 
 def main():
-    """
-    Main entry point to create the project structure.
-    """
-    root = get_project_root()
-    print(f"Project root identified at: {root}")
+    """Main entry point for the script."""
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
-    try:
-        created_dirs = create_directory_structure(root)
-        if created_dirs:
-            print(f"Successfully created {len(created_dirs)} directories:")
-            for d in created_dirs:
-                print(f"  - {d}")
-        else:
-            print("All required directories already exist.")
+    logger.info("Starting project structure creation...")
+    root = get_project_root()
+    logger.info(f"Project root identified as: {root}")
+    
+    created_dirs = create_directory_structure(root)
+    
+    if created_dirs:
+        logger.info(f"Successfully created {len(created_dirs)} new directories.")
+    else:
+        logger.info("No new directories were created; structure already exists.")
         
-        print("Project structure setup complete.")
-        return 0
-    except Exception as e:
-        print(f"Error setting up project structure: {e}", file=sys.stderr)
-        return 1
+    logger.info("Project structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

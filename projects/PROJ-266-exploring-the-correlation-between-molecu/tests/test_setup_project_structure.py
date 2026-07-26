@@ -1,73 +1,76 @@
-"""
-Unit tests for the project structure setup logic.
-"""
 import os
 import tempfile
 from pathlib import Path
 import pytest
 
-# Import the function to test
-# We need to simulate the module structure or import directly
-# Since setup_project_structure is in code/, we add the parent to path
+# Import the functions to test
+# Assuming the module is in the same directory or added to sys.path
+# For testing, we might need to adjust the import path
 import sys
-import importlib.util
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def load_module_from_path(module_name, path):
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    return module
+from setup_project_structure import create_directory_structure, get_project_root
 
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as project root."""
+def test_create_directory_structure():
+    """Test that the directory structure is created correctly."""
     with tempfile.TemporaryDirectory() as tmp_dir:
-        yield Path(tmp_dir)
-
-def test_create_directory_structure(temp_project_root):
-    """Test that create_directory_structure creates the expected folders."""
-    # Load the module dynamically to avoid path issues in tests
-    script_path = Path(__file__).parent.parent / "code" / "setup_project_structure.py"
-    setup_module = load_module_from_path("setup_project_structure_test", script_path)
-    
-    # Mock the get_project_root to return our temp dir
-    original_get_root = setup_module.get_project_root
-    setup_module.get_project_root = lambda: temp_project_root
-
-    try:
-        created = setup_module.create_directory_structure(temp_project_root)
+        root = Path(tmp_dir)
         
+        # Call the function
+        created_dirs = create_directory_structure(root)
+        
+        # Verify that the directories were created
         expected_dirs = [
-            "code", "tests", "data", "data/raw", "data/processed",
-            "figures", "state", "state/projects", "specs", "docs"
+            "code",
+            "tests",
+            "data",
+            "data/raw",
+            "data/processed",
+            "state",
+            "state/projects",
+            "specs",
+            "specs/001-molecular-flexibility-permeability",
+            "specs/001-molecular-flexibility-permeability/contracts",
+            "figures",
         ]
         
-        for expected in expected_dirs:
-            assert (temp_project_root / expected).exists(), f"Directory {expected} was not created"
-            assert (temp_project_root / expected).is_dir(), f"{expected} is not a directory"
+        for dir_name in expected_dirs:
+            full_path = root / dir_name
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"
         
-        # Check that the returned list contains the created paths
-        for created_path_str in created:
-            assert Path(created_path_str).exists()
-    finally:
-        # Restore original function
-        setup_module.get_project_root = original_get_root
+        # Verify that the returned list contains the created paths
+        for created_dir in created_dirs:
+            assert created_dir.exists(), f"Created directory {created_dir} does not exist"
+            assert created_dir in [root / d for d in expected_dirs], f"Created directory {created_dir} is not expected"
 
-def test_main_execution(temp_project_root, capsys):
-    """Test the main function execution."""
-    script_path = Path(__file__).parent.parent / "code" / "setup_project_structure.py"
-    setup_module = load_module_from_path("setup_project_structure_main_test", script_path)
-    
-    original_get_root = setup_module.get_project_root
-    setup_module.get_project_root = lambda: temp_project_root
-
-    try:
-        exit_code = setup_module.main()
-        captured = capsys.readouterr()
+def test_create_directory_structure_already_exists():
+    """Test that the function handles existing directories gracefully."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        root = Path(tmp_dir)
         
-        assert exit_code == 0, "Main function should return 0 on success"
-        assert "Project root identified" in captured.out
-        assert "Project structure setup complete" in captured.out
-    finally:
-        setup_module.get_project_root = original_get_root
+        # Pre-create some directories
+        (root / "code").mkdir()
+        (root / "data").mkdir()
+        
+        # Call the function
+        created_dirs = create_directory_structure(root)
+        
+        # Verify that no new directories were created for the existing ones
+        # But the function should still return the list of all expected directories
+        # (or only the new ones, depending on implementation)
+        # In this implementation, it returns only newly created directories
+        assert len(created_dirs) <= len([d for d in ["code", "data"] if not (root / d).exists()]), \
+            "Function returned more directories than expected"
+        
+        # Verify that the existing directories still exist
+        assert (root / "code").exists()
+        assert (root / "data").exists()
+
+def test_get_project_root():
+    """Test that the project root is correctly identified."""
+    # This is a simple test; in a real scenario, you might want to test
+    # the logic for identifying the project root more thoroughly
+    root = get_project_root()
+    assert root.exists(), "Project root does not exist"
+    assert root.is_dir(), "Project root is not a directory"

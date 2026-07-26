@@ -143,9 +143,7 @@ def main():
         write_clean_data(filtered_data, output_path)
 
         # 4. Register checksum
-        checksum_utils = project_root / "code/utils/checksum.py"
-        # We need to call the register_checksum function directly
-        # The function signature is: register_checksum(file_path: Path, state_path: Path, description: str)
+        # The register_checksum function expects: file_path, state_path, description
         register_checksum(output_path, project_root / STATE_PATH, "Filtered Caco-2 dataset for US1")
 
         logger.info("Preprocessing completed successfully.")

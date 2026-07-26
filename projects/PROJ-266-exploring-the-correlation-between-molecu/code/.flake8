@@ -1,14 +1,16 @@
 [flake8]
-max-line-length = 120
+max-line-length = 100
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
+    .venv,
+    venv,
     build,
     dist,
-    .eggs,
     *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py for public API exposure
-    code/__init__.py:F401
-    tests/__init__.py:F401
+    # Allow unused imports in __init__.py if present
+    */__init__.py: F401
+    # Allow docstrings to be missing in tests
+    tests/*.py: D100,D101,D102,D103

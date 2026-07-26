@@ -7,3 +7,4 @@ requests
 numpy
 scipy
 pyyaml
+jsonschema

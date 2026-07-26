@@ -1,3 +1,1 @@
-"""
-Utility modules for configuration, logging, and checksums.
-"""
+# Utility functions for logging, configuration, checksums, and reporting.

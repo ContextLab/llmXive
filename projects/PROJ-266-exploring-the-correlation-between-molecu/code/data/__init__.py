@@ -1,3 +1,1 @@
-"""
-Data retrieval, processing, and analysis modules.
-"""
+# Data retrieval, preprocessing, descriptor generation, analysis, and visualization modules.

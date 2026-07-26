@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "molecular-flexibility-permeability"
 version = "0.1.0"
 description = "Exploring the correlation between molecular flexibility and drug transport across cell membranes"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "rdkit",
@@ -21,14 +22,14 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "flake8",
+    "black",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.black]
-line-length = 120
+line-length = 100
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
@@ -42,18 +43,20 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | \.eggs
-    | \.cache
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 120
-known_first_party = ["data", "utils"]
+line_length = 100
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests",
+]

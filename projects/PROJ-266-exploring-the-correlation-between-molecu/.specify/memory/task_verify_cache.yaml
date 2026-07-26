@@ -1,17 +1,10 @@
-T001:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `tests/`, `data/`) is provided;\
-    \ the claim lacks any actual artifact showing the project structure was created.\
-    \ The implementer must add the three top\u2011level folders (with at least placeholder\
-    \ files) to satisfy the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., .flake8, pyproject.toml,
-    black settings) or related documentation were provided; the only artifacts shown
-    relate to the molecular flexibility feature, not to configuring flake8/black.
-    The required linting setup is therefore missing.
+  r: No evidence of a `research.md` file in `specs/001-molecular-flexibility-permeability/`
+    was provided, nor any content showing the required sections (Introduction, Methodology,
+    Results, Discussion). The implementer must create the file with the specified
+    template.
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -20,6 +13,15 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no evidence of the `data/raw/` and `data/processed/`
+    directories being created (no file listings, scripts, or commands are shown).
+    Without such artifacts, the requirement to create the folder structure using OS
+    path utilities is not satisfied. The next implementer must add the actual directory
+    creation (e.g., a Python script using `os.makedirs` or a shell command) and verify
+    the folders exist.
 T009:
   c: false
   h: 4392adad10389c9747709b186cc0d84d9a71d95da01dcd1ed660c51334ebf87e
@@ -28,6 +30,14 @@ T009:
     \ utility. No raw CSV file is present, and the required state file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
     \ is missing, so the checksum cannot be registered. The task\u2019s core requirements\
     \ are therefore unmet."
+T012:
+  c: false
+  h: 5cff7f5929b24a4a1295338ac308e2469d8d3e7471eeb49254b5fbf29d9c82f0
+  r: The `tests/contract/test_dataset.py` file exists but it references a schema at
+    `specs/.../dataset.schema.yaml` which is missing, so the tests cannot actually
+    validate anything. Additionally, the test code is truncated and contains an invalid
+    import (`import pand`), indicating it is not a functional, complete test suite.
+    The required schema artifact and a runnable test implementation are both absent.
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

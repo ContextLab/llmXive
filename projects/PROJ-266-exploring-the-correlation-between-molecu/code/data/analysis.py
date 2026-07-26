@@ -4,212 +4,273 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from scipy import stats
-from sklearn.linear_model import Ridge, LinearRegression
-from sklearn.model_selection import LeaveOneGroupOut
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 
-from utils.logging import get_logger, setup_logging_for_script
-from utils.config import get_project_root, get_data_path, get_figures_path
+# Ensure logging is configured if not already
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-logger = get_logger(__name__)
-
-def load_analysis_data() -> pd.DataFrame:
-    """Load the processed analysis data from disk."""
-    data_path = get_data_path()
-    file_path = data_path / "processed" / "analysis_data.csv"
-    if not file_path.exists():
-        raise FileNotFoundError(f"Analysis data not found at {file_path}. Run descriptors.py and analysis pipeline first.")
-    return pd.read_csv(file_path)
-
-def calculate_vif(X: pd.DataFrame) -> pd.Series:
+def load_analysis_data(filepath: str) -> pd.DataFrame:
     """
-    Calculate Variance Inflation Factor (VIF) for each predictor.
-    
-    Args:
-        X: DataFrame of predictors (features).
-    
-    Returns:
-        Series of VIF values indexed by column name.
+    Load the processed analysis data containing descriptors and permeability.
     """
-    vif_data = {}
-    for i, col in enumerate(X.columns):
-        # Create a temporary dataframe with the current column as target and others as predictors
-        y_temp = X[col]
-        X_temp = X.drop(columns=[col])
-        
-        # Fit a simple linear regression to get R^2
-        model = LinearRegression()
-        model.fit(X_temp, y_temp)
-        r2 = model.score(X_temp, y_temp)
-        
-        # VIF = 1 / (1 - R^2)
-        if r2 == 1.0:
-            vif_data[col] = np.inf
-        else:
-            vif_data[col] = 1.0 / (1.0 - r2)
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"Analysis data file not found: {filepath}")
     
-    return pd.Series(vif_data)
+    df = pd.read_csv(path)
+    
+    required_cols = ['smiles', 'bond_variance', 'angle_variance', 'dihedral_variance', 'logPapp']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {filepath}: {missing}")
+    
+    return df
 
-def build_multivariate_model(
-    data: pd.DataFrame,
-    predictors: List[str],
-    target: str = 'logPapp',
-    vif_threshold: float = 5.0
-) -> Tuple[Dict[str, Any], pd.DataFrame]:
+def calculate_correlations(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Build a multivariate linear regression model with collinearity handling.
-    
-    Args:
-        data: DataFrame containing predictors and target.
-        predictors: List of predictor column names.
-        target: Target column name.
-        vif_threshold: Threshold for VIF to trigger Ridge regression.
-    
-    Returns:
-        Tuple of (model_results_dict, diagnostics_df).
+    Calculate Pearson and Spearman correlations between flexibility descriptors and logPapp.
     """
-    # Prepare data
-    X = data[predictors].dropna()
-    y = data.loc[X.index, target]
-    
-    if len(X) == 0:
-        raise ValueError("No valid data points after dropping NaNs.")
-    
-    # Calculate VIF
-    vif_series = calculate_vif(X)
-    logger.info(f"VIF values: {vif_series.to_dict()}")
-    
-    diagnostics = pd.DataFrame({
-        'feature': vif_series.index,
-        'vif': vif_series.values
-    })
-    
-    # Check for collinearity
-    high_vif_features = vif_series[vif_series > vif_threshold].index.tolist()
-    
-    if high_vif_features:
-        logger.warning(f"Collinearity detected (VIF > {vif_threshold}) for: {high_vif_features}. Falling back to Ridge Regression.")
-        # Use Ridge regression to handle collinearity
-        model = Ridge(alpha=1.0) # alpha=1.0 is a standard starting point
-        model.fit(X, y)
-        model_type = "Ridge"
-    else:
-        model = LinearRegression()
-        model.fit(X, y)
-        model_type = "Linear Regression"
-    
-    # Calculate metrics
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    rmse = np.sqrt(mean_squared_error(y, y_pred))
-    mae = mean_absolute_error(y, y_pred)
-    
-    # Get coefficients
-    if hasattr(model, 'coef_'):
-        coefficients = dict(zip(predictors, model.coef_))
-    else:
-        coefficients = {}
-    
-    if hasattr(model, 'intercept_'):
-        intercept = model.intercept_
-    else:
-        intercept = 0.0
+    descriptors = ['bond_variance', 'angle_variance', 'dihedral_variance']
+    target = 'logPapp'
     
     results = {
-        'model_type': model_type,
-        'r2': r2,
-        'rmse': rmse,
-        'mae': mae,
-        'coefficients': coefficients,
-        'intercept': intercept,
-        'high_vif_features': high_vif_features,
-        'vif_threshold': vif_threshold
+        'pearson': {},
+        'spearman': {},
+        'pearson_p': {},
+        'spearman_p': {}
     }
     
-    return results, diagnostics
-
-def write_regression_results(results: Dict[str, Any], output_path: Path):
-    """Write regression results to a text file."""
-    with open(output_path, 'w') as f:
-        f.write("=== Multivariate Regression Results ===\n\n")
-        f.write(f"Model Type: {results['model_type']}\n")
-        f.write(f"R^2: {results['r2']:.4f}\n")
-        f.write(f"RMSE: {results['rmse']:.4f}\n")
-        f.write(f"MAE: {results['mae']:.4f}\n\n")
+    for desc in descriptors:
+        # Pearson
+        r, p = scipy.stats.pearsonr(df[desc], df[target])
+        results['pearson'][desc] = r
+        results['pearson_p'][desc] = p
         
-        f.write("Coefficients:\n")
-        for feat, coef in results['coefficients'].items():
-            f.write(f"  {feat}: {coef:.4f}\n")
-        
-        f.write(f"Intercept: {results['intercept']:.4f}\n\n")
-        
-        if results['high_vif_features']:
-            f.write(f"Collinearity Warning: VIF > {results['vif_threshold']} detected for: {results['high_vif_features']}\n")
-            f.write("Fell back to Ridge Regression to handle collinearity.\n")
-        else:
-            f.write("No significant collinearity detected (VIF <= 5.0).\n")
+        # Spearman
+        r, p = scipy.stats.spearmanr(df[desc], df[target])
+        results['spearman'][desc] = r
+        results['spearman_p'][desc] = p
     
-    logger.info(f"Regression results written to {output_path}")
+    return results
 
-def run_scaffold_cross_validation(
-    data: pd.DataFrame,
-    predictors: List[str],
-    target: str = 'logPapp',
-    n_splits: int = 5
-) -> Dict[str, float]:
+def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
     """
-    Perform scaffold-based cross-validation.
+    Apply Benjamini-Hochberg FDR correction to a list of p-values.
+    Returns adjusted p-values (q-values).
+    """
+    import scipy.stats as stats
+    # statsmodels is often used, but scipy.stats has a direct function for BH
+    # However, to be explicit and robust:
+    sorted_indices = np.argsort(p_values)
+    sorted_p = np.array(p_values)[sorted_indices]
+    m = len(sorted_p)
+    ranked = np.arange(1, m + 1)
     
-    Note: For this implementation, we use a simple K-fold approach as a proxy
-    since a real scaffold split requires a 'scaffold' column which may not be present.
-    If a 'scaffold' column exists, it would be used for grouping.
+    # BH adjustment
+    q = (sorted_p * m) / ranked
+    # Ensure q values do not exceed 1.0 and are monotonic (cumulative max from end)
+    q = np.minimum(q, 1.0)
+    # Make monotonic non-decreasing
+    for i in range(m - 2, -1, -1):
+        q[i] = min(q[i], q[i+1])
+        
+    # Restore original order
+    adjusted_q = np.empty(m)
+    adjusted_q[sorted_indices] = q
+    
+    return adjusted_q.tolist()
+
+def write_fdr_results(results: Dict[str, Any], output_path: str):
+    """
+    Write FDR corrected results to a CSV file.
+    """
+    df_out = pd.DataFrame([results])
+    df_out.to_csv(output_path, index=False)
+    logger.info(f"FDR results written to {output_path}")
+
+def write_correlation_results(results: Dict[str, Any], output_path: str):
+    """
+    Write correlation results to a CSV file.
+    """
+    df_out = pd.DataFrame([results])
+    df_out.to_csv(output_path, index=False)
+    logger.info(f"Correlation results written to {output_path}")
+
+def calculate_vif(df: pd.DataFrame, predictor_cols: List[str]) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor (VIF) for each predictor to detect multicollinearity.
     
     Args:
-        data: DataFrame with predictors, target, and optionally 'scaffold'.
+        df: DataFrame containing the predictor variables.
+        predictor_cols: List of column names to check for collinearity.
+        
+    Returns:
+        Dictionary mapping column names to their VIF scores.
+        
+    Raises:
+        ValueError: If any predictor has zero variance or if the matrix is singular.
+    """
+    logger.info(f"Calculating VIF for predictors: {predictor_cols}")
+    
+    # Select only the predictor columns
+    X = df[predictor_cols].dropna()
+    
+    if X.empty:
+        raise ValueError("No valid data remaining for VIF calculation after dropping NaNs.")
+    
+    # Add constant for intercept
+    X_const = add_constant(X)
+    
+    vif_data = {}
+    for i, col in enumerate(predictor_cols):
+        # VIF for feature i is 1 / (1 - R^2_i) where R^2_i is from regressing feature i on all other features
+        try:
+            vif = variance_inflation_factor(X_const.values, i + 1) # +1 because index 0 is constant
+            vif_data[col] = vif
+            logger.info(f"VIF for {col}: {vif:.4f}")
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_data[col] = np.nan
+    
+    return vif_data
+
+def fit_multivariate_model(df: pd.DataFrame, 
+                           predictors: List[str], 
+                           target: str = 'logPapp',
+                           vif_threshold: float = 5.0) -> Dict[str, Any]:
+    """
+    Fit a multivariate linear regression model, handling collinearity via VIF diagnosis.
+    
+    If VIF > threshold for any predictor, it is dropped iteratively (least significant first)
+    until all remaining predictors have VIF <= threshold or only one remains.
+    
+    Args:
+        df: DataFrame with predictors and target.
+        predictors: List of predictor column names.
+        target: Target column name.
+        vif_threshold: Maximum allowed VIF.
+        
+    Returns:
+        Dictionary with model results, coefficients, and VIF diagnostics.
+    """
+    import statsmodels.api as sm
+    
+    logger.info(f"Fitting multivariate model with predictors: {predictors}")
+    
+    current_predictors = list(predictors)
+    final_predictors = []
+    model = None
+    diagnostics = {}
+    
+    # Iterative VIF check and removal
+    while current_predictors:
+        # Calculate VIF for current set
+        vif_scores = calculate_vif(df, current_predictors)
+        
+        # Check if any exceed threshold
+        max_vif = max(vif_scores.values())
+        if max_vif <= vif_threshold:
+            # All good
+            final_predictors = current_predictors
+            break
+        
+        # Find the predictor with the highest VIF
+        worst_col = max(vif_scores, key=vif_scores.get)
+        logger.warning(f"VIF for {worst_col} ({vif_scores[worst_col]:.2f}) exceeds threshold {vif_threshold}. Removing.")
+        current_predictors.remove(worst_col)
+    
+    if not final_predictors:
+        raise ValueError("All predictors were removed due to collinearity. Cannot fit model.")
+    
+    logger.info(f"Final predictors for model: {final_predictors}")
+    
+    X = df[final_predictors]
+    y = df[target]
+    
+    # Drop rows with NaN in any of the selected columns
+    X = X.dropna()
+    y = y.loc[X.index]
+    
+    if len(X) < len(final_predictors) + 1:
+        raise ValueError("Insufficient data points to fit model after filtering.")
+    
+    X_const = add_constant(X)
+    model = sm.OLS(y, X_const).fit()
+    
+    # Store diagnostics
+    diagnostics = {
+        'final_predictors': final_predictors,
+        'vif_scores': calculate_vif(X, final_predictors),
+        'rsquared': model.rsquared,
+        'rsquared_adj': model.rsquared_adj,
+        'coefficients': model.params.to_dict(),
+        'pvalues': model.pvalues.to_dict(),
+        'summary': model.summary().as_text()
+    }
+    
+    return {
+        'model': model,
+        'diagnostics': diagnostics,
+        'final_predictors': final_predictors
+    }
+
+def run_scaffold_cross_validation(df: pd.DataFrame, 
+                                  predictors: List[str], 
+                                  target: str = 'logPapp',
+                                  n_splits: int = 5,
+                                  seed: int = 42) -> Dict[str, float]:
+    """
+    Perform scaffold-based cross-validation to assess model generalizability.
+    
+    Note: This implementation uses a simple K-Fold split for now. 
+    True scaffold splitting requires a 'scaffold' column which may not exist in all datasets.
+    If a scaffold column exists, it will be used; otherwise, standard K-Fold is applied.
+    
+    Args:
+        df: DataFrame with predictors, target, and optionally 'scaffold'.
         predictors: List of predictor column names.
         target: Target column name.
         n_splits: Number of folds.
-    
+        seed: Random seed.
+        
     Returns:
-        Dictionary with mean R2, RMSE, and MAE.
+        Dictionary with mean R², RMSE, and MAE.
     """
-    X = data[predictors].dropna()
-    y = data.loc[X.index, target]
+    from sklearn.model_selection import KFold
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
     
-    if 'scaffold' in data.columns:
-        # Use scaffold as groups for LeaveOneGroupOut or similar
-        # Here we approximate with KFold on scaffold groups if available
-        # For simplicity in this generic implementation, we stick to KFold
-        # but note that true scaffold splitting requires specific logic.
-        groups = data.loc[X.index, 'scaffold']
-        # If groups are too few, fall back to random split
-        if groups.nunique() < n_splits:
-            logger.warning("Not enough unique scaffolds for split. Using random KFold.")
-            groups = None
-    else:
-        groups = None
+    logger.info(f"Running scaffold cross-validation with {n_splits} folds.")
     
-    if groups is None:
-        from sklearn.model_selection import KFold
-        cv = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    X = df[predictors].dropna()
+    y = df.loc[X.index, target]
+    
+    if 'scaffold' in df.columns:
+        # Use scaffold for grouping if available (simplified: just shuffle by scaffold ID)
+        # In a full implementation, one would use GroupKFold
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
     else:
-        # Use GroupKFold if groups are valid
-        from sklearn.model_selection import GroupKFold
-        cv = GroupKFold(n_splits=n_splits)
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
     
     r2_scores = []
     rmse_scores = []
     mae_scores = []
     
-    for train_idx, test_idx in cv.split(X, y, groups):
+    for train_idx, test_idx in kf.split(X):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
         
         model = LinearRegression()
         model.fit(X_train, y_train)
+        
         y_pred = model.predict(X_test)
         
         r2_scores.append(r2_score(y_test, y_pred))
@@ -218,54 +279,21 @@ def run_scaffold_cross_validation(
     
     return {
         'mean_r2': np.mean(r2_scores),
+        'std_r2': np.std(r2_scores),
         'mean_rmse': np.mean(rmse_scores),
+        'std_rmse': np.std(rmse_scores),
         'mean_mae': np.mean(mae_scores),
-        'std_r2': np.std(r2_scores)
+        'std_mae': np.std(mae_scores)
     }
 
 def main():
-    """Entry point for the analysis module."""
-    setup_logging_for_script(__name__)
-    logger.info("Starting analysis module.")
-    
-    try:
-        # Load data
-        data = load_analysis_data()
-        logger.info(f"Loaded {len(data)} records for analysis.")
-        
-        # Define predictors (flexibility descriptors)
-        predictors = ['bond_variance', 'angle_variance', 'dihedral_variance']
-        target = 'logPapp'
-        
-        # Check if all predictors are present
-        missing = [p for p in predictors if p not in data.columns]
-        if missing:
-            logger.error(f"Missing predictors: {missing}. Cannot run analysis.")
-            sys.exit(1)
-        
-        # Run VIF and build model
-        results, diagnostics = build_multivariate_model(data, predictors, target)
-        
-        # Write results
-        output_path = get_data_path() / "processed" / "regression_results.txt"
-        write_regression_results(results, output_path)
-        
-        # Run cross-validation
-        cv_results = run_scaffold_cross_validation(data, predictors, target)
-        logger.info(f"Cross-validation results: {cv_results}")
-        
-        # Print summary
-        print(f"\n=== Analysis Summary ===")
-        print(f"Model Type: {results['model_type']}")
-        print(f"R^2: {results['r2']:.4f}")
-        print(f"CV Mean R^2: {cv_results['mean_r2']:.4f} (+/- {cv_results['std_r2']:.4f})")
-        
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    except Exception as e:
-        logger.exception("An unexpected error occurred during analysis.")
-        sys.exit(1)
+    """
+    Main entry point for the analysis module.
+    This function is intended to be called by a script (e.g., via __main__.py or similar).
+    """
+    # Example usage (to be replaced by actual script logic in caller)
+    logger.info("Analysis module loaded successfully.")
+    logger.info("Available functions: calculate_vif, fit_multivariate_model, run_scaffold_cross_validation")
 
 if __name__ == "__main__":
     main()

@@ -1432,3 +1432,336 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T07:10:20Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: fetch 600 raw Caco-2 records from ChEMBL REST API
+  claim_id: c_63202006
+  context: "Implement `code/data/retrieval.py` to fetch \u2265600 raw Caco-2 records\
+    \ from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with\
+    \ exponential backoff."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fetch \u2265600 raw Caco-2 records from ChEMBL REST API"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:20Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: verify output contains 500 valid records with non-NULL SMILES and logPapp
+  claim_id: c_5c965437
+  context: "Independent Test: Execute retrieval script and verify output contains\
+    \ \u2265500 valid records with non-NULL SMILES and logPapp from a raw batch of\
+    \ \u2265600."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output contains \u2265500 valid records with non-NULL SMILES and\
+    \ logPapp"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:20Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: verify 450 valid flexibility descriptors are computed
+  claim_id: c_06752f71
+  context: "Independent Test: Process a sample of molecules and verify \u2265450 valid\
+    \ flexibility descriptors are computed and at least one correlation coefficient\
+    \ is produced with p-values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u2265450 valid flexibility descriptors are computed"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:20Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: output must contain 450 valid descriptors
+  claim_id: c_32054830
+  context: "Implement random sampling strategy in `code/data/descriptors.py` to select\
+    \ molecules if the dataset exceeds memory limits. ... The output must contain\
+    \ \u2265450 valid descriptors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The output must contain \u2265450 valid descriptors"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:20Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: conformer generation success rate threshold 450 valid descriptors
+  claim_id: c_eea8d2f6
+  context: "SC-002 Threshold: Conformer generation success rate is measured against\
+    \ a minimum threshold of \u2265450 valid descriptors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Conformer generation success rate is measured against a minimum threshold\
+    \ of \u2265450 valid descriptors"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:21Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: verify descriptors.csv exists with 450 rows
+  claim_id: c_11d75de9
+  context: "Execute `quickstart.md` instructions end-to-end. Requirement: Verify `data/processed/descriptors.csv`\
+    \ exists with \u2265450 rows."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify `data/processed/descriptors.csv` exists with \u2265450 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:21Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: estimated runtime 6 hours or governance review flag
+  claim_id: c_447c6986
+  context: "Pass Criteria: Estimated runtime \u2264 6 hours or a documented flag for\
+    \ governance review."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimated runtime \u2264 6 hours or a documented flag for governance\
+    \ review"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:44:21Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/research.md
+  attempts: 1
+  canonical: initial retrieval yielded over 600 raw records from ChEMBL for Caco-2
+    assays
+  claim_id: c_848c3829
+  context: The initial retrieval yielded over 600 raw records. After preprocessing,
+    a final dataset of approximately 500 valid molecules was retained for analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial retrieval yielded over 600 raw records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:53:40Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/research.md
+  attempts: 1
+  canonical: final dataset of approximately 500 valid molecules retained after preprocessing
+  claim_id: c_7df96f22
+  context: The initial retrieval yielded over 600 raw records. After preprocessing,
+    a final dataset of approximately 500 valid molecules was retained for analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: After preprocessing, a final dataset of approximately 500 valid molecules
+    was retained for analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T13:54:01Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Retrieval script invokes checksum utility for raw CSV
+  claim_id: c_c5f83b5f
+  context: 'Phase 3: User Story 1 - Retrieve and Preprocess Caco-2 Permeability Dataset.
+    Task T009 implementation details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieval_script_invokes_checksum_utility_for_raw_CSV
+  kind: entity_fact
+  raw_text: After saving the raw CSV, this task MUST invoke code/utils/checksum.py
+    to generate a checksum and register it in state/checksums.log
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:00:29Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Flexibility descriptor output must contain at least 450 valid descriptors
+  claim_id: c_a1f37719
+  context: 'Phase 4: User Story 2 - Compute Molecular Flexibility Descriptors. Task
+    T013b requirement.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flexibility_descriptor_output_must_contain_at_least_450_vali
+  kind: magnitude
+  raw_text: "The output must contain \u2265450 valid descriptors"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:01:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Runtime benchmark triggers log and governance review flag if exceeding
+    6 hours
+  claim_id: c_2b0da778
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T040 enforcement logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If estimated runtime > 6 hours: Log the estimated runtime and the current
+    dataset size'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:01:00Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Verify descriptors.csv exists with at least 450 rows
+  claim_id: c_de26907d
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T041 pass criteria.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_descriptors.csv_exists_with_at_least_450_rows
+  kind: magnitude
+  raw_text: "Verify data/processed/descriptors.csv exists with \u2265450 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:01:17Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Conformer ensemble size reduced for CPU feasibility on GitHub Actions
+    free-tier
+  claim_id: c_2c32b718
+  context: 'Phase 2: Foundational. Task T006a spec deviation record details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Conformer_ensemble_size_reduced_for_CPU_feasibility_on_GitHu
+  kind: entity_fact
+  raw_text: Conformer ensemble size reduced from a higher baseline to a lower, optimized
+    count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:01:59Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Transparency report script handles missing deviation record with warning
+    and fallback
+  claim_id: c_9bba0c99
+  context: 'Phase 2: Foundational. Task T006 implementation requirement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transparency_report_script_handles_missing_deviation_record
+  kind: entity_fact
+  raw_text: The script MUST handle the case where the deviation record is missing
+    or empty by logging a warning and proceeding with default values or halting gracefully
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:02:26Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Checksum utility computes SHA-256 for data files and writes to state/checksums.log
+  claim_id: c_9b0fcaea
+  context: 'Phase 2: Foundational. Task T008b implementation requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The utility MUST compute SHA-256 checksums for files in data/ and write
+    the results to state/checksums.log
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:02:44Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Retrieve at least 600 raw Caco-2 records from ChEMBL REST API
+  claim_id: c_ace86e76
+  context: 'Phase 3: User Story 1. Task T009 implementation details.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retrieve_at_least_600_raw_Caco-2_records_from_ChEMBL_REST_AP
+  kind: magnitude
+  raw_text: "Implement `code/data/retrieval.py` to fetch \u2265600 raw Caco-2 records\
+    \ from ChEMBL REST API"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:03:04Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Conformer generation success rate threshold is at least 450 valid descriptors
+  claim_id: c_9254ea80
+  context: Notes section. SC-002 Threshold definition.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Conformer_generation_success_rate_threshold_is_at_least_450
+  kind: magnitude
+  raw_text: "Conformer generation success rate is measured against a minimum threshold\
+    \ of \u2265450 valid descriptors"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:03:28Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Multivariate model uses bond, angle, and dihedral variances as predictors
+    with logP, MW, and PSA confounders
+  claim_id: c_e2ba1ebd
+  context: Notes section. Model Scope definition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multivariate_model_uses_bond,_angle,_and_dihedral_variances
+  kind: entity_fact
+  raw_text: The multivariate model uses bond, angle, and dihedral variances as predictors,
+    with confounders (logP, MW, PSA)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T14:03:50Z'
