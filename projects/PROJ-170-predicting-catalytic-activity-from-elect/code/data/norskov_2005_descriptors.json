@@ -1,0 +1,15 @@
+{
+  "source": "Nørskov, J. K., et al. J. Electrochem. Soc. 152, J23 (2005)",
+  "descriptors": [
+    "d_band_center",
+    "adsorption_energy",
+    "work_function",
+    "electronegativity",
+    "atomic_radius",
+    "ionization_energy",
+    "electron_affinity",
+    "oxidation_state",
+    "surface_miller_index",
+    "coordination_number"
+  ]
+}

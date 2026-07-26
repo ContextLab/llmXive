@@ -2,71 +2,72 @@ import os
 import sys
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from setup_project import create_directories, verify_directories, create_init_files, REQUIRED_DIRS
 from config import get_project_root
+from setup_project import create_directories, verify_directories, create_init_files
 
-class TestSetupProject:
-    @pytest.fixture(autouse=True)
-    def setup_temp_dir(self, tmp_path):
-        """Mock get_project_root to return a temporary directory for safe testing."""
-        with patch('setup_project.get_project_root', return_value=tmp_path):
-            yield tmp_path
+class TestDirectorySetup:
+    """Tests for T001a: Create project directory structure."""
 
-    def test_create_directories(self, setup_temp_dir):
-        """Test that create_directories actually creates the required folders."""
-        create_directories()
+    def test_create_directories_creates_all_paths(self, tmp_path):
+        """Verify that create_directories creates all required directories."""
+        required_dirs = [
+            "data/raw",
+            "data/processed",
+            "code",
+            "outputs",
+            "tests",
+            "state/projects",
+            "code/models"
+        ]
+
+        create_directories(tmp_path)
+
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} was not created"
+            assert dir_path.is_dir(), f"{dir_path} is not a directory"
+
+    def test_verify_directories_passes_when_all_exist(self, tmp_path):
+        """Verify that verify_directories returns True when all directories exist."""
+        create_directories(tmp_path)
         
-        for dir_name in REQUIRED_DIRS:
-            expected_path = setup_temp_dir / dir_name
-            assert expected_path.exists(), f"Directory {dir_name} was not created."
-            assert expected_path.is_dir(), f"{dir_name} exists but is not a directory."
-
-    def test_verify_directories_success(self, setup_temp_dir):
-        """Test verify_directories passes when all directories exist."""
-        # Ensure directories exist first
-        create_directories()
-        
-        # This should not raise
-        result = verify_directories()
+        # This should not raise an exception and should return True
+        result = verify_directories(tmp_path)
         assert result is True
 
-    def test_verify_directories_failure(self, setup_temp_dir):
-        """Test verify_directories fails loudly when a directory is missing."""
-        # Do not create directories
-        with pytest.raises(FileNotFoundError) as exc_info:
-            verify_directories()
+    def test_verify_directories_fails_when_missing(self, tmp_path):
+        """Verify that verify_directories exits with error when a directory is missing."""
+        # Create only some directories
+        (tmp_path / "code").mkdir()
         
-        assert "missing" in str(exc_info.value).lower()
+        # Mock sys.exit to capture the call
+        with pytest.raises(SystemExit) as exc_info:
+            verify_directories(tmp_path)
+        
+        assert exc_info.value.code == 1
 
-    def test_create_init_files(self, setup_temp_dir):
-        """Test that __init__.py files are created in package directories."""
-        create_directories()
-        create_init_files()
+    def test_create_init_files_creates_init_py(self, tmp_path):
+        """Verify that create_init_files creates __init__.py in package directories."""
+        package_dirs = ["code", "tests", "code/utils", "code/models"]
         
-        # Check specific expected __init__.py files
-        expected_inits = [
-            setup_temp_dir / "code" / "__init__.py",
-            setup_temp_dir / "tests" / "__init__.py",
-            setup_temp_dir / "state" / "projects" / "__init__.py",
-            setup_temp_dir / "code" / "models" / "__init__.py",
-        ]
+        create_directories(tmp_path)
+        create_init_files(tmp_path)
+
+        for dir_name in package_dirs:
+            dir_path = tmp_path / dir_name
+            init_file = dir_path / "__init__.py"
+            assert init_file.exists(), f"__init__.py not created in {dir_path}"
+
+    def test_full_setup_flow(self, tmp_path):
+        """Test the complete setup flow: create dirs, init files, and verify."""
+        # This mimics the main() function flow
+        create_directories(tmp_path)
+        create_init_files(tmp_path)
         
-        for init_path in expected_inits:
-            assert init_path.exists(), f"__init__.py missing at {init_path}"
-            assert init_path.is_file(), f"{init_path} is not a file"
-    
-    def test_create_init_files_nested(self, setup_temp_dir):
-        """Test that __init__.py files are created in nested directories."""
-        create_directories()
-        # Manually create a nested dir inside code to test recursion
-        nested = setup_temp_dir / "code" / "submodule"
-        nested.mkdir()
-        
-        create_init_files()
-        
-        assert (nested / "__init__.py").exists()
+        # Should not raise
+        verify_directories(tmp_path)

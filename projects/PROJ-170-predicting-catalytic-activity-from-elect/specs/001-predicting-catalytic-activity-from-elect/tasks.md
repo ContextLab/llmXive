@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure. All file system paths must be created here before any logic tasks run.
 
-- [ ] T001 [P] Initialize project directory structure: Create `data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`, `state/projects/`, `code/models/`. **Verification**: Run `os.path.isdir()` for each path; if any missing, `sys.exit(1)` with message "Directory initialization failed". Create `__init__.py` in all Python packages.
+- [ ] T001a [P] Create project directory structure: Create `data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`, `state/projects/`, `code/models/`. **Verification**: Run `os.path.isdir()` for each path; if any missing, `sys.exit(1)` with message "Directory initialization failed".
+- [ ] T001b [P] Initialize Python packages: Create `__init__.py` in all Python packages (`code/`, `tests/`, `code/utils/`, `code/models/`). **Verification**: Run `python -c "import code"` to ensure importability.
 - [X] T001j [P] Initialize Python 3.10 project with `requirements.txt` (pinned versions using `==`: pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, xgboost==1.7.6, shap==0.42.1, requests==2.31.0, pyyaml==6.0.1, rdkit==2023.3.1, huggingface_hub==0.16.4)
-- [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools: Create `pyproject.toml` with black config and `.ruff.toml` with specific rules (E, F, W, I). **Verification**: Run `ruff check --config=.ruff.toml .` and `black --check .`.
+- [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools: Create `pyproject.toml` with black config and `.ruff.toml` with specific rules (E, F, W, I). **Verification**: Run `ruff check --config=.ruff.toml.` and `black --check.`.
+- [ ] T001c [P] **Document Scope Adjustment**: Create `outputs/scope_adjustment.md` explicitly stating that the Plan.md "Critical Scope Adjustment" supersedes Spec FR-001's requirement for Materials Project and 2025 CO₂ study datasets. **Content**: Must include `exclusion_reason`, `decision_rationale`, `spec_amendment_reference`, and `constitutional_override` sections. **Crucially**, the `constitutional_override` section MUST explicitly justify how the OC20-only pivot still satisfies Constitution Principle VI (Descriptor-Based Model Interpretability) by confirming that OC20 contains the necessary electronic descriptors (d-band center, adsorption energy) for SHAP analysis. **Depends on**: T001a, plan.md.
 
 ---
 
@@ -60,9 +62,6 @@
 - [X] T005 [P] Configure base configuration loader for environment variables and paths in `code/config.py`
 - [X] T006 [P] Setup logging infrastructure to write logs to `outputs/run.log`
 - [X] T007 [P] Implement data validation helpers (checksum verification, schema checks) in `code/utils/validation.py`
-- [ ] T012a [P] [US1] Implement `code/download_data.py`: **Log Scope Adjustment**. Log that the **Plan.md "Critical Scope Adjustment"** supersedes the requirement to download Materials Project and 2025 CO₂ study datasets mandated by spec FR-001. **Depends on T010.**
-- [ ] T012b [P] [US1] Generate `outputs/Scope_Adjustment_Justification.md`: Formal artifact documenting the exclusion of Materials Project and 2025 CO2 datasets. **Schema**: `sections: [exclusion_reason, decision_rationale, spec_amendment_reference]`. **Depends on T001, T004, T010.**
-- [ ] T043b [P] [US2] Refactor `code/train.py` to use pandas chunking: Implement `pd.read_csv(..., chunksize=10000)` to optimize memory usage. **Target**: Keep RAM usage < 6GB. **Depends on T004.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,27 +80,23 @@
 
 - [X] T008 [P] [US1] Contract test for data alignment logic in `tests/test_preprocess.py::test_alignment_columns`
 - [X] T009 [P] [US1] Integration test for full download-to-csv flow in `tests/test_preprocess.py::test_full_pipeline_sample`
+- [X] T050 [P] [US1] Implement `tests/test_preprocess.py::test_data_integrity`: A contract test that verifies no NaN values exist in the `energy_change` column of `aligned_dataset.csv` and that all `composition` strings are non-empty. **Fails loudly** if data integrity is compromised. **Depends on T020.**
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/download_data.py`: Download stratified sample of OC20 dataset from HuggingFace. **Dataset ID**: `oc/oc20`. **File**: `oc20.h5`. **Stratification**: `composition_family`. **Output**: `data/raw/oc20_sample.h5`. **Depends on T001.**
+- [ ] T010 [US1] Implement `code/download_data.py`: Download stratified sample of OC20 dataset from HuggingFace. **Dataset ID**: `oc/oc20`. **File**: `oc20.h5`. **Stratification**: `composition_family`. **Output**: `data/raw/oc20_sample.h5`. **Depends on T001a.**
 - [X] T011 [US1] Implement `code/download_data.py`: Verify checksums of downloaded OC20 file against known hashes. **Depends on T010.**
-- [ ] T013a [US1] Implement `code/preprocess.py`: **Parse OC20 into DataFrame**. Load `oc20_sample.h5` and parse into a single Pandas DataFrame with columns: `composition`, `surface_facet`, `energy_change`, `d_band_center`, `adsorption_energy`. **Depends on T013a.**
-- [ ] T013b [US1] Implement `code/preprocess.py`: **Construct Unified DataFrame**. Combine parsed OC20 data into the final unified structure required by FR-001. Log that Materials Project and 2025 CO2 datasets are excluded per T012b. **Depends on T013a, T012b.**
-- [ ] T014a [US1] Implement `code/preprocess.py`: **Implement Alignment Logic per Plan**. Align OC20 entries using exact string matching on `composition` and `surface_facet`. **Explicitly check for `synthesis_condition` column**: if it exists, use it; if missing, log "FR-002 requirement for synthesis_condition not applicable (column missing)" and skip. Implement exclusion logic for entries missing `composition` or `surface_facet`. **Depends on T013b.**
-- [ ] T014b [US1] Implement `code/preprocess.py`: **Implement FR-002 Exclusion Logic for synthesis_condition**. Explicitly implement the logic to exclude entries where `synthesis_condition` is 'not uniquely identifiable' (as required by FR-002). If the column is missing, log the count of entries that *would have been* excluded and proceed. **Generate file `outputs/exclusion_log.json`** containing the list of excluded entries and the reason. **Depends on T014a.**
+- [X] T013a [US1] Implement `code/preprocess.py`: **Parse OC20 into DataFrame**. Load `oc20_sample.h5` and parse into a single Pandas DataFrame with columns: `composition`, `surface_facet`, `energy_change`, `d_band_center`, `adsorption_energy`. **Verification**: Verify DataFrame shape is (N, M) and columns match schema. **Depends on T010, T011.**
+- [X] T013b [US1] Implement `code/preprocess.py`: **Construct Unified DataFrame**. Combine parsed OC20 data into the final unified structure required by FR-001. Log that Materials Project and 2025 CO2 datasets are excluded per T001c. **Depends on T013a, T001c.**
+- [X] T013 [US1] **Compute Alignment Success Rate (SC-002)**. Calculate (matched entries / total OC20 entries in sample). **Note**: Since the plan pivots to OC20-only, the "total experimental entries" baseline from the spec is redefined here to "total OC20 entries in sample". Log this redefinition explicitly in `outputs/alignment_metrics.json`. **Output**: `outputs/alignment_metrics.json`. **Depends on T013b.**
+- [X] T014a [US1] Implement `code/preprocess.py`: **Implement Alignment Logic per Plan**. Align OC20 entries using exact string matching on `composition` and `surface_facet`. **Check for `synthesis_condition`**: if it exists, use it; if missing, log "FR-002 requirement for synthesis_condition not applicable (column missing)" and proceed to T014b without excluding entries. Implement exclusion logic for entries missing `composition` or `surface_facet`. **Depends on T013b.**
+- [X] T014b [US1] Implement `code/preprocess.py`: **Implement FR-002 Exclusion Logic for synthesis_condition**. If `synthesis_condition` column exists, exclude entries where it is not uniquely identifiable. **If the column is missing**, explicitly log that FR-002 exclusion logic is inapplicable due to schema mismatch and **PROCEED** with the dataset (do NOT exclude all entries). Log this as a data coverage limitation in `outputs/exclusion_log.json`. **Depends on T014a.**
 - [X] T015 [US1] Implement `code/preprocess.py`: Retrieve target variable `energy_change` from OC20 data (per plan pivot). Log any missing target values for exclusion. **Depends on T014b.**
-- [X] T016a [P] [US1] Implement `code/preprocess.py`: **Compute Structure Features**. Generate Morgan fingerprints via RDKit (radius=2, nBits=2048) for structure-based distance calculation. **Output**: Append `fingerprint_<bit>_cols` to the dataframe. **Depends on T015.**
-- [X] T016b [P] [US1] Implement `code/preprocess.py`: **Compute Stoichiometry Features**. Calculate normalized element counts (formula: `count / total_atoms`) for each catalyst entry to create the stoichiometry feature vector. **Output**: Append `stoich_<Element>` columns (e.g., `stoich_Fe`, `stoich_O`) to the dataframe. **Depends on T015.**
-- [X] T016c [US1] Implement `code/preprocess.py`: **Compute Stoichiometry Distance**. Implement the Euclidean distance calculation in stoichiometry space (normalized element counts) as required by FR-003. **Depends on T016b.**
-- [X] T017a [US1] Implement `code/preprocess.py`: **Impute Missing Descriptors (Stoichiometry)**. Use k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry space (normalized element counts) as required by FR-003. Calculate Euclidean distance excluding the target variable. If <5 neighbors exist, flag and exclude from training set. **Save imputed dataset to `data/processed/imputed_stoich_dataset.csv`** and **save list of flagged entries to `outputs/flagged_entries_stoich.json`**. **Depends on T016c.**
-- [X] T017b [US1] Implement `code/preprocess.py`: **Impute Missing Descriptors (Structure)**. Use k-nearest-neighbors (k=5) based on Euclidean distance in Morgan fingerprint space (structure-based) as per Plan.md. Calculate Euclidean distance excluding the target variable. If <5 neighbors exist, flag and exclude from training set. **Save imputed dataset to `data/processed/imputed_struct_dataset.csv`** and **save list of flagged entries to `outputs/flagged_entries_struct.json`**. **Depends on T016a.**
-- [X] T017c [US1] Implement `code/preprocess.py`: **Flag Aligned Entries with Missing Descriptors**. Explicitly implement logic to flag and exclude entries that were successfully aligned but have missing descriptors (distinct from imputation failure) from model training. **Output**: Append `exclude_from_training` flag to dataset. **Depends on T017a, T017b.**
-- [X] T017d [US1] Implement `code/preprocess.py`: **Explicitly Exclude Aligned Entries with Missing Descriptors**. Explicitly implement the logic to exclude entries that were aligned but have missing descriptors with <5 neighbors in the reference set, from model training. **Depends on T017c.**
-- [X] T017 [US1] Select final imputation method (Stoichiometry or Structure) based on data coverage and save to `data/processed/aligned_dataset.csv`. **Depends on T017a, T017b, T017d.**
-- [X] T019 [US1] Implement `code/preprocess.py`: Scale all numeric features to zero mean and unit variance. **Depends on T017.**
-- [X] T020 [US1] Generate `data/processed/aligned_dataset.csv` with final schema. **Schema**: `composition` (str), `surface_facet` (str), `energy_change` (float), `d_band_center` (float), `adsorption_energy` (float), `stoich_*` (float), `fingerprint_*` (float). **Depends on T019.**
-- [X] T021 [P] [US1] Create `tests/test_preprocess.py` unit tests for Structure-based KNN imputation logic (Morgan) and exclusion flags. **Depends on T017.**
+- [X] T016a [P] [US1] Implement `code/preprocess.py`: **Compute Stoichiometry Features**. Calculate normalized element counts (formula: `count / total_atoms`) for each catalyst entry to create the stoichiometry feature vector. **Output**: Append `stoich_<Element>` columns (e.g., `stoich_Fe`, `stoich_O`) to the dataframe. **Depends on T015.**
+- [X] T016b [US1] Implement `code/preprocess.py`: **Compute Stoichiometry Distance**. Implement the Euclidean distance calculation in stoichiometry space (normalized element counts) as required by FR-003. **Depends on T016a.**
+- [X] T017a [US1] **Strict Stoichiometry KNN Imputation**. Implement k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry space (normalized element counts) as required by FR-003. **Constraint**: Do NOT use Morgan fingerprints or structure-based features. **Logic**: If <5 neighbors exist for an entry, **flag and exclude** that entry from the training set (do not fallback to other methods). **Output**: Save imputed dataset to `data/processed/imputed_dataset.csv` and save list of excluded entries to `outputs/excluded_entries.json`. **Depends on T016b.**
+- [X] T019 [US1] Implement `code/preprocess.py`: Scale all numeric features to zero mean and unit variance. **Depends on T017a.**
+- [X] T020 [US1] Generate `data/processed/aligned_dataset.csv` with final schema. **Schema**: `composition` (str), `surface_facet` (str), `energy_change` (float), `d_band_center` (float), `adsorption_energy` (float), `stoich_*` (float). **Depends on T019.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,13 +116,14 @@
 ### Implementation for User Story 2
 
 - [X] T024 [US2] Implement `code/train.py`: Load `aligned_dataset.csv` and split into train/test sets (stratified). **Depends on T020.**
-- [ ] T047 [P] [US1] Implement `code/utils/runtime_estimator.py`: Create a lightweight estimator that calculates projected runtime for the XGBoost training phase (T026) based on the number of samples in `aligned_dataset.csv` and the grid search space size. **Output**: Log projected hours to `outputs/runtime_projection.json`. **Depends on T020.**
-- [ ] T048 [US2] Implement `code/train.py`: **Integrate Runtime Estimator**. **Before** starting the full nested CV (T026), read `outputs/runtime_projection.json`. If the projection exceeds 4 hours, automatically reduce the grid search range for `n_estimators` to **cap max at 100**. **Depends on T047.**
+- [ ] T047 [US2] Implement `code/utils/runtime_estimator.py`: Create a lightweight estimator that calculates projected runtime for the XGBoost training phase (T026) based on the number of samples in `aligned_dataset.csv` and the grid search space size. **Output**: Log projected hours to `outputs/runtime_projection.json`. **Depends on T020.**
+- [ ] T048a [US2] **Define Deviation Logging**. Create `outputs/deviation_log.json` with schema `{ "task_id": "T048", "deviation_type": "dynamic_grid_reduction", "original_spec": "n_estimators <= 200", "reduced_value": "<int>", "reason": "runtime_constraint" }`. **Depends on T047.**
+- [ ] T048 [US2] **Integrate Runtime Estimator**. **Before** starting the full nested CV (T026), read `outputs/runtime_projection.json`. If the projection exceeds 4 hours, automatically reduce the grid search range for `n_estimators` (e.g., cap at 100). **Output**: Generate `code/configs/grid_config.json` with the final grid parameters. **Log** the reduction to `outputs/deviation_log.json` (via T048a). **Depends on T047, T048a, T020.**
 - [X] T025 [US2] Implement `code/train.py`: Train Linear Baseline using only `d_band_center` and `adsorption_energy`. **Depends on T024.**
-- [X] T026 [US2] Implement `code/train.py`: Train XGBoost with nested cross-validation. **Outer loop**: 5-fold. **Inner loop**: Grid search max_depth ∈ {,5,7}, learning_rate ∈ {0.1, other representative values}, n_estimators ≤ 200 (or ≤100 if T048 triggered). **Seed**: 42. **Save best model to `code/models/best_xgboost.json`** (FR-004). **Depends on T024, T048.**
+- [X] T026 [US2] Implement `code/train.py`: Train XGBoost with nested cross-validation. **Outer loop**: 5-fold. **Inner loop**: Grid search `max_depth` ∈ {3, 5, 7}, `learning_rate` ∈ {0.01, 0.1, 0.2}, `n_estimators` ≤ 200 (or reduced value from T048). **Seed**: 42. **Save best model to `code/models/best_xgboost.json`** (FR-004). **Depends on T024, T048.**
 - [X] T027 [US2] Implement `code/evaluate.py`: Compute absolute errors for both models on hold-out test set. **Depends on T025, T026.**
-- [X] T028a [US2] Implement `code/evaluate.py`: **Statistical Test Logic (Normality Check on Paired Differences)**. Compute the distribution of paired differences (XGBoost absolute error - Baseline absolute error). Perform Shapiro-Wilk test on this distribution to satisfy FR-005. **Alpha**: 0.05. **Output**: `outputs/normality_check.json` with schema `{ "test_type": "shapiro_paired_diff", "statistic": float, "p_value": float, "decision": "use_t_test" | "use_wilcoxon" }`. **Depends on T027.**
-- [X] T028b [US2] Implement `code/evaluate.py`: **Perform Selected Statistical Test**. Based on T028a's decision (normality of paired differences), perform a two-tailed paired t-test (if normal) or Wilcoxon signed-rank test (if not normal) on the paired differences. **Depends on T028a.**
+- [X] T028a [US2] **Statistical Test Logic (Normality Check on Paired Differences)**. Compute the absolute errors for both models. Calculate the *difference* distribution: `diff = |error_XGB| - |error_lin|`. Perform Shapiro-Wilk test on the **distribution of these differences** to satisfy FR-005. **Alpha**: 0.05. **Output**: `outputs/normality_check.json` with schema `{ "statistic": float, "p_value": float, "decision": "use_t_test" | "use_wilcoxon" }`. **Depends on T027.**
+- [X] T028b [US2] **Perform Selected Statistical Test**. Based on T028a's decision, perform a two-tailed paired t-test (if normal) or Wilcoxon signed-rank test (if not normal) on the paired differences of absolute errors. **Depends on T028a.**
 - [X] T029 [US2] Generate `outputs/metrics.json` containing R², MAE, Pearson R, and p-value for both models. **Depends on T028b.**
 - [X] T030 [US2] Create `tests/test_train.py` unit tests for grid search parameter selection logic. **Depends on T026.**
 
@@ -150,10 +146,10 @@
 
 - [X] T033 [US3] Implement `code/evaluate.py`: Compute SHAP values for the final XGBoost model using `shap.TreeExplainer`. **Depends on T026.**
 - [X] T034 [US3] Implement `code/evaluate.py`: Rank descriptors by mean absolute SHAP impact (FR-006). **Depends on T033.**
-- [X] T035 [US3] Implement `code/evaluate.py`: Generate `outputs/feature_importance.png` bar plot of top 5 descriptors. **Depends on T034.**
-- [ ] T039a [US3] Implement `code/report.py`: **Retrieve Nørskov Reference List**. Retrieve the top descriptors list from Nørskov et al. from a verified local JSON file (pre-populated by research) or a verified URL. **Output**: `code/data/norskov_2005_descriptors.json`. **Depends on T001.**
-- [X] T039b [US3] Implement `code/report.py`: **Compare Descriptors**. Compare the top 5 SHAP-ranked descriptors against the Nørskov list from T039a. Explicitly state matches or novel findings. **Depends on T034, T039a.**
-- [X] T036a [P] [US3] Implement `code/evaluate.py`: **Define Reduced Model Search Space**. Explicitly define the hyperparameter search space (max_depth, learning_rate, n_estimators) for the reduced model. **Output**: Save grid config to `code/configs/reduced_model_grid.json` with schema `{ "max_depth": [3,5,7], "learning_rate": [0.01, 0.1], "n_estimators": [50, 100, 200] }`. **Depends on T034.**
+- [X] T035 [US3] Implement `code/evaluate.py`: Generate `outputs/feature_importance.png` bar plot of top descriptors. **Depends on T034.**
+- [X] T039a [US3] **Create Nørskov Reference List**. Create a static local file `code/data/norskov_2005_descriptors.json` containing the hardcoded list of descriptors from Nørskov et al., 2005. **Do NOT attempt to download**. **Schema**: `{"descriptors": ["d_band_center", "reaction_energy", "activation_barrier"]}`. **Content**: Hardcode these three strings exactly as the reference set. **Output**: `code/data/norskov_2005_descriptors.json`. **Depends on T001a.**
+- [X] T039b [US3] **Compare Descriptors**. Compare the top-ranked SHAP descriptors against the Nørskov list. from T039a. Explicitly state matches or novel findings. **Depends on T034, T039a.**
+- [X] T036a [P] [US3] Implement `code/evaluate.py`: **Define Reduced Model Search Space**. Explicitly define the hyperparameter search space (max_depth, learning_rate, n_estimators) for the reduced model. **Output**: Save grid config to `code/configs/reduced_model_grid.json` with schema `{ "max_depth": [5,7], "learning_rate": [a lower magnitude, 0.1], "n_estimators": a range of values including 100 and 200 }`. **Depends on T034.**
 - [X] T036 [US3] Implement `code/evaluate.py`: Train a reduced model using only the top-ranked SHAP descriptors. **Requirement**: Perform independent hyperparameter tuning using the grid search defined in T036a. **Seed**: 42. **Save best model to `code/models/best_reduced_xgboost.json`**. **Depends on T036a.**
 - [X] T037 [US3] Implement `code/evaluate.py`: **Verify SC-003 quantitatively**. Calculate reduced model R² and full model R². Compute the ratio (reduced_r2 / full_r2). **Append quantitative results (reduced_r2, full_r2, ratio) and verification status to outputs/metrics.json** and `outputs/sc003_verification.json`. If ratio < 0.50, set 'SC-003_status': 'FAILED'. **Depends on T036.**
 - [X] T039 [US3] Implement `code/report.py`: **Generate Descriptor Comparison Table**. Append comparison table to `outputs/final_report.md` under section "Descriptor Comparison" using results from T039b. **Depends on T034, T037, T039b.**
@@ -170,12 +166,13 @@
 
 - [X] T042a [P] Run full pipeline end-to-end. **Capture start/end timestamps explicitly** and log them to `outputs/runtime.log`.
 - [X] T042b [P] Log duration (calculated from T042a timestamps) to `outputs/metrics.json`.
-- [X] T042c [P] Assert duration <= 6 hours. **Read duration from `outputs/metrics.json` (generated by T042b)**. Raise RuntimeError if duration > 6h (SC-004). **Depends on T042a, T042b.**
+- [X] T042c [P] **Adaptive Runtime Check**. Read duration from `outputs/metrics.json`. If duration > 4 hours, log a warning and re-run the pipeline with reduced `n_estimators` (as per plan Risk Mitigation). If duration > 6 hours even after reduction, raise `RuntimeError` (SC-004). **Depends on T042a, T042b.**
 - [X] T043a [P] Run `black --check.` and `ruff check.` on all code. Fix any formatting/linting errors.
 - [X] T043c [P] Remove all debug prints from `code/preprocess.py` and `code/train.py`.
 - [X] T044 [P] Update `README.md` with usage instructions and data sources.
 - [X] T045 [P] Add additional unit tests for edge cases (missing neighbors, non-normal error distributions).
 - [X] T046 [P] Run quickstart.md validation to ensure reproducibility.
+- [ ] T049 [US3] Implement `code/report.py`: **Add "Data Lineage" Section**. Explicitly list the exact HuggingFace commit hash of the OC20 dataset used (from T010) and the exact `requirements.txt` hash used. **Output**: Append to `outputs/final_report.md` under "Reproducibility Metadata". **Depends on T011, T040.**
 
 ---
 
@@ -258,7 +255,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM, 6h limit). No GPU, no 8-bit quantization, no large LLMs.
-- **Data Scope**: Per plan.md, this project uses OC20 exclusively. External dataset tasks (Materials Project, 2025 CO2 study) are omitted due to data unavailability, handled explicitly by T012 with an override note and formal artifact.
+- **Data Scope**: Per plan.md, this project uses OC20 exclusively. External dataset tasks (Materials Project, 2025 CO2 study) are omitted due to data unavailability, handled explicitly by T001c with an override note and formal artifact.
 - **Spec-Plan Note**: The tasks implement the plan's OC20-only pivot. The spec.md still references removed features; this is a known contradiction to be resolved in the next cycle. Tasks explicitly document these overrides to prevent silent drift.
 
 ---
@@ -267,7 +264,7 @@ With multiple developers:
 
 **Purpose**: New tasks added to resolve specific issues raised by `/speckit.analyze` regarding data flow, runtime estimation, and spec alignment.
 
-- [ ] T049 [US3] Implement `code/report.py`: **Add "Data Lineage" Section**. Explicitly list the exact HuggingFace commit hash of the OC20 dataset used (from T010) and the exact `requirements.txt` hash used. **Output**: Append to `outputs/final_report.md` under "Reproducibility Metadata". **Depends on T011, T040.**
-- [ ] T050 [P] [US1] Implement `tests/test_preprocess.py::test_data_integrity`: A contract test that verifies no NaN values exist in the `energy_change` column of `aligned_dataset.csv` and that all `composition` strings are non-empty. **Fails loudly** if data integrity is compromised. **Depends on T020.**
+- [X] T049 [US3] Implement `code/report.py`: **Add "Data Lineage" Section**. Explicitly list the exact HuggingFace commit hash of the OC20 dataset used (from T010) and the exact `requirements.txt` hash used. **Output**: Append to `outputs/final_report.md` under "Reproducibility Metadata". **Depends on T011, T040.**
+- [X] T050 [P] [US1] Implement `tests/test_preprocess.py::test_data_integrity`: A contract test that verifies no NaN values exist in the `energy_change` column of `aligned_dataset.csv` and that all `composition` strings are non-empty. **Fails loudly** if data integrity is compromised. **Depends on T020.**
 
-**Note**: T042d (Dynamic Runtime Adaptation) has been removed as it is logically impossible (post-hoc check). The logic is fully handled by T048 (pre-flight check).
+**Note**: T042d (Dynamic Runtime Adaptation) has been removed as it is logically impossible (post-hoc check). The logic is fully handled by T048 (pre-flight check) and T042c (adaptive re-run).

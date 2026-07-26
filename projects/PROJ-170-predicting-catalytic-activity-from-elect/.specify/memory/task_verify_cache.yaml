@@ -29,3 +29,17 @@ T035:
     \ the provided `code/evaluate.py` is truncated (ends mid\u2011function) with no\
     \ implementation that creates the bar plot of the top\u20115 descriptors. Consequently\
     \ the task\u2019s deliverable is missing."
+T048:
+  c: false
+  h: d902765eca23497e1cca818f906735816c47e6003f189e70154a93900eb6edf3
+  r: "The repository lacks `outputs/runtime_projection.json`, and the shown portion\
+    \ of `code/train.py` does not contain any logic that reads this file or adjusts\
+    \ the `n_estimators` grid\u2011search range based on a >4\u2011hour projection.\
+    \ Consequently, the required runtime\u2011estimator integration is not present."
+T049:
+  c: false
+  h: 7e2d122b9007f5be43a142eb7672e56009fccf6c669e3a88aa94fd52e29ad268
+  r: "The repository lacks the required `outputs/final_report.md` file, and `code/report.py`\
+    \ does not contain any logic to add a \u201CData Lineage\u201D section with the\
+    \ HuggingFace commit hash or the `requirements.txt` hash. Consequently, the task\u2019\
+    s output and functionality are not present."

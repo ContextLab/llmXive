@@ -1,156 +1,186 @@
+"""
+Linting and formatting configuration management for the project.
+Implements T002: Configure linting (ruff/flake8) and formatting (black) tools.
+"""
 import os
 import sys
 import subprocess
 from pathlib import Path
 from config import get_project_root
 
-
-def ensure_linting_config() -> None:
+def ensure_linting_config():
     """
-    Ensure that pyproject.toml exists and contains valid black/ruff configuration.
-    If missing, the project structure is considered incomplete for linting tasks.
+    Verify that .ruff.toml and pyproject.toml (with black config) exist in the project root.
+    Raises FileNotFoundError if configuration files are missing.
     """
     project_root = get_project_root()
-    config_path = project_root / "pyproject.toml"
+    ruff_config = project_root / ".ruff.toml"
+    pyproject_config = project_root / "pyproject.toml"
 
-    if not config_path.exists():
-        raise FileNotFoundError(
-            f"pyproject.toml not found at {config_path}. "
-            "T002 (Configure linting) must be completed first."
-        )
+    if not ruff_config.exists():
+        raise FileNotFoundError(f"Ruff configuration file not found: {ruff_config}")
+    
+    if not pyproject_config.exists():
+        raise FileNotFoundError(f"Pyproject configuration file not found: {pyproject_config}")
+    
+    # Verify black section exists in pyproject.toml
+    with open(pyproject_config, 'r', encoding='utf-8') as f:
+        content = f.read()
+        if '[tool.black]' not in content:
+            raise ValueError("Black configuration section missing from pyproject.toml")
+    
+    # Verify ruff section exists in pyproject.toml or .ruff.toml handles it
+    if '[tool.ruff]' not in content and not ruff_config.exists():
+        # If not in pyproject, .ruff.toml must exist (already checked above)
+        pass
 
-    # Basic validation: check for [tool.black] and [tool.ruff] sections
-    content = config_path.read_text()
-    if "[tool.black]" not in content:
-        raise ValueError("pyproject.toml missing [tool.black] configuration.")
-    if "[tool.ruff]" not in content:
-        raise ValueError("pyproject.toml missing [tool.ruff] configuration.")
-
-
-def run_black_check() -> int:
+def run_black_check():
     """
     Run black --check on the project.
-    Returns 0 if all files are formatted correctly, non-zero otherwise.
+    Returns True if all files are formatted correctly, False otherwise.
     """
     project_root = get_project_root()
     try:
         result = subprocess.run(
-            ["black", "--check", "--diff", "."],
+            ["black", "--check", "--config", str(project_root / "pyproject.toml"), "."],
             cwd=project_root,
             capture_output=True,
             text=True,
-            check=False,
+            timeout=120
         )
-        if result.returncode != 0:
-            sys.stderr.write("Black formatting check failed:\n")
-            sys.stderr.write(result.stdout)
-            sys.stderr.write(result.stderr)
-        return result.returncode
+        if result.returncode == 0:
+            print("✓ All files are formatted correctly (Black check passed)")
+            return True
+        else:
+            print("✗ Black check failed:")
+            print(result.stdout)
+            print(result.stderr)
+            return False
+    except subprocess.TimeoutExpired:
+        print("✗ Black check timed out")
+        return False
     except FileNotFoundError:
-        sys.stderr.write("Error: 'black' command not found. Please install it.\n")
-        return 1
+        print("✗ Black not installed. Run: pip install black")
+        return False
 
-
-def run_ruff_check() -> int:
+def run_ruff_check():
     """
-    Run ruff check on the project.
-    Returns 0 if no linting errors found, non-zero otherwise.
+    Run ruff check with the project configuration.
+    Returns True if no linting errors found, False otherwise.
+    """
+    project_root = get_project_root()
+    ruff_config = project_root / ".ruff.toml"
+    
+    try:
+        result = subprocess.run(
+            ["ruff", "check", "--config", str(ruff_config), "."],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        if result.returncode == 0:
+            print("✓ All files passed linting (Ruff check passed)")
+            return True
+        else:
+            print("✗ Ruff check failed:")
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr)
+            return False
+    except subprocess.TimeoutExpired:
+        print("✗ Ruff check timed out")
+        return False
+    except FileNotFoundError:
+        print("✗ Ruff not installed. Run: pip install ruff")
+        return False
+
+def run_black_format():
+    """
+    Run black to format all files in the project.
     """
     project_root = get_project_root()
     try:
         result = subprocess.run(
-            ["ruff", "check", "."],
+            ["black", "--config", str(project_root / "pyproject.toml"), "."],
             cwd=project_root,
             capture_output=True,
             text=True,
-            check=False,
+            timeout=120
         )
-        if result.returncode != 0:
-            sys.stderr.write("Ruff linting check failed:\n")
-            sys.stderr.write(result.stdout)
-            sys.stderr.write(result.stderr)
-        return result.returncode
+        if result.returncode == 0:
+            print("✓ Files formatted successfully")
+            return True
+        else:
+            print("✗ Black formatting failed:")
+            print(result.stderr)
+            return False
+    except subprocess.TimeoutExpired:
+        print("✗ Black formatting timed out")
+        return False
     except FileNotFoundError:
-        sys.stderr.write("Error: 'ruff' command not found. Please install it.\n")
-        return 1
+        print("✗ Black not installed. Run: pip install black")
+        return False
 
-
-def run_black_format() -> int:
+def run_ruff_fix():
     """
-    Run black --diff on the project to format files in-place.
-    Returns 0 on success, non-zero on failure.
+    Run ruff to automatically fix linting issues.
     """
     project_root = get_project_root()
+    ruff_config = project_root / ".ruff.toml"
+    
     try:
         result = subprocess.run(
-            ["black", "."],
+            ["ruff", "check", "--fix", "--config", str(ruff_config), "."],
             cwd=project_root,
             capture_output=True,
             text=True,
-            check=False,
+            timeout=120
         )
-        if result.returncode != 0:
-            sys.stderr.write("Black formatting failed:\n")
-            sys.stderr.write(result.stdout)
-            sys.stderr.write(result.stderr)
-        return result.returncode
+        if result.returncode == 0:
+            print("✓ Linting issues fixed successfully")
+            return True
+        else:
+            print("✗ Ruff fix failed (some issues may not be auto-fixable):")
+            print(result.stdout)
+            return False
+    except subprocess.TimeoutExpired:
+        print("✗ Ruff fix timed out")
+        return False
     except FileNotFoundError:
-        sys.stderr.write("Error: 'black' command not found. Please install it.\n")
-        return 1
+        print("✗ Ruff not installed. Run: pip install ruff")
+        return False
 
-
-def run_ruff_fix() -> int:
+def main():
     """
-    Run ruff check --fix to automatically fix linting errors.
-    Returns 0 on success, non-zero on failure.
+    Main entry point for linting configuration tasks.
+    Performs verification as required by T002.
     """
-    project_root = get_project_root()
-    try:
-        result = subprocess.run(
-            ["ruff", "check", "--fix", "."],
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            sys.stderr.write("Ruff auto-fix failed or issues remain:\n")
-            sys.stderr.write(result.stdout)
-            sys.stderr.write(result.stderr)
-        return result.returncode
-    except FileNotFoundError:
-        sys.stderr.write("Error: 'ruff' command not found. Please install it.\n")
-        return 1
-
-
-def main() -> None:
-    """
-    Main entry point for T002: Configure linting and formatting tools.
-    Validates that configuration exists and runs checks.
-    """
-    print("Running T002: Configure linting and formatting tools...")
-
-    # 1. Ensure configuration exists
+    print("=== T002: Configuring Linting and Formatting Tools ===")
+    
+    # Ensure configuration files exist
     try:
         ensure_linting_config()
-        print("✓ pyproject.toml with black/ruff configuration found.")
+        print("✓ Configuration files verified")
     except (FileNotFoundError, ValueError) as e:
-        print(f"✗ Configuration check failed: {e}")
+        print(f"✗ Configuration verification failed: {e}")
         sys.exit(1)
-
-    # 2. Run checks (non-destructive)
-    print("Running black --check...")
-    black_code = run_black_check()
-    print("Running ruff check...")
-    ruff_code = run_ruff_check()
-
-    if black_code == 0 and ruff_code == 0:
-        print("✓ All linting and formatting checks passed.")
+    
+    # Run checks
+    black_ok = run_black_check()
+    ruff_ok = run_ruff_check()
+    
+    if black_ok and ruff_ok:
+        print("\n=== T002 Verification: PASSED ===")
+        print("All linting and formatting checks passed.")
         sys.exit(0)
     else:
-        print("✗ Some checks failed. Run 'python code/linting_config.py format' to fix.")
+        print("\n=== T002 Verification: FAILED ===")
+        if not black_ok:
+            print("- Black check failed. Run 'python code/linting_config.py format' to fix.")
+        if not ruff_ok:
+            print("- Ruff check failed. Run 'python code/linting_config.py fix' to fix.")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

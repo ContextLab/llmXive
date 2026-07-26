@@ -1,0 +1,163 @@
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: pandas 2.0.3, numpy 1.24.3, scikit-learn 1.3.0,
+    xgboost 1.7.6, shap 0.42.1, requests 2.31.0, pyyaml 6.0.1, rdkit 2023.3.1, huggingface_hub
+    0.16.4'
+  claim_id: c_f641ff90
+  context: 'T001j [P] Initialize Python 3.10 project with requirements.txt (pinned
+    versions using ==: pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, xgboost==1.7.6,
+    shap==0.42.1, requests==2.31.0, pyyaml==6.0.1, rdkit==2023.3.1, huggingface_hub==0.16.4)'
+  evidence:
+    asserted: '3.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.10 project with requirements.txt (pinned versions
+    using ==: pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, xgboost==1.7.6, shap==0.42.1,
+    requests==2.31.0, pyyaml==6.0.1, rdkit==2023.3.1, huggingface_hub==0.16.4)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:50:42Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprints generated with radius 2 and 2048 bits
+  claim_id: c_b0c53a21
+  context: 'T016a [P] [US1] Implement code/preprocess.py: Compute Structure Features.
+    Generate Morgan fingerprints via RDKit (radius=2, nBits=2048) for structure-based
+    distance calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate Morgan fingerprints via RDKit (radius=2, nBits=2048) for structure-based
+    distance calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:50:58Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: k-nearest-neighbors imputation for structure uses k=5
+  claim_id: c_86cfb359
+  context: 'T017b [US1] Implement code/preprocess.py: Impute Missing Descriptors (Structure).
+    Use k-nearest-neighbors (k=5) based on Euclidean distance in Morgan fingerprint
+    space (structure-based) as per Plan.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use k-nearest-neighbors (k=5) based on Euclidean distance in Morgan fingerprint
+    space (structure-based) as per Plan.md
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:51:15Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost nested cross-validation outer loop uses 5 folds
+  claim_id: c_331ac6a3
+  context: 'T026 [US2] Implement code/train.py: Train XGBoost with nested cross-validation.
+    Outer loop: 5-fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Outer loop: 5-fold cross-validation for XGBoost nested cross-validation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:51:30Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test significance level is 0.05
+  claim_id: c_95b8753e
+  context: 'T028a [US2] Implement code/evaluate.py: Statistical Test Logic (Normality
+    Check on Individual Absolute Errors). ... Perform Shapiro-Wilk test on each distribution
+    to satisfy FR-005. Alpha: 0.05.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Perform Shapiro-Wilk test on each distribution with Alpha: 0.05'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T11:51:31Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: SC-003 verification fails if reduced model R2 ratio is less than 0.50
+  claim_id: c_587ec292
+  context: 'T037 [US3] Implement code/evaluate.py: Verify SC-003 quantitatively. ...
+    If ratio < 0.50, set ''SC-003_status'': ''FAILED''.'
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - -3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/SC-003_verification_fails_if_reduced_model_R2_ratio_is_less
+  kind: magnitude
+  raw_text: 'Compute the ratio (reduced_r2 / full_r2) and if ratio < 0.50, set ''SC-003_status'':
+    ''FAILED'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-26T11:51:54Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: 'Reduced model grid search: max_depth 3,5,7; learning_rate 0.01,0.1;
+    n_estimators 50,100,200'
+  claim_id: c_3f6f761e
+  context: 'T036a [P] [US3] Implement code/evaluate.py: Define Reduced Model Search
+    Space. ... Output: Save grid config to code/configs/reduced_model_grid.json with
+    schema { "max_depth": [3,5,7], "learning_rate": [0.01, 0.1], "n_estimators": [50,
+    100, 200] }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define hyperparameter search space for reduced model: max_depth [3,5,7],
+    learning_rate [0.01, 0.1], n_estimators [50, 100, 200]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:52:32Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime warning triggered if duration exceeds 4 hours
+  claim_id: c_3f7cb874
+  context: T042c [P] Adaptive Runtime Check. Read duration from outputs/metrics.json.
+    If duration > 4 hours, log a warning and re-run the pipeline with reduced n_estimators
+    (as per plan Risk Mitigation).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If duration > 4 hours, log a warning and re-run the pipeline with reduced
+    n_estimators
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T11:52:32Z'

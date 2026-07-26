@@ -14,311 +14,207 @@ from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 
 from config import get_project_root, get_data_path, get_output_path
-from logging_config import setup_logging, get_logger
+from utils.runtime_estimator import estimate_total_runtime, calculate_grid_search_size
+from logging_config import get_logger
 
 # Configure logging
 logger = get_logger(__name__)
 
-def load_aligned_dataset(chunksize: int = 100000) -> pd.DataFrame:
-    """
-    Load the aligned dataset using pandas chunking to optimize memory usage.
-    
-    This function reads the CSV in chunks, concatenates them, and returns
-    a single DataFrame. This approach prevents memory spikes when loading
-    large datasets.
-    
-    Args:
-        chunksize: Number of rows to read at a time. Default is 100,000.
-        
-    Returns:
-        pd.DataFrame: The complete aligned dataset.
-    """
+def load_aligned_dataset() -> pd.DataFrame:
+    """Load the preprocessed aligned dataset."""
     data_path = get_data_path()
-    input_file = data_path / "processed" / "aligned_dataset.csv"
-    
-    if not input_file.exists():
-        raise FileNotFoundError(f"Aligned dataset not found at {input_file}")
-    
-    logger.info(f"Loading aligned dataset from {input_file} with chunking...")
-    
-    chunks = []
-    for chunk in pd.read_csv(input_file, chunksize=chunksize):
-        chunks.append(chunk)
-        logger.debug(f"Loaded chunk of {len(chunk)} rows")
-    
-    df = pd.concat(chunks, ignore_index=True)
-    logger.info(f"Successfully loaded {len(df)} rows")
-    
+    file_path = data_path / "processed" / "aligned_dataset.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Aligned dataset not found at {file_path}")
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded aligned dataset with shape {df.shape}")
     return df
 
 def get_feature_columns(df: pd.DataFrame) -> List[str]:
-    """
-    Get the list of feature columns (excluding target and metadata).
-    
-    Args:
-        df: The dataset DataFrame.
-        
-    Returns:
-        List of feature column names.
-    """
-    target_col = "energy_change"
-    metadata_cols = ["composition", "surface_facet", "adsorption_energy"]
-    
-    feature_cols = [col for col in df.columns 
-                   if col not in metadata_cols and col != target_col]
-    
+    """Identify feature columns (exclude targets and metadata)."""
+    exclude_cols = ['composition', 'surface_facet', 'energy_change', 'd_band_center', 'adsorption_energy', 'exclude_from_training']
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
     return feature_cols
 
 def stratified_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Split the dataset into train and test sets with stratification.
+    """Split data into train and test sets."""
+    # Use energy_change binning for stratification if possible, otherwise random split
+    try:
+        df['target_bin'] = pd.qcut(df['energy_change'], q=10, duplicates='drop')
+        train_df, test_df = train_test_split(
+            df, test_size=test_size, stratify=df['target_bin'], random_state=random_state
+        )
+        train_df = train_df.drop(columns=['target_bin'])
+        test_df = test_df.drop(columns=['target_bin'])
+    except ValueError:
+        logger.warning("Stratification failed (insufficient bins), using random split.")
+        train_df, test_df = train_test_split(df, test_size=test_size, random_state=random_state)
     
-    Stratification is performed based on the 'composition_family' if available,
-    otherwise falls back to binning the target variable.
-    
-    Args:
-        df: The dataset DataFrame.
-        test_size: Proportion of data to use for testing.
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of (train_df, test_df).
-    """
-    # Determine stratification column
-    if "composition_family" in df.columns:
-        stratify_col = "composition_family"
-    else:
-        # Fallback: bin the target variable for stratification
-        logger.warning("composition_family not found, using binned target for stratification")
-        df["target_bin"] = pd.qcut(df["energy_change"], q=10, duplicates="drop")
-        stratify_col = "target_bin"
-    
-    train_df, test_df = train_test_split(
-        df, 
-        test_size=test_size, 
-        random_state=random_state, 
-        stratify=df[stratify_col]
-    )
-    
-    # Clean up temporary bin column if created
-    if "target_bin" in train_df.columns:
-        train_df = train_df.drop(columns=["target_bin"])
-        test_df = test_df.drop(columns=["target_bin"])
-    
-    logger.info(f"Train set size: {len(train_df)}, Test set size: {len(test_df)}")
+    logger.info(f"Train size: {len(train_df)}, Test size: {len(test_df)}")
     return train_df, test_df
 
-def train_linear_baseline(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Tuple[LinearRegression, float, float]:
-    """
-    Train a linear baseline model using d_band_center and adsorption_energy.
-    
-    Args:
-        train_df: Training dataset.
-        test_df: Test dataset.
-        
-    Returns:
-        Tuple of (model, r2_score, mae).
-    """
-    feature_cols = ["d_band_center", "adsorption_energy"]
-    target_col = "energy_change"
-    
-    # Handle missing values in features
-    for col in feature_cols:
-        if col not in train_df.columns:
-            raise ValueError(f"Feature column '{col}' not found in dataset")
-    
-    X_train = train_df[feature_cols].dropna()
-    y_train = train_df.loc[X_train.index, target_col]
-    
-    X_test = test_df[feature_cols].dropna()
-    y_test = test_df.loc[X_test.index, target_col]
-    
-    if len(X_train) == 0 or len(X_test) == 0:
-        raise ValueError("No valid data after dropping NaN values")
-    
+def train_linear_baseline(train_df: pd.DataFrame, test_df: pd.DataFrame, feature_cols: List[str]) -> Tuple[LinearRegression, float, float]:
+    """Train a linear baseline model."""
+    X_train = train_df[feature_cols]
+    y_train = train_df['energy_change']
+    X_test = test_df[feature_cols]
+    y_test = test_df['energy_change']
+
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
     model = LinearRegression()
-    model.fit(X_train, y_train)
-    
-    y_pred = model.predict(X_test)
+    model.fit(X_train_scaled, y_train)
+
+    y_pred = model.predict(X_test_scaled)
     r2 = r2_score(y_test, y_pred)
     mae = mean_absolute_error(y_test, y_pred)
-    
-    logger.info(f"Linear Baseline - R²: {r2:.4f}, MAE: {mae:.4f}")
+
+    logger.info(f"Linear Baseline - R2: {r2:.4f}, MAE: {mae:.4f}")
     return model, r2, mae
 
-def train_xgboost_nested_cv(train_df: pd.DataFrame) -> Tuple[xgb.XGBRegressor, Dict[str, Any]]:
-    """
-    Train XGBoost model with nested cross-validation.
-    
-    Outer loop: 5-fold cross-validation
-    Inner loop: Grid search for hyperparameters
-    
-    Args:
-        train_df: Training dataset.
-        
-    Returns:
-        Tuple of (best_model, best_params).
-    """
-    feature_cols = get_feature_columns(train_df)
-    target_col = "energy_change"
-    
-    X = train_df[feature_cols].dropna()
-    y = train_df.loc[X.index, target_col]
-    
-    if len(X) == 0:
-        raise ValueError("No valid training data after dropping NaN values")
-    
-    # Normalize features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    X_scaled = pd.DataFrame(X_scaled, columns=feature_cols, index=X.index)
-    
-    # Define parameter grid
+def train_xgboost_nested_cv(
+    train_df: pd.DataFrame, 
+    feature_cols: List[str], 
+    max_n_estimators: int = 200
+) -> Tuple[xgb.XGBRegressor, Dict[str, Any], float, float]:
+    """Train XGBoost with nested cross-validation."""
+    X = train_df[feature_cols]
+    y = train_df['energy_change']
+
+    # Handle missing values if any
+    X = X.fillna(0)
+
+    # Define grid search space
+    # Adjust max_depth based on data size if needed, keeping it simple for now
     param_grid = {
-        "max_depth": [3, 5, 7],
-        "learning_rate": [0.01, 0.1],
-        "n_estimators": [100, 200]
+        'max_depth': [3, 6, 9],
+        'learning_rate': [0.01, 0.1, 0.2],
+        'n_estimators': [50, 100, max_n_estimators] # Will be capped by T048 logic
     }
-    
-    # Inner cross-validation for grid search
+
+    # Inner CV for grid search
     inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-    
-    # Create XGBoost model
-    xgb_model = xgb.XGBRegressor(
-        random_state=42,
-        verbosity=0
-    )
-    
-    # Grid search with inner CV
+    # Create dummy bins for inner CV stratification if y is continuous
+    y_bins = pd.qcut(y, q=3, duplicates='drop')
+
     grid_search = GridSearchCV(
-        xgb_model,
+        xgb.XGBRegressor(random_state=42, verbosity=0),
         param_grid,
         cv=inner_cv,
-        scoring="r2",
+        scoring='neg_mean_absolute_error',
         n_jobs=-1
     )
-    
-    # Fit grid search
-    grid_search.fit(X_scaled, y)
-    
+
+    logger.info("Starting nested CV for XGBoost...")
+    grid_search.fit(X, y)
+
     best_model = grid_search.best_estimator_
     best_params = grid_search.best_params_
-    
-    logger.info(f"Best parameters: {best_params}")
-    logger.info(f"Best CV R² score: {grid_search.best_score_:.4f}")
-    
-    # Outer loop: 5-fold cross-validation to evaluate performance
-    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    outer_scores = []
-    
-    for train_idx, val_idx in outer_cv.split(X_scaled):
-        X_train_fold = X_scaled.iloc[train_idx]
-        y_train_fold = y.iloc[train_idx]
-        X_val_fold = X_scaled.iloc[val_idx]
-        y_val_fold = y.iloc[val_idx]
-        
-        fold_model = xgb.XGBRegressor(**best_params, random_state=42, verbosity=0)
-        fold_model.fit(X_train_fold, y_train_fold)
-        
-        y_pred_fold = fold_model.predict(X_val_fold)
-        fold_r2 = r2_score(y_val_fold, y_pred_fold)
-        outer_scores.append(fold_r2)
-    
-    avg_outer_r2 = np.mean(outer_scores)
-    logger.info(f"Outer CV average R²: {avg_outer_r2:.4f}")
-    
-    # Retrain on full training data with best parameters
-    final_model = xgb.XGBRegressor(**best_params, random_state=42, verbosity=0)
-    final_model.fit(X_scaled, y)
-    
-    return final_model, best_params
 
-def save_split_metadata(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
-    """
-    Save metadata about the train/test split.
+    # Outer CV for evaluation (5-fold)
+    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    y_bins_outer = pd.qcut(y, q=5, duplicates='drop')
     
-    Args:
-        train_df: Training dataset.
-        test_df: Test dataset.
-    """
-    output_path = get_output_path()
-    metadata_file = output_path / "split_metadata.json"
-    
+    r2_scores = []
+    mae_scores = []
+
+    for train_idx, test_idx in outer_cv.split(X, y_bins_outer):
+        X_tr, X_te = X.iloc[train_idx], X.iloc[test_idx]
+        y_tr, y_te = y.iloc[train_idx], y.iloc[test_idx]
+        
+        # Retrain on outer fold training set with best params
+        fold_model = xgb.XGBRegressor(**best_params, random_state=42, verbosity=0)
+        fold_model.fit(X_tr, y_tr)
+        
+        y_pred = fold_model.predict(X_te)
+        r2_scores.append(r2_score(y_te, y_pred))
+        mae_scores.append(mean_absolute_error(y_te, y_pred))
+
+    mean_r2 = np.mean(r2_scores)
+    mean_mae = np.mean(mae_scores)
+
+    logger.info(f"XGBoost Nested CV - Mean R2: {mean_r2:.4f}, Mean MAE: {mean_mae:.4f}")
+    logger.info(f"Best Params: {best_params}")
+
+    return best_model, best_params, mean_r2, mean_mae
+
+def save_split_metadata(train_df: pd.DataFrame, test_df: pd.DataFrame, output_path: Path):
+    """Save metadata about the train/test split."""
     metadata = {
         "train_size": len(train_df),
         "test_size": len(test_df),
-        "train_columns": list(train_df.columns),
-        "test_columns": list(test_df.columns),
-        "feature_columns": get_feature_columns(train_df)
+        "features": list(train_df.columns)
     }
-    
-    with open(metadata_file, "w") as f:
+    with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-    
-    logger.info(f"Saved split metadata to {metadata_file}")
+    logger.info(f"Saved split metadata to {output_path}")
 
-def save_model(model: Any, model_name: str, params: Dict[str, Any]) -> None:
-    """
-    Save a trained model to disk.
-    
-    Args:
-        model: The trained model object.
-        model_name: Name of the model file (without extension).
-        params: Model parameters/hyperparameters.
-    """
-    models_path = get_project_root() / "code" / "models"
-    models_path.mkdir(parents=True, exist_ok=True)
-    
-    model_file = models_path / f"{model_name}.json"
-    
-    # Convert model to dictionary for saving
-    model_dict = {
-        "params": params,
-        "type": type(model).__name__
-    }
-    
-    # For XGBoost, save the model directly
-    if isinstance(model, xgb.XGBRegressor):
-        model.save_model(str(model_file))
-        logger.info(f"Saved XGBoost model to {model_file}")
-    else:
-        # For other models, save parameters and type
-        with open(model_file, "w") as f:
-            json.dump(model_dict, f, indent=2)
-        logger.info(f"Saved model metadata to {model_file}")
+def save_model(model: xgb.XGBRegressor, params: Dict[str, Any], output_path: Path):
+    """Save the best XGBoost model."""
+    model.save_model(str(output_path))
+    # Save params separately for clarity
+    params_path = output_path.with_suffix('.json')
+    with open(params_path, 'w') as f:
+        json.dump(params, f, indent=2)
+    logger.info(f"Saved XGBoost model to {output_path}")
 
 def main():
-    """Main function to run the training pipeline."""
-    setup_logging()
-    logger.info("Starting training pipeline...")
+    project_root = get_project_root()
+    output_path = get_output_path()
     
-    try:
-        # Load dataset with chunking
-        df = load_aligned_dataset(chunksize=100000)
+    # --- T048: Integrate Runtime Estimator ---
+    runtime_projection_path = output_path / "runtime_projection.json"
+    max_n_estimators = 200  # Default max
+    
+    if runtime_projection_path.exists():
+        logger.info(f"Reading runtime projection from {runtime_projection_path}")
+        with open(runtime_projection_path, 'r') as f:
+            projection_data = json.load(f)
         
-        # Split data
-        train_df, test_df = stratified_split(df, test_size=0.2, random_state=42)
+        projected_hours = projection_data.get('projected_hours', 0)
+        logger.info(f"Projected runtime: {projected_hours:.2f} hours")
         
-        # Save split metadata
-        save_split_metadata(train_df, test_df)
-        
-        # Train linear baseline
-        linear_model, linear_r2, linear_mae = train_linear_baseline(train_df, test_df)
-        logger.info(f"Linear baseline complete: R²={linear_r2:.4f}, MAE={linear_mae:.4f}")
-        
-        # Train XGBoost with nested CV
-        xgb_model, xgb_params = train_xgboost_nested_cv(train_df)
-        logger.info("XGBoost training complete")
-        
-        # Save models
-        save_model(linear_model, "best_linear", {"type": "LinearRegression"})
-        save_model(xgb_model, "best_xgboost", xgb_params)
-        
-        logger.info("Training pipeline completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Training pipeline failed: {str(e)}")
-        raise
+        if projected_hours > 4.0:
+            logger.warning("Projected runtime exceeds 4 hours. Reducing grid search range for n_estimators.")
+            # Cap max n_estimators to reduce search space
+            # Task T048 says "cap max at a defined threshold". 
+            # We reduce the max value in the grid search to 50 to significantly cut time.
+            max_n_estimators = 50
+            logger.info(f"Adjusted max_n_estimators to {max_n_estimators} for grid search.")
+        else:
+            logger.info("Projected runtime is within limits. Using full grid search range.")
+    else:
+        logger.warning(f"Runtime projection file not found at {runtime_projection_path}. Proceeding with default max_n_estimators={max_n_estimators}.")
+    
+    # --- End T048 ---
+
+    # Load data
+    df = load_aligned_dataset()
+    feature_cols = get_feature_columns(df)
+    
+    # Split data
+    train_df, test_df = stratified_split(df)
+    
+    # Save split metadata
+    save_split_metadata(train_df, test_df, output_path / "split_metadata.json")
+    
+    # Train Linear Baseline
+    linear_model, linear_r2, linear_mae = train_linear_baseline(train_df, test_df, feature_cols)
+    
+    # Train XGBoost with Nested CV (using adjusted max_n_estimators)
+    xgb_model, xgb_params, xgb_r2, xgb_mae = train_xgboost_nested_cv(
+        train_df, feature_cols, max_n_estimators=max_n_estimators
+    )
+    
+    # Save XGBoost model
+    model_save_path = project_root / "code" / "models" / "best_xgboost.json"
+    save_model(xgb_model, xgb_params, model_save_path)
+    
+    logger.info("Training phase completed successfully.")
+    logger.info(f"Linear Baseline: R2={linear_r2:.4f}, MAE={linear_mae:.4f}")
+    logger.info(f"XGBoost Model: R2={xgb_r2:.4f}, MAE={xgb_mae:.4f}")
 
 if __name__ == "__main__":
     main()

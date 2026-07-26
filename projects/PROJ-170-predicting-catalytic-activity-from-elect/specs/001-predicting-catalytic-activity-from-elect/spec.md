@@ -72,7 +72,7 @@ As a domain expert, I need a SHAP-based analysis that ranks the top descriptors 
 - **FR-004**: System MUST train a Gradient-Boosted Regression Trees model (XGBoost) with a grid search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, and n_estimators ≤ 200, selecting the configuration that maximizes k-fold cross-validated R² (See US-2).
 - **FR-005**: System MUST fit a linear regression baseline using only d-band center and activation barrier, perform a Shapiro-Wilk test (α=0.05) on the distribution of absolute errors; if normality is rejected, use Wilcoxon signed-rank test instead of paired t-test; otherwise, perform a two-tailed paired t-test (α=0.05, H0: mean difference = 0) on the absolute errors of the XGBoost and baseline models on the hold-out test set (See US-2).
 - **FR-006**: System MUST compute SHAP values for the final XGBoost model, rank descriptors by mean absolute SHAP impact, and generate a bar plot of the top descriptors (See US-3).
-- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors. The report must compare a set of top descriptors against the reference list in Nørskov et al., 2005 (d-band center, activation barrier, reaction energy) and explicitly state matches or novel findings (See US-3).
+- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors. The report must compare a set of top descriptors against the reference list in Nørskov et al. (d-band center, activation barrier, reaction energy) and explicitly state matches or novel findings (See US-3).
 
 ### Key Entities
 
