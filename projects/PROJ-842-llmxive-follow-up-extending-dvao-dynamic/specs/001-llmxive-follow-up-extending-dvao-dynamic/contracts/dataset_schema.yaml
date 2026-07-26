@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic MDP Configuration"
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Unique identifier for the configuration"
+  N:
+    type: integer
+    minimum: 1
+    description: "Number of objectives"
+  state_space_size:
+    type: integer
+    minimum: 1
+    description: "Number of states (may be degraded)"
+  action_space_size:
+    type: integer
+    minimum: 1
+    description: "Number of actions"
+  noise_std:
+    type: number
+    minimum: 0
+    description: "Standard deviation of injected noise"
+  noise_distribution:
+    type: string
+    enum:
+      - "gaussian"
+      - "heavy_tailed"
+      - "sparse"
+      - "non_convex"
+    description: "Type of noise distribution"
+  correlation:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Correlation coefficient between objectives"
+  seed:
+    type: integer
+    description: "Random seed for reproducibility"
+required:
+  - config_id
+  - N
+  - state_space_size
+  - action_space_size
+  - noise_std
+  - noise_distribution
+  - correlation
+  - seed
+additionalProperties: false

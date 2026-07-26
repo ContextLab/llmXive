@@ -3,66 +3,70 @@
 ## Prerequisites
 
 - Python 3.11+
-- pip / virtualenv
+- `pip` (Python package installer)
+- Git
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `numpy`, `scipy`, `sympy`, `pandas`, `pyyaml`, `pytest`, `pytest-cov`.*
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code
+   ```
 
-## Running the Experiment Suite
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-### 1. Generate Theoretical Bound
-Run the symbolic derivation to generate the theoretical curve.
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins `numpy`, `scipy`, `sympy`, `pytest`, and `pyyaml`.*
+
+## Running the Experiment
+
+### Full Suite
+To run the complete experiment suite (N=5, 10, 20, 50, 30 runs each):
 ```bash
-python src/main.py --task derive
+python run_experiment.py --full-sweep
 ```
-*Output*: `data/processed/theoretical_bound.json`
+- This will generate synthetic MDPs, run the Moving-Window Heuristic, perform statistical tests, and save results to `data/processed/empirical_results.json`.
+- **Expected Duration**: ~2-4 hours on a standard CPU (GitHub Actions free-tier).
 
-### 2. Run Simulations
-Execute the full experiment suite (N=5, 10, 20, 50) with default parameters.
+### Single Configuration
+To test a specific configuration (e.g., N=10, k=0.05):
 ```bash
-python src/main.py --task simulate --config defaults.yaml
-```
-*Output*: `data/raw/` (trajectories), `data/processed/` (variance estimates).
-
-### 3. Statistical Analysis
-Perform paired t-tests and sensitivity analysis.
-```bash
-python src/main.py --task analyze
-```
-*Output*: `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.json`.
-
-### 4. Update State (Versioning)
-Run the post-run script to update project state hashes.
-```bash
-python scripts/update_state.py
-```
-*Output*: Updates `state/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic.yaml`.
-
-### 5. Validate Contracts
-Ensure generated data matches the schema.
-```bash
-pytest tests/contract/
+python run_experiment.py --N 10 --k 0.05 --runs 5
 ```
 
-## Configuration
-Edit `src/config/defaults.yaml` to change:
-- `num_objectives`: List of $N$ values.
-- `window_ratios`: List of $k$ ratios (e.g., `[0.01, 0.05, 0.1]`).
-- `noise_correlation`: List of $\rho$ values.
-- `seed`: Random seed for reproducibility.
+### Theoretical Derivation
+To generate the theoretical derivation document:
+```bash
+python src/derivation/sample_complexity.py --output docs/theoretical_derivation.md
+```
+
+## Verifying Results
+
+1. **Check Output**:
+   ```bash
+   cat data/processed/empirical_results.json | jq '.'
+   ```
+   Ensure `sample_count`, `distance_to_frontier`, and `statistical_tests` fields are populated.
+
+2. **Run Tests**:
+   ```bash
+   pytest tests/ -v
+   ```
+   This verifies the derivation logic, environment generation, and statistical tests.
+
+3. **Reproducibility Check**:
+   Run the same command twice with the same `--seed` flag. The output JSON should be identical.
 
 ## Troubleshooting
-- **OOM Error**: Reduce `state_space_size` in `defaults.yaml` or reduce `num_episodes`.
-- **Slow Runtime**: Ensure you are not running on a heavy I/O disk; use `--parallel` if supported by CI.
-- **Import Error**: Verify `requirements.txt` is up to date and virtualenv is active.
+
+- **Memory Error**: If the process exceeds substantial RAM usage, check the `state_space_size` in the logs. The system should have automatically degraded it. If not, reduce `--state-size` manually.
+- **Convergence Failure**: If the heuristic fails to converge, check the `k` value. Ensure $k$ is large enough (minimum $k=10$ recommended).
+- **Statistical Test Failure**: If $p < 0.05$ for the $\rho=0$ case, verify the noise generation logic for independence.

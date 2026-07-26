@@ -9,6 +9,8 @@ required:
   - theoretical_variance
   - ratio
   - window_size
+  - noise_distribution_type
+  - timestamp
 properties:
   metric_id:
     type: string
@@ -21,7 +23,7 @@ properties:
     description: "Variance estimated using the moving window."
   theoretical_variance:
     type: number
-    description: "Variance from full-batch or theoretical formula."
+    description: "Variance from theoretical formula (based on known injected noise)."
   ratio:
     type: number
     description: "Ratio of heuristic to theoretical variance. Target: 1.0."
@@ -30,6 +32,14 @@ properties:
     type: integer
     description: "Number of steps used in the window (k)."
     minimum: 1
+  noise_distribution_type:
+    type: string
+    enum:
+      - "gaussian"
+      - "heavy_tailed"
+      - "sparse"
+      - "non_convex"
+    description: "Type of noise distribution used."
   timestamp:
     type: string
     format: date-time

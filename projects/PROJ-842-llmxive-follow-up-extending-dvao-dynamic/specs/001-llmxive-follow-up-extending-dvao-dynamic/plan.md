@@ -1,41 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
 
 **Branch**: `001-llmxive-noise-scaling` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-noise-scaling/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-noise-scaling/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-noise-scaling/spec.md`
 
 ## Summary
 
-This feature extends the "DVAO" research by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) as a function of the number of objectives $N$ under independent noise. It implements a "Moving-Window Heuristic" for variance estimation in synthetic tabular MDPs to empirically validate this bound. The implementation is strictly constrained to run on CPU-only environments (GitHub Actions free-tier: A limited number of cores and a constrained amount of RAM.) using tabular approximations and sampled data to ensure feasibility.
-
-**Key Methodological Revision**: The validation strategy has been revised to address methodological concerns. Instead of a one-sample t-test against the theoretical bound (which creates a tautology), the plan now performs a **Paired T-Test** comparing the Moving-Window Heuristic variance against the **Full-Batch Empirical Variance** (calculated over the same trajectory). The theoretical bound serves as a reference curve for expected scaling, while the Full-Batch estimate serves as the ground truth proxy for statistical validation. Success criteria regarding the "coincidence" of statistical failure and Pareto distance have been revised to measure **correlation** rather than exact coincidence, acknowledging they are distinct constructs.
+This project extends the "DVAO" framework by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) under independent noise, and empirically validating it using synthetic tabular MDPs. The core contribution is a closed-form equation linking the number of objectives $N$ to variance accumulation, validated against a "Moving-Window Heuristic" for variance estimation. The implementation strictly adheres to CPU-only constraints (2 cores, 7GB RAM) using a synthetic data generator, ensuring feasibility on GitHub Actions free-tier runners.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `numpy`, `scipy`, `pytest`, `pytest-cov`, `sympy`, `pandas`, `pyyaml`.
-**Storage**: In-memory data structures; intermediate results serialized to `data/` as CSV/JSON.
-**Testing**: `pytest` with `pytest-cov`; contract tests against `contracts/`.
-**Target Platform**: Linux (GitHub Actions free-tier runner).
-**Project Type**: Computational research library / CLI tool.
-**Performance Goals**: Full experiment suite (N=5,10,20,50) completes in < 4 hours on 2 vCPU.
-**Constraints**: Max moderate RAM usage; no GPU; tabular state spaces only; no heavy deep learning training.
-**Scale/Scope**: Synthetic MDPs with up to 50 objectives; A sufficient number of episodes per configuration for validation.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `numpy`, `scipy` (for stats), `sympy` (for symbolic derivation), `pytest` (testing), `pyyaml` (contracts)  
+**Storage**: In-memory arrays (NumPy), JSON logs for results, no external database.  
+**Testing**: `pytest` with `pytest-randomly` for reproducibility verification.  
+**Target Platform**: Linux (GitHub Actions free-tier runner).  
+**Project Type**: Computational Research / Algorithmic Validation.  
+**Performance Goals**: Full experiment suite (N=5,10,20,50, 100 runs each) completes within 6 hours; single run < 15 mins.  
+**Constraints**: Max modest RAM, 2 CPU cores. No GPU usage. Synthetic data only (no external API calls).  
+**Scale/Scope**: Synthetic tabular MDPs with $N \in \{10, 20, 50\}$ objectives.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Notes |
-|-----------|-------------------|-------|
-| **I. Reproducibility** | **Compliant** | Plan mandates `requirements.txt` pinning, random seed management, and isolated virtualenv execution. |
-| **II. Verified Accuracy** | **Compliant** | Citations in `research.md` will be restricted to the provided `` (no URL) or verified sources; no fabrication. |
-| **III. Data Hygiene** | **Compliant** | Synthetic data generation is deterministic (seeded). No external PII. Checksums recorded for generated artifacts. |
-| **IV. Single Source of Truth** | **Compliant** | All figures/stats in the final paper must trace to `data/` rows generated by `code/`. |
-| **V. Versioning Discipline** | **Compliant** | **Versioning Workflow**: A post-run script `scripts/update_state.py` (added to project structure) will compute `sha256sum` for every file in `data/` and `code/`, update `state/projects/PROJ-842-...yaml` `artifact_hashes`, and trigger a `updated_at` timestamp change. |
-| **VI. Theoretical Lower Bound Validation** | **Compliant** | Plan explicitly separates the symbolic derivation module from the empirical simulation module. **Validation Independence**: The "Training Set" uses noise distribution $D_1$ (e.g., Gaussian), while the "Validation Set" (held-out) uses a different distribution (e.g., $D_2$: Laplace or scaled Gaussian) to ensure the theoretical bound is not circularly validated against the training data generation process. |
-| **VII. Computational Resource Constraint Adherence** | **Compliant** | Plan restricts to tabular MDPs, CPU-only libraries, and sampled data to fit the available hardware memory and CPU constraints. |
+| Principle | Status | Evidence / Plan Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seed management in `src/utils/seeding.py`, and synthetic data generation logic that is deterministic given a seed. |
+| **II. Verified Accuracy** | **PASS** | No external citations required for the theoretical derivation (self-contained math) or synthetic data (self-contained generator). All "citations" will be internal cross-references to the derivation module. |
+| **III. Data Hygiene** | **PASS** | `data/` will contain only generated artifacts (JSON/CSV). Checksums recorded in state file. No PII (synthetic data). |
+| **IV. Single Source of Truth** | **PASS** | `src/derivation/sample_complexity.py` is the canonical source for the theoretical bound. `docs/theoretical_derivation.md` is a generated report from this module. The contracts in `contracts/` are derived strictly from `data-model.md` to ensure consistency. |
+| **V. Versioning Discipline** | **PASS** | Implementation will use `content-hash` for generated data files. Plan includes logic to invalidate results if code changes. |
+| **VI. Theoretical Lower Bound Validation** | **PASS** | The plan explicitly separates `src/derivation` (theory) from `src/analysis` (empirical). The validation logic in `src/analysis/stats.py` will compare empirical regression slopes against the *known* theoretical slope from the derivation module, ensuring independence from the variance estimator's accuracy. |
+| **VII. Computational Resource Constraint Adherence** | **PASS** | The plan uses tabular MDPs (no neural networks) and NumPy vectorization. Memory scaling is $O(N \cdot |S| \cdot |A|)$. The plan includes explicit logic (FR-016) to degrade $|S|$ if $N > 50$ to stay under 7GB. |
 
 ## Project Structure
 
@@ -43,79 +41,66 @@ This feature extends the "DVAO" research by deriving a theoretical lower bound o
 
 ```text
 specs/001-llmxive-noise-scaling/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-├── contracts/ # Phase 1 output
-└── tasks.md # Generated by Implementer Agent in next stage (maps FRs to executable steps)
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset_schema.yaml
+│   ├── empirical_results.schema.yaml
+│   ├── output_schema.yaml
+│   ├── statistical_report.schema.yaml
+│   ├── statistical_result.schema.yaml
+│   └── variance_estimate.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
-├── derivation/
-│ ├── variance_scaling.py # Symbolic derivation of noise accumulation (FR-001, FR-002)
-│ └── sample_complexity.py # Inversion of variance to sample complexity bound
-├── simulation/
-│ ├── synthetic_mdp.py # Synthetic tabular MDP generator (FR-003)
-│ ├── heuristic.py # Moving-Window Heuristic implementation (FR-004)
-│ └── runner.py # CPU-constrained training loop (FR-005)
-├── analysis/
-│ ├── stats.py # Paired T-Tests and sensitivity analysis (FR-006, FR-007)
-│ └── pareto.py # Distance to Pareto frontier calculation (FR-008)
-├── config/
-│ └── defaults.yaml # Hyperparameters (N, k, seeds)
-└── main.py # Entry point for experiment suite
-
-tests/
-├── contract/
-│ └── test_schemas.py # Validates data against contracts/
-├── integration/
-│ └── test_end_to_end.py # Full suite run on small N
-└── unit/
- ├── test_derivation.py
- ├── test_mdp.py
- └── test_heuristic.py
-
-data/
-├── raw/ # Generated synthetic trajectories (checksummed)
-└── processed/ # Aggregated variance stats, t-test results
-
-scripts/
-└── update_state.py # Post-run script for versioning (Constitution Principle V)
+projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/
+├── src/
+│   ├── __init__.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── seeding.py              # Random seed management (PRNG state)
+│   ├── derivation/
+│   │   ├── __init__.py
+│   │   └── sample_complexity.py    # FR-001, FR-002: Theoretical derivation & inversion
+│   ├── environment/
+│   │   ├── __init__.py
+│   │   ├── synthetic_mdp.py        # FR-003, FR-016: Tabular MDP generator with degradation
+│   │   └── pareto_oracle.py        # FR-017: Approximate Pareto frontier calculation
+│   ├── heuristic/
+│   │   ├── __init__.py
+│   │   └── moving_window.py        # FR-004: Moving-Window Heuristic implementation
+│   └── analysis/
+│       ├── __init__.py
+│       ├── stats.py                # FR-006, FR-009, FR-015: Regression, FDR, coincidence check
+│       └── metrics.py              # SC-004: False positive rate calculation
+├── data/
+│   ├── raw/                        # (Empty, synthetic generation happens in-memory)
+│   └── processed/
+│       ├── empirical_results.json  # FR-035: Aggregated results
+│       └── step_logs.json          # Step-level variance estimates
+├── docs/
+│   └── theoretical_derivation.md   # Generated report from sample_complexity.py
+├── tests/
+│   ├── test_derivation.py
+│   ├── test_environment.py
+│   └── test_stats.py
+├── requirements.txt
+└── run_experiment.py               # Entry point for the full suite
 ```
 
-**Structure Decision**: Single `src/` directory with logical separation of concerns (`derivation`, `simulation`, `analysis`). This minimizes overhead and ensures all code is runnable in a single Python environment, adhering to the CPU constraint.
+**Structure Decision**: The project is split into `derivation` (pure math), `environment` (data generation), `heuristic` (algorithm), and `analysis` (statistics). This enforces the "Single Source of Truth" principle by isolating the theoretical bound calculation from the empirical validation logic. The `src/derivation/sample_complexity.py` is the primary artifact for the theoretical contribution.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Separation of Symbolic vs. Numeric** | Required by Constitution Principle VI to ensure "Validation Independence". | Merging derivation and simulation would risk circular logic where the heuristic "fits" the theory rather than testing it. |
-| **Tabular MDPs** | Required by Constitution Principle VII and Compute Feasibility (7GB RAM). | Deep RL environments (e.g., MuJoCo, custom LLMs) would exceed memory and time limits on the free-tier runner. |
-| **Moving-Window Heuristic** | Required by Spec US-2 to estimate variance in high-dimensional spaces without full-batch memory. | Full-batch variance estimation requires storing all history, which scales linearly with episodes and objectives, risking OOM on large N. |
-| **Held-Out Validation** | Required by Constitution Principle VI. | Using the same noise distribution for training and validation creates a tautological test of the noise model. |
-| **Paired T-Test Strategy** | Required to avoid tautology (Scientific Soundness). | A one-sample t-test against the theoretical bound is invalid because the bound is a constant derived from the generator; the test must compare the estimator (Heuristic) against a proxy for ground truth (Full-Batch Empirical). |
-
-## FR-to-Module Mapping (Traceability)
-
-- **FR-001, FR-002**: `src/derivation/variance_scaling.py`, `src/derivation/sample_complexity.py`
-- **FR-003**: `src/simulation/synthetic_mdp.py`
-- **FR-004**: `src/simulation/heuristic.py`
-- **FR-005**: `src/simulation/runner.py`
-- **FR-006**: `src/analysis/stats.py` (Paired T-Test: Heuristic vs. Full-Batch Empirical)
-- **FR-007**: `src/analysis/stats.py`
-- **FR-008**: `src/analysis/pareto.py`
-- **FR-009**: `src/simulation/synthetic_mdp.py` (noise correlation parameter)
-
-*Note: `tasks.md` will be generated by the Implementer Agent in the next stage, mapping these modules to executable steps.*
-
-## Success Criteria Alignment (Revised)
-
-- **SC-001**: Symbolic derivation verified by `sympy` simplification.
-- **SC-002**: **Correlation Analysis**: Measure the correlation between the variance estimation error (Heuristic vs. Full-Batch) and the distance to the Pareto frontier. We do not require them to coincide at a specific N, but expect a positive correlation as N increases.
-- **SC-003**: Stability ratio heuristic/full-batch within a bounded range close to unity for the vast majority of steps.
-- **SC-004**: False-positive rate variation across $k$ sweep.
-- **SC-005**: Runtime < 6h on GitHub Actions free-tier.
+| **Separation of Derivation and Analysis** | Required by Constitution Principle VI (Theoretical Lower Bound Validation) to ensure the theoretical bound is not "tuned" to the empirical results. | Merging derivation and analysis code risks circular validation and violates the "Validation Independence" requirement. |
+| **Synthetic Tabular MDPs** | Required by Constitution Principle VII (Resource Constraints) to run within 7GB RAM on CPU. | Using real LLM environments or deep RL would exceed memory limits and introduce non-deterministic noise sources that obscure the specific noise-scaling law being tested. |
+| **Graceful Degradation Logic** | Required by FR-016 to handle $N > 50$ without OOM crashes. | Hard-capping $N$ at 50 would prevent the system from testing the edge cases and validating the scaling law's failure points as requested in US-6. |
+| **Approximate Pareto Oracle** | Required by FR-017 to compute distance to frontier for N=50 where exact Pareto is NP-hard. | Exact computation is infeasible; a weighted-sum sweep provides a consistent, reproducible proxy. |
+| **Log-Log Regression** | Required to validate the scaling law (slope) rather than just variance accuracy. | T-tests on bias are trivial and do not validate the core scaling claim. |

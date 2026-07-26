@@ -6,11 +6,19 @@ required:
   - config_id
   - num_objectives
   - window_ratio
-  - p_value
+  - regression_slope
+  - slope_ci_lower
+  - slope_ci_upper
+  - t_test_p_value
+  - fdr_q_value
   - mean_bias
   - pareto_distance
   - convergence_status
   - noise_distribution_type
+  - sample_complexity_ratio
+  - coincidence_delta
+  - false_positive_rate
+  - timestamp
 properties:
   config_id:
     type: string
@@ -24,14 +32,28 @@ properties:
     description: "The ratio k / rollout_size used."
     minimum: 0.0
     maximum: 1.0
-  p_value:
+  regression_slope:
     type: number
-    description: "P-value from the paired t-test comparing Heuristic vs. Full-Batch Empirical Variance."
+    description: "Slope beta from log-log regression of sample count vs N."
+  slope_ci_lower:
+    type: number
+    description: "Lower bound of 95% CI for slope."
+  slope_ci_upper:
+    type: number
+    description: "Upper bound of 95% CI for slope."
+  t_test_p_value:
+    type: number
+    description: "P-value from the one-sample t-test comparing Heuristic vs. Known Variance (sanity check)."
+    minimum: 0.0
+    maximum: 1.0
+  fdr_q_value:
+    type: number
+    description: "Adjusted p-value from Benjamini-Hochberg FDR."
     minimum: 0.0
     maximum: 1.0
   mean_bias:
     type: number
-    description: "Mean difference (Heuristic - Full-Batch) variance."
+    description: "Mean difference (Heuristic - Known) variance."
   pareto_distance:
     type: number
     description: "Distance of the final policy from the theoretical Pareto frontier."
@@ -52,8 +74,18 @@ properties:
     type: string
     enum:
       - "gaussian"
-      - "laplace"
+      - "heavy_tailed"
+      - "sparse"
+      - "non_convex"
     description: "Type of noise distribution used in the simulation."
+  sample_complexity_ratio:
+    type: number
+    description: "Ratio of empirical samples used to theoretical lower bound K."
+    minimum: 0.0
+  coincidence_delta:
+    type: integer
+    description: "Difference between failure point N and Pareto distance point."
+    minimum: 0
   timestamp:
     type: string
     format: date-time

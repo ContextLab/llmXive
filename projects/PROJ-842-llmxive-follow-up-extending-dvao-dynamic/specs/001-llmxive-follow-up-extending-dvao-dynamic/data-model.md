@@ -1,65 +1,89 @@
 # Data Model: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
 
-## Overview
+## 1. Overview
 
-This document defines the data structures used for the synthetic MDP generation, variance estimation, and statistical analysis. All data is generated programmatically and stored in `data/` with checksums.
+This document defines the data structures used for the theoretical derivation, synthetic environment generation, and empirical results aggregation. All data is generated in-memory and persisted to JSON for reproducibility.
 
-## Entities
+## 2. Core Entities
 
-### 1. SyntheticMDP Configuration
-Defines the parameters of a generated environment.
-- **state_space_size**: Integer (e.g., 100).
-- **action_space_size**: Integer (e.g., 4).
-- **num_objectives**: Integer ($N \in \{5, 10, 20, 50\}$).
-- **noise_std**: Float ($\sigma$).
-- **noise_correlation**: Float ($\rho \in \{0, 0.2, 0.5\}$).
-- **noise_distribution**: String ("gaussian", "laplace").
-- **seed**: Integer (for reproducibility).
+### 2.1 SyntheticMDP
+Represents a tabular Multi-Objective MDP.
+- **State Space**: Finite set $S$, size $|S|$.
+- **Action Space**: Finite set $A$, size $|A|$.
+- **Objectives**: Integer $N$.
+- **Rewards**: A 3D array $R \in \mathbb{R}^{|S| \times |A| \times N}$.
+- **Noise Parameters**:
+  - `noise_std`: $\sigma$ (float).
+  - `noise_distribution`: "gaussian", "heavy_tailed" (Student's t), "sparse", "non_convex".
+  - `correlation`: $\rho$ (float, default 0).
 
-### 2. Trajectory
-A single episode of interaction with the MDP.
-- **trajectory_id**: String (UUID).
-- **steps**: List of step objects.
-- **total_rewards**: List of floats (one per objective).
+### 2.2 VarianceEstimate
+Result of the Moving-Window Heuristic (Step-level).
+- **metric_id**: Unique identifier for the metric instance (string).
+- **objective_index**: Index of the objective (0 to N-1) (integer).
+- **timestamp**: Step index $t$.
+- **window_size**: $k$.
+- **estimated_variance**: $\hat{\sigma}^2_t$.
+- **theoretical_variance**: $\sigma^2$ (ground truth).
+- **ratio**: $\hat{\sigma}^2_t / \sigma^2$.
+- **noise_distribution_type**: "gaussian", "laplace", etc.
 
-### 3. Step
-A single timestep in a trajectory.
-- **state**: Integer (state index).
-- **action**: Integer (action index).
-- **rewards**: List of floats (one per objective).
-- **advantages**: List of floats (estimated per objective).
+### 2.3 ApproximateParetoOracle
+Result of the Approximate Pareto Frontier calculation.
+- **method**: "weighted_sum_sweep" (string).
+- **num_vectors**: Number of weight vectors used (e.g., 1000).
+- **frontier_points**: List of reward vectors approximating the frontier.
 
-### 4. VarianceEstimate
-The result of variance estimation (Heuristic vs. Full-Batch vs. Theoretical).
-- **metric_id**: String.
-- **objective_index**: Integer.
-- **heuristic_variance**: Float (from Moving-Window).
-- **full_batch_variance**: Float (from Full-Batch calculation on same trajectory).
-- **theoretical_variance**: Float (from analytical formula).
-- **heuristic_to_full_batch_ratio**: Float (Heuristic / Full-Batch).
-- **window_size**: Integer ($k$).
-- **timestamp**: ISO8601.
+### 2.4 EmpiricalResult
+Aggregated results for a single configuration ($N$, $k$, $\rho$, distribution).
+- **config_id**: Unique identifier for the run.
+- **N**: Number of objectives.
+- **k**: Window size.
+- **rho**: Correlation.
+- **distribution**: Noise type.
+- **sample_count**: Number of episodes to reach Pareto threshold.
+- **distance_to_frontier**: Distance metric (FR-017).
+- **heuristic_accuracy**: Ratio of heuristic variance to true variance (FR-015).
+- **statistical_tests**:
+  - `regression_slope`: Slope $\beta$ from log-log regression.
+  - `slope_ci_lower`: Lower bound of 95% CI.
+  - `slope_ci_upper`: Upper bound of 95% CI.
+  - `t_test_p_value`: From one-sample t-test on bias (sanity check).
+  - `fdr_q_value`: Adjusted p-value from Benjamini-Hochberg.
+- **coincidence_delta**: Difference between failure point N and Pareto distance point.
+- **false_positive_rate**: Rate of false positives (SC-004).
+- **metadata**:
+  - `seed`: Random seed used.
+  - `state_space_size`: Effective $|S|$ (may be degraded).
+  - `approximation_method`: "weighted_sum_sweep".
 
-### 5. StatisticalResult
-Aggregated results for a specific configuration ($N, k, \rho$).
-- **config_id**: String.
-- **num_objectives**: Integer.
-- **window_ratio**: Float.
-- **p_value**: Float (from paired t-test: Heuristic vs. Full-Batch).
-- **mean_bias**: Float (Mean difference: Heuristic - Full-Batch).
-- **pareto_distance**: Float.
-- **convergence_status**: String ("stable", "unstable", "failed").
-- **false_positive_rate**: Float.
-- **noise_distribution_type**: String.
+## 3. File Formats
 
-## Data Flow
+### 3.1 `data/processed/empirical_results.json`
+A JSON array of `EmpiricalResult` objects.
 
-1.  **Generation**: `synthetic_mdp.py` creates `Trajectory` objects based on `SyntheticMDP Configuration`.
-2.  **Estimation**: `heuristic.py` processes `Trajectory` to produce `VarianceEstimate` (calculating Heuristic, Full-Batch, and Theoretical values).
-3.  **Analysis**: `stats.py` aggregates `VarianceEstimate` into `StatisticalResult` (performing paired t-tests).
-4.  **Storage**: All artifacts saved to `data/processed/` as CSV/JSON.
+### 3.2 `data/processed/step_logs.json`
+A JSON array of `VarianceEstimate` objects.
 
-## Storage Format
-- **Raw Data**: `data/raw/trajectories_{config_id}.jsonl` (line-delimited JSON for streaming).
-- **Processed Data**: `data/processed/stats_{config_id}.csv` (pandas-compatible).
-- **Metadata**: `data/metadata.json` (checksums, seeds, git commit hash).
+### 3.3 `docs/theoretical_derivation.md`
+A Markdown file generated from `src/derivation/sample_complexity.py`, containing the closed-form equations and derivation steps.
+
+## 4. Data Flow
+
+1. **Generation**: `src/environment/synthetic_mdp.py` creates `SyntheticMDP` instances.
+2. **Simulation**: `src/heuristic/moving_window.py` runs episodes, producing `VarianceEstimate` streams.
+3. **Pareto Calculation**: `src/environment/pareto_oracle.py` computes `ApproximateParetoOracle`.
+4. **Aggregation**: `src/analysis/stats.py` computes statistics and `EmpiricalResult` objects.
+5. **Persistence**: Results are written to `data/processed/empirical_results.json`.
+
+## 5. Validation Rules
+
+- **N**: Integer $\ge 1$.
+- **k**: Integer $> 0$, $k < \text{rollout\_size}$.
+- **rho**: Float in $[-1, 1]$.
+- **noise_std**: Float $> 0$.
+- **distance_to_frontier**: Float $\ge 0$.
+- **sample_count**: Integer $> 0$.
+- **regression_slope**: Float.
+- **coincidence_delta**: Integer $\ge 0$.
+- **false_positive_rate**: Float in $[0, 1]$.

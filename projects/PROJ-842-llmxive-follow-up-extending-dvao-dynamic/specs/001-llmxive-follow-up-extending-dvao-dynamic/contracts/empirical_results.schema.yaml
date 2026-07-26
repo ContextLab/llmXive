@@ -1,0 +1,109 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Empirical Results Schema"
+description: "Schema for data/processed/empirical_results.json"
+type: "array"
+items:
+  type: "object"
+  required:
+    - "config_id"
+    - "N"
+    - "k"
+    - "rho"
+    - "distribution"
+    - "sample_count"
+    - "distance_to_frontier"
+    - "heuristic_accuracy"
+    - "statistical_tests"
+    - "coincidence_delta"
+    - "false_positive_rate"
+    - "metadata"
+  properties:
+    config_id:
+      type: "string"
+      description: "Unique identifier for the configuration run"
+    N:
+      type: "integer"
+      description: "Number of objectives N (e.g., 5, 10, 20, 50)"
+      minimum: 1
+    k:
+      type: "number"
+      description: "Window size fraction"
+      minimum: 0.0
+      maximum: 1.0
+    rho:
+      type: "number"
+      description: "Correlation coefficient rho of noise (0, 0.2, 0.5)"
+      minimum: 0.0
+      maximum: 1.0
+    distribution:
+      type: "string"
+      description: "Type of noise distribution used (e.g., 'gaussian', 'sparse')"
+      enum:
+        - "gaussian"
+        - "heavy_tailed"
+        - "sparse"
+        - "non_convex"
+    sample_count:
+      type: "integer"
+      description: "Episodes to reach Pareto threshold"
+      minimum: 1
+    distance_to_frontier:
+      type: "number"
+      description: "Distance to theoretical Pareto frontier"
+      minimum: 0.0
+    heuristic_accuracy:
+      type: "number"
+      description: "Ratio of heuristic variance to true variance"
+      minimum: 0.0
+    statistical_tests:
+      type: "object"
+      required:
+        - "regression_slope"
+        - "slope_ci_lower"
+        - "slope_ci_upper"
+        - "t_test_p_value"
+        - "fdr_q_value"
+      properties:
+        regression_slope:
+          type: "number"
+          description: "Slope beta from log-log regression of sample count vs N"
+        slope_ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI for slope"
+        slope_ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI for slope"
+        t_test_p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "P-value from one-sample t-test on bias (sanity check)"
+        fdr_q_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Adjusted p-value from Benjamini-Hochberg FDR"
+    coincidence_delta:
+      type: "integer"
+      description: "Difference between failure point N and Pareto distance point"
+      minimum: 0
+    false_positive_rate:
+      type: "number"
+      description: "Rate of false positives (SC-004)"
+      minimum: 0.0
+      maximum: 1.0
+    metadata:
+      type: "object"
+      required:
+        - "seed"
+        - "state_space_size"
+        - "approximation_method"
+      properties:
+        seed:
+          type: "integer"
+        state_space_size:
+          type: "integer"
+        approximation_method:
+          type: "string"
+          description: "Method used for Pareto approximation (e.g., 'weighted_sum_sweep')"
+  additionalProperties: false
