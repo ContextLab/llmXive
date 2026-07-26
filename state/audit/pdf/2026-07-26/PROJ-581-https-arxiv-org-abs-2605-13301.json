@@ -1,8 +1,8 @@
 {
-  "pdf_path": "projects/PROJ-731-zone-of-proximal-policy-optimization-tea/paper/pdf/main-llmxive.pdf",
-  "paper_id": "PROJ-731-zone-of-proximal-policy-optimization-tea",
-  "audited_at": "2026-07-26T00:34:23Z",
-  "total_pages": 76,
+  "pdf_path": "projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
+  "audited_at": "2026-07-26T00:30:40Z",
+  "total_pages": 89,
   "pages": [
     {
       "page": 1,
@@ -381,44 +381,84 @@
     },
     {
       "page": 76,
-      "status": "fail",
-      "failures": [
-        {
-          "kind": "section_number_gap",
-          "evidence": "expected section 1, saw section 5",
-          "class": "unsupported_construct",
-          "recommendation": "check for stray \\setcounter or \\section* in source"
-        },
-        {
-          "kind": "section_number_gap",
-          "evidence": "expected section 7, saw section 14",
-          "class": "unsupported_construct",
-          "recommendation": "check for stray \\setcounter or \\section* in source"
-        },
-        {
-          "kind": "section_number_gap",
-          "evidence": "expected section 15, saw section 16",
-          "class": "unsupported_construct",
-          "recommendation": "check for stray \\setcounter or \\section* in source"
-        },
-        {
-          "kind": "section_number_gap",
-          "evidence": "expected section 17, saw section 18",
-          "class": "unsupported_construct",
-          "recommendation": "check for stray \\setcounter or \\section* in source"
-        }
-      ]
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 77,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 78,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 79,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 80,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 81,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 82,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 83,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 84,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 85,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 86,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 87,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 88,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 89,
+      "status": "pass",
+      "failures": []
     }
   ],
   "summary": {
-    "total_failures": 4,
+    "total_failures": 0,
     "failure_classes": {
       "source_fixable": 0,
-      "unsupported_construct": 4,
+      "unsupported_construct": 0,
       "source_missing": 0,
       "audit_tool_crash": 0
     },
-    "passed_pages": 75,
-    "failed_pages": 1
+    "passed_pages": 89,
+    "failed_pages": 0
   }
 }

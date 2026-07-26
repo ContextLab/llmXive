@@ -1,8 +1,8 @@
 {
-  "pdf_path": "projects/PROJ-649-trust-region-behavior-blending-for-on-po/paper/pdf/main-llmxive.pdf",
-  "paper_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
-  "audited_at": "2026-07-26T00:32:15Z",
-  "total_pages": 21,
+  "pdf_path": "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/paper/pdf/main-llmxive.pdf",
+  "paper_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
+  "audited_at": "2026-07-26T00:30:46Z",
+  "total_pages": 39,
   "pages": [
     {
       "page": 1,
@@ -108,6 +108,96 @@
       "page": 21,
       "status": "pass",
       "failures": []
+    },
+    {
+      "page": 22,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 23,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 24,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 25,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 26,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 27,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 28,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 29,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 30,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 31,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 32,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 33,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 34,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 35,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 36,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 37,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 38,
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "page": 39,
+      "status": "pass",
+      "failures": []
     }
   ],
   "summary": {
@@ -118,7 +208,7 @@
       "source_missing": 0,
       "audit_tool_crash": 0
     },
-    "passed_pages": 21,
+    "passed_pages": 39,
     "failed_pages": 0
   }
 }
