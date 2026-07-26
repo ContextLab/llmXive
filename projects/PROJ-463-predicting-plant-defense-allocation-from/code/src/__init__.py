@@ -1,4 +1,3 @@
 """
-Plant Defense Allocation Prediction Pipeline
-Source code package.
+llmXive Plant Defense Allocation Pipeline - Source Package
 """

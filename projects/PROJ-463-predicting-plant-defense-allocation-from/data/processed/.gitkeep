@@ -1,2 +1,1 @@
-# This directory is for processed data (TPM matrices, QC results, etc.)
-# Do not commit large processed files to git. Add to .gitignore.
+# Processed data (trimmed FASTQ, BAM, TPM matrices) will be stored here.

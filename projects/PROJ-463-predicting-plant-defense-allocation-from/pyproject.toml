@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-plant-defense"
+name = "plant-defense-allocation"
 version = "0.1.0"
 description = "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data"
 requires-python = ">=3.11"
@@ -18,20 +18,18 @@ dependencies = [
     "pyyaml",
     "seaborn",
     "matplotlib",
-    "numpy",
-    "pandas",
-    "pytest",
-    "tomli",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -40,50 +38,36 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | node_modules
 )/
 '''
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["code/src", "code/tests", "code/scripts", "code/setup_directories.py"]
+src = ["code/src", "code/tests", "code/scripts"]
 
 [tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-    "F",   # Pyflakes
+    "F",   # pyflakes
     "I",   # isort
-    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
-    "ANN", # flake8-annotations (basic)
+    "N",   # pep8-naming
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in CLI)
-    "ANN101", # missing-type-self
-    "ANN102", # missing-type-cls
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-function-calls-in-argument-defaults (often needed for config)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"code/tests/*" = ["ANN", "S101"] # Allow asserts in tests, skip type annotations for speed
-"code/scripts/*" = ["ANN"]       # Scripts often have looser typing requirements
+"code/tests/*" = ["S101"] # Allow asserts in tests
 
 [tool.ruff.lint.isort]
-known-first-party = ["src", "scripts", "setup_directories"]
+known-first-party = ["src", "scripts", "tests"]
 force-sort-within-sections = true
-
-[tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]
-
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: unit tests",
-    "integration: integration tests",
-    "real_data: tests requiring real data access",
-]
+combine-as-imports = true
+split-on-trailing-comma = false

@@ -5,55 +5,87 @@ from pathlib import Path
 import pytest
 import sys
 
-# Ensure the code directory is in the path for imports
-code_root = Path(__file__).resolve().parents[2]
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add the code directory to the path so we can import src
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.utils.setup_directories import setup_data_directories, REQUIRED_DATA_DIRS
+from src.utils.setup_directories import setup_data_directories
+from src.utils.config import Config, reset_config
 
 @pytest.fixture
 def temp_config_dir():
     """Create a temporary directory for testing."""
     temp_dir = tempfile.mkdtemp()
-    yield Path(temp_dir)
-    shutil.rmtree(temp_dir)
+    # Save original config
+    original_config = None
+    if hasattr(Config, '_instance'):
+        original_config = Config._instance
+    
+    # Set up temp config
+    reset_config()
+    Config._instance = Config(data_root=temp_dir)
+    
+    yield temp_dir
+    
+    # Cleanup
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    # Restore original config
+    if original_config:
+        Config._instance = original_config
+    else:
+        reset_config()
 
 class TestDirectorySetup:
-    """Unit tests for directory setup functionality."""
+    def test_setup_creates_required_directories(self, temp_config_dir):
+        """Test that setup_data_directories creates all required directories."""
+        result = setup_data_directories()
+        assert result is True, "Directory setup should return True on success"
+        
+        data_root = Path(temp_config_dir)
+        required_dirs = [
+            data_root / "raw",
+            data_root / "processed",
+            data_root / "traits",
+            data_root / "manifests",
+            data_root / "synthetic"
+        ]
+        
+        for dir_path in required_dirs:
+            assert dir_path.exists(), f"Directory {dir_path} should exist"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+            assert os.access(dir_path, os.W_OK), f"{dir_path} should be writable"
 
-    def test_setup_creates_all_required_dirs(self, temp_config_dir):
-        """Verify that all required data subdirectories are created."""
-        setup_data_directories(temp_config_dir)
+    def test_setup_creates_flag_file(self, temp_config_dir):
+        """Test that setup_data_directories creates the flag file."""
+        result = setup_data_directories()
+        assert result is True, "Directory setup should return True on success"
         
-        for subdir_name in REQUIRED_DATA_DIRS:
-            expected_path = temp_config_dir / subdir_name
-            assert expected_path.exists(), f"Directory {expected_path} was not created"
-            assert expected_path.is_dir(), f"{expected_path} is not a directory"
-
-    def test_setup_creates_nested_structure(self, temp_config_dir):
-        """Verify that nested directories are created if base doesn't exist."""
-        # Start with an empty temp dir
-        assert temp_config_dir.exists()
+        flag_file = Path(temp_config_dir) / ".dir_setup_complete"
+        assert flag_file.exists(), "Flag file should exist"
+        assert flag_file.is_file(), "Flag file should be a file"
         
-        # Setup should create the base if it didn't exist (though fixture ensures it does)
-        # and all subdirs
-        setup_data_directories(temp_config_dir)
-        
-        # Check specific deep paths that might be needed later
-        processed_path = temp_config_dir / "processed"
-        assert processed_path.exists()
+        with open(flag_file, 'r') as f:
+            content = f.read()
+            assert "Directory setup completed successfully" in content, \
+                "Flag file should contain success message"
 
     def test_setup_idempotent(self, temp_config_dir):
-        """Verify that running setup multiple times doesn't cause errors."""
-        setup_data_directories(temp_config_dir)
-        setup_data_directories(temp_config_dir)
+        """Test that running setup multiple times doesn't cause errors."""
+        # Run setup twice
+        result1 = setup_data_directories()
+        result2 = setup_data_directories()
         
-        for subdir_name in REQUIRED_DATA_DIRS:
-            assert (temp_config_dir / subdir_name).exists()
-
-    def test_required_dirs_constant(self):
-        """Verify the REQUIRED_DATA_DIRS list contains the correct entries."""
-        expected_dirs = {"raw", "processed", "traits", "manifests", "synthetic"}
-        assert set(REQUIRED_DATA_DIRS) == expected_dirs, \
-            f"REQUIRED_DATA_DIRS mismatch. Expected {expected_dirs}, got {set(REQUIRED_DATA_DIRS)}"
+        assert result1 is True, "First setup should succeed"
+        assert result2 is True, "Second setup should succeed"
+        
+        # Verify directories still exist
+        data_root = Path(temp_config_dir)
+        required_dirs = [
+            data_root / "raw",
+            data_root / "processed",
+            data_root / "traits",
+            data_root / "manifests",
+            data_root / "synthetic"
+        ]
+        
+        for dir_path in required_dirs:
+            assert dir_path.exists(), f"Directory {dir_path} should exist after multiple setups"

@@ -1,3 +1,3 @@
 """
-Utility modules for configuration, logging, schemas, etc.
+Utility modules for the pipeline.
 """

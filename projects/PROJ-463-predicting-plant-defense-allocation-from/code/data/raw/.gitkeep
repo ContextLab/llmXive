@@ -1,2 +1,1 @@
-# This directory stores raw FASTQ files fetched from NCBI GEO/SRA.
-# Do not commit large binary files; use .gitkeep to preserve directory structure.
+# Raw downloaded data (FASTQ, etc.) goes here.

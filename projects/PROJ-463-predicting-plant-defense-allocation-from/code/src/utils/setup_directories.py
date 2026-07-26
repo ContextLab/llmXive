@@ -5,75 +5,86 @@ from typing import List
 import logging
 
 from .config import get_data_path
-from .logger import get_logger
 
-# Define the required subdirectories for the data hierarchy
-REQUIRED_DATA_DIRS: List[str] = [
-    "raw",
-    "processed",
-    "traits",
-    "manifests",
-    "synthetic"
-]
+# Configure logging for this module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def setup_data_directories(base_path: Path) -> None:
+def setup_data_directories() -> bool:
     """
-    Create the required directory structure for the plant defense pipeline.
+    Initialize the directory structure for the plant defense allocation pipeline.
     
-    This function ensures that the following directories exist under the base data path:
-    - raw: For unaltered downloaded FASTQ files
-    - processed: For intermediate and final processed data (trimmed, aligned, TPM)
-    - traits: For defense trait data from external sources
-    - manifests: For JSON manifests tracking data provenance
-    - synthetic: For synthetic data used in prototype validation (NOT raw data)
+    Creates the following directories under the project's data root:
+    - data/raw: For raw downloaded FASTQ files
+    - data/processed: For intermediate and final processed data
+    - data/traits: For compiled trait data
+    - data/manifests: For metadata manifests
+    - data/synthetic: For synthetic/prototype data
     
-    Args:
-        base_path: The root directory where data subdirectories should be created.
-                   Typically points to the 'data' directory in the project root.
+    Returns:
+        bool: True if all directories were created successfully and are writable,
+              False otherwise.
     """
-    logger = get_logger(__name__)
+    data_root = get_data_path()
+    logger.info(f"Setting up directory structure at: {data_root}")
     
-    if not base_path.exists():
-        logger.info(f"Creating base data directory: {base_path}")
-        base_path.mkdir(parents=True, exist_ok=True)
+    required_dirs = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "traits",
+        data_root / "manifests",
+        data_root / "synthetic"
+    ]
     
-    for subdir_name in REQUIRED_DATA_DIRS:
-        dir_path = base_path / subdir_name
+    # Create directories
+    for dir_path in required_dirs:
         try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"Directory ready: {dir_path}")
+            logger.info(f"Created/Verified directory: {dir_path}")
+            
+            # Verify writability
+            test_file = dir_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            logger.debug(f"Verified writability for: {dir_path}")
+            
         except PermissionError as e:
             logger.error(f"Permission denied creating directory {dir_path}: {e}")
-            raise
+            return False
         except OSError as e:
             logger.error(f"OS error creating directory {dir_path}: {e}")
-            raise
-
-def main() -> None:
-    """
-    CLI entry point for setting up the data directory structure.
-    Uses the configured data path from src.utils.config.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting directory setup for plant defense pipeline...")
+            return False
     
+    # Create flag file to indicate successful setup
+    flag_file = data_root / ".dir_setup_complete"
     try:
-        data_path = get_data_path()
-        logger.info(f"Target data root: {data_path}")
-        
-        setup_data_directories(data_path)
-        
-        # Verify creation
-        for subdir_name in REQUIRED_DATA_DIRS:
-            dir_path = data_path / subdir_name
-            if not dir_path.exists():
-                raise RuntimeError(f"Failed to create directory: {dir_path}")
-        
-        logger.info("Directory structure successfully created.")
-        
-    except Exception as e:
-        logger.critical(f"Directory setup failed: {e}")
-        sys.exit(1)
+        with open(flag_file, 'w') as f:
+            f.write("Directory setup completed successfully.\n")
+            f.write(f"Timestamp: {os.popen('date').read().strip()}\n")
+        logger.info(f"Created flag file: {flag_file}")
+    except OSError as e:
+        logger.error(f"Failed to create flag file {flag_file}: {e}")
+        return False
+    
+    return True
+
+def main() -> int:
+    """
+    CLI entry point for directory setup.
+    
+    Returns:
+        int: 0 on success, 1 on failure.
+    """
+    success = setup_data_directories()
+    if success:
+        logger.info("Directory setup completed successfully.")
+        return 0
+    else:
+        logger.error("Directory setup failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

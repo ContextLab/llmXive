@@ -2290,43 +2290,6 @@
   status: verified
   updated_at: '2026-07-25T20:07:40Z'
 - artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
-  attempts: 8
-  canonical: batch correction reduces coefficient of variation by at least 20 percent
-    for housekeeping genes
-  claim_id: c_e74350b1
-  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
-    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
-    \ flagged."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
-  kind: magnitude
-  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T20:07:43Z'
-- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
-  attempts: 10
-  canonical: pathway aggregation reduces features to 50 or fewer
-  claim_id: c_df5099ed
-  context: "Independent Test: Verify DESeq2 identifies DE genes correctly, response\
-    \ vectors are consistent across folds, and pathway aggregation reduces features\
-    \ to \u226450."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "pathway aggregation reduces features to \u226450"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T20:07:43Z'
-- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
   attempts: 1
   canonical: absolute log2 fold change greater than 1
   claim_id: c_a2c08234
@@ -2376,3 +2339,429 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T20:07:46Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction requires at least 20% reduction in Coefficient of Variation
+    for housekeeping genes
+  claim_id: c_f3abf102
+  context: "Algorithm: Calculate GeNorm M-value for the fixed list. Calculate the\
+    \ Coefficient of Variation (CV) reduction specifically on this fixed set of genes.\
+    \ Require \u226520% reduction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_requires_at_least_20%25_reduction_in_Coeffici
+  kind: magnitude
+  raw_text: "Require \u226520% reduction."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:46:34Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pathway aggregation reduces herbivore response vectors to 50 or fewer
+    features
+  claim_id: c_a040fefb
+  context: "Implement KEGG/GO pathway aggregation to reduce herbivore\u2011response\
+    \ vectors to \u226450 pathway\u2011level features."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "reduce herbivore\u2011response vectors to \u226450 pathway\u2011level\
+    \ features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:46:34Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Phylogenetic permutation null model repeats 10000 times
+  claim_id: c_fabc14f0
+  context: "Refit the model with permuted residuals. Calculate R\xB2. Repeat N=10,000\
+    \ times."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat N=10,000 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:47:26Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Permutation test for Spearman correlation runs 10000 times or until convergence
+  claim_id: c_8a9e4781
+  context: Implement permutation test (permutation test (N=10,000 or until convergence))
+    for Spearman correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutation test (N=10,000 or until convergence)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:47:48Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if missing trait data fraction exceeds 30 percent
+  claim_id: c_e91d6b66
+  context: 'Logic: missing_fraction = (count of species missing from TRY AND Fallback)
+    / total_target_species. Halt Condition: If missing_fraction > 0.30, raise SystemExit.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If missing_fraction > 0.30, raise SystemExit
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T20:47:48Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs on top ranked, top 100, and top 200 differentially
+    expressed genes
+  claim_id: c_9183de3c
+  context: 'Specific Levels: Run analysis for top-ranked, top 100, and top 200 DE
+    genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run analysis for top-ranked, top 100, and top 200 DE genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:48:25Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction must reduce CV by at least 20% for housekeeping genes
+  claim_id: c_651c5735
+  context: "Algorithm: Calculate GeNorm M-value for the fixed list. Calculate the\
+    \ Coefficient of Variation (CV) reduction specifically on this fixed set of genes.\
+    \ Require \u226520% reduction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_must_reduce_CV_by_at_least_20%25_for_housekee
+  kind: magnitude
+  raw_text: "Require \u226520% reduction in Coefficient of Variation (CV) for housekeeping\
+    \ genes after batch correction."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:49:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pathway aggregation reduces features to 50 or fewer
+  claim_id: c_89e25174
+  context: "Implement KEGG/GO pathway aggregation to reduce herbivore\u2011response\
+    \ vectors to \u226450 pathway\u2011level features."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reduce herbivore-response vectors to \u226450 pathway-level features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:49:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: System halts if missing species fraction is greater than 0.30
+  claim_id: c_561be84f
+  context: 'Halt Condition: If `missing_fraction > 0.30`, raise `SystemExit` and trigger
+    `human_input_needed`.'
+  evidence:
+    entailment_evidence: System halts if missing species fraction is greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/System_halts_if_missing_species_fraction_is_greater_than_0.3
+  kind: magnitude
+  raw_text: Halt if missing fraction of species from TRY and Fallback sources exceeds
+    0.30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-26T20:50:18Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Model training halts if available N is less than required N
+  claim_id: c_16cc39d9
+  context: 'Halt: If available N < calculated required N, raise a SystemExit exception
+    and report ''Insufficient statistical power for reliable prediction (calculated
+    N=X, available N=Y)''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_training_halts_if_available_N_is_less_than_required_N
+  kind: magnitude
+  raw_text: Halt model training if available N is less than the calculated required
+    N for statistical power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:51:09Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Phylogenetic permutation test runs 10000 iterations
+  claim_id: c_d4fd5c3b
+  context: "Repeat N=10,000 times. Compare observed R\xB2 to the upper tail of this\
+    \ null distribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run phylogenetic permutation of residuals N=10,000 times to generate a
+    null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:51:52Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Spearman correlation permutation test runs 10000 iterations or until
+    convergence
+  claim_id: c_44d65812
+  context: Implement permutation test (permutation test (N=10,000 or until convergence))
+    for Spearman correlation and apply Holm-Bonferroni correction across all tissue-specific
+    model tests and gene-set hypotheses.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation test for Spearman correlation with N=10,000 or until convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:52:56Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs for top 100 and top 200 DE genes
+  claim_id: c_3e3aacfc
+  context: "Specific Levels: Run analysis for **top-ranked**, **top 100**, and **top\
+    \ 200** DE genes. Reporting: Output a table of R\xB2 variation across these levels."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis for top-ranked, top 100, and top 200 DE genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:53:33Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 11
+  canonical: pathway aggregation reduces features to 50 or fewer
+  claim_id: c_df5099ed
+  context: "Independent Test: Verify DESeq2 identifies DE genes correctly, response\
+    \ vectors are consistent across folds, and pathway aggregation reduces features\
+    \ to \u226450."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pathway aggregation reduces features to \u226450"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:56:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: absolute log2 fold change greater than 1
+  claim_id: c_fbf43a73
+  context: Unit test for DE gene selection logic ( (1410.4274, https://arxiv.org/abs/1410.4274),
+    |log2FC| > 1) in `tests/unit/test_de_analysis.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Absolute_log2_fold_change_greater_than_1
+  kind: magnitude
+  raw_text: '|log2FC| > 1'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:57:23Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: missing fraction greater than 0.30
+  claim_id: c_d46706cf
+  context: If `missing_fraction > 0.30`, raise `SystemExit` and trigger `human_input_needed`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Missing_fraction_greater_than_0.30
+  kind: magnitude
+  raw_text: missing_fraction > 0.30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:58:18Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: repeat 10000 times
+  claim_id: c_b47101e3
+  context: "Compare observed R\xB2 to the upper tail of this null distribution. Do\
+    \ NOT shuffle tip labels on the tree itself. Repeat N=10,000 times."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat N=10,000 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:58:18Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: permutation test 10000 iterations
+  claim_id: c_1fb8a3a3
+  context: Implement permutation test (permutation test (N=10,000 or until convergence))
+    for Spearman correlation and apply Holm-Bonferroni correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutation test (N=10,000 or until convergence)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T20:58:19Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 0
+  canonical: system halts if missing fraction of trait data exceeds 0.30
+  claim_id: c_fbf7c670
+  context: 'Halt Condition: If missing_fraction > 0.30 , raise SystemExit and trigger
+    human_input_needed.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: missing_fraction > 0.30
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T21:05:16Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 10
+  canonical: batch correction reduces coefficient of variation by at least 20 percent
+    for housekeeping genes
+  claim_id: c_e74350b1
+  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
+    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
+    \ flagged."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
+  kind: magnitude
+  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:05:19Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: pathway aggregation reduces herbivore response vector features to 50
+    or fewer
+  claim_id: c_021c4830
+  context: "Independent Test: Verify DESeq2 identifies DE genes correctly, response\
+    \ vectors are consistent across folds, and pathway aggregation reduces features\
+    \ to \u226450."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pathway aggregation reduces features to \u226450"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:05:19Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: differential expression gene selection uses absolute log2 fold change
+    greater than 1
+  claim_id: c_e6df25a5
+  context: Unit test for DE gene selection logic ( (1410.4274, https://arxiv.org/abs/1410.4274),
+    |log2FC| > 1) in tests/unit/test_de_analysis.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Differential_expression_gene_selection_uses_absolute_log2_fo
+  kind: magnitude
+  raw_text: '|log2FC| > 1'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:05:22Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: fixed list of housekeeping genes includes 48 specific genes
+  claim_id: c_18ec1730
+  context: Implement configuration management for paths, seeds, thresholds, and the
+    fixed list of housekeeping genes defined in FR-003 (ACT2, ACT7, GAPDH, UBQ10,
+    EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1,
+    CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5, CYP71A6,
+    CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14, CYP71A15,
+    CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22, CYP71A23,
+    CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30, CYP71A31,
+    CYP71A32).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15,
+    CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3,
+    CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12,
+    CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20,
+    CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28,
+    CYP71A29, CYP71A30, CYP71A31, CYP71A32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T21:07:10Z'

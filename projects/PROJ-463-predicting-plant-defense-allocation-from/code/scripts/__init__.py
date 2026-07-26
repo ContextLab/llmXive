@@ -1,3 +1,3 @@
 """
-CLI scripts and entry points.
+Executable scripts for the pipeline.
 """

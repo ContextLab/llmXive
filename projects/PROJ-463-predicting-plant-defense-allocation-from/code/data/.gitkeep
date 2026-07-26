@@ -1,1 +1,2 @@
 # This file ensures the data directory exists in version control.
+# Do not commit actual data files here.

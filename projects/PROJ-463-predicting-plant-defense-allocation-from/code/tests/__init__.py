@@ -1,3 +1,3 @@
 """
-Test suite package.
+Test suite for the pipeline.
 """

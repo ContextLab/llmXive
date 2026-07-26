@@ -1,2 +1,1 @@
-# This directory stores synthetic data for prototype validation only.
-# Do not commit large binary files; use .gitkeep to preserve directory structure.
+# Synthetic data for validation goes here.

@@ -1,2 +1,1 @@
-# This directory stores defense trait data from TRY, Phenoscape, GBIF.
-# Do not commit large binary files; use .gitkeep to preserve directory structure.
+# Defense trait data goes here.
