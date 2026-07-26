@@ -1,0 +1,5 @@
+The spec explicitly identifies the research gap: while individual correlations are known, the joint predictive power and residual patterns (specific deviations by knot family) remain under-explored in a systematic, census-wide manner. The methodology is appropriate, distinguishing between tabulated core invariants and computed additional invariants, and correctly handling the statistical nature of a complete census (using effect sizes rather than p-values, as mandated by Constitution Principle VII).
+
+The spec demonstrates rigorous attention to measurement precision (FR-013, SC-015) and reproducibility (FR-007, SC-003), including explicit handling of edge ca
+
+*[truncated]*
