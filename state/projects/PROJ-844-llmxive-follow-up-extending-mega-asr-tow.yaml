@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-844-llmxive-follow-up-extending-mega-asr-tow
-last_run_id: 291c6498-331a-415b-93d0-5e513e9988f1
+last_run_id: a1e3056d-c07a-4552-bef9-30d650557803
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow
 title: 'llmXive follow-up: extending "Mega-ASR: Towards In-the-wild^2 Speech Recognition
   via Scaling up Real"'
-updated_at: '2026-07-23T09:38:16.616276Z'
+updated_at: '2026-07-26T01:10:54.344522Z'

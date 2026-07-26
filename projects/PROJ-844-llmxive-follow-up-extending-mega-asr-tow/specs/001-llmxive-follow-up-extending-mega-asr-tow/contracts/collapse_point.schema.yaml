@@ -1,43 +1,43 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Collapse Point Schema
-description: Schema for the derived collapse intensity point for a specific clip and model.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Collapse Point Data Schema"
+description: "Schema for the collapse_points.parquet file containing derived failure thresholds."
 type: object
 properties:
   collapse_id:
     type: string
-    description: Unique identifier for the collapse point.
+    description: "Unique identifier for the collapse point."
   clip_id:
     type: string
-    description: Foreign key to the AudioClip table.
-  model_name:
+    description: "Foreign key to the AudioClip."
+  asr_model:
     type: string
-    description: Name of the ASR model used.
-  collapse_vector_id:
+    description: "Name of the ASR model."
+  collapse_snr:
+    type: number
+    description: "The SNR value at collapse (float)."
+  collapse_rt60:
+    type: number
+    description: "The RT60 value at collapse (float)."
+  collapse_intensity:
+    type: number
+    description: "A scalar proxy for intensity."
+  validation_status:
     type: string
-    description: Foreign key to the DistortionVector table where collapse occurred.
-  rt60_at_collapse:
-    type: number
-    description: Reverberation time (RT60) in seconds at the collapse point.
-  snr_at_collapse:
-    type: number
-    description: Signal-to-Noise Ratio (SNR) in dB at the collapse point.
-  collapse_threshold:
-    type: number
-    description: The SSS threshold used to define collapse (e.g., 0.5).
-  status:
-    type: string
-    description: Status of the collapse detection.
+    description: "Status: Confirmed, None, or Max Tested."
     enum:
-      - "Found"
-      - "Max Tested"
+      - "Confirmed"
       - "None"
+      - "Max Tested"
+  human_validated:
+    type: boolean
+    description: "True if validated by human annotation."
 required:
   - collapse_id
   - clip_id
-  - model_name
-  - collapse_vector_id
-  - rt60_at_collapse
-  - snr_at_collapse
-  - collapse_threshold
-  - status
+  - asr_model
+  - collapse_snr
+  - collapse_rt60
+  - collapse_intensity
+  - validation_status
+  - human_validated
 additionalProperties: false

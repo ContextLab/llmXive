@@ -1,48 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Stress Curve Record Schema
-description: Schema for a single record in the stress curve dataset, linking a clip, distortion vector, and ASR result.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stress Curve Data Schema"
+description: "Schema for the stress_curves.parquet file containing distortion parameters and ASR metrics."
 type: object
 properties:
-  record_id:
+  stress_id:
     type: string
-    description: Unique identifier for the record.
+    description: "Unique identifier for the stress curve record."
   clip_id:
     type: string
-    description: Foreign key to the AudioClip table.
+    description: "Foreign key to the AudioClip."
   vector_id:
     type: string
-    description: Foreign key to the DistortionVector table.
-  model_name:
+    description: "Foreign key to the DistortionVector."
+  asr_model:
     type: string
-    description: Name of the ASR model used (e.g., 'whisper-tiny').
-  asr_hypothesis:
+    description: "Name of the ASR model used."
+  hypothesis:
     type: string
-    description: The transcribed text output from the ASR model.
+    description: "Transcription output by the ASR model."
   wer:
     type: number
-    description: Word Error Rate calculated against the clean transcript.
-    minimum: 0.0
+    description: "Word Error Rate (float)."
   sss_raw:
     type: number
-    description: Raw cosine similarity score between clean transcript and ASR hypothesis.
-    minimum: -1.0
-    maximum: 1.0
+    description: "Raw Semantic Similarity Score (0.0 to 1.0)."
   sss_normalized:
     type: number
-    description: SSS normalized to the clean baseline (0.0 to 1.0).
-    minimum: 0.0
-    maximum: 1.0
-  is_collapsed:
+    description: "Normalized Semantic Similarity Score (relative to baseline)."
+  collapse_flag:
     type: boolean
-    description: True if sss_normalized < 0.5 AND wer > 2 * baseline_wer.
+    description: "True if SSS < 0.5 AND WER > 2× baseline."
+  disagreement_flag:
+    type: boolean
+    description: "True if SSS and WER disagree."
 required:
-  - record_id
+  - stress_id
   - clip_id
   - vector_id
-  - model_name
-  - asr_hypothesis
+  - asr_model
+  - hypothesis
   - wer
   - sss_raw
   - sss_normalized
-  - is_collapsed
+  - collapse_flag
+  - disagreement_flag
 additionalProperties: false

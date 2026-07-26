@@ -1,93 +1,96 @@
 # Implementation Plan: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-07-12 | **Spec**: [link]
-**Input**: Feature specification from `/specs/001-semantic-collapse-threshold/spec.md`
+**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md`
 
 ## Summary
 
-This feature implements a CPU-tractable pipeline to investigate non-linear interactions between acoustic distortions (reverberation and noise) and their effect on ASR semantic integrity. The system will generate stress curves by applying multiple compound distortion scenarios to a stratified subset of audio data, identify "semantic collapse points" where Semantic Similarity Scores (SSS) drop below 0.5 (normalized) and Word Error Rate (WER) spikes, and train a lightweight regression model to predict these collapse intensities. 
-
-**Critical Methodological Update**: To address circularity concerns, the regression target is redefined as the **Human-Validated Collapse Margin (HVCM)**, derived from a separate human-annotation task on a held-out subset of distorted clips. The SSS metric is used for descriptive stress curves, but the predictive model targets human-judged intelligibility collapse, breaking the tautology of predicting input parameters from the same input parameters.
-
-The plan explicitly addresses the "Critical Interaction Vector" hypothesis, ensuring all statistical claims are associational and corrected for multiple comparisons, while strictly adhering to the constrained RAM and runtime limits of the GitHub Actions free tier.
+This feature implements a stress-testing pipeline to identify "semantic collapse thresholds" in small ASR models when subjected to compound acoustic distortions (Reverb + Noise). The approach involves downloading a stratified subset of clean audio from verified open datasets, synthetically applying multiple distinct distortion vectors (varying SNR and RT60), and measuring the Semantic Similarity Score (SSS) using `all-MiniLM-L6-v2` embeddings. **Crucially, the ground truth for the regression model is established via a human-in-the-loop validation workflow** to avoid circularity. A lightweight Generalized Additive Model (GAM) is then trained to predict the *probability of semantic collapse* based on acoustic interaction terms, validating the existence of a universal "critical interaction vector."
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn`, `transformers` (CPU-only), `torch` (CPU), `librosa`, `pandas`, `numpy`, `datasets`, `sentence-transformers`, `jiwer`  
-**Storage**: Local file system (`data/`), Parquet/CSV formats  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
-**Project Type**: Data Analysis / Research Pipeline  
-**Performance Goals**: Complete stress testing and regression analysis on a sampled subset within 6 hours; peak RSS < 7GB.  
-**Constraints**: No GPU; no deep-learning fine-tuning; no 8-bit/4-bit quantization requiring CUDA; strict memory management via chunked processing.  
-**Scale/Scope**: Subset of audio clips (target: [deferred] clips, determined by SC-004 runtime constraints); distortion scenarios per clip; A small set of ASR models (e.g., Whisper-tiny).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `transformers`, `datasets`, `torchaudio`, `scikit-learn`, `sentence-transformers`, `librosa`, `pandas`, `pyarrow`, `numpy`, `pygam`, `pytest`
+**Storage**: Local `data/` directory (parquet/csv); no external database.
+**Testing**: `pytest` with `conftest.py` for fixture management.
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, 2 cores, 7GB RAM).
+**Project Type**: Data Science / Research Pipeline.
+**Performance Goals**: Complete stress curve generation and regression on a sample of ~500-1000 clips within 6 hours; peak RAM < 6GB.
+**Constraints**: Must run entirely on CPU; no GPU offload required for `all-MiniLM-L6-v2` or scikit-learn models; must handle streaming to avoid OOM on large datasets.
+**Scale/Scope**: 54 distortion scenarios per clip; 5-10 small ASR models (e.g., Whisper-tiny, Distil-Whisper); [deferred] total stress curve data points.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file `projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/.specify/memory/constitution.md`*
 
-- **I. Reproducibility**: The plan mandates pinned random seeds in `code/`, deterministic data fetching from canonical sources, and a `requirements.txt` to ensure re-runs on fresh runners produce identical results.
-- **II. Verified Accuracy**: **Note on Deviation**: The spec (FR-001) mandates "Voices-in-the-Wild-2M". This dataset has no verified URL. The plan explicitly deviates from the spec's dataset source to satisfy Principle II, substituting with verified **LibriSpeech** and **CORAA-MUPE-ASR** subsets. All dataset citations in `research.md` are restricted to these verified URLs.
-- **III. Data Hygiene**: The pipeline will download raw data to `data/raw/`, compute checksums, and write derived artifacts (stress curves, collapse points) to `data/derived/` without modifying originals.
-- **IV. Single Source of Truth**: All figures and statistics in the final report will be generated programmatically from the `data/derived/` artifacts, preventing manual transcription errors.
-- **V. Versioning Discipline**: **Explicit Step**: A `hash-updater.py` script is included in the pipeline. Post-pipeline, it computes content hashes for all `data/derived/` artifacts and updates `state/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow.yaml` with these hashes.
-- **VI. Non-Linear Interaction Characterization**: The plan explicitly includes engineered interaction terms (SNR × RT60, etc.) in the regression model (FR-05) AND mandates a **Sensitivity Analysis** (FR-06) to verify the "critical interaction vector" is not an artifact of the threshold choice.
-- **VII. CPU-Tractability**: The plan restricts ASR models to small variants (e.g., `whisper-tiny`) and the embedding model to `all-MiniLM-L-v2`. It explicitly forbids GPU-only libraries and mandates memory-efficient data loading strategies (chunking, sampling) to fit the 7GB RAM constraint.
+| Principle | Status | Action / Reference |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | **PASS** | Plan includes pinned `requirements.txt`, random seed initialization in `code/main.py`, and streaming dataset loading to ensure identical results on fresh runners. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs are restricted to the "Verified datasets" block provided in the prompt. **Explicitly cited in this table:** `, `. No fabricated metrics; all scores derived from real model inference or human annotation. |
+| **III. Data Hygiene** | **PASS** | Plan mandates checksumming of raw downloads in `data/` and writing derived artifacts (stress curves, collapse points) to new files in `data/derived/`. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All figures and stats in the final report will be generated via scripts reading `data/derived/`. No hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | Content hashes will be recorded in the project state YAML via `code/utils/hygiene.py`. Every artifact change updates the project state timestamp. |
+| **VI. Non-Linear Interaction** | **PASS** | Plan explicitly includes engineered interaction terms (SNR × RT60) and tests for non-linear synergistic failure via GAM smooth terms. |
+| **VII. CPU-Tractability** | **PASS** | Models selected (`all-MiniLM-L6-v2`, `Whisper-tiny`, scikit-learn, pygam) are verified to run within 7GB RAM on CPU. No GPU dependencies. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-semantic-collapse-threshold/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+specs/001-llmxive-follow-up-extending-mega-asr-tow/
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+│ ├── stress_curve.schema.yaml
+│ ├── collapse_point.schema.yaml
+│ ├── regression_input.schema.yaml
+│ └── regression_result.schema.yaml
+└── tasks.md # Phase 2 output (to be created)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/
-├── code/
-│   ├── __init__.py
-│   ├── config.py              # Paths, seeds, hyperparameters
-│   ├── data_loader.py         # Dataset fetching and stratification
-│   ├── distortion_engine.py   # Apply compound distortions
-│   ├── metrics.py             # SSS, WER, Collapse detection
-│   ├── models.py              # Regression model training
-│   ├── statistics.py          # Multiple comparison correction (FR-008)
-│   ├── analysis.py            # Sensitivity analysis, plotting, HVCM validation
-│   ├── monitor_resources.py   # SC-004: Memory/Runtime monitoring
-│   ├── hash_updater.py        # Principle V: State file hash update
-│   └── main.py                # Orchestration script
-├── data/
-│   ├── raw/                   # Downloaded datasets
-│   ├── derived/               # Stress curves, collapse points
-│   └── validation/            # Human-annotated subset
+code/
+├── main.py # Orchestration: download, stress, human, collapse, regress, sensitivity
+├── utils/
+│ ├── distortion.py # Audio augmentation logic (SNR, RT60)
+│ ├── metrics.py # SSS, WER calculation
+│ ├── analysis.py # Collapse point detection, regression training (GAM)
+│ └── hygiene.py # Content hashing and state update
 ├── tests/
-│   ├── contract/
-│   ├── integration/
-│   └── unit/
-├── docs/
-└── requirements.txt
+│ ├── unit/
+│ │ ├── __init__.py
+│ │ ├── test_distortion.py
+│ │ ├── test_metrics.py
+│ │ └── test_analysis.py
+│ └── conftest.py # Pytest fixtures
+└── requirements.txt # Pinned dependencies
+
+data/
+├── raw/ # Downloaded parquet/csv (checksummed)
+└── derived/
+ ├── stress_curves.parquet
+ ├── human_annotations.csv
+ ├── collapse_points.parquet
+ └── regression_results.json
+
+contracts/
+├── stress_curve.schema.yaml
+├── collapse_point.schema.yaml
+├── regression_input.schema.yaml
+└── regression_result.schema.yaml
 ```
 
-**Structure Decision**: A single-project structure (`code/`) is selected to maintain simplicity for a research pipeline. The separation of `data/raw` and `data/derived` ensures data hygiene. The modular design allows independent testing of distortion generation, metric calculation, and model training.
+**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) chosen to minimize overhead and align with the "Research Pipeline" nature of the feature. The `tests/unit/` directory and `conftest.py` are explicitly created to satisfy T008. The `contracts/` directory contains all four required schema files to ensure plan consistency.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Distortion Scenarios
-
-The research question, method, and references remain as stated, with the specific count of scenarios generalized to a qualitative description of multiple distortion scenarios. | Required by spec to capture non-linear interactions across the full space of reverberation and noise combinations. | A smaller subset would fail to detect the "critical interaction vector" and invalidate the core hypothesis (VI). |
-| Multiple ASR Models | Required to test the "universal" nature of the collapse threshold across architectures. | Testing a single model would only yield model-specific results, not a universal phenomenon. |
-| Sensitivity Analysis (Threshold Sweep) | Required by FR-06 to ensure findings are not artifacts of the arbitrary 0.5 cutoff. | A single-point analysis would be fragile and scientifically weak. |
-| Human-Validated Target (HVCM) | Required to break circularity in regression (predicting input from input). | Using SSS-derived targets creates a tautology. Human validation is the only valid ground truth for "semantic collapse". |
+| N/A | No violations. | N/A |

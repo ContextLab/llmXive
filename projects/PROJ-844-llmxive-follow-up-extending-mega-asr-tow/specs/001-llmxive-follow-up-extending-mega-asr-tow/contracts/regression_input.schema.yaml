@@ -29,7 +29,7 @@ properties:
     description: Target variable for regression (Human-Validated Collapse Margin).
   p_value_adjusted:
     type: number
-    description: Adjusted p-value for the interaction term (Bonferroni/FDR corrected).
+    description: Adjusted p-value for the interaction term (GAM smooth term).
 required:
   - collapse_id
   - model_name

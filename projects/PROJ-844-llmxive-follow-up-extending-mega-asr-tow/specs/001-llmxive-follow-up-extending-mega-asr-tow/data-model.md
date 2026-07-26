@@ -1,107 +1,84 @@
 # Data Model: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used to store raw audio metadata, distortion parameters, stress curve results, and derived collapse points. The data model is designed for efficient storage (Parquet) and easy querying for regression analysis.
+This document defines the data entities, their attributes, and the relationships between them for the semantic collapse threshold study. All data is stored in `data/` (raw) and `data/derived/` (processed).
 
-## 2. Entity Definitions
+## Entities
 
-### 2.1. AudioClip
+### AudioClip
 Represents a single audio file from the source dataset.
+- `clip_id`: Unique identifier (string).
+- `source_url`: URL of the source dataset (string).
+- `transcript`: Ground truth text (string).
+- `duration_seconds`: Audio length (float).
+- `speaker_id`: Speaker identifier for stratification (string, optional).
+- `baseline_snr`: Measured baseline SNR (float).
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `clip_id` | string | Unique identifier for the audio clip. |
-| `source_dataset` | string | Name of the source dataset (e.g., "librispeech"). |
-| `speaker_id` | string | Identifier for the speaker. |
-| `duration_sec` | float | Duration of the audio in seconds. |
-| `clean_transcript` | string | Ground truth transcript. |
-| `audio_path` | string | Relative path to the raw audio file in `data/raw/`. |
-
-### 2.2. DistortionVector
+### DistortionVector
 Represents a specific combination of acoustic parameters.
+- `vector_id`: Unique identifier (string).
+- `snr_db`: Signal-to-Noise Ratio in decibels (float).
+- `rt60_s`: Reverberation time in seconds (float).
+- `noise_type`: Type of noise added (e.g., "white", "babble", "street") (string).
+- `reverb_type`: Type of reverb (e.g., "synthetic", "impulse") (string).
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `vector_id` | string | Unique ID (e.g., "RT0.5_SNR-10"). |
-| `rt60_sec` | float | Reverberation time in seconds. |
-| `snr_db` | float | Signal-to-Noise Ratio in dB. |
-| `distortion_type` | string | Description (e.g., "Reverb+Noise"). |
-| `cumulative_stress_index` | float | CSI = max(0, -SNR_dB) + RT60_sec. Used for ordering. |
+### StressCurve
+The core observation unit: the result of applying a DistortionVector to an AudioClip.
+- `stress_id`: Unique identifier (string).
+- `clip_id`: Foreign key to AudioClip.
+- `vector_id`: Foreign key to DistortionVector.
+- `asr_model`: Name of the ASR model used (e.g., "whisper-tiny") (string).
+- `hypothesis`: Transcription output by the ASR model (string).
+- `wer`: Word Error Rate (float, 0.0 to >1.0).
+- `sss_raw`: Raw Semantic Similarity Score (float, 0.0 to 1.0).
+- `sss_normalized`: SSS normalized to baseline (float, 0.0 to 1.0).
+- `collapse_flag`: Boolean, true if SSS < 0.5 AND WER > 2× baseline.
+- `disagreement_flag`: Boolean, true if SSS and WER disagree.
 
-### 2.3. StressCurveRecord
-A single row in the stress curve, representing one clip under one distortion scenario.
+### CollapsePoint
+The derived scalar representing the failure threshold.
+- `collapse_id`: Unique identifier (string).
+- `clip_id`: Foreign key to AudioClip.
+- `asr_model`: Name of the ASR model.
+- `collapse_snr`: The SNR value at collapse (float).
+- `collapse_rt60`: The RT60 value at collapse (float).
+- `collapse_intensity`: A scalar proxy for intensity (e.g., weighted sum of SNR and RT60) (float).
+- `validation_status`: "Confirmed", "None", "Max Tested" (string).
+- `human_validated`: Boolean, true if validated by human annotation.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `record_id` | string | Unique ID. |
-| `clip_id` | string | FK to AudioClip. |
-| `vector_id` | string | FK to DistortionVector. |
-| `model_name` | string | Name of the ASR model used (e.g., "whisper-tiny"). |
-| `asr_hypothesis` | string | Transcribed text from the ASR model. |
-| `wer` | float | Word Error Rate. |
-| `sss_raw` | float | Raw Semantic Similarity Score (cosine similarity). |
-| `sss_normalized` | float | SSS normalized to the clean baseline (0-1 scale). |
-| `is_collapsed` | boolean | True if `sss_normalized < 0.5` AND `wer > 2 * baseline_wer`. |
+### HumanAnnotation
+The ground truth for semantic collapse.
+- `annotation_id`: Unique identifier (string).
+- `stress_id`: Foreign key to StressCurve.
+- `human_score`: Score from 0 to 1 (float).
+- `collapsed_label`: Boolean, true if human_score < 0.5.
+- `agreement_metric`: Krippendorff's alpha (float).
 
-### 2.4. CollapseIntensity
-Derived entity representing the failure point for a specific clip/model/scenario.
+### CriticalInteractionVector
+The coefficients from the regression model.
+- `model_name`: Name of the regression model (string).
+- `asr_model`: The ASR model it predicts for.
+- `snr_coef`: Coefficient for SNR (float).
+- `rt60_coef`: Coefficient for RT60 (float).
+- `interaction_smooth`: Description of the smooth interaction term (string).
+- `r_squared`: Model R² score (float).
+- `p_value_interaction`: P-value for the interaction term (float).
+- `p_value_interaction_fdr`: FDR-corrected p-value (float, for reference).
+- `fdr_corrected`: Boolean, true if significant after FDR correction.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `collapse_id` | string | Unique ID. |
-| `clip_id` | string | FK to AudioClip. |
-| `model_name` | string | ASR model name. |
-| `collapse_vector_id` | string | FK to DistortionVector (the intensity where collapse occurred). |
-| `rt60_at_collapse` | float | RT60 value at collapse. |
-| `snr_at_collapse` | float | SNR value at collapse. |
-| `collapse_threshold` | float | The SSS threshold used (e.g., 0.5). |
-| `status` | string | "Found", "Max Tested", or "None". |
-| `human_validated_margin` | float | **New**: The Human-Validated Collapse Margin (HVCM) target for regression. |
+## Data Flow
 
-### 2.5. RegressionInput
-Flattened dataset for model training, including interaction terms.
+1. **Raw**: `data/raw/*.parquet` (Downloaded from verified URLs).
+2. **Derived**: `data/derived/stress_curves.parquet` (Generated by `code/utils/distortion.py` and `code/utils/metrics.py`).
+3. **Derived**: `data/derived/human_annotations.csv` (Generated by human annotation workflow).
+4. **Derived**: `data/derived/collapse_points.parquet` (Generated by `code/utils/analysis.py`, using human annotations for ground truth).
+5. **Derived**: `data/derived/regression_results.json` (Coefficients and metrics).
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `collapse_id` | string | FK to CollapseIntensity. |
-| `model_name` | string | ASR model name. |
-| `snr` | float | SNR value. |
-| `rt60` | float | RT60 value. |
-| `snr_sq` | float | SNR². |
-| `rt60_sq` | float | RT60². |
-| `snr_rt60` | float | Interaction term (SNR × RT60). |
-| `target_hvcm` | float | **New**: Target variable (Human-Validated Collapse Margin). |
-| `p_value_adjusted` | float | **New**: Adjusted p-value for the interaction term (FR-008). |
+## Constraints
 
-### 2.6. OODTestVector
-Represents the out-of-distribution holdout set.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `ood_id` | string | Unique ID. |
-| `clip_id` | string | FK to AudioClip. |
-| `model_name` | string | ASR model name. |
-| `snr` | float | SNR value (randomly sampled outside training grid). |
-| `rt60` | float | RT60 value (randomly sampled outside training grid). |
-| `actual_hvcm` | float | The measured HVCM for this OOD point. |
-
-## 3. File Formats & Storage
-
-*   **Raw Data**: Parquet files in `data/raw/`.
-*   **Derived Data**: Parquet files in `data/derived/`.
-    *   `stress_curves.parquet`: Contains `StressCurveRecord`.
-    *   `collapse_points.parquet`: Contains `CollapseIntensity`.
-    *   `regression_input.parquet`: Contains `RegressionInput`.
-    *   `ood_test.parquet`: Contains `OODTestVector`.
-*   **Validation**: `validation_subset.csv` for human-annotated SSS correlation.
-
-## 4. Data Flow
-
-1.  **Ingestion**: `AudioClip` data loaded from source datasets.
-2.  **Transformation**: `DistortionVector` applied to `AudioClip` → `StressCurveRecord`.
-3.  **Derivation**: `StressCurveRecord` filtered → `CollapseIntensity`.
-4.  **Human Annotation**: `StressCurveRecord` (subset) → `human_validated_margin` (HVCM).
-5.  **Feature Engineering**: `CollapseIntensity` + `DistortionVector` → `RegressionInput`.
-6.  **OOD Generation**: Random sampling → `OODTestVector`.
-7.  **Analysis**: `RegressionInput` used for model training and sensitivity analysis.
+- **Immutability**: Raw data files are never modified. Checksums are recorded.
+- **Completeness**: Every `StressCurve` must have a valid `clip_id` and `vector_id`.
+- **Validation**: `sss_normalized` must be in [0.0, 1.0]. `wer` must be ≥ 0.0.
+- **PII**: No speaker names or personally identifiable information are stored; only anonymous `speaker_id`.
+- **Human Validation**: The `collapse_points.parquet` file is only generated after `human_annotations.csv` is present and validated.

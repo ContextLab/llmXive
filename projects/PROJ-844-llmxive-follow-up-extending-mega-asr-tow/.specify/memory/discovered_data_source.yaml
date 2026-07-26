@@ -1,11 +1,11 @@
 status: none
-intent: real downloadable Voices-in-the-Wild-2M audio dataset python package dataset
+intent: download Voices-in-the-Wild-2M audio dataset pip install python package dataset
 required_fields:
 - audio_filepath
 - speaker_id
-- transcription
-- sample_rate
+- transcript
+- sampling_rate
 - language
-cache_key: 042a1e2df14daf2b5a8ca6d8e3014243504549ebe282079768ceb81581c3fcbc
-searched_at: '2026-07-23T09:04:08.052977+00:00'
+cache_key: 38b19c03ebe074cea473d3a49dbb9278ec6795c6f33eee3e38726b23f6e33c7a
+searched_at: '2026-07-26T00:47:34.236374+00:00'
 retry_count: 1

@@ -1,121 +1,94 @@
 # Quickstart: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   GitHub Actions (for CI execution) or a local environment with ≥7GB RAM.
+- Python 3.11+
+- Git
+- Sufficient RAM (for running the full pipeline)
+- Sufficient Disk Space (for dataset downloads and derived artifacts)
 
-## 2. Installation
+## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `torch` is installed without CUDA support (e.g., `pip install torch --index-url https://download.pytorch.org/whl/cpu`).*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## 3. Data Preparation
+4. **Verify environment**:
+   ```bash
+   python -c "import torch; import transformers; import sklearn; import pygam; print('OK')"
+   ```
 
-The pipeline automatically downloads the verified datasets on first run.
+## Running the Pipeline
 
-1.  **Run the data loader**:
-    ```bash
-    python code/data_loader.py --download
-    ```
-    This will:
-    *   Fetch the LibriSpeech and CORAA subsets.
-    *   Compute checksums.
-    *   Store raw data in `data/raw/`.
+The main orchestration script is `code/main.py`.
 
-2.  **Verify data integrity**:
-    ```bash
-    python code/data_loader.py --verify
-    ```
-
-## 4. Running the Stress Test Pipeline
-
-Execute the full pipeline (distortion generation, ASR inference, collapse detection, regression):
-
+### Step 1: Download and Prepare Data
 ```bash
-python code/main.py --config code/config.yaml
+python code/main.py --action download --dataset caiman --output data/raw/
+```
+*This downloads the verified `CAIMAN-ASR-BackgroundNoise` dataset, filters for SNR > 20dB, and performs a pre-flight check for transcripts.*
+
+### Step 2: Generate Stress Curves
+```bash
+python code/main.py --action stress --clip-limit 500 --models whisper-tiny,whisper-base --output data/derived/stress_curves.parquet
+```
+*This applies a set of distortion vectors to 500 clips and computes SSS/WER.*
+
+### Step 3: Human Annotation (Manual Step)
+*This step requires manual intervention. A subset of stress curves is presented to human annotators.*
+```bash
+# The pipeline will generate a sample file for annotation at data/derived/sample_for_annotation.csv
+# After annotation, the results are saved to data/derived/human_annotations.csv
+# For CI/CD verification, a small 'gold standard' subset (pre-annotated) is used instead of mock data.
 ```
 
-**Configuration Options** (in `code/config.yaml`):
-*   `sample_size`: Number of clips to process (default: 100 for testing).
-*   `models`: List of ASR models to test (e.g., `["whisper-tiny"]`).
-*   `threshold`: SSS collapse threshold (default: 0.5).
-*   `sensitivity_sweep`: Boolean to run the threshold sweep (0.40-0.60).
-
-## 5. Resource Monitoring & CI Enforcement (SC-004)
-
-To ensure the pipeline runs within the 7GB RAM and 6-hour limits:
-
-1.  **Manual Check**:
-    ```bash
-    python code/monitor_resources.py
-    ```
-    This script logs current resource usage.
-
-2.  **CI Enforcement**:
-    The GitHub Actions workflow includes a step:
-    ```yaml
-    - name: Check Resource Constraints
-      run: python code/monitor_resources.py --check-limit --max-rss 7000000000
-    ```
-    If RSS exceeds 7GB, this step **fails the job**.
-
-## 6. Viewing Results
-
-*   **Stress Curves**: `data/derived/stress_curves.parquet`
-*   **Collapse Points**: `data/derived/collapse_points.parquet`
-*   **Regression Results**: `data/derived/regression_results.json`
-*   **Plots**: `data/derived/figures/` (e.g., `collapse_distribution.png`, `interaction_vector.png`)
-
-## 7. Versioning & State Update (Principle V)
-
-After a successful run, update the project state file with content hashes:
-
+### Step 4: Identify Collapse Points
 ```bash
-python code/hash_updater.py
+python code/main.py --action collapse --threshold 0.5 --wer-multiplier 2.0 --human-data data/derived/human_annotations.csv --input data/derived/stress_curves.parquet --output data/derived/collapse_points.parquet
 ```
-This script computes hashes for all `data/derived/` artifacts and updates `state/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow.yaml`.
+*This identifies the specific intensity where semantic collapse occurs, using human annotations as ground truth.*
 
-## 8. Validation & Testing
+### Step 5: Train Regression Model
+```bash
+python code/main.py --action regress --input data/derived/collapse_points.parquet --output data/derived/regression_results.json
+```
+*This trains the GAM model to predict collapse and outputs the "critical interaction vector".*
 
-1.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
+### Step 6: Sensitivity Analysis
+```bash
+python code/main.py --action sensitivity --input data/derived/collapse_points.parquet --output data/derived/sensitivity_report.json
+```
+*This sweeps the threshold across a moderate range (0.40-0.60) and reports the variance in the interaction vector.*
 
-2.  **Run Contract Tests** (validates data schemas):
-    ```bash
-    pytest tests/contract/
-    ```
+### Step 7: Run Tests
+```bash
+pytest tests/unit/ -v
+```
 
-3.  **Validate SSS Metric** (FR-011):
-    ```bash
-    python code/analysis.py --validate-sss
-    ```
+## Expected Outputs
 
-4.  **Test Multiple Comparison Correction** (FR-008):
-    ```bash
-    pytest tests/contract/test_multiple_comparison.py
-    ```
+- `data/derived/stress_curves.parquet`: A substantial volume of stress test data.
+- `data/derived/human_annotations.csv`: A subset of human annotations (A small proportion of stress curves).
+- `data/derived/collapse_points.parquet`: A substantial set of collapse thresholds.
+- `data/derived/regression_results.json`: Coefficients and R² scores.
+- `data/derived/sensitivity_report.json`: Variance report for sensitivity analysis.
 
-## 9. Troubleshooting
+## Troubleshooting
 
-*   **Memory Error**: Reduce `sample_size` in `config.yaml` or process in smaller chunks.
-*   **Runtime Error**: Ensure `torch` is the CPU version. Check `pip list | grep torch`.
-*   **Dataset Missing**: Verify internet connection and that the verified URLs in `research.md` are accessible.
+- **OOM Error**: Reduce `--clip-limit` in the stress step.
+- **CUDA Error**: The pipeline is CPU-first. If a model tries to load CUDA, ensure `device="cpu"` is set in `code/utils/metrics.py`.
+- **Dataset Not Found**: Verify the URL in `code/utils/data_loader.py` matches the verified list in `research.md`.
+- **Human Data Missing**: The `collapse` action will fail if `human_annotations.csv` is not present. Ensure the manual annotation step is completed.
