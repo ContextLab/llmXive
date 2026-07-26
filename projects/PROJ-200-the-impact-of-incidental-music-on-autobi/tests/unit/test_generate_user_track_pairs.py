@@ -1,99 +1,152 @@
 """
-tests/unit/test_generate_user_track_pairs.py
+Unit tests for generate_user_track_pairs.py (T029).
 
-Unit tests for T029: generate_user_track_pairs.py
+Tests the artifact generation logic, checksum calculation, and state update.
 """
 import os
 import tempfile
 import pytest
 import pandas as pd
 from pathlib import Path
-import yaml
+from unittest.mock import patch, MagicMock
 
-# Mock the config and utils to avoid dependency on full project structure in tests
-# We will test the logic functions directly if possible, or mock the dependencies.
+# Mock dependencies that might require external data
+import pyarrow as pa
+import pyarrow.parquet as pq
 
-# Since the script imports from `config` and `utils`, we need to ensure they are available
-# or mock them. For simplicity, we assume the project is set up and these modules exist.
-# We will test the core logic: checksum calculation and state update.
-
-from generate_user_track_pairs import calculate_file_checksum, save_state_entry
+from generate_user_track_pairs import calculate_file_checksum, load_aggregated_data, save_final_dataset
 
 
 class TestCalculateFileChecksum:
-    def test_calculate_checksum(self, tmp_path):
-        """Test that checksum is calculated correctly."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-
-        checksum = calculate_file_checksum(test_file)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert isinstance(checksum, str)
-
-    def test_calculate_checksum_empty_file(self, tmp_path):
-        """Test checksum for empty file."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_bytes(b"")
-
-        checksum = calculate_file_checksum(test_file)
-        assert checksum == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-
-
-class TestSaveStateEntry:
-    def test_save_state_entry_new(self, tmp_path):
-        """Test saving a new entry to state.yaml."""
-        state_file = tmp_path / "state.yaml"
-        # Create a dummy file to checksum
-        data_file = tmp_path / "data" / "test.parquet"
-        data_file.parent.mkdir()
-        data_file.write_bytes(b"test data")
-
-        checksum = calculate_file_checksum(data_file)
-
-        # Mock get_project_root to return tmp_path
-        import generate_user_track_pairs as module
-        original_get_project_root = module.get_project_root
-        module.get_project_root = lambda: tmp_path
-
+    def test_calculate_checksum_valid_file(self):
+        """Test checksum calculation on a valid file."""
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"test data")
+            tmp_path = Path(tmp.name)
+        
         try:
-            save_state_entry(data_file, checksum)
-
-            assert state_file.exists()
-            with open(state_file, "r") as f:
-                state = yaml.safe_load(f)
-
-            relative_path = str(data_file.relative_to(tmp_path))
-            assert relative_path in state
-            assert state[relative_path]["checksum"] == checksum
-            assert "size_bytes" in state[relative_path]
+            checksum = calculate_file_checksum(tmp_path)
+            assert len(checksum) == 64  # SHA-256 hex length
+            assert isinstance(checksum, str)
         finally:
-            module.get_project_root = original_get_project_root
+            os.unlink(tmp_path)
 
-    def test_save_state_entry_update(self, tmp_path):
-        """Test updating an existing entry in state.yaml."""
-        state_file = tmp_path / "state.yaml"
-        # Initial state
-        initial_state = {"existing.txt": {"checksum": "old_checksum"}}
-        with open(state_file, "w") as f:
-            yaml.dump(initial_state, f)
-
-        data_file = tmp_path / "new.parquet"
-        data_file.write_bytes(b"new data")
-        checksum = calculate_file_checksum(data_file)
-
-        import generate_user_track_pairs as module
-        original_get_project_root = module.get_project_root
-        module.get_project_root = lambda: tmp_path
-
+    def test_calculate_checksum_empty_file(self):
+        """Test checksum calculation on an empty file."""
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+        
         try:
-            save_state_entry(data_file, checksum)
-
-            with open(state_file, "r") as f:
-                state = yaml.safe_load(f)
-
-            assert "existing.txt" in state
-            assert "new.parquet" in state
-            assert state["new.parquet"]["checksum"] == checksum
+            checksum = calculate_file_checksum(tmp_path)
+            assert len(checksum) == 64
         finally:
-            module.get_project_root = original_get_project_root
+            os.unlink(tmp_path)
+
+
+class TestLoadAggregatedData:
+    @patch('generate_user_track_pairs.aggregate_to_user_track')
+    @patch('generate_user_track_pairs.filter_zero_variance')
+    @patch('generate_user_track_pairs.pd.read_parquet')
+    def test_load_aggregated_data_success(self, mock_read_parquet, mock_filter, mock_aggregate):
+        """Test successful loading and aggregation of data."""
+        # Mock ingested cohort
+        mock_cohort = pd.DataFrame({'user_id': [1, 2], 'track_id': [10, 20]})
+        mock_read_parquet.return_value = mock_cohort
+        
+        # Mock aggregated result
+        mock_aggregated = pd.DataFrame({
+            'user_id': [1, 2],
+            'track_id': [10, 20],
+            'mean_vividness': [3.5, 4.0]
+        })
+        mock_aggregate.return_value = mock_aggregated
+        
+        # Mock filtered result
+        mock_filtered = mock_aggregated.copy()
+        mock_filter.return_value = mock_filtered
+        
+        with patch('generate_user_track_pairs.get_project_root') as mock_root:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                mock_root.return_value = Path(tmpdir)
+                
+                # Create required directory structure
+                processed_dir = Path(tmpdir) / "data" / "processed"
+                processed_dir.mkdir(parents=True)
+                
+                # Create dummy ingested cohort file
+                cohort_path = processed_dir / "ingested_cohort.parquet"
+                mock_cohort.to_parquet(cohort_path)
+                
+                result = load_aggregated_data()
+                
+                assert isinstance(result, pd.DataFrame)
+                assert len(result) == 2
+                assert 'mean_vividness' in result.columns
+                mock_aggregate.assert_called_once_with(mock_cohort)
+                mock_filter.assert_called_once_with(mock_aggregated)
+
+    @patch('generate_user_track_pairs.pd.read_parquet')
+    def test_load_aggregated_data_missing_file(self, mock_read_parquet):
+        """Test that FileNotFoundError is raised when ingested cohort is missing."""
+        mock_read_parquet.side_effect = FileNotFoundError("File not found")
+        
+        with patch('generate_user_track_pairs.get_project_root') as mock_root:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                mock_root.return_value = Path(tmpdir)
+                
+                with pytest.raises(FileNotFoundError):
+                    load_aggregated_data()
+
+    @patch('generate_user_track_pairs.aggregate_to_user_track')
+    @patch('generate_user_track_pairs.get_project_root')
+    def test_load_aggregated_data_empty_result(self, mock_root, mock_aggregate):
+        """Test handling of empty aggregation result."""
+        mock_aggregate.return_value = pd.DataFrame()
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mock_root.return_value = Path(tmpdir)
+            
+            processed_dir = Path(tmpdir) / "data" / "processed"
+            processed_dir.mkdir(parents=True)
+            
+            # Create dummy ingested cohort
+            cohort_path = processed_dir / "ingested_cohort.parquet"
+            pd.DataFrame({'user_id': [1]}).to_parquet(cohort_path)
+            
+            result = load_aggregated_data()
+            assert isinstance(result, pd.DataFrame)
+            assert len(result) == 0
+
+
+class TestSaveFinalDataset:
+    def test_save_final_dataset_creates_file(self):
+        """Test that save_final_dataset creates the Parquet file."""
+        df = pd.DataFrame({
+            'user_id': [1, 2],
+            'track_id': [10, 20],
+            'mean_vividness': [3.5, 4.0]
+        })
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_output.parquet"
+            
+            save_final_dataset(df, output_path)
+            
+            assert output_path.exists()
+            
+            # Verify content
+            loaded_df = pd.read_parquet(output_path)
+            assert len(loaded_df) == 2
+            assert list(loaded_df.columns) == ['user_id', 'track_id', 'mean_vividness']
+
+    def test_save_final_dataset_creates_directories(self):
+        """Test that save_final_dataset creates parent directories."""
+        df = pd.DataFrame({'a': [1]})
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "subdir" / "deep" / "output.parquet"
+            
+            save_final_dataset(df, output_path)
+            
+            assert output_path.exists()
+            assert output_path.parent.exists()

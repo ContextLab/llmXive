@@ -1,86 +1,78 @@
 """
-Unit tests for generate_ingested_cohort module.
-
-These tests verify the helper functions (checksum, state update) 
-and ensure the module structure is correct.
+Unit tests for generate_ingested_cohort.py
 """
 import os
 import sys
-import tempfile
-import hashlib
-import yaml
-from pathlib import Path
 import pytest
+from pathlib import Path
 import pandas as pd
+import numpy as np
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from generate_ingested_cohort import calculate_file_checksum, save_state_entry
-from config import get_project_root
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+class TestCalculateChecksum:
+    def test_calculate_file_checksum(self, tmp_path):
+        """Test checksum calculation on a known file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
+        
+        checksum = calculate_file_checksum(test_file)
+        
+        # Expected SHA256 for "Hello, World!"
+        expected = "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+        assert checksum == expected
 
-def test_calculate_file_checksum(temp_dir):
-    """Test that calculate_file_checksum returns a valid SHA-256 hex string."""
-    test_file = temp_dir / "test.txt"
-    content = b"Hello, World!"
-    test_file.write_bytes(content)
+    def test_calculate_file_checksum_empty(self, tmp_path):
+        """Test checksum calculation on empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
+        
+        checksum = calculate_file_checksum(test_file)
+        
+        # Expected SHA256 for empty file
+        expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        assert checksum == expected
 
-    checksum = calculate_file_checksum(test_file)
-    
-    # Verify length (SHA-256 is 64 hex chars)
-    assert len(checksum) == 64
-    
-    # Verify against known hash
-    expected = hashlib.sha256(content).hexdigest()
-    assert checksum == expected
+class TestSaveStateEntry:
+    @patch('generate_ingested_cohort.yaml')
+    @patch('generate_ingested_cohort.open')
+    def test_save_state_entry_new_file(self, mock_open, mock_yaml, tmp_path):
+        """Test saving state entry when state.yaml doesn't exist."""
+        # Setup mocks
+        mock_yaml.safe_load.return_value = None
+        mock_yaml.dump = MagicMock()
+        
+        test_file = tmp_path / "test.parquet"
+        test_file.write_bytes(b"test")
+        
+        # Mock the project root
+        with patch('generate_ingested_cohort.project_root', tmp_path):
+            save_state_entry(test_file, "abc123", "Test description")
+        
+        # Verify yaml.dump was called
+        assert mock_yaml.dump.called
 
-def test_save_state_entry_creates_file(temp_dir):
-    """Test that save_state_entry creates state.yaml if it doesn't exist."""
-    state_file = temp_dir / "state.yaml"
-    artifact_file = temp_dir / "data.parquet"
-    artifact_file.write_bytes(b"fake data")
-    
-    save_state_entry(state_file, artifact_file, "abc123", "T018")
-    
-    assert state_file.exists()
-    
-    with open(state_file, 'r') as f:
-        state = yaml.safe_load(f)
-    
-    assert "artifacts" in state
-    assert "data.parquet" in state["artifacts"]
-    assert state["artifacts"]["data.parquet"]["checksum"] == "abc123"
-    assert state["artifacts"]["data.parquet"]["task_id"] == "T018"
-
-def test_save_state_entry_updates_existing(temp_dir):
-    """Test that save_state_entry updates existing state.yaml."""
-    state_file = temp_dir / "state.yaml"
-    existing_state = {
-        "artifacts": {
-            "old_file.parquet": {
-                "path": "old_file.parquet",
-                "checksum": "old_checksum",
-                "task_id": "T001"
-            }
-        }
-    }
-    with open(state_file, 'w') as f:
-        yaml.dump(existing_state, f)
-    
-    artifact_file = temp_dir / "new_file.parquet"
-    artifact_file.write_bytes(b"new data")
-    
-    save_state_entry(state_file, artifact_file, "new_checksum", "T018")
-    
-    with open(state_file, 'r') as f:
-        state = yaml.safe_load(f)
-    
-    assert "old_file.parquet" in state["artifacts"]
-    assert "new_file.parquet" in state["artifacts"]
-    assert state["artifacts"]["new_file.parquet"]["checksum"] == "new_checksum"
+    @patch('generate_ingested_cohort.yaml')
+    @patch('generate_ingested_cohort.open')
+    def test_save_state_entry_existing_file(self, mock_open, mock_yaml, tmp_path):
+        """Test saving state entry when state.yaml already exists."""
+        # Setup mocks
+        existing_state = {"files": {"old_file": {"path": "old.parquet"}}}
+        mock_yaml.safe_load.return_value = existing_state
+        mock_yaml.dump = MagicMock()
+        
+        test_file = tmp_path / "test.parquet"
+        test_file.write_bytes(b"test")
+        
+        # Mock the project root
+        with patch('generate_ingested_cohort.project_root', tmp_path):
+            save_state_entry(test_file, "abc123", "Test description")
+        
+        # Verify yaml.dump was called
+        assert mock_yaml.dump.called

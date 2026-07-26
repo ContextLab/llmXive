@@ -10,3 +10,4 @@ requests>=2.31.0
 pyarrow>=12.0.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
+patsy  # auto-added: imported by run-book but missing from venv

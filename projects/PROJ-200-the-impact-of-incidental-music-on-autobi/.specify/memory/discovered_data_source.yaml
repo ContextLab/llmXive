@@ -1,10 +1,11 @@
 status: none
-intent: real dataset user listening history timestamps birth year python package dataset
+intent: Last.fm listening logs with age and Million Song Dataset metadata python package
+  dataset
 required_fields:
 - user_id
-- birth_year
 - track_id
 - listen_timestamp
-cache_key: e4c48139271c04737917cc25090be0f94cbeaa0273d483da122ee10cae1663f3
-searched_at: '2026-07-23T13:17:10.047446+00:00'
+- user_birth_year
+cache_key: 1c5d705ff5c7f2eb64257407e6eeb5e8ebf7ecb9947693eec4aeb26b00072f16
+searched_at: '2026-07-26T06:27:15.503181+00:00'
 retry_count: 1

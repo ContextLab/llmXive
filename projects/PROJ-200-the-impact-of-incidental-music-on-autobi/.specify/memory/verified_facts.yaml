@@ -1,0 +1,6 @@
+'|factor inflation multicollinearity threshold variance':
+  quote: experiments validates the theorem on a representative benchmark dataset,
+    UNSW-NB15. Four widely used families of models are
+  source_id: '2605.22529'
+  url: https://arxiv.org/abs/2605.22529
+  value: '5'

@@ -1,16 +1,3 @@
-T012a:
-  c: false
-  h: 7e3a924c47d993108a978ff2bb2536ebb35a943be8f5a760872f487bf4d2bd16
-  r: "The provided `code/data_ingestion.py` does not contain an `audit_amt_source`\
-    \ function, nor does it perform any check of a `source_type` field or write to\
-    \ `data/audit_log.txt`. Additionally, the required `data/audit_log.txt` file is\
-    \ absent. These missing artifacts mean the task\u2019s requirement is not satisfied."
-T029:
-  c: false
-  h: a48afb0ffb0c82bc6730b15602162da6502cd2cc8bda24d0cefbffce4ce55282
-  r: The required `data/processed/user_track_pairs.parquet` file does not exist, and
-    `state.yaml` has not been updated with a checksum or entry for this file. Both
-    artifacts are missing, so the task is not satisfied.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,3 +14,11 @@ T046:
     \ confirming the pipeline completed end\u2011to\u2011end within the required 6\u2011\
     hour window is present. The required artifact (validation results showing runtime)\
     \ is missing."
+T050:
+  c: false
+  h: 4616d322d9fdb5d7084eaad46f62807cfdf16b9ddee52bf94a8750710180da94
+  r: "All required artifacts (`data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`,\
+    \ `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`,\
+    \ `data/final/bootstrap_results.csv`, and `state.yaml`) are absent, so no existence\
+    \ or checksum verification could be performed. The task\u2019s core requirement\
+    \ is therefore unmet."

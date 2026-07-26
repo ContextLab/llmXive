@@ -9,3 +9,15 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-07-23T13:31:29.065024Z'
+- artifact_hash: 789dbd644987860b3691f55d152dff242e37b270c3ac4c3bff57f9bcd1b2591e
+  artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2605.22529] Stabilising Explainability Fragility in Cybersecurity
+    AI: The Impact and Mitigation of Multicollinearity in Public Benchmark Datasets'
+  kind: url
+  value: https://arxiv.org/abs/2605.22529
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2605.22529
+  verified_at: '2026-07-26T06:57:54.413293Z'
