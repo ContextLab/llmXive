@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the self-improvement lane's durable persistence substrate — a **genuine git-ref compare-and-swap event log** (extracted as a shared primitive from the 026 credit ledger), the singleton `LaneCoordinator` with real ownership-checked claim/release transitions, the `AttemptCreditLedger` (the slice-0 `ReservationAuthority`), and the event-sourced `RouteAudit` sink whose dispatch claim is a cross-process CAS — so later slices persist and enforce on a correct foundation.
+**Goal:** Build the self-improvement lane's durable persistence substrate — a **genuine git-ref compare-and-swap event log** (extracted as a shared primitive from the 026 credit ledger), the singleton `LaneCoordinator` with real ownership-checked claim/release transitions, the `AttemptCreditLedger` (the slice-0 `ReservationAuthority`), the `LaneCallLedger` (the durable per-Attempt LLM-call ceiling), and the event-sourced `RouteAudit` sink whose dispatch claim is a cross-process CAS — so later slices persist and enforce on a correct foundation.
 
 **Architecture:** Almost all of `model_selection/ledger_transport.py` is domain-agnostic git-CAS plumbing (a zero-internal-import leaf). Task 1 extracts that into `src/llmxive/git_event_log.py` — a ref-parameterized append-only CAS core — and rewires the credit ledger as a thin wrapper (its behavior stays byte-for-byte, gated by its own tests). The lane then builds every projection (`LaneCoordinator`, `AttemptCreditLedger`, audit stream) on that same core, on a dedicated lane ref, with an **authoritative per-stream sequence** the core assigns inside the CAS (so ordering never depends on wall-clock timestamps). The credit-ledger's proven CAS gives the lane real cross-process serialization, durable-on-commit semantics, and idempotent retries for free.
 
@@ -22,6 +22,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **ReservationAuthority collision semantics (slice-0 `attempt_hooks.ReservationAuthority.reserve`).** Repeated `reservation_id` + same `(credits, call_id)` → idempotent success, no double-count; same id + different identity → integrity raise; concurrent duplicates → exactly one durable reservation; an ordinary budget denial returns `False` (never raises).
 - **RouteAudit is durable-on-commit and the claim is a real CAS (slice-0 `attempt_hooks.RouteAudit`; F8).** `record`/`claim_dispatch` return only AFTER the ref-CAS commit lands — a local file that never reached the ref is NOT durable evidence. `claim_dispatch(DispatchStarted) -> bool`: `True` = this call committed the event (own the dispatch); `False` = a byte-identical event already committed (replay, MUST NOT re-dispatch); a conflicting payload under the same `event_id` → raise. Exactly one claimant wins across processes (the ref-CAS).
 - **DispatchUnknown reconciliation is conservative + atomic (FR-033a; F4, F5, F7).** A dispatch is "dangling" only if ALL hold: the event is in THIS attempt's stream; there is no `DispatchCompleted`; there is no terminal `CandidateOutcome` (`advance`/`abort`/`skip`) for it; there is no existing `DispatchUnknown`; and it is older than a **conservative timeout** bounded by the real call envelope (`deadline_s × (retries + 1)` + margin) — this is honestly a timeout, NOT durable proof the owner is dead (F5); durable owner-liveness would need an owner/lease field on the slice-0 `DispatchStarted` (a protected-surface change, deferred). Reconciling appends ONE `DispatchUnknown` event that **atomically** drives BOTH the audit resolution AND the matching reservation's `open → retained` (via `project_reservations`) — no two-write crash window (F4). Slice 1A records this durable unknown+retained state; the Attempt-fail-closed lifecycle transition is Slice 1B (the contract is not "fails the Attempt closed yet").
+- **The LLM-call ceiling is per *Attempt*, so admission is DURABLE and cross-process (Policy Contract line 313; round-4 review F1).** Spec 025 line 313 scopes the ceiling to the Attempt — "Per Attempt: `proposer + implementer·(1 + impl_regen_retries) + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]`" — NOT to one panel process. An in-memory counter would reset on every restart, retry-on-another-runner, or duplicate worker, letting one Attempt spend the ceiling repeatedly. Every logical `route_chat` invocation therefore CAS-appends a `LaneCallClaimed` event whose predicate counts prior claims for that Attempt and denies at the ceiling (Task 13). The claim key is deterministic, so the same logical operation replays to the SAME claim and the SAME `route_id` instead of minting a fresh one — which is also what makes slice-0's dispatch idempotency reachable across a retry (`route.py:291-293`: "a caller MAY inject a durable id instead — a retried logical invocation replays the identical event ids rather than minting new ones").
 - **Route through the chokepoint; no model-id literals in lane code (SC-008, FR-001).** `model_selection/enforcement.py` verifies this. (Slice 1A adds no model ids.)
 - **Real tests, no mocks (Constitution III).** Protocol test doubles with real logic, temp-git-repo fixtures, and **multi-clone concurrency tests** (two clones of one bare remote competing on the ref) are required where the guarantee is cross-process. `unittest.mock` is not the primary path.
 - **Commit discipline.** `PRE_COMMIT_ALLOW_NO_CONFIG=1` + trailer `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`; verify HEAD moved. **Do NOT push.**
@@ -33,11 +34,12 @@ This plan is **Slice 1A: the durable substrate only.** The proposal-review conve
 ## File Structure
 
 - `src/llmxive/git_event_log.py` — the extracted ref-agnostic git-CAS core: `LogRef`, `AppendResult`, `append_to_log`, `read_log`, `sync_and_verify`, `bootstrap_log`, `GitLogError`/`GitLogAuthError`/`GitLogContention`, and the moved git-plumbing helpers.
-- `src/llmxive/model_selection/ledger_transport.py` — **rewired** to thin wrappers over the core (behavior unchanged); keeps the credit schema (`_validate_event`, the constants), `LedgerConfig`, `ledger_config_from_env`, `bootstrap_ledger`, `LedgerError`/… (subclassing the core's).
-- `src/llmxive/self_improvement/events.py` — lane `Event` record (FR-011) + `validate_lane_event` + `derive_event_id` + JSON (de)serialization.
+- `src/llmxive/model_selection/ledger_transport.py` — **rewired** to thin wrappers over the core (behavior unchanged); keeps the credit schema (`_validate_event`, the constants), `LedgerConfig`, `ledger_config_from_env`, `bootstrap_ledger`, and `LedgerError`/`LedgerAuthError`/`LedgerContention`/`LedgerDenied` as **ALIASES** of the core's classes (F8 — NOT subclasses; see Task 1's interface block for why aliasing is what keeps every existing `except Ledger*` site catching the core-raised instance).
+- `src/llmxive/self_improvement/events.py` — lane `Event` record (FR-011) + `validate_lane_event` (envelope + a per-type payload-validator table) + `derive_event_id` + JSON (de)serialization.
 - `src/llmxive/self_improvement/lane_log.py` — the lane's store on the dedicated ref: `LANE_REF`, `LaneLogConfig(remote, expected_anchor)`, `bootstrap_lane_log`, `append`/`read` (config-threaded, seq-ordered), `LaneRevisionConflict`; thin wrappers over the shared `git_event_log` core.
 - `src/llmxive/self_improvement/coordinator.py` — `LaneCoordinator` projection + `project_coordinator` + `cas_claim`/`cas_release` (ownership-checked).
 - `src/llmxive/self_improvement/credit_ledger.py` — `AttemptCreditLedger` (`ReservationAuthority`) + projection + `reconcile`.
+- `src/llmxive/self_improvement/call_ledger.py` — the **durable per-Attempt LLM-call admission ledger** (Task 13): `LaneCallLedger`, `LaneCallCeilingExceeded`, `project_call_claims`, `derive_route_id`. Enforces Policy Contract line 313's ceiling across processes and mints retry-stable `route_id`s.
 - `src/llmxive/self_improvement/audit_sink.py` — `EventStoreRouteAudit` (`RouteAudit`) + `reconcile_unknown`.
 - `src/llmxive/self_improvement/__init__.py` — public exports.
 
@@ -63,7 +65,7 @@ This plan is **Slice 1A: the durable substrate only.** The proposal-review conve
 
     When `now_field=None`, `finalize=None`, and `identity_exclude=frozenset()`, none of steps 1-4 change anything and the guard compares the full body — **byte-for-byte as the credit ledger today** (the credit wrapper instead passes `now_field="ts"`, which reproduces exactly the old `built.setdefault("ts", ...)`). The core NEVER hard-codes a `"ts"`/`"timestamp"` field name (F2).
   - `read_log(repo, *, log: LogRef, validate: Callable[[dict], None]) -> list[dict]` — the current `read_events` loop, `event_dir`/`validate` parameterized.
-  - `sync_and_verify(repo, *, log: LogRef) -> None`, `bootstrap_log(repo, *, log: LogRef, message: str, remote: str | None = None) -> str` — ref-parameterized `_sync_and_verify`/`bootstrap_ledger`.
+  - `sync_and_verify(repo, *, log: LogRef) -> None`, `bootstrap_log(repo, *, log: LogRef, message: str, remote: str | None = None, _after_probe: Callable[[], None] | None = None) -> str` — ref-parameterized `_sync_and_verify`/`bootstrap_ledger`. `_after_probe` is a **TEST-ONLY seam (round-4 review F10)**, the bootstrap counterpart of `_after_parent`: `bootstrap_ledger`'s race window is between its remote/local existence probe and the `update-ref` + FF-push that follow (`ledger_transport.py:381-407`), so the core calls `_after_probe()` AFTER the probe decides "not yet bootstrapped" and BEFORE `commit-tree`/`update-ref`/`_push_fast_forward`. Two workers can block on a shared barrier there, guaranteeing both probed an empty ref, and then genuinely race the push — so the "exactly one genesis, the loser adopts it" branch (`ledger_transport.py:402-407`) is actually executed instead of assumed. Defaults `None` (no-op); never used in production.
   - `class GitLogError(RuntimeError)`, `class GitLogAuthError(GitLogError)`, `class GitLogContention(GitLogError)`, `class GitLogDenied(GitLogError)` (raised when a `predicate` returns `(False, reason)` — the generalization of the credit ledger's `LedgerDenied`); moved helpers `_git`, `_rev`, `_canonical`, `_read_event_blob`, `_append_commit`, `_fetch_authoritative`, `_remote_ledger_oid`, `_is_ancestor`, `_push_fast_forward`, `sync_and_verify`, and the marker/id constants (`_AUTH_FAIL_MARKERS`, `_NON_FF_MARKERS`, `_PUSH_DENY_MARKERS`, `_ZERO_OID`, `_SAFE_ID`, `_DEFAULT_GIT_IDENTITY`) — each gaining a `ref`/`event_dir`/`message_fn` parameter in place of the module global it closed over. See the extraction blueprint (`.superpowers`/scratch `extraction-design.md`) for the exact verbatim bodies and the generic/credit-specific split.
 - `ledger_transport.py` keeps `LEDGER_REF`, `SCHEMA_REVISION`, `_EVENT_DIR`, `_validate_event` + its four schema constants, `LedgerConfig`, `ledger_config_from_env`, `bootstrap_ledger`, `fetch_ledger`. **`LedgerError`/`LedgerAuthError`/`LedgerContention` are ALIASES of the core's `GitLogError`/`GitLogAuthError`/`GitLogContention` (`LedgerError = GitLogError`, `LedgerAuthError = GitLogAuthError`, `LedgerContention = GitLogContention`) — NOT subclasses (F8).** The core raises the base classes, so every existing `except LedgerError/LedgerAuthError/LedgerContention` site must still catch them; only aliasing guarantees this (a subclass would fail to catch a base-class instance raised by the core, silently changing money-path failure handling). `LedgerDenied = GitLogDenied` is also an ALIAS (F8): the core raises `GitLogDenied` when a `predicate` returns `(False, reason)`, and existing `except LedgerDenied` sites must catch it. `append_event`/`read_events` become thin wrappers passing `LEDGER_REF`/`_EVENT_DIR`/`_validate_event`/`_message_fn`, `now_field="ts"`, `finalize=None`, `identity_exclude=frozenset()`, and returning `AppendResult.commit`.
 
@@ -185,10 +187,11 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "refactor(025 slice-1A T1): extract r
 **Interfaces:**
 - Produces:
   - `COORDINATOR_STREAM = "coordinator"`, `SCHEMA_VERSION = 1`, `SEQ_FIELD = "seq"`.
-  - `KNOWN_EVENT_TYPES_V1: frozenset[str]` — the **Slice-1A (schema v1)** event-type vocabulary (coordinator: `ClaimAcquired`, `ClaimReleased`, `MonitorStarted`, `PromotionEnabledSet`; credit: `AttemptCreditReserved`/`Released`/`Retained`/`Reconciled`; audit: `ChainResolved`, `SelectionFailure`, `ReservationOpened`, `DispatchStarted`, `DispatchCompleted`, `DispatchUnknown`, `CandidateOutcome`; lifecycle: `ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). It is NOT the full spec-025 set (F9); a type outside it is rejected on read, so any later slice adding a type MUST bump `SCHEMA_VERSION` and extend this set + the projection handlers together.
+  - `KNOWN_EVENT_TYPES_V1: frozenset[str]` — the **Slice-1A (schema v1)** event-type vocabulary (coordinator: `ClaimAcquired`, `ClaimReleased`, `MonitorStarted`, `PromotionEnabledSet`; credit: `AttemptCreditReserved`/`Released`/`Retained`/`Reconciled`; **call admission: `LaneCallClaimed`** (Task 13); audit: `ChainResolved`, `SelectionFailure`, `ReservationOpened`, `DispatchStarted`, `DispatchCompleted`, `DispatchUnknown`, `CandidateOutcome`; lifecycle: `ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). It is NOT the full spec-025 set (F9); a type outside it is rejected on read. Adding a type is a **vocabulary** extension (the record SHAPE is unchanged) and MUST NOT bump `SCHEMA_VERSION` — a bump would make a reader reject prior-version history (F7); extend this set and the projection handlers together.
   - `@dataclass(frozen=True) class Event` (FR-011): `event_id`, `event_type`, `stream` (a `problem_id` or `COORDINATOR_STREAM`), `actor`, `payload: Mapping`, `timestamp`, `schema_version=SCHEMA_VERSION`, `attempt_id: str | None = None`, and the four CAS anchors `expected_lane_revision`/`resulting_lane_revision`/`expected_problem_revision`/`resulting_problem_revision: int | None = None` plus `seq: int | None = None`. The store stamps all of them inside the CAS from the authoritative parent so that `seq == expected_*_revision` and `resulting_*_revision == seq + 1` (event seq=N transforms revision N → N+1); exactly one scope (lane XOR problem) is populated, matching the stream. `None` before append.
   - `derive_event_id(stream, idempotency_key) -> str` — `sha256(f"{stream}\x00{idempotency_key}")`.
-  - `validate_lane_event(raw: dict) -> None` — fail-closed one-event schema (F9): required fields present; `event_type ∈ KNOWN_EVENT_TYPES_V1`; `schema_version == SCHEMA_VERSION`; the stream's revision scope (lane for coordinator, problem otherwise) has BOTH `expected_` and `resulting_` set, the OTHER scope has neither, and `expected == seq` and `resulting == seq + 1`; `event_id` is a safe path segment; `timestamp` parses ISO-8601. Raises `ValueError`. (Cross-event LEGAL TRANSITIONS are enforced by the projections — Tasks 4/6 — not here.)
+  - `validate_lane_event(raw: dict) -> None` — fail-closed one-event schema (F9): required fields present; `event_type ∈ KNOWN_EVENT_TYPES_V1`; `schema_version == SCHEMA_VERSION`; the stream's revision scope (lane for coordinator, problem otherwise) has BOTH `expected_` and `resulting_` set, the OTHER scope has neither, and `expected == seq` and `resulting == seq + 1`; `event_id` is a safe path segment; `timestamp` parses ISO-8601. **Then, if the `event_type` has an entry in `PAYLOAD_VALIDATORS`, that validator checks the `payload` itself.** Raises `ValueError`. (Cross-event LEGAL TRANSITIONS are enforced by the projections — Tasks 4/6 — not here.)
+  - `PAYLOAD_VALIDATORS: dict[str, Callable[[Mapping], None]]` — the per-type payload schema table (round-4 review F6). The envelope check alone accepts ANY payload, so a safety-relevant event with missing/wrong-typed keys validates, lands durably, and only explodes later as a `KeyError` inside a projection — or, worse, projects false provenance. A type **not** in this table is envelope-only by design (the audit mirror events are re-serializations of slice-0 dataclasses that were already type-checked at construction); a type that carries a **safety claim a projection will act on** MUST have an entry. Slice 1A registers `LaneCallClaimed` (Task 13); Slice 1B registers `ReviewRerouted`. Each validator raises `ValueError` naming the offending key.
   - `event_to_json(event) -> str` (canonical, sorted keys, compact), `event_from_json(text) -> Event`.
 
 - [ ] **Step 1: Write the failing test**
@@ -247,6 +250,39 @@ def test_validate_rejects_off_by_one_resulting_revision():
 def test_validate_rejects_bad_schema_version():
     with pytest.raises(ValueError, match="schema_version"):
         validate_lane_event(_raw(schema_version=999))
+
+# ---- F6: per-type payload validation ----
+
+def _claim_payload(**kw):
+    base = {"attempt_id": "A1", "operation_id": "op-1", "leg": "primary",
+            "route_id": "r" * 32, "call_ceiling": 56}
+    base.update(kw)
+    return base
+
+def test_lane_call_claimed_payload_validates():
+    validate_lane_event(_raw(event_type="LaneCallClaimed", payload=_claim_payload()))
+
+@pytest.mark.parametrize("bad", [
+    {"route_id": None},        # wrong type
+    {"route_id": ""},          # empty
+    {"call_ceiling": 0},       # non-positive
+    {"call_ceiling": "56"},    # wrong type
+])
+def test_lane_call_claimed_payload_rejects_malformed(bad):
+    # F6: the ENVELOPE alone would accept every one of these; the projection would then
+    # KeyError (or route on a bogus id) long after the event became durable.
+    payload = _claim_payload(**bad)
+    for k, v in bad.items():
+        if v is None:
+            payload.pop(k)     # also cover the MISSING-key case
+    with pytest.raises(ValueError, match="LaneCallClaimed payload invalid"):
+        validate_lane_event(_raw(event_type="LaneCallClaimed", payload=payload))
+
+def test_types_without_a_validator_are_envelope_only():
+    # By design: the audit-mirror types re-serialize already-typed slice-0 dataclasses.
+    from llmxive.self_improvement.events import PAYLOAD_VALIDATORS
+    assert "ChainResolved" not in PAYLOAD_VALIDATORS
+    validate_lane_event(_raw(event_type="ChainResolved", payload={"anything": 1}))
 ```
 
 - [ ] **Step 2: Run test to verify it fails** — `pytest tests/unit/test_self_improvement_events.py -q` → FAIL (`ModuleNotFoundError`).
@@ -270,7 +306,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -290,14 +326,48 @@ _SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 # Slice-1A subset — NOT the full spec-025 transition set. A fail-closed reader rejects
 # any type outside it, so EVERY later slice that introduces a new event type (e.g.
 # Slice 1B's reroute/degradation event, or the implementation/promotion lifecycle) MUST
-# bump SCHEMA_VERSION and extend BOTH this set AND the projection handlers together.
+# extend BOTH this set AND the projection handlers together. Adding a type does NOT bump
+# SCHEMA_VERSION — the record SHAPE is unchanged, and a bump would make a reader reject
+# prior-version history (F7).
 KNOWN_EVENT_TYPES_V1 = frozenset({
     "ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet",
     "AttemptCreditReserved", "AttemptCreditReleased", "AttemptCreditRetained", "AttemptCreditReconciled",
+    "LaneCallClaimed",  # Task 13: durable per-Attempt LLM-call admission
     "ChainResolved", "SelectionFailure", "ReservationOpened", "DispatchStarted",
     "DispatchCompleted", "DispatchUnknown", "CandidateOutcome",
     "ProblemDiscovered", "Proposed", "ProposalVerified", "Rejected",
 })
+
+def _require(payload: Mapping[str, Any], key: str, types: type | tuple[type, ...]) -> Any:
+    """Fetch ``key`` from a payload, raising ValueError (never KeyError/TypeError) if it is
+    absent or the wrong type — so a malformed payload is rejected AT THE WRITE BOUNDARY
+    rather than exploding inside a projection later."""
+    if key not in payload:
+        raise ValueError(f"payload missing required key {key!r}")
+    value = payload[key]
+    if not isinstance(value, types) or (types is str and not value):
+        raise ValueError(f"payload key {key!r} must be a non-empty {types}, got {value!r}")
+    return value
+
+def _validate_lane_call_claimed(payload: Mapping[str, Any]) -> None:
+    """Task 13's admission record. The ceiling projection COUNTS these and the router
+    ROUTES on the recorded ``route_id``, so every field it reads must be present + typed."""
+    for key in ("attempt_id", "operation_id", "leg", "route_id"):
+        _require(payload, key, str)
+    ceiling = _require(payload, "call_ceiling", int)
+    if isinstance(ceiling, bool) or ceiling <= 0:
+        raise ValueError(f"payload key 'call_ceiling' must be a positive int, got {ceiling!r}")
+
+#: Per-type payload schemas (round-4 review F6). The envelope check accepts ANY payload, so
+#: an event carrying a SAFETY CLAIM a projection acts on needs its own validator here — a
+#: missing/mistyped key would otherwise land durably and surface as a KeyError inside the
+#: projection, or (worse) project false provenance. A type ABSENT from this table is
+#: envelope-only BY DESIGN: the audit-mirror types (ChainResolved, DispatchStarted, …) are
+#: re-serializations of slice-0 dataclasses already type-checked at construction.
+PAYLOAD_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
+    "LaneCallClaimed": _validate_lane_call_claimed,
+    # Slice 1B registers "ReviewRerouted" here.
+}
 
 @dataclass(frozen=True)
 class Event:
@@ -362,6 +432,15 @@ def validate_lane_event(raw: dict) -> None:
         datetime.fromisoformat(str(raw["timestamp"]))
     except ValueError as exc:
         raise ValueError(f"lane event timestamp {raw['timestamp']!r} is not ISO-8601") from exc
+    payload = raw["payload"]
+    if not isinstance(payload, Mapping):
+        raise ValueError(f"lane event payload must be a mapping, got {type(payload).__name__}")
+    validator = PAYLOAD_VALIDATORS.get(raw["event_type"])  # F6: per-type payload schema
+    if validator is not None:
+        try:
+            validator(payload)
+        except ValueError as exc:
+            raise ValueError(f"{raw['event_type']} payload invalid: {exc}") from exc
 
 def event_to_json(event: Event) -> str:
     return json.dumps(_as_dict(event), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -376,7 +455,7 @@ def event_from_json(text: str) -> Event:
                  resulting_problem_revision=d.get("resulting_problem_revision"), seq=d.get("seq"))
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (6 passed).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/unit/test_self_improvement_events.py -q` → PASS (15 passed: 9 envelope + 1 valid-payload + 4 parametrized malformed-payload cases + the envelope-only case).
 
 - [ ] **Step 5: Commit**
 
@@ -396,8 +475,9 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T2): lane Event re
 **Interfaces:**
 - Consumes: `LogRef`, `AppendResult`, `append_to_log`, `read_log`, `GitLogContention` (Task 1); `Event`, `validate_lane_event`, `event_to_json`, `event_from_json`, `SEQ_FIELD`, `COORDINATOR_STREAM` (Task 2).
 - Produces:
-  - `LANE_REF = "refs/llmxive/self-improvement"`; `@dataclass LaneLogConfig(remote, expected_anchor)` (parallel to `LedgerConfig`, F4); `bootstrap_lane_log(repo, *, config) -> str` (F3 — one-time genesis, fail-closed-until-bootstrapped, idempotent, concurrent-safe, anchor-pinning); internal `_log_ref(problem_id, config) -> LogRef` with `event_dir = f"self-improvement/events/{problem_id}"` (per-Problem subtree → per-stream `seq`; all streams share the ONE ref so lane mutations serialize globally, giving the coordinator its singleton and each Problem its own revision line).
+  - `LANE_REF = "refs/llmxive/self-improvement"`; `@dataclass LaneLogConfig(remote, expected_anchor)` (parallel to `LedgerConfig`, F4); `bootstrap_lane_log(repo, *, config, _after_probe=None) -> str` (F3 — one-time genesis, fail-closed-until-bootstrapped, idempotent, concurrent-safe, anchor-pinning; `_after_probe` is Task 1's test-only race seam, F10); internal `_log_ref(problem_id, config) -> LogRef` with `event_dir = f"self-improvement/events/{problem_id}"` (per-Problem subtree → per-stream `seq`; all streams share the ONE ref so lane mutations serialize globally, giving the coordinator its singleton and each Problem its own revision line).
   - `class LaneRevisionConflict(RuntimeError)` — the caller's `expected_revision`/precondition lost; recompute (FR-008).
+  - `class LaneContention(RuntimeError)` — a caller's bounded CAS retry loop never converged. Defined here (not per-ledger) so `AttemptCreditLedger` (Task 7), `LaneCallLedger` (Task 13), and the coordinator all raise the SAME type.
   - `read(repo, problem_id, *, config=LaneLogConfig()) -> list[Event]` — `read_log` mapped to `Event`s, **ordered by `seq`** (never timestamps). A gap/dup/fork in the sequence raises `GitLogError` (corruption is fail-closed, distinct from a `LaneRevisionConflict`).
   - `append(repo, event: Event, *, expected_revision: int | None, precondition: Callable[[list[Event]], tuple[bool, str]] | None = None, config=LaneLogConfig(), _after_parent=None) -> AppendResult` — wraps `append_to_log` with the lane `LogRef`, `validate=validate_lane_event`, `finalize=_finalize` (stamps `seq` + `expected/resulting_*_revision`), `identity_exclude=_IDENTITY_EXCLUDE`, and a `predicate` that (per CAS attempt, against the freshly-read, seq-sorted stream) FIRST validates sequence continuity (F7 — a corrupt stream fails closed before any revision/precondition check), then, if `expected_revision is not None`, `len(events) == expected_revision`, then `precondition(events)`. A predicate `False` surfaces as `GitLogDenied` → `LaneRevisionConflict`; `expected_revision=None` is an unconditional append (for audit events). The event carries the single FR-011 `timestamp` (no `ts`). Returns the `AppendResult` with the authoritative `seq`.
 
@@ -413,7 +493,7 @@ import pytest
 from llmxive.git_event_log import GitLogError
 from llmxive.self_improvement.events import Event
 from llmxive.self_improvement.lane_log import (
-    LaneLogConfig, LaneRevisionConflict, append, bootstrap_lane_log, read,
+    LANE_REF, LaneLogConfig, LaneRevisionConflict, append, bootstrap_lane_log, read,
 )
 
 def _git(repo, *a):
@@ -456,12 +536,47 @@ def test_bootstrap_is_idempotent(tmp_path, bare_remote):
     a2 = bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))  # repeat → same anchor, no 2nd genesis
     assert a1 == a2
 
-def test_two_concurrent_bootstrappers_converge(tmp_path, bare_remote):
+def test_second_clone_adopts_the_existing_genesis(tmp_path, bare_remote):
+    # SEQUENTIAL: the later bootstrapper observes an already-bootstrapped remote and
+    # adopts it. This is the adoption path, NOT the concurrent race (see below).
     c1 = _clone(bare_remote, tmp_path / "c1")
     c2 = _clone(bare_remote, tmp_path / "c2")
     a1 = bootstrap_lane_log(c1, config=LaneLogConfig(remote="origin"))
-    a2 = bootstrap_lane_log(c2, config=LaneLogConfig(remote="origin"))  # loser observes the winner's ref
+    a2 = bootstrap_lane_log(c2, config=LaneLogConfig(remote="origin"))
     assert a1 == a2  # exactly ONE genesis ref survives
+
+def test_two_concurrent_bootstrappers_race_the_push_and_converge(tmp_path, bare_remote):
+    # F10: the REAL race. Both clones must get PAST the "is it bootstrapped?" probe
+    # before either pushes — otherwise this only re-tests adoption. The `_after_probe`
+    # seam (Task 1) releases both threads at exactly that point, so the loser genuinely
+    # executes the non-fast-forward branch (`ledger_transport.py:402-407`).
+    c1 = _clone(bare_remote, tmp_path / "c1")
+    c2 = _clone(bare_remote, tmp_path / "c2")
+    barrier = threading.Barrier(2, timeout=30)
+    out: dict[str, str] = {}
+    errors: list[BaseException] = []
+
+    def _boot(name, clone):
+        try:
+            out[name] = bootstrap_lane_log(
+                clone, config=LaneLogConfig(remote="origin"), _after_probe=barrier.wait
+            )
+        except BaseException as exc:       # a raise here is a real failure, not a pass
+            errors.append(exc)
+
+    ts = [threading.Thread(target=_boot, args=(n, c)) for n, c in (("a", c1), ("b", c2))]
+    for t in ts: t.start()
+    for t in ts: t.join(timeout=60)
+
+    assert not errors, f"concurrent bootstrap raised: {errors}"
+    assert out["a"] == out["b"], "the two bootstrappers disagree on the genesis anchor"
+    # and the bare remote holds exactly ONE genesis commit on the lane ref
+    oid = subprocess.run(["git", "rev-parse", LANE_REF], cwd=str(bare_remote),
+                         capture_output=True, text=True, check=True).stdout.strip()
+    assert oid == out["a"]
+    log = subprocess.run(["git", "rev-list", "--count", LANE_REF], cwd=str(bare_remote),
+                         capture_output=True, text=True, check=True).stdout.strip()
+    assert log == "1", f"expected a single genesis commit, got {log}"
 
 def test_wrong_expected_anchor_fails_closed(tmp_path, bare_remote):
     c = _clone(bare_remote, tmp_path / "c")
@@ -575,12 +690,18 @@ class LaneRevisionConflict(RuntimeError):
     """The CAS precondition (expected_revision or a caller precondition) no longer holds
     against the authoritative tip — recompute and retry/yield (FR-008); never force."""
 
+class LaneContention(RuntimeError):
+    """A caller's bounded CAS retry loop never converged. Defined HERE, once, because every
+    lane CAS user raises it (`AttemptCreditLedger`, `LaneCallLedger`, the coordinator) —
+    a per-module copy would give the same condition several unrelated types."""
+
 def _log_ref(problem_id: str, config: LaneLogConfig) -> LogRef:
     # ONE ref; per-Problem (and coordinator) subtree → per-stream seq line.
     return LogRef(ref=LANE_REF, event_dir=f"self-improvement/events/{problem_id}",
                   remote=config.remote, expected_anchor=config.expected_anchor)
 
-def bootstrap_lane_log(repo: Path, *, config: LaneLogConfig) -> str:
+def bootstrap_lane_log(repo: Path, *, config: LaneLogConfig,
+                       _after_probe: Callable[[], None] | None = None) -> str:
     """One-time creation of the authoritative lane ref (F3), mirroring the credit ledger's
     ``bootstrap_ledger``: a genesis anchor commit on ``LANE_REF``. Invoked ONCE by a
     privileged setup workflow — NOT by an ordinary lane call; every remote read/append
@@ -588,9 +709,12 @@ def bootstrap_lane_log(repo: Path, *, config: LaneLogConfig) -> str:
     returns the same anchor, no second genesis); two concurrent bootstrappers converge on
     ONE ref (FF-push CAS); a divergent/wrong existing ref fails closed. Returns the genesis
     anchor OID — PIN it as ``LaneLogConfig.expected_anchor`` thereafter. The ref is
-    protected: only the trusted lane transport advances it, fast-forward only."""
+    protected: only the trusted lane transport advances it, fast-forward only.
+
+    ``_after_probe`` is the TEST-ONLY barrier seam (F10) forwarded to the core so two
+    bootstrappers can be held past the existence probe and genuinely race the push."""
     return bootstrap_log(repo, log=_log_ref(COORDINATOR_STREAM, config), message=_LANE_GENESIS_MSG,
-                         remote=config.remote)
+                         remote=config.remote, _after_probe=_after_probe)
 
 def _message(event: dict) -> str:
     return f"self-improvement: {event.get('event_type', '?')} {event['event_id']}"
@@ -650,7 +774,7 @@ def append(repo: Path, event: Event, *, expected_revision: int | None,
     # a GitLogError from _check_continuity (corruption) propagates unchanged — fail closed.
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_lane_log.py -q` → PASS (3 passed), including the two-clone CAS test.
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_lane_log.py -q` → PASS (8 passed), including BOTH barrier-driven races: the two-clone append CAS and the concurrent bootstrap push (F10).
 
 - [ ] **Step 5: Commit**
 
@@ -1052,7 +1176,7 @@ def counting_total(reservations: dict[str, AttemptReservation]) -> float:
 
 **Interfaces:**
 - Produces: `class AttemptCreditLedger` implementing the slice-0 `ReservationAuthority`. Constructor `(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock`. `reserve(credits, *, reservation_id, call_id) -> bool` — under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
-- Produces: `class LaneContention(RuntimeError)`.
+- Consumes: `LaneContention` from `lane_log.py` (Task 3) — the shared "the CAS never converged" condition, defined ONCE beside `LaneRevisionConflict` because both ledgers (and any later CAS user) raise it. Do NOT redeclare it per module.
 
 - [ ] **Steps:** Tests: (1) within-budget True / over-budget False / at-budget True; (2) idempotent same identity; (3) conflicting identity raises; (4) `ThreadPoolExecutor(2)` sharing one ledger, budget admits one → exactly one `True`; (5) **barrier-driven two-clone race** (F6): two clones of one bare remote both reserving the last credits, each syncing the same parent then released together by a `threading.Barrier` — the ref-CAS + budget-recheck admits at most the remaining budget (the loser recomputes and returns `False`, never both `True`). RED (`ImportError`) → GREEN. Commit `feat(025 slice-1A T7): AttemptCreditLedger.reserve — lock + ref-CAS budget guard + collision`.
 
@@ -1285,9 +1409,296 @@ Commit `feat(025 slice-1A T9): AttemptCreditLedger.reconcile (retained→reconci
 
 ---
 
+### Task 13: `LaneCallLedger` — durable per-Attempt LLM-call admission (round-4 F1)
+
+**Files:**
+- Create: `src/llmxive/self_improvement/call_ledger.py`
+- Test: `tests/integration/test_self_improvement_call_ledger.py`
+
+**Depends on:** Task 2 (`Event`, `derive_event_id`, `LaneCallClaimed` + its payload validator) and Task 3 (`append`/`read`/`LaneRevisionConflict`). Independent of Tasks 4–12.
+
+**Why this is substrate, not panel state.** Policy Contract line 313 scopes the LLM-call ceiling to the **Attempt**: "Per Attempt: `proposer + implementer·(1 + impl_regen_retries) + [proposal: 4N_p + R·(2N_p + 2)] + [patch: 2N_q + R·(N_q + 2)]`". An in-memory counter enforces it only within ONE process: a restart, a retry on another runner, or a duplicate worker each start at zero, so a single Attempt can burn the ceiling over and over — exactly the runaway the backstop exists to prevent. Admission therefore lives in the same append-only CAS log as the credit ledger.
+
+**Second benefit — retry-stable `route_id`s.** Because the claim key is deterministic, a replayed logical operation gets back the SAME `route_id` instead of a fresh `uuid4`. That is what makes slice-0's dispatch idempotency reachable across a retry: `route_chat` documents "a caller MAY inject a durable id instead (spec 025 slice 1 — a retried logical invocation replays the identical event ids rather than minting new ones)" (`route.py:291-293`), and `execute` derives the paid `reservation_id` from `route_id` whenever an audit sink is present — so a stable id means a retried call re-enters the SAME reserved envelope and hits the `claim_dispatch` replay gate instead of double-dispatching.
+
+**Interfaces:**
+- Produces:
+  - `LEGS = ("primary", "fallback")` — the two legs of FR-002's two-attempt reroute. A `leg` outside this set raises `ValueError` (a typo must not silently mint a third route).
+  - `class LaneCallCeilingExceeded(RuntimeError)` — this Attempt's ceiling is spent; the Attempt fails closed (Policy Contract line 313). **Defined here** (Slice 1B imports it from this module — it is a substrate condition, not a panel-local one).
+  - `def derive_route_id(attempt_id: str, operation_id: str, leg: str) -> str` — `sha256(f"{attempt_id}\x00{operation_id}\x00{leg}")[:32]`. Deterministic → retry-stable.
+  - `@dataclass(frozen=True) class CallClaim`: `operation_id: str`, `leg: str`, `route_id: str`, `seq: int`.
+  - `def project_call_claims(events: list[Event], attempt_id: str) -> dict[tuple[str, str], CallClaim]` — the `LaneCallClaimed` events for THIS `attempt_id`, keyed `(operation_id, leg)`, in `seq` order. A duplicate key with a DIFFERENT `route_id` is corruption → `raise ValueError` (fail closed; the CAS makes it unreachable, so reaching it means the log was tampered with).
+  - `class LaneCallLedger`: constructor `(*, repo, problem_id, attempt_id, call_ceiling, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock` (same rationale as `AttemptCreditLedger`: the panel's `ThreadPoolExecutor` shares ONE instance).
+    - `claim(self, *, operation_id: str, leg: str = "primary") -> str` — returns the `route_id` admitted for this logical call. **Idempotent:** an already-claimed `(operation_id, leg)` returns its recorded `route_id` and does NOT consume another call. Raises `LaneCallCeilingExceeded` when the Attempt is at its ceiling, `LaneContention` if the CAS never converges.
+    - `calls_used(self) -> int` — `len(project_call_claims(read(...), attempt_id))`, the DURABLE count (not a local counter).
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+# tests/integration/test_self_improvement_call_ledger.py
+"""F1: the ceiling is per ATTEMPT and therefore durable + cross-process. A second
+process (or a restarted one) must see the calls the first one already spent."""
+import subprocess
+import threading
+from concurrent.futures import ThreadPoolExecutor
+
+import pytest
+
+from llmxive.self_improvement.call_ledger import (
+    LaneCallCeilingExceeded, LaneCallLedger, derive_route_id, project_call_claims,
+)
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
+
+def _git(repo, *a):
+    subprocess.run(["git", *a], cwd=str(repo), check=True, capture_output=True, text=True)
+
+@pytest.fixture
+def bare_remote(tmp_path):
+    r = tmp_path / "remote.git"
+    subprocess.run(["git", "init", "--bare", "-q", str(r)], check=True)
+    return r
+
+def _clone(bare, dst):
+    subprocess.run(["git", "clone", "-q", str(bare), str(dst)], check=True)
+    _git(dst, "config", "user.email", "t@t")
+    _git(dst, "config", "user.name", "t")
+    return dst
+
+_CLOCK = lambda: "2026-07-24T00:00:00+00:00"
+
+def _ledger(repo, ceiling=3, cfg=None):
+    return LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
+                          actor="lane", clock=_CLOCK, config=cfg or LaneLogConfig(remote="origin"))
+
+def test_claim_charges_once_and_replays_the_same_route_id(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    led = _ledger(c)
+    first = led.claim(operation_id="lens-a", leg="primary")
+    again = led.claim(operation_id="lens-a", leg="primary")   # REPLAY, not a second call
+    assert first == again == derive_route_id("A1", "lens-a", "primary")
+    assert led.calls_used() == 1
+
+def test_the_two_reroute_legs_are_distinct_claims(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    led = _ledger(c)
+    p = led.claim(operation_id="lens-a", leg="primary")
+    f = led.claim(operation_id="lens-a", leg="fallback")
+    assert p != f and led.calls_used() == 2   # the ceiling's 4N term counts BOTH legs
+
+def test_ceiling_fails_closed(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    led = _ledger(c, ceiling=2)
+    led.claim(operation_id="a"); led.claim(operation_id="b")
+    with pytest.raises(LaneCallCeilingExceeded):
+        led.claim(operation_id="c")
+
+def test_an_unknown_leg_is_rejected(tmp_path, bare_remote):
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    with pytest.raises(ValueError, match="leg"):
+        _ledger(c).claim(operation_id="a", leg="tertiary")
+
+def test_a_RESTARTED_process_does_not_get_a_fresh_ceiling(tmp_path, bare_remote):
+    # THE F1 regression: the whole point of durability. A brand-new ledger object (a
+    # restart, a retry on another runner, a duplicate worker) must observe the calls
+    # already spent — an in-memory counter would hand it a fresh budget.
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    _ledger(c, ceiling=2).claim(operation_id="a")
+    _ledger(c, ceiling=2).claim(operation_id="b")
+    with pytest.raises(LaneCallCeilingExceeded):
+        _ledger(c, ceiling=2).claim(operation_id="c")
+
+def test_a_SECOND_CLONE_shares_the_same_ceiling(tmp_path, bare_remote):
+    # Cross-PROCESS, not just cross-object: two clones of one remote, one Attempt budget.
+    c1 = _clone(bare_remote, tmp_path / "c1")
+    c2 = _clone(bare_remote, tmp_path / "c2")
+    bootstrap_lane_log(c1, config=LaneLogConfig(remote="origin"))
+    _ledger(c1, ceiling=2).claim(operation_id="a")
+    _ledger(c2, ceiling=2).claim(operation_id="b")   # syncs c1's claim from the ref
+    with pytest.raises(LaneCallCeilingExceeded):
+        _ledger(c2, ceiling=2).claim(operation_id="c")
+
+def test_concurrent_claimers_never_exceed_the_ceiling(tmp_path, bare_remote):
+    # The panel's ThreadPoolExecutor shares ONE ledger; admission must be atomic.
+    c = _clone(bare_remote, tmp_path / "c")
+    bootstrap_lane_log(c, config=LaneLogConfig(remote="origin"))
+    led = _ledger(c, ceiling=4)
+    ok, refused = [], []
+
+    def _take(i):
+        try:
+            ok.append(led.claim(operation_id=f"op-{i}"))
+        except LaneCallCeilingExceeded:
+            refused.append(i)
+
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        list(ex.map(_take, range(10)))
+
+    assert len(ok) == 4 and len(set(ok)) == 4      # exactly the ceiling, all distinct
+    assert len(refused) == 6
+    assert len(project_call_claims(read(c, "P1", config=LaneLogConfig(remote="origin")), "A1")) == 4
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/integration/test_self_improvement_call_ledger.py -q`
+Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improvement.call_ledger'`.
+
+- [ ] **Step 3: Write minimal implementation**
+
+```python
+# src/llmxive/self_improvement/call_ledger.py
+"""Durable per-Attempt admission for logical ``route_chat`` invocations (Policy Contract
+line 313; round-4 review F1).
+
+The ceiling is scoped to the ATTEMPT, so it cannot live in a process's memory: a restart,
+a retry on another runner, or a duplicate worker would each start at zero and let one
+Attempt spend the ceiling repeatedly. Every logical call therefore CAS-appends a
+``LaneCallClaimed`` event to the authoritative lane ref, and the count of those events IS
+the spend. The claim key is deterministic, so a replayed operation returns the SAME
+``route_id`` — which is also what lets slice-0's dispatch-idempotency gate recognize a
+retried call instead of double-dispatching it (``route.py:291-293``)."""
+
+from __future__ import annotations
+
+import hashlib
+import threading
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+
+from llmxive.self_improvement.events import Event, derive_event_id
+from llmxive.self_improvement.lane_log import (
+    LaneContention, LaneLogConfig, LaneRevisionConflict, append, read,
+)
+
+LEGS = ("primary", "fallback")   # FR-002's two-attempt reroute; nothing else is a leg
+_MAX_RETRIES = 8
+
+class LaneCallCeilingExceeded(RuntimeError):
+    """This Attempt has spent its logical-``route_chat`` ceiling (Policy Contract line
+    313). The Attempt fails closed — never a silent extra call."""
+
+def derive_route_id(attempt_id: str, operation_id: str, leg: str) -> str:
+    """The RETRY-STABLE route id for one logical call. Deterministic in the Attempt +
+    operation + leg, so a replay re-derives it rather than minting a fresh uuid."""
+    return hashlib.sha256(f"{attempt_id}\x00{operation_id}\x00{leg}".encode()).hexdigest()[:32]
+
+@dataclass(frozen=True)
+class CallClaim:
+    operation_id: str
+    leg: str
+    route_id: str
+    seq: int
+
+def project_call_claims(events: list[Event], attempt_id: str) -> dict[tuple[str, str], CallClaim]:
+    """The Attempt's admitted calls, keyed ``(operation_id, leg)``, in authoritative seq
+    order. A duplicate key with a DIFFERENT route_id is corruption (the CAS makes it
+    unreachable) → fail closed rather than silently pick one."""
+    claims: dict[tuple[str, str], CallClaim] = {}
+    for e in events:
+        if e.event_type != "LaneCallClaimed" or e.payload.get("attempt_id") != attempt_id:
+            continue
+        p = e.payload
+        key = (p["operation_id"], p["leg"])
+        existing = claims.get(key)
+        if existing is not None:
+            if existing.route_id != p["route_id"]:
+                raise ValueError(
+                    f"corrupt call ledger: {key} claimed twice with different route ids "
+                    f"({existing.route_id!r} then {p['route_id']!r})"
+                )
+            continue
+        claims[key] = CallClaim(p["operation_id"], p["leg"], p["route_id"], int(e.seq))
+    return claims
+
+class LaneCallLedger:
+    def __init__(self, *, repo: Path, problem_id: str, attempt_id: str, call_ceiling: int,
+                 actor: str, clock: Callable[[], str],
+                 config: LaneLogConfig = LaneLogConfig()) -> None:
+        if call_ceiling <= 0:
+            raise ValueError(f"call_ceiling must be positive, got {call_ceiling!r}")
+        self._repo, self._problem_id, self._attempt_id = repo, problem_id, attempt_id
+        self._ceiling, self._actor, self._clock, self._config = call_ceiling, actor, clock, config
+        self._lock = threading.Lock()   # the panel shares ONE instance across its threads
+
+    def calls_used(self) -> int:
+        """The DURABLE spend — read from the log, never a local counter."""
+        return len(project_call_claims(read(self._repo, self._problem_id, config=self._config),
+                                       self._attempt_id))
+
+    def claim(self, *, operation_id: str, leg: str = "primary") -> str:
+        if leg not in LEGS:
+            raise ValueError(f"unknown leg {leg!r} — must be one of {LEGS}")
+        key = (operation_id, leg)
+        route_id = derive_route_id(self._attempt_id, operation_id, leg)
+        with self._lock:
+            for _ in range(_MAX_RETRIES):
+                events = read(self._repo, self._problem_id, config=self._config)
+                claims = project_call_claims(events, self._attempt_id)
+                landed = claims.get(key)
+                if landed is not None:
+                    return landed.route_id        # REPLAY — same id, not charged again
+                if len(claims) >= self._ceiling:
+                    raise LaneCallCeilingExceeded(
+                        f"attempt {self._attempt_id!r} has spent its {self._ceiling} logical "
+                        f"route_chat invocations (Policy Contract line 313) — failing closed"
+                    )
+                event = self._claim_event(operation_id, leg, route_id)
+
+                def _admits(evs: list[Event], _k=key) -> tuple[bool, str]:
+                    fresh = project_call_claims(evs, self._attempt_id)
+                    if _k in fresh:
+                        return (True, "")         # already landed → idempotent
+                    return (len(fresh) < self._ceiling,
+                            f"precondition: attempt at its {self._ceiling}-call ceiling")
+
+                try:
+                    append(self._repo, event, expected_revision=len(events),
+                           precondition=_admits, config=self._config)
+                    return route_id
+                except LaneRevisionConflict:
+                    # Lost the CAS (a stale revision OR a competitor that just consumed the
+                    # last call). Re-read: the loop's pre-check then either finds our claim
+                    # already landed, admits us, or raises LaneCallCeilingExceeded — so a
+                    # ceiling loss surfaces as the CEILING error, never as contention.
+                    continue
+            raise LaneContention(f"call-claim CAS did not converge for {key}")
+
+    def _claim_event(self, operation_id: str, leg: str, route_id: str) -> Event:
+        return Event(
+            event_id=derive_event_id(self._problem_id,
+                                     f"call\x00{self._attempt_id}\x00{operation_id}\x00{leg}"),
+            event_type="LaneCallClaimed", problem_id=self._problem_id, actor=self._actor,
+            payload={"attempt_id": self._attempt_id, "operation_id": operation_id,
+                     "leg": leg, "route_id": route_id, "call_ceiling": self._ceiling},
+            timestamp=self._clock(), attempt_id=self._attempt_id,
+        )
+```
+
+**Note on cost.** A 5-lens/3-round proposal run claims up to 56 calls, so this adds up to 56 ref-CAS appends per Attempt — the same order as the credit ledger's reservation traffic, and the price of a ceiling that actually binds. If the concurrent test shows the `_MAX_RETRIES = 8` cap being hit under the panel's 8-way fan-out, raise the cap — do NOT weaken the precondition.
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `pytest tests/integration/test_self_improvement_call_ledger.py -q`
+Expected: PASS (7 passed).
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/llmxive/self_improvement/call_ledger.py tests/integration/test_self_improvement_call_ledger.py
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T13): durable per-Attempt call ledger — CAS admission + retry-stable route ids"
+```
+
+---
+
 ## Final verification (before the whole-branch review)
 
-- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): `Event`, `derive_event_id`, `validate_lane_event`, `LANE_REF`, `append`, `read`, `LaneRevisionConflict`, `LaneCoordinator`, `project_coordinator`, `cas_claim`, `cas_release`, `AttemptCreditLedger`, `EventStoreRouteAudit`, `reconcile_unknown`. Test they import.
+- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): `Event`, `derive_event_id`, `validate_lane_event`, `LANE_REF`, `append`, `read`, `LaneRevisionConflict`, `LaneContention`, `LaneCoordinator`, `project_coordinator`, `cas_claim`, `cas_release`, `AttemptCreditLedger`, `LaneCallLedger`, `LaneCallCeilingExceeded`, `derive_route_id`, `project_call_claims`, `EventStoreRouteAudit`, `reconcile_unknown`. Test they import.
 - [ ] **Money-path gate re-run, no edits** (the Task-1 acceptance bar, re-confirmed after all substrate work): the seven files in Global Constraints pass with the Step-1 baseline counts.
 - [ ] `ruff check` clean on every touched file.
 - [ ] Full non-slow suite green: `pytest tests/unit tests/contract tests/integration -m "not slow" -q` → 0 failed (network-restricted-sandbox artifacts itemized).
@@ -1310,7 +1721,7 @@ Commit `feat(025 slice-1A T9): AttemptCreditLedger.reconcile (retained→reconci
 | 6 | multi-clone test was sequential | T3/T7/T11 add **barrier-driven** concurrent races (sync same parent → barrier → concurrent ref-advance) |
 | 7 | seq corruption not checked in-append | T3 `append` predicate validates seq continuity FIRST, inside every CAS attempt (fail closed) |
 | 8 | exception compat under-specified | T1 makes `LedgerError`/`LedgerAuthError`/`LedgerContention`/`LedgerDenied` ALIASES of the core `GitLog*` (not subclasses) + `except`-still-catches tests |
-| 9 | `KNOWN_EVENT_TYPES` not "full" | renamed `KNOWN_EVENT_TYPES_V1`; note requires later slices to bump `SCHEMA_VERSION` + extend the set AND projections together |
+| 9 | `KNOWN_EVENT_TYPES` not "full" | renamed `KNOWN_EVENT_TYPES_V1`; a later slice extends the set AND the projection handlers together. (Round 3 F7 then corrected the bump rule: a VOCABULARY extension must NOT bump `SCHEMA_VERSION` — only a record-SHAPE change does.) |
 | 10 | cleanup | EOF fixed; no duplicate task headings (verified); the empty "unknown type" test removed; Tasks 6/8/9 fully inlined (no reference to deleted history) |
 
 **Round 3 (blockers + storage/spec alignment):**
@@ -1326,3 +1737,12 @@ Commit `feat(025 slice-1A T9): AttemptCreditLedger.reconcile (retained→reconci
 | 7 | schema-version bump would break mixed history | `SUPPORTED_SCHEMA_VERSIONS` (reader never rejects prior-version events); a vocabulary extension needs no bump — only a record-SHAPE change adds a version + its validator |
 | 8 | Task 10 still described placeholder revisions | audit events are built with ALL revision fields `None`; the store's `_finalize` stamps the real anchors inside the CAS |
 | 9 | stale global-constraint summaries | idempotency excludes `seq`/`timestamp`/anchors (not "seq and ts"); the resulting revision is `seq + 1` (not `seq`) |
+
+**Round 4 (cross-slice: the findings the 1B review assigned back to the substrate):**
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | the LLM-call ceiling was in-memory, so NOT per-Attempt | **new T13** `LaneCallLedger`: a `LaneCallClaimed` CAS admission per logical call, counted from the durable log — plus retry-stable `route_id`s (`derive_route_id`), which is also what lets slice-0's dispatch-idempotency gate recognize a retried call. Regression tests: restarted-object, second-clone, and concurrent-claimer |
+| 6 | `ReviewRerouted` payload validation was only nominal | T2 gains `PAYLOAD_VALIDATORS` — a per-type payload schema table run by `validate_lane_event`, with `LaneCallClaimed` registered here and `ReviewRerouted` registered by Slice 1B T1; unlisted types are envelope-only BY DESIGN (documented + tested) |
+| 10 | the bootstrap concurrency test was sequential | T1 adds the `_after_probe` seam (the bootstrap counterpart of `_after_parent`); T3's test now holds two clones past the existence probe and races the push, then asserts a single genesis commit on the bare remote. The old sequential case is kept, honestly renamed `test_second_clone_adopts_the_existing_genesis` |
+| — | leftovers found while applying the above | File Structure said `Ledger*` "subclassing the core's", contradicting round-3 F8's ALIAS decision — corrected; row 9 above said a vocabulary extension bumps `SCHEMA_VERSION`, contradicting round-3 F7 — corrected; `LaneContention` was about to be declared in two modules — now defined once in `lane_log.py` |

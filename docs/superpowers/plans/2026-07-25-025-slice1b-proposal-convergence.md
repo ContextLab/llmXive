@@ -4,7 +4,7 @@
 
 **Goal:** Wire the proposal review onto the Slice-1A substrate — a **lane route context** that carries the mandatory `route_audit` sink AND the `reservation_authority` into every lane LLM call (reviewers *and* the reviser), the FR-002 **two-attempt independence reroute** with an **explicit** `ReviewRerouted` event, the complete `InvocationIdentity`, the `self_improvement_proposal` `ReviewSpec` + lens prompts, and a real `run_convergence` integration test.
 
-**Architecture:** Convergence reviewers already reach `route_chat` (via `chat_with_model_fallback` → `_walker_route`), but that wrapper drops the five spec-025 params. Task 3 closes that gap once, in `_walker_route` + `chat_with_model_fallback`. Everything lane-specific is then new code: `LaneRouteContext` (hooks + route-id minting + the stage LLM-call ceiling), a reroute-aware `LLMReviewer` path, a lane reviser, and a lane entry point that owns fail-closed handling. `run_convergence` itself is **unchanged** — the lane builds independence-aware reviewers *before* handing them to the existing engine.
+**Architecture:** Convergence reviewers already reach `route_chat` (via `chat_with_model_fallback` → `_walker_route`), but that wrapper drops the five spec-025 params. Task 3 closes that gap once, in `_walker_route` + `chat_with_model_fallback`. Everything lane-specific is then new code: `LaneRouteContext` (the three mandatory hooks + durable route admission), a reroute-aware `LLMReviewer` path, a lane reviser, and a lane entry point that owns fail-closed handling. `run_convergence` itself is **unchanged** — the lane builds independence-aware reviewers *before* handing them to the existing engine.
 
 **Tech Stack:** Python ≥ 3.11; `pytest`; packages `llmxive.self_improvement`, `llmxive.convergence`, `llmxive.backends.router`. No new third-party deps.
 
@@ -15,8 +15,11 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **Mandatory audit — no silently-unaudited lane call (FR-033a, F3).** `build_proposal_review_spec` REQUIRES a `LaneRouteContext`; there is no `route_audit=None` default anywhere on the lane path. The context reaches **both** the reviewers and the reviser. A `route_audit` exception is never swallowed: a pre-dispatch failure is route-fatal.
 - **Attempt budget on every lane call (FR-033, F2).** `reservation_authority` is threaded through the SAME path as `route_audit` — reviewers and reviser alike. It is consulted by `execute` only for paid candidates (free candidates reserve 0, so the mechanism is inert under the default free-first path), but it MUST be injected on every lane call so a paid candidate can never dispatch outside the Attempt cap.
 - **Two-attempt reroute, no new profile (FR-002, ReviewSpec table lines 279-280).** Attempt 1: the delivered **`independent_review`** profile (`required_independence={family}`, `require_fresh_snapshot=True`, `max_catalog_age_s=900`) + `independence_against(<proposer baseline>)`. On **`ModelUnavailable`** → attempt 2: the delivered **`deep_review`** profile (no family constraint, `max_catalog_age_s=3600`) — **degrade, never fail closed** (a proposal produces/merges no code). Only a raw `ModelUnavailable` triggers the reroute: `ChainExhausted`, `RouteAuditError`, and `RouteReplayError` MUST NOT.
-- **The degradation record is an EXPLICIT event, never an inference (F10).** A `ReviewRerouted` lane event names `{operation_id, lens, primary_profile, fallback_profile, primary_route_id, fallback_route_id, primary_failure {exception_type, message}, relaxed_constraints}`. `relaxed_constraints = ["family_independence", "snapshot_freshness"]` is FACTUAL (what the fallback always relaxes), NOT a causal claim — `ModelUnavailable` carries only a textual reason and four documented causes, so the code cannot infer WHICH constraint failed.
-- **Stage-specific LLM-call ceiling (Policy Contract line 313).** The proposal review is NOT single-route: every reviewer operation is up to two logical `route_chat` invocations, so the proposal ceiling is **`4N + R·(2N + 2)`** (N = panel size, R = `max_rounds`); with N=5, R=3 that is **56**. The `2N` term is R1 (each reviewer: normal call + at most one action-item resubmit), doubled by the reroute; the `+2` is the reviser's at-most-two attempts per round (the engine's malformed-reply retry) and is NOT doubled (the producer has no independence constraint, hence no reroute). **A logical `route_chat` invocation is the unit** — 026's provider-level transient retries are internal and do NOT count. Exceeding the ceiling fails the Attempt.
+- **The degradation record is an EXPLICIT, SCHEMA-CHECKED event, never an inference (F10, F6).** A `ReviewRerouted` lane event names `{operation_id, lens, primary_profile, fallback_profile, primary_route_id, fallback_route_id, primary_failure {exception_type, message}, relaxed_constraints}`, and its payload is validated at the write boundary against the one sanctioned reroute. `relaxed_constraints = ["family_independence", "snapshot_freshness"]` is FACTUAL (what the fallback always relaxes), NOT a causal claim — `ModelUnavailable` carries only a textual reason and four documented causes, so the code cannot infer WHICH constraint failed.
+- **If a mandatory provenance record cannot be made durable, the route fails (FR-033a, F4).** This covers the `ReviewRerouted` record as much as the audit sink's own events: `record_reroute` normalizes every persistence failure to `RouteAuditError`, and the fallback leg does not dispatch until the record has landed. A review that ran on the fallback with no durable record would be claiming an independence it never had.
+- **Degradation provenance carries all four FR-002 fields (F5).** `primary_failure = {exception_type, message, requirement_digest, snapshot_provenance}` (spec line 149). The last two are **joined** from the primary leg's `SelectionFailure` (which slice-0 already emits, `route.py:236-240`) rather than duplicated into the reroute payload — two copies of the same fact can disagree; a join cannot.
+- **Stage-specific LLM-call ceiling (Policy Contract line 313), enforced DURABLY per Attempt.** The proposal review is NOT single-route: every reviewer operation is up to two logical `route_chat` invocations, so the proposal ceiling is **`4N + R·(2N + 2)`** (N = panel size, R = `max_rounds`); with N=5, R=3 that is **56**. The `2N` term is R1 (each reviewer: normal call + at most one action-item resubmit), doubled by the reroute; the `+2` is the reviser's at-most-two attempts per round (the engine's malformed-reply retry) and is NOT doubled (the producer has no independence constraint, hence no reroute). **A logical `route_chat` invocation is the unit** — 026's provider-level transient retries are internal and do NOT count. Line 313 scopes the ceiling to the **Attempt**, which outlives any panel process, so admission is a CAS append to the lane log (Slice 1A's `LaneCallLedger`), never an in-memory counter (round-4 F1). Exceeding it fails the Attempt.
+- **Every lane route id is retry-stable and comes from the ledger.** `LaneRouteContext.claim_route` is the only place a lane `route_id` is minted, and it derives it deterministically from `(attempt_id, operation_id, leg)`. A replayed logical call therefore re-presents the SAME id, which is what lets slice-0's `claim_dispatch` recognize the replay instead of dispatching twice (`route.py:291-293`). Callers derive `operation_id` from their own content and pass it through `next_operation_id`, which distinguishes a legitimate in-process repeat (the engine's reviser retry) from a restart replay.
 - **The lane reviser makes EXACTLY ONE `route_chat` call per `revise()`.** The existing `convergence/revisers/*` classes route through `invoke_reviser_backend` → `run_with_self_consistency`, which makes up to THREE calls per `revise()` (first pass + self-consistency audit + corrective re-pass, `_self_consistency.py:147-236`). That would break the `+2`-per-round ceiling term above, so the lane reviser MUST NOT use that path.
 - **Convergence types cannot carry the degradation.** `Concern` and `Verdict` are pydantic `_Strict` models (`model_config = ConfigDict(extra="forbid")`, `types.py:128-129`), so no field may be added to them. Provenance lives in lane events (above) — this is why `InvocationIdentity` is sourced from the audit stream, not from `ConvergenceResult`.
 - **`run_convergence` is UNCHANGED.** No new parameter, no new branch. Independence is wired into the `Reviewer` objects at construction, before `spec.reviewers` is handed to the engine (spec line 283: "a **025 slice-1 task entirely in `convergence/`**").
@@ -27,7 +30,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 
 ## Dependencies + scope boundary
 
-**Consumes (Slice 1A, must be implemented first):** `EventStoreRouteAudit(*, repo, problem_id, attempt_id, actor, clock, config=LaneLogConfig())` (implements slice-0 `RouteAudit`), `AttemptCreditLedger(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())` (implements slice-0 `ReservationAuthority`), `LaneLogConfig`, `lane_log.append/read`, `Event`, `derive_event_id`, `KNOWN_EVENT_TYPES_V1`.
+**Consumes (Slice 1A, must be implemented first):** `EventStoreRouteAudit(*, repo, problem_id, attempt_id, actor, clock, config=LaneLogConfig())` (implements slice-0 `RouteAudit`), `AttemptCreditLedger(*, repo, problem_id, attempt_id, attempt_budget_credits, actor, clock, config=LaneLogConfig())` (implements slice-0 `ReservationAuthority`), `LaneCallLedger(*, repo, problem_id, attempt_id, call_ceiling, actor, clock, config=LaneLogConfig())` + `LaneCallCeilingExceeded` + `derive_route_id` (Slice 1A **Task 13**), `LaneLogConfig`, `lane_log.append/read`, `LaneRevisionConflict`, `LaneContention`, `Event`, `derive_event_id`, `KNOWN_EVENT_TYPES_V1`, `PAYLOAD_VALIDATORS`, `_require`.
 
 **Out of scope (later slices):** the **patch** review (`self_improvement_patch` — fail-closed single-attempt independence; it reuses the `LLMReviewer` mechanism built here but is the pre-merge gate, US3+); the Attempt lifecycle transitions (`proposal_verified`/`rejected` state writes — Slice 1A deliberately deferred Attempt-failure semantics); discovery logic (error mining, issue ranking, the proposer that CREATES a proposal). This plan wires the REVIEW of a proposal, not its creation.
 
@@ -35,9 +38,9 @@ Every task's requirements implicitly include this section. Values are copied ver
 
 ## File Structure
 
-- `src/llmxive/self_improvement/route_context.py` — `LaneRouteContext` (the mandatory hooks + route-id minting + ceiling counter) and `LaneCallCeilingExceeded`. One responsibility: what every lane LLM call needs.
-- `src/llmxive/self_improvement/events.py` — **modified**: add `ReviewRerouted` to `KNOWN_EVENT_TYPES_V1` (a vocabulary extension — no `SCHEMA_VERSION` bump, per Slice 1A's F7 rule).
-- `src/llmxive/self_improvement/invocation_identity.py` — `InvocationIdentity`, `IndependenceDegraded`, `build_invocation_identity`. One responsibility: the audit-derived provenance record.
+- `src/llmxive/self_improvement/route_context.py` — `LaneRouteContext` (the three mandatory hooks, `next_operation_id`, `claim_route`, `record_reroute`) + `proposal_call_ceiling`. One responsibility: what every lane LLM call needs. `LaneCallCeilingExceeded` is re-exported from Slice 1A's `call_ledger`, not redefined.
+- `src/llmxive/self_improvement/events.py` — **modified**: add `ReviewRerouted` to `KNOWN_EVENT_TYPES_V1` (a vocabulary extension — no `SCHEMA_VERSION` bump, per Slice 1A's F7 rule) and register its payload validator in `PAYLOAD_VALIDATORS`.
+- `src/llmxive/self_improvement/invocation_identity.py` — `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. One responsibility: the audit-derived provenance record.
 - `src/llmxive/convergence/lane_reviser.py` — `LaneProposalReviser` (implements `Reviser`; exactly one routed call per `revise()`).
 - `src/llmxive/convergence/self_improvement_specs.py` — `PROPOSAL_STAGE`, `PROPOSAL_LENSES`, `build_proposal_review_spec`, `run_proposal_review`.
 - `src/llmxive/backends/router.py` — **modified**: `_walker_route` + `chat_with_model_fallback` forward the five spec-025 params.
@@ -53,8 +56,20 @@ Every task's requirements implicitly include this section. Values are copied ver
 - Test: `tests/unit/test_self_improvement_events.py` (extend)
 
 **Interfaces:**
-- Consumes: `KNOWN_EVENT_TYPES_V1`, `SCHEMA_VERSION`, `SUPPORTED_SCHEMA_VERSIONS` (Slice 1A Task 2).
-- Produces: `"ReviewRerouted"` added to `KNOWN_EVENT_TYPES_V1`. **No `SCHEMA_VERSION` bump** — per Slice 1A's F7 rule, extending the event VOCABULARY does not change the record SHAPE, and bumping would make a reader reject prior-version history. The payload contract (documented in the module docstring beside the constant): `{operation_id: str, lens: str, primary_profile: str, fallback_profile: str, primary_route_id: str, fallback_route_id: str, primary_failure: {exception_type: str, message: str}, relaxed_constraints: list[str]}`.
+- Consumes: `KNOWN_EVENT_TYPES_V1`, `SCHEMA_VERSION`, `SUPPORTED_SCHEMA_VERSIONS`, `PAYLOAD_VALIDATORS`, `_require` (Slice 1A Task 2).
+- Produces: `"ReviewRerouted"` added to `KNOWN_EVENT_TYPES_V1`. **No `SCHEMA_VERSION` bump** — per Slice 1A's F7 rule, extending the event VOCABULARY does not change the record SHAPE, and bumping would make a reader reject prior-version history.
+- Produces: `_validate_review_rerouted`, **registered in Slice 1A's `PAYLOAD_VALIDATORS`** (round-4 review F6). Adding the type to the vocabulary alone leaves the payload unchecked, and this is not a passive record: Task 6 reads `p["primary_profile"]`/`p["primary_failure"]`/`p["relaxed_constraints"]` to build the degradation provenance, so a missing key becomes a `KeyError` inside the projection and a wrong value becomes **false provenance about which safeguards were relaxed**. The contract:
+
+  | Key | Rule |
+  |-|-|
+  | `operation_id`, `lens` | non-empty `str` |
+  | `primary_route_id`, `fallback_route_id` | non-empty `str`, and **distinct** (the two legs are two logical calls) |
+  | `primary_profile` | exactly `"independent_review"` (FR-002's required-family leg) |
+  | `fallback_profile` | exactly `"deep_review"` (FR-002's named fallback) |
+  | `primary_failure` | mapping with non-empty `str` `exception_type` + `message`; `exception_type` must be exactly `"ModelUnavailable"` — FR-002 reroutes on nothing else, so any other value means the reroute fired for an unsanctioned reason |
+  | `relaxed_constraints` | exactly `["family_independence", "snapshot_freshness"]`, in order — the fallback ALWAYS relaxes both, so any other list is a false claim about what was given up |
+
+  The profile/exception/constraint values are pinned to **v1's sanctioned reroute** deliberately. A later stage that reroutes differently must EXTEND this validator (adding its own sanctioned combination) — never bypass it.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -67,18 +82,49 @@ def test_review_rerouted_is_a_known_event_type():
     assert "ReviewRerouted" in KNOWN_EVENT_TYPES_V1
     assert SCHEMA_VERSION == 1
 
+def _reroute_payload(**kw):
+    base = {
+        "operation_id": "op-1", "lens": "worthwhile-improvement",
+        "primary_profile": "independent_review", "fallback_profile": "deep_review",
+        "primary_route_id": "r1", "fallback_route_id": "r2",
+        "primary_failure": {"exception_type": "ModelUnavailable", "message": "no independent family live"},
+        "relaxed_constraints": ["family_independence", "snapshot_freshness"],
+    }
+    base.update(kw)
+    return base
+
 def test_review_rerouted_event_validates():
     from llmxive.self_improvement.events import validate_lane_event
-    validate_lane_event(_raw(
-        event_type="ReviewRerouted",
-        payload={
-            "operation_id": "op-1", "lens": "worthwhile-improvement",
-            "primary_profile": "independent_review", "fallback_profile": "deep_review",
-            "primary_route_id": "r1", "fallback_route_id": "r2",
-            "primary_failure": {"exception_type": "ModelUnavailable", "message": "no independent family live"},
-            "relaxed_constraints": ["family_independence", "snapshot_freshness"],
-        },
-    ))  # must not raise
+    validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload()))  # no raise
+
+def test_review_rerouted_is_registered_for_payload_validation():
+    # F6: vocabulary membership alone leaves the payload unchecked.
+    from llmxive.self_improvement.events import PAYLOAD_VALIDATORS
+    assert "ReviewRerouted" in PAYLOAD_VALIDATORS
+
+@pytest.mark.parametrize("bad, why", [
+    ({"primary_route_id": "same", "fallback_route_id": "same"}, "distinct"),
+    ({"primary_profile": "deep_review"}, "primary_profile"),
+    ({"fallback_profile": "standard_generation"}, "fallback_profile"),
+    ({"primary_failure": {"exception_type": "ChainExhausted", "message": "x"}}, "ModelUnavailable"),
+    ({"primary_failure": {"message": "x"}}, "exception_type"),
+    ({"relaxed_constraints": ["family_independence"]}, "relaxed_constraints"),
+    ({"relaxed_constraints": ["snapshot_freshness", "family_independence"]}, "relaxed_constraints"),
+    ({"lens": ""}, "lens"),
+])
+def test_review_rerouted_rejects_malformed_payloads(bad, why):
+    # Each of these would otherwise land durably and then either KeyError inside
+    # build_invocation_identity or assert a FALSE claim about what the fallback relaxed.
+    from llmxive.self_improvement.events import validate_lane_event
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_raw(event_type="ReviewRerouted", payload=_reroute_payload(**bad)))
+
+def test_review_rerouted_rejects_a_missing_key():
+    from llmxive.self_improvement.events import validate_lane_event
+    payload = _reroute_payload()
+    del payload["fallback_route_id"]
+    with pytest.raises(ValueError, match="fallback_route_id"):
+        validate_lane_event(_raw(event_type="ReviewRerouted", payload=payload))
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -88,30 +134,64 @@ Expected: FAIL — `AssertionError` (`"ReviewRerouted" not in KNOWN_EVENT_TYPES_
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `src/llmxive/self_improvement/events.py`, add the type to the existing frozenset and document its payload:
+In `src/llmxive/self_improvement/events.py`, add the type to the existing frozenset AND register its payload validator (Slice 1A Task 2 built both the frozenset and the `PAYLOAD_VALIDATORS` table + the `_require` helper):
 
 ```python
 KNOWN_EVENT_TYPES_V1 = frozenset({
     "ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet",
     "AttemptCreditReserved", "AttemptCreditReleased", "AttemptCreditRetained", "AttemptCreditReconciled",
+    "LaneCallClaimed",
     "ChainResolved", "SelectionFailure", "ReservationOpened", "DispatchStarted",
     "DispatchCompleted", "DispatchUnknown", "CandidateOutcome",
     "ProblemDiscovered", "Proposed", "ProposalVerified", "Rejected",
-    # Slice 1B (FR-002): the EXPLICIT proposal-review degradation record. Payload:
-    #   {operation_id, lens, primary_profile, fallback_profile, primary_route_id,
-    #    fallback_route_id, primary_failure {exception_type, message},
-    #    relaxed_constraints}
-    # `relaxed_constraints` is FACTUAL (what the fallback always relaxes), NOT a causal
-    # claim about which constraint made the primary fail. A vocabulary extension only —
-    # the record SHAPE is unchanged, so SCHEMA_VERSION stays 1 (F7).
+    # Slice 1B (FR-002): the EXPLICIT proposal-review degradation record. Its payload is
+    # schema-checked by _validate_review_rerouted below (F6). `relaxed_constraints` is
+    # FACTUAL (what the fallback always relaxes), NOT a causal claim about which
+    # constraint made the primary fail. A vocabulary extension only — the record SHAPE is
+    # unchanged, so SCHEMA_VERSION stays 1 (F7).
     "ReviewRerouted",
 })
+
+#: The ONE sanctioned proposal reroute (FR-002). Pinned, not merely documented: a record
+#: naming other profiles would assert a degradation that never happened.
+_REROUTE_PRIMARY_PROFILE = "independent_review"
+_REROUTE_FALLBACK_PROFILE = "deep_review"
+_REROUTE_TRIGGER = "ModelUnavailable"
+_REROUTE_RELAXED = ["family_independence", "snapshot_freshness"]
+
+def _validate_review_rerouted(payload: Mapping[str, Any]) -> None:
+    """FR-002's degradation record. Task 6 builds `IndependenceDegraded` straight out of
+    this payload, so an unchecked key is either a KeyError in the projection or — worse —
+    a FALSE claim about which safeguards the fallback gave up."""
+    for key in ("operation_id", "lens", "primary_route_id", "fallback_route_id"):
+        _require(payload, key, str)
+    if payload["primary_route_id"] == payload["fallback_route_id"]:
+        raise ValueError("primary_route_id and fallback_route_id must be distinct "
+                         "(the two legs are two logical route_chat invocations)")
+    primary = _require(payload, "primary_profile", str)
+    if primary != _REROUTE_PRIMARY_PROFILE:
+        raise ValueError(f"primary_profile must be {_REROUTE_PRIMARY_PROFILE!r}, got {primary!r}")
+    fallback = _require(payload, "fallback_profile", str)
+    if fallback != _REROUTE_FALLBACK_PROFILE:
+        raise ValueError(f"fallback_profile must be {_REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}")
+    failure = _require(payload, "primary_failure", Mapping)
+    for key in ("exception_type", "message"):
+        _require(failure, key, str)
+    if failure["exception_type"] != _REROUTE_TRIGGER:
+        raise ValueError(f"primary_failure.exception_type must be {_REROUTE_TRIGGER!r} — FR-002 "
+                         f"reroutes on nothing else; got {failure['exception_type']!r}")
+    relaxed = _require(payload, "relaxed_constraints", list)
+    if relaxed != _REROUTE_RELAXED:
+        raise ValueError(f"relaxed_constraints must be exactly {_REROUTE_RELAXED} (the fallback "
+                         f"always relaxes both, in that order), got {relaxed!r}")
+
+PAYLOAD_VALIDATORS["ReviewRerouted"] = _validate_review_rerouted
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_events.py -q`
-Expected: PASS (all, including the two new tests).
+Expected: PASS (all, including the 12 new cases: 2 vocabulary/registration + 1 valid payload + 8 parametrized malformed + 1 missing-key).
 
 - [ ] **Step 5: Commit**
 
@@ -122,33 +202,43 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T1): ReviewReroute
 
 ---
 
-### Task 2: `LaneRouteContext` — mandatory hooks + route-id minting + call ceiling
+### Task 2: `LaneRouteContext` — mandatory hooks + durable route admission
 
 **Files:**
 - Create: `src/llmxive/self_improvement/route_context.py`
-- Test: `tests/unit/test_self_improvement_route_context.py`
+- Test: `tests/integration/test_self_improvement_route_context.py`
 
 **Interfaces:**
-- Consumes: slice-0 `RouteAudit`/`ReservationAuthority` protocols; Slice-1A `LaneLogConfig`, `lane_log.append`, `Event`, `derive_event_id`.
+- Consumes: slice-0 `RouteAudit`/`ReservationAuthority` protocols and `RouteAuditError`; Slice-1A `LaneCallLedger`, `LaneCallCeilingExceeded`, `LaneLogConfig`, `lane_log.append`, `LaneContention`, `LaneRevisionConflict`, `Event`, `derive_event_id`, `GitLogError`.
 - Produces:
-  - `class LaneCallCeilingExceeded(RuntimeError)` — the stage's logical-`route_chat` budget is exhausted; the Attempt fails closed (never a silent extra call).
-  - `def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int` — `4 * panel_size + max_rounds * (2 * panel_size + 2)` (Policy Contract line 313). Pure function, unit-tested against the spec's arithmetic.
-  - `@dataclass class LaneRouteContext`: fields `repo: Path`, `problem_id: str`, `attempt_id: str`, `actor: str`, `clock: Callable[[], str]`, `route_audit: RouteAudit`, `reservation_authority: ReservationAuthority`, `call_ceiling: int`, `config: LaneLogConfig = LaneLogConfig()`. **`route_audit` and `reservation_authority` are REQUIRED** (no `None` default — F2/F3: there is no unaudited or unbudgeted lane call). Not frozen (it carries the counter); the counter is guarded by a `threading.Lock` because the panel dispatches reviewers through a `ThreadPoolExecutor` (`engine.py:85-133`, default cap 8).
-  - `def next_route_id(self) -> str` — charges ONE logical `route_chat` invocation against the ceiling and returns a fresh `uuid.uuid4().hex` route id. Raises `LaneCallCeilingExceeded` when the ceiling is already spent. Every lane call obtains its route id here, so the counter cannot be bypassed.
-  - `def calls_used(self) -> int` — the count so far (for assertions/telemetry).
-  - `def record_reroute(self, *, operation_id, lens, primary_route_id, fallback_route_id, exception_type, message) -> None` — appends the `ReviewRerouted` lane event (Task 1) via `lane_log.append(..., expected_revision=None)` with `event_id = derive_event_id(problem_id, f"reroute\x00{primary_route_id}")` (deterministic → an idempotent re-record is a no-op), `primary_profile="independent_review"`, `fallback_profile="deep_review"`, `relaxed_constraints=("family_independence", "snapshot_freshness")`.
+  - `def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int` — `4 * panel_size + max_rounds * (2 * panel_size + 2)` (Policy Contract line 313). Pure function, unit-tested against the spec's arithmetic. (The stage FORMULA lives here; the durable ENFORCEMENT lives in Slice 1A's `LaneCallLedger`.)
+  - Re-export of `LaneCallCeilingExceeded` for the lane's callers — **imported from `self_improvement.call_ledger`, not redefined** (round-4 F1: the ceiling is a substrate condition).
+  - `@dataclass(frozen=True) class LaneRouteContext`: fields `repo: Path`, `problem_id: str`, `attempt_id: str`, `actor: str`, `clock: Callable[[], str]`, `route_audit: RouteAudit`, `reservation_authority: ReservationAuthority`, `call_ledger: LaneCallLedger`, `config: LaneLogConfig = LaneLogConfig()`. All three hooks are **REQUIRED** (no `None` default — F2/F3/F1: there is no unaudited, unbudgeted, or unadmitted lane call). **Frozen** — it holds no mutable counter any more, because the spend now lives in the durable log.
+  - `def next_operation_id(self, base: str) -> str` — resolves a caller's content-derived `base` into this call's operation id: the first use in a process returns it unchanged, each in-process repeat appends `#1`, `#2`, …. **This is not decoration — it is what keeps the durable claim correct in both directions.** A pure content digest gives the two properties we need (distinct logical calls differ; a RESTART re-derives the same id so `claim_dispatch` recognizes the replay), but two callers legitimately re-issue an *identical* call inside one process: the engine re-invokes `revise(artifacts, concerns)` with byte-identical arguments after a malformed reply (`engine.py:519-533`), and a round with no artifact change can produce a rereview prompt identical to the previous round's. Those are new logical calls that already dispatched once, so they need new ids and their own ceiling charge — the ceiling's `+2` per round exists exactly for the reviser's second attempt. Without the sequencer they would replay the first claim, receive the first `route_id`, and be REFUSED at the dispatch gate.
+  - `def claim_route(self, *, operation_id: str, leg: str = "primary") -> str` — delegates to `call_ledger.claim(...)`: CAS-admits ONE logical `route_chat` invocation against the **Attempt's** ceiling and returns its retry-stable `route_id`. Raises `LaneCallCeilingExceeded` when the Attempt is spent. Every lane call obtains its route id here, so admission cannot be bypassed. **Replaces the round-3 `next_route_id()`** (round-4 F1): that minted a fresh `uuid4` behind an in-memory counter, so a restart / a retry on another runner / a duplicate worker each got a fresh ceiling AND a fresh route id — the second defeating slice-0's dispatch-idempotency gate on exactly the retry it was built for.
+  - `def calls_used(self) -> int` — delegates to the ledger; the DURABLE count, not a local tally.
+  - `def record_reroute(self, *, operation_id, lens, primary_route_id, fallback_route_id, exception_type, message) -> None` — appends the `ReviewRerouted` lane event (Task 1) via `lane_log.append(..., expected_revision=None)` with `event_id = derive_event_id(problem_id, f"reroute\x00{primary_route_id}")` (deterministic → an idempotent re-record is a no-op), `primary_profile="independent_review"`, `fallback_profile="deep_review"`, `relaxed_constraints=["family_independence", "snapshot_freshness"]`.
+    **A persistence failure here is route-fatal (round-4 F4).** `lane_log.append` raises `GitLogError`/`GitLogAuthError`/`LaneRevisionConflict`/`LaneContention` — none of which `run_proposal_review` (Task 8) classifies, so they would escape raw and bypass the fail-closed contract that mandatory-provenance failures are route-fatal (FR-033a). `record_reroute` therefore normalizes every persistence failure to **`RouteAuditError`**, and Task 4 calls it BEFORE dispatching the fallback: **if the degradation record cannot become durable, the fallback MUST NOT run.** A silently-unrecorded reroute is a review that claims independence it did not have.
 
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_self_improvement_route_context.py
-import threading
+# tests/integration/test_self_improvement_route_context.py
+"""The lane context is now backed by the DURABLE call ledger (round-4 F1), so these are
+integration tests against a real git repo — an in-memory counter is exactly what the
+review rejected."""
+import subprocess
 
 import pytest
 
-from llmxive.self_improvement.route_context import (
-    LaneCallCeilingExceeded, LaneRouteContext, proposal_call_ceiling,
+from llmxive.model_selection.attempt_hooks import RouteAuditError
+from llmxive.self_improvement.call_ledger import (
+    LaneCallCeilingExceeded, LaneCallLedger, derive_route_id,
 )
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
+from llmxive.self_improvement.route_context import LaneRouteContext, proposal_call_ceiling
+
+_CLOCK = lambda: "2026-07-25T00:00:00+00:00"
 
 class _Sink:
     """A REAL in-memory RouteAudit double (no mock): records + always claims."""
@@ -173,11 +263,20 @@ class _Budget:
     def mark_retained(self, reservation_id) -> None:
         pass
 
-def _ctx(tmp_path, ceiling=4):
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for k, v in (("user.email", "t@t"), ("user.name", "t")):
+        subprocess.run(["git", "config", k, v], cwd=str(tmp_path), check=True)
+    bootstrap_lane_log(tmp_path, config=LaneLogConfig())
+    return tmp_path
+
+def _ctx(repo, ceiling=4):
+    ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
+                            actor="reviewer", clock=_CLOCK, config=LaneLogConfig())
     return LaneRouteContext(
-        repo=tmp_path, problem_id="P1", attempt_id="A1", actor="reviewer",
-        clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
-        reservation_authority=_Budget(), call_ceiling=ceiling,
+        repo=repo, problem_id="P1", attempt_id="A1", actor="reviewer", clock=_CLOCK,
+        route_audit=_Sink(), reservation_authority=_Budget(), call_ledger=ledger,
     )
 
 def test_proposal_ceiling_matches_the_spec_formula():
@@ -185,47 +284,85 @@ def test_proposal_ceiling_matches_the_spec_formula():
     assert proposal_call_ceiling(5, 3) == 56
     assert proposal_call_ceiling(1, 1) == 4 * 1 + 1 * (2 * 1 + 2)  # == 8
 
-def test_route_ids_are_unique_and_charge_the_ceiling(tmp_path):
-    ctx = _ctx(tmp_path, ceiling=3)
-    ids = {ctx.next_route_id() for _ in range(3)}
-    assert len(ids) == 3 and ctx.calls_used() == 3
+def test_each_operation_leg_gets_a_distinct_durable_route_id(repo):
+    ctx = _ctx(repo, ceiling=3)
+    a = ctx.claim_route(operation_id="lens-a")
+    b = ctx.claim_route(operation_id="lens-b")
+    c = ctx.claim_route(operation_id="lens-a", leg="fallback")
+    assert len({a, b, c}) == 3 and ctx.calls_used() == 3
 
-def test_exceeding_the_ceiling_fails_closed(tmp_path):
-    ctx = _ctx(tmp_path, ceiling=2)
-    ctx.next_route_id(); ctx.next_route_id()
+def test_a_replayed_operation_reuses_its_route_id_and_is_not_recharged(repo):
+    # F1's second half: retry-stability. A fresh context (a restart) claiming the SAME
+    # logical operation must get the SAME route id back — that is what lets slice-0's
+    # claim_dispatch recognize the retry instead of dispatching twice.
+    ctx = _ctx(repo, ceiling=3)
+    first = ctx.claim_route(operation_id="lens-a")
+    assert _ctx(repo, ceiling=3).claim_route(operation_id="lens-a") == first
+    assert first == derive_route_id("A1", "lens-a", "primary")
+    assert ctx.calls_used() == 1
+
+def test_next_operation_id_separates_in_process_repeats_but_not_restarts(repo):
+    # The engine re-invokes revise() with byte-identical arguments after a malformed reply
+    # (engine.py:519-533); that is a NEW logical call and must not replay the first claim.
+    ctx = _ctx(repo, ceiling=5)
+    a = ctx.next_operation_id("reviser:abc")
+    b = ctx.next_operation_id("reviser:abc")
+    assert a == "reviser:abc" and b == "reviser:abc#1" and a != b
+    assert ctx.claim_route(operation_id=a) != ctx.claim_route(operation_id=b)
+    assert ctx.calls_used() == 2
+    # a RESTART starts the sequence over, so the bare base replays the original claim
+    fresh = _ctx(repo, ceiling=5)
+    assert fresh.next_operation_id("reviser:abc") == "reviser:abc"
+    assert fresh.claim_route(operation_id="reviser:abc") == ctx.claim_route(operation_id=a)
+    assert fresh.calls_used() == 2   # the replay charged nothing
+
+def test_a_restarted_context_does_not_get_a_fresh_ceiling(repo):
+    # THE F1 regression: an in-memory counter would let every new context spend anew.
+    _ctx(repo, ceiling=2).claim_route(operation_id="a")
+    _ctx(repo, ceiling=2).claim_route(operation_id="b")
     with pytest.raises(LaneCallCeilingExceeded):
-        ctx.next_route_id()
+        _ctx(repo, ceiling=2).claim_route(operation_id="c")
 
-def test_ceiling_counter_is_thread_safe(tmp_path):
-    # The panel dispatches reviewers through a ThreadPoolExecutor (engine.py:85-133),
-    # so the counter must not over-admit under concurrency.
-    ctx = _ctx(tmp_path, ceiling=20)
-    got, lock = [], threading.Lock()
-
-    def _take():
-        try:
-            rid = ctx.next_route_id()
-            with lock:
-                got.append(rid)
-        except LaneCallCeilingExceeded:
-            pass
-
-    ts = [threading.Thread(target=_take) for _ in range(50)]
-    for t in ts: t.start()
-    for t in ts: t.join()
-    assert len(got) == 20 and len(set(got)) == 20  # exactly the ceiling, all unique
-
-def test_hooks_are_required(tmp_path):
-    # F2/F3: a lane context CANNOT be built without both the audit sink and the
-    # reservation authority — there is no silently-unaudited/unbudgeted lane call.
+def test_hooks_are_required(repo):
+    # F1/F2/F3: a lane context CANNOT be built without the audit sink, the reservation
+    # authority, AND the call ledger — no unaudited/unbudgeted/unadmitted lane call.
     with pytest.raises(TypeError):
-        LaneRouteContext(repo=tmp_path, problem_id="P1", attempt_id="A1", actor="a",
-                         clock=lambda: "t", call_ceiling=4)  # missing both hooks
+        LaneRouteContext(repo=repo, problem_id="P1", attempt_id="A1", actor="a", clock=_CLOCK)
+
+def test_record_reroute_persists_the_explicit_event(repo):
+    ctx = _ctx(repo)
+    ctx.record_reroute(operation_id="op-1", lens="worthwhile-improvement",
+                       primary_route_id="r1", fallback_route_id="r2",
+                       exception_type="ModelUnavailable", message="none live")
+    rerouted = [e for e in read(repo, "P1") if e.event_type == "ReviewRerouted"]
+    assert len(rerouted) == 1
+    assert rerouted[0].payload["relaxed_constraints"] == ["family_independence", "snapshot_freshness"]
+    # idempotent: the same reroute re-recorded is a no-op, not a second event
+    ctx.record_reroute(operation_id="op-1", lens="worthwhile-improvement",
+                       primary_route_id="r1", fallback_route_id="r2",
+                       exception_type="ModelUnavailable", message="none live")
+    assert len([e for e in read(repo, "P1") if e.event_type == "ReviewRerouted"]) == 1
+
+def test_a_reroute_persistence_failure_is_route_fatal(repo, monkeypatch):
+    # F4: lane_log.append raises GitLog*/LaneRevisionConflict, which run_proposal_review
+    # does NOT classify — they would escape raw and bypass the fail-closed contract.
+    # record_reroute normalizes them, so the caller (Task 4) can refuse to run the
+    # fallback when the degradation record did not become durable.
+    from llmxive.git_event_log import GitLogAuthError
+
+    def _boom(*a, **kw):
+        raise GitLogAuthError("push denied")
+
+    monkeypatch.setattr("llmxive.self_improvement.route_context.append", _boom)
+    with pytest.raises(RouteAuditError):
+        _ctx(repo).record_reroute(operation_id="op-1", lens="l", primary_route_id="r1",
+                                  fallback_route_id="r2", exception_type="ModelUnavailable",
+                                  message="none live")
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/test_self_improvement_route_context.py -q`
+Run: `pytest tests/integration/test_self_improvement_route_context.py -q`
 Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improvement.route_context'`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -233,25 +370,34 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improveme
 ```python
 # src/llmxive/self_improvement/route_context.py
 """What EVERY lane LLM call carries (FR-033a): the mandatory durable audit sink, the
-Attempt credit authority, a minted route id, and the stage's logical-call ceiling.
+Attempt credit authority, and the Attempt call ledger that admits the call and hands back
+its route id.
 
-The hooks are REQUIRED, not optional (maintainer review F2/F3): a lane call that skipped
-either would be an unaudited routing decision or an unbudgeted paid dispatch. One context
-is shared by a proposal review's whole panel AND its reviser, so the ceiling counter is
-lock-guarded — the engine dispatches reviewers through a ``ThreadPoolExecutor``
-(``engine.py:85-133``, default cap 8)."""
+All three hooks are REQUIRED, not optional (maintainer review F1/F2/F3): a lane call that
+skipped one would be an unaudited routing decision, an unbudgeted paid dispatch, or a call
+outside the Attempt's ceiling. Admission is DURABLE — it lives in the append-only lane log,
+not in this object — because Policy Contract line 313 scopes the ceiling to the ATTEMPT,
+which outlives any one panel process (round-4 F1). That also makes route ids retry-stable,
+which is what lets slice-0's ``claim_dispatch`` gate recognize a replayed call."""
 
 from __future__ import annotations
 
 import threading
-import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from llmxive.model_selection.attempt_hooks import ReservationAuthority, RouteAudit
+from llmxive.git_event_log import GitLogError
+from llmxive.model_selection.attempt_hooks import (
+    ReservationAuthority, RouteAudit, RouteAuditError,
+)
+from llmxive.self_improvement.call_ledger import LaneCallCeilingExceeded, LaneCallLedger
 from llmxive.self_improvement.events import Event, derive_event_id
-from llmxive.self_improvement.lane_log import LaneLogConfig, append
+from llmxive.self_improvement.lane_log import (
+    LaneContention, LaneLogConfig, LaneRevisionConflict, append,
+)
+
+__all__ = ["LaneCallCeilingExceeded", "LaneRouteContext", "proposal_call_ceiling"]
 
 #: The constraints the FR-002 fallback ALWAYS relaxes — factual (what changed), NOT a
 #: causal claim about which one made the primary attempt fail (ModelUnavailable carries
@@ -260,51 +406,81 @@ RELAXED_CONSTRAINTS = ("family_independence", "snapshot_freshness")
 PRIMARY_PROFILE = "independent_review"
 FALLBACK_PROFILE = "deep_review"
 
-class LaneCallCeilingExceeded(RuntimeError):
-    """The stage's logical-``route_chat`` budget is exhausted (Policy Contract line 313).
-    The Attempt fails closed — never a silent extra call."""
-
 def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int:
     """The PROPOSAL stage ceiling ``4N + R*(2N + 2)`` (Policy Contract line 313): every
     reviewer operation is up to TWO logical route_chat invocations (the FR-002 reroute),
     so each reviewer term doubles; the reviser's ``+2`` (producer — no independence, no
-    reroute) does not."""
+    reroute) does not. This is the FORMULA; ``LaneCallLedger`` is the ENFORCEMENT."""
     return 4 * panel_size + max_rounds * (2 * panel_size + 2)
 
-@dataclass
+@dataclass(frozen=True)
 class LaneRouteContext:
     repo: Path
     problem_id: str
     attempt_id: str
     actor: str
     clock: Callable[[], str]
-    route_audit: RouteAudit           # REQUIRED (F3) — mandatory durable sink
+    route_audit: RouteAudit                      # REQUIRED (F3) — mandatory durable sink
     reservation_authority: ReservationAuthority  # REQUIRED (F2) — Attempt budget gate
-    call_ceiling: int
+    call_ledger: LaneCallLedger                  # REQUIRED (F1) — durable Attempt ceiling
     config: LaneLogConfig = LaneLogConfig()
-    _used: int = field(default=0, init=False)
-    _lock: threading.Lock = field(default_factory=threading.Lock, init=False)
+    #: In-process repeat counter for `next_operation_id` (see its docstring). Not state the
+    #: lane depends on for correctness — the ledger is — just a within-process disambiguator.
+    #: The panel dispatches reviewers on a ThreadPoolExecutor (`engine.py:85-133`), so it is
+    #: lock-guarded.
+    _seq: dict[str, int] = field(default_factory=dict, init=False, repr=False, compare=False)
+    _seq_lock: threading.Lock = field(default_factory=threading.Lock, init=False,
+                                      repr=False, compare=False)
 
-    def next_route_id(self) -> str:
-        """Charge ONE logical route_chat invocation and mint its route id. Every lane call
-        obtains its id here, so the ceiling cannot be bypassed."""
-        with self._lock:
-            if self._used >= self.call_ceiling:
-                raise LaneCallCeilingExceeded(
-                    f"attempt {self.attempt_id!r} exhausted its {self.call_ceiling} logical "
-                    "route_chat invocations (Policy Contract line 313) — failing closed"
-                )
-            self._used += 1
-        return uuid.uuid4().hex
+    def next_operation_id(self, base: str) -> str:
+        """Resolve a caller's content-derived ``base`` into the operation id for THIS call.
+
+        A pure content digest is right for the two cases that matter — distinct logical
+        calls have distinct content, and a RESTART replaying the same call re-derives the
+        same id (so slice-0's ``claim_dispatch`` recognizes the replay). But it is wrong for
+        a caller that legitimately re-issues an IDENTICAL call within one process, and there
+        are two such callers: the engine's malformed-reply reviser retry re-invokes
+        ``revise(artifacts, concerns)`` with byte-identical arguments (``engine.py:519-533``),
+        and a round that produced no artifact change can hand a reviewer a rereview prompt
+        identical to the previous round's. Those are genuinely NEW logical calls — the first
+        one dispatched — so they need new ids and a new ceiling charge (the ceiling's ``+2``
+        per round exists precisely to pay for the reviser's second attempt). Without this
+        they would replay the first claim, get the first ``route_id`` back, and be REFUSED at
+        the dispatch gate.
+
+        So: the FIRST use of a base in this process returns it unchanged; each repeat
+        appends ``#1``, ``#2``, …. A fresh process starts again at the bare base, which is
+        exactly the restart-replay semantics we want (a crashed Attempt then fails closed at
+        the dispatch gate and reconciles from durable state, per FR-033a)."""
+        with self._seq_lock:
+            n = self._seq.get(base, 0)
+            self._seq[base] = n + 1
+        return base if n == 0 else f"{base}#{n}"
+
+    def claim_route(self, *, operation_id: str, leg: str = "primary") -> str:
+        """Admit ONE logical route_chat invocation against the ATTEMPT's ceiling and return
+        its retry-stable route id. Every lane call obtains its id here, so neither the
+        ceiling nor the id stability can be bypassed. Raises ``LaneCallCeilingExceeded``.
+
+        ``operation_id`` must come from :meth:`next_operation_id`. Both legs of one FR-002
+        reroute share ONE resolved operation id and differ only by ``leg``."""
+        return self.call_ledger.claim(operation_id=operation_id, leg=leg)
 
     def calls_used(self) -> int:
-        with self._lock:
-            return self._used
+        """The DURABLE spend for this Attempt (read from the log, not a local tally)."""
+        return self.call_ledger.calls_used()
 
     def record_reroute(self, *, operation_id: str, lens: str, primary_route_id: str,
                        fallback_route_id: str, exception_type: str, message: str) -> None:
         """Append the EXPLICIT ``ReviewRerouted`` record (F10) — the projection never has
-        to infer a degradation from an accidental event pattern."""
+        to infer a degradation from an accidental event pattern.
+
+        Any persistence failure is normalized to ``RouteAuditError`` (F4). The raw
+        ``GitLog*``/``Lane*`` types are NOT in ``run_proposal_review``'s classification set
+        (Task 8), so they would escape as unclassified errors and bypass FR-033a's rule
+        that a mandatory-provenance failure is route-fatal. The caller (Task 4) records
+        BEFORE dispatching the fallback, so a reroute that cannot be made durable stops the
+        review instead of silently producing a review that claims independence it lacked."""
         event = Event(
             event_id=derive_event_id(self.problem_id, f"reroute\x00{primary_route_id}"),
             event_type="ReviewRerouted", problem_id=self.problem_id, actor=self.actor,
@@ -317,19 +493,29 @@ class LaneRouteContext:
             },
             timestamp=self.clock(), attempt_id=self.attempt_id,
         )
-        append(self.repo, event, expected_revision=None, config=self.config)
+        try:
+            append(self.repo, event, expected_revision=None, config=self.config)
+        except (GitLogError, LaneRevisionConflict, LaneContention, ValueError) as exc:
+            # GitLogError (+ its auth/contention subclasses): the ref could not be read or
+            # advanced. LaneRevisionConflict/LaneContention: the CAS never landed.
+            # ValueError: the payload failed Task 1's schema — a malformed provenance
+            # record must fail the route, never be skipped.
+            raise RouteAuditError(
+                f"could not durably record the FR-002 reroute for {lens!r} "
+                f"(primary route {primary_route_id}): {type(exc).__name__}: {exc}"
+            ) from exc
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/unit/test_self_improvement_route_context.py -q`
-Expected: PASS (5 passed).
+Run: `pytest tests/integration/test_self_improvement_route_context.py -q`
+Expected: PASS (8 passed).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/llmxive/self_improvement/route_context.py tests/unit/test_self_improvement_route_context.py
-PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T2): LaneRouteContext — mandatory hooks, route-id minting, call ceiling"
+git add src/llmxive/self_improvement/route_context.py tests/integration/test_self_improvement_route_context.py
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T2): LaneRouteContext — mandatory hooks, durable route admission, route-fatal reroute records"
 ```
 
 ---
@@ -536,31 +722,36 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T3): plumb indepen
 ### Task 4: `LLMReviewer` — lane context + two-attempt independence reroute
 
 **Files:**
-- Modify: `src/llmxive/convergence/llm_reviewer.py` (`_STAGE_PREFIX` ~lines 100-147; `LLMReviewer.__init__` lines 819-877; `_call_backend` lines 1148-1167)
-- Test: `tests/unit/test_llm_reviewer_reroute.py`
+- Modify: `src/llmxive/convergence/llm_reviewer.py` (`_STAGE_PREFIX` ~lines 100-147; `LLMReviewer.__init__` lines 819-877; the three `_call_backend` call sites at lines 962, 991, 1021; `_call_backend` lines 1148-1167)
+- Test: `tests/integration/test_llm_reviewer_reroute.py` (integration: the durable call ledger needs a real git repo)
 
 **Interfaces:**
-- Consumes: `LaneRouteContext` (Task 2); `chat_with_model_fallback` with the five new params (Task 3); `IndependenceBaseline`, `ModelUnavailable` (`model_selection.types`).
+- Consumes: `LaneRouteContext` (Task 2); `chat_with_model_fallback` with the five new params (Task 3); `IndependenceBaseline`, `ModelUnavailable` (`model_selection.types`); `RouteAuditError` (slice-0).
 - Produces:
   - `_STAGE_PREFIX` gains `"self_improvement_proposal": "si_proposal"` → the lane's per-lens prompt path becomes `<repo_root>/agents/prompts/panels/panel_si_proposal_<lens>.md` (`_prompt_path_for`, `llm_reviewer.py:150-165`). Without this entry `_prompt_path_for` raises `ValueError("unknown stage ...")` and a lane reviewer cannot be constructed at all.
   - `LLMReviewer.__init__` gains three keyword params, all defaulting to `None` so every existing call site is byte-for-byte unchanged: `route_context: "LaneRouteContext | None" = None`, `independence_against: "IndependenceBaseline | None" = None`, `fallback_profile: str | None = None`. Stored as `self._route_context`, `self._independence_against`, `self._fallback_profile`.
-  - `_call_backend(self, messages) -> str` — when `self._route_context is None`, the EXISTING single unrouted call, unchanged. Otherwise delegates to `_route_review`.
-  - `_route_review(self, messages) -> str` — the lane path:
-    1. `primary_route_id = ctx.next_route_id()` (charges the ceiling);
+  - `_call_backend(self, messages, *, kind: str = "identify") -> str` — when `self._route_context is None`, the EXISTING single unrouted call, unchanged (`kind` is ignored there, so no existing caller changes behavior). Otherwise delegates to `_route_review`.
+  - `_operation_id(self, kind, messages) -> str` = `f"{lens}:{kind}:{sha256(canonical(messages))[:16]}"` — the deterministic identity of ONE logical review call. **Why not the round-3 `primary_route_id`:** with the durable ledger (round-4 F1) the operation id is the CLAIM KEY, so it must be (a) distinct per logical call and (b) identical across a retry. A digest of `(lens, kind, messages)` is both; a fresh uuid is neither. The `kind` label is what keeps the reviewer's THREE logical calls — identify (`:962`), the action-items resubmit (`:991`), rereview (`:1021`) — from collapsing into one claim, which would hand the later calls the first call's `route_id` and make slice-0's `claim_dispatch` refuse to dispatch them as replays.
+  - `_route_review(self, messages, *, kind) -> str` — the lane path:
+    1. `operation_id = self._operation_id(kind, messages)`; `primary_route_id = ctx.claim_route(operation_id=operation_id, leg="primary")` (durable admission against the Attempt ceiling);
     2. attempt 1 = `chat_with_model_fallback(..., profile=self._profile, independence_against=self._independence_against, route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority, route_id=primary_route_id, reraise_model_unavailable=bool(self._fallback_profile))`;
-    3. on `ModelUnavailable` **and** `self._fallback_profile is not None` → `fallback_route_id = ctx.next_route_id()`; `ctx.record_reroute(...)` (the explicit `ReviewRerouted` event, F10); attempt 2 = same call with `profile=self._fallback_profile`, **no** `independence_against`, and `reraise_model_unavailable=False` (a fallback that ALSO finds nothing is a genuine outage → `BackendUnavailable` → the engine's clean-abort path, not a second degrade).
+    3. on `ModelUnavailable` **and** `self._fallback_profile is not None` → `fallback_route_id = ctx.claim_route(operation_id=operation_id, leg="fallback")`; **then `ctx.record_reroute(...)` BEFORE the fallback dispatch** (F4 — a `RouteAuditError` from the record is deliberately NOT caught, so a reroute that cannot be made durable stops the review instead of producing one that claims independence it lacked); attempt 2 = same call with `profile=self._fallback_profile`, **no** `independence_against`, and `reraise_model_unavailable=False` (a fallback that ALSO finds nothing is a genuine outage → `BackendUnavailable` → the engine's clean-abort path, not a second degrade).
     - With `fallback_profile=None` (the future **patch** review's fail-closed binding), `reraise_model_unavailable` is `False`, so a `ModelUnavailable` converts to `BackendUnavailable` and the run aborts — no promotion. The same class serves both bindings.
-  - `operation_id` = the `primary_route_id` (unique per reviewer operation; makes the `ReviewRerouted` `event_id` deterministic for an idempotent re-record).
+  - The two legs share ONE `operation_id` and differ by `leg`, so the ledger charges both (the ceiling's `4N` term) while the `ReviewRerouted` `event_id` stays deterministic for an idempotent re-record.
 
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_llm_reviewer_reroute.py
+# tests/integration/test_llm_reviewer_reroute.py
+import subprocess
 from pathlib import Path
 
 import pytest
 
+from llmxive.model_selection.attempt_hooks import RouteAuditError
 from llmxive.model_selection.types import IndependenceBaseline, ModelUnavailable
+from llmxive.self_improvement.call_ledger import LaneCallLedger
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from llmxive.self_improvement.route_context import LaneRouteContext
 
 LENS = "worthwhile-improvement"
@@ -590,7 +781,12 @@ class _Budget:
 @pytest.fixture
 def repo_root(tmp_path):
     # REAL prompt files at the convention path (no mock): _load_system_prompt reads the
-    # per-lens prompt + the SSoT shared block, so both must exist.
+    # per-lens prompt + the SSoT shared block, so both must exist. The lane log lives on
+    # the same repo (the call ledger is durable — round-4 F1).
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for k, v in (("user.email", "t@t"), ("user.name", "t")):
+        subprocess.run(["git", "config", k, v], cwd=str(tmp_path), check=True)
+    bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     panels = tmp_path / "agents" / "prompts" / "panels"
     panels.mkdir(parents=True)
     (panels / f"panel_si_proposal_{LENS}.md").write_text("# Panel Reviewer — lens\n\n## Lens\nJudge it.\n")
@@ -599,11 +795,30 @@ def repo_root(tmp_path):
     (shared / "panel_review_block.md").write_text("## Output format\nUse the protocol.\n")
     return tmp_path
 
-def _ctx(repo_root, ceiling=10):
-    return LaneRouteContext(
+class _RecordingCtx(LaneRouteContext):
+    """A REAL subclass (not a mock, and not attribute patching — ``LaneRouteContext`` is
+    frozen, so assigning to ``ctx.record_reroute`` would raise ``FrozenInstanceError``).
+    It captures the reroute calls instead of persisting them; the durable persistence path
+    has its own test in Task 2."""
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        object.__setattr__(self, "recorded", [])
+        object.__setattr__(self, "record_error", None)
+
+    def record_reroute(self, **kw):
+        if self.record_error is not None:
+            raise self.record_error
+        self.recorded.append(kw)
+
+def _ctx(repo_root, ceiling=10, cls=_RecordingCtx):
+    ledger = LaneCallLedger(repo=repo_root, problem_id="P1", attempt_id="A1",
+                            call_ceiling=ceiling, actor="reviewer",
+                            clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
+    return cls(
         repo=repo_root, problem_id="P1", attempt_id="A1", actor="reviewer",
         clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
-        reservation_authority=_Budget(), call_ceiling=ceiling,
+        reservation_authority=_Budget(), call_ledger=ledger,
     )
 
 def _reviewer(repo_root, **kw):
@@ -637,8 +852,7 @@ def test_reroute_records_an_explicit_event_and_uses_two_route_ids(repo_root, mon
 
     monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
     ctx = _ctx(repo_root)
-    recorded = []
-    ctx.record_reroute = lambda **kw: recorded.append(kw)  # capture the explicit record
+    recorded = ctx.recorded          # the subclass captures the explicit record
     base = IndependenceBaseline(families=frozenset({"qwen3.5"}))
     r = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
                   independence_against=base, route_context=ctx)
@@ -672,8 +886,7 @@ def test_successful_primary_never_reroutes_or_records(repo_root, monkeypatch):
 
     monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
     ctx = _ctx(repo_root)
-    recorded = []
-    ctx.record_reroute = lambda **kw: recorded.append(kw)
+    recorded = ctx.recorded
     r = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
                   independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
                   route_context=ctx)
@@ -693,11 +906,98 @@ def test_without_a_fallback_profile_model_unavailable_is_not_rerouted(repo_root,
                   route_context=ctx)
     with pytest.raises(ModelUnavailable):
         r._call_backend([])
+
+def test_a_failed_reroute_record_aborts_BEFORE_the_fallback_dispatches(repo_root, monkeypatch):
+    # F4: if the ReviewRerouted record cannot become durable, the fallback MUST NOT run —
+    # otherwise the review silently claims an independence it did not have. record_reroute
+    # normalizes the persistence failure to RouteAuditError (Task 2), which Task 8 then
+    # classifies as route-fatal.
+    calls = []
+
+    def _fake(backend, messages, **kw):
+        calls.append(kw)
+        if kw["profile"] == "independent_review":
+            raise ModelUnavailable("no independent family live")
+        class R: text = "fallback-body"   # must never be reached
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
+    ctx = _ctx(repo_root)
+    object.__setattr__(ctx, "record_error", RouteAuditError("lane ref unreachable"))
+    r = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+                  route_context=ctx)
+    with pytest.raises(RouteAuditError):
+        r._call_backend([])
+    assert len(calls) == 1 and calls[0]["profile"] == "independent_review"  # no fallback dispatch
+
+def test_distinct_logical_calls_get_distinct_operation_ids(repo_root, monkeypatch):
+    # F1 corollary: identify / the action-items resubmit / rereview are THREE logical calls.
+    # If they shared an operation_id the durable claim would treat the later ones as
+    # REPLAYS — returning the first route_id, which would make slice-0's claim_dispatch
+    # refuse to dispatch them at all.
+    seen = []
+
+    def _fake(backend, messages, **kw):
+        seen.append(kw["route_id"])
+        class R: text = "body"
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
+    ctx = _ctx(repo_root)
+    r = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  route_context=ctx)
+    msgs = [ChatMessage(role="user", content="review this")]
+    r._call_backend(msgs, kind="identify")
+    r._call_backend([*msgs, ChatMessage(role="user", content="no action items")], kind="identify_resubmit")
+    r._call_backend(msgs, kind="rereview")
+    assert len(set(seen)) == 3 and ctx.calls_used() == 3
+
+def test_a_RESTART_replays_the_same_logical_call_onto_the_same_route_id(repo_root, monkeypatch):
+    # Retry stability across a RESTART: identical (lens, kind, messages) with a FRESH
+    # context → the same durable claim, the same route_id, no extra ceiling charge. That
+    # is what lets slice-0's claim_dispatch recognize the replay.
+    seen = []
+
+    def _fake(backend, messages, **kw):
+        seen.append(kw["route_id"])
+        class R: text = "body"
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
+    msgs = [ChatMessage(role="user", content="review this")]
+    for _ in range(2):                       # two processes, two contexts, one claim
+        ctx = _ctx(repo_root)
+        _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  route_context=ctx)._call_backend(msgs, kind="identify")
+    assert len(set(seen)) == 1 and ctx.calls_used() == 1
+
+def test_an_IN_PROCESS_repeat_is_a_new_logical_call(repo_root, monkeypatch):
+    # The counterpart: within ONE process an identical re-issue is a genuinely new call
+    # (the first one already dispatched), so it gets its own route_id and ceiling charge.
+    # Without this, the engine's reviser retry would be refused at the dispatch gate.
+    seen = []
+
+    def _fake(backend, messages, **kw):
+        seen.append(kw["route_id"])
+        class R: text = "body"
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _fake)
+    ctx = _ctx(repo_root)
+    r = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  route_context=ctx)
+    msgs = [ChatMessage(role="user", content="review this")]
+    r._call_backend(msgs, kind="identify")
+    r._call_backend(msgs, kind="identify")
+    assert len(set(seen)) == 2 and ctx.calls_used() == 2
 ```
+
+(`ChatMessage` imports from `llmxive.backends.base` — add it to the test file's imports.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/test_llm_reviewer_reroute.py -q`
+Run: `pytest tests/integration/test_llm_reviewer_reroute.py -q`
 Expected: FAIL — `ValueError: unknown stage 'self_improvement_proposal'` (the `_STAGE_PREFIX` gap) or `TypeError: __init__() got an unexpected keyword argument 'route_context'`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -732,16 +1032,37 @@ Add the three params to `LLMReviewer.__init__` (after `overrides`) and store the
 Replace `_call_backend` and add `_route_review` (keep the existing docstring on the legacy branch):
 
 ```python
-    def _call_backend(self, messages: list[ChatMessage]) -> str:
+    def _call_backend(self, messages: list[ChatMessage], *, kind: str = "identify") -> str:
+        """``kind`` names WHICH logical review call this is. It is unused on the legacy
+        path (so every existing caller is unaffected) and forms part of the lane's durable
+        operation id — the reviewer makes THREE distinct logical calls (identify, the
+        action-items resubmit, rereview) and they must not collide into one claim."""
         if self._route_context is not None:
-            return self._route_review(messages)
+            return self._route_review(messages, kind=kind)
         response = chat_with_model_fallback(
             self._backend, messages, model=None, max_tokens=self._max_tokens,
             temperature=self._temperature, overrides=self._overrides, profile=self._profile,
         )
         return getattr(response, "text", "") or ""
 
-    def _route_review(self, messages: list[ChatMessage]) -> str:
+    def _operation_id(self, kind: str, messages: list[ChatMessage]) -> str:
+        """The DETERMINISTIC identity of one logical review call (round-4 F1). Digesting the
+        messages makes it DISTINCT per call (each round's rereview prompt differs) and
+        STABLE across a restart (identical inputs → identical id → the call ledger replays
+        the same claim and the same route_id instead of re-charging the ceiling). The
+        context's ``next_operation_id`` then disambiguates a legitimate in-process repeat
+        (see its docstring) — without it, a round that produced no artifact change could
+        hand this lens a rereview prompt identical to the previous round's, and the second
+        one would be refused at the dispatch gate as a replay."""
+        import hashlib
+        import json
+
+        payload = json.dumps([[m.role, m.content] for m in messages],
+                             sort_keys=True, default=str, ensure_ascii=False)
+        digest = hashlib.sha256(payload.encode()).hexdigest()[:16]
+        return self._route_context.next_operation_id(f"{self._lens}:{kind}:{digest}")
+
+    def _route_review(self, messages: list[ChatMessage], *, kind: str) -> str:
         """The lane path (spec 025 FR-002): every call carries the mandatory audit sink +
         Attempt credit authority, and a proposal lens performs the TWO-ATTEMPT reroute —
         ``independent_review`` (required family) first, then, on a raw ``ModelUnavailable``,
@@ -751,7 +1072,8 @@ Replace `_call_backend` and add `_route_review` (keep the existing docstring on 
 
         ctx = self._route_context
         assert ctx is not None  # guarded by the caller
-        primary_route_id = ctx.next_route_id()
+        operation_id = self._operation_id(kind, messages)
+        primary_route_id = ctx.claim_route(operation_id=operation_id, leg="primary")
         try:
             response = chat_with_model_fallback(
                 self._backend, messages, model=None, max_tokens=self._max_tokens,
@@ -766,9 +1088,13 @@ Replace `_call_backend` and add `_route_review` (keep the existing docstring on 
         except ModelUnavailable as exc:
             if self._fallback_profile is None:
                 raise
-            fallback_route_id = ctx.next_route_id()
+            fallback_route_id = ctx.claim_route(operation_id=operation_id, leg="fallback")
+            # RECORD FIRST (F4). record_reroute raises RouteAuditError if the degradation
+            # cannot be made durable, and we deliberately do NOT catch it: a fallback that
+            # ran with no durable record would be a review claiming an independence it
+            # never had. Task 8 classifies the RouteAuditError as route-fatal.
             ctx.record_reroute(
-                operation_id=primary_route_id, lens=self._lens,
+                operation_id=operation_id, lens=self._lens,
                 primary_route_id=primary_route_id, fallback_route_id=fallback_route_id,
                 exception_type=type(exc).__name__, message=str(exc),
             )
@@ -784,12 +1110,20 @@ Replace `_call_backend` and add `_route_review` (keep the existing docstring on 
         return getattr(response, "text", "") or ""
 ```
 
+Then label the three existing call sites so their claims stay distinct (`llm_reviewer.py:962`, `:991`, `:1021`):
+
+```python
+        response_text = self._call_backend(messages, kind="identify")            # ~962
+        response_text = self._call_backend(resubmit, kind="identify_resubmit")   # ~991
+        response_text = self._call_backend(messages, kind="rereview")            # ~1021
+```
+
 (`LaneRouteContext`/`IndependenceBaseline` appear only in STRING annotations, so no module-top import is added — matching the file's existing function-local `model_selection` import discipline.)
 
 - [ ] **Step 4: Run test to verify it passes + confirm no regression**
 
-Run: `pytest tests/unit/test_llm_reviewer_reroute.py -q`
-Expected: PASS (4 passed).
+Run: `pytest tests/integration/test_llm_reviewer_reroute.py -q`
+Expected: PASS (8 passed).
 
 Run: `pytest tests/unit -k llm_reviewer -q`
 Expected: PASS — the non-lane path is unchanged.
@@ -797,7 +1131,7 @@ Expected: PASS — the non-lane path is unchanged.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/llmxive/convergence/llm_reviewer.py tests/unit/test_llm_reviewer_reroute.py
+git add src/llmxive/convergence/llm_reviewer.py tests/integration/test_llm_reviewer_reroute.py
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T4): LLMReviewer lane context + two-attempt reroute with explicit ReviewRerouted"
 ```
 
@@ -807,7 +1141,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T4): LLMReviewer l
 
 **Files:**
 - Create: `src/llmxive/convergence/lane_reviser.py`
-- Test: `tests/unit/test_lane_reviser.py`
+- Test: `tests/integration/test_lane_reviser.py`
 
 **Interfaces:**
 - Consumes: `LaneRouteContext` (Task 2); `chat_with_model_fallback` (Task 3); `Concern`, `ConcernResponse` (`convergence.types`).
@@ -815,20 +1149,28 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T4): LLMReviewer l
   - `class LaneProposalReviser` — structurally conforms to `convergence.types.Reviser`: `revise(self, artifacts: dict[str, str], concerns: list[Concern]) -> tuple[dict[str, str], list[ConcernResponse]]`.
   - Constructor: `LaneProposalReviser(*, backend, route_context: LaneRouteContext, artifact_key: str = "proposal.md", profile: str = "deep_code", max_tokens: int = 32_768, temperature: float = 0.0)`.
   - **Exactly ONE `chat_with_model_fallback` call per `revise()`** (the ceiling's `+2`-per-round term is the ENGINE's malformed-reply retry, `engine.py:521-533` — not an internal self-consistency loop). It does NOT use `invoke_reviser_backend`/`run_with_self_consistency`, which would make up to three calls per `revise()`.
-  - It carries the lane context on every call: `route_audit`, `reservation_authority`, and a `route_id` from `ctx.next_route_id()`. It passes **no** `independence_against` (the producer has no independence constraint) and no `fallback_profile` (no reroute — hence the ceiling's `+2` is not doubled).
-  - Response contract: the model returns ONE fenced ```json block: `{"proposal": "<full revised proposal markdown>", "responses": [{"concern_id": "...", "response": "...", "what_changed": "..."}]}`. `_parse_response` raises on a missing/unparseable block or a missing concern id, so the engine's retry produces the second attempt.
+  - It carries the lane context on every call: `route_audit`, `reservation_authority`, and a `route_id` from `ctx.claim_route(operation_id=..., leg="primary")`. The reviser's operation id is `f"reviser:{round_digest}"` where `round_digest` digests `(artifacts, concerns)` — distinct per round (each round's concern set differs) and stable across a retry, exactly like the reviewer's. It passes **no** `independence_against` (the producer has no independence constraint) and no `fallback_profile` (no reroute — hence the ceiling's `+2` is not doubled).
+  - Response contract: the model returns ONE fenced ```json block: `{"proposal": "<full revised proposal markdown>", "responses": [{"concern_id": "...", "response": "...", "what_changed": "..."}]}`.
+  - **Malformed replies raise `RuntimeError` with one of the engine's two RECOGNIZED message signatures (round-4 review F3):**
+    - unparseable / missing block → `RuntimeError("lane reviser backend did not return parseable JSON ...")`
+    - parsed but no usable proposal, or a concern left unanswered → `RuntimeError("lane reviser response JSON has no usable ...")`
 
-- [ ] **Step 0 (do first): match the engine's malformed-reply retry.** Read `src/llmxive/convergence/engine.py:518-553` and note the EXACT exception type(s) the reviser retry loop catches. `_parse_response` MUST raise one of those (so a malformed reply produces the engine's second attempt rather than aborting the run). Record the type in the module docstring.
+    The round-3 plan said `ValueError`, which is **wrong twice over**: `engine.py:527` catches `RuntimeError`, so a `ValueError` skips the one-retry path entirely; and `_abort_provenance` (`engine.py:442`) catches only `BackendUnavailable`/`TransientBackendError`, so it would escape the whole run with no provenance. Worse, after the retry the engine calls `is_malformed_reply_error` (`revisers/_reviser_response.py:473-496`), which returns `True` only when the message contains `"parseable"` or `"no usable"` — anything else is re-raised as a genuine engine defect and files a spurious engine-failure issue. The two strings above are therefore CONTRACT, not prose: `is_malformed_reply_error` is the SSoT classifier shared by every reviser, and this one must satisfy it.
+
+- [ ] **Step 0 (do first): confirm the exception contract against the engine.** Read `engine.py:518-553` and `revisers/_reviser_response.py:473-496`. Verify (a) the retry loop catches `RuntimeError` and re-raises `BackendError` first, and (b) `is_malformed_reply_error` keys on `"parseable"` / `"no usable"`. If either has changed, the messages below must change with it — assert the CURRENT behavior, never weaken the test.
 
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_lane_reviser.py
+# tests/integration/test_lane_reviser.py
 import json
+import subprocess
 
 import pytest
 
 from llmxive.convergence.types import Concern
+from llmxive.self_improvement.call_ledger import LaneCallLedger
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from llmxive.self_improvement.route_context import LaneRouteContext
 
 class _Sink:
@@ -852,11 +1194,22 @@ class _Budget:
     def mark_retained(self, reservation_id) -> None:
         pass
 
-def _ctx(tmp_path, ceiling=10):
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for k, v in (("user.email", "t@t"), ("user.name", "t")):
+        subprocess.run(["git", "config", k, v], cwd=str(tmp_path), check=True)
+    bootstrap_lane_log(tmp_path, config=LaneLogConfig())
+    return tmp_path
+
+def _ctx(repo, ceiling=10):
+    ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
+                            actor="proposer", clock=lambda: "2026-07-25T00:00:00+00:00",
+                            config=LaneLogConfig())
     return LaneRouteContext(
-        repo=tmp_path, problem_id="P1", attempt_id="A1", actor="proposer",
+        repo=repo, problem_id="P1", attempt_id="A1", actor="proposer",
         clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
-        reservation_authority=_Budget(), call_ceiling=ceiling,
+        reservation_authority=_Budget(), call_ledger=ledger,
     )
 
 def _concern(cid="c1"):
@@ -869,7 +1222,7 @@ def _body(proposal="# Revised\n\nScoped to one module.", cid="c1"):
                               "what_changed": "Added a blast-radius section."}]}
     return "```json\n" + json.dumps(payload) + "\n```"
 
-def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(tmp_path, monkeypatch):
+def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(repo, monkeypatch):
     calls = []
 
     def _fake(backend, messages, **kw):
@@ -879,7 +1232,7 @@ def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(tmp_path, monk
 
     monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
     from llmxive.convergence.lane_reviser import LaneProposalReviser
-    ctx = _ctx(tmp_path)
+    ctx = _ctx(repo)
     rev = LaneProposalReviser(backend=object(), route_context=ctx)
 
     updated, responses = rev.revise({"proposal.md": "# Original"}, [_concern()])
@@ -893,37 +1246,101 @@ def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(tmp_path, monk
     assert updated["proposal.md"].startswith("# Revised")
     assert [r.concern_id for r in responses] == ["c1"]
 
-def test_every_concern_must_be_answered(tmp_path, monkeypatch):
+@pytest.mark.parametrize("text, marker", [
+    ("no json block here", "parseable"),                    # nothing to parse
+    ('```json\n{"responses": []}\n```', "no usable"),       # parsed, but no proposal body
+])
+def test_malformed_replies_raise_the_ENGINE_RECOGNIZED_error(repo, monkeypatch, text, marker):
+    # F3: the engine catches RuntimeError (engine.py:527) and then classifies with
+    # is_malformed_reply_error, which keys on "parseable" / "no usable". A ValueError —
+    # or a RuntimeError with any other message — skips the retry and/or files a spurious
+    # engine-failure issue.
+    from llmxive.convergence.revisers._reviser_response import is_malformed_reply_error
+
+    def _fake(backend, messages, **kw):
+        class R: pass
+        R.text = text
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
+    from llmxive.convergence.lane_reviser import LaneProposalReviser
+    rev = LaneProposalReviser(backend=object(), route_context=_ctx(repo))
+    with pytest.raises(RuntimeError) as excinfo:
+        rev.revise({"proposal.md": "# Original"}, [_concern()])
+    assert marker in str(excinfo.value)
+    assert is_malformed_reply_error(excinfo.value)   # the SSoT classifier accepts it
+
+def test_an_unanswered_concern_is_a_malformed_reply(repo, monkeypatch):
+    from llmxive.convergence.revisers._reviser_response import is_malformed_reply_error
+
     def _fake(backend, messages, **kw):
         class R: text = _body(cid="WRONG-ID")  # answers a concern that was not raised
         return R()
 
     monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
     from llmxive.convergence.lane_reviser import LaneProposalReviser
-    rev = LaneProposalReviser(backend=object(), route_context=_ctx(tmp_path))
-    with pytest.raises(ValueError):  # match the engine's malformed-reply type (Step 0)
+    rev = LaneProposalReviser(backend=object(), route_context=_ctx(repo))
+    with pytest.raises(RuntimeError) as excinfo:
         rev.revise({"proposal.md": "# Original"}, [_concern()])
+    assert is_malformed_reply_error(excinfo.value)
 
-def test_unparseable_reply_raises_for_the_engine_retry(tmp_path, monkeypatch):
+def test_conforms_to_the_reviser_protocol(repo):
+    from llmxive.convergence.lane_reviser import LaneProposalReviser
+    from llmxive.convergence.types import Reviser
+    assert isinstance(LaneProposalReviser(backend=object(), route_context=_ctx(repo)), Reviser)
+```
+
+**And the same contract driven through the REAL engine** (the only proof that the retry and the graceful degradation actually engage — F3):
+
+```python
+# append to tests/integration/test_self_improvement_proposal_review.py (Task 9's file)
+def test_one_malformed_reviser_reply_then_a_good_one_recovers(repo, monkeypatch):
+    """engine.py:519-533 gives the reviser ONE retry. The lane reviser's malformed error
+    must be the type + message that retry recognizes."""
+    replies = iter(["garbage, no json", _body()])
+    calls = []
+
     def _fake(backend, messages, **kw):
-        class R: text = "no json block here"
+        calls.append(kw)
+        class R: text = next(replies)
         return R()
 
     monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
-    from llmxive.convergence.lane_reviser import LaneProposalReviser
-    rev = LaneProposalReviser(backend=object(), route_context=_ctx(tmp_path))
-    with pytest.raises(ValueError):
-        rev.revise({"proposal.md": "# Original"}, [_concern()])
+    result = _run_panel_with_one_open_concern(repo, monkeypatch)
+    assert len(calls) == 2                       # retried, not aborted
+    assert result.artifacts["proposal.md"].startswith("# Revised")
 
-def test_conforms_to_the_reviser_protocol(tmp_path):
-    from llmxive.convergence.lane_reviser import LaneProposalReviser
-    from llmxive.convergence.types import Reviser
-    assert isinstance(LaneProposalReviser(backend=object(), route_context=_ctx(tmp_path)), Reviser)
+def test_two_malformed_reviser_replies_degrade_to_no_change(repo, monkeypatch):
+    """Issue #355's contract: after the retry, a RECOGNIZED malformed reply is 'no artifact
+    change this round' — the bounded loop carries the concerns forward. It must NOT crash
+    the panel and must NOT file an engine-failure issue."""
+    def _fake(backend, messages, **kw):
+        class R: text = "garbage, no json"
+        return R()
+
+    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
+    result = _run_panel_with_one_open_concern(repo, monkeypatch)   # no exception
+    assert result.artifacts["proposal.md"] == "# Original"          # unchanged
+    assert not result.converged                                     # concerns carried forward
+
+def test_a_backend_outage_is_a_CLEAN_ABORT_not_a_malformed_reply(repo, monkeypatch):
+    """BackendError subclasses RuntimeError, so the engine checks it FIRST (engine.py:525).
+    A lane reviser outage must abort cleanly, never be retried as malformed output."""
+    from llmxive.backends.base import BackendUnavailable
+
+    def _fake(backend, messages, **kw):
+        raise BackendUnavailable("breaker open")
+
+    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
+    with pytest.raises(BackendUnavailable):
+        _run_panel_with_one_open_concern(repo, monkeypatch)
 ```
+
+`_run_panel_with_one_open_concern(repo, monkeypatch)` is a Task-9 helper: it builds the real proposal `ReviewSpec` with a scripted reviewer panel whose R1 raises exactly one concern, then calls `run_convergence`. Write it once in Task 9 and import it here — do NOT duplicate the body.
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/test_lane_reviser.py -q`
+Run: `pytest tests/integration/test_lane_reviser.py -q`
 Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.convergence.lane_reviser'`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -940,11 +1357,23 @@ whose ``+2`` models the ENGINE's at-most-two reviser attempts per round
 (``engine.py:521-533``). This reviser makes EXACTLY ONE routed call per ``revise()``
 and raises on a malformed reply so the engine's own retry provides the second attempt.
 
+**Malformed-reply contract (round-4 review F3).** The engine's retry loop catches
+``RuntimeError`` (``engine.py:527``) after re-raising ``BackendError`` first, and then
+classifies with ``is_malformed_reply_error`` (``revisers/_reviser_response.py:473-496``),
+which keys on the substrings ``"parseable"`` and ``"no usable"``. So every malformed-reply
+raise below is a ``RuntimeError`` carrying one of those two signatures — NOT a
+``ValueError``, which would skip the retry entirely and escape the run (``_abort_provenance``
+catches only ``BackendUnavailable``/``TransientBackendError``), and not some other
+``RuntimeError`` message, which would be re-raised as a genuine engine defect and file a
+spurious engine-failure issue. Those strings are contract; ``is_malformed_reply_error`` is
+the shared classifier every reviser must satisfy.
+
 Every call carries the lane's mandatory audit sink + Attempt credit authority (F2/F3):
 the reviser is a lane LLM call like any other, and its spend counts against the Attempt."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 
@@ -954,6 +1383,11 @@ from llmxive.convergence.types import Concern, ConcernResponse
 from llmxive.self_improvement.route_context import LaneRouteContext
 
 _JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
+
+#: The two message signatures ``is_malformed_reply_error`` recognizes. Keep in sync with
+#: ``revisers/_reviser_response.py:473-496`` — Task 5 Step 0 re-verifies them.
+_UNPARSEABLE = "lane reviser backend did not return parseable JSON"
+_NO_USABLE = "lane reviser response JSON has no usable"
 
 _SYSTEM = (
     "You are the author of a self-improvement proposal for an autonomous research "
@@ -990,9 +1424,24 @@ class LaneProposalReviser:
             self._backend, messages, model=None, max_tokens=self._max_tokens,
             temperature=self._temperature, profile=self._profile,
             route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority,
-            route_id=ctx.next_route_id(),
+            route_id=ctx.claim_route(operation_id=self._operation_id(artifacts, concerns)),
         )
         return self._parse(getattr(response, "text", "") or "", artifacts, concerns)
+
+    def _operation_id(self, artifacts: dict[str, str], concerns: list[Concern]) -> str:
+        """Deterministic per REVISION ROUND: each round's (artifacts, concerns) pair differs,
+        so rounds get distinct claims, while a restart re-derives the same claim and the same
+        route_id (round-4 F1). ``next_operation_id`` then separates the ENGINE's second
+        attempt: ``engine.py:519-533`` re-invokes ``revise()`` with byte-identical arguments
+        after a malformed reply, and that IS a new logical call (the first one dispatched) —
+        it must get a new route_id and its own ceiling charge, which is exactly what the
+        ceiling's ``+2`` per round pays for."""
+        payload = json.dumps(
+            {"artifacts": artifacts, "concerns": sorted(c.id for c in concerns)},
+            sort_keys=True, ensure_ascii=False,
+        )
+        digest = hashlib.sha256(payload.encode()).hexdigest()[:16]
+        return self._route_context.next_operation_id(f"reviser:{digest}")
 
     def _compose(self, artifacts: dict[str, str], concerns: list[Concern]) -> str:
         body = artifacts.get(self._artifact_key, "")
@@ -1003,21 +1452,25 @@ class LaneProposalReviser:
 
     def _parse(self, text: str, artifacts: dict[str, str], concerns: list[Concern],
                ) -> tuple[dict[str, str], list[ConcernResponse]]:
+        # EVERY raise below is a RuntimeError carrying one of the two signatures
+        # is_malformed_reply_error recognizes (F3). A ValueError here would skip the
+        # engine's one retry entirely and escape the run without provenance.
         match = _JSON_BLOCK.search(text)
         if match is None:
-            raise ValueError("lane reviser reply has no fenced ```json block")
+            raise RuntimeError(f"{_UNPARSEABLE} — no fenced ```json block in the reply")
         try:
             payload = json.loads(match.group(1))
         except json.JSONDecodeError as exc:
-            raise ValueError(f"lane reviser reply is not valid JSON: {exc}") from exc
+            raise RuntimeError(f"{_UNPARSEABLE}: {exc}") from exc
         proposal = payload.get("proposal")
         if not isinstance(proposal, str) or not proposal.strip():
-            raise ValueError("lane reviser reply is missing a non-empty 'proposal'")
+            raise RuntimeError(f"{_NO_USABLE} 'proposal' body")
         answered = {r.get("concern_id") for r in payload.get("responses", [])}
         expected = {c.id for c in concerns}
         if answered != expected:
-            raise ValueError(
-                f"lane reviser answered {sorted(answered)!r}, expected exactly {sorted(expected)!r}"
+            raise RuntimeError(
+                f"{_NO_USABLE} concern responses: answered {sorted(answered)!r}, "
+                f"expected exactly {sorted(expected)!r}"
             )
         responses = [
             ConcernResponse(
@@ -1035,13 +1488,18 @@ class LaneProposalReviser:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/unit/test_lane_reviser.py -q`
-Expected: PASS (4 passed).
+Run: `pytest tests/integration/test_lane_reviser.py -q`
+Expected: PASS (6 passed: 1 single-call + 2 parametrized malformed + 1 unanswered-concern + 1 protocol).
+
+- [ ] **Step 4b: Run the ENGINE-driven contract tests** (they live in Task 9's file and only pass once Task 9's helper exists — run them at the end of Task 9, and record here that they are part of THIS task's acceptance):
+
+Run: `pytest tests/integration/test_self_improvement_proposal_review.py -k reviser -q`
+Expected: PASS (3 passed: retry-recovers, two-malformed-degrades, outage-is-a-clean-abort).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/llmxive/convergence/lane_reviser.py tests/unit/test_lane_reviser.py
+git add src/llmxive/convergence/lane_reviser.py tests/integration/test_lane_reviser.py
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T5): LaneProposalReviser — one routed call per revise, lane hooks carried"
 ```
 
@@ -1056,16 +1514,27 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T5): LaneProposalR
 **Interfaces:**
 - Consumes: lane `Event`s (Slice 1A) — the audit events `EventStoreRouteAudit` recorded, plus `ReviewRerouted` (Task 1).
 - Produces:
-  - `@dataclass(frozen=True) class IndependenceDegraded`: `primary_profile: str`, `fallback_profile: str`, `primary_failure: Mapping[str, str]` (`{exception_type, message}`), `relaxed_constraints: tuple[str, ...]`.
+  - `class InvocationIdentityError(ValueError)` — the durable audit stream cannot yield ONE unambiguous identity for this route (duplicate authoritative events, a mismatched Attempt, or a reroute whose primary leg has no `SelectionFailure`). Fail closed: an ambiguous identity is worse than none, because it is provenance that LOOKS authoritative.
+  - `@dataclass(frozen=True) class IndependenceDegraded`: `primary_profile: str`, `fallback_profile: str`, `primary_failure: Mapping[str, object]`, `relaxed_constraints: tuple[str, ...]`.
+    **`primary_failure` carries all FOUR spec fields (round-4 review F5).** Spec 025 FR-002 (line 149) specifies `primary_failure: {exception_type, message, requirement_digest, snapshot_provenance}`; the round-3 plan stored only the first two. The missing two are **not duplicated into the `ReviewRerouted` payload** — slice-0 already emits them: `_select_audited` (`route.py:236-240`) emits a `SelectionFailure` for the primary leg carrying `requirement_digest` and the full `snapshot_provenance`. So `build_invocation_identity` **joins** the reroute's `primary_route_id` to that `SelectionFailure` and merges the four fields. One source of truth, an explicit reroute decision, and no divergence risk between two copies.
+    The join **fails closed** (`InvocationIdentityError`) when: the referenced primary `SelectionFailure` is missing; its `exception_type` is not `ModelUnavailable`; or its Attempt id does not match this route's.
   - `@dataclass(frozen=True) class InvocationIdentity` — the Key-Entities field set (spec line 227) PLUS the provenance the maintainer review required: `actor_instance_id: str`, `model: str`, `backend: str`, `serving_endpoint: str`, `vendor: str`, `family: str`, `prompt_digest: str`, `context_digest: str`, `selection_policy_version: int`, `snapshot_digest: str`, `snapshot_provenance: Mapping[str, Mapping[str, object]]`, `route_outcome: str`, `degradation: IndependenceDegraded | None = None`. (`serving_endpoint`, `vendor`, and `snapshot_provenance` are what make "reproduce *why that model was chosen*" actually checkable.)
-  - `build_invocation_identity(events: list[Event], *, route_id: str) -> InvocationIdentity | None` — from the events whose `payload["route_id"] == route_id`: the `ChainResolved` supplies the digests, `selection_policy_version`, `snapshot_digest`, `snapshot_provenance`; the `DispatchCompleted` supplies the `candidate` that ACTUALLY ran (model/backend/serving_endpoint/vendor/family); `actor_instance_id = route_id`. `route_outcome` is `"independence_degraded"` **iff a `ReviewRerouted` event names this `route_id` as its `fallback_route_id`** — read from the EXPLICIT record (F10), never inferred from a `SelectionFailure`+success coincidence. Returns `None` when there is no `ChainResolved`+`DispatchCompleted` pair (nothing ran → a failed logical call, no identity).
+  - `build_invocation_identity(events: list[Event], *, route_id: str, attempt_id: str) -> InvocationIdentity | None` — from the events whose `payload["route_id"] == route_id`: the `ChainResolved` supplies the digests, `selection_policy_version`, `snapshot_digest`, `snapshot_provenance`; the `DispatchCompleted` supplies the `candidate` that ACTUALLY ran (model/backend/serving_endpoint/vendor/family); `actor_instance_id = route_id`. `route_outcome` is `"independence_degraded"` **iff a `ReviewRerouted` event names this `route_id` as its `fallback_route_id`** — read from the EXPLICIT record (F10), never inferred from a `SelectionFailure`+success coincidence. Returns `None` when there is no `ChainResolved`+`DispatchCompleted` pair (nothing ran → a failed logical call, no identity).
+  - **Selection is uniqueness-checked, not `next()` (round-4 review F8).** `next()` silently resolves a corrupt stream by list order, so a duplicated or conflicting event would quietly pick one and produce authoritative-looking provenance. The rule is **exactly one** `ChainResolved` for the route (`route.py:393` emits it once per `route_chat` — the two-pass `exclude_leader` path emits only `SelectionFailure`s in pass 1, so a second one means corruption), **at most one** `DispatchCompleted` (`execute` returns on the first success), and **zero or one** `ReviewRerouted` naming this route as its fallback. More than one of any → `InvocationIdentityError`. Zero `DispatchCompleted` → `None` (nothing ran), which is not corruption.
+  - **Attempt binding.** `attempt_id` is now a REQUIRED argument, and every event the identity is built from must carry it (`Event.attempt_id`). A route id colliding across Attempts, or an event mis-filed under the wrong Attempt, would otherwise attribute one Attempt's model choice to another. Mismatch → `InvocationIdentityError`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```python
 # tests/unit/test_self_improvement_invocation_identity.py
+from dataclasses import replace
+
+import pytest
+
 from llmxive.self_improvement.events import Event
-from llmxive.self_improvement.invocation_identity import build_invocation_identity
+from llmxive.self_improvement.invocation_identity import (
+    InvocationIdentityError, build_invocation_identity,
+)
 
 _REF = {"backend": "dartmouth", "serving_endpoint": "dartmouth", "model_id": "gemma-3-27b",
         "model_family": "gemma", "vendor": "google"}
@@ -1093,8 +1562,16 @@ def _rerouted(primary, fallback):
         "primary_failure": {"exception_type": "ModelUnavailable", "message": "none live"},
         "relaxed_constraints": ["family_independence", "snapshot_freshness"]}, "rr")
 
+def _selfail(route_id, exception_type="ModelUnavailable", eid="s"):
+    return _ev("SelectionFailure", {"route_id": route_id, "exception_type": exception_type,
+                                    "message": "none live", "requirement_digest": "rq-1",
+                                    "snapshot_provenance": _PROV}, eid)
+
+def _build(events, route_id="R"):
+    return build_invocation_identity(events, route_id=route_id, attempt_id="A1")
+
 def test_success_identity_carries_full_selection_provenance():
-    ii = build_invocation_identity([_chain("R"), _done("R")], route_id="R")
+    ii = _build([_chain("R"), _done("R")])
     assert ii is not None
     assert (ii.model, ii.family, ii.backend) == ("gemma-3-27b", "gemma", "dartmouth")
     assert (ii.serving_endpoint, ii.vendor) == ("dartmouth", "google")   # reproduce WHY
@@ -1104,28 +1581,67 @@ def test_success_identity_carries_full_selection_provenance():
     assert ii.route_outcome == "success" and ii.degradation is None
     assert ii.actor_instance_id == "R"
 
-def test_degradation_comes_from_the_explicit_reroute_event():
-    # The FALLBACK leg's route_id is what ran; the explicit ReviewRerouted event names it.
-    events = [_rerouted("R1", "R2"), _chain("R2"), _done("R2")]
-    ii = build_invocation_identity(events, route_id="R2")
+def test_degradation_joins_the_primary_leg_SelectionFailure():
+    # F5: FR-002 (spec line 149) requires primary_failure to carry FOUR fields. The last
+    # two live on the primary leg's SelectionFailure (route.py:236-240) — join, don't
+    # duplicate, so the two records can never disagree.
+    events = [_selfail("R1"), _rerouted("R1", "R2"), _chain("R2"), _done("R2")]
+    ii = _build(events, route_id="R2")
     assert ii.route_outcome == "independence_degraded"
     assert ii.degradation.primary_profile == "independent_review"
     assert ii.degradation.fallback_profile == "deep_review"
-    assert ii.degradation.primary_failure["exception_type"] == "ModelUnavailable"
     assert ii.degradation.relaxed_constraints == ("family_independence", "snapshot_freshness")
+    pf = ii.degradation.primary_failure
+    assert pf["exception_type"] == "ModelUnavailable"
+    assert pf["message"] == "none live"
+    assert pf["requirement_digest"] == "rq-1"          # from the SelectionFailure
+    assert pf["snapshot_provenance"] == _PROV          # from the SelectionFailure
+
+def test_a_reroute_without_its_primary_SelectionFailure_fails_closed():
+    # An unjoinable degradation record cannot describe WHY the primary failed; emitting a
+    # partial identity would be provenance that looks authoritative but isn't.
+    with pytest.raises(InvocationIdentityError, match="SelectionFailure"):
+        _build([_rerouted("R1", "R2"), _chain("R2"), _done("R2")], route_id="R2")
+
+def test_a_reroute_whose_primary_failed_for_another_reason_fails_closed():
+    with pytest.raises(InvocationIdentityError, match="ModelUnavailable"):
+        _build([_selfail("R1", exception_type="ChainExhausted"), _rerouted("R1", "R2"),
+                _chain("R2"), _done("R2")], route_id="R2")
 
 def test_a_selection_failure_alone_does_not_imply_degradation():
     # F10: no inference from an event PATTERN — without an explicit ReviewRerouted record
     # naming this route as the fallback leg, the outcome is a plain success.
-    sf = _ev("SelectionFailure", {"route_id": "R", "exception_type": "ModelUnavailable",
-                                  "message": "x", "requirement_digest": "rq",
-                                  "snapshot_provenance": _PROV}, "s")
-    ii = build_invocation_identity([sf, _chain("R"), _done("R")], route_id="R")
+    ii = _build([_selfail("R"), _chain("R"), _done("R")])
     assert ii.route_outcome == "success" and ii.degradation is None
 
 def test_no_dispatch_yields_no_identity():
-    assert build_invocation_identity([_chain("R")], route_id="R") is None
+    assert _build([_chain("R")]) is None
+
+# ---- F8: uniqueness + Attempt binding ----
+
+def test_duplicate_chain_resolved_is_corruption():
+    # next() would silently take the first. route.py:393 emits exactly ONE per route_chat.
+    with pytest.raises(InvocationIdentityError, match="ChainResolved"):
+        _build([_chain("R"), _chain("R"), _done("R")])
+
+def test_duplicate_dispatch_completed_is_corruption():
+    with pytest.raises(InvocationIdentityError, match="DispatchCompleted"):
+        _build([_chain("R"), _done("R"), _done("R")])
+
+def test_two_reroutes_naming_the_same_fallback_is_corruption():
+    with pytest.raises(InvocationIdentityError, match="ReviewRerouted"):
+        _build([_selfail("R1"), _rerouted("R1", "R2"), _rerouted("R1", "R2"),
+                _chain("R2"), _done("R2")], route_id="R2")
+
+def test_an_event_from_another_attempt_fails_closed():
+    other = _ev("DispatchCompleted", {"route_id": "R", "candidate_index": 0,
+                                      "candidate": _REF, "reservation_id": None}, "d2")
+    other = replace(other, attempt_id="A2")
+    with pytest.raises(InvocationIdentityError, match="attempt"):
+        _build([_chain("R"), other])
 ```
+
+(`_ev` builds every event with `attempt_id="A1"`; `replace` is `dataclasses.replace`.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -1151,12 +1667,32 @@ from dataclasses import dataclass
 
 from llmxive.self_improvement.events import Event
 
+class InvocationIdentityError(ValueError):
+    """The audit stream cannot yield ONE unambiguous identity for this route (duplicate
+    authoritative events, an Attempt mismatch, or a reroute whose primary leg has no
+    usable ``SelectionFailure``). Fail closed: ambiguous provenance is worse than none,
+    because it still LOOKS authoritative."""
+
 @dataclass(frozen=True)
 class IndependenceDegraded:
     primary_profile: str
     fallback_profile: str
-    primary_failure: Mapping[str, str]
+    #: All FOUR spec fields (FR-002, spec line 149): exception_type + message from the
+    #: reroute record, requirement_digest + snapshot_provenance JOINED from the primary
+    #: leg's SelectionFailure (route.py:236-240) rather than duplicated.
+    primary_failure: Mapping[str, object]
     relaxed_constraints: tuple[str, ...]
+
+def _exactly_one(events: list[Event], event_type: str, route_id: str) -> Event | None:
+    """Return the single event of ``event_type``, or None if there are none. More than one
+    is CORRUPTION (F8) — never silently resolved by list order the way ``next()`` would."""
+    matches = [e for e in events if e.event_type == event_type]
+    if len(matches) > 1:
+        raise InvocationIdentityError(
+            f"route {route_id!r} has {len(matches)} {event_type} events; exactly one is "
+            "authoritative — refusing to pick one by list order"
+        )
+    return matches[0] if matches else None
 
 @dataclass(frozen=True)
 class InvocationIdentity:
@@ -1174,25 +1710,71 @@ class InvocationIdentity:
     route_outcome: str
     degradation: IndependenceDegraded | None = None
 
-def build_invocation_identity(events: list[Event], *, route_id: str) -> InvocationIdentity | None:
+def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
+                     attempt_id: str) -> dict[str, object]:
+    """FR-002's four-field ``primary_failure`` (F5): the reroute record's exception_type +
+    message, JOINED to the primary leg's ``SelectionFailure`` for the requirement digest and
+    snapshot provenance that slice-0 already emits (``route.py:236-240``). Joining beats
+    duplicating — two copies could disagree and only one would be the real selection input.
+
+    Fails closed if the primary leg has no ``SelectionFailure``, if that failure was not a
+    ``ModelUnavailable`` (FR-002 sanctions the reroute for nothing else), or if it belongs
+    to another Attempt."""
+    primary_route_id = reroute_payload["primary_route_id"]
+    scoped = [e for e in events
+              if e.event_type == "SelectionFailure" and e.payload.get("route_id") == primary_route_id]
+    failure = _exactly_one(scoped, "SelectionFailure", str(primary_route_id))
+    if failure is None:
+        raise InvocationIdentityError(
+            f"reroute names primary route {primary_route_id!r} but no SelectionFailure was "
+            "recorded for it — the degradation cannot say WHY the primary leg failed"
+        )
+    if failure.attempt_id != attempt_id:
+        raise InvocationIdentityError(
+            f"primary SelectionFailure for {primary_route_id!r} belongs to attempt "
+            f"{failure.attempt_id!r}, not {attempt_id!r}"
+        )
+    if failure.payload.get("exception_type") != "ModelUnavailable":
+        raise InvocationIdentityError(
+            f"primary leg {primary_route_id!r} failed with "
+            f"{failure.payload.get('exception_type')!r}; FR-002 reroutes ONLY on ModelUnavailable"
+        )
+    declared = reroute_payload["primary_failure"]
+    return {
+        "exception_type": declared["exception_type"],
+        "message": declared["message"],
+        "requirement_digest": failure.payload["requirement_digest"],
+        "snapshot_provenance": failure.payload["snapshot_provenance"],
+    }
+
+def build_invocation_identity(events: list[Event], *, route_id: str,
+                              attempt_id: str) -> InvocationIdentity | None:
     scoped = [e for e in events if e.payload.get("route_id") == route_id]
-    chain = next((e for e in scoped if e.event_type == "ChainResolved"), None)
-    completed = next((e for e in scoped if e.event_type == "DispatchCompleted"), None)
+    for e in scoped:                                   # F8: Attempt binding
+        if e.attempt_id != attempt_id:
+            raise InvocationIdentityError(
+                f"route {route_id!r} has a {e.event_type} filed under attempt "
+                f"{e.attempt_id!r}, not {attempt_id!r} — refusing to attribute it"
+            )
+    chain = _exactly_one(scoped, "ChainResolved", route_id)
+    completed = _exactly_one(scoped, "DispatchCompleted", route_id)
     if chain is None or completed is None:
         return None  # nothing actually ran → a failed logical call, no identity
-    rerouted = next(
-        (e for e in events
-         if e.event_type == "ReviewRerouted" and e.payload.get("fallback_route_id") == route_id),
-        None,
-    )
-    if rerouted is None:
+    reroutes = [e for e in events
+                if e.event_type == "ReviewRerouted" and e.payload.get("fallback_route_id") == route_id]
+    if len(reroutes) > 1:
+        raise InvocationIdentityError(
+            f"route {route_id!r} is named as the fallback leg by {len(reroutes)} "
+            "ReviewRerouted records — conflicting degradation history"
+        )
+    if not reroutes:
         outcome, degradation = "success", None
     else:
-        p = rerouted.payload
+        p = reroutes[0].payload
         outcome = "independence_degraded"
         degradation = IndependenceDegraded(
             primary_profile=p["primary_profile"], fallback_profile=p["fallback_profile"],
-            primary_failure=p["primary_failure"],
+            primary_failure=_primary_failure(events, p, attempt_id),
             relaxed_constraints=tuple(p["relaxed_constraints"]),
         )
     ref, cp = completed.payload["candidate"], chain.payload
@@ -1209,7 +1791,7 @@ def build_invocation_identity(events: list[Event], *, route_id: str) -> Invocati
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_invocation_identity.py -q`
-Expected: PASS (4 passed).
+Expected: PASS (10 passed).
 
 - [ ] **Step 5: Commit**
 
@@ -1225,7 +1807,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T6): complete Invo
 **Files:**
 - Create: `agents/prompts/panels/panel_si_proposal_worthwhile-improvement.md`, `..._diagnosis-correctness.md`, `..._tractability.md`, `..._testability.md`, `..._blast-radius-sanity.md`
 - Create: `src/llmxive/convergence/self_improvement_specs.py`
-- Test: `tests/unit/test_self_improvement_review_spec.py`
+- Test: `tests/integration/test_self_improvement_review_spec.py`
 
 **Interfaces:**
 - Consumes: `LLMReviewer` with the lane params (Task 4); `LaneProposalReviser` (Task 5); `LaneRouteContext` + `proposal_call_ceiling` (Task 2); `ReviewSpec` (`convergence/types.py:295-313`).
@@ -1242,7 +1824,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T6): complete Invo
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_self_improvement_review_spec.py
+# tests/integration/test_self_improvement_review_spec.py
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -1251,6 +1834,8 @@ from llmxive.convergence.self_improvement_specs import (
     PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, PROPOSAL_STAGE, build_proposal_review_spec,
 )
 from llmxive.model_selection.types import IndependenceBaseline
+from llmxive.self_improvement.call_ledger import LaneCallLedger
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from llmxive.self_improvement.route_context import LaneRouteContext, proposal_call_ceiling
 
 class _Sink:
@@ -1262,19 +1847,31 @@ class _Budget:
     def release(self, reservation_id) -> None: ...
     def mark_retained(self, reservation_id) -> None: ...
 
-def _ctx(tmp_path):
-    return LaneRouteContext(
-        repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane",
-        clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
-        reservation_authority=_Budget(),
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for k, v in (("user.email", "t@t"), ("user.name", "t")):
+        subprocess.run(["git", "config", k, v], cwd=str(tmp_path), check=True)
+    bootstrap_lane_log(tmp_path, config=LaneLogConfig())
+    return tmp_path
+
+def _ctx(repo):
+    ledger = LaneCallLedger(
+        repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
+        clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig(),
         call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
     )
+    return LaneRouteContext(
+        repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
+        clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
+        reservation_authority=_Budget(), call_ledger=ledger,
+    )
 
-def test_spec_wires_every_lens_with_the_reroute_and_the_shared_context(tmp_path):
+def test_spec_wires_every_lens_with_the_reroute_and_the_shared_context(repo):
     # Uses the REAL repo prompts (repo_root=the actual repo), so a missing/misnamed
     # prompt file fails this test rather than surfacing at runtime.
     baseline = IndependenceBaseline(families=frozenset({"qwen3.5"}))
-    ctx = _ctx(tmp_path)
+    ctx = _ctx(repo)
     spec = build_proposal_review_spec(
         backend=object(), repo_root=Path("."), proposer_baseline=baseline, route_context=ctx,
     )
@@ -1300,7 +1897,7 @@ def test_ceiling_matches_the_panel_it_builds():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/test_self_improvement_review_spec.py -q`
+Run: `pytest tests/integration/test_self_improvement_review_spec.py -q`
 Expected: FAIL — `ModuleNotFoundError: ... self_improvement_specs`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -1375,13 +1972,13 @@ def build_proposal_review_spec(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/unit/test_self_improvement_review_spec.py -q`
+Run: `pytest tests/integration/test_self_improvement_review_spec.py -q`
 Expected: PASS (3 passed).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/llmxive/convergence/self_improvement_specs.py agents/prompts/panels tests/unit/test_self_improvement_review_spec.py
+git add src/llmxive/convergence/self_improvement_specs.py agents/prompts/panels tests/integration/test_self_improvement_review_spec.py
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T7): self_improvement_proposal ReviewSpec + 5 lens prompts"
 ```
 
@@ -1391,13 +1988,18 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T7): self_improvem
 
 **Files:**
 - Modify: `src/llmxive/convergence/self_improvement_specs.py`
-- Test: `tests/unit/test_run_proposal_review.py`
+- Test: `tests/integration/test_run_proposal_review.py`
 
 **Interfaces:**
 - Consumes: `build_proposal_review_spec` (Task 7); `run_convergence` (`engine.py:393`); `RouteAuditError`, `RouteReplayError` (slice-0 `attempt_hooks`); `LaneCallCeilingExceeded` (Task 2).
 - Produces:
-  - `@dataclass(frozen=True) class ProposalReviewOutcome`: `result: ConvergenceResult | None`, `failed_closed: bool`, `failure_kind: str` (`""` | `"audit_fatal"` | `"replay"` | `"ceiling"`), `failure_detail: str`.
-  - `run_proposal_review(*, backend, repo_root, proposer_baseline, route_context, artifacts, artifact_key="proposal.md", constitution=None, advisory=None) -> ProposalReviewOutcome` — builds the spec and calls `run_convergence(spec, artifacts, constitution=..., advisory=...)`, then owns the lane's **fail-closed** classification:
+  - `@dataclass(frozen=True) class ProposalReviewOutcome`: `result: ConvergenceResult | None`, `failed_closed: bool`, `failure_kind: str` (`""` | `"audit_fatal"` | `"replay"` | `"ceiling"`), `failure_detail: str`, `producer_identity: InvocationIdentity | None`.
+  - `run_proposal_review(*, backend, repo_root, proposer_baseline, route_context, artifacts, artifact_key="proposal.md", producer=None, proposer_route_id=None, constitution=None, advisory=None) -> ProposalReviewOutcome` — builds the spec and calls `run_convergence(spec, artifacts, producer=producer, constitution=..., advisory=...)`, then owns the lane's **fail-closed** classification.
+  - **Producer provenance (round-4 review F7).** Two separate things, both required by FR-002:
+    1. `producer` is forwarded to `run_convergence` (`engine.py:399/421`). Spec line 150 is explicit that this exclusion is *necessary-not-sufficient* and MUST NOT be relied on — it drops reviewers whose **lens name** equals the string, so it excludes nothing unless a lens is literally named that. Real independence comes from the family constraint (Task 4). It is passed anyway because it is the documented secondary guard and costs one argument; the docstring says exactly this so nobody later mistakes it for the safeguard.
+    2. `proposer_route_id`, when given, resolves the proposer's **full `InvocationIdentity`** out of the same lane log via `build_invocation_identity` (Task 6) and carries it on the outcome. An `IndependenceBaseline` alone is not durable producer provenance — it records the families to avoid, not which model actually authored the proposal, with what prompt, under which snapshot. Supplying a `proposer_route_id` that does not resolve to an identity is a **fail-closed error** (`InvocationIdentityError`), never a silent `None`: a proposal whose author cannot be identified must not be reviewed as if it could. Omitting the argument entirely is allowed at this slice — the proposer itself lands in a later slice — and yields `producer_identity=None`.
+
+    The classification:
     - `RouteAuditError` → `failed_closed=True, failure_kind="audit_fatal"`. **Why here:** the engine's `_abort_provenance` (`engine.py:433-448`) catches ONLY `BackendUnavailable`/`TransientBackendError`, so these lane errors would otherwise propagate raw with no provenance. Per FR-033a an audit-abort is a failed logical call — NOT a `ModelUnavailable`, so it never triggers the reroute and never advances a candidate.
     - `RouteReplayError` → `failed_closed=True, failure_kind="replay"`. Per FR-033a's route-replay disposition: never rerouted, never chain-advanced, reservation stays `retained`, reconciled from durable dispatch state — and explicitly **never retried** as a transient error.
     - `LaneCallCeilingExceeded` → `failed_closed=True, failure_kind="ceiling"` (Policy Contract line 313).
@@ -1407,13 +2009,16 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T7): self_improvem
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_run_proposal_review.py
+# tests/integration/test_run_proposal_review.py
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from llmxive.model_selection.attempt_hooks import RouteAuditError, RouteReplayError
 from llmxive.model_selection.types import IndependenceBaseline
+from llmxive.self_improvement.call_ledger import LaneCallLedger
+from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from llmxive.self_improvement.route_context import (
     LaneCallCeilingExceeded, LaneRouteContext, proposal_call_ceiling,
 )
@@ -1427,48 +2032,95 @@ class _Budget:
     def release(self, reservation_id) -> None: ...
     def mark_retained(self, reservation_id) -> None: ...
 
-def _ctx(tmp_path):
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    for k, v in (("user.email", "t@t"), ("user.name", "t")):
+        subprocess.run(["git", "config", k, v], cwd=str(tmp_path), check=True)
+    bootstrap_lane_log(tmp_path, config=LaneLogConfig())
+    return tmp_path
+
+def _ctx(repo):
+    ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1",
+                            call_ceiling=proposal_call_ceiling(5, 3), actor="lane",
+                            clock=lambda: "2026-07-25T00:00:00+00:00", config=LaneLogConfig())
     return LaneRouteContext(
-        repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane",
+        repo=repo, problem_id="P1", attempt_id="A1", actor="lane",
         clock=lambda: "2026-07-25T00:00:00+00:00", route_audit=_Sink(),
-        reservation_authority=_Budget(), call_ceiling=proposal_call_ceiling(5, 3),
+        reservation_authority=_Budget(), call_ledger=ledger,
     )
 
-def _run(tmp_path, monkeypatch, boom):
+def _run(repo, monkeypatch, boom, **kw):
     from llmxive.convergence import self_improvement_specs as mod
 
-    def _fake_run_convergence(spec, artifacts, **kw):
-        raise boom
+    def _fake_run_convergence(spec, artifacts, **kwargs):
+        if boom is not None:
+            raise boom
+        return _SENTINEL_RESULT
 
     monkeypatch.setattr(mod, "run_convergence", _fake_run_convergence)
     return mod.run_proposal_review(
         backend=object(), repo_root=Path("."), proposer_baseline=IndependenceBaseline(),
-        route_context=_ctx(tmp_path), artifacts={"proposal.md": "# P"},
+        route_context=_ctx(repo), artifacts={"proposal.md": "# P"}, **kw,
     )
 
-def test_audit_fatal_fails_closed(tmp_path, monkeypatch):
-    out = _run(tmp_path, monkeypatch, RouteAuditError("sink down"))
+def test_audit_fatal_fails_closed(repo, monkeypatch):
+    out = _run(repo, monkeypatch, RouteAuditError("sink down"))
     assert out.failed_closed and out.failure_kind == "audit_fatal" and out.result is None
 
-def test_replay_fails_closed_and_is_never_retried(tmp_path, monkeypatch):
-    out = _run(tmp_path, monkeypatch, RouteReplayError("already dispatched"))
+def test_replay_fails_closed_and_is_never_retried(repo, monkeypatch):
+    out = _run(repo, monkeypatch, RouteReplayError("already dispatched"))
     assert out.failed_closed and out.failure_kind == "replay"
 
-def test_ceiling_fails_closed(tmp_path, monkeypatch):
-    out = _run(tmp_path, monkeypatch, LaneCallCeilingExceeded("out of calls"))
+def test_ceiling_fails_closed(repo, monkeypatch):
+    out = _run(repo, monkeypatch, LaneCallCeilingExceeded("out of calls"))
     assert out.failed_closed and out.failure_kind == "ceiling"
 
-def test_backend_unavailable_is_not_swallowed(tmp_path, monkeypatch):
+def test_backend_unavailable_is_not_swallowed(repo, monkeypatch):
     # The engine already records + re-raises this clean abort; the lane must NOT convert
     # it into a fail-closed outcome (the run parks and resumes next tick).
     from llmxive.backends.base import BackendUnavailable
     with pytest.raises(BackendUnavailable):
-        _run(tmp_path, monkeypatch, BackendUnavailable("breaker open"))
+        _run(repo, monkeypatch, BackendUnavailable("breaker open"))
+
+def test_producer_is_forwarded_to_the_engine(repo, monkeypatch):
+    # F7: the documented secondary guard. NOT the safeguard — that is the family
+    # constraint — but it must actually reach run_convergence.
+    from llmxive.convergence import self_improvement_specs as mod
+    seen = {}
+
+    def _fake_run_convergence(spec, artifacts, **kwargs):
+        seen.update(kwargs)
+        return _SENTINEL_RESULT
+
+    monkeypatch.setattr(mod, "run_convergence", _fake_run_convergence)
+    mod.run_proposal_review(
+        backend=object(), repo_root=Path("."), proposer_baseline=IndependenceBaseline(),
+        route_context=_ctx(repo), artifacts={"proposal.md": "# P"}, producer="proposer",
+    )
+    assert seen["producer"] == "proposer"
+
+def test_an_unresolvable_proposer_route_id_fails_closed(repo, monkeypatch):
+    # F7: a proposal whose author cannot be identified must not be reviewed as if it could.
+    from llmxive.self_improvement.invocation_identity import InvocationIdentityError
+    with pytest.raises(InvocationIdentityError, match="no durable author provenance"):
+        _run(repo, monkeypatch, None, proposer_route_id="never-dispatched")
+
+def test_a_resolvable_proposer_route_id_is_carried_on_the_outcome(repo, monkeypatch):
+    # Write a real ChainResolved + DispatchCompleted pair for the proposer's route, then
+    # assert the outcome carries the FULL identity — not just the baseline.
+    _write_proposer_route(repo, route_id="PR-1")     # helper: two lane_log.append calls
+    out = _run(repo, monkeypatch, None, proposer_route_id="PR-1")
+    assert out.producer_identity is not None
+    assert out.producer_identity.actor_instance_id == "PR-1"
+    assert out.producer_identity.model and out.producer_identity.family
 ```
+
+`_write_proposer_route(repo, *, route_id)` appends a `ChainResolved` and a `DispatchCompleted` for `route_id` under `attempt_id="A1"` using `lane_log.append(..., expected_revision=None)` and the same `_REF`/`_PROV` payload shapes as Task 6's tests. `_SENTINEL_RESULT` is a minimal real `ConvergenceResult` (built from `convergence.types`, not a mock).
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/unit/test_run_proposal_review.py -q`
+Run: `pytest tests/integration/test_run_proposal_review.py -q`
 Expected: FAIL — `AttributeError: module ... has no attribute 'run_proposal_review'`.
 
 - [ ] **Step 3: Write minimal implementation** (append to `self_improvement_specs.py`)
@@ -1479,6 +2131,10 @@ from dataclasses import dataclass
 from llmxive.convergence.engine import run_convergence
 from llmxive.convergence.types import ConvergenceResult
 from llmxive.model_selection.attempt_hooks import RouteAuditError, RouteReplayError
+from llmxive.self_improvement.invocation_identity import (
+    InvocationIdentity, InvocationIdentityError, build_invocation_identity,
+)
+from llmxive.self_improvement.lane_log import read
 from llmxive.self_improvement.route_context import LaneCallCeilingExceeded
 
 @dataclass(frozen=True)
@@ -1487,6 +2143,7 @@ class ProposalReviewOutcome:
     failed_closed: bool
     failure_kind: str      # "" | "audit_fatal" | "replay" | "ceiling"
     failure_detail: str
+    producer_identity: InvocationIdentity | None = None
 
 def run_proposal_review(
     *,
@@ -1496,40 +2153,65 @@ def run_proposal_review(
     route_context: LaneRouteContext,
     artifacts: dict[str, str],
     artifact_key: str = "proposal.md",
+    producer: str | None = None,
+    proposer_route_id: str | None = None,
     constitution: str | None = None,
     advisory: list[str] | None = None,
 ) -> ProposalReviewOutcome:
     """Run the proposal panel through the SHARED, UNMODIFIED ``run_convergence`` and own
     the lane's fail-closed classification. The engine's ``_abort_provenance``
     (``engine.py:433-448``) catches only ``BackendUnavailable``/``TransientBackendError``,
-    so the three lane-fatal conditions are classified here instead of propagating raw."""
+    so the three lane-fatal conditions are classified here instead of propagating raw.
+
+    ``producer`` is forwarded to the engine's self-review exclusion. Spec 025 line 150 is
+    explicit that this is NECESSARY-NOT-SUFFICIENT: ``engine.py:421`` drops reviewers whose
+    LENS NAME equals the string, so it excludes nothing unless a lens is literally named
+    that. Real independence comes from the family constraint on each reviewer (Task 4) —
+    never treat this argument as the safeguard.
+
+    ``proposer_route_id`` resolves the proposer's full ``InvocationIdentity`` from the same
+    lane log (F7): an ``IndependenceBaseline`` records which families to avoid, not who
+    actually authored the proposal. An id that does not resolve raises — a proposal whose
+    author cannot be identified must not be reviewed as though it could."""
+    producer_identity = None
+    if proposer_route_id is not None:
+        producer_identity = build_invocation_identity(
+            read(route_context.repo, route_context.problem_id, config=route_context.config),
+            route_id=proposer_route_id, attempt_id=route_context.attempt_id,
+        )
+        if producer_identity is None:
+            raise InvocationIdentityError(
+                f"proposer route {proposer_route_id!r} has no completed dispatch in the lane "
+                "log — refusing to review a proposal with no durable author provenance"
+            )
     spec = build_proposal_review_spec(
         backend=backend, repo_root=repo_root, proposer_baseline=proposer_baseline,
         route_context=route_context, artifact_key=artifact_key,
     )
     try:
-        result = run_convergence(spec, artifacts, constitution=constitution, advisory=advisory)
+        result = run_convergence(spec, artifacts, producer=producer,
+                                 constitution=constitution, advisory=advisory)
     except RouteAuditError as exc:
         # FR-033a: route-fatal. NOT a ModelUnavailable → never reroutes, never advances.
-        return ProposalReviewOutcome(None, True, "audit_fatal", str(exc))
+        return ProposalReviewOutcome(None, True, "audit_fatal", str(exc), producer_identity)
     except RouteReplayError as exc:
         # FR-033a route-replay disposition: a failed logical call — reservation stays
         # retained, reconcile from durable dispatch state, NEVER retry as transient.
-        return ProposalReviewOutcome(None, True, "replay", str(exc))
+        return ProposalReviewOutcome(None, True, "replay", str(exc), producer_identity)
     except LaneCallCeilingExceeded as exc:
-        return ProposalReviewOutcome(None, True, "ceiling", str(exc))
-    return ProposalReviewOutcome(result, False, "", "")
+        return ProposalReviewOutcome(None, True, "ceiling", str(exc), producer_identity)
+    return ProposalReviewOutcome(result, False, "", "", producer_identity)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/unit/test_run_proposal_review.py -q`
-Expected: PASS (4 passed).
+Run: `pytest tests/integration/test_run_proposal_review.py -q`
+Expected: PASS (7 passed).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/llmxive/convergence/self_improvement_specs.py tests/unit/test_run_proposal_review.py
+git add src/llmxive/convergence/self_improvement_specs.py tests/integration/test_run_proposal_review.py
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T8): run_proposal_review entry point with lane fail-closed classification"
 ```
 
@@ -1560,6 +2242,7 @@ import pytest
 from llmxive.convergence.self_improvement_specs import PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
+from llmxive.self_improvement.call_ledger import LaneCallLedger
 from llmxive.self_improvement.credit_ledger import AttemptCreditLedger
 from llmxive.self_improvement.invocation_identity import build_invocation_identity
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
@@ -1580,10 +2263,13 @@ def lane(tmp_path):
                                 actor="lane", clock=clock, config=cfg)
     ledger = AttemptCreditLedger(repo=tmp_path, problem_id="P1", attempt_id="A1",
                                  attempt_budget_credits=1000.0, actor="lane", clock=clock, config=cfg)
+    calls = LaneCallLedger(
+        repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane", clock=clock, config=cfg,
+        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+    )
     ctx = LaneRouteContext(
         repo=tmp_path, problem_id="P1", attempt_id="A1", actor="lane", clock=clock,
-        route_audit=sink, reservation_authority=ledger,
-        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS), config=cfg,
+        route_audit=sink, reservation_authority=ledger, call_ledger=calls, config=cfg,
     )
     return tmp_path, ctx
 
@@ -1614,14 +2300,27 @@ def test_full_proposal_panel_audits_every_call_and_records_the_reroute(lane, mon
 
     # the fallback leg named by an explicit reroute record yields a degraded identity
     rr = next(e for e in events if e.event_type == "ReviewRerouted")
-    ii = build_invocation_identity(events, route_id=rr.payload["fallback_route_id"])
+    ii = build_invocation_identity(events, route_id=rr.payload["fallback_route_id"],
+                                   attempt_id="A1")
     assert ii is not None and ii.route_outcome == "independence_degraded"
     assert ii.degradation.primary_profile == "independent_review"
     assert ii.serving_endpoint and ii.vendor        # full selection provenance present
+    # F5: the joined primary_failure carries ALL FOUR spec fields, the last two sourced
+    # from the primary leg's real SelectionFailure — not duplicated into the reroute record
+    assert set(ii.degradation.primary_failure) == {
+        "exception_type", "message", "requirement_digest", "snapshot_provenance"}
+    assert ii.degradation.primary_failure["requirement_digest"]
 
-    # the ceiling accounted BOTH legs of every reviewer op plus the reviser's calls
+    # the ceiling accounted BOTH legs of every reviewer op plus the reviser's calls, and it
+    # is the DURABLE count read back from the lane log (round-4 F1)
     assert ctx.calls_used() >= 2 * len(PROPOSAL_LENSES)
-    assert ctx.calls_used() <= ctx.call_ceiling
+    assert ctx.calls_used() <= proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS)
+    # and NOTHING routed without first being admitted: every route id the router touched
+    # (resolved a chain for, or failed selection on) has a durable LaneCallClaimed
+    claimed = {e.payload["route_id"] for e in events if e.event_type == "LaneCallClaimed"}
+    routed = {e.payload["route_id"] for e in events
+              if e.event_type in {"ChainResolved", "SelectionFailure"}}
+    assert routed <= claimed, f"routed without a ceiling claim: {sorted(routed - claimed)}"
 
 def test_reviser_calls_are_audited_too(lane, monkeypatch):
     # F3: the reviser is a lane LLM call — its route must appear in the SAME audit
@@ -1653,6 +2352,8 @@ def test_reviser_calls_are_audited_too(lane, monkeypatch):
     assert ctx.calls_used() > 2 * len(PROPOSAL_LENSES)
 ```
 
+**Also write `_run_panel_with_one_open_concern(repo, monkeypatch)` here** — it builds the real proposal `ReviewSpec` with a scripted panel whose R1 raises exactly one concern, then calls `run_convergence` and returns its result. Task 5's three ENGINE-driven reviser tests live in this file and use it (they are part of Task 5's acceptance but can only run once this helper exists). Write it once; do not duplicate the body.
+
 **Note for the implementer:** `_ScriptedPanelBackend(raise_concerns: bool = False)`, `_aged_snapshot(age_s)`, and `_repo_root_with_prompts()` are the three helpers Step 0 produces. Reuse the existing real doubles (`ScriptedBackend` from `tests/integration/test_model_selection_execute.py`, the `_snapshot` builder from `tests/unit/test_model_selection_route.py`); `_repo_root_with_prompts()` returns the actual repo root (`llmxive.config.repo_root()`) so the REAL Task-7 prompts are loaded. `_ScriptedPanelBackend` must return: production-parseable R1 identify replies (zero concerns when `raise_concerns=False`, one concern per lens when `True`), a `LaneProposalReviser`-shaped ```json reply for R2, and passing R3 verdicts.
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1665,7 +2366,7 @@ Expected: FAIL until the helpers exist and Tasks 1-8 are complete.
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/integration/test_self_improvement_proposal_review.py -q`
-Expected: PASS (2 passed).
+Expected: PASS (5 passed — the 2 panel tests plus Task 5's 3 engine-driven reviser tests).
 
 - [ ] **Step 5: Commit**
 
@@ -1683,6 +2384,10 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T9): real run_conv
 
 **Interfaces:** none produced (test-only). This is the F2 proof the maintainer required: "an integration test that runs the convergence panel ITSELF with concurrent paid reviewer operations competing for the final Attempt credits. A direct `execute()` test is necessary but not sufficient."
 
+**How paid candidates become eligible — read this before writing the fixture.** The round-4 review asked for a `RequirementOverrides(allow_paid=True)` threaded through the lane, on the premise that all six profiles default `allow_paid=False` so nothing paid can ever be selected. **That premise does not hold, and the override would be the wrong fix.** `route_chat` treats the profile's `allow_paid` as a DEFAULT and overrides it per call: when the caller passes neither `allow_paid` nor `overrides.allow_paid`, it uses `allow_paid_eff = snap.credit.paid_opt_in` (`route.py:343-360`) and hands that to `build_requirement(...)`, whose `**overrides` go through `replace(req, ...)` (`profiles.py:56-82`). `_walker_route` passes neither (`backends/router.py:272-281`), so the lane's calls already inherit the process opt-in. Hard-coding `allow_paid=True` in the lane would be a policy REGRESSION — it would assert "the lane always allows paid" instead of deferring to `LLMXIVE_PAID_OPT_IN`, which is exactly what FR-033 keys on. (It could not actually overspend — `select.py:139` still requires `credit.source == "live" and credit.paid_opt_in` — but it would state the wrong intent.)
+
+What IS required, and what the round-3 plan left implicit, is the **snapshot contract** for the fixture. `_paid_only_snapshot()` MUST produce a `RuntimeSnapshot` whose `credit` has `source="live"` AND `paid_opt_in=True`, and whose candidates are priced non-free; if either credit field is wrong, `paid_admissible` is `False`, every candidate is filtered, and the test fails with `ModelUnavailable` having proven nothing about the ledger. Assert that contract in the fixture itself so a future edit cannot silently defang the test.
+
 - [ ] **Step 1: Write the failing test**
 
 ```python
@@ -1692,12 +2397,14 @@ call. The engine dispatches the 5 lenses through a real ThreadPoolExecutor
 (engine.py:85-133, cap 8), all sharing ONE AttemptCreditLedger, so this exercises the
 genuine concurrent-reservation path with paid opt-in ON."""
 import subprocess
+import threading
 
 import pytest
 
 from llmxive.convergence.self_improvement_specs import PROPOSAL_LENSES, PROPOSAL_MAX_ROUNDS, run_proposal_review
 from llmxive.model_selection.types import IndependenceBaseline
 from llmxive.self_improvement.audit_sink import EventStoreRouteAudit
+from llmxive.self_improvement.call_ledger import LaneCallLedger
 from llmxive.self_improvement.credit_ledger import (
     AttemptCreditLedger, counting_total, project_reservations,
 )
@@ -1715,24 +2422,66 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
+class _ThreadRecordingAuthority:
+    """A REAL delegating ReservationAuthority (not a mock): every call goes to the genuine
+    AttemptCreditLedger; this only RECORDS who called and what came back, so the test can
+    prove the authority was actually exercised concurrently and that some candidate was
+    genuinely refused by the cap."""
+
+    def __init__(self, inner):
+        self._inner = inner
+        self._lock = threading.Lock()
+        self.threads: set[int] = set()
+        self.admitted: list[tuple[str, float]] = []
+        self.refused: list[tuple[str, float]] = []
+
+    def reserve(self, credits, *, reservation_id, call_id) -> bool:
+        ok = self._inner.reserve(credits, reservation_id=reservation_id, call_id=call_id)
+        with self._lock:
+            self.threads.add(threading.get_ident())
+            (self.admitted if ok else self.refused).append((reservation_id, credits))
+        return ok
+
+    def release(self, reservation_id) -> None:
+        self._inner.release(reservation_id)
+
+    def mark_retained(self, reservation_id) -> None:
+        self._inner.mark_retained(reservation_id)
+
+_CLOCK = lambda: "2026-07-25T00:00:00+00:00"
+#: The reviewer token bound the lane panel routes with (LLMReviewer's default; assert it
+#: against the real class in Step 0 rather than restating a number that could drift).
+_REVIEWER_MAX_TOKENS = 32_768
+
+def _paid_ctx(repo, *, budget: float) -> tuple[LaneRouteContext, "_ThreadRecordingAuthority"]:
+    """The full paid wiring: a REAL AttemptCreditLedger behind a recording delegate, the
+    REAL audit sink, and the REAL call ledger — all on one temp git repo."""
+    cfg = LaneLogConfig()
+    inner = AttemptCreditLedger(repo=repo, problem_id="P1", attempt_id="A1",
+                                attempt_budget_credits=budget, actor="lane",
+                                clock=_CLOCK, config=cfg)
+    authority = _ThreadRecordingAuthority(inner)
+    sink = EventStoreRouteAudit(repo=repo, problem_id="P1", attempt_id="A1",
+                                actor="lane", clock=_CLOCK, config=cfg)
+    call_ledger = LaneCallLedger(
+        repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=_CLOCK, config=cfg,
+        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS),
+    )
+    ctx = LaneRouteContext(
+        repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=_CLOCK,
+        route_audit=sink, reservation_authority=authority, call_ledger=call_ledger, config=cfg,
+    )
+    return ctx, authority
+
 def test_concurrent_panel_reviewers_never_exceed_the_attempt_budget(repo, monkeypatch):
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
-    # A budget that admits only SOME of the 5 concurrent reviewer reservations.
-    budget = 3.0 * 2.5                      # room for ~3 of 5 worst-case envelopes
-    clock = lambda: "2026-07-25T00:00:00+00:00"
-    cfg = LaneLogConfig()
-    ledger = AttemptCreditLedger(repo=repo, problem_id="P1", attempt_id="A1",
-                                 attempt_budget_credits=budget, actor="lane", clock=clock, config=cfg)
-    sink = EventStoreRouteAudit(repo=repo, problem_id="P1", attempt_id="A1",
-                                actor="lane", clock=clock, config=cfg)
-    ctx = LaneRouteContext(
-        repo=repo, problem_id="P1", attempt_id="A1", actor="lane", clock=clock,
-        route_audit=sink, reservation_authority=ledger,
-        call_ceiling=proposal_call_ceiling(len(PROPOSAL_LENSES), PROPOSAL_MAX_ROUNDS), config=cfg,
-    )
-    # A PAID-only chain + a scripted backend, so every lens must reserve before dispatch.
-    snap = _paid_only_snapshot()             # Step 0 helper (mirrors the paid fixtures)
+    snap = _paid_only_snapshot()             # Step 0 helper; asserts its own contract
     monkeypatch.setattr("llmxive.model_selection.route._acquire_snapshot", lambda: snap)
+
+    # Derive the budget from the SNAPSHOT's real prices + the call's token bound, not a
+    # magic 2.5 (F9): room for ~3 of the 5 concurrent worst-case envelopes.
+    budget = 3 * _worst_case_envelope(snap, max_tokens=_REVIEWER_MAX_TOKENS)
+    ctx, authority = _paid_ctx(repo, budget=budget)
 
     run_proposal_review(
         backend=_ScriptedPanelBackend(), repo_root=_repo_root_with_prompts(),
@@ -1740,17 +2489,71 @@ def test_concurrent_panel_reviewers_never_exceed_the_attempt_budget(repo, monkey
         artifacts={"proposal.md": "# Proposal"},
     )
 
-    # THE invariant (US1 scenario 5): the sum of reserved envelopes never exceeds the cap,
-    # no matter how the 5 concurrent reviewers interleaved.
-    reservations = project_reservations(read(repo, "P1"), "A1")
+    events = read(repo, "P1", config=LaneLogConfig())
+    reservations = project_reservations(events, "A1")
+
+    # 1. THE invariant (US1 scenario 5): reserved envelopes never exceed the cap, no matter
+    #    how the 5 concurrent reviewers interleaved.
     assert counting_total(reservations) <= budget
-    # and the reservations that DID open are all accounted (no silent unpriced dispatch)
-    assert reservations, "expected at least one paid reservation to have opened"
+
+    # 2. The authority was genuinely exercised, CONCURRENTLY (F9: without this, "no
+    #    dispatch happened at all" would pass assertion 1 vacuously).
+    assert len(authority.threads) > 1, "reviewers did not compete from separate threads"
+
+    # 3. At least one paid dispatch actually COMPLETED — the budget bound is meaningless if
+    #    nothing ever ran.
+    completed = [e for e in events if e.event_type == "DispatchCompleted"]
+    assert completed, "no paid dispatch completed — the test proved nothing about the cap"
+
+    # 4. At least one candidate was REFUSED by the Attempt cap (that is the behavior under
+    #    test; if everything fit, the budget was too generous).
+    assert authority.refused, "no reservation was refused — widen the panel or tighten the budget"
+
+    # 5. Every paid DispatchStarted is backed by a real reservation, and no reservation
+    #    exists that the projection doesn't know about (no silent unpriced dispatch).
+    started = [e for e in events if e.event_type == "DispatchStarted"]
+    paid_started = [e for e in started if e.payload.get("reservation_id")]
+    assert paid_started, "expected paid dispatches in a paid-only chain"
+    for e in paid_started:
+        assert e.payload["reservation_id"] in reservations
+
+    # 6. The admitted envelopes sum EXACTLY to the durable projection — the recorded
+    #    decisions and the persisted state cannot drift.
+    assert counting_total(reservations) == pytest.approx(
+        sum(c for rid, c in authority.admitted if reservations[rid].state != "released")
+    )
     for r in reservations.values():
         assert r.state in {"open", "retained", "reconciled", "released"}
+
+def test_with_paid_opt_in_OFF_no_paid_candidate_ever_dispatches(repo, monkeypatch):
+    """The other half of the F2 contract: paid eligibility follows the PROCESS opt-in
+    (route.py:353), so with the opt-in off the same paid-only chain must select nothing and
+    open no reservation — never a paid dispatch, never a charge."""
+    monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
+    snap = _paid_only_snapshot(paid_opt_in=False)
+    monkeypatch.setattr("llmxive.model_selection.route._acquire_snapshot", lambda: snap)
+    # A budget large enough that ONLY the opt-in can be what blocks a reservation.
+    ctx, authority = _paid_ctx(repo, budget=1000.0)
+
+    outcome = run_proposal_review(
+        backend=_ScriptedPanelBackend(), repo_root=_repo_root_with_prompts(),
+        proposer_baseline=IndependenceBaseline(), route_context=ctx,
+        artifacts={"proposal.md": "# Proposal"},
+    )
+
+    events = read(repo, "P1", config=LaneLogConfig())
+    assert not project_reservations(events, "A1"), "a paid reservation opened with opt-in OFF"
+    assert not authority.admitted, "the Attempt authority admitted a reservation with opt-in OFF"
+    assert not [e for e in events if e.event_type == "DispatchStarted"]
+    # every lens selected nothing → the engine's clean-abort path, not a silent success
+    assert outcome.result is None or not outcome.result.converged
 ```
 
-**Note for the implementer:** `_paid_only_snapshot` mirrors the paid-candidate fixtures in `tests/integration/test_model_selection_execute.py` (a chain whose candidates are NOT free, with a `live` credit snapshot so the C6 guard passes). The reviewers whose reservation is refused skip/advance and ultimately surface as a clean abort — assert the BUDGET invariant, not a particular per-lens outcome, since the interleaving is genuinely nondeterministic.
+**Notes for the implementer:**
+- `_paid_only_snapshot(paid_opt_in=True)` mirrors the paid-candidate fixtures in `tests/integration/test_model_selection_execute.py`. It MUST end with an in-fixture assertion of its own contract — `snap.credit.source == "live"` and `snap.credit.paid_opt_in is paid_opt_in`, and every candidate priced non-free — so a later edit cannot silently turn this into a test that passes by selecting nothing.
+- `_worst_case_envelope(snap, max_tokens)` computes one candidate's reserved envelope from the snapshot's own prices and the call budget, using the SAME helper `execute` uses. Do not hard-code a credit figure.
+- The reviewers whose reservation is refused skip/advance and ultimately surface as a clean abort — assert the invariants above, not a particular per-lens outcome, since the interleaving is genuinely nondeterministic.
+- If assertion 4 proves flaky because the panel serializes in practice, fix the BUDGET (tighten it) — never delete the assertion.
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -1775,7 +2578,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 
 ## Final verification (before the whole-branch review)
 
-- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): add `LaneRouteContext`, `LaneCallCeilingExceeded`, `proposal_call_ceiling`, `InvocationIdentity`, `IndependenceDegraded`, `build_invocation_identity`. Test they import.
+- [ ] Package exports (`src/llmxive/self_improvement/__init__.py`): add `LaneRouteContext`, `proposal_call_ceiling`, `InvocationIdentity`, `IndependenceDegraded`, `InvocationIdentityError`, `build_invocation_identity`. (`LaneCallCeilingExceeded`, `LaneCallLedger`, `derive_route_id` are already exported by Slice 1A — re-export, never redefine.) Test they import.
 - [ ] `ruff check` clean on every touched file.
 - [ ] Full non-slow suite green: `pytest tests/unit tests/contract tests/integration -m "not slow" -q` → 0 failed (network-restricted-sandbox artifacts itemized).
 - [ ] `enforcement.py` guard passes: no model-id literal in lane code (`pytest tests/unit -k enforcement -q`).
@@ -1798,3 +2601,18 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | ReviewSpec table lines 273-283 | Stage, lens set, reviser, profiles, independence binding, `max_rounds=3` | T7 |
 | Key Entities line 227 | `InvocationIdentity` sourced from the audit sink | T6 |
 | SC-008 | All lane calls via `route_chat`; no model-id literals | T3, T4, T5 + final verification |
+
+## Round-4 review (the 1B findings)
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | the call ceiling was in-memory, so NOT per-Attempt | **Slice 1A T13** `LaneCallLedger` (durable CAS admission + retry-stable `route_id`s); T2's `LaneRouteContext` now holds it and is frozen; T4/T5 claim per logical call; `next_operation_id` separates a legitimate in-process repeat from a restart replay |
+| 2 | "paid is ineligible, add `RequirementOverrides(allow_paid=True)`" | **Premise corrected** (T10): `route_chat` derives `allow_paid` from `snap.credit.paid_opt_in` when the caller passes neither (`route.py:343-360`), and `build_requirement`'s `**overrides` replace the profile default — so the profile's `allow_paid=False` does not govern, and hard-coding `True` would assert the wrong policy. The real gap (the fixture's implicit snapshot contract) is fixed, plus the requested paid-opt-in-OFF counterpart test |
+| 3 | the lane reviser raised the wrong exception type | T5 raises `RuntimeError` with the two signatures `is_malformed_reply_error` recognizes; the reasoning is documented at the raise sites; **3 ENGINE-driven tests** (retry recovers / two malformed degrade / outage is a clean abort) live in T9's file |
+| 4 | reroute-record persistence failures bypassed the fail-closed classification | T2's `record_reroute` normalizes `GitLog*`/`Lane*`/`ValueError` to `RouteAuditError`; T4 records BEFORE the fallback dispatch and does not catch it, with a test asserting the fallback never runs |
+| 5 | degradation provenance was missing 2 of the 4 spec fields | T6 JOINS the reroute's `primary_route_id` to its `SelectionFailure` (which already carries `requirement_digest` + `snapshot_provenance`, `route.py:236-240`) instead of duplicating; fails closed on missing / non-`ModelUnavailable` / wrong-Attempt |
+| 6 | `ReviewRerouted` payload validation was nominal | **Slice 1A T2** adds the `PAYLOAD_VALIDATORS` mechanism; **T1** registers `_validate_review_rerouted` pinning the required keys, distinct route ids, both profiles, the `ModelUnavailable` trigger, and the exact relaxed-constraint list |
+| 7 | `producer` not passed; producer identity thin | T8 forwards `producer` (documented as necessary-not-sufficient) and resolves an optional `proposer_route_id` to a full `InvocationIdentity`, failing closed when it does not resolve |
+| 8 | `next()` silently resolved duplicate authoritative events | T6 `_exactly_one` + the reroute-count check + Attempt binding; 4 corruption tests |
+| 9 | the paid concurrency invariant was too weak | T10 adds: multi-thread authority use, ≥1 completed paid dispatch, ≥1 cap refusal, every paid `DispatchStarted` backed by a reservation, admitted envelopes summing exactly to the projection — and derives the budget from the snapshot's prices instead of the unexplained `2.5` |
+| 10 | 1A's bootstrap concurrency test was sequential | **Slice 1A** T1 `_after_probe` seam + T3's real two-clone bootstrap race |
