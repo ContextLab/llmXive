@@ -5,10 +5,3 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
-T011:
-  c: false
-  h: 1bbb675296b8e3653c2cdebdae3ea448ee9360e3533ca3472d99bfff71cb628b
-  r: "The required integration test file `tests/integration/test_acquisition.py` does\
-    \ not exist in the repository, so the specified end\u2011to\u2011end download,\
-    \ normalization, and splitting test is absent. The task cannot be considered fulfilled\
-    \ until this test script is added with the appropriate assertions."

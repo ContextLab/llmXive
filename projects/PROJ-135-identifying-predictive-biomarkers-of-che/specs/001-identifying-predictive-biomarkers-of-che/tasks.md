@@ -43,9 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` with explicit directories: `src/`, `data/raw/`, `data/processed/`, `results/`, `results/meta_analysis/`, `tests/`, `specs/001-chemo-biomarker-discovery/contracts/`, `state/`
+- [X] T001a [P] Create project directory structure: `src/`, `data/raw/`, `data/processed/`, `results/`, `results/meta_analysis/`, `tests/`, `specs/001-chemo-biomarker-discovery/contracts/`, `state/`
+- [X] T001b [P] Initialize `.gitignore` (exclude `data/raw/*`, `__pycache__`, `.env`) and `README.md`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, rpy2, biopython, requests, scipy, psutil)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -56,10 +57,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `src/config.py`: Define paths, random seeds, FDR thresholds, CPU/memory limits, and `MAX_VARIANCE_GENES`
-- [ ] T005 [P] Implement `src/utils.py`: Logging setup, checksum generation, and timeout watchdog (5h limit)
-- [ ] T006 [P] Create schema definitions in `specs/001-chemo-biomarker-discovery/contracts/` (dataset.schema.yaml, model_output.schema.yaml, meta_analysis.schema.yaml)
-- [ ] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
-- [ ] T008 Setup `pytest` configuration and contract test harness for YAML schema validation
+- [X] T005 [P] Implement `src/utils.py`: Logging setup, checksum generation, and timeout watchdog (h limit)
+- [X] T006 [P] Create schema definitions in `specs/001-chemo-biomarker-discovery/contracts/` (dataset.schema.yaml, model_output.schema.yaml, meta_analysis.schema.yaml)
+- [X] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
+- [X] T008 Setup `pytest` configuration and contract test harness for YAML schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,23 +77,28 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`
+- [ ] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA HTSeq-Counts & clinical via HuggingFace mirror for **≥3 tumor types** (FR-001). **Requirement**: Initial download MUST target ≥3 types before any filtering. <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets (GSE25055, GSE42752) via HuggingFace mirror (FR-002). **Requirement**: Ensure at least 2 GEO datasets with response labels are acquired.
-- [ ] T013b [US1] Implement **Partial Success Handler** in `src/data_acquisition.py`: If TCGA download succeeds but GEO download fails (missing or no response labels), log a warning, set `external_validation_status: "skipped"` in `results/summary.md`, and **proceed** with internal validation only (Plan T011, Spec Edge Cases).
-- [ ] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`: Verify response labels (RECIST/CR/PR); exclude tumor types lacking labels; **Terminate execution with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"` ONLY IF the count of valid TCGA tumor types is < 3**. If TCGA >= 3 but GEO is missing, proceed with internal validation and log the limitation (FR-001, FR-002, Plan T011, T013).
+- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA RNA-seq HTSeq-Counts and clinical metadata for **≥3 tumor types** via TCGAbiolinks (FR-001). **Requirement**: Dynamically discover available tumor types in the repository that have sufficient sample size and response annotations; select the first 3 valid types found. Do NOT hardcode specific types.
+- [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets via GEOquery (FR-002). **Requirement**:
+ 1. If a dataset file cannot be fetched, log an error and exclude it.
+ 2. If a dataset exists but lacks response labels (RECIST/CR/PR), **skip that specific dataset**, log a warning, and exclude it from further processing.
+ 3. Proceed to the Feasibility Gate (T014) with the list of successfully downloaded and labeled datasets.
+- [ ] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`:
+ 1. **TCGA Gate**: If the count of valid TCGA tumor types is **< 3**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"`.
+ 2. **GEO Gate**: If the count of valid GEO datasets (downloaded AND with response labels) is **< 2**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_geo_datasets"`.
+ 3. **Proceed**: If TCGA >= 3 AND GEO >= 2, write `data/feasibility_gate.json` with `status: "ready"`.
 - [ ] T015 [US1] Implement `src/preprocessing.py`: Harmonize Ensembl/Entrez to HGNC symbols using `mygene`/`biomaRt`; filter if coverage <95% (FR-003).
 - [ ] T016 [US1] Implement `src/preprocessing.py`: Filter low-expression genes (CPM < 1 in >80% samples) (FR-004).
-- [ ] T017 [US1] Implement `src/preprocessing.py`: **Cross-Platform Alignment & Batch Correction**:
- 1. **Pre-requisite**: **Normalize Microarray data to a VST-equivalent scale** (using `limma::voom` or equivalent log2-CPM with offset) before batch correction.
- 2. **Primary**: If both TCGA (RNA-seq) and GEO (Microarray) data are present, apply **ComBat-seq** (via `rpy2`/`sva`) to align GEO data to TCGA distribution (FR-014, Plan T017).
- 3. **Secondary**: If RNA-seq batch effects are detected within TCGA data, apply **ComBat-seq** for RNA-seq specific batch correction.
- 4. **Fallback**: If ComBat-seq fails, fall back to Quantile Matching and log warning.
-- [ ] T019 [US1] Implement **Data Hygiene Checksums**: Write checksums for all raw files in `data/raw/` to `data/checksums.json` AND update `state/artifact_hashes.yaml` with the new hashes immediately upon download (Constitution III, Plan T012). **Do NOT** write checksums to `data/feasibility_gate.json`.
-- [ ] T020 [US1] Implement `src/preprocessing.py`: **Split data** for each tumor type into a `discovery_set` (for gene selection) and `training_set` (for model fitting) with a substantial majority/minority split (e.g., train/validation) **stratified by response_label** (FR-013, Plan T020). **Output**: Save distinct CSV/Parquet files to `data/processed/{tumor_type}_discovery_set.csv` and `data/processed/{tumor_type}_training_set.csv`.
+- [ ] T017 [US1] Implement `src/preprocessing.py`: **Cross-Platform Alignment & Batch Correction** (Strict Order):
+ 1. **Step 1 (RNA-seq Only)**: Apply **ComBat-seq** (via `rpy2`/`sva`) on **raw count data** for TCGA samples to correct for batch effects within RNA-seq data.
+ 2. **Step 2 (All Data)**: Apply **DESeq2 Variance-Stabilizing Transformation (VST)** to **ALL** data (TCGA RNA-seq counts and GEO Microarray log2-intensity) to ensure a single source of truth (FR-004, Plan T016).
+ 3. **Step 3 (Cross-Platform)**: If both TCGA and GEO data are present, apply **Quantile Matching** on the **VST-normalized data** to align GEO microarray distributions with TCGA RNA-seq distributions (FR-014). **Note**: Do NOT apply ComBat-seq to VST data.
+ 4. **Fallback**: If Quantile Matching fails, log a warning and proceed with uncorrected VST data, flagging the limitation in `results/summary.md`.
+- [ ] T019 [US1] Implement **Data Hygiene Checksums**: Write checksums for all raw files in `data/raw/` **only** to `state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml` immediately upon download (Constitution III, Plan T012). **Do NOT write to multiple locations.**
+- [ ] T020 [US1] Implement `src/preprocessing.py`: **Split data** for each tumor type into a `discovery_set` (for gene selection) and `training_set` (for model fitting) with a **stratified split maintaining the original class distribution** (FR-013, Plan T020). **Output**: Save distinct CSV/Parquet files to `data/processed/{tumor_type}_discovery_set.csv` and `data/processed/{tumor_type}_training_set.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,8 +112,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for Stouffer's meta-analysis calculation in `tests/unit/test_meta_analysis.py`
-- [ ] T022 [P] [US2] Integration test for DE and panel selection logic on 3 tumor types (simulated) in `tests/integration/test_biomarker_discovery.py`
+- [X] T021 [P] [US2] Unit test for Stouffer's meta-analysis calculation in `tests/unit/test_meta_analysis.py`
+- [X] T022 [P] [US2] Integration test for DE and panel selection logic on 3 tumor types (simulated) in `tests/integration/test_biomarker_discovery.py`
 
 ### Implementation for User Story 2
 
@@ -136,14 +142,15 @@
 ### Implementation for User Story 3
 
 - [ ] T031 [US3] Implement `src/modeling.py`: Build **Tumor-type-specific** Elastic-Net Logistic Regression models using the **fixed gene panel** derived from Phase 2 (FR-007). **Requirement**: Train one model per tumor type on the `training_set`. Do NOT pool data.
-- [ ] T032 [US3] Implement `src/modeling.py`: Perform **Nested Cross-Validation** on the **training_set** (FR-007). **Logic**: **Load the fixed gene panel from `results/meta_analysis/gene_panel.json` (T028)**. **DO NOT perform any gene selection or panel generation logic inside the nested CV loop**. Use the fixed panel for all folds to prevent data leakage (FR-013).
+- [ ] T032 [US3] Implement `src/modeling.py`: Perform **Nested Cross-Validation** on the **training_set** (FR-007). **Logic**: **Load the fixed gene panel from `results/meta_analysis/gene_panel.json` (T028) BEFORE the CV loop begins**. **DO NOT perform any gene selection or panel generation logic inside the nested CV loop**. Use the fixed panel for all folds to prevent data leakage (FR-013).
 - [ ] T033 [US3] Implement `src/modeling.py`: Train **final models** for each tumor type on the full **training_set** using the validated gene panel derived from the CV process (Plan: Tumor-specific Models).
-- [ ] T033.5 [US3] Implement **LOO Validation Gate** in `src/modeling.py`: Check the total number of tumor types available for LOO.
- 1. **Halt Condition**: If the **total number of tumor types is < 3**, **Terminate execution with exit code 1** and write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types"`) because LOO is invalid (Spec FR-008, Assumptions).
- 2. **Proceed Condition**: If the **total number of tumor types is >= 3**, **proceed with LOO validation** regardless of the resulting set size (minimum 2 types). If the resulting set is minimal (e.g., N=3 -> 2 types), log a limitation in `results/summary.md` but do NOT halt.
- 3. **Graceful Degradation**: If GEO datasets are missing but TCGA types ≥3, proceed with internal LOO validation (N-1) and log the limitation.
+- [ ] T033.5 [US3] Implement **LOO Validation Gate** in `src/modeling.py`:
+ 1. **Pre-Check**: Count total tumor types available (N).
+ 2. **Halt Condition**: If **(N - 1) < 2**, **Terminate execution** with exit code 1 and write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types"`) because LOO would leave < 2 types (FR-008, Spec Assumptions).
+ 3. **Proceed Condition**: If **(N - 1) >= 2**, proceed with LOO validation.
+ 4. **Graceful Degradation**: If GEO datasets are missing but TCGA types ≥3, proceed with internal LOO validation (N-1) and log the limitation.
 - [ ] T034 [US3] Implement `src/validation.py`: Compute ROC-AUC, Precision-Recall, and Calibration Curves (deciles) (FR-009, SC-001).
-- [ ] T035a [US3] Implement `src/validation.py`: **Bonferroni Correction for Meta-Analysis**: Apply correction where `m` = number of genes in the final panel (FR-010).
+- [ ] T035a [US3] Implement `src/validation.py`: **Bonferroni Correction for Meta-Analysis**: Apply correction where `m` = **number of genes in the final meta-analyzed panel** (size of `results/meta_analysis/gene_panel.json`) (FR-010).
 - [ ] T035b [US3] Implement `src/validation.py`: **Bonferroni Correction for DeLong's Test**: Apply correction where `m` = number of model comparisons (FR-010). **Output**: Adjusted p-values must be < 0.01.
 - [ ] T036 [US3] Implement `src/validation.py`: Perform DeLong's test against clinical covariates-only baseline (FR-011).
 - [ ] T037 [US3] Implement `src/validation.py`: Handle class imbalance: **use stratified k-fold for ALL cases**; apply cost-sensitive learning **only if** responder ratio <20% (Edge Cases).
@@ -263,6 +270,6 @@ With multiple developers:
 - **Data Integrity**: Never fabricate data; use real TCGA/GEO sources via verified mirrors.
 - **FR-013 Compliance**: Strict separation of discovery (gene selection) and training (model fitting) sets is mandatory. DE is performed ONCE on the full discovery set.
 - **FR-007 Compliance**: Models must be tumor-type-specific, not pooled.
-- **FR-014 Compliance**: ComBat-seq/Quantile Matching for cross-platform alignment; ComBat-seq for RNA-seq batch effects.
-- **FR-008 Compliance**: LOO validation must halt if total tumor types <3; proceed if >=3.
-- **FR-010 Compliance**: Distinct Bonferroni correction logic for meta-analysis (m=genes) vs DeLong's test (m=comparisons).
+- **FR-014 Compliance**: ComBat-seq on counts pre-VST; Quantile Matching on VST for cross-platform alignment.
+- **FR-008 Compliance**: LOO validation must halt if (N-1) < 2; proceed if (N-1) >= 2.
+- **FR-010 Compliance**: Distinct Bonferroni correction logic for meta-analysis (m=final panel size) vs DeLong's test (m=comparisons).

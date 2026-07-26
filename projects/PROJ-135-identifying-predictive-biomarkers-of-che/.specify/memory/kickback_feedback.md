@@ -4,10 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory structure is presented in the provided evidence; the required folders (src/, data/raw/, data/processed/, results/, results/meta_analysis/, tests/, specs/001-chemo-biomarker-discovery/contracts/, state/) are not shown to exist or contain any files. The implementer must create and display this project hierarchy.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or a `black` config) or setup scripts are present in the provided evidence, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and ensure they are committed to the repository.
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils.py
-- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T011` (rejected 1x): The required integration test file `tests/integration/test_acquisition.py` does not exist in the repository, so the specified end‑to‑end download, normalization, and splitting test is absent. The task cannot be considered fulfilled until this test script is added with the appropriate assertions.
+- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data_acquisition.py
+- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data_acquisition.py
 
 ## Required change
 

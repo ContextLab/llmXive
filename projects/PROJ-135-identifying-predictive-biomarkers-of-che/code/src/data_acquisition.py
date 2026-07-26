@@ -1,283 +1,371 @@
+"""
+Data Acquisition Module for TCGA and GEO datasets.
+
+This module handles the dynamic discovery and download of TCGA RNA-seq data
+and clinical metadata for tumor types with sufficient sample sizes and response annotations.
+"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import time
 
-# Import shared utilities
-from .config import ensure_directories
-from .utils import setup_logging, calculate_checksum, update_state_artifact_hashes
+# Try to import TCGAbiolinks wrapper (via rpy2 or python wrapper)
+# We use the 'TCGAbiolinks' R package via rpy2 as per project dependencies
+try:
+    import rpy2.robjects as ro
+    from rpy2.robjects import pandas2ri
+    from rpy2.robjects.conversion import localconverter
+    pandas2ri.activate()
+    R_AVAILABLE = True
+except ImportError:
+    R_AVAILABLE = False
+    logging.warning("rpy2 not available. TCGA download will be skipped.")
+
+from .config import get_project_root, ensure_directories
+from .utils import calculate_checksum, setup_logging
 
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = setup_logging(__name__)
 
 # Constants
-HUGGINGFACE_BASE_URL = "https://huggingface.co/datasets"
-GEO_DATASETS = ["GSE25055", "GSE42752"]
-TCGA_TUMOR_TYPES = ["BRCA", "LUAD", "COAD"]  # Example types; can be extended
+MIN_SAMPLES_PER_TYPE = 50  # Minimum samples required to consider a tumor type valid
+MIN_RESPONSE_ANNOTATED = 10  # Minimum samples with response labels
+TCGA_RAW_DIR = get_project_root() / "data" / "raw" / "tcga"
+TCGA_PROCESSED_DIR = get_project_root() / "data" / "processed"
+FEASIBILITY_GATE_FILE = get_project_root() / "data" / "feasibility_gate.json"
 
-def download_from_huggingface(dataset_id: str, output_dir: Path) -> bool:
+def ensure_r_packages_installed():
+    """Ensure required R packages are installed."""
+    if not R_AVAILABLE:
+        return False
+    
+    required_packages = ['TCGAbiolinks', 'SummarizedExperiment', 'Biobase']
+    r = ro.r
+    
+    for pkg in required_packages:
+        try:
+            # Check if package is installed
+            r('library({})'.format(pkg))
+        except Exception:
+            logger.info(f"Installing R package {pkg}...")
+            try:
+                r('if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")')
+                r(f'BiocManager::install("{pkg}", ask=FALSE, update=FALSE)')
+                r('library({})'.format(pkg))
+            except Exception as e:
+                logger.error(f"Failed to install R package {pkg}: {e}")
+                return False
+    
+    return True
+
+def discover_available_tcga_tumor_types():
     """
-    Download a dataset from HuggingFace.
-    Returns True if successful, False otherwise.
+    Dynamically discover available TCGA tumor types with sufficient sample size.
+    
+    Returns:
+        List[str]: List of tumor type project IDs (e.g., 'TCGA-BRCA')
     """
+    if not R_AVAILABLE or not ensure_r_packages_installed():
+        logger.error("R environment not available. Cannot discover TCGA types.")
+        return []
+    
+    r = ro.r
+    logger.info("Discovering available TCGA tumor types...")
+    
+    # Use TCGAbiolinks to get available projects
     try:
-        logger.info(f"Downloading dataset {dataset_id} from HuggingFace...")
-        # In a real implementation, use datasets.load_dataset or requests
-        # For now, we simulate the download logic
-        dataset_url = f"{HUGGINGFACE_BASE_URL}/{dataset_id}"
+        # Get all available projects from GDC
+        r('''
+        library(TCGAbiolinks)
+        projects <- GDCquery(project = "all", data.category = "Transcriptome Profiling",
+                             data.type = "Gene Expression Quantification", 
+                             workflow.type = "HTSeq - Counts")
+        ''')
         
-        # Placeholder for actual download logic
-        # This would involve:
-        # 1. Checking if the dataset exists
-        # 2. Downloading files
-        # 3. Verifying integrity
+        # Extract project IDs
+        projects_df = r['projects']
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            from rpy2.robjects import pandas2ri
+            projects_py = pandas2ri.rpy2py(projects_df)
         
-        # Simulate success for TCGA, potential failure for GEO
-        if "GSE" in dataset_id:
-            # Simulate potential failure for GEO datasets
-            logger.warning(f"Simulated failure for GEO dataset {dataset_id}: Dataset may be missing or lack response labels.")
+        project_ids = projects_py['project'].unique().tolist()
+        logger.info(f"Found {len(project_ids)} total TCGA projects")
+        
+        valid_types = []
+        
+        # Filter for tumor types with sufficient sample size
+        for project_id in project_ids:
+            if not project_id.startswith('TCGA-'):
+                continue
+            
+            try:
+                # Query sample count for this project
+                r(f'''
+                query_count <- GDCquery(project = "{project_id}", 
+                                        data.category = "Transcriptome Profiling",
+                                        data.type = "Gene Expression Quantification",
+                                        workflow.type = "HTSeq - Counts")
+                sample_count <- nrow(query_count$results[[1]])
+                ''')
+                
+                sample_count = int(r['sample_count'][0])
+                
+                if sample_count >= MIN_SAMPLES_PER_TYPE:
+                    valid_types.append(project_id)
+                    logger.info(f"Valid tumor type: {project_id} with {sample_count} samples")
+                    
+                    # Limit to first 3 valid types found
+                    if len(valid_types) >= 3:
+                        break
+                        
+            except Exception as e:
+                logger.warning(f"Error checking {project_id}: {e}")
+                continue
+        
+        logger.info(f"Found {len(valid_types)} valid tumor types with >= {MIN_SAMPLES_PER_TYPE} samples")
+        return valid_types[:3]  # Return first 3 valid types
+        
+    except Exception as e:
+        logger.error(f"Error discovering TCGA tumor types: {e}")
+        return []
+
+def check_response_annotations(project_id: str) -> bool:
+    """
+    Check if a TCGA project has clinical data with response annotations.
+    
+    Args:
+        project_id: TCGA project ID (e.g., 'TCGA-BRCA')
+        
+    Returns:
+        bool: True if response annotations are available
+    """
+    if not R_AVAILABLE:
+        return False
+    
+    r = ro.r
+    
+    try:
+        # Query clinical data
+        r(f'''
+        clinical_query <- GDCquery(project = "{project_id}",
+                                   access = "open",
+                                   data.category = "Clinical",
+                                   data.type = "Clinical Supplement",
+                                   data.format = "BCR XML")
+        ''')
+        
+        # Check if clinical data exists
+        has_clinical = r['length(clinical_query$results[[1]])'] > 0
+        
+        if not has_clinical:
+            logger.warning(f"No clinical data found for {project_id}")
             return False
         
-        # Simulate successful TCGA download
-        logger.info(f"Successfully downloaded {dataset_id}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to download {dataset_id}: {str(e)}")
-        return False
-
-def verify_response_labels(data_dir: Path) -> bool:
-    """
-    Verify that the downloaded data contains response labels.
-    Returns True if labels are present and valid, False otherwise.
-    """
-    try:
-        # Check for clinical data file
-        clinical_file = data_dir / "clinical.tsv"
-        if not clinical_file.exists():
-            logger.error(f"Clinical data file not found: {clinical_file}")
-            return False
+        # Try to load and check for response annotations
+        r('''
+        clinical_data <- GDCdownload(clinical_query)
+        clinical_df <- GDCprepare(clinical_query)
+        ''')
         
-        # Simulate checking for response labels
-        # In real implementation, parse the file and check for required columns
-        logger.info("Response labels verified successfully")
-        return True
+        # Check for common response annotation columns
+        response_columns = ['response', 'recist', 'cr_pr', 'best_response', 
+                          'overall_survival', 'disease_free_survival']
+        
+        has_response = False
+        for col in response_columns:
+            r(f'has_{col} <- "{col}" %in% colnames(clinical_df)')
+            if r[f'has_{col}'][0]:
+                has_response = True
+                logger.info(f"Found response column '{col}' in {project_id}")
+                break
+        
+        return has_response
+        
     except Exception as e:
-        logger.error(f"Error verifying response labels: {str(e)}")
+        logger.warning(f"Error checking response annotations for {project_id}: {e}")
         return False
 
-def update_state_artifact_hashes(state_file: Path, file_path: Path, hash_value: str):
+def download_tcga_data(project_ids: List[str]):
     """
-    Update the state file with artifact hashes.
-    """
-    state_data = {}
-    if state_file.exists():
-        with open(state_file, 'r') as f:
-            state_data = json.load(f)
+    Download TCGA RNA-seq data and clinical metadata for specified tumor types.
     
-    state_data[file_path.name] = hash_value
-    
-    with open(state_file, 'w') as f:
-        json.dump(state_data, f, indent=2)
-
-def download_tcga_data(output_dir: Path) -> Dict[str, Any]:
+    Args:
+        project_ids: List of TCGA project IDs to download
     """
-    Download TCGA data for specified tumor types.
-    Returns a dictionary with download status and metadata.
-    """
-    results = {
-        "status": "success",
-        "tumor_types_downloaded": [],
-        "failed_types": []
-    }
+    if not R_AVAILABLE or not ensure_r_packages_installed():
+        logger.error("Cannot download TCGA data: R environment not available")
+        return False
     
-    for tumor_type in TCGA_TUMOR_TYPES:
+    ensure_directories(TCGA_RAW_DIR)
+    
+    r = ro.r
+    downloaded_types = []
+    
+    for project_id in project_ids:
+        logger.info(f"Downloading data for {project_id}...")
+        
         try:
-            # Simulate download
-            logger.info(f"Downloading TCGA data for {tumor_type}...")
-            # In real implementation, download from HuggingFace mirror
+            # Query RNA-seq data
+            r(f'''
+            query <- GDCquery(project = "{project_id}",
+                              data.category = "Transcriptome Profiling",
+                              data.type = "Gene Expression Quantification",
+                              workflow.type = "HTSeq - Counts")
+            ''')
             
-            # Create directory structure
-            tumor_dir = output_dir / tumor_type
-            tumor_dir.mkdir(parents=True, exist_ok=True)
+            # Download data
+            r('GDCdownload(query)')
             
-            # Simulate file creation
-            (tumor_dir / "counts.tsv").touch()
-            (tumor_dir / "clinical.tsv").touch()
+            # Prepare data
+            r('''
+            data <- GDCprepare(query)
+            ''')
             
-            results["tumor_types_downloaded"].append(tumor_type)
-            logger.info(f"Successfully downloaded TCGA data for {tumor_type}")
+            # Extract counts and metadata
+            r('''
+            counts <- assay(data)
+            col_data <- colData(data)
+            ''')
+            
+            # Convert to pandas
+            with localconverter(ro.default_converter + pandas2ri.converter):
+                counts_py = pandas2ri.rpy2py(r['counts'])
+                col_data_py = pandas2ri.rpy2py(r['col_data'])
+            
+            # Save raw counts
+            counts_file = TCGA_RAW_DIR / f"{project_id}_counts.csv"
+            counts_py.to_csv(counts_file)
+            logger.info(f"Saved counts to {counts_file}")
+            
+            # Save clinical metadata
+            clinical_file = TCGA_RAW_DIR / f"{project_id}_clinical.csv"
+            col_data_py.to_csv(clinical_file)
+            logger.info(f"Saved clinical data to {clinical_file}")
+            
+            # Generate checksums
+            checksum_counts = calculate_checksum(counts_file)
+            checksum_clinical = calculate_checksum(clinical_file)
+            
+            logger.info(f"Checksums: counts={checksum_counts}, clinical={checksum_clinical}")
+            
+            downloaded_types.append(project_id)
+            
         except Exception as e:
-            logger.error(f"Failed to download TCGA data for {tumor_type}: {str(e)}")
-            results["failed_types"].append(tumor_type)
-            results["status"] = "partial_failure"
+            logger.error(f"Failed to download {project_id}: {e}")
+            continue
     
-    return results
+    return len(downloaded_types) > 0
 
-def download_geo_data(output_dir: Path) -> Dict[str, Any]:
+def check_tcga_feasibility() -> Dict[str, Any]:
     """
-    Download GEO datasets.
-    Returns a dictionary with download status and metadata.
-    """
-    results = {
-        "status": "success",
-        "datasets_downloaded": [],
-        "failed_datasets": []
-    }
+    Check if we have sufficient TCGA tumor types for analysis.
     
-    for dataset_id in GEO_DATASETS:
-        try:
-            # Attempt download
-            success = download_from_huggingface(dataset_id, output_dir)
-            
-            if success:
-                # Verify response labels
-                dataset_dir = output_dir / dataset_id
-                if verify_response_labels(dataset_dir):
-                    results["datasets_downloaded"].append(dataset_id)
-                    logger.info(f"Successfully downloaded and verified {dataset_id}")
-                else:
-                    logger.warning(f"{dataset_id} downloaded but lacks valid response labels")
-                    results["failed_datasets"].append(dataset_id)
-                    results["status"] = "partial_failure"
-            else:
-                logger.warning(f"Failed to download {dataset_id}")
-                results["failed_datasets"].append(dataset_id)
-                results["status"] = "partial_failure"
-        except Exception as e:
-            logger.error(f"Error processing GEO dataset {dataset_id}: {str(e)}")
-            results["failed_datasets"].append(dataset_id)
-            results["status"] = "partial_failure"
+    Returns:
+        Dict with feasibility status and details
+    """
+    logger.info("Checking TCGA feasibility...")
     
-    return results
-
-def write_feasibility_gate_result(output_file: Path, status: str, reason: str, metadata: Dict[str, Any] = None):
-    """
-    Write the feasibility gate result to a JSON file.
-    """
+    # Discover available tumor types
+    valid_types = discover_available_tcga_tumor_types()
+    
+    # Check response annotations for each type
+    types_with_response = []
+    for project_id in valid_types:
+        if check_response_annotations(project_id):
+            types_with_response.append(project_id)
+    
     result = {
-        "status": status,
-        "reason": reason,
-        "timestamp": str(Path(output_file).parent.parent.name)  # Simplified timestamp
+        "total_discovered": len(valid_types),
+        "with_response_annotations": len(types_with_response),
+        "valid_types": types_with_response,
+        "meets_minimum": len(types_with_response) >= 3
     }
     
-    if metadata:
-        result.update(metadata)
-    
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Feasibility gate result written to {output_file}")
+    logger.info(f"TCGA feasibility: {len(types_with_response)} valid types with response annotations")
+    return result
 
-def run_data_feasibility_gate(tcga_results: Dict[str, Any], geo_results: Dict[str, Any], 
-                             results_dir: Path, state_dir: Path) -> Dict[str, Any]:
+def write_feasibility_gate_result(tcga_status: Dict[str, Any], geo_status: Optional[Dict[str, Any]] = None):
     """
-    Run the data feasibility gate to determine if we have sufficient data.
-    Returns a dictionary with gate status and recommendations.
+    Write the feasibility gate result to the designated file.
+    
+    Args:
+        tcga_status: TCGA feasibility status
+        geo_status: GEO feasibility status (optional)
     """
     gate_result = {
-        "status": "passed",
-        "tcga_valid": False,
-        "geo_valid": False,
-        "external_validation_status": "pending",
-        "recommendation": "proceed"
+        "status": "pending",
+        "tcga": tcga_status,
+        "geo": geo_status,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    # Check TCGA data
-    if len(tcga_results.get("tumor_types_downloaded", [])) >= 3:
-        gate_result["tcga_valid"] = True
-    else:
-        gate_result["tcga_valid"] = False
-        gate_result["status"] = "failed"
+    # Determine overall status
+    if tcga_status["meets_minimum"] and (geo_status is None or geo_status.get("meets_minimum", False)):
+        gate_result["status"] = "ready"
+    elif not tcga_status["meets_minimum"]:
+        gate_result["status"] = "halted"
         gate_result["reason"] = "insufficient_tcga_types"
-        gate_result["recommendation"] = "halt"
-        
-        # Write feasibility gate result
-        gate_file = results_dir / "feasibility_gate.json"
-        write_feasibility_gate_result(
-            gate_file, 
-            "halted", 
-            "insufficient_tcga_types",
-            {"downloaded_types": tcga_results.get("tumor_types_downloaded", [])}
-        )
-        return gate_result
+    elif geo_status and not geo_status.get("meets_minimum", False):
+        gate_result["status"] = "halted"
+        gate_result["reason"] = "insufficient_geo_datasets"
     
-    # Check GEO data
-    if len(geo_results.get("datasets_downloaded", [])) > 0:
-        gate_result["geo_valid"] = True
-        gate_result["external_validation_status"] = "available"
-    else:
-        # T013b: Partial Success Handler
-        # If TCGA succeeded but GEO failed, proceed with internal validation only
-        logger.warning("GEO datasets unavailable or missing response labels. Proceeding with internal validation only.")
-        gate_result["geo_valid"] = False
-        gate_result["external_validation_status"] = "skipped"
-        gate_result["recommendation"] = "proceed_internal_only"
-        
-        # Log limitation in summary.md
-        summary_file = results_dir / "summary.md"
-        if summary_file.exists():
-            with open(summary_file, 'a') as f:
-                f.write("\n## External Validation Status\n")
-                f.write("- **Status**: skipped\n")
-                f.write("- **Reason**: GEO datasets unavailable or missing response labels\n")
-                f.write("- **Recommendation**: Proceeding with internal validation only\n")
-        else:
-            # Create summary file if it doesn't exist
-            with open(summary_file, 'w') as f:
-                f.write("# Data Acquisition Summary\n\n")
-                f.write("## External Validation Status\n")
-                f.write("- **Status**: skipped\n")
-                f.write("- **Reason**: GEO datasets unavailable or missing response labels\n")
-                f.write("- **Recommendation**: Proceeding with internal validation only\n")
+    # Ensure data directory exists
+    FEASIBILITY_GATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     
+    # Write result
+    with open(FEASIBILITY_GATE_FILE, 'w') as f:
+        json.dump(gate_result, f, indent=2)
+    
+    logger.info(f"Feasibility gate result written to {FEASIBILITY_GATE_FILE}")
     return gate_result
 
+def run_feasibility_gate():
+    """
+    Run the complete feasibility gate check for TCGA and GEO data.
+    
+    Returns:
+        bool: True if feasibility gate passed, False otherwise
+    """
+    logger.info("Running feasibility gate...")
+    
+    # Check TCGA feasibility
+    tcga_status = check_tcga_feasibility()
+    
+    # For now, we'll assume GEO check is pending (will be implemented in T013)
+    geo_status = None
+    
+    # Write gate result
+    result = write_feasibility_gate_result(tcga_status, geo_status)
+    
+    # Return success if gate passed
+    return result["status"] == "ready"
+
 def main():
-    """
-    Main function to run the data acquisition pipeline.
-    """
-    # Setup logging
-    log_file = Path("logs/acquisition.log")
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    setup_logging(log_file)
+    """Main entry point for data acquisition."""
+    logger.info("Starting TCGA data acquisition...")
     
-    # Ensure directories exist
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data" / "raw"
-    results_dir = project_root / "results"
-    state_dir = project_root / "state"
-    
-    ensure_directories(data_dir, results_dir, state_dir)
-    
-    # Download TCGA data
-    logger.info("Starting TCGA data download...")
-    tcga_results = download_tcga_data(data_dir)
-    
-    # Download GEO data
-    logger.info("Starting GEO data download...")
-    geo_results = download_geo_data(data_dir)
+    # Discover and download TCGA data
+    if R_AVAILABLE and ensure_r_packages_installed():
+        valid_types = discover_available_tcga_tumor_types()
+        
+        if len(valid_types) >= 3:
+            logger.info(f"Found {len(valid_types)} valid tumor types, proceeding with download...")
+            success = download_tcga_data(valid_types[:3])
+            
+            if success:
+                logger.info("TCGA data download completed successfully")
+            else:
+                logger.error("TCGA data download failed")
+        else:
+            logger.error(f"Insufficient tumor types found: {len(valid_types)} < 3")
+    else:
+        logger.error("R environment not available for TCGA data acquisition")
     
     # Run feasibility gate
-    logger.info("Running data feasibility gate...")
-    gate_result = run_data_feasibility_gate(tcga_results, geo_results, results_dir, state_dir)
-    
-    # Update state with checksums
-    state_file = state_dir / "artifact_hashes.json"
-    for tumor_type in tcga_results.get("tumor_types_downloaded", []):
-        tumor_dir = data_dir / tumor_type
-        if tumor_dir.exists():
-            for file_path in tumor_dir.iterdir():
-                if file_path.is_file():
-                    hash_value = calculate_checksum(file_path)
-                    update_state_artifact_hashes(state_file, file_path, hash_value)
-    
-    # Log final status
-    logger.info(f"Data acquisition completed. Gate status: {gate_result['status']}")
-    logger.info(f"TCGA valid: {gate_result['tcga_valid']}, GEO valid: {gate_result['geo_valid']}")
-    
-    return gate_result
+    run_feasibility_gate()
 
 if __name__ == "__main__":
     main()
