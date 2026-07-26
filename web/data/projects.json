@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-26T11:40:22.804305+00:00",
+  "generated_at": "2026-07-26T11:33:42.473897+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -154674,126 +154674,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 0.719676,
-      "ended_at": "2026-07-26T11:33:36.726208Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:36.006532Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.828337,
-      "ended_at": "2026-07-26T11:33:35.949575Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:35.121238Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.671782,
-      "ended_at": "2026-07-26T11:33:35.064649Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:34.392867Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.703405,
-      "ended_at": "2026-07-26T11:33:34.337003Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:33.633598Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.889427,
-      "ended_at": "2026-07-26T11:33:33.578681Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:32.689254Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.854617,
-      "ended_at": "2026-07-26T11:33:32.633556Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:31.778939Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.841917,
-      "ended_at": "2026-07-26T11:33:31.669861Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:30.827944Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.878724,
-      "ended_at": "2026-07-26T11:33:30.771236Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:29.892512Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.857506,
-      "ended_at": "2026-07-26T11:33:29.835278Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:28.977772Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.880407,
-      "ended_at": "2026-07-26T11:33:28.899303Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-26T11:33:25.018896Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 0.527074,
       "ended_at": "2026-07-26T11:33:24.296252Z",
       "failure_reason": "",
@@ -160671,6 +160551,126 @@
       "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-07-26T04:40:23.016699Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1240.768177,
+      "ended_at": "2026-07-26T04:40:30.523883Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:19:49.755706Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 259.121194,
+      "ended_at": "2026-07-26T04:40:23.013859Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-209-quantifying-the-influence-of-topological",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:36:03.892665Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 827.445704,
+      "ended_at": "2026-07-26T04:36:03.828326Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-209-quantifying-the-influence-of-topological",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:22:16.382622Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.715403,
+      "ended_at": "2026-07-26T04:23:44.541475Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:43.826072Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.857245,
+      "ended_at": "2026-07-26T04:23:43.756092Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:42.898847Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.801508,
+      "ended_at": "2026-07-26T04:23:42.829004Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:42.027496Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.913086,
+      "ended_at": "2026-07-26T04:23:41.956516Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:41.043430Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.960137,
+      "ended_at": "2026-07-26T04:23:40.972497Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:40.012360Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.884609,
+      "ended_at": "2026-07-26T04:23:39.852184Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:38.967575Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.728927,
+      "ended_at": "2026-07-26T04:23:38.806941Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-26T04:23:38.078014Z"
     }
   ],
   "reviewed_preprints": [
