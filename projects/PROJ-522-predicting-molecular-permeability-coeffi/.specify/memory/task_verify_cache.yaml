@@ -1,0 +1,83 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or proof of the required folders (`data/raw/`, `data/processed/`,
+    `code/models/`, `code/analysis/`, `code/utils/`, `code/config/`, `tests/contract/`,
+    `tests/unit/`, `tests/integration/`) is provided, so we cannot verify that the
+    project structure was created. The implementer must supply evidence (e.g., a tree
+    view, screenshots, or a script output) showing the directories exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `ruff.toml`, `.flake8`, `pyproject.toml`
+    with Black settings, or CI workflow steps invoking these tools) are present in
+    the provided evidence, so the requirement to configure ruff/flake8 and Black is
+    not satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or dataset was provided to demonstrate that rows\
+    \ with missing permeability values are being filtered out and that a specific\
+    \ log entry such as \u201CMissing target variable\u201D is emitted. Without these\
+    \ artifacts, the requirement cannot be verified. The implementer must supply the\
+    \ ingestion/processing script (or notebook) and example output logs showing the\
+    \ exclusion and reason logging."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided showing that logging for\
+    \ exclusion reasons and exclusion\u2011rate statistics has been added. The required\
+    \ artifact (e.g., updated ingestion script with logging statements, log file examples,\
+    \ or a description of the new logging behavior) is missing, so the task is not\
+    \ satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing `streaming=True` dataset loading\
+    \ was provided, nor any test showing memory usage stays <\u202F2\u202FGB or that\
+    \ the pipeline fails when the dataset exceeds the limit. The required artifact\
+    \ (streaming logic with enforced memory constraint and failure behavior) is missing."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No verification logic, script, or test output was provided to show that the\
+    \ final dataset is checked for \u2265500 (or 2000) unique compounds and that an\
+    \ error is raised when the count is below the target. The required artifact is\
+    \ missing."
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for a GCN training wrapper with CPU backend\
+    \ and early\u2011stopping (patience\u202F=\u202F10) was provided. The evidence\
+    \ consists only of the task description and project specs; the required implementation\
+    \ artifact is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No training script, code, or output files for the Random Forest and Linear Regression
+    baselines are present; the claim provides only the task description and specifications
+    without any actual artifact (e.g., Python module, training loop implementation,
+    CSV of predictions, or performance report). The required training loop and its
+    results are missing.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that demonstrate a timeout\
+    \ mechanism for long\u2011running training jobs, nor any evidence (e.g., a log\
+    \ entry \u201CTIMEOUT: Terminating run\u201D) showing that runs exceeding 2\u202F\
+    hours are automatically stopped. The required artifact to prove the timeout enforcement\
+    \ is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (code, data, statistical test results, or report) was provided showing
+    a paired t-test comparison between GNN and RF/LR, nor any normality test output.
+    Without these concrete results, the requirement is not satisfied.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No comparison report (e.g., CSV, PDF, or markdown) containing the mean and standard\
+    \ deviation of the performance metrics and the results of a paired t\u2011test\
+    \ is present. The implementer provided only the task description and specifications,\
+    \ but no actual artifact that fulfills the requirement. The missing deliverable\
+    \ must be created and supplied."

@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-molecular-permeability"
+version = "0.1.0"
+description = "Predicting Molecular Permeability Coefficients via Graph Neural Networks"
+requires-python = ">=3.9"
+dependencies = [
+    "rdkit",
+    "torch",
+    "torch-geometric",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "datasets",
+    "pyarrow",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]

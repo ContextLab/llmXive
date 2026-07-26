@@ -1,0 +1,18 @@
+# Existing dependencies
+rdkit
+torch
+torch-geometric
+scikit-learn
+pandas
+numpy
+pyyaml
+datasets
+pyarrow
+# New dependencies for streaming
+huggingface_hub
+# Ensure pinned versions if needed, but generally rely on pip freeze from T002
+# This file is appended to by T002, so we just list the new ones here if T002 didn't cover them.
+# T002 already covers datasets, so no new major deps needed here.
+# Added for completeness:
+pytest
+pytest-cov

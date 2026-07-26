@@ -1,0 +1,42 @@
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/tasks.md
+  attempts: 1
+  canonical: k-fold scaffold-split cross-validation used for model generalizability
+  claim_id: c_894d34d4
+  context: 'The specific value to remove/generalize: ''k'' Rewritten passage: k-fold
+    scaffold-split CV The specific value to remove/generalize: ''k'' Rewritten passage:
+    k-fold scaffold-split cross-validation will be employed to evaluate model generalizability
+    across distinct molecular scaffolds'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_scaffold-split_cross-validation_used_for_model_genera
+  kind: entity_fact
+  raw_text: k-fold scaffold-split cross-validation will be employed to evaluate model
+    generalizability across distinct molecular scaffolds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:22:12Z'
+- artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/tasks.md
+  attempts: 1
+  canonical: Configurable timeout mechanism based on Smith et al. (2020) and arXiv:2105.12345
+  claim_id: c_1abe3f6f
+  context: 'The research question remains: How can we effectively enforce timeouts
+    in distributed systems? The method involves implementing a configurable timeout
+    mechanism based on best practices outlined in Smith et al. (2020) and arXiv:2105.12345.
+    logic to code/training.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Configurable_timeout_mechanism_based_on_Smith_et_al._(2020)
+  kind: magnitude
+  raw_text: The method involves implementing a configurable timeout mechanism based
+    on best practices outlined in Smith et al. (2020) and arXiv:2105.12345
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T22:23:01Z'

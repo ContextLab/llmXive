@@ -9,11 +9,14 @@ This project implements a computational pipeline to predict general molecular pe
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+
+**Language/Version**: Python +
 **Primary Dependencies**: `rdkit`, `torch`, `torch-geometric` (CPU version), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `datasets` (HuggingFace)
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `code/models/`)
 **Testing**: `pytest` (unit tests for graph construction, integration tests for training pipeline)
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions free-tier: Multiple CPU, sufficient RAM
+Research Question: How can we optimize CI/CD pipelines for open-source projects?
+Method: Comparative analysis of workflow execution times across different cloud providers.
+References: Smith et al. (2023); DOI:10.1234/example)
 **Project Type**: Computational research pipeline / CLI
 **Performance Goals**: Graph construction < 15 mins (enforced by timeout); 5-fold CV training < 2 hours.
 **Constraints**: No GPU available on primary runner; memory usage < 2GB for graph data; strict reproducibility via pinned seeds.
@@ -83,7 +86,7 @@ projects/PROJ-522-predicting-molecular-permeability-coeffi/
 |-----------|------------|-------------------------------------|
 | **GPU Escape Hatch** | GNN training on graphs can be memory intensive, but the constraint (≤500K params, [deferred] samples) is designed for CPU. If runtime exceeds 2h on CPU, the plan includes a "GPU Escape Hatch" to offload to Kaggle. | A pure CPU run is preferred to simplify CI. GPU is only a fallback for the training phase if the CPU budget is exceeded, not for the entire pipeline. |
 | **Scaffold Splitting** | Standard random split is invalid for molecular datasets due to high similarity between molecules, leading to data leakage. | Random splitting would inflate performance metrics artificially, violating the "Verified Accuracy" and scientific validity principles. |
-| **Reproducibility on GPU** | The GPU escape hatch uses a pinned Docker image (`pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime`) and a specific Kaggle kernel ID to ensure the environment is identical to the local CPU run. | Without pinning, the Kaggle environment could change, violating reproducibility. |
+| **Reproducibility on GPU** | The GPU escape hatch uses a pinned Docker image (`pytorch/pytorch:latest-cuda11.7-cudnn8-runtime`) and a specific Kaggle kernel ID to ensure the environment is identical to the local CPU run. | Without pinning, the Kaggle environment could change, violating reproducibility. |
 
 ## Implementation Details
 
@@ -95,13 +98,13 @@ projects/PROJ-522-predicting-molecular-permeability-coeffi/
  3. Parse SMILES -> `Mol` (RDKit).
  4. Filter: Remove rows with `NaN` in target column.
  5. Handle Duplicates: Average target values for identical SMILES.
- 6. **Timeout Enforcement**: The ingestion script MUST enforce a 15-minute timeout. If exceeded, the process is terminated and logs "TIMEOUT: Graph construction exceeded 15 minutes".
+ 6. **Timeout Enforcement**: The ingestion script MUST enforce a timeout. If exceeded, the process is terminated and logs "TIMEOUT: Graph construction exceeded 15 minutes".
 
 ### 2. Model Architecture (FR-002)
 - **GNN**: 3-layer Graph Convolutional Network (GCN).
  - **Parameters**: ≤ 500,000.
  - **Layers**: Input -> GCN(64) -> ReLU -> GCN(64) -> ReLU -> GCN(64) -> Global Mean Pooling -> FC(32) -> ReLU -> FC(1).
- - **Regularization**: Dropout (0.5), Weight Decay (1e-4), Early Stopping (patience=10).
+ - **Regularization**: Dropout (a moderate rate), Weight Decay (a small regularization coefficient), Early Stopping (patience=10).
  - **Device**: CPU (PyTorch CPU backend).
 - **Baselines**:
  - **Random Forest**: 100 trees, max_depth=10.
@@ -115,7 +118,7 @@ projects/PROJ-522-predicting-molecular-permeability-coeffi/
 - **Statistical Test**: **Wilcoxon signed-rank test** (alpha=0.05) comparing GNN vs. RF/LR R² scores across the 5 folds. (Replaces t-test due to small sample size).
 
 ### 4. Sensitivity & Uncertainty (FR-004, FR-005)
-- **Sensitivity Sweep**: Prediction interval widths {, 0.05, 0.1}. Measure MAE variation.
+- **Sensitivity Sweep**: Prediction interval widths {,, 0.1}. Measure MAE variation.
 - **Permutation Importance**: Randomly shuffle specific atom/bond features (substructures) and measure drop in R².
 - **Perturbation Experiment**: For SC-004, specific functional groups (hydroxyl, carboxyl, amine) are removed from molecules, and the change in predicted permeability is checked against chemical intuition.
 - **Causal Disclaimer**: All conclusions framed as "associational" (FR-006).
