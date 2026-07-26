@@ -42,20 +42,6 @@ T013a:
     \ any evidence that it avoids reading `data/processed/entropy_results.csv`. The\
     \ required loop\u2011running logic is missing (or not demonstrably present). The\
     \ task is therefore not satisfied."
-T015b:
-  c: false
-  h: 89e71ace5ed7c2bafabf08063167ba2c1b21840b8d3871e2f22eb5a37c6a3163
-  r: "The `analysis.py` file calls `generate_significance_flag(p_value)` but the function\
-    \ is not defined anywhere in the provided code, and the required output file `data/processed/analysis_summary.json`\
-    \ does not exist. Both the significance\u2011flag implementation and the saved\
-    \ JSON artifact are missing."
-T016:
-  c: false
-  h: 23449261b77de919a013ce1140fb7bd0cde934912a261804d27919d6d9793532
-  r: The required output file `data/processed/analysis_summary.json` does not exist,
-    so the aggregation of the specified CSV/JSON inputs and the significance flag
-    was not performed. The missing file must be created with the merged content to
-    satisfy the task.
 T019:
   c: false
   h: cec17e7b99f9d4caf19a8136e847fa8deb938714ecceb947b4e5dc20fd31315f
