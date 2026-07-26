@@ -32,6 +32,10 @@ properties:
   Collinearity_Flag:
     type: "boolean"
     description: "True if VIF > 5."
+  Model_Type:
+    type: "string"
+    enum: ["BinaryMetS", "SeverityScore", "TraitSpecific"]
+    description: "Type of model this result belongs to."
 required:
   - Predictor
   - Coefficient
@@ -42,4 +46,5 @@ required:
   - P_Value
   - VIF
   - Collinearity_Flag
+  - Model_Type
 additionalProperties: false

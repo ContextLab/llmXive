@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Differential Expression and Model Output Schema"
+description: "Combined schema for statistical test results and model metrics."
+type: object
+properties:
+  differential_results:
+    type: array
+    items:
+      type: object
+      properties:
+        tissue:
+          type: string
+        gene:
+          type: string
+        p_value:
+          type: number
+        adj_p_value:
+          type: number
+        effect_size:
+          type: number
+        n_metS:
+          type: integer
+        n_control:
+          type: integer
+        phase_adjusted:
+          type: boolean
+          description: "Whether time-adjustment was applied."
+      required:
+        - tissue
+        - gene
+        - p_value
+        - adj_p_value
+  model_metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        fold:
+          type: integer
+        auc:
+          type: number
+        auc_ci_lower:
+          type: number
+        auc_ci_upper:
+          type: number
+        odds_ratios:
+          type: object
+          description: "Map of gene -> odds ratio"
+        model_type:
+          type: string
+          enum: ["BinaryMetS", "SeverityScore", "TraitSpecific"]
+      required:
+        - fold
+        - auc
+        - odds_ratios
+        - model_type
+required:
+  - differential_results
+  - model_metrics
+additionalProperties: false

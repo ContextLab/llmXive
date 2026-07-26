@@ -28,6 +28,9 @@ properties:
   Significant:
     type: "boolean"
     description: "True if FDR_Q_Value < 0.05."
+  Phase_Adjusted:
+    type: "boolean"
+    description: "True if time-adjustment was applied."
 required:
   - GeneSymbol
   - Tissue
@@ -36,4 +39,5 @@ required:
   - FDR_Q_Value
   - Effect_Size
   - Significant
+  - Phase_Adjusted
 additionalProperties: false

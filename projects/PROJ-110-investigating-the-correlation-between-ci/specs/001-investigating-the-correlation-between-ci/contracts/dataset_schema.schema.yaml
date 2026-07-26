@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GTEx Metabolic Syndrome Dataset Schema"
+description: "Schema for the processed GTEx dataset including metabolic labels and gene expression."
+type: "object"
+properties:
+  donor_id:
+    type: "string"
+    description: "Unique identifier for the donor."
+  age:
+    type: "integer"
+    description: "Age of the donor in years."
+  sex:
+    type: "string"
+    enum: ["Male", "Female"]
+    description: "Biological sex of the donor."
+  tissue:
+    type: "string"
+    description: "Tissue type from which the sample was taken."
+  pmi:
+    type: "number"
+    description: "Post-Mortem Interval in hours."
+  time_of_death:
+    type: "string"
+    description: "Time of death (e.g., 'Morning', 'Afternoon')."
+  time_radians:
+    type: "number"
+    description: "Continuous circular representation of time (0 to 2pi)."
+  bmi:
+    type: "number"
+    description: "Body Mass Index (kg/m²)."
+  fasting_glucose:
+    type: "number"
+    description: "Fasting glucose level (mg/dL)."
+  systolic_bp:
+    type: "number"
+    description: "Systolic blood pressure (mmHg)."
+  diastolic_bp:
+    type: "number"
+    description: "Diastolic blood pressure (mmHg)."
+  triglycerides:
+    type: "number"
+    description: "Triglyceride level (mg/dL)."
+  hdl:
+    type: "number"
+    description: "HDL cholesterol level (mg/dL)."
+  metabolic_status:
+    type: "string"
+    enum: ["MetS", "Control", "Excluded"]
+    description: "Classification based on ATP-III criteria."
+  criteria_count:
+    type: "integer"
+    minimum: 0
+    maximum: 5
+    description: "Number of ATP-III criteria met (0-5)."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if metabolic_status is 'Excluded'."
+  validation_status:
+    type: "string"
+    enum: ["Valid", "Probable", "Invalid"]
+    description: "Result of Phase 0.5 validation gate."
+required:
+  - donor_id
+  - age
+  - sex
+  - tissue
+  - pmi
+  - bmi
+  - fasting_glucose
+  - systolic_bp
+  - diastolic_bp
+  - triglycerides
+  - hdl
+  - metabolic_status
+  - criteria_count
+  - validation_status
+additionalProperties: false

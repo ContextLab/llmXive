@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metabolic Syndrome Classification Schema"
+description: "Schema for the output of the ATP-III classification step."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Reference to the original sample"
+  criteria_met:
+    type: integer
+    minimum: 0
+    maximum: 5
+    description: "Number of ATP-III criteria met (0-5)"
+  metabolic_status:
+    type: string
+    enum: ["MetS", "Control", "Excluded"]
+    description: "Classification result based on >=3 criteria"
+  validation_status:
+    type: string
+    enum: ["Valid", "Probable", "Invalid"]
+    description: "Result of Phase 0.5 validation gate"
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if not classified (e.g., 'Missing Glucose')"
+required:
+  - sample_id
+  - criteria_met
+  - metabolic_status
+  - validation_status
+additionalProperties: false

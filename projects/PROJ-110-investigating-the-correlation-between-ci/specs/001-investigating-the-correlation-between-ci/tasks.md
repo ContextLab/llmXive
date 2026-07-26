@@ -61,6 +61,11 @@
 - [X] T006 Create base configuration manager in `code/utils/config.py` to load environment variables and project paths
 - [X] T007 Implement data hash utility in `code/utils/hashing.py` for `state/projects/PROJ-110-...yaml` updates
 - [X] T008 Setup pytest configuration in `pytest.ini` and create `tests/conftest.py` for fixtures
+- [ ] T012 [P] [Foundational] Define the core circadian gene list constant in `code/data/config.py`.
+  - **Content**: List of core clock genes with specific isoforms: `PER1`, `PER2`, `PER3`, `CRY1`, `CRY2`, `BMAL1` (ARNTL), `CLOCK`, `NR1D1`, `RORA` (mapped from spec's `RORα`).
+  - **Output**: A constant `CORE_CIRCADIAN_GENES` accessible to the loader.
+  - **Note**: This is a static configuration, not a data-dependent operation.
+  - **Depends on**: T006 (Config Manager).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,24 +78,20 @@
 **⚠️ CRITICAL**: T010 (Load GTEx) MUST precede T011 (Verify Columns) and T013b (Filter Genes).
 
 - [ ] T010 [US1] Implement `download_gtex_data` in `code/data/downloader.py` to download GTEx v8 RNA-seq TPM matrix and Phenotype file.
-  - **Source**: Download from HuggingFace dataset `genetics/gtex_v8` (specific files: `RNA-seq TPM matrix` and `Phenotype data`).
+  - **Source**: Read the dataset ID and file paths from `code/config.yaml` (key: `datasets.gtex.source`). Do NOT hardcode the URL.
+  - **Verification**: Before downloading, verify the source against the "Verified Datasets" block in `research.md` (or `config.yaml` if verified there). If the source is not verified, raise an error.
   - **Output**: Write `data/raw/gtex_v8_tpm_matrix.csv` and `data/raw/gtex_v8_phenotype.csv`.
   - **Verification**: Check file existence and row count > 0. Raise error if files are missing or empty.
   - **Constraint**: Do not use synthetic data. If download fails, raise an exception.
-  - **Depends on**: T004 (Data Directory Setup).
+  - **Depends on**: T004 (Data Directory Setup), T006 (Config).
 
 - [ ] T011 [US1] Implement column verification gate in `code/data/downloader.py` to check for BMI, Glucose, BP, TG, HDL.
   - **Logic**: If any required column is missing:
     1. Log a warning.
-    2. Attempt to fetch TCGA phenotype data as a fallback source from HuggingFace dataset `biostars/tcga_mets_phenotype_v1`.
-    3. If TCGA fallback fails, write `data/processed/data_availability_gate.json` with `status="Exploratory - Insufficient Phenotype Data"`.
+    2. **DO NOT** attempt to fetch TCGA data as a fallback (per FR-001).
+    3. Write `data/processed/data_availability_gate.json` with `status="Exploratory - Insufficient Phenotype Data"`.
     4. **Continue execution** with available data (do not exit/halt).
   - If all columns present: Proceed.
-  - **Depends on**: T010 (Data Loading).
-
-- [ ] T012 [US1] Define the core circadian gene list constant in `code/data/config.py`.
-  - **Content**: List of core clock genes with specific isoforms: `PER1`, `PER2`, `PER3`, `CRY1`, `CRY2`, `BMAL1` (ARNTL), `CLOCK`, `NR1D1`, `RORA`.
-  - **Output**: A constant `CORE_CIRCADIAN_GENES` accessible to the loader.
   - **Depends on**: T010 (Data Loading).
 
 - [ ] T013 [US1] Implement `filter_core_genes` in `code/data/downloader.py` using the constant from T012.
@@ -100,23 +101,23 @@
 
 - [ ] T014 [US1] Implement `classify_metabolic_status` in `code/data/classifier.py` applying strict ATP-III thresholds (≥3 of 5).
   - **Logic**: Classify donors as "MetS" or "Control" based on BMI, Glucose, BP, TG, HDL. Exclude samples with missing/invalid data. Log exclusions.
-  - **Output**: Write `data/processed/baseline_labels.csv`.
-  - **Depends on**: T011 (Column Verification), T013 (Gene Filtering).
+  - **Output**: 
+    1. Write `data/processed/baseline_labels.csv` (sample_id, label, criteria_count).
+    2. **CRITICAL**: Write `data/processed/filtered_phenotype.csv` containing ONLY the samples that passed the missing data exclusion. This file is required for T042 (Sensitivity Analysis) to ensure the "same cohort" assumption.
+  - **Depends on**: T010 (Data Loading), T011 (Column Verification). **DO NOT depend on T013**.
 
 - [ ] T015 [US1] Implement `run_power_analysis` in `code/data/classifier.py` to calculate N and statistical power.
   - **Logic**:
     1. Count complete cases (N) after applying strict listwise exclusion for missing values in the 5 clinical variables (output of T014).
     2. Perform formal power analysis based on **expected effect size (Cohen's d = 0.5)**, **alpha = 0.05**, and observed N.
     3. **Constraint**: If Power < 0.8 (N < 100):
-      - **Attempt to fetch TCGA data** from HuggingFace dataset `biostars/tcga_mets_phenotype_v1` to supplement the cohort (per FR-001).
-      - If TCGA data is successfully fetched and combined, recalculate power.
-      - If TCGA is unavailable or combined N is still < 100:
-        - Write `data/processed/feasibility_report.json` with `status="Exploratory - Low Power"`, `power=<value>`, `N=<count>`.
-        - **DO NOT HALT**: Continue execution in "Exploratory Mode" as per FR-001.
+      - **DO NOT** attempt to fetch TCGA data (per FR-001).
+      - Write `data/processed/feasibility_report.json` with `status="Exploratory - Low Power"`, `power=<value>`, `N=<count>`.
+      - **DO NOT HALT**: Continue execution in "Exploratory Mode" as per FR-001.
     4. If Power >= 0.8:
       - Write `data/processed/feasibility_report.json` with `status="Feasible"`.
       - Proceed to downstream analysis.
-  - **Depends on**: T014 (Classification output required for N count), T010, T011, T013.
+  - **Depends on**: T014 (Classification output required for N count), T010, T011. **DO NOT depend on T013**.
 
 **Checkpoint**: Data ingestion complete - classification and power analysis ready
 
@@ -153,14 +154,14 @@
 
 - [ ] T042 [US1] Implement `run_sensitivity_analysis` in `code/main.py` to vary ATP-III thresholds by ±5% (SC-005).
   - **Logic**:
-    1. Read `data/processed/baseline_labels.csv` (from T020).
+    1. Read `data/processed/filtered_phenotype.csv` (from T014) to ensure the **exact same cohort** is used as the baseline.
     2. Re-classify samples with varied thresholds (e.g., BMI >= 30 * 1.05 = 31.5, or 30 * 0.95 = 28.5). **Definition**: relative change.
     3. Compare baseline vs. varied labels.
     4. **Calculate** the percentage of reclassified samples.
     5. **Calculate** the robustness metrics: "Classification Agreement Rate" (percentage of samples with same label) and "Delta in Prevalence" (difference in MetS rate).
     6. Write comparison results to `data/processed/sensitivity_analysis.csv` (columns: sample_id, baseline_label, varied_label, reclassified).
     7. Write robustness metrics to `data/processed/sensitivity_metric.json` to satisfy SC-005.
-  - **Depends on**: T014, T020.
+  - **Depends on**: T014 (for `filtered_phenotype.csv`), T010, T011. **DO NOT depend on T020**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -183,6 +184,10 @@
 - [ ] T024 [US2] Implement `stratify_by_tissue` in `code/analysis/differential.py` to group samples by tissue type.
 - [ ] T025 [US2] Implement `run_wilcoxon_tests` in `code/analysis/differential.py` to perform Wilcoxon rank-sum tests for each gene per tissue.
 - [ ] T026 [US2] Implement `apply_fdr_correction` in `code/analysis/differential.py` using Benjamini-Hochberg procedure on all p-values.
+  - **Input**: Raw p-values from T029.
+  - **Output**: Adjusted p-values (FDR).
+  - **Depends on**: T029.
+
 - [ ] T027 [US2] Implement `compute_effect_sizes` in `code/analysis/differential.py` to calculate Cohen's d or similar metrics.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -195,21 +200,21 @@
 
 - [ ] T028 [US2] Implement normality check (Shapiro-Wilk) in `code/analysis/correlation.py` to select correlation method.
   - **Logic**:
-    1. Perform Shapiro-Wilk test on residuals of gene expression vs. trait. **Model**: Residuals are generated from a simple linear regression of log-transformed gene expression against the continuous trait.
+    1. Perform Shapiro-Wilk test on the distribution of the variables (gene expression and continuous trait) for each gene-trait pair.
     2. If p > 0.05, use Pearson; otherwise, use Spearman.
     3. Log the chosen method for each gene-trait pair.
   - **Output**: Write `data/processed/correlation_method_flags.json` with `{ "gene_trait_pair": "method" }`.
-  - **Depends on**: T014, T026.
+  - **Depends on**: T014, T013. **DO NOT depend on T026**.
 
 - [ ] T029 [US2] Implement `generate_correlation_analysis` in `code/analysis/correlation.py` to compute Spearman/Pearson correlations with continuous traits (FR-007).
-  - **Logic**: Compute correlations for ALL core circadian genes against continuous traits (BMI, Glucose, TG, HDL, BP).
-  - **Output**: Return a DataFrame with columns `[gene, r, p, significance_flag]` where `significance_flag` is "significant" if FDR < 0.05 (from T026) else "exploratory".
-  - **Note**: This task prepares the data for plotting; T030 handles the actual plot generation.
-  - **Depends on**: T014, T026, T028.
+  - **Logic**: Compute correlations for ALL core circadian genes against continuous traits (BMI, Glucose, TG, HDL, BP) using the method determined by T028.
+  - **Output**: Return a DataFrame with columns `[gene, r, p_raw]`. **DO NOT include significance flags here**; those are added after FDR correction.
+  - **Note**: This task prepares the raw data for plotting; T026 handles the correction.
+  - **Depends on**: T014, T013, T028.
 
 - [ ] T030 [US2] Implement `plot_scatter_significant` in `code/viz/plots.py` to generate scatter plots for significant correlations (FR-007).
   - **Output**: Write `docs/correlation_scatter_*.png` for each significant gene-trait pair.
-  - **Depends on**: T029, T028.
+  - **Depends on**: T029, T028, T026.
 
 **Checkpoint**: Correlation analysis complete
 
@@ -254,7 +259,9 @@
 - [ ] T041 [P] Implement `write_results_to_csv` in `code/main.py` to save processed data and results to `data/processed/`.
 - [ ] T043 [P] Implement `compute_content_hashes` in `code/main.py` to hash `data/processed/` artifacts.
 - [ ] T044 [P] Implement `update_state_hash` in `code/main.py` to write hashes to `state/projects/PROJ-110-...yaml`.
-- [ ] T045 [P] Generate final diagnostic report in `docs/report.md` summarizing SC-001 through SC-005 outcomes (including the sensitivity metrics from T042).
+- [ ] T045 [P] Generate final diagnostic report in `docs/report.md` summarizing SC-001 through SC-005 outcomes.
+  - **Requirement**: Must explicitly include the "Classification Agreement Rate" metric from T042 as the primary evidence for SC-005.
+  - **Depends on**: T042, T018, T026, T036.
 - [ ] T046 [P] Run end-to-end integration test in `tests/integration/test_pipeline.py` to verify full pipeline execution on sample data.
 
 ---
@@ -269,7 +276,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Sensitivity & Correlation (Phase 5)**: Depends on US1 (T014) and US2 (T026) completion
+- **Sensitivity & Correlation (Phase 5)**: Depends on US1 (T014) and US2 (T025) completion
 - **Polish (Phase 7)**: Depends on all desired user stories and Phase 5 being complete
 
 ### User Story Dependencies
@@ -354,8 +361,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data downloads must use real, verified URLs (GTEx v8); no synthetic data fabrication allowed.
-- **Critical**: Power analysis (T015) MUST attempt TCGA fallback if power < 0.8. Only flag as "Exploratory" if TCGA is unavailable.
+- **Critical**: Power analysis (T015) MUST NOT attempt TCGA fallback. If power < 0.8, flag as "Exploratory" only.
 - **Critical**: Tissue stratification (T024) must exclude tissues with <20 samples per group.
 - **Critical**: Gene filtering (T013) must occur immediately after data loading (T010) in Phase 0, before any analysis.
-- **Critical**: Sensitivity analysis (T042) must explicitly calculate and report the robustness metrics (agreement rate, delta prevalence) to satisfy SC-005.
+- **Critical**: Sensitivity analysis (T042) must explicitly calculate and report the robustness metrics (agreement rate, delta prevalence) to satisfy SC-005, using the exact same filtered cohort as T014.
 - **Critical**: Diagnostic plots (T039, T040) and Collinearity check (T038) are mandatory for FR-008 and FR-005 compliance.
+- **Critical**: The final report (T045) must explicitly state the "Classification Agreement Rate".
