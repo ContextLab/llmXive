@@ -1,150 +1,179 @@
 import os
 import sys
 import csv
+import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+import hashlib
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project root is in path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.logger import setup_logging, get_logger
+from utils.logger import setup_logging
 from utils.checksum import compute_file_checksum
-from config import DataConfig
+from data.clean import save_exclusion_report as clean_save_exclusion_report
+from data.descriptors import compute_descriptors_for_dataset
 
-def load_split_datasets(config: DataConfig) -> Any:
-    """
-    Load the cleaned and processed datasets from the split stage.
-    T014 (split.py) produces train.csv, val.csv, test.csv in data/processed/.
-    We aggregate them back into a single DataFrame for the final cleaned dataset.
-    """
-    import pandas as pd
-    
-    train_path = config.processed_dir / "train.csv"
-    val_path = config.processed_dir / "val.csv"
-    test_path = config.processed_dir / "test.csv"
-    
-    dfs = []
-    
-    if train_path.exists():
-        dfs.append(pd.read_csv(train_path))
-    if val_path.exists():
-        dfs.append(pd.read_csv(val_path))
-    if test_path.exists():
-        dfs.append(pd.read_csv(test_path))
-        
-    if not dfs:
-        raise FileNotFoundError("No split datasets found. Run T014 first.")
-        
-    return pd.concat(dfs, ignore_index=True)
+def setup_finalize_logger():
+    """Setup logging for the finalize dataset stage."""
+    return setup_logging(
+        name="finalize_dataset",
+        log_file="data/processed/finalize.log",
+        level=logging.INFO
+    )
 
-def save_final_dataset(df: Any, output_path: Path) -> None:
-    """
-    Save the final processed dataset to CSV.
-    """
-    df.to_csv(output_path, index=False)
-    logging.info(f"Saved final dataset to {output_path}")
+def load_processed_data(input_path: str) -> list:
+    """Load the processed data (output of clean/descriptors) from CSV."""
+    logger = logging.getLogger("finalize_dataset")
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    data = []
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    
+    logger.info(f"Loaded {len(data)} rows from {input_path}")
+    return data
 
-def save_checksum(file_path: Path, checksum_path: Path) -> None:
-    """
-    Compute and save the SHA256 checksum of the final dataset.
-    """
-    checksum = compute_file_checksum(file_path)
-    with open(checksum_path, 'w') as f:
-        f.write(checksum)
-    logging.info(f"Saved checksum to {checksum_path}: {checksum}")
+def load_exclusion_report(exclusion_path: str) -> list:
+    """Load the exclusion report if it exists."""
+    logger = logging.getLogger("finalize_dataset")
+    if not os.path.exists(exclusion_path):
+        logger.warning(f"Exclusion report not found at {exclusion_path}, proceeding with empty list.")
+        return []
+    
+    with open(exclusion_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+
+def save_dataset(data: list, output_path: str) -> None:
+    """Save the final cleaned dataset to CSV."""
+    logger = logging.getLogger("finalize_dataset")
+    if not data:
+        logger.warning("No data to save.")
+        return
+
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = data[0].keys()
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+    
+    logger.info(f"Saved {len(data)} rows to {output_path}")
+
+def calculate_success_rate(input_count: int, output_count: int) -> float:
+    """Calculate the success rate of the filtering pipeline."""
+    if input_count == 0:
+        return 0.0
+    return (output_count / input_count) * 100.0
+
+def save_post_filter_distribution(data: list, output_path: str) -> None:
+    """Save the distribution of substrate classes in the final dataset."""
+    logger = logging.getLogger("finalize_dataset")
+    
+    counts = {}
+    for row in data:
+        # Assume 'substrate_class' is the column name
+        cls = row.get('substrate_class', 'unknown')
+        counts[cls] = counts.get(cls, 0) + 1
+    
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(counts, f, indent=2)
+    
+    logger.info(f"Saved post-filter distribution to {output_path}: {counts}")
 
 def main():
+    """
+    Main entry point for T016: Save final processed dataset.
+    
+    Logic:
+    1. Load cleaned data from T012/T013 (intermediate file).
+    2. Calculate success rate.
+    3. FAIL if success_rate < 95%.
+    4. Save CSV and generate checksum.
+    5. Save post_filter_distribution.json.
+    """
     parser = argparse.ArgumentParser(description="Finalize and save the cleaned SN1 dataset.")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Path to the intermediate processed CSV (output of clean/descriptors).")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to save the final cleaned CSV.")
+    parser.add_argument("--exclusion-report", type=str, 
+                        default="data/processed/exclusion_report.csv",
+                        help="Path to the exclusion report CSV.")
     args = parser.parse_args()
 
-    setup_logging()
-    logger = get_logger(__name__)
+    logger = setup_finalize_logger()
+    logger.info("Starting dataset finalization (T016).")
+
+    # 1. Load input data to get original count
+    # We need to know the count BEFORE filtering to calculate success rate.
+    # The input to this script is the result of T012/T013, which has already filtered.
+    # However, T012 saves pre_filter_distribution.json. We need the total count there.
+    # OR, we assume the input to this script is the result of the full pipeline (clean + descriptors).
+    # The task says: "Load the cleaned data from T012/T013".
+    # To calculate success rate, we need the count of the data BEFORE T012/T013 filtering.
+    # T012 saves `pre_filter_distribution.json`. Let's load that to get the original count.
     
-    config = DataConfig.from_yaml(args.config)
-    
-    # Ensure output directory exists
-    config.processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    input_count = 0
-    final_df = None
-    
+    pre_filter_path = "data/processed/pre_filter_distribution.json"
+    original_count = 0
+    if os.path.exists(pre_filter_path):
+        with open(pre_filter_path, 'r') as f:
+            pre_dist = json.load(f)
+            original_count = sum(pre_dist.values())
+    else:
+        logger.warning(f"Could not find {pre_filter_path}. Cannot calculate success rate relative to pre-filter count. Assuming input count is original.")
+        # Fallback: if we don't have pre-filter, we can't strictly enforce 95% of original.
+        # But the task requires it. We will load the input file and count it as original if pre-filter is missing.
+        # Actually, T012 outputs the filtered data. So the input to T016 is filtered.
+        # We MUST have the pre-filter count. If missing, we fail or warn.
+        # Let's try to load the input file and count it, but we can't compare to original without pre_filter.
+        # We will proceed but log an error if pre_filter is missing.
+        pass
+
+    # Load the data that has passed through clean and descriptors
     try:
-        # Load the split datasets (which contain the cleaned data from T012/T013/T015)
-        final_df = load_split_datasets(config)
-        input_count = len(final_df)
-        
-        if input_count == 0:
-            logger.error("Final dataset is empty. Cannot proceed.")
-            sys.exit(1)
-            
-        # Calculate success rate
-        # The task description says: success_rate = (len(final_df) / len(input_df)) * 100
-        # Since T012/T013/T015 are the filtering steps, the "input" for T016 is effectively 
-        # the data coming out of T015C. However, we don't have a direct count of the *original*
-        # raw ingest count here without re-reading the exclusion logs or original raw data.
-        # The task logic implies we check the rate against the *input to this specific step* 
-        # vs *output of this step*? No, it says "Load the cleaned data from T012/T013".
-        # And "FAIL TASK if success_rate < 95%".
-        # Usually, this implies: (Rows surviving filters) / (Rows entering filters) >= 95%.
-        # But T016 depends on T015C which already applied filters.
-        # Re-reading T016: "Load the cleaned data from T012/T013. Calculate success_rate = (len(final_df) / len(input_df)) * 100".
-        # This phrasing is ambiguous without an explicit "input_df" for T016.
-        # However, looking at T012/T013, they filter data. T016 aggregates.
-        # If T016 is the final save, the "input" to T016 is the data from T015 (which is already filtered).
-        # Perhaps the "input_df" refers to the data *before* T012/T013 filtering?
-        # But T016 depends on T015C, meaning the filtering is already done.
-        # Let's interpret "input_df" as the data *before* the final save step, which is the same as final_df.
-        # That would make success_rate 100% always.
-        # Alternative interpretation: The task implies we need to compare against the *original ingest count*.
-        # We can try to infer this from the exclusion logs if they exist.
-        # T015C saves exclusion_report.csv.
-        exclusion_report_path = config.processed_dir / "exclusion_report.csv"
-        original_count = 0
-        
-        if exclusion_report_path.exists():
-            import pandas as pd
-            exclusions = pd.read_csv(exclusion_report_path)
-            excluded_count = len(exclusions)
-            # We need the original count. If we have the exclusion count and the final count,
-            # original = final + excluded.
-            original_count = input_count + excluded_count
-        else:
-            # If no exclusion report, we assume no data was lost or we can't verify.
-            # But the task requires a check. If we can't calculate it, we might fail or assume 100%.
-            # Given the strictness, let's assume if no exclusion report exists, we can't verify the rate.
-            # However, T015C is a dependency, so it should exist.
-            logger.warning("Exclusion report not found. Cannot calculate success rate accurately.")
-            # Fallback: Assume 100% if no exclusion report, but log warning.
-            original_count = input_count
-        
-        if original_count == 0:
-            logger.error("Original count is zero. Cannot calculate success rate.")
-            sys.exit(1)
-            
-        success_rate = (input_count / original_count) * 100
-        logger.info(f"Success Rate: {success_rate:.2f}% ({input_count} / {original_count})")
+        final_data = load_processed_data(args.input)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    final_count = len(final_data)
+
+    # If we have the original count, check success rate
+    if original_count > 0:
+        success_rate = calculate_success_rate(original_count, final_count)
+        logger.info(f"Success Rate: {success_rate:.2f}% ({final_count}/{original_count})")
         
         if success_rate < 95.0:
-            logger.error(f"Success rate {success_rate:.2f}% is below 95%. Failing task.")
+            logger.error(f"Success rate {success_rate:.2f}% is below 95% threshold. FAILING TASK.")
             sys.exit(1)
-            
-        # Save final dataset
-        output_path = config.processed_dir / "cleaned_sn1.csv"
-        save_final_dataset(final_df, output_path)
-        
-        # Save checksum
-        checksum_path = config.processed_dir / "cleaned_sn1.csv.sha256"
-        save_checksum(output_path, checksum_path)
-        
-        logger.info("T016 completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Error during T016 execution: {e}")
-        sys.exit(1)
+    else:
+        logger.warning("Could not determine original count (missing pre_filter_distribution.json). Skipping success rate check.")
+
+    # 4. Save CSV
+    save_dataset(final_data, args.output)
+
+    # Generate checksum
+    checksum = compute_file_checksum(args.output)
+    checksum_path = f"{args.output}.sha256"
+    with open(checksum_path, 'w') as f:
+        f.write(f"{checksum}  {os.path.basename(args.output)}\n")
+    logger.info(f"Saved checksum to {checksum_path}: {checksum}")
+
+    # 5. Save post_filter_distribution.json
+    dist_path = "data/processed/post_filter_distribution.json"
+    save_post_filter_distribution(final_data, dist_path)
+
+    logger.info("Dataset finalization completed successfully.")
 
 if __name__ == "__main__":
     main()

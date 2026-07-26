@@ -1,0 +1,13 @@
+status: none
+intent: SN1 reaction kinetic dataset NIST Reaxys open subset UCI python package dataset
+required_fields:
+- SMILES
+- rate_constant
+- substrate_class
+- Gasteiger_partial_charges
+- topological_indices
+- temperature
+- solvent
+cache_key: a38cd8583ab5941546f661b436862e673cd40ec695271c499a0ed2cd7bde0ac5
+searched_at: '2026-07-26T08:53:33.165218+00:00'
+retry_count: 1

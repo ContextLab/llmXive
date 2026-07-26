@@ -1,3 +1,19 @@
+T012:
+  c: false
+  h: 00f0f381addabcbf93a865403b15df813ffa6aac442f3732ea8008a13ab08d6a
+  r: "The provided `code/data/clean.py` is truncated (ends mid\u2011string) and does\
+    \ not show the logic that reads `intermediate_sn1.csv`, applies the proxy filter,\
+    \ writes the cleaned CSV, generates `pre_filter_distribution.json`, or logs exclusions.\
+    \ Moreover, the required input file `data/processed/intermediate_sn1.csv` and\
+    \ the expected log file `data/processed/clean.log` are absent. The task\u2019\
+    s core functionality and required artifacts are therefore not present."
+T013:
+  c: false
+  h: 0619d79a7e3c944e2c24f8a65328081de8b53474ee504061ef859ff3be13869a
+  r: "The repository contains a `code/data/descriptors.py` file, but it does not show\
+    \ any code that writes descriptor information to `data/processed/descriptor.log`,\
+    \ and the required log file is absent. Consequently the task\u2019s output requirement\
+    \ is not met."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,15 +21,6 @@ T023:
     \ showing the required columns or top\u201110 configurations was provided. The\
     \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
     \ the specified fields is missing."
-T028:
-  c: false
-  h: aaa22e7340952f7beeec7b5ad0c6bfdf6d62c30b000697f213ea58b3c69f57ce
-  r: "The required input dataset `data/processed/cleaned_sn1.csv` is absent, and there\
-    \ is no `artifacts/collinearity_report.md` file. Moreover, the provided `collinearity.py`\
-    \ is truncated and does not contain logic for generating the descriptive joint\
-    \ analysis report, adding chemical relationship descriptions, or performing PCA\
-    \ when VIF\u202F>\u202F10. These missing artifacts and incomplete implementation\
-    \ mean the task is not genuinely fulfilled."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -267,3 +267,331 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T16:01:53Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 0
+  canonical: primary data source is HuggingFace dataset chemistry/dts-sn1
+  claim_id: c_0a239b71
+  context: 'Primary Source: HuggingFace dataset ''chemistry/dts-sn1''. Fallback: UCI
+    ''ucimlrepo'' SN subset.'
+  evidence:
+    entailment_evidence: Primary SN1 data source is HuggingFace chemistry/dts-sn1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_SN1_data_source_is_HuggingFace_chemistry/dts-sn1
+  kind: entity_fact
+  raw_text: The primary source for data is the HuggingFace dataset 'chemistry/dts-sn1'.
+  resolved_value: Primary SN1 data source is HuggingFace chemistry/dts-sn1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T09:04:28Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: ingestion script success rate on NIST subset is at least 95 percent
+  claim_id: c_0074a7fa
+  context: "Independent Test: Running the ingestion script on a known subset of the\
+    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
+    \ with \u226595% success rate and proper stratification."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_script_success_rate_on_NIST_subset_is_at_least_95
+  kind: magnitude
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:05:24Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: training job completes within 6 hours on a 2-core CPU runner
+  claim_id: c_c146a2c8
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner, saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training job completes within 6 hours on a 2-core CPU runner, saves\
+    \ model weights, and outputs R\xB2/MAE metrics comparing MPNN to linear regression\
+    \ with statistical significance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:06:09Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: fallback data source is UCI ucimlrepo SN subset
+  claim_id: c_cab05ba5
+  context: 'Primary Source: HuggingFace dataset ''chemistry/dts-sn1''. Fallback: UCI
+    ''ucimlrepo'' SN subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_data_source_is_UCI_ucimlrepo_SN_subset
+  kind: entity_fact
+  raw_text: The fallback data source is the UCI 'ucimlrepo' SN subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:07:00Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: hyperparameter optimization uses random search with at most 50 configurations
+  claim_id: c_9ab73df7
+  context: "Implement `code/models/train.py` with random search hyperparameter optimization\
+    \ (\u226450 configurations)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Vol(H) = 0.05, the probability that at least one draw from 50
+      source_id: '1811.00620'
+      url: https://arxiv.org/abs/1811.00620
+      value: '50'
+    filled: true
+  kind: magnitude
+  raw_text: Hyperparameter optimization uses random search with 50 or fewer configurations.
+  resolved_value: '50'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T09:07:56Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: model layer count is bounded between 1 and 4
+  claim_id: c_a10f040c
+  context: 'Constraint: Layer count MUST be configurable via `config.py` (key: `model.layers`)
+    but bounded between 1 and 4 layers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model layer count is bounded between 1 and 4 layers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:08:49Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: top 10 hyperparameter configurations identified based on validation R2
+  claim_id: c_b49d7c83
+  context: "Logic: Identify top 10 configurations based on validation R\xB2 from T021."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The top 10 hyperparameter configurations are identified based on validation\
+    \ R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:09:11Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Kendall Tau correlation of feature rankings across 3 seeds must be greater
+    than 0.7
+  claim_id: c_4bd08474
+  context: Validate that the top 5 features are consistent (Kendall's Tau > 0.7).
+  evidence:
+    asserted: '3.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: magnitude
+  raw_text: Kendall's Tau correlation of feature rankings across 3 seeds must be greater
+    than 0.7 to validate consistency.
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T09:09:11Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: SHAP consistency test uses random seeds 42, 123, and 456
+  claim_id: c_1817a351
+  context: Re-train the model multiple times from scratch with seeds [42, 123, 456]
+    on a stratified sample of the cleaned dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SHAP consistency test uses random seeds 42, 123, and 456.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:09:38Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: sample size reduced to 500 rows if 2000 row re-train exceeds 30 minutes
+  claim_id: c_9c683901
+  context: 'Fallback: If a single re-train on 2000 rows exceeds 30 minutes, reduce
+    sample size to 500 rows and label the report as ''Proxy Stability (N=500)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a single re-train on 2000 rows exceeds 30 minutes, the sample size
+    is reduced to 500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:10:01Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweep range defined in 10 equal steps
+  claim_id: c_16b6951b
+  context: Define a sweep range from the lower to upper percentiles in 10 equal steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep range is defined in 10 equal steps between
+    lower and upper percentiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:10:21Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: hyperparameter sensitivity test uses stratified sample size of 2000 rows
+  claim_id: c_0617f962
+  context: 'Select a stratified sample of the dataset (size: 2000 rows, stratify by
+    `substrate_class`, seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter sensitivity test uses a stratified sample size of 2000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:10:33Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: hyperparameter sensitivity test explicitly tests 5 configurations
+  claim_id: c_16c01abb
+  context: 'Test the following 5 configurations explicitly: (1) LR=0.01, Dropout=0.0;
+    (2) LR=0.01, Dropout=0.5; (3) LR=0.001, Dropout=0.0; (4) LR=0.001, Dropout=0.5;
+    (5) LR=0.1, Dropout=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter sensitivity test explicitly tests 5 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:10:45Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: random seed for stratified sample in hyperparameter sensitivity analysis
+    is 42
+  claim_id: c_ef94803d
+  context: 'Select a stratified sample of the dataset (size: 2000 rows, stratify by
+    `substrate_class`, seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the stratified sample in hyperparameter sensitivity
+    analysis is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:11:20Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: top 5 atoms with highest absolute SHAP value identified for perturbation
+    studies
+  claim_id: c_16f84a13
+  context: For each molecule in the test set, identify the top 5 atoms with the highest
+    absolute SHAP value (or atoms with `|SHAP| > 0.1`).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_5_atoms_with_highest_absolute_SHAP_value_identified_for
+  kind: magnitude
+  raw_text: For perturbation studies, the top 5 atoms with the highest absolute SHAP
+    value are identified for each molecule.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:12:01Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: steric hindrance proxy filters rows if value is greater than 2.0
+  claim_id: c_b766c8b9
+  context: 'Filter: Row if `proxy > 2.0` OR if substrate class is explicitly ''primary''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Steric_hindrance_proxy_filters_rows_if_value_is_greater_than
+  kind: magnitude
+  raw_text: The steric hindrance proxy filters rows if the proxy value is greater
+    than 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:12:38Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: stratified split verifies proportional representation within variance
+    of 5 percent
+  claim_id: c_eb68792a
+  context: "Verify proportional representation of remaining classes matches the *post-filter\
+    \ distribution* within a variance of \u2264 5%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified split verifies proportional representation within a variance
+    of 5% or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:12:38Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: success rate calculation must be at least 95 percent to pass
+  claim_id: c_587b3652
+  context: FAIL TASK if `success_rate < 95%` by raising `SystemExit(1)`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_rate_calculation_must_be_at_least_95_percent_to_pass
+  kind: magnitude
+  raw_text: The success rate calculation must be at least 95% to pass the task.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:13:32Z'

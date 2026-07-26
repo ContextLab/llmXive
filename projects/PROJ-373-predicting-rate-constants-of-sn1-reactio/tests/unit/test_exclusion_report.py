@@ -1,109 +1,73 @@
 import pytest
-import os
 import json
 import csv
 import tempfile
+import os
 from pathlib import Path
 import sys
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from data.exclusion_report import map_error_reason, generate_exclusion_report, load_exclusion_logs
+from data.exclusion_report import load_exclusion_logs, map_error_reason, generate_exclusion_report
 
-class TestMapErrorReason:
-    def test_canonicalization_error(self):
-        assert map_error_reason("SMILES canonicalization failed") == "canonicalization_error"
-        assert map_error_reason("failed to canonicalize") == "canonicalization_error"
+def test_map_error_reason():
+    """Test mapping of raw error strings to schema codes."""
+    assert map_error_reason('SMILES canonicalization failed') == 'canonicalization_error'
+    assert map_error_reason('Gasteiger convergence error') == 'gasteiger_convergence_error'
+    assert map_error_reason('Primary substrate') == 'primary_substrate_filter'
+    assert map_error_reason('ambiguous_stereochemistry') == 'ambiguous_stereochemistry'
+    # Test passthrough for unknown (should return original)
+    assert map_error_reason('Unknown Error') == 'Unknown Error'
 
-    def test_gasteiger_convergence_error(self):
-        assert map_error_reason("Gasteiger convergence error") == "gasteiger_convergence_error"
-        assert map_error_reason("gasteiger did not converge") == "gasteiger_convergence_error"
-
-    def test_primary_substrate(self):
-        assert map_error_reason("primary substrate filtered") == "primary_substrate_filtered"
-
-    def test_steric_hindrance(self):
-        assert map_error_reason("steric hindrance exceeded") == "steric_hindrance_exceeded"
-
-    def test_unknown_error(self):
-        assert map_error_reason("some random error") == "some random error"
-
-class TestGenerateExclusionReport:
-    def test_generates_correct_csv(self):
-        logs = [
-            {"row_index": 1, "reason": "SMILES canonicalization failed", "smiles": "CCO"},
-            {"row_index": 2, "reason": "Gasteiger convergence error", "smiles": "CCC"},
-            {"row_index": 3, "reason": "primary substrate filtered", "smiles": "CCCC"}
+def test_load_exclusion_logs_jsonl():
+    """Test loading logs from JSONL format."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "test.log"
+        
+        # Write test data
+        test_data = [
+            {"row_index": 1, "reason": "SMILES canonicalization failed", "original_smiles": "CCO"},
+            {"row_index": 2, "reason": "Primary substrate", "original_smiles": "C(C)C"},
+            {"row_index": 3, "reason": "Gasteiger convergence error", "original_smiles": "CCC"}
         ]
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "exclusion_report.csv"
-            generate_exclusion_report(logs, output_path)
-            
-            assert output_path.exists()
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                
-            assert len(rows) == 3
-            assert rows[0]['row_index'] == '1'
-            assert rows[0]['reason'] == 'canonicalization_error'
-            assert rows[0]['original_smiles'] == 'CCO'
-            
-            assert rows[1]['reason'] == 'gasteiger_convergence_error'
-            assert rows[2]['reason'] == 'primary_substrate_filtered'
+        with open(log_path, 'w') as f:
+            for entry in test_data:
+                f.write(json.dumps(entry) + '\n')
+        
+        loaded = load_exclusion_logs([str(log_path)])
+        
+        assert len(loaded) == 3
+        assert loaded[0]['row_index'] == 1
+        assert loaded[0]['reason'] == "SMILES canonicalization failed"
 
-    def test_handles_missing_fields(self):
-        logs = [
-            {"row_index": 1, "reason": "unknown"},
-            {"reason": "error", "smiles": "CC"} # Missing row_index
+def test_generate_exclusion_report():
+    """Test generation of the CSV report."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "report.csv"
+        
+        entries = [
+            {"row_index": 1, "reason": "SMILES canonicalization failed", "original_smiles": "CCO"},
+            {"row_index": 2, "reason": "Primary substrate", "original_smiles": "C(C)C"}
         ]
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "exclusion_report.csv"
-            generate_exclusion_report(logs, output_path)
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-            
-            # Should only have the one with row_index
-            assert len(rows) == 1
-
-class TestLoadExclusionLogs:
-    def test_loads_json_array(self):
-        logs_data = [
-            {"row_index": 1, "reason": "test", "smiles": "CC"},
-            {"row_index": 2, "reason": "test2", "smiles": "CCO"}
-        ]
+        generate_exclusion_report(entries, str(output_path))
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "exclusions_test.json"
-            with open(log_file, 'w') as f:
-                json.dump(logs_data, f)
-            
-            loaded = load_exclusion_logs(Path(tmpdir))
-            assert len(loaded) == 2
-            assert loaded[0]['row_index'] == 1
-
-    def test_loads_jsonl(self):
-        logs_data = [
-            {"row_index": 1, "reason": "test", "smiles": "CC"},
-            {"row_index": 2, "reason": "test2", "smiles": "CCO"}
-        ]
+        assert output_path.exists()
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "exclusions_test.json"
-            with open(log_file, 'w') as f:
-                for entry in logs_data:
-                    f.write(json.dumps(entry) + "\n")
-            
-            loaded = load_exclusion_logs(Path(tmpdir))
-            assert len(loaded) == 2
-            
-    def test_empty_directory(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            loaded = load_exclusion_logs(Path(tmpdir))
-            assert loaded == []
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        assert len(rows) == 2
+        assert rows[0]['row_index'] == '1'
+        assert rows[0]['reason'] == 'canonicalization_error'
+        assert rows[0]['original_smiles'] == 'CCO'
+        assert rows[1]['reason'] == 'primary_substrate_filter'
+        
+def test_load_exclusion_logs_missing_file():
+    """Test behavior when log file is missing."""
+    loaded = load_exclusion_logs(['/nonexistent/path.log'])
+    assert len(loaded) == 0

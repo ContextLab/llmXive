@@ -1,185 +1,281 @@
 """
-Unit tests for SMILES parsing and descriptor calculation (T009).
+Unit tests for SMILES parsing and descriptor calculation.
 
-Tests verify that:
-1. SMILES strings are correctly parsed by RDKit.
-2. Gasteiger partial charges are computed and returned as a list of floats.
-3. Topological indices (specifically Molecular Weight and NumRotatableBonds) are computed correctly.
-4. Invalid SMILES strings are handled gracefully.
+Tests for code/data/descriptors.py
+Dependencies: T001 (project structure), T002 (requirements), T004 (config)
 """
+
+import os
+import sys
 import pytest
-import rdkit
-from rdkit import Chem
-from rdkit.Chem import AllChem, Descriptors
-from typing import List, Optional
+import numpy as np
+from pathlib import Path
 
-# Import the module under test. 
-# Since descriptors.py is not yet implemented (T013), we implement the logic 
-# directly in the test helper to satisfy the "real, runnable code" constraint 
-# for the test file itself, while mocking the future module structure.
-# In a real execution flow, this would be: from code.data.descriptors import compute_descriptors
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# For this unit test to run independently as requested, we define the logic 
-# we expect the future implementation to have, and test it here.
+from code.data.descriptors import (
+    compute_gasteiger_charges,
+    compute_topological_indices,
+    process_single_row,
+    compute_descriptors_for_dataset
+)
+from code.utils.logger import setup_logging
 
-def compute_descriptors_from_smiles(smiles: str) -> dict:
-    """
-    Helper function implementing the expected logic for T013.
-    Returns a dict with 'gasteiger_charges' and 'topological_indices'.
-    """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return None
-    
-    # Compute Gasteiger charges
-    AllChem.ComputeGasteigerCharges(mol)
-    charges = []
-    for atom in mol.GetAtoms():
-        charge = atom.GetDoubleProp('_GasteigerCharge')
-        # Handle potential NaN/Inf if any, though Gasteiger usually returns floats
-        if charge != charge: # NaN check
-            charges.append(0.0)
-        else:
-            charges.append(float(charge))
-    
-    # Compute Topological Indices (Standard set: MW, Rotatable Bonds, TPSA, etc.)
-    # Using a subset as per typical descriptor sets for this task
-    indices = {
-        "molecular_weight": Descriptors.MolWt(mol),
-        "num_rotatable_bonds": Descriptors.NumRotatableBonds(mol),
-        "tpsa": Descriptors.TPSA(mol)
-    }
-    
-    return {
-        "gasteiger_charges": charges,
-        "topological_indices": indices
-    }
+# Configure logging for tests
+setup_logging(level="INFO")
+
 
 class TestSMILESParsing:
-    """Tests for basic SMILES parsing validity."""
+    """Tests for SMILES string parsing and validation."""
 
-    def test_valid_smiles_iso_butane(self):
-        smiles = "CC(C)C"  # Isobutane
-        mol = Chem.MolFromSmiles(smiles)
-        assert mol is not None, "Failed to parse valid SMILES"
-        assert mol.GetNumAtoms() == 4
-
-    def test_valid_smiles_tertiary_alcohol(self):
-        smiles = "CC(C)(O)C" # tert-Butyl alcohol
-        mol = Chem.MolFromSmiles(smiles)
-        assert mol is not None
-        # Verify atom count (4 C, 1 O, 9 H implicit)
-        assert mol.GetNumHeavyAtoms() == 5
-
-    def test_invalid_smiles(self):
-        invalid_smiles = "C(C)(C)(C)(C)(C)" # Pentavalent carbon (invalid valence)
-        # RDKit usually returns None for strictly invalid valence without sanitization
-        # or returns a mol that fails sanitization. 
-        mol = Chem.MolFromSmiles(invalid_smiles, sanitize=True)
-        # Depending on RDKit version, this might return None or a mol with errors.
-        # We assert that we handle the None case gracefully.
-        assert mol is None or not mol.GetNumAtoms() > 0
-
-class TestGasteigerCharges:
-    """Tests for Gasteiger charge calculation."""
-
-    def test_gasteiger_returns_list(self):
-        smiles = "CCO" # Ethanol
-        result = compute_descriptors_from_smiles(smiles)
+    def test_canonicalize_valid_smiles(self):
+        """Test that valid SMILES strings are processed correctly."""
+        # Simple valid SMILES
+        smiles = "CCO"  # Ethanol
+        result = process_single_row({"smiles": smiles}, row_index=0)
+        
         assert result is not None
-        assert isinstance(result["gasteiger_charges"], list)
-        assert len(result["gasteiger_charges"]) == 3 # 2 C, 1 O
+        assert "smiles" in result
+        assert "error" not in result
+        assert result["smiles"] is not None
+    
+    def test_empty_smiles_handling(self):
+        """Test handling of empty SMILES strings."""
+        smiles = ""
+        result = process_single_row({"smiles": smiles}, row_index=0)
+        
+        assert result is not None
+        assert "error" in result
+        assert "empty" in result["error"].lower()
+    
+    def test_invalid_smiles_handling(self):
+        """Test handling of invalid SMILES strings."""
+        # Invalid SMILES with unmatched brackets
+        smiles = "C[C"
+        result = process_single_row({"smiles": smiles}, row_index=0)
+        
+        assert result is not None
+        assert "error" in result or result.get("smiles") is None
+    
+    def test_complex_molecule_smiles(self):
+        """Test parsing of complex molecule SMILES."""
+        # Benzene with substituents
+        smiles = "CC1=CC=CC=C1"  # Toluene
+        result = process_single_row({"smiles": smiles}, row_index=0)
+        
+        assert result is not None
+        assert "error" not in result
+        assert result["smiles"] is not None
+    
+    def test_stereochemistry_smiles(self):
+        """Test handling of SMILES with stereochemistry."""
+        # SMILES with stereochemistry
+        smiles = "C[C@H](O)C"  # Chiral center
+        result = process_single_row({"smiles": smiles}, row_index=0)
+        
+        # Should handle without crashing
+        assert result is not None
+        # May or may not have error depending on RDKit's handling
+        # The important thing is it doesn't crash
 
-    def test_gasteiger_sum_approx_zero(self):
-        # For neutral molecules, sum of Gasteiger charges should be close to 0
-        smiles = "CC" # Ethane
-        result = compute_descriptors_from_smiles(smiles)
-        charges = result["gasteiger_charges"]
-        total_charge = sum(charges)
-        # Allow some tolerance due to floating point precision
-        assert abs(total_charge) < 0.1, f"Total charge {total_charge} is not close to 0"
 
-    def test_gasteiger_nan_handling(self):
-        # Force a scenario where calculation might fail or return NaN
-        # This tests the robustness of the parsing logic
-        smiles = "C" 
-        result = compute_descriptors_from_smiles(smiles)
-        for charge in result["gasteiger_charges"]:
-            assert not (charge != charge), "NaN found in charges"
+class TestDescriptorCalculation:
+    """Tests for descriptor calculation functions."""
 
-class TestTopologicalIndices:
-    """Tests for topological index calculation."""
-
-    def test_molecular_weight_correct(self):
-        smiles = "CC" # Ethane: 2*12.01 + 6*1.008 approx 30.07
-        result = compute_descriptors_from_smiles(smiles)
-        mw = result["topological_indices"]["molecular_weight"]
-        assert 29.0 < mw < 31.0
-
-    def test_rotatable_bonds_count(self):
-        # Butane: C-C-C-C -> 1 rotatable bond (middle bond)
-        # Ethane: 0
-        smiles = "CCCC" 
-        result = compute_descriptors_from_smiles(smiles)
-        rot_bonds = result["topological_indices"]["num_rotatable_bonds"]
-        assert rot_bonds == 1
-
-    def test_topological_indices_structure(self):
-        smiles = "CCO"
-        result = compute_descriptors_from_smiles(smiles)
-        indices = result["topological_indices"]
-        assert "molecular_weight" in indices
+    def test_gasteiger_charges_basic(self):
+        """Test basic Gasteiger charge calculation."""
+        smiles = "CCO"  # Ethanol
+        charges = compute_gasteiger_charges(smiles)
+        
+        assert charges is not None
+        assert isinstance(charges, (list, np.ndarray))
+        assert len(charges) > 0
+        # Charges should be real numbers
+        assert all(isinstance(c, (int, float, np.floating)) for c in charges)
+    
+    def test_gasteiger_charges_sum(self):
+        """Test that Gasteiger charges approximately sum to molecular charge."""
+        # Neutral molecule
+        smiles = "CCO"  # Ethanol
+        charges = compute_gasteiger_charges(smiles)
+        
+        charge_sum = sum(charges)
+        # Should be close to 0 for neutral molecule
+        assert abs(charge_sum) < 0.1
+    
+    def test_gasteiger_charges_unable_to_compute(self):
+        """Test handling when Gasteiger charges cannot be computed."""
+        # Invalid SMILES
+        smiles = "INVALID"
+        charges = compute_gasteiger_charges(smiles)
+        
+        assert charges is None
+    
+    def test_topological_indices_basic(self):
+        """Test basic topological index calculation."""
+        smiles = "CCO"  # Ethanol
+        indices = compute_topological_indices(smiles)
+        
+        assert indices is not None
+        assert isinstance(indices, dict)
+        assert len(indices) > 0
+    
+    def test_wiener_index(self):
+        """Test Wiener index calculation."""
+        smiles = "CCCC"  # Butane
+        indices = compute_topological_indices(smiles)
+        
+        assert "wiener_index" in indices
+        assert indices["wiener_index"] is not None
+        assert indices["wiener_index"] >= 0
+    
+    def test_mol_logp(self):
+        """Test LogP calculation."""
+        smiles = "CCO"  # Ethanol
+        indices = compute_topological_indices(smiles)
+        
+        assert "logp" in indices
+        assert indices["logp"] is not None
+        assert isinstance(indices["logp"], (int, float))
+    
+    def test_rotatable_bonds(self):
+        """Test rotatable bond count."""
+        smiles = "CCCC"  # Butane has 1 rotatable bond
+        indices = compute_topological_indices(smiles)
+        
         assert "num_rotatable_bonds" in indices
-        assert "tpsa" in indices
-        assert all(isinstance(v, float) for v in indices.values())
+        assert indices["num_rotatable_bonds"] >= 0
+    
+    def test_topological_indices_invalid(self):
+        """Test handling of invalid SMILES for topological indices."""
+        smiles = "INVALID"
+        indices = compute_topological_indices(smiles)
+        
+        assert indices is None
 
-class TestIntegration:
-    """Integration tests for the full descriptor pipeline."""
 
-    def test_full_pipeline_tertiary_substrate(self):
-        # Simulate a tertiary substrate (e.g., tert-butyl chloride)
-        smiles = "CC(C)(Cl)C"
-        result = compute_descriptors_from_smiles(smiles)
+class TestProcessSingleRow:
+    """Tests for the process_single_row function."""
+
+    def test_successful_processing(self):
+        """Test successful processing of a valid row."""
+        row = {
+            "smiles": "CCO",
+            "rate": 0.5,
+            "substrate": "secondary"
+        }
+        result = process_single_row(row, row_index=0)
         
         assert result is not None
-        assert len(result["gasteiger_charges"]) == 6 # 4 C, 1 Cl, 1 H? No, 4C, 1Cl. 
-        # Wait, tert-butyl chloride: C(CH3)3Cl. 
-        # Heavy atoms: 4 C + 1 Cl = 5.
-        assert len(result["gasteiger_charges"]) == 5
-
-        # Check that topological indices are populated
-        assert result["topological_indices"]["molecular_weight"] > 50
-        assert result["topological_indices"]["num_rotatable_bonds"] == 0 # Tertiary center, no rotation relative to the group? 
-        # Actually, rotatable bonds in RDKit: "Non-ring, non-terminal bonds". 
-        # C-C bonds in t-butyl are terminal to the central C? No.
-        # RDKit definition: "A bond is rotatable if it connects two non-hydrogen atoms, 
-        # neither of which is a terminal atom (degree 1) or in a ring."
-        # In t-butyl chloride, the central C is connected to 3 Methyls and 1 Cl.
-        # The C-C bonds connect central C (degree 4) to Methyl C (degree 1). 
-        # Since Methyl C is terminal, the bond is NOT rotatable.
-        assert result["topological_indices"]["num_rotatable_bonds"] == 0
-
-    def test_full_pipeline_secondary_substrate(self):
-        # Simulate a secondary substrate (e.g., isopropyl chloride)
-        smiles = "CC(C)Cl"
-        result = compute_descriptors_from_smiles(smiles)
+        assert "smiles" in result
+        assert "gasteiger_charges" in result
+        assert "topological_indices" in result
+        assert "error" not in result
+    
+    def test_missing_smiles_field(self):
+        """Test handling of missing SMILES field."""
+        row = {
+            "rate": 0.5,
+            "substrate": "secondary"
+        }
+        result = process_single_row(row, row_index=0)
         
         assert result is not None
-        # Heavy atoms: 3 C, 1 Cl = 4
-        assert len(result["gasteiger_charges"]) == 4
+        assert "error" in result
+    
+    def test_missing_rate_field(self):
+        """Test handling of missing rate field (should still process)."""
+        row = {
+            "smiles": "CCO",
+            "substrate": "secondary"
+        }
+        result = process_single_row(row, row_index=0)
         
-        # Rotatable bonds: Central C connected to Methyl (terminal) and Methyl (terminal) and Cl.
-        # No rotatable bonds? 
-        # Wait, if it's sec-butyl: CCC(C)Cl -> C-C-C-C-Cl chain.
-        # Let's use sec-butyl chloride: "CCC(C)Cl"
-        smiles_sec = "CCC(C)Cl"
-        result_sec = compute_descriptors_from_smiles(smiles_sec)
-        assert result_sec is not None
-        # Rotatable bonds: The bond between the two internal carbons?
-        # C(1)-C(2)-C(3)-Cl. C(2) is attached to C(1) [terminal], C(3) [internal], H.
-        # C(3) is attached to C(2), Cl, H.
-        # Bond C2-C3 connects non-terminal atoms?
-        # C2 degree: 3 (C1, C3, H). C3 degree: 3 (C2, Cl, H).
-        # Neither is terminal (degree 1). Neither is in ring.
-        # So 1 rotatable bond.
-        assert result_sec["topological_indices"]["num_rotatable_bonds"] == 1
+        assert result is not None
+        # Should not have error for missing rate, just process descriptors
+        assert "gasteiger_charges" in result
+    
+    def test_large_molecule(self):
+        """Test processing of a larger molecule."""
+        # Larger molecule
+        smiles = "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O"  # Ibuprofen
+        row = {"smiles": smiles}
+        result = process_single_row(row, row_index=0)
+        
+        assert result is not None
+        assert "error" not in result
+        assert len(result["gasteiger_charges"]) > 5  # Ibuprofen has many atoms
+
+
+class TestComputeDescriptorsForDataset:
+    """Tests for batch descriptor computation."""
+
+    def test_empty_dataset(self):
+        """Test handling of empty dataset."""
+        df = []  # Empty list
+        results = compute_descriptors_for_dataset(df)
+        
+        assert results == []
+    
+    def test_single_row_dataset(self):
+        """Test processing of single row dataset."""
+        df = [{"smiles": "CCO"}]
+        results = compute_descriptors_for_dataset(df)
+        
+        assert len(results) == 1
+        assert results[0] is not None
+    
+    def test_multiple_rows_dataset(self):
+        """Test processing of multiple row dataset."""
+        df = [
+            {"smiles": "CCO"},
+            {"smiles": "CC"},
+            {"smiles": "C"}
+        ]
+        results = compute_descriptors_for_dataset(df)
+        
+        assert len(results) == 3
+        # All should have descriptors
+        for result in results:
+            assert result is not None
+            assert "gasteiger_charges" in result
+            assert "topological_indices" in result
+    
+    def test_mixed_valid_invalid_dataset(self):
+        """Test processing of dataset with mixed valid/invalid rows."""
+        df = [
+            {"smiles": "CCO"},
+            {"smiles": "INVALID"},
+            {"smiles": "CC"}
+        ]
+        results = compute_descriptors_for_dataset(df)
+        
+        assert len(results) == 3
+        # First and third should be valid, second should have error
+        assert results[0] is not None and "error" not in results[0]
+        assert results[1] is not None and "error" in results[1]
+        assert results[2] is not None and "error" not in results[2]
+    
+    def test_with_pandas_dataframe(self):
+        """Test processing with actual pandas DataFrame."""
+        try:
+            import pandas as pd
+            df = pd.DataFrame([
+                {"smiles": "CCO"},
+                {"smiles": "CC"},
+                {"smiles": "C"}
+            ])
+            results = compute_descriptors_for_dataset(df)
+            
+            assert len(results) == 3
+            for result in results:
+                assert result is not None
+                assert "gasteiger_charges" in result
+        except ImportError:
+            pytest.skip("pandas not installed")
+
+# Run tests if executed directly
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

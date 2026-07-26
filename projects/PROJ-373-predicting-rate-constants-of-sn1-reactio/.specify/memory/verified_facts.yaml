@@ -1,0 +1,5 @@
+'|configuration fewer hyperparameter optimization random search use':
+  quote: Vol(H) = 0.05, the probability that at least one draw from 50
+  source_id: '1811.00620'
+  url: https://arxiv.org/abs/1811.00620
+  value: '50'
