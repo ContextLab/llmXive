@@ -1,0 +1,13 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code snippets for `code/contracts/CodeChunk.py`, `Threshold.py`,
+    or `CorrelationResult.py` were provided, and there is no evidence that these schemas
+    with explicit field definitions exist in the repository. The required artifact
+    is missing, so the task is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, loading code, or documentation for Hugging Face token handling
+    was provided; the implementer supplied no tangible artifact demonstrating environment
+    configuration management, so the requirement is not met.

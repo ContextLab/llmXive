@@ -1,0 +1,3 @@
+# This directory serves as the root for the llmXive follow-up project.
+# It is created to ensure the directory structure exists for the pipeline.
+# The .gitkeep file ensures this directory is tracked by Git.
