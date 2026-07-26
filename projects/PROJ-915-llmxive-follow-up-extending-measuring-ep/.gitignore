@@ -1,102 +1,61 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
+.venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
+
+# Environment and Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Data (except examples)
+data/raw/*.csv
+data/processed/*.csv
+data/interim/*.csv
+data/results/*.csv
+data/raw/*.json
+data/processed/*.json
+data/interim/*.json
+data/results/*.json
+data/raw/*.parquet
+data/processed/*.parquet
+
+# Model artifacts
+*.gguf
+*.bin
+models/
+
+# Logs
+*.log
+logs/
+
+# Build
+dist/
+build/
+*.egg-info/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific data (large files)
-data/raw/*.csv
-data/interim/*.csv
-data/processed/*.csv
-data/results/*.csv
-data/results/*.md
-data/results/*.txt
-data/results/*.json
-figures/*.png
-figures/*.pdf
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Logs
-*.log
-pipeline_log.json
-state/*.yaml
-state/*.json
+# Jupyter
+.ipynb_checkpoints
+*.ipynb

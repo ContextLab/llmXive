@@ -1,9 +1,14 @@
 """
 T016: Save final feature-rich dataset to data/processed/features.csv.
 
-This script loads the validated features from the previous step (T014/T015),
-ensures data integrity, and saves the final CSV to the processed directory.
-It relies on the existing API surface in code/features.py and code/validation_logic.py.
+This script loads the extracted features (produced by T014) and the
+validation flags (produced by T015), merges them, and writes the final
+dataset to the designated output path.
+
+It relies on the existing API surface:
+- code/features.py: run_feature_extraction (to generate features if missing)
+- code/validation_logic.py: run_t015_validation_pipeline (to generate flags)
+- code/config.py: get_config (to resolve paths)
 """
 import os
 import csv
@@ -11,91 +16,127 @@ import logging
 import sys
 from pathlib import Path
 
-# Add project root to path to allow imports from code/
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import from sibling modules using the provided API surface
 from features import run_feature_extraction
 from validation_logic import run_t015_validation_pipeline
-from config import Config
-from validation import validate_data_integrity
+from config import get_config
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-def main():
-    config = Config()
-    
+def ensure_feature_data_exists(config: dict) -> str:
+    """
+    Ensures the intermediate features CSV exists.
+    If it doesn't exist, runs the feature extraction pipeline (T014).
+    Returns the path to the features CSV.
+    """
+    features_path = config["paths"]["processed"]["features"]
+    features_dir = Path(features_path).parent
+    features_dir.mkdir(parents=True, exist_ok=True)
+
+    if not os.path.exists(features_path):
+        logger.info(f"Features file {features_path} not found. Running feature extraction (T014)...")
+        run_feature_extraction(config)
+        if not os.path.exists(features_path):
+            raise FileNotFoundError(
+                f"Feature extraction (T014) did not produce the expected file: {features_path}"
+            )
+    else:
+        logger.info(f"Found existing features file: {features_path}")
+
+    return features_path
+
+def ensure_validation_data_exists(config: dict) -> str:
+    """
+    Ensures the validation flags CSV exists.
+    If it doesn't exist, runs the validation pipeline (T015).
+    Returns the path to the validation CSV.
+    """
+    # T015 output path is typically in data/interim or data/processed depending on spec.
+    # Based on T015 description: "flag prompts...". We assume it writes to a known location.
+    # Let's assume the validation pipeline writes to a standard location defined in config or hardcode if missing.
+    # Looking at T015 description: "Implement data validation logic to flag prompts..."
+    # We will assume the output is at data/interim/validation_flags.csv if not specified.
+    # However, to be safe, we check the config first.
+    validation_path = config["paths"].get("interim", {}).get("validation_flags")
+    if not validation_path:
+        validation_path = os.path.join(config["paths"]["data_root"], "interim", "validation_flags.csv")
+
+    validation_dir = Path(validation_path).parent
+    validation_dir.mkdir(parents=True, exist_ok=True)
+
+    if not os.path.exists(validation_path):
+        logger.info(f"Validation flags file {validation_path} not found. Running validation (T015)...")
+        run_t015_validation_pipeline(config)
+        if not os.path.exists(validation_path):
+            raise FileNotFoundError(
+                f"Validation pipeline (T015) did not produce the expected file: {validation_path}"
+            )
+    else:
+        logger.info(f"Found existing validation flags file: {validation_path}")
+
+    return validation_path
+
+def merge_and_save_features(features_path: str, validation_path: str, output_path: str):
+    """
+    Loads features and validation flags, merges them by prompt_id,
+    and saves the final result to output_path.
+    """
+    logger.info(f"Merging data from {features_path} and {validation_path}")
+
+    try:
+        import pandas as pd
+    except ImportError:
+        logger.error("pandas is required for merging. Please ensure it is installed.")
+        sys.exit(1)
+
+    df_features = pd.read_csv(features_path)
+    df_validation = pd.read_csv(validation_path)
+
+    # Ensure prompt_id is string for consistent merging
+    df_features["prompt_id"] = df_features["prompt_id"].astype(str)
+    df_validation["prompt_id"] = df_validation["prompt_id"].astype(str)
+
+    # Merge on prompt_id (left join to keep all features)
+    df_final = pd.merge(df_features, df_validation, on="prompt_id", how="left")
+
+    # Fill any missing validation flags with False/0 if appropriate
+    # Assuming validation flags are boolean or 0/1
+    for col in df_validation.columns:
+        if col != "prompt_id" and col not in df_features.columns:
+            if df_final[col].dtype == 'object':
+                df_final[col] = df_final[col].fillna(False)
+            else:
+                df_final[col] = df_final[col].fillna(0)
+
     # Ensure output directory exists
-    output_dir = config.processed_dir
+    output_dir = Path(output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "features.csv"
 
-    logger.info(f"Starting T016: Saving features to {output_path}")
+    df_final.to_csv(output_path, index=False)
+    logger.info(f"Successfully saved final feature-rich dataset to {output_path}")
+    logger.info(f"Total rows: {len(df_final)}, Columns: {list(df_final.columns)}")
 
-    # 1. Run feature extraction if the raw features file doesn't exist
-    # Note: T014 is marked complete, but we ensure the data is available.
-    # We assume T014 produced an intermediate file or we regenerate from raw.
-    # Based on the pipeline flow, we run extraction to get the feature list.
-    logger.info("Executing feature extraction (T014 logic)...")
-    # run_feature_extraction handles loading raw data and computing features
-    # It is expected to output to a temporary or intermediate location, 
-    # or we assume the state is persisted. 
-    # For this script to be self-contained and runnable, we call the extraction logic.
-    # The API `run_feature_extraction` returns a list of dicts or writes to a temp file.
-    # Assuming it returns the data or writes to a known interim spot based on T013/T014 design.
-    # Let's assume run_feature_extraction writes to data/interim/features_raw.csv based on standard patterns,
-    # or we need to capture its return value. 
-    # Given the constraints, we will call it and assume it populates the expected state.
-    
-    # Re-running extraction to ensure data is fresh and available for T016
-    # The function signature from API surface: run_feature_extraction
-    features_data = run_feature_extraction()
-    
-    if not features_data:
-        logger.error("Feature extraction returned no data. T014 may have failed.")
-        sys.exit(1)
+def main():
+    config = get_config()
+    output_path = config["paths"]["processed"]["features"]
 
-    logger.info(f"Extracted {len(features_data)} feature records.")
+    logger.info(f"Starting T016: Saving final dataset to {output_path}")
 
-    # 2. Run T015 validation logic to flag undefined ratios
-    logger.info("Running T015 validation (flagging undefined imperative ratios)...")
-    # run_t015_validation_pipeline expects a path or data. 
-    # Assuming it takes the list of dicts and returns the validated list or modifies it.
-    # If it writes to a file, we need to read that back.
-    # Based on typical patterns, it likely returns the validated/flagged data.
-    validated_data = run_t015_validation_pipeline(features_data)
-    
-    if not validated_data:
-        logger.error("Validation pipeline returned no data.")
-        sys.exit(1)
+    # Step 1: Ensure features exist (T014)
+    features_path = ensure_feature_data_exists(config)
 
-    logger.info(f"Validation complete. {len(validated_data)} records ready for save.")
+    # Step 2: Ensure validation flags exist (T015)
+    validation_path = ensure_validation_data_exists(config)
 
-    # 3. Validate data integrity (check for nulls in critical columns)
-    logger.info("Running data integrity checks...")
-    if not validate_data_integrity(validated_data, ["modal_verb_freq", "imperative_declarative_ratio", "citation_density"]):
-        logger.warning("Data integrity check found issues. Proceeding with save but flagging.")
-    
-    # 4. Save to data/processed/features.csv
-    logger.info(f"Saving final dataset to {output_path}")
-    
-    if len(validated_data) == 0:
-        logger.error("No data to save.")
-        sys.exit(1)
+    # Step 3: Merge and save
+    merge_and_save_features(features_path, validation_path, output_path)
 
-    fieldnames = list(validated_data[0].keys())
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(validated_data)
-
-    logger.info(f"Successfully saved {len(validated_data)} rows to {output_path}")
-    return output_path
+    logger.info("T016 completed successfully.")
 
 if __name__ == "__main__":
     main()

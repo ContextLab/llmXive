@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/` or\
+    \ any of its expected sub\u2011folders/files (e.g., `src/`, `data/`, `scripts/`,\
+    \ `README.md`) was provided. The claim only contains a feature specification,\
+    \ not the actual project structure required by the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
+    with Black settings, or CI scripts invoking flake8/black) are present in the indicated
+    project directory, nor any evidence that these tools have been set up. The required
+    artifacts are missing, so the task is not satisfied.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided information contains no evidence that the required directories\
+    \ (`data/raw/`, `data/synthetic/`, `data/processed/`) actually exist or contain\
+    \ any files; the implementer\u2019s claim is not substantiated with tangible artifacts.\
+    \ The task remains incomplete until those directories are created and verified."

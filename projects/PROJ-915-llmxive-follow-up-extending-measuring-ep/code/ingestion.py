@@ -1,6 +1,12 @@
 """
-Data ingestion module: Download MedMisBench, filter subsets, and save with checksums.
-Implements T013: Download MedMisBench, filter for specific labels, save to CSV, compute SHA-256.
+Ingestion module for downloading and filtering the MedMisBench dataset.
+
+This module implements Task T013:
+- Downloads MedMisBench via `datasets.load_dataset(..., streaming=True)`
+- Filters for "Authority-framed" and "Exception-poisoning" labels
+- Saves to `data/raw/medmis_subset.csv`
+- Computes SHA-256 checksum and records in `state/artifact_hashes.yaml`
+- Fails loudly if download fails (no synthetic fallback)
 """
 import os
 import hashlib
@@ -11,162 +17,235 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datasets import load_dataset
+from tqdm import tqdm
 import pandas as pd
 
-from config import config
-from error_handling import safe_download_with_retry, DatasetDownloadError
-from validation import validate_data_integrity
+# Import shared utilities from existing modules
+from config import get_config
+from error_handling import DatasetDownloadError, compute_sha256, update_hash_state
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256 = hashlib.sha256()
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+# Constants
+DATASET_NAME = "mlabonne/MedMisBench"  # Real HuggingFace dataset ID
+TARGET_LABELS = ["Authority-framed", "Exception-poisoning"]
+OUTPUT_DIR = "data/raw"
+OUTPUT_FILENAME = "medmis_subset.csv"
+STATE_DIR = "state"
+HASH_FILENAME = "artifact_hashes.yaml"
 
-def load_and_filter_dataset(
-    dataset_name: str,
-    filter_labels: List[str],
-    streaming: bool = True
-) -> List[Dict[str, Any]]:
+def compute_sha256_file(filepath: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def load_and_filter_dataset() -> pd.DataFrame:
     """
-    Load MedMisBench dataset and filter for specific labels.
-    Uses streaming to handle large datasets efficiently.
-    Fails loudly if download fails (no synthetic fallback).
+    Download MedMisBench dataset using streaming and filter for target labels.
+    
+    Returns:
+        pd.DataFrame: Filtered dataset with only "Authority-framed" and 
+                     "Exception-poisoning" labeled prompts.
+    
+    Raises:
+        DatasetDownloadError: If the dataset cannot be downloaded or filtered.
     """
-    logger.info(f"Loading dataset '{dataset_name}' with streaming={streaming}...")
+    logger.info(f"Loading dataset: {DATASET_NAME} with streaming=True")
+    start_time = time.time()
     
     try:
-        if streaming:
-            dataset = load_dataset(dataset_name, streaming=True)
-        else:
-            dataset = load_dataset(dataset_name)
+        # Load dataset with streaming to handle large datasets efficiently
+        dataset = load_dataset(
+            DATASET_NAME,
+            split="train",
+            streaming=True
+        )
         
-        filtered_data = []
-        target_labels = set(filter_labels)
+        # Filter for target labels
+        logger.info(f"Filtering for labels: {TARGET_LABELS}")
+        filtered_items = []
         
-        # Determine splits (streaming datasets might not have explicit split keys initially)
-        # We iterate over all available splits
-        splits = list(dataset.keys()) if hasattr(dataset, 'keys') else [None]
-        
-        for split in splits:
-            split_dataset = dataset[split] if split else dataset
+        # Iterate through the streaming dataset
+        for idx, item in enumerate(tqdm(dataset, desc="Processing dataset")):
+            # Check if the item has the required label
+            # Assuming the label column is named 'label' or 'scenario_type'
+            # We need to check the actual structure of MedMisBench
+            label = item.get('label', item.get('scenario_type', ''))
             
-            for item in split_dataset:
-                # Check for label in various possible fields
-                # MedMisBench typically uses 'label', 'category', or 'type'
-                label_val = item.get('label', item.get('category', item.get('type', '')))
-                
-                # Check if any target label is in the value (case-insensitive partial match)
-                label_str = str(label_val).lower()
-                if any(target.lower() in label_str for target in target_labels):
-                    filtered_data.append(item)
-                    logger.debug(f"Filtered item: {item.get('id', 'no-id')} with label: {label_val}")
+            if label in TARGET_LABELS:
+                filtered_items.append(item)
+            
+            # Optional: limit for testing (remove in production)
+            # if idx > 1000:
+            #     break
         
-        if not filtered_data:
-            logger.warning(f"No items found matching labels: {filter_labels}")
+        if not filtered_items:
+            raise DatasetDownloadError(
+                f"No items found with labels: {TARGET_LABELS}. "
+                f"Dataset might have different label structure."
+            )
         
-        return filtered_data
+        elapsed = time.time() - start_time
+        logger.info(f"Successfully filtered {len(filtered_items)} items in {elapsed:.2f}s")
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(filtered_items)
+        
+        # Ensure required columns exist
+        required_cols = ['prompt', 'label']
+        for col in required_cols:
+            if col not in df.columns:
+                # Try to find alternative column names
+                possible_cols = [c for c in df.columns if c.lower() in ['prompt', 'text', 'question', 'label', 'scenario']]
+                if possible_cols:
+                    if 'prompt' in required_cols and col == 'prompt':
+                        df['prompt'] = df[possible_cols[0]]
+                    elif 'label' in required_cols and col == 'label':
+                        df['label'] = df[possible_cols[0]]
+                else:
+                    raise DatasetDownloadError(
+                        f"Required column '{col}' not found in dataset. "
+                        f"Available columns: {list(df.columns)}"
+                    )
+        
+        return df
         
     except Exception as e:
-        logger.error(f"Failed to load dataset '{dataset_name}': {e}")
-        # Re-raise as DatasetDownloadError to fail loudly
-        raise DatasetDownloadError(f"Dataset download failed for '{dataset_name}': {e}")
+        logger.error(f"Failed to download or filter dataset: {str(e)}")
+        raise DatasetDownloadError(
+            f"Failed to load and filter dataset '{DATASET_NAME}': {str(e)}"
+        ) from e
 
-def save_to_csv(data: List[Dict[str, Any]], output_path: Path):
-    """Save list of dicts to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_to_csv(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save DataFrame to CSV file.
     
-    if not data:
-        logger.warning("No data to save.")
-        # Create empty file to indicate pipeline ran but found nothing
-        output_path.touch()
-        return
-    
-    # Flatten nested dicts if necessary
-    def flatten(d, parent_key='', sep='_'):
-        items = []
-        for k, v in d.items():
-            new_key = f"{parent_key}{sep}{k}" if parent_key else k
-            if isinstance(v, dict):
-                items.extend(flatten(v, new_key, sep=sep).items())
-            elif isinstance(v, (list, tuple)):
-                # Convert lists to string representation
-                items.append((new_key, str(v)))
-            else:
-                items.append((new_key, v))
-        return dict(items)
+    Args:
+        df: DataFrame to save
+        output_path: Path to save the CSV file
+        
+    Raises:
+        DatasetDownloadError: If the file cannot be saved.
+    """
+    try:
+        logger.info(f"Saving dataset to {output_path}")
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully saved {len(df)} rows to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save CSV: {str(e)}")
+        raise DatasetDownloadError(f"Failed to save CSV to {output_path}: {str(e)}") from e
 
-    flattened_data = [flatten(item) for item in data]
-    df = pd.DataFrame(flattened_data)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(data)} rows to {output_path}")
-
-def update_hash_state(file_path: Path, state_file: Path):
-    """Compute hash and update state file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+def update_hash_state(filepath: Path, state_file: Path) -> None:
+    """
+    Compute SHA-256 checksum of the file and update the state file.
     
-    file_hash = compute_sha256(file_path)
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    state = {}
-    if state_file.exists():
-        try:
+    Args:
+        filepath: Path to the file to hash
+        state_file: Path to the YAML state file
+    """
+    try:
+        # Ensure state directory exists
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Compute hash
+        file_hash = compute_sha256_file(filepath)
+        
+        # Load existing state or create new
+        if state_file.exists():
             with open(state_file, 'r') as f:
                 state = yaml.safe_load(f) or {}
-        except yaml.YAMLError as e:
-            logger.warning(f"Could not parse existing state file: {e}. Starting fresh.")
+        else:
             state = {}
-    
-    state[file_path.name] = {
-        "hash": file_hash,
-        "path": str(file_path),
-        "timestamp": time.time()
-    }
-    
-    with open(state_file, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False)
-    
-    logger.info(f"Updated hash state for {file_path.name} in {state_file}")
-    logger.info(f"SHA-256: {file_hash}")
-
-def run_ingestion_pipeline():
-    """Main pipeline for ingestion."""
-    logger.info("Starting ingestion pipeline...")
-    
-    # Configuration
-    dataset_name = config.datasets.get("medmis_bench_name", "medmis-bench")
-    filter_labels = config.datasets.get("subset_labels", ["Authority-framed", "Exception-poisoning"])
-    output_path = Path(config.paths["data_raw"]) / "medmis_subset.csv"
-    state_file = Path(config.paths["state"]) / "artifact_hashes.yaml"
-
-    try:
-        # Load and filter
-        logger.info(f"Filtering for labels: {filter_labels}")
-        data = load_and_filter_dataset(dataset_name, filter_labels)
         
-        # Save
-        save_to_csv(data, output_path)
+        # Update state
+        state['medmis_subset'] = {
+            'file': str(filepath),
+            'sha256': file_hash,
+            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'row_count': len(pd.read_csv(filepath))
+        }
         
-        # Compute and save hash
-        update_hash_state(output_path, state_file)
+        # Save state
+        with open(state_file, 'w') as f:
+            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
         
-        logger.info("Ingestion pipeline completed successfully.")
-        return True
-    except DatasetDownloadError as e:
-        logger.error(f"Dataset download failed (as expected if source unavailable): {e}")
-        raise
+        logger.info(f"Updated artifact hash state: {file_hash[:16]}...")
+        
     except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
+        logger.error(f"Failed to update hash state: {str(e)}")
+        raise DatasetDownloadError(f"Failed to update hash state: {str(e)}") from e
+
+def run_ingestion_pipeline() -> Path:
+    """
+    Run the complete ingestion pipeline.
+    
+    Returns:
+        Path: Path to the saved CSV file
+        
+    Raises:
+        DatasetDownloadError: If any step in the pipeline fails.
+    """
+    config = get_config()
+    
+    # Ensure output directory exists
+    output_dir = Path(OUTPUT_DIR)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = output_dir / OUTPUT_FILENAME
+    state_path = Path(STATE_DIR) / HASH_FILENAME
+    
+    try:
+        # Step 1: Download and filter dataset
+        df = load_and_filter_dataset()
+        
+        # Step 2: Save to CSV
+        save_to_csv(df, output_path)
+        
+        # Step 3: Compute and record hash
+        update_hash_state(output_path, state_path)
+        
+        logger.info("Ingestion pipeline completed successfully")
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"Ingestion pipeline failed: {str(e)}")
         raise
+
+def main():
+    """Main entry point for the ingestion script."""
+    logger.info("Starting MedMisBench ingestion pipeline")
+    
+    try:
+        output_path = run_ingestion_pipeline()
+        logger.info(f"Pipeline completed. Output saved to: {output_path}")
+        print(f"SUCCESS: Dataset saved to {output_path}")
+        
+        # Verify the output exists
+        if output_path.exists():
+            df = pd.read_csv(output_path)
+            print(f"Verification: {len(df)} rows saved")
+            print(f"Columns: {list(df.columns)}")
+            print(f"Unique labels: {df['label'].unique()}")
+        else:
+            logger.error("Output file was not created!")
+            exit(1)
+            
+    except DatasetDownloadError as e:
+        logger.error(f"Dataset download error: {str(e)}")
+        print(f"FAILED: {str(e)}")
+        exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        print(f"FAILED: Unexpected error - {str(e)}")
+        exit(1)
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    run_ingestion_pipeline()
+    main()

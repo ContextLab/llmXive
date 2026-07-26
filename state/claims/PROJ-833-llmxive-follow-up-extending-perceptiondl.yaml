@@ -167,3 +167,218 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T02:18:10Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: sampled subset of ParaDLC-Bench with at least 50 items per bin
+  claim_id: c_970e7970
+  context: "T024 [US2] Implement code/synthetic/generator.py to orchestrate T046-T049:\
+    \ loop through a sampled subset of ParaDLC-Bench (n\u226550 per bin) and generate\
+    \ images for region counts 20, 25, 30, 35, 40, 45, and 50"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sampled_subset_of_ParaDLC-Bench_with_at_least_50_items_per_b
+  kind: magnitude
+  raw_text: "loop through a sampled subset of ParaDLC-Bench (n\u226550 per bin)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:34:15Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: region counts configured as 20, 25, 30, 35, 40, 45, and 50
+  claim_id: c_4459feeb
+  context: T004 [P] Create configuration module code/config.py defining paths, random
+    seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: region counts (20, 25, 30, 35, 40, 45, 50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:34:45Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: add error handling for memory limits where Peak RSS is less than 7GB
+  claim_id: c_7b9c42d0
+  context: T023 [US1] Add error handling in code/main.py for memory limits (Peak RSS
+    < 7GB) using the logic from T014b
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Add_error_handling_for_memory_limits_where_Peak_RSS_is_less
+  kind: magnitude
+  raw_text: Peak RSS < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:35:08Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: implement adaptive reduction if Peak RSS exceeds 7GB
+  claim_id: c_20eab10e
+  context: 'T014b [P] Implement runtime memory monitoring logic in code/main.py (reading
+    /proc/self/status or using psutil) and an adaptive reduction mechanism: if Peak
+    RSS > 7 GB'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak RSS > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:35:08Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: random seeds set to 42
+  claim_id: c_d394ce64
+  context: T004 [P] Create configuration module code/config.py defining paths, random
+    seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: random seeds (42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:35:28Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Region counts include 20, 25, 30, 35, 40, 45, and 50
+  claim_id: c_17b2cc46
+  context: "T024 [US2] Implement code/synthetic/generator.py to orchestrate T046-T049:\
+    \ loop through a sampled subset of ParaDLC-Bench (n\u226550 per bin) and generate\
+    \ images for region counts 20, 25, 30, 35, 40, 45, and 50, ensuring JSON outputs\
+    \ include derived geometric relations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate images for region counts 20, 25, 30, 35, 40, 45, and 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:36:36Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Configured region counts are 20, 25, 30, 35, 40, 45, and 50
+  claim_id: c_1b0f8520
+  context: T004 [P] Create configuration module code/config.py defining paths, random
+    seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:36:59Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Random seed is set to 42
+  claim_id: c_77e1ca7f
+  context: T004 [P] Create configuration module code/config.py defining paths, random
+    seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define random seeds as 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:37:28Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit is 7GB
+  claim_id: c_65de56c9
+  context: T023 [US1] Add error handling in code/main.py for memory limits (Peak RSS
+    < 7GB) using the logic from T014b and graceful failure if model loading fails
+    on CPU.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_limit_is_7GB
+  kind: magnitude
+  raw_text: Apply memory management constraint where Peak RSS is less than 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:37:51Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Adaptive memory reduction triggers when Peak RSS exceeds 7GB
+  claim_id: c_24cc9139
+  context: 'T014b [P] Implement runtime memory monitoring logic in code/main.py (reading
+    /proc/self/status or using psutil) and an adaptive reduction mechanism: if Peak
+    RSS > 7 GB, implement a retry loop that reduces the image count per bin by [deferred]
+    and retries inference, failing only if the count drops below the minimum threshold
+    (per FR-007).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adaptive_memory_reduction_triggers_when_Peak_RSS_exceeds_7GB
+  kind: magnitude
+  raw_text: Implement adaptive reduction mechanism if Peak RSS is greater than 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:38:20Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: trigger adaptive reduction mechanism if Peak RSS exceeds 7 GB
+  claim_id: c_854b6272
+  context: 'T014b [P] Implement runtime memory monitoring logic in code/main.py (reading
+    /proc/self/status or using psutil) and an adaptive reduction mechanism: if Peak
+    RSS > 7 GB, implement a retry loop that reduces the image count per bin by [deferred]
+    and retries inference, failing only if the count drops below the minimum threshold
+    (per FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement runtime memory monitoring logic in code/main.py and an adaptive
+    reduction mechanism: if Peak RSS > 7 GB, implement a retry loop that reduces the
+    image count per bin by [deferred] and retries inference'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:42:30Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: model loading must use FP32 or FP16 precision on CPU without 8-bit quantization
+    or CUDA
+  claim_id: c_e7ce6552
+  context: 'Constraint: All model loading MUST use default precision (FP32/FP16) on
+    CPU; NO 8-bit quantization or CUDA.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: All model loading MUST use default precision (FP32/FP16)
+    on CPU; NO 8-bit quantization or CUDA.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T18:42:50Z'

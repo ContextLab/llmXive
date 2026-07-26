@@ -1,37 +1,41 @@
-"""
-Setup script to create the required data directory structure for the project.
-Creates: data/, data/raw, data/derived, data/logs, data/results
-"""
 import os
 import sys
 from pathlib import Path
 
-def main():
-    """Create the data directory structure."""
-    # Determine project root (assumed to be the parent of the 'code' directory)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
+from utils.config import get_path
 
-    data_root = project_root / "data"
+
+def main() -> None:
+    """
+    Setup the data directory structure for the project.
+    Creates:
+      - data/raw
+      - data/derived
+      - data/logs
+      - data/results
+    """
+    # Ensure the project root is in sys.path for imports if running as script
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+    # Get the base data directory path from config
+    try:
+        data_dir = get_path("data")
+    except KeyError:
+        # Fallback to constructing path relative to project root if config key missing
+        data_dir = project_root / "data"
+
+    # Define subdirectories to create
     subdirs = ["raw", "derived", "logs", "results"]
 
-    created = []
     for subdir in subdirs:
-        target_path = data_root / subdir
-        target_path.mkdir(parents=True, exist_ok=True)
-        created.append(str(target_path.relative_to(project_root)))
-    
-    # Ensure root data dir exists explicitly if subdirs loop didn't create it (edge case)
-    data_root.mkdir(parents=True, exist_ok=True)
-    if str(data_root.relative_to(project_root)) not in created:
-        created.insert(0, str(data_root.relative_to(project_root)))
+        dir_path = data_dir / subdir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
 
-    print(f"Data directories created successfully:")
-    for path in sorted(created):
-        print(f"  - {path}")
+    print("Data directory structure setup complete.")
 
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

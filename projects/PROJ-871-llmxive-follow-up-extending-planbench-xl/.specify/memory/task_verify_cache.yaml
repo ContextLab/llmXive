@@ -1,0 +1,47 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, pre\u2011commit hooks, or documentation of how flake8/black\
+    \ are set up) are present in the `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`\
+    \ directory. The implementer provided only the task description and specifications,\
+    \ but no concrete artifacts that configure or enable flake8/black, so the requirement\
+    \ is not satisfied."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results`\
+    \ directories or a `.gitignore` file was provided; without these artifacts the\
+    \ task\u2019s deliverable is not satisfied."
+T009a:
+  c: false
+  h: ea6cffe82bbd8d426903ed7b0ce88328291abf62e931168dc23a0c3a59dddb84
+  r: The `injector.py` contains placeholder logic (e.g., `load_raw_planbench_xl` returns
+    an empty list, `main` is unfinished and truncated) and never actually loads or
+    processes real data. Moreover, the required output file `data/derived/implicit_failure_subset.jsonl`
+    is missing. The implementation does not fulfill the specification of loading raw
+    data, injecting errors, and saving the resulting JSONL.
+T009b:
+  c: false
+  h: cae29a84b437f639e90e893bef8cb4e34ac7ea10b4032ca861742e2abdf0f63a
+  r: "The required `data/derived/implicit_failure_subset.jsonl` file is absent, so\
+    \ the indexer cannot parse any data, and consequently `data/derived/failure_signatures.json`\
+    \ is never created. Moreover, the implementation uses a placeholder `\"unknown_tool\"\
+    ` instead of mapping real tool identifiers, and stores patterns as keys rather\
+    \ than following the specified schema. These issues mean the task\u2019s requirements\
+    \ are not met."
+T010:
+  c: false
+  h: 6e23a980403ea8fd0521b58446ebab70dbc82306248fafd530b391c1b79672dc
+  r: "The repository contains the `tests/unit/test_loader.py` contract test, but the\
+    \ required data file `data/derived/implicit_failure_subset.jsonl` does not exist,\
+    \ so the test cannot actually verify loading of the implicit\u2011failure subset.\
+    \ The missing derived data file must be generated or added for the task to be\
+    \ satisfied."
+T013:
+  c: false
+  h: 0870f0c85de101102e930077d840f70834ea80c4ce3f05dca872b883e92d3835
+  r: The `run_baseline.py` script exists, but the required input file `data/derived/implicit_failure_subset.jsonl`
+    is missing, and consequently the expected output log `data/logs/baseline_execution.jsonl`
+    was never created. Without the input dataset the runner cannot execute, so the
+    task is not genuinely fulfilled.

@@ -1,7 +1,5 @@
 """
-Logging infrastructure for the molecular reactivity project.
-
-Provides structured logging to files and a metrics logger for JSON metrics.
+Logging utilities for the project.
 """
 import os
 import json
@@ -9,229 +7,107 @@ import logging
 import logging.handlers
 from datetime import datetime
 from typing import Optional, Dict, Any
-from config import get_config, ensure_directories
+from config import get_config
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-_metrics_file_path: Optional[str] = None
-_metrics_data: Dict[str, Any] = {}
-
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger and project-specific logger.
-    
-    Creates structured log files in artifacts/logs/ and initializes
-    the metrics file path.
+    Setup logging configuration.
     
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
+        log_file: Optional path to a log file.
         
     Returns:
-        Configured project logger instance
+        Configured logger instance.
     """
-    global _logger, _metrics_file_path
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
     
-    if _logger is not None:
-        return _logger
+    # Clear existing handlers
+    logger.handlers = []
     
-    config = get_config()
-    ensure_directories()
-    
-    log_dir = os.path.join(config["artifacts_dir"], "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"project_{timestamp}.log"
-    log_file_path = os.path.join(log_dir, log_filename)
-    
-    _logger = logging.getLogger("molecular_reactivity")
-    _logger.setLevel(getattr(logging, log_level.upper()))
-    
-    if _logger.handlers:
-        _logger.handlers.clear()
-    
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(getattr(logging, log_level.upper()))
-    
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
     
-    _logger.addHandler(file_handler)
-    _logger.addHandler(console_handler)
-    
-    _metrics_file_path = os.path.join(config["artifacts_dir"], "metrics.json")
-    
-    _logger.info(f"Logging initialized. Logs written to: {log_file_path}")
-    _logger.info(f"Metrics will be written to: {_metrics_file_path}")
-    
-    return _logger
+    # File handler if log_file is provided
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        
+    return logger
 
-def get_logger() -> logging.Logger:
-    """
-    Get the configured project logger.
-    
-    Returns:
-        The project logger instance, initializing if necessary
-    """
-    if _logger is None:
-        return setup_logging()
-    return _logger
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger by name."""
+    return logging.getLogger(name)
 
-def log_metric(metric_name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+def log_metric(key: str, value: Any, timestamp: Optional[datetime] = None) -> None:
     """
-    Log a metric value to the metrics.json file.
-    
-    Appends the metric to the JSON file in a structured format.
-    Handles file creation and appending safely.
+    Log a metric to the metrics file.
     
     Args:
-        metric_name: Name of the metric
-        value: Numeric value of the metric
-        tags: Optional dictionary of key-value tags for categorization
+        key: Metric key.
+        value: Metric value.
+        timestamp: Optional timestamp.
     """
-    global _metrics_file_path, _metrics_data
-    
-    if _metrics_file_path is None:
-        config = get_config()
-        ensure_directories()
-        _metrics_file_path = os.path.join(config["artifacts_dir"], "metrics.json")
-    
-    entry = {
-        "timestamp": datetime.now().isoformat(),
-        "metric_name": metric_name,
-        "value": value,
-        "tags": tags or {}
-    }
-    
-    try:
-        if os.path.exists(_metrics_file_path):
-            with open(_metrics_file_path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    try:
-                        _metrics_data = json.loads(content)
-                    except json.JSONDecodeError:
-                        _metrics_data = []
+    if timestamp is None:
+        timestamp = datetime.now()
         
-        if not isinstance(_metrics_data, list):
-            _metrics_data = []
-        
-        _metrics_data.append(entry)
-        
-        with open(_metrics_file_path, "w", encoding="utf-8") as f:
-            json.dump(_metrics_data, f, indent=2)
+    from config import get_config
+    cfg = get_config()
+    metrics_file = os.path.join(cfg['artifacts_dir'], 'metrics.json')
+    
+    metrics = []
+    if os.path.exists(metrics_file):
+        try:
+            with open(metrics_file, 'r') as f:
+                metrics = json.load(f)
+        except json.JSONDecodeError:
+            metrics = []
             
-        logger = get_logger()
-        logger.debug(f"Metric logged: {metric_name} = {value}")
-        
-    except Exception as e:
-        logger = get_logger()
-        logger.error(f"Failed to write metric to {_metrics_file_path}: {e}")
-        raise
+    metrics.append({
+        "key": key,
+        "value": value,
+        "timestamp": timestamp.isoformat()
+    })
+    
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f, indent=2)
 
 def flush_metrics() -> None:
-    """
-    Ensure all metrics are written to disk.
-    
-    This is primarily useful in long-running processes to ensure
-    metrics are persisted before exit.
-    """
-    logger = get_logger()
-    logger.info("Metrics flushed to disk")
+    """Flush metrics to disk (no-op if already written)."""
+    pass
 
 def get_metrics() -> list:
-    """
-    Retrieve all logged metrics from the metrics file.
+    """Get all logged metrics."""
+    from config import get_config
+    cfg = get_config()
+    metrics_file = os.path.join(cfg['artifacts_dir'], 'metrics.json')
     
-    Returns:
-        List of metric dictionaries
-    """
-    global _metrics_file_path, _metrics_data
-    
-    if _metrics_file_path is None or not os.path.exists(_metrics_file_path):
-        return []
-    
-    try:
-        with open(_metrics_file_path, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return []
-            return json.loads(content)
-    except json.JSONDecodeError:
-        return []
+    if os.path.exists(metrics_file):
+        with open(metrics_file, 'r') as f:
+            return json.load(f)
+    return []
 
-def log_execution_summary(
-    task_name: str,
-    start_time: datetime,
-    end_time: datetime,
-    success: bool,
-    details: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Log a structured execution summary for a task.
+def log_execution_summary(summary: Dict[str, Any]) -> None:
+    """Log an execution summary."""
+    from config import get_config
+    cfg = get_config()
+    summary_file = os.path.join(cfg['artifacts_dir'], 'execution_summary.json')
     
-    Args:
-        task_name: Name of the task
-        start_time: Task start time
-        end_time: Task end time
-        success: Whether the task completed successfully
-        details: Optional dictionary of additional details
-    """
-    logger = get_logger()
-    
-    duration = (end_time - start_time).total_seconds()
-    
-    summary = {
-        "task": task_name,
-        "status": "success" if success else "failed",
-        "duration_seconds": duration,
-        "start_time": start_time.isoformat(),
-        "end_time": end_time.isoformat(),
-        "details": details or {}
-    }
-    
-    if success:
-        logger.info(f"Task '{task_name}' completed successfully in {duration:.2f}s")
-    else:
-        logger.error(f"Task '{task_name}' failed after {duration:.2f}s")
-    
-    log_metric(
-        "task_execution_duration",
-        duration,
-        tags={"task": task_name, "status": "success" if success else "failed"}
-    )
+    with open(summary_file, 'w') as f:
+        json.dump(summary, f, indent=2)
 
 def main():
-    """
-    Main entry point for testing the logging setup.
-    """
+    """Main entry point for testing logging."""
     logger = setup_logging()
-    
-    logger.info("Logging infrastructure test started")
-    
-    log_metric("test_metric_1", 0.95, {"source": "test"})
-    log_metric("test_metric_2", 100, {"source": "test"})
-    
-    logger.warning("This is a test warning")
-    logger.error("This is a test error")
-    
-    log_execution_summary(
-        "logging_test_task",
-        datetime.now(),
-        datetime.now(),
-        True,
-        {"note": "Testing logging infrastructure"}
-    )
-    
-    logger.info("Logging infrastructure test completed")
-    flush_metrics()
+    logger.info("Logging utils loaded.")
+    log_metric("test", "value", datetime.now())
+    print("Metrics logged.")
 
 if __name__ == "__main__":
     main()

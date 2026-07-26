@@ -4,51 +4,44 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Creates the required directory structure for the llmXive project.
+    Create the required directory structure for the llmXive project.
     
     Creates the following directories relative to the project root:
     - data/raw
     - data/processed
     - data/interim
     - data/results
-    - code/
-    - tests/
+    - code (already exists, but ensures it's present)
+    - tests (already exists, but ensures it's present)
+    - figures
+    - state
     
     Returns:
-        bool: True if all directories were created or already exist, False on error.
+        Path: The project root path.
     """
-    # Determine project root (assuming this script is run from project root or code/)
-    # We look for the 'projects' directory structure or just use the current working directory
-    # based on the task requirement to live under the project tree.
+    # Determine project root (assuming this script is in code/)
+    # We go up one level from code/ to get the project root
+    project_root = Path(__file__).resolve().parent.parent
     
-    # If running from code/, go up one level
-    current_dir = Path.cwd()
-    if current_dir.name == 'code':
-        project_root = current_dir.parent
-    else:
-        project_root = current_dir
-
-    # Define the required subdirectories relative to project root
-    required_dirs = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'processed',
-        project_root / 'data' / 'interim',
-        project_root / 'data' / 'results',
-        project_root / 'code',
-        project_root / 'tests',
+    directories = [
+        "data/raw",
+        "data/processed",
+        "data/interim",
+        "data/results",
+        "figures",
+        "state",
+        # code/ and tests/ are expected to exist, but we ensure them too
+        "code",
+        "tests",
     ]
-
-    success = True
-    for dir_path in required_dirs:
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created or verified directory: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-            success = False
-
-    return success
+    
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created/Verified: {full_path}")
+    
+    print(f"Directory setup complete for project at: {project_root}")
+    return project_root
 
 if __name__ == "__main__":
-    success = setup_directories()
-    sys.exit(0 if success else 1)
+    setup_directories()

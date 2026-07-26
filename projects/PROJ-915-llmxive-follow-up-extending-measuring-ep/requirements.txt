@@ -7,7 +7,8 @@ pandas
 numpy
 tqdm
 biopython
-scipy
-python-dotenv
 pyyaml
-nltk
+python-dotenv
+pytest
+ruff
+black

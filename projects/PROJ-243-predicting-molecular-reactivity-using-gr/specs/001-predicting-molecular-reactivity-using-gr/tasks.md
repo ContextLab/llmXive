@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/assets`
 - [ ] T001b [P] Create code and artifact directories: `code`, `artifacts`, `tests`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
 - [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
 
 ---
@@ -56,18 +56,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/loaders.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
-- [ ] T005 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
+- [X] T004 [P] Implement `code/utils/loaders.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
+- [X] T005 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
 - [X] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY)**. **CRITICAL**: Both statistical tests must be implemented to satisfy T025/T025c consumers.
 - [X] T007 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
-- [~] T008 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
+- [ ] T008 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
 - [ ] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source to `data/raw/reference_substructures_raw.csv` (distinct output file).
 - [ ] T009b [P] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest.
 - [ ] T009c [P] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
 - [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source to `data/raw/kinetic_dataset_raw.csv` (distinct output file).
-- [ ] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
-- [ ] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
-- [ ] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
+- [~] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
+- [~] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
+- [~] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,8 +81,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for SMILES parsing and exclusion logic in `tests/unit/test_parsing.py`
-- [ ] T011 [P] [US1] Integration test for full download → preprocess flow in `tests/integration/test_data_pipeline.py`
+- [X] T010 [P] [US1] Unit test for SMILES parsing and exclusion logic in `tests/unit/test_parsing.py`
+- [X] T011 [P] [US1] Integration test for full download → preprocess flow in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 

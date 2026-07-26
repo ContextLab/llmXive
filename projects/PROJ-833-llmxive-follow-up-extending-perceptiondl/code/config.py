@@ -1,54 +1,70 @@
 """
-Configuration module for the PerceptionDLM overflow experiment.
-Defines paths, random seeds, and hyperparameters.
+Configuration module for the llmXive project.
 
-Design Decision Note:
----------------------
-We explicitly use PerceptionDLM for both parallel and sequential (context-reset)
-baselines to avoid architectural confounds. This supersedes Spec FR-003's
-requirement for LLaVA per Plan Summary and Complexity Tracking.
-
-Using the same model architecture for both conditions ensures that any observed
-differences in performance (coherence degradation) are attributable to the
-processing paradigm (parallel vs. sequential context-reset) rather than
-inherent differences in model capability or architecture.
+Defines paths, random seeds, hyperparameters, and utility functions
+for project setup and execution.
 """
 import os
 from pathlib import Path
 
-# Project Root
-ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT_DIR / "data"
-CODE_DIR = ROOT_DIR / "code"
-TESTS_DIR = ROOT_DIR / "tests"
-SPECS_DIR = ROOT_DIR / "specs"
+# Project root directory (assumed to be the parent of this file's directory)
+PROJECT_ROOT = Path(__file__).parent.parent
 
-# Paths for specific data types
+# Data directories
+DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 SYNTHETIC_DATA_DIR = DATA_DIR / "synthetic"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
-# Random Seed
+# Random seeds for reproducibility
 RANDOM_SEED = 42
 
-# Hyperparameters
-# Region counts for testing the overflow hypothesis
+# Hyperparameters for region counts (used in synthetic generation)
 REGION_COUNTS = [20, 25, 30, 35, 40, 45, 50]
 
-# Threshold for identifying the tipping point:
-# Parallel coherence drops below this fraction of the sequential baseline
-TIPPING_POINT_THRESHOLD = 0.9
+# Model configuration
+MODEL_NAME = "PerceptionDLM"  # Supersedes Spec FR-003's LLaVA requirement per Plan Summary
+MODEL_PRECISION = "FP16"  # Default precision for model loading
 
-# Model Settings
-MODEL_NAME = "PerceptionDLM"  # Using PerceptionDLM for both parallel and sequential
-BATCH_SIZE = 8
-MAX_MEMORY_GB = 7.0
-
-# Inference Time Configuration
-USE_PERF_COUNTER = True
+# Analysis configuration
+BONFERRONI_ALPHA = 0.05
+TIPPING_POINT_THRESHOLD = 0.95  # Configurable threshold for tipping point detection
 
 def ensure_directories():
-    """Create all required data directories if they do not exist."""
-    for directory in [RAW_DATA_DIR, SYNTHETIC_DATA_DIR, PROCESSED_DATA_DIR]:
-        directory.mkdir(parents=True, exist_ok=True)
-    return True
+    """
+    Creates the required data directory structure if it doesn't exist.
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    try:
+        RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        SYNTHETIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        return True
+    except OSError as e:
+        print(f"Error creating directories: {e}")
+        return False
+
+def get_data_path(subdir: str, filename: str) -> Path:
+    """
+    Constructs a full path to a file within the data directory structure.
+    
+    Args:
+        subdir (str): The subdirectory ('raw', 'synthetic', or 'processed').
+        filename (str): The name of the file.
+        
+    Returns:
+        Path: The full path to the file.
+        
+    Raises:
+        ValueError: If an invalid subdirectory is provided.
+    """
+    if subdir == "raw":
+        return RAW_DATA_DIR / filename
+    elif subdir == "synthetic":
+        return SYNTHETIC_DATA_DIR / filename
+    elif subdir == "processed":
+        return PROCESSED_DATA_DIR / filename
+    else:
+        raise ValueError(f"Invalid subdirectory: {subdir}. Must be 'raw', 'synthetic', or 'processed'.")

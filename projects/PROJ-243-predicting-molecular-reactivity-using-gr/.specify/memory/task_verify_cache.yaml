@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`data/raw`, `data/processed`, `data/assets`) is shown
+    or referenced in the provided evidence; without visible artifacts, we cannot confirm
+    the required folders were created. The implementer must add the actual directory
+    tree (or a screenshot/listing) to demonstrate they exist.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code`, `artifacts`, or `tests` directories (or their
+    contents) is provided; the claim lacks any tangible artifact confirming their
+    existence. The implementer must create these directories and populate them with
+    appropriate files.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `ruff.toml`, `pyproject.toml`
+    with Black settings) or related setup scripts were provided. Without these artifacts,
+    the requirement to configure flake8/ruff and Black cannot be verified as fulfilled.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/logs/` directory with structured log files nor an `artifacts/metrics.json`
+    file is present. The implementer did not provide any code, configuration, or generated
+    output demonstrating that logging has been set up to write to those locations.
+    Consequently, the required logging infrastructure is missing.
+T009b:
+  c: false
+  h: 4b990df6138091e81c80a004945b6396bb1e4e148119ecdb83dec9b9a052210c
+  r: The required file `data/raw/reference_substructures_raw.csv` does not exist,
+    so no SHA-256 checksum can be computed or compared to the source manifest. The
+    task cannot be considered completed until the file is present and its checksum
+    verified.
+T009c:
+  c: false
+  h: 25c3e0edc6d52d190d639d88b20d8d08cc468efe84ec2c7063e714f5bfd5bbf1
+  r: The required artifact `data/assets/reference_substructures.csv` does not exist,
+    so no data ingestion or schema validation could have been performed. The implementer
+    must create the CSV file with the verified data and ensure it conforms to the
+    expected schema.

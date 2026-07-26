@@ -1,46 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
-    \ directory (or any files within it) is provided; the claim lacks the required\
-    \ project\u2011structure artifact, so the task is not satisfied."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `.flake8` files) or related setup scripts are present
-    in the provided evidence, so the requirement to configure ruff/flake8 and Black
-    is not satisfied. The implementer has not supplied any artifact demonstrating
-    that these tools are configured.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or other evidence was provided showing that the required
-    folders (`data/raw`, `data/processed`, `data/interim`, `data/results`, `code/`,
-    `tests/`) actually exist in the project. Without concrete proof of these directories,
-    the task cannot be considered completed.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation for an error\u2011handling framework\
-    \ (e.g., retry logic for dataset download or timeout handling for inference) is\
-    \ present; the only artifacts described relate to data ingestion, feature extraction,\
-    \ and modeling, not to the required error\u2011handling setup. The required implementation\
-    \ is missing."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No environment\u2011variable or secrets\u2011management artifacts (e.g., .env\
-    \ files, configuration scripts, documentation of key handling for HuggingFace\
-    \ or Prolific) are present; the only evidence shown relates to unrelated data\u2011\
-    processing specifications, so the required setup for API keys is missing."
-T013:
-  c: false
-  h: c8c264a8d2c1e72d5c7619b0f152b3f4bf27731e38b669a86c8c50be449a3e9c
-  r: "The required output files `data/raw/medmis_subset.csv` and `state/artifact_hashes.yaml`\
-    \ are not present, and the provided `code/ingestion.py` (truncated) does not show\
-    \ the logic that writes the SHA\u2011256 checksum to the YAML file. Without these\
-    \ artifacts the task\u2019s requirements are not satisfied."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,20 +7,21 @@ T015:
     s requirement is not satisfied."
 T017a:
   c: false
-  h: 7e07c1db1c7e5b350699c5805b42e517a75e7753733ee345ba86c963f9fb58fd
-  r: "The required `data/interim/recruitment_log_us1.json` file is absent, and the\
-    \ provided `code/annotation.py` does not implement a recruitment script (it handles\
-    \ data loading/merging for annotations, not recruiting \u226550 raters). The task\u2019\
-    s core requirement\u2014setting up rater recruitment and generating the JSON log\u2014\
-    is therefore unmet."
+  h: 1ce935c403799a89e760878f6839bde4ffd79582c4ae13aa1eefa4753dced2bf
+  r: "The provided `code/annotation.py` contains data\u2011loading and correlation\
+    \ logic unrelated to recruiting raters, and it is incomplete (truncated). Moreover,\
+    \ the required output file `data/interim/recruitment_log_us1.json` does not exist.\
+    \ The task\u2019s core requirement\u2014script that recruits \u2265\u202F50 raters\
+    \ and writes their IDs and consent status to the specified JSON log\u2014is not\
+    \ satisfied."
 T017c:
   c: false
-  h: a41408d5ae209bb3685b38edfefa2ed8868151942eb08f64150fe6521863a820
-  r: "The repository lacks the required `data/interim/annotation_pilot_us1.csv` file,\
-    \ and the provided `code/annotation.py` only contains loader utilities\u2014it\
-    \ does not perform the aggregation of raw rater responses nor write the CSV with\
-    \ the specified columns. The core task of creating the annotation dataset is therefore\
-    \ unfulfilled."
+  h: 5d74c7173c8d8a61fa969092e2f30307ac19e492b822dc0773fafe0df03a116d
+  r: "The required output file `data/interim/annotation_pilot_us1.csv` is absent,\
+    \ and the provided `code/annotation.py` does not implement the collection/aggregation\
+    \ of raw rater responses (it only loads existing data and computes correlations,\
+    \ expecting only `prompt_id` and `authority_density_score`). The script also lacks\
+    \ handling of a `rater_id` column, so the task\u2019s specification is not met."
 T017d:
   c: false
   h: c35d1d29eb57823f9ff0516daede6f8abfe25d8b00653ba5cf3c51d49caa25a1

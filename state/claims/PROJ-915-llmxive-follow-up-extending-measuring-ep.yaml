@@ -1,0 +1,68 @@
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/data/results/annotation_correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation of 0.4215 between automated linguistic features and
+    human-perceived authority density
+  claim_id: c_6772f110
+  context: Results section reporting the correlation between automated linguistic
+    features and human-perceived authority density with a sample size of 52.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (r): 0.4215'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:13:25Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/data/results/annotation_correlation_report.md
+  attempts: 1
+  canonical: P-value of 0.0023 for the correlation between automated linguistic features
+    and human-perceived authority density
+  claim_id: c_1ca220ef
+  context: Results section reporting the significance level of the correlation analysis
+    with a sample size of 52.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value: 0.0023'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:13:48Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/data/results/annotation_correlation_report.md
+  attempts: 1
+  canonical: Sample size of 52 used for correlation analysis between automated linguistic
+    features and human-perceived authority density
+  claim_id: c_783ca3b0
+  context: Results section detailing the statistical metrics including correlation,
+    p-value, and sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size (n): 52'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:14:37Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/data/results/annotation_correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [0.2105, 0.5912] for the Pearson correlation
+    coefficient using Fisher's z-transformation
+  claim_id: c_567eb8bf
+  context: Confidence Intervals section stating the range for the correlation coefficient
+    calculated via Fisher's z-transformation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% CI for r: [0.2105, 0.5912]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T19:14:37Z'

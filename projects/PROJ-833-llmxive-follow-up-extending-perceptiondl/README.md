@@ -1,23 +1,28 @@
-# PROJ-833: llmXive Follow-up: Extending PerceptionDLM Parallel Region Perception
+# PROJ-833: llmXive Follow-up - Extending PerceptionDLM Parallel Region Perception
 
 ## Overview
-This project investigates the overflow hypothesis in PerceptionDLM by comparing
-parallel vs. sequential region perception coherence as region counts increase.
+This project investigates the limits of parallel region perception in large language models, specifically focusing on the "overflow hypothesis" where coherence degrades as the number of regions exceeds the model's effective context window.
 
 ## Structure
-- `code/`: Source code for data generation, model inference, and analysis.
-- `data/`: Raw, synthetic, and processed data.
-- `tests/`: Unit and integration tests.
-- `specs/`: Feature specifications and design docs.
-- `docs/`: Documentation.
+- `code/`: Python modules for data generation, model inference, and analysis.
+- `data/`: Raw inputs, synthetic datasets, and processed results.
+ - `raw/`: Original source data (e.g., COCO-Stuff samples).
+ - `synthetic/`: Generated images with bounding boxes and annotations.
+ - `processed/`: Inference results, metrics, and regression data.
+- `tests/`: Unit, integration, and contract tests.
+- `specs/`: Feature specifications and design documents.
+- `contracts/`: JSON schemas for data validation.
 
-## Setup
+## Prerequisites
+- Python 3.11+
+- See `requirements.txt` for dependencies.
+
+## Quick Start
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run the pipeline: `python code/main.py`
+2. Run the full pipeline: `python code/main.py`
+3. View results in `data/processed/`.
 
-## Key Design Decisions
-- **Model Consistency**: Uses PerceptionDLM for both parallel and sequential baselines
- to isolate context-window effects from architectural differences.
-- **Data Generation**: Synthetic data is generated with non-overlapping bounding boxes
- derived from real COCO-Stuff/ParaDLC-Bench samples.
-- **Statistical Rigor**: Includes Bonferroni correction for regression analysis.
+## Design Decisions
+- **Model Consistency**: We use PerceptionDLM for both parallel and sequential baselines (with context-reset) to avoid architectural confounds.
+- **Memory Safety**: Runtime memory monitoring with adaptive sample reduction is enforced.
+- **Statistical Rigor**: Bonferroni correction is applied to all regression significance tests.

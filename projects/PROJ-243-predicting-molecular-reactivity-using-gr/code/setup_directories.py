@@ -1,43 +1,26 @@
+"""
+Script to ensure all required project directories exist.
+"""
 import os
 import sys
+from config import ensure_directories
 
 def main():
-    """
-    Creates the required directory structure for the project.
-    Directories created:
-      - code
-      - artifacts
-      - tests
-      - artifacts/logs
-      - artifacts/metrics
-      - artifacts/figures
-      - tests/unit
-      - tests/integration
-      - tests/contract
-    """
-    base_dirs = [
-        "code",
-        "artifacts",
-        "tests",
-        "artifacts/logs",
-        "artifacts/metrics",
-        "artifacts/figures",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
+    """Create all necessary directories."""
+    from config import get_config
+    cfg = get_config()
+    
+    dirs = [
+        cfg['data_raw_dir'],
+        cfg['data_processed_dir'],
+        cfg['data_assets_dir'],
+        cfg['code_dir'],
+        cfg['artifacts_dir'],
+        cfg['tests_dir']
     ]
-
-    created_count = 0
-    for dir_path in base_dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"Setup complete. Created {created_count} new directories.")
-    return 0
+    
+    ensure_directories(dirs)
+    print("All directories created or verified.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

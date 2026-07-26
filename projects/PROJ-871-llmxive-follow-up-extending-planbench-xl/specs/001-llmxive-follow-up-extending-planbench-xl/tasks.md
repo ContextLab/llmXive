@@ -51,15 +51,15 @@
 **Goal**: Create the "implicit failure" subset and signature index required for US1 and US2.
 
 - [X] T008 [P] Implement data loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/loader.py` to download PlanBench-XL from the official HuggingFace repository or GitHub source and save raw parquet to `data/raw/`
-- [~] T009a [P] Implement synthetic failure injection in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py`: Load raw data, select a subset of tasks with "success" ground truth (using random seed 42, targeting a significant proportion of success tasks), inject deterministic error patterns (append 'ERROR: silent_tool_failure' to tool outputs) **ONLY** (do NOT modify the ground_truth field), and save to `data/derived/implicit_failure_subset.jsonl`. Output schema: JSONL with original fields + `injected_error` boolean flag.
-- [~] T009b [P] Implement failure signature index construction in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py`: Parse `data/derived/implicit_failure_subset.jsonl`, extract the injected error patterns, map them to tool identifiers, and save to `data/derived/failure_signatures.json`. JSON Schema: `{"tool_id": "pattern", "recovery_strategy": "replan"}`.
+- [ ] T009a [P] Implement synthetic failure injection in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py`: Load raw data, select a subset of tasks with "success" ground truth (using random seed 42, targeting a significant proportion of success tasks), inject deterministic error patterns (append 'ERROR: silent_tool_failure' to tool outputs) **ONLY** (do NOT modify the ground_truth field), and save to `data/derived/implicit_failure_subset.jsonl`. Output schema: JSONL with original fields + `injected_error` boolean flag.
+- [ ] T009b [P] Implement failure signature index construction in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py`: Parse `data/derived/implicit_failure_subset.jsonl`, extract the injected error patterns, map them to tool identifiers, and save to `data/derived/failure_signatures.json`. JSON Schema: `{"tool_id": "pattern", "recovery_strategy": "replan"}`.
 
 ### Prerequisite Tests (Phase 2 Sub-phase)
 
 **Goal**: Ensure data generation logic is correct before implementation.
 
-- [~] T010 [P] [US1] Contract test for data loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_loader.py` (verifies PlanBench-XL subset loading from `data/derived/implicit_failure_subset.jsonl`)
-- [ ] T011 [P] [US1] Integration test for baseline agent execution in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/integration/test_baseline_agent.py` (verifies log generation without signature index)
+- [ ] T010 [P] [US1] Contract test for data loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_loader.py` (verifies PlanBench-XL subset loading from `data/derived/implicit_failure_subset.jsonl`)
+- [X] T011 [P] [US1] Integration test for baseline agent execution in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/integration/test_baseline_agent.py` (verifies log generation without signature index)
 - [X] T015 [P] [US2] Unit test for synthetic failure injection logic in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_injector.py` (verifies deterministic pattern injection)
 - [X] T016 [P] [US2] Unit test for signature index construction in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_indexer.py` (verifies static JSON index creation)
 
@@ -76,7 +76,7 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement baseline agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py` using internal LLM reasoning only (no external index access). **Model**: Llama-3-8B-Quantized (4-bit if available on CPU, else 8-bit), **Params**: max_tokens=512, temperature=0.7.
-- [~] T013 [US1] Implement baseline execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/baseline_execution.jsonl`
+- [ ] T013 [US1] Implement baseline execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/baseline_execution.jsonl`
 - [ ] T014 [US1] Add validation to ensure baseline agent does NOT access `data/derived/failure_signatures.json` (enforces isolation) - **Note**: This task depends on T012/T013 completion.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

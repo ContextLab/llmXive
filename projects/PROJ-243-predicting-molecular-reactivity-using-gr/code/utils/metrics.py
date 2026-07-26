@@ -1,241 +1,114 @@
 """
-metrics.py - Statistical evaluation and comparison metrics for molecular reactivity models.
-
-Implements:
-- MSE (Mean Squared Error)
-- MAE (Mean Absolute Error)
-- Pearson R (Correlation Coefficient)
-- Paired t-test (Primary statistical comparison per FR-006)
-- Wilcoxon signed-rank test (Sensitivity analysis)
+Metric calculation and statistical testing utilities.
 """
-
 import numpy as np
 from scipy import stats
 from typing import List, Tuple, Dict, Any, Union
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger("utils.metrics")
 
 def calculate_mse(y_true: Union[List[float], np.ndarray], y_pred: Union[List[float], np.ndarray]) -> float:
-    """
-    Calculate Mean Squared Error.
-
-    Args:
-        y_true: Ground truth values.
-        y_pred: Predicted values.
-
-    Returns:
-        float: MSE value.
-    """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
-    if len(y_true) == 0:
-        raise ValueError("Input arrays are empty.")
-
+    """Calculate Mean Squared Error."""
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     return float(np.mean((y_true - y_pred) ** 2))
 
-
 def calculate_mae(y_true: Union[List[float], np.ndarray], y_pred: Union[List[float], np.ndarray]) -> float:
-    """
-    Calculate Mean Absolute Error.
-
-    Args:
-        y_true: Ground truth values.
-        y_pred: Predicted values.
-
-    Returns:
-        float: MAE value.
-    """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
-    if len(y_true) == 0:
-        raise ValueError("Input arrays are empty.")
-
+    """Calculate Mean Absolute Error."""
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     return float(np.mean(np.abs(y_true - y_pred)))
 
-
 def calculate_pearson_r(y_true: Union[List[float], np.ndarray], y_pred: Union[List[float], np.ndarray]) -> float:
-    """
-    Calculate Pearson Correlation Coefficient.
+    """Calculate Pearson correlation coefficient."""
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    r, _ = stats.pearsonr(y_true, y_pred)
+    return float(r)
 
+def paired_t_test(errors1: Union[List[float], np.ndarray], errors2: Union[List[float], np.ndarray]) -> Tuple[float, float]:
+    """
+    Perform a paired t-test on two sets of errors.
+    
     Args:
-        y_true: Ground truth values.
+        errors1: First set of errors.
+        errors2: Second set of errors.
+        
+    Returns:
+        Tuple of (t-statistic, p-value).
+    """
+    errors1 = np.array(errors1)
+    errors2 = np.array(errors2)
+    t_stat, p_val = stats.ttest_rel(errors1, errors2)
+    return float(t_stat), float(p_val)
+
+def wilcoxon_signed_rank_test(errors1: Union[List[float], np.ndarray], errors2: Union[List[float], np.ndarray]) -> Tuple[float, float]:
+    """
+    Perform a Wilcoxon signed-rank test on two sets of errors.
+    
+    Args:
+        errors1: First set of errors.
+        errors2: Second set of errors.
+        
+    Returns:
+        Tuple of (statistic, p-value).
+    """
+    errors1 = np.array(errors1)
+    errors2 = np.array(errors2)
+    stat, p_val = stats.wilcoxon(errors1, errors2)
+    return float(stat), float(p_val)
+
+def evaluate_model(y_true: Union[List[float], np.ndarray], y_pred: Union[List[float], np.ndarray]) -> Dict[str, float]:
+    """
+    Evaluate model performance with multiple metrics.
+    
+    Args:
+        y_true: True values.
         y_pred: Predicted values.
-
+        
     Returns:
-        float: Pearson R value.
+        Dictionary of metrics.
     """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
-    if len(y_true) < 2:
-        raise ValueError("Need at least 2 samples to calculate correlation.")
-
-    corr, _ = stats.pearsonr(y_true, y_pred)
-    if np.isnan(corr):
-        # Handle constant arrays case
-        logger.warning("Pearson correlation is NaN (likely constant values). Returning 0.0.")
-        return 0.0
-    return float(corr)
-
-
-def paired_t_test(y_pred_model_a: Union[List[float], np.ndarray],
-                  y_pred_model_b: Union[List[float], np.ndarray],
-                  y_true: Union[List[float], np.ndarray]) -> Dict[str, float]:
-    """
-    Perform a paired t-test on the errors of two models.
-    This is the PRIMARY statistical test per FR-006 to compare GNN vs RF.
-
-    The test compares the residuals (errors) of Model A vs Model B.
-    Null Hypothesis: The mean difference in errors is zero.
-
-    Args:
-        y_pred_model_a: Predictions from Model A.
-        y_pred_model_b: Predictions from Model B.
-        y_true: Ground truth values.
-
-    Returns:
-        Dict containing 't_statistic' and 'p_value'.
-    """
-    y_true = np.asarray(y_true)
-    y_pred_a = np.asarray(y_pred_model_a)
-    y_pred_b = np.asarray(y_pred_model_b)
-
-    if not (len(y_true) == len(y_pred_a) == len(y_pred_b)):
-        raise ValueError("Input arrays must all have the same length.")
-    if len(y_true) < 2:
-        raise ValueError("Need at least 2 samples to perform a t-test.")
-
-    # Calculate residuals (errors)
-    errors_a = y_true - y_pred_a
-    errors_b = y_true - y_pred_b
-
-    # Paired t-test on the errors
-    t_stat, p_val = stats.ttest_rel(errors_a, errors_b)
-
-    logger.info(f"Paired T-Test Results: t={t_stat:.4f}, p={p_val:.4e}")
-
     return {
-        "t_statistic": float(t_stat),
-        "p_value": float(p_val)
+        "mse": calculate_mse(y_true, y_pred),
+        "mae": calculate_mae(y_true, y_pred),
+        "pearson_r": calculate_pearson_r(y_true, y_pred)
     }
 
-
-def wilcoxon_signed_rank_test(y_pred_model_a: Union[List[float], np.ndarray],
-                              y_pred_model_b: Union[List[float], np.ndarray],
-                              y_true: Union[List[float], np.ndarray]) -> Dict[str, float]:
+def compare_models(y_true: Union[List[float], np.ndarray], y_pred1: Union[List[float], np.ndarray], y_pred2: Union[List[float], np.ndarray]) -> Dict[str, Any]:
     """
-    Perform a Wilcoxon signed-rank test on the errors of two models.
-    This is the SENSITIVITY analysis test.
-
-    Non-parametric alternative to the paired t-test.
-    Null Hypothesis: The distribution of differences in errors is symmetric around zero.
-
+    Compare two models using paired t-test and Wilcoxon test.
+    
     Args:
-        y_pred_model_a: Predictions from Model A.
-        y_pred_model_b: Predictions from Model B.
-        y_true: Ground truth values.
-
+        y_true: True values.
+        y_pred1: Predictions from model 1.
+        y_pred2: Predictions from model 2.
+        
     Returns:
-        Dict containing 'statistic' and 'p_value'.
+        Dictionary with comparison results.
     """
-    y_true = np.asarray(y_true)
-    y_pred_a = np.asarray(y_pred_model_a)
-    y_pred_b = np.asarray(y_pred_model_b)
-
-    if not (len(y_true) == len(y_pred_a) == len(y_pred_b)):
-        raise ValueError("Input arrays must all have the same length.")
-    if len(y_true) < 2:
-        raise ValueError("Need at least 2 samples to perform Wilcoxon test.")
-
-    # Calculate residuals (errors)
-    errors_a = y_true - y_pred_a
-    errors_b = y_true - y_pred_b
-
-    # Wilcoxon signed-rank test
-    # Note: stats.wilcoxon returns (statistic, pvalue)
-    try:
-        stat, p_val = stats.wilcoxon(errors_a, errors_b)
-    except ValueError as e:
-        # Handle cases where differences are all zero or other edge cases
-        logger.warning(f"Wilcoxon test failed: {e}. Returning NaN.")
-        return {
-            "statistic": float('nan'),
-            "p_value": float('nan')
-        }
-
-    logger.info(f"Wilcoxon Signed-Rank Test Results: statistic={stat:.4f}, p={p_val:.4e}")
-
+    errors1 = np.abs(np.array(y_true) - np.array(y_pred1))
+    errors2 = np.abs(np.array(y_true) - np.array(y_pred2))
+    
+    t_stat, t_pval = paired_t_test(errors1, errors2)
+    w_stat, w_pval = wilcoxon_signed_rank_test(errors1, errors2)
+    
     return {
-        "statistic": float(stat),
-        "p_value": float(p_val)
+        "paired_t_test": {"t_statistic": t_stat, "p_value": t_pval},
+        "wilcoxon_test": {"statistic": w_stat, "p_value": w_pval},
+        "model1_mae": float(np.mean(errors1)),
+        "model2_mae": float(np.mean(errors2))
     }
 
-
-def evaluate_model(y_true: Union[List[float], np.ndarray],
-                   y_pred: Union[List[float], np.ndarray],
-                   model_name: str = "Model") -> Dict[str, float]:
-    """
-    Calculate a standard set of metrics for a single model.
-
-    Args:
-        y_true: Ground truth values.
-        y_pred: Predicted values.
-        model_name: Name of the model for logging.
-
-    Returns:
-        Dict containing MSE, MAE, and Pearson R.
-    """
-    mse = calculate_mse(y_true, y_pred)
-    mae = calculate_mae(y_true, y_pred)
-    pearson_r = calculate_pearson_r(y_true, y_pred)
-
-    logger.info(f"Evaluation for {model_name}: MSE={mse:.4f}, MAE={mae:.4f}, Pearson R={pearson_r:.4f}")
-
-    return {
-        "model_name": model_name,
-        "mse": mse,
-        "mae": mae,
-        "pearson_r": pearson_r
-    }
-
-
-def compare_models(y_true: Union[List[float], np.ndarray],
-                   y_pred_model_a: Union[List[float], np.ndarray],
-                   y_pred_model_b: Union[List[float], np.ndarray],
-                   name_a: str = "Model A",
-                   name_b: str = "Model B") -> Dict[str, Any]:
-    """
-    Perform a full statistical comparison between two models.
-    Includes individual metrics and paired statistical tests.
-
-    Args:
-        y_true: Ground truth values.
-        y_pred_model_a: Predictions from Model A.
-        y_pred_model_b: Predictions from Model B.
-        name_a: Name of Model A.
-        name_b: Name of Model B.
-
-    Returns:
-        Dict containing individual metrics and test results.
-    """
-    metrics_a = evaluate_model(y_true, y_pred_model_a, name_a)
-    metrics_b = evaluate_model(y_true, y_pred_model_b, name_b)
-
-    t_test_result = paired_t_test(y_pred_model_a, y_pred_model_b, y_true)
-    wilcoxon_result = wilcoxon_signed_rank_test(y_pred_model_a, y_pred_model_b, y_true)
-
-    return {
-        "model_a_metrics": metrics_a,
-        "model_b_metrics": metrics_b,
-        "paired_t_test": t_test_result,
-        "wilcoxon_test": wilcoxon_result
-    }
+if __name__ == "__main__":
+    # Test
+    y_true = [1.0, 2.0, 3.0, 4.0, 5.0]
+    y_pred1 = [1.1, 2.1, 2.9, 4.2, 4.8]
+    y_pred2 = [1.2, 2.2, 2.8, 4.1, 4.9]
+    
+    metrics = evaluate_model(y_true, y_pred1)
+    print(f"Metrics: {metrics}")
+    
+    comparison = compare_models(y_true, y_pred1, y_pred2)
+    print(f"Comparison: {comparison}")

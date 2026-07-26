@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Image Annotation"
+description: "Schema for JSON annotations accompanying generated synthetic images with non-overlapping regions."
+type: object
+required:
+  - image_id
+  - source_image_path
+  - region_count
+  - regions
+  - derived_relations
+  - generation_metadata
+properties:
+  image_id:
+    type: string
+    description: "Unique identifier for the generated sample."
+  source_image_path:
+    type: string
+    description: "Relative path to the source image from the dataset (e.g., COCO/ParaDLC-Bench)."
+  region_count:
+    type: integer
+    minimum: 1
+    description: "Target number of regions successfully placed."
+  regions:
+    type: array
+    description: "List of bounding boxes and their attributes."
+    items:
+      type: object
+      required:
+        - id
+        - bbox
+        - label
+        - centroid
+      properties:
+        id:
+          type: integer
+          description: "Unique region identifier within this image."
+        bbox:
+          type: array
+          description: "Bounding box in [x_min, y_min, x_max, y_max] format."
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        label:
+          type: string
+          description: "Category label or object name derived from source."
+        centroid:
+          type: object
+          description: "Centroid coordinates (x, y)."
+          required:
+            - x
+            - y
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+        area:
+          type: number
+          description: "Area of the bounding box."
+  derived_relations:
+    type: array
+    description: "Spatial relations derived from geometric centroids (FR-004)."
+    items:
+      type: object
+      required:
+        - source_region_id
+        - target_region_id
+        - relation
+        - confidence
+      properties:
+        source_region_id:
+          type: integer
+        target_region_id:
+          type: integer
+        relation:
+          type: string
+          description: "Spatial preposition (e.g., 'left of', 'above', 'inside')."
+        confidence:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Geometric certainty of the relation."
+  generation_metadata:
+    type: object
+    required:
+      - timestamp
+      - seed
+      - placement_attempts
+      - success
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      seed:
+        type: integer
+      placement_attempts:
+        type: integer
+        description: "Number of attempts made to place all regions."
+      success:
+        type: boolean
+        description: "Whether all target regions were placed without overlap."
+      failure_reason:
+        type: string
+        description: "Optional reason if success is false."
+additionalProperties: false

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan in `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing `torch`, `transformers`, `diffusers`, `spacy`, `pandas`, `scikit-learn`, `matplotlib`, `datasets`, `huggingface_hub`, `psutil`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `torch`, `transformers`, `diffusers`, `spacy`, `pandas`, `scikit-learn`, `matplotlib`, `datasets`, `huggingface_hub`, `psutil`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/`
 
 ---
@@ -58,12 +58,12 @@
 - [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50). **Explicitly document the design decision to use PerceptionDLM for both parallel and sequential baselines (context-reset) to avoid architectural confounds, noting that this supersedes Spec FR-003's requirement for LLaVA per Plan Summary and Complexity Tracking.**
 - [ ] T005 [P] Setup data directory structure: `data/raw/`, `data/synthetic/`, `data/processed/`
 - [ ] T042 [P] Define `contracts/synthetic_image.schema.yaml` and `contracts/regression_result.schema.yaml` to specify the JSON structure for generated images and analysis results.
-- [ ] T023 [P] [US2] Contract test for synthetic image schema in `tests/contract/test_schemas.py` (depends on T042).
-- [ ] T006 [P] Implement `code/synthetic/validator.py` to check for overlapping bounding boxes using the schema defined in T042 and return boolean validation results.
-- [ ] T046 [P] Implement `code/synthetic/fetcher.py` to download a sampled subset of the COCO-Stuff/ParaDLC-Bench dataset from HuggingFace.
-- [ ] T047 [P] Implement `code/synthetic/placer.py` to contain the core algorithm for placing non-overlapping bounding boxes on images, **including retry logic to reduce region count or skip images if placement fails**.
-- [ ] T048 [P] Implement `code/synthetic/deriver.py` to explicitly implement ground-truth relation derivation logic: deriving spatial prepositions (e.g., "left of", "above") from bounding box centroids as mandated by FR-004 and Spec Assumptions.
-- [ ] T049 [P] Implement `code/synthetic/serializer.py` to save generated images and JSON annotation files (including derived geometric relations) to `data/synthetic/`.
+- [X] T023 [P] [US2] Contract test for synthetic image schema in `tests/contract/test_schemas.py` (depends on T042).
+- [X] T006 [P] Implement `code/synthetic/validator.py` to check for overlapping bounding boxes using the schema defined in T042 and return boolean validation results.
+- [X] T046 [P] Implement `code/synthetic/fetcher.py` to download a sampled subset of the COCO-Stuff/ParaDLC-Bench dataset from HuggingFace.
+- [X] T047 [P] Implement `code/synthetic/placer.py` to contain the core algorithm for placing non-overlapping bounding boxes on images, **including retry logic to reduce region count or skip images if placement fails**.
+- [X] T048 [P] Implement `code/synthetic/deriver.py` to explicitly implement ground-truth relation derivation logic: deriving spatial prepositions (e.g., "left of", "above") from bounding box centroids as mandated by FR-004 and Spec Assumptions.
+- [X] T049 [P] Implement `code/synthetic/serializer.py` to save generated images and JSON annotation files (including derived geometric relations) to `data/synthetic/`.
 - [ ] T024 [US2] Implement `code/synthetic/generator.py` to orchestrate T046-T049: loop through a sampled subset of ParaDLC-Bench (n≥50 per bin) and generate images for region counts 20, 25, 30, 35, 40, 45, and 50, **ensuring JSON outputs include derived geometric relations**.
 - [ ] T025 [US2] Ensure `code/synthetic/generator.py` saves corresponding JSON annotation files with coordinates to `data/synthetic/`. (Note: Retry logic is in T047).
 - [ ] T026 [US2] Integrate `code/synthetic/validator.py` to validate every generated image before saving to disk.
@@ -135,7 +135,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/analysis/plotting.py` to read `data/processed/degradation_curve.csv` and plot Inference Time (x) vs. Semantic Coherence Score (y) [UNRESOLVED-CLAIM: c_d8d38995 — status=not_enough_info].
+- [ ] T032 [US3] Implement `code/analysis/plotting.py` to read `data/processed/degradation_curve.csv` and plot Inference Time (x) vs. Semantic Coherence Score (y).
 - [ ] T033 [US3] Implement logic in `code/analysis/plotting.py` to calculate and mark the "tipping point" where parallel coherence drops below **the threshold defined in `config.py`** ({{claim:c_223ff487}}) of the sequential baseline.
 - [ ] T034 [US3] Generate `data/processed/pareto_frontier.png` with distinct lines for Parallel and Sequential methods.
 - [ ] T035 [US3] Ensure `code/analysis/plotting.py` reads **Inference Time** data from the CSV (produced by T051/T052) to plot the Pareto frontier.
