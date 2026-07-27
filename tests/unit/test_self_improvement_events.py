@@ -83,8 +83,11 @@ def test_validate_rejects_bad_schema_version():
 
 
 def _coord(**kw):
-    """The same event on the COORDINATOR stream, which uses the lane revision scope."""
-    base = _raw(problem_id=COORDINATOR_STREAM, event_type="ClaimAcquired",
+    """The same event on the COORDINATOR stream, which uses the lane revision scope.
+    ``ClaimAcquired`` has a payload schema (the fold reads both ids), so the base event
+    carries a well-formed one — the envelope cases below are what these vary."""
+    base = _raw(problem_id=COORDINATOR_STREAM, event_type="ClaimAcquired", attempt_id="A1",
+                payload={"problem_id": "P1", "attempt_id": "A1"},
                 expected_problem_revision=None, resulting_problem_revision=None,
                 expected_lane_revision=0, resulting_lane_revision=1)
     base.update(kw)
@@ -259,6 +262,73 @@ def test_the_canonical_serializer_refuses_non_finite_numbers():
     ev = Event(**_raw(payload={"credits": float("nan")}))
     with pytest.raises(ValueError, match="not JSON compliant"):
         event_to_json(ev)
+
+
+# ---- the coordinator stream's payload schemas ----
+
+
+def _coord_event(event_type, payload, *, attempt_id="A1"):
+    return _raw(problem_id=COORDINATOR_STREAM, event_type=event_type, payload=payload,
+                attempt_id=attempt_id, expected_problem_revision=None,
+                resulting_problem_revision=None,
+                expected_lane_revision=0, resulting_lane_revision=1)
+
+
+@pytest.mark.parametrize("event_type", ["ClaimAcquired", "ClaimReleased"])
+def test_a_claim_records_both_ownership_ids(event_type):
+    validate_lane_event(_coord_event(event_type, {"problem_id": "P1", "attempt_id": "A1"}))
+
+
+@pytest.mark.parametrize("event_type", ["ClaimAcquired", "ClaimReleased"])
+@pytest.mark.parametrize("payload, why", [
+    ({"attempt_id": "A1"}, "problem_id"),                      # the fold would KeyError
+    ({"problem_id": "P1"}, "attempt_id"),
+    ({"problem_id": "", "attempt_id": "A1"}, "problem_id"),    # empty compares equal to nothing
+    ({"problem_id": "P1", "attempt_id": ""}, "attempt_id"),
+    ({"problem_id": "P1", "attempt_id": "A2"}, "disagrees"),   # envelope says A1
+    ({"problem_id": "P1", "attempt_id": "A1", "extra": 1}, "unexpected"),
+])
+def test_a_malformed_claim_is_rejected_at_the_write_boundary(event_type, payload, why):
+    # These ids ARE the lane's ownership record: project_coordinator decides who holds the
+    # singleton from them, and cas_release compares them to refuse a stale release. A
+    # missing one would explode inside the fold once the event is already durable.
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_coord_event(event_type, payload))
+
+
+def test_monitor_started_binds_one_attempt():
+    validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A1"}))
+    with pytest.raises(ValueError, match="disagrees"):
+        validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A9"}))
+    with pytest.raises(ValueError, match="unexpected"):
+        validate_lane_event(_coord_event("MonitorStarted", {"attempt_id": "A1", "when": "now"}))
+
+
+def test_promotion_enabled_must_be_an_actual_bool():
+    # bool("false") is True. Coercing here would ENABLE autonomous promotion from a record
+    # written to disable it — so the type is required, not inferred.
+    validate_lane_event(
+        _coord_event("PromotionEnabledSet", {"promotion_enabled": False, "policy_version": 2},
+                     attempt_id=None)
+    )
+    for bad in ("false", 0, 1, None):
+        with pytest.raises(ValueError, match="promotion_enabled"):
+            validate_lane_event(
+                _coord_event("PromotionEnabledSet", {"promotion_enabled": bad}, attempt_id=None)
+            )
+
+
+def test_policy_version_is_optional_but_typed():
+    # A flip that does not change policy carries the previous version forward.
+    validate_lane_event(
+        _coord_event("PromotionEnabledSet", {"promotion_enabled": True}, attempt_id=None)
+    )
+    for bad in (-1, True, "3"):
+        with pytest.raises(ValueError, match="policy_version"):
+            validate_lane_event(
+                _coord_event("PromotionEnabledSet",
+                             {"promotion_enabled": True, "policy_version": bad}, attempt_id=None)
+            )
 
 
 def test_types_without_a_validator_are_envelope_only():

@@ -266,6 +266,60 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
     _positive_int(payload, "call_ceiling")
 
 
+_CLAIM_KEYS = frozenset({"problem_id", "attempt_id"})
+_MONITOR_KEYS = frozenset({"attempt_id"})
+_PROMOTION_KEYS = frozenset({"promotion_enabled", "policy_version"})
+
+
+def _validate_claim(raw: Mapping[str, Any]) -> None:
+    """``ClaimAcquired``/``ClaimReleased`` — the lane's OWNERSHIP record.
+
+    ``project_coordinator`` reads these two ids to decide who holds the singleton claim,
+    and ``cas_release`` compares them to refuse a delayed release from a previous owner.
+    A missing or empty id would therefore either explode inside the projection or, worse,
+    compare equal to nothing and let a stale release clear a live claim.
+
+    The payload's ``problem_id`` is the CLAIMED Problem; the envelope's is
+    ``COORDINATOR_STREAM`` (this is a coordinator-stream event), so those two are
+    deliberately NOT cross-checked. The ``attempt_id`` is cross-checked, because the
+    envelope and the payload are naming the same Attempt.
+    """
+    payload = raw["payload"]
+    _exact_keys(payload, _CLAIM_KEYS, f"{raw['event_type']} payload")
+    _require(payload, "problem_id", str)
+    _same_attempt(raw)
+
+
+def _validate_monitor_started(raw: Mapping[str, Any]) -> None:
+    payload = raw["payload"]
+    _exact_keys(payload, _MONITOR_KEYS, "MonitorStarted payload")
+    _same_attempt(raw)
+
+
+def _validate_promotion_enabled_set(raw: Mapping[str, Any]) -> None:
+    """The autonomous-merge gate. ``promotion_enabled`` must be an ACTUAL bool: the
+    projection would otherwise coerce it, and ``bool("false")`` is ``True`` — a record
+    meant to disable autonomous promotion would enable it. ``policy_version`` is optional
+    (a flip that does not change policy carries the previous version forward) but is
+    type-checked when present."""
+    payload = raw["payload"]
+    _exact_keys(payload, _PROMOTION_KEYS, "PromotionEnabledSet payload")
+    if "promotion_enabled" not in payload:
+        raise ValueError("payload missing required key 'promotion_enabled'")
+    if not isinstance(payload["promotion_enabled"], bool):
+        raise ValueError(
+            f"payload key 'promotion_enabled' must be a bool, got "
+            f"{payload['promotion_enabled']!r} — a truthy string would ENABLE a gate the "
+            "record was written to close"
+        )
+    if "policy_version" in payload:
+        version = payload["policy_version"]
+        if isinstance(version, bool) or not isinstance(version, int) or version < 0:
+            raise ValueError(
+                f"payload key 'policy_version' must be a non-negative int, got {version!r}"
+            )
+
+
 #: Per-type schemas. Each validator receives the WHOLE raw event, not just the payload:
 #: several invariants are cross-field (``payload["attempt_id"]`` must equal the
 #: envelope's), and a payload-only signature cannot express that.
@@ -273,6 +327,13 @@ TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     "AttemptConfigured": _validate_attempt_configured,
     "AttemptCreditReserved": _validate_attempt_credit_reserved,
     "LaneCallClaimed": _validate_lane_call_claimed,
+    # The coordinator stream: these four are what `project_coordinator` folds, and the
+    # projection is the lane's recovery authority — a malformed payload must be refused at
+    # the WRITE boundary, not surface as a KeyError inside the fold once it is durable.
+    "ClaimAcquired": _validate_claim,
+    "ClaimReleased": _validate_claim,
+    "MonitorStarted": _validate_monitor_started,
+    "PromotionEnabledSet": _validate_promotion_enabled_set,
     # Slice 1B registers "ReviewRerouted" here.
 }
 
