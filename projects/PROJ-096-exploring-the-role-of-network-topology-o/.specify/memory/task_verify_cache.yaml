@@ -1,16 +1,44 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`\
+    \ file is provided, nor any excerpt showing that FR\u2011001 now explicitly mentions\
+    \ a synthetic regular ring lattice instead of the removed \u2018ca\u2011AstroPh\u2019\
+    \ dataset. The required artifact is missing, so the task is not verified as completed."
+T000a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `constitution.md` file or its contents was provided, so we\
+    \ cannot verify that the \u2018ca-AstroPh\u2019 download requirement was removed\
+    \ and replaced with a synthetic regular ring lattice requirement. The required\
+    \ artifact is missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a report, table, or script output) was provided that quantifies\
+    \ the maximum time steps, number of topologies, and run count that can be completed\
+    \ within 6\u202Fhours on a 2\u2011core CPU. Without such concrete data, the feasibility\
+    \ study requirement is not satisfied."
+T009b:
+  c: false
+  h: 22169d2729c09ef291dcbd5bf07a56f485760791ab1b3c0cba8e043061c3fbd4
+  r: "The required `data/processed/config.json` file is missing, so the condition\
+    \ to trigger the contingency log cannot be verified; yet `compute_contingency.md`\
+    \ was generated regardless. The task\u2019s prerequisite input is absent, meaning\
+    \ the artifact was not produced under the specified condition."
 T016:
   c: false
-  h: f3f683890a57da54436a79bde4c79469cd1d05c7708ecf5401122963d83a3842
-  r: "The repository lacks `data/processed/config.json`, so the required N value cannot\
-    \ be read, and `code/generate_topology.py` does not contain a batch generation\
-    \ loop over 50 equally spaced rewiring probabilities from 0.0 to 1.0 (it only\
-    \ defines a short hard\u2011coded list). Consequently the specified batch generation\
-    \ functionality is not implemented."
+  h: 3336e659328b0ce81b3d3d0470e1c15b0e1ae02819f9c8ee26a12013e7a0fe08
+  r: "The required `data/processed/config.json` file is missing, so the script cannot\
+    \ read the defined number of instances. Moreover, the provided excerpt of `code/generate_topology.py`\
+    \ shows only graph\u2011generation utilities and does not contain any loop that\
+    \ iterates rewiring probability `p` from 0.0 to 1.0 in 50 steps to generate a\
+    \ batch of graphs. Both the configuration source and the batch\u2011generation\
+    \ implementation are absent."
 T021:
   c: false
-  h: 69722feb2f4b450c862bc7e3c14d4477f6462bc377b3ba8728651e4448ba7c06
-  r: "The repository lacks the required `data/processed/config.json` file, so the\
-    \ dependency cannot be satisfied. Moreover, the `kuramoto_derivative` implementation\
-    \ is truncated and does not show a complete return statement, and the raised RuntimeError\
-    \ includes extra text instead of exactly `RuntimeError('CONVERGENCE_FAILURE')`.\
-    \ These issues mean the task\u2019s requirements are not fully met."
+  h: e646a0b4e107444b0d2c084b1108635f85a776af5e4c717f937ef9ab9391fc26
+  r: "The `kuramoto_derivative` function is present, but the required error\u2011\
+    handling logic for the `SC_003_VIOLATION` flag is not implemented, and the dependent\
+    \ file `data/processed/config.json` is missing, so the function cannot be exercised\
+    \ as specified."

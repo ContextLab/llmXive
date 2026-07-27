@@ -1,17 +1,12 @@
 """
-Topology Generation Module for Network Synchronization Research.
+Topology Generation Module for Network Synchronization Study.
 
-This module handles the generation of network topologies for the Kuramoto
-oscillator simulation. It implements:
-1. Synthetic regular ring lattice generation (base graph).
-2. Watts-Strogatz small-world network generation via rewiring.
-3. Graph validation (connectivity, degree preservation).
-4. Batch generation and metadata logging.
+This module implements the generation of network topologies using the
+Watts-Strogatz small-world model, starting from a synthetic regular ring lattice.
+It handles batch generation, validation, metadata logging, and checksum updates.
 
-NOTE: The base graph is a synthetic regular ring lattice (N=500, k=2).
-The ca-AstroPh dataset (downloaded in T013a) is used solely for Constitution
-compliance (reproducibility requirement) and its structure is explicitly ignored
-for the generation of the Watts-Strogatz graphs.
+Note: The base graph is synthetic; FR-001 requirement to use ca-AstroPh has been
+formally amended in spec.md per T000 and documented in T012b.
 """
 
 import os
@@ -20,297 +15,344 @@ import logging
 import time
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Tuple, Optional, Dict, Any, List
 
 import networkx as nx
 import numpy as np
 
+# Import from local utils (defined in the project API surface)
 from utils.graph_utils import is_connected, calculate_graph_metrics
-from utils.logging_utils import init_logging, get_logger
-from utils.checksum_utils import compute_file_checksum
+from utils.logging_utils import init_logging, get_logger, log_warning, log_error
+from utils.checksum_utils import compute_file_checksum, write_checksums_file
 
 # Constants
-DEFAULT_N = 500
-DEFAULT_K = 2  # Each node connected to k nearest neighbors
-DEFAULT_SEED_BASE = 42
-REWIRING_PROBABILITIES = [0.0, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+DEFAULT_N_NODES = 500
+DEFAULT_K_NEIGHBORS = 2
+DEFAULT_SEED = 42
 OUTPUT_DIR = Path("data/processed")
-METADATA_FILE = Path("data/processed/graph_metadata.json")
-CHECKSUM_FILE = Path("data/checksums.txt")
-METHODOLOGY_LOG = Path("data/processed/methodology_log.md")
+METADATA_FILE = OUTPUT_DIR / "graph_metadata.json"
+DISCONNECTED_LOG_FILE = OUTPUT_DIR / "disconnected_log.json"
+CHECKSUMS_FILE = Path("data/checksums.txt")
+METHODOLOGY_LOG = OUTPUT_DIR / "scope_limitation.log"
 
-logger = get_logger(__name__)
+def init_logging_module():
+    """Initialize logging for this module."""
+    return init_logging("generate_topology")
 
-
-def init_directories():
-    """Ensure output directories exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    CHECKSUM_FILE.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Initialized directories: {OUTPUT_DIR}, {CHECKSUM_FILE.parent}")
-
-
-def generate_regular_ring_lattice(n: int = DEFAULT_N, k: int = DEFAULT_K) -> nx.Graph:
+def generate_regular_ring_lattice(n: int = DEFAULT_N_NODES, k: int = DEFAULT_K_NEIGHBORS, seed: int = DEFAULT_SEED) -> nx.Graph:
     """
     Generate a synthetic regular ring lattice.
 
     Args:
         n: Number of nodes.
-        k: Each node is connected to k nearest neighbors in each direction.
+        k: Each node is connected to k nearest neighbors in ring order.
+        seed: Random seed for reproducibility (not used here but kept for API consistency).
 
     Returns:
-        NetworkX Graph object representing the ring lattice.
+        A NetworkX Graph object representing the ring lattice.
     """
-    logger.info(f"Generating synthetic regular ring lattice with N={n}, k={k}")
-    # Explicitly synthetic; ca-AstroPh structure is ignored per methodology correction.
-    G = nx.watts_strogatz_graph(n=n, k=k, p=0.0, seed=0)
-    # Verify it is indeed a ring lattice (p=0.0)
-    assert nx.is_regular(G), "Generated graph is not regular"
-    logger.info("Synthetic ring lattice generated successfully.")
+    # Base graph is synthetic; FR-001 requirement to use ca-AstroPh has been
+    # formally amended in spec.md per T000 and documented in T012b.
+    logger = get_logger()
+    logger.info(f"Generating synthetic regular ring lattice: N={n}, k={k}, seed={seed}")
+    
+    G = nx.watts_strogatz_graph(n=n, k=k, p=0.0, seed=seed)
+    
+    # Verify properties
+    assert G.number_of_nodes() == n, f"Expected {n} nodes, got {G.number_of_nodes()}"
+    assert G.number_of_edges() == (n * k) // 2, f"Expected {(n * k) // 2} edges, got {G.number_of_edges()}"
+    
+    logger.info("Regular ring lattice generated successfully.")
     return G
 
-
-def generate_watts_strogatz_graph(
-    n: int = DEFAULT_N,
-    k: int = DEFAULT_K,
-    p: float = 0.0,
-    seed: Optional[int] = None
-) -> nx.Graph:
+def generate_watts_strogatz_graph(n: int = DEFAULT_N_NODES, k: int = DEFAULT_K_NEIGHBORS, p: float = 0.5, seed: int = DEFAULT_SEED) -> nx.Graph:
     """
-    Generate a Watts-Strogatz small-world network.
+    Generate a Watts-Strogatz small-world graph.
 
     Args:
         n: Number of nodes.
-        k: Each node is connected to k nearest neighbors in each direction.
+        k: Each node is connected to k nearest neighbors in ring order.
         p: Probability of rewiring each edge.
         seed: Random seed for reproducibility.
 
     Returns:
-        NetworkX Graph object.
+        A NetworkX Graph object representing the Watts-Strogatz graph.
     """
-    if seed is None:
-        seed = int(time.time() * 1000) % 1000000
-
+    logger = get_logger()
     logger.info(f"Generating Watts-Strogatz graph: N={n}, k={k}, p={p}, seed={seed}")
+    
     G = nx.watts_strogatz_graph(n=n, k=k, p=p, seed=seed)
+    
     return G
 
-
-def validate_graph(G: nx.Graph, expected_n: int = DEFAULT_N) -> Tuple[bool, Dict[str, Any]]:
+def validate_graph(G: nx.Graph, expected_n: int = DEFAULT_N_NODES) -> Tuple[bool, str]:
     """
-    Validate graph properties.
+    Validate a generated graph.
 
     Args:
-        G: NetworkX graph to validate.
+        G: The graph to validate.
         expected_n: Expected number of nodes.
 
     Returns:
-        Tuple of (is_valid, metrics_dict).
+        Tuple of (is_valid, message).
     """
-    metrics = calculate_graph_metrics(G)
-    is_valid = True
-    warnings = []
-
+    logger = get_logger()
+    
+    # Check node count
     if G.number_of_nodes() != expected_n:
-        is_valid = False
-        warnings.append(f"Node count mismatch: expected {expected_n}, got {G.number_of_nodes()}")
-
+        msg = f"Node count mismatch: expected {expected_n}, got {G.number_of_nodes()}"
+        logger.error(msg)
+        return False, msg
+    
+    # Check connectivity
     if not is_connected(G):
-        is_valid = False
-        warnings.append("Graph is not connected")
-
-    # Check degree preservation (approximate)
+        msg = f"Graph is disconnected (nodes={G.number_of_nodes()}, edges={G.number_of_edges()})"
+        logger.warning(msg)
+        return False, msg
+    
+    # Check average degree preservation
     avg_degree = sum(dict(G.degree()).values()) / G.number_of_nodes()
-    expected_avg_degree = DEFAULT_K  # For regular ring, avg degree is k
-    # For WS, avg degree is preserved exactly in the rewiring process
+    expected_avg_degree = 2 * DEFAULT_K_NEIGHBORS  # For regular ring lattice
     if abs(avg_degree - expected_avg_degree) > 1e-6:
-        warnings.append(f"Avg degree deviation: expected {expected_avg_degree}, got {avg_degree:.4f}")
+        msg = f"Average degree mismatch: expected {expected_avg_degree}, got {avg_degree}"
+        logger.warning(msg)
+        # We allow this warning but don't fail validation as rewiring preserves degree
+    
+    return True, "Graph is valid."
 
-    result = {
-        "is_valid": is_valid,
-        "node_count": G.number_of_nodes(),
-        "edge_count": G.number_of_edges(),
-        "avg_degree": avg_degree,
-        "clustering_coefficient": metrics.get("clustering_coefficient", 0.0),
-        "avg_path_length": metrics.get("avg_path_length", float('inf')),
-        "warnings": warnings
-    }
-
-    return is_valid, result
-
-
-def save_graph_and_metadata(
-    G: nx.Graph,
-    p: float,
-    seed: int,
-    validation_result: Dict[str, Any],
-    output_dir: Path = OUTPUT_DIR
-) -> str:
+def save_graph_and_metadata(G: nx.Graph, p: float, seed: int, output_dir: Path = OUTPUT_DIR) -> str:
     """
-    Save graph to disk and update metadata.
+    Save a graph to disk and update metadata.
 
     Args:
         G: The graph to save.
         p: Rewiring probability.
         seed: Random seed used.
-        validation_result: Results from validate_graph.
         output_dir: Directory to save files.
 
     Returns:
         Path to the saved graph file.
     """
-    # Create safe filename
-    p_str = f"{p:.2f}".replace(".", "_")
-    filename = f"graph_p{p_str}_seed{seed}.gpickle"
-    graph_path = output_dir / filename
-    metadata_path = output_dir / f"metadata_p{p_str}_seed{seed}.json"
-
+    logger = get_logger()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate filename
+    filename = f"graph_p{p:.2f}_seed_{seed}.gpickle"
+    filepath = output_dir / filename
+    
     # Save graph
-    nx.write_gpickle(G, str(graph_path))
-    logger.info(f"Saved graph to {graph_path}")
-
+    nx.write_gpickle(G, str(filepath))
+    logger.info(f"Saved graph to {filepath}")
+    
     # Compute checksum
-    checksum = compute_file_checksum(str(graph_path))
-
-    # Prepare metadata
-    metadata = {
+    checksum = compute_file_checksum(filepath)
+    
+    # Update metadata
+    metadata_entry = {
         "filename": filename,
+        "p": p,
+        "seed": seed,
         "node_count": G.number_of_nodes(),
         "edge_count": G.number_of_edges(),
-        "rewiring_probability": p,
-        "seed": seed,
-        "avg_degree": validation_result["avg_degree"],
-        "clustering_coefficient": validation_result["clustering_coefficient"],
-        "avg_path_length": validation_result["avg_path_length"],
-        "is_connected": validation_result["is_valid"],
-        "checksum": checksum,
-        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        "avg_degree": sum(dict(G.degree()).values()) / G.number_of_nodes(),
+        "clustering_coefficient": nx.average_clustering(G),
+        "checksum": checksum
     }
-
-    # Save metadata
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    logger.info(f"Saved metadata to {metadata_path}")
-
-    # Update global checksums file
-    update_checksums_file(str(graph_path), checksum)
-
-    return str(graph_path)
-
-
-def update_checksums_file(filepath: str, checksum: str):
-    """Append a checksum entry to the checksums file."""
-    filename = os.path.basename(filepath)
-    entry = f"{checksum}  {filename}\n"
     
-    if CHECKSUM_FILE.exists():
-        with open(CHECKSUM_FILE, 'r') as f:
-            lines = f.readlines()
-        # Avoid duplicates
-        if not any(entry.strip() == l.strip() for l in lines):
-            with open(CHECKSUM_FILE, 'a') as f:
-                f.write(entry)
+    # Load existing metadata or initialize
+    metadata_path = output_dir / "graph_metadata.json"
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            metadata_list = json.load(f)
     else:
-        with open(CHECKSUM_FILE, 'w') as f:
-            f.write(entry)
+        metadata_list = []
+    
+    metadata_list.append(metadata_entry)
+    
+    # Save updated metadata
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata_list, f, indent=2)
+    
+    # Update checksums file
+    update_checksums_file(filepath, checksum)
+    
+    return str(filepath)
 
+def update_checksums_file(filepath: Path, checksum: str):
+    """Update the global checksums file with a new entry."""
+    checksums_path = CHECKSUMS_FILE
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Read existing checksums
+    existing = {}
+    if checksums_path.exists():
+        with open(checksums_path, 'r') as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) == 2:
+                    existing[parts[1]] = parts[0]
+    
+    # Add new entry
+    existing[filepath.name] = checksum
+    
+    # Write back
+    with open(checksums_path, 'w') as f:
+        for fname, cksum in existing.items():
+            f.write(f"{cksum} {fname}\n")
 
-def run_generation_batch(
-    n: int = DEFAULT_N,
-    k: int = DEFAULT_K,
-    p_values: List[float] = REWIRING_PROBABILITIES,
-    instances_per_p: int = 1,
-    seed_base: int = DEFAULT_SEED_BASE
-) -> List[Dict[str, Any]]:
-    """
-    Generate a batch of graphs with varying rewiring probabilities.
-
-    Args:
-        n: Number of nodes.
-        k: Nearest neighbors.
-        p_values: List of rewiring probabilities to try.
-        instances_per_p: Number of graph instances per probability.
-        seed_base: Base seed for generation.
-
-    Returns:
-        List of metadata dictionaries for generated graphs.
-    """
-    init_directories()
-    results = []
-
-    logger.info(f"Starting batch generation: N={n}, k={k}, p_values={p_values}")
-
-    for p in p_values:
-        for i in range(instances_per_p):
-            seed = seed_base + int(p * 10000) + i
-            logger.info(f"Generating graph for p={p}, instance={i}, seed={seed}")
-
-            # Generate graph
-            G = generate_watts_strogatz_graph(n=n, k=k, p=p, seed=seed)
-
-            # Validate
-            is_valid, validation_result = validate_graph(G, expected_n=n)
-
-            if not is_valid:
-                logger.warning(f"Graph p={p}, seed={seed} failed validation: {validation_result['warnings']}")
-                # In a full pipeline, we might retry or log and skip
-                # For now, we proceed but log the issue
-            
-            # Save
-            graph_path = save_graph_and_metadata(G, p, seed, validation_result)
-
-            result_entry = {
-                "graph_path": graph_path,
-                "p": p,
-                "seed": seed,
-                "is_valid": is_valid,
-                "validation_details": validation_result
-            }
-            results.append(result_entry)
-            logger.info(f"Completed generation for p={p}, seed={seed}")
-
-    # Log methodology correction if not already present
-    log_methodology_correction()
-
-    return results
-
+def log_disconnected_graph(p: float, seed: int, disconnected_log_path: Path = DISCONNECTED_LOG_FILE):
+    """Log a disconnected graph attempt to the disconnected log file."""
+    logger = get_logger()
+    disconnected_log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing log
+    if disconnected_log_path.exists():
+        with open(disconnected_log_path, 'r') as f:
+            log_data = json.load(f)
+    else:
+        log_data = {"count": 0, "entries": []}
+    
+    # Add entry
+    entry = {"p": p, "seed": seed, "reason": "Disconnected graph"}
+    log_data["entries"].append(entry)
+    log_data["count"] += 1
+    
+    # Save
+    with open(disconnected_log_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
+    
+    logger.warning(f"Logged disconnected graph: p={p}, seed={seed}")
 
 def log_methodology_correction():
-    """Log the decision to use synthetic lattice instead of ca-AstroPh structure."""
-    if METHODOLOGY_LOG.exists():
-        with open(METHODOLOGY_LOG, 'r') as f:
-            content = f.read()
-        if "Synthetic Ring Lattice" in content:
-            return # Already logged
+    """Log the methodology correction (synthetic base vs ca-AstroPh)."""
+    logger = get_logger()
+    log_path = METHODOLOGY_LOG
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    correction_entry = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "original_spec": "FR-001 (ca-AstroPh)",
+        "actual_approach": "Synthetic regular ring lattice (N=500)",
+        "justification": "Methodological incoherence of reconstructing irregular citation network into regular lattice",
+        "reference": "T000, T000a, T012b"
+    }
+    
+    with open(log_path, 'a') as f:
+        f.write(json.dumps(correction_entry) + "\n")
+    
+    logger.info("Logged methodology correction.")
 
-    with open(METHODOLOGY_LOG, 'a') as f:
-        f.write("\n### Methodology Correction Log\n")
-        f.write(f"**Timestamp**: {time.strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
-        f.write("**Decision**: Use synthetic regular ring lattice for Watts-Strogatz base.\n")
-        f.write("**Reason**: Reconstructing an irregular citation network (ca-AstroPh) into a regular ring lattice is methodologically incoherent.\n")
-        f.write("**Action**: ca-AstroPh dataset is downloaded (T013a) solely for Constitution reproducibility compliance, but its structure is explicitly ignored for graph generation.\n")
-        f.write("**Reference**: plan.md, T012, T013c.\n")
-        f.write("-" * 50 + "\n")
-    logger.info("Methodology correction logged.")
+def load_config() -> Dict[str, Any]:
+    """Load configuration from data/processed/config.json."""
+    config_path = Path("data/processed/config.json")
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    with open(config_path, 'r') as f:
+        return json.load(f)
 
+def run_generation_batch(config: Optional[Dict[str, Any]] = None):
+    """
+    Run the batch generation loop for network topologies.
+
+    Generates N topologies with rewiring probabilities ranging from 0.0 to 1.0
+    in 50 steps, as defined in the configuration.
+
+    Args:
+        config: Configuration dictionary. If None, loads from data/processed/config.json.
+    """
+    logger = init_logging_module()
+    logger.info("Starting batch generation of network topologies.")
+    
+    # Load config if not provided
+    if config is None:
+        config = load_config()
+    
+    n_topologies = config.get("n_topologies", 50)
+    logger.info(f"Generating {n_topologies} topologies.")
+    
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize disconnected log
+    if not DISCONNECTED_LOG_FILE.exists():
+        with open(DISCONNECTED_LOG_FILE, 'w') as f:
+            json.dump({"count": 0, "entries": []}, f)
+    
+    # Initialize metadata file
+    if not METADATA_FILE.exists():
+        with open(METADATA_FILE, 'w') as f:
+            json.dump([], f)
+    
+    # Log methodology correction
+    log_methodology_correction()
+    
+    # Generate p values: 50 steps from 0.0 to 1.0
+    # We need to generate n_topologies graphs, distributed across 50 p steps
+    # If n_topologies is 50, we generate one graph per p step
+    # If n_topologies is different, we distribute as evenly as possible
+    
+    p_values = np.linspace(0.0, 1.0, 50)
+    
+    # Distribute n_topologies across p_values
+    # We'll generate floor(n_topologies / 50) graphs for each p, 
+    # and distribute the remainder
+    base_count = n_topologies // 50
+    remainder = n_topologies % 50
+    
+    generated_count = 0
+    skipped_count = 0
+    
+    for i, p in enumerate(p_values):
+        # Determine how many graphs to generate for this p
+        count = base_count + (1 if i < remainder else 0)
+        
+        for j in range(count):
+            seed = DEFAULT_SEED + generated_count
+            
+            # Generate graph
+            G = generate_watts_strogatz_graph(n=DEFAULT_N_NODES, k=DEFAULT_K_NEIGHBORS, p=p, seed=seed)
+            
+            # Validate graph
+            is_valid, msg = validate_graph(G)
+            
+            if not is_valid:
+                log_disconnected_graph(p, seed)
+                skipped_count += 1
+                logger.warning(f"Skipped disconnected graph: p={p}, seed={seed}")
+                continue
+            
+            # Save graph and metadata
+            save_graph_and_metadata(G, p, seed)
+            generated_count += 1
+            logger.info(f"Generated graph {generated_count}/{n_topologies}: p={p}, seed={seed}")
+    
+    logger.info(f"Batch generation complete. Generated: {generated_count}, Skipped: {skipped_count}")
+    
+    # Verify total
+    total_expected = generated_count + skipped_count
+    if total_expected != n_topologies:
+        logger.error(f"Total mismatch: expected {n_topologies}, got {total_expected}")
+        raise RuntimeError(f"Generation mismatch: expected {n_topologies}, got {total_expected}")
+    
+    return {
+        "generated": generated_count,
+        "skipped": skipped_count,
+        "total": total_expected
+    }
 
 def main():
-    """Entry point for running the topology generation."""
-    init_logging()
+    """Main entry point for the topology generation script."""
+    logger = init_logging_module()
+    logger.info("=== Topology Generation Script Started ===")
     
-    # Example batch run
-    # In a full pipeline, arguments would be parsed from CLI or config
-    p_values = [0.0, 0.1, 0.5, 1.0]
-    results = run_generation_batch(p_values=p_values, instances_per_p=5)
-    
-    logger.info(f"Batch generation complete. Generated {len(results)} graphs.")
-    
-    # Print summary
-    for r in results:
-        status = "OK" if r["is_valid"] else "WARN"
-        logger.info(f"[{status}] p={r['p']}, seed={r['seed']}, path={r['graph_path']}")
-
-    return results
-
+    try:
+        result = run_generation_batch()
+        logger.info(f"Generation result: {result}")
+        logger.info("=== Topology Generation Script Completed Successfully ===")
+    except Exception as e:
+        logger.error(f"Generation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
