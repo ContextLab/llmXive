@@ -1,3 +1,3 @@
 """
-Socratic Transformers: Dialogue-Based Self-Teaching
+Socratic Transformers Project Source Package
 """

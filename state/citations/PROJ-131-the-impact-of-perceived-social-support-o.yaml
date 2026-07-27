@@ -1,4 +1,4 @@
-- artifact_hash: ff02ede919aa003eb3d4be7a03bc68c941de8f02f4355d7dd767cb1f621a09cd
+- artifact_hash: ae894edd1878aadbb7601da458f2a033df643ab6b38a128b6c83c0bd201e3f82
   artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://gss.norc.org/files/stata/2022/2022_Stata.zip`
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
-  verified_at: '2026-07-14T07:48:22.340801Z'
+  verified_at: '2026-07-27T14:05:05.207897Z'

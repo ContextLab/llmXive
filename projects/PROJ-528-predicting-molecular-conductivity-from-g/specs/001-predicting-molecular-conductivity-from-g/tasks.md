@@ -41,7 +41,7 @@
 - [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` that configures a rotating file handler to `logs/pipeline.log` with JSON formatting
 - [X] T007 Create `code/models.py` with Pydantic classes `Molecule` (fields: smiles, descriptors, target) and `Descriptor` (fields: name, value)
 - [X] T008 [P] Implement scaffold splitting utility in `code/scaffold_split.py` ensuring structural diversity and enforcing a standard training/testing split to prevent data leakage (FR-002)
-- [ ] T009 Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`
+- [X] T009 Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,8 +72,8 @@
 - [X] T021 [US1] Implement electronegativity difference calculation in `code/descriptors.py` using Pauling scale values from RDKit atom properties, multiplied by bond length to create a "bond polarity" descriptor (Reviewer: linus-pauling-simulated)
 - [X] T022 [US1] Implement fragment-based resonance energy estimation using Hückel Molecular Orbital (HMO) theory approximations for conjugated systems in `code/descriptors.py`, avoiding full DFT (Reviewer: linus-pauling-simulated)
 - [ ] T015.5 [US1] Implement physics-based descriptor aggregation in `code/descriptors.py` to compute 'bond_polarity' and 'resonance_energy' as final scalar columns
-- [~] T017 [US1] Implement fallback logic for missing quantum descriptors (log warning, use topological proxies) (FR-014)
-- [~] T018 [US1] Implement error handling for invalid SMILES and missing conductivity (FR-012)
+- [ ] T017 [US1] Implement fallback logic for missing quantum descriptors (log warning, use topological proxies) (FR-014)
+- [ ] T018 [US1] Implement error handling for invalid SMILES and missing conductivity (FR-012)
 - [ ] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, conjugation_length, ring_count, bond_polarity, resonance_energy] and no NaN values
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -88,7 +88,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US2] Integration test for scaffold split ensuring no structural leakage
+- [ ] T023 [P] [US2] Integration test for scaffold split ensuring no structural leakage
 - [~] T024 [P] [US2] Unit test for log-transformation of target variable
 - [~] T025 [P] [US2] Unit test for outlier exclusion threshold logic
 
@@ -101,9 +101,9 @@
 - [~] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target (FR-003)
 - [~] T030 [US2] Implement 5-fold cross-validation and metric recording (FR-004)
 - [~] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity, ensuring it reuses the exact split indices from T027 and seed from T004
-- [ ] T032 [US2] Implement sensitivity analysis loop calling T031, sweeping thresholds {σ, 3.0σ, 3.5σ}, performing Kruskal-Wallis test on R² variances, and saving results to `data/processed/sensitivity_analysis.json` (FR-007)
+- [X] T032 [US2] Implement sensitivity analysis loop calling T031, sweeping thresholds {σ, 3.0σ, 3.5σ}, performing Kruskal-Wallis test on R² variances, and saving results to `data/processed/sensitivity_analysis.json` (FR-007)
 - [ ] T032.5 [US2] Generate human-readable summary report of sensitivity analysis variance and Kruskal-Wallis results, logging to `data/processed/sensitivity_report.txt`
-- [ ] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: {rf_r2, gb_r2, sensitivity_analysis: [{threshold, r2, kruskal_stat, kruskal_pval},...]}
+- [X] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: {rf_r2, gb_r2, sensitivity_analysis: [{threshold, r2, kruskal_stat, kruskal_pval},...]}
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,10 +142,10 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [~] T046 [P] Documentation updates in `docs/` including reviewer feedback resolution
-- [ ] T047 Code cleanup and refactoring
-- [ ] T049 [P] Run full pipeline integration test on sample dataset, verifying execution time < 6 hours on 2-core CPU (FR-010)
-- [ ] T050 Verify all artifacts match `contracts/` schemas
-- [ ] T051 Run quickstart.md validation by executing all commands in `docs/quickstart.md` and logging success/failure to `state/validation_log.json`
+- [~] T047 Code cleanup and refactoring <!-- ATOMIZE: requested -->
+- [~] T049 [P] Run full pipeline integration test on sample dataset, verifying execution time < 6 hours on 2-core CPU (FR-010) <!-- FAILED: unspecified -->
+- [~] T050 Verify all artifacts match `contracts/` schemas
+- [X] T051 Run quickstart.md validation by executing all commands in `docs/quickstart.md` and logging success/failure to `state/validation_log.json`
 
 ---
 

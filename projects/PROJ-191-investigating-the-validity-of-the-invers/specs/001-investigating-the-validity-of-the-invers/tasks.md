@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement versioning utility for atomic state updates in `code/utils/versioning.py`.
-- [ ] T005 [P] Setup logging infrastructure and configuration management in `code/config.py`.
+- [X] T005 [P] Setup logging infrastructure and configuration management in `code/config.py`.
 - [X] T006 Create base data model for `HarmonizedDataset` in `code/data/loaders.py`.
 - [ ] T007 [P] Ensure directory structure for `data/raw/`, `data/processed/`, and `data/results/` exists (use robust `mkdir -p` logic).
 
@@ -72,9 +72,9 @@
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [ ] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
-- [ ] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
-- [ ] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
+- [X] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
+- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
+- [X] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
 
 ### Implementation for User Story 1
 
@@ -83,8 +83,8 @@
 - [ ] T013-B [US1] Implement `code/data/download.py` to fetch **arXiv:2305.06325 ** calibration curves from
  ` (or the exact CSV URL if provided) and store under `data/raw/2305.06325/`. Verify checksum and record it.
 - [ ] T013-VAL [US1] After both T013-A and T013-B have completed, invoke the Reference‑Validator Agent to confirm title‑token‑overlap ≥ 0.7 with the primary sources; halt the pipeline with a clear error if validation fails. *(Runs sequentially after the two download tasks.)*
-- [ ] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`.
-- [ ] T015 [US1] Implement **full** covariance matrix construction in `code/data/harmonize.py` by parsing statistical uncertainties (`stat_err`) and systematic error budgets (`sys_err` or `systematic` fields) from the source files; if systematic fields are missing, fall back to a conservative scaling of statistical errors.
+- [X] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`.
+- [X] T015 [US1] Implement **full** covariance matrix construction in `code/data/harmonize.py` by parsing statistical uncertainties (`stat_err`) and systematic error budgets (`sys_err` or `systematic` fields) from the source files; if systematic fields are missing, fall back to a conservative scaling of statistical errors.
 - [ ] T015-TRANS [US1] Generate a **block‑diagonal/banded** approximation of the covariance for fast likelihood evaluation while **preserving the original full covariance matrix** inside the `HarmonizedDataset` object.
 - [ ] T016 [US1] Implement fallback logic: if fewer than three independent runs are detected after downloads, automatically switch to bootstrap resampling of the available runs; otherwise proceed with the normal leave‑one‑out path (handled in T030). *(Runs after T013‑VAL.)*
 
@@ -100,7 +100,7 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [ ] T018 [P] [US2] Unit test for Yukawa force model implementation in `tests/unit/test_physics.py`.
+- [X] T018 [P] [US2] Unit test for Yukawa force model implementation in `tests/unit/test_physics.py`.
 - [ ] T019 [P] [US2] Unit test for log‑likelihood function with banded covariance in `tests/unit/test_likelihood.py`.
 - [ ] T020 [P] [US2] Integration test for MCMC convergence detection in `tests/integration/test_mcmc_diagnostics.py`.
 - [ ] T025-TEST [US2] Unit test for injection‑recovery logic (FR‑008) in `tests/unit/test_injection_recovery.py`.

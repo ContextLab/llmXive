@@ -1,28 +1,31 @@
-.PHONY: lint format test clean
+.PHONY: lint format check-lint check-format test clean
 
-# Run linters (ruff and black check)
+# Linting and Formatting
 lint:
-	@echo "Running linters..."
-	@bash scripts/lint.sh
+	ruff check src/ tests/
 
-# Run formatters (ruff fix and black)
 format:
-	@echo "Running formatters..."
-	@bash scripts/format.sh
+	black src/ tests/
+	ruff check --fix src/ tests/
 
-# Run tests
+check-lint:
+	ruff check src/ tests/
+	@echo "Ruff check passed."
+
+check-format:
+	black --check src/ tests/
+	@echo "Black check passed."
+
+# Testing
 test:
-	@echo "Running tests..."
-	pytest
+	pytest tests/ -v
 
-# Clean build artifacts
+# Clean up
 clean:
-	@echo "Cleaning up..."
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	find . -type f -name ".coverage" -delete
-	rm -rf htmlcov/
-	rm -rf .pytest_cache/
-
-# Default target
-all: lint test
+	find . -type f -name "*.pyo" -delete
+	find . -type f -name "*.pyd" -delete
+	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	find . -type d -name ".ruff_cache" -exec rm -rf {} +
+	rm -rf .coverage htmlcov/ dist/ build/ *.egg-info/

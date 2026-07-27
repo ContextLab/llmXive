@@ -1,4 +1,36 @@
-# Configuration for reproducible seeds
+# Reproducibility configuration for the Social Support Resilience study
+# All random number generators in the pipeline must seed from this file.
+
+# Primary random seed for general operations (numpy, pandas, sklearn)
 random_seed: 42
+
+# Specific seed for bootstrap resampling procedures
+# Used in code/analysis/bootstrap_ci.py
 bootstrap_seed: 12345
-# Other seeds for specific tasks can be added here
+
+# Specific seed for MICE imputation (if applicable)
+# Used in code/data/preprocessing.py
+imputation_seed: 67890
+
+# Specific seed for propensity score matching
+# Used in code/data/cohort.py
+matching_seed: 11223
+
+# Environment configuration for data paths
+data_paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  results_dir: "data/results"
+  figures_dir: "figures"
+  config_dir: "config"
+
+# Dataset specific URLs (for ingestion)
+datasets:
+  gss_2022:
+    url: "https://gss.norc.org/files/stata/2022/2022_Stata.zip"
+    filename: "GSS2022.dta"
+    checksum: null # To be filled upon download verification
+  cyberbullying_2021:
+    url: null # Placeholder: URL to be defined in spec update or config
+    filename: "cyberbullying_2021.csv"
+    checksum: null

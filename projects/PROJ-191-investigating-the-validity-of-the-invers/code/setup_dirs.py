@@ -1,19 +1,36 @@
-"""
-Script to initialize the full project directory structure for PROJ-191.
-Creates all required subdirectories atomically.
-"""
 import os
 import sys
 from pathlib import Path
 
-def main():
-    # Define the project root relative to the current working directory
-    # The task specifies the tree should be at projects/PROJ-191-...
-    project_root = Path("projects/PROJ-191-investigating-the-validity-of-the-invers")
+def main() -> None:
+    """
+    Create the full project directory tree for PROJ-191 in a single atomic operation.
     
-    # Define the relative subdirectories required
-    # Note: Some paths overlap (e.g., code/ and code/data/), but os.makedirs handles this safely.
-    subdirs = [
+    This script ensures the existence of the following structure relative to the project root:
+    - code/
+    - tests/
+    - data/
+    - docs/
+    - code/data/
+    - code/models/
+    - code/inference/
+    - code/robustness/
+    - code/utils/
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - tests/unit/
+    - tests/contract/
+    - tests/integration/
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    project_name = "PROJ-191-investigating-the-validity-of-the-invers"
+    
+    # Define the target directory for this project
+    target_dir = project_root / project_name
+    
+    # Define all required subdirectories relative to the target project directory
+    required_dirs = [
         "code",
         "tests",
         "data",
@@ -30,30 +47,49 @@ def main():
         "tests/contract",
         "tests/integration",
     ]
-
+    
+    print(f"Creating directory tree for: {project_name}")
+    print(f"Target base: {target_dir}")
+    
     created_count = 0
-    existing_count = 0
-
-    for subdir in subdirs:
-        full_path = project_root / subdir
+    for dir_name in required_dirs:
+        full_path = target_dir / dir_name
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-            print(f"Created: {full_path}")
+            print(f"  Created: {full_path.relative_to(target_dir)}")
         else:
-            existing_count += 1
-
-    print(f"\nDirectory initialization complete.")
-    print(f"Project Root: {project_root.absolute()}")
-    print(f"Directories created: {created_count}")
-    print(f"Directories already existing: {existing_count}")
-
-    # Verify the structure exists
-    if not project_root.exists():
-        print("ERROR: Project root was not created.", file=sys.stderr)
-        sys.exit(1)
-
-    return 0
+            # Verify it is indeed a directory
+            if full_path.is_dir():
+                print(f"  Exists: {full_path.relative_to(target_dir)}")
+            else:
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+    
+    # Ensure the __init__.py files exist in code and tests subdirectories to make them packages
+    # This is a common requirement for Python projects, though not explicitly in the task description,
+    # it ensures the structure is valid for imports later.
+    init_paths = [
+        target_dir / "code" / "__init__.py",
+        target_dir / "tests" / "__init__.py",
+        target_dir / "code" / "data" / "__init__.py",
+        target_dir / "code" / "models" / "__init__.py",
+        target_dir / "code" / "inference" / "__init__.py",
+        target_dir / "code" / "robustness" / "__init__.py",
+        target_dir / "code" / "utils" / "__init__.py",
+        target_dir / "tests" / "unit" / "__init__.py",
+        target_dir / "tests" / "contract" / "__init__.py",
+        target_dir / "tests" / "integration" / "__init__.py",
+    ]
+    
+    for init_path in init_paths:
+        if not init_path.exists():
+            init_path.touch()
+            # Add a docstring to avoid empty file warnings if desired, 
+            # but an empty file is valid Python.
+            print(f"  Initialized: {init_path.relative_to(target_dir)}")
+    
+    print(f"\nDirectory tree creation complete. {created_count} new directories created.")
+    print(f"Total directories ensured: {len(required_dirs)}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

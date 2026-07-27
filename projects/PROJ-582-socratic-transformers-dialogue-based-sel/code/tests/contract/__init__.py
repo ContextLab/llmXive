@@ -1,1 +1,1 @@
-"""Contract tests for schema and interface validation."""
+"""Contract tests for schema validation and interface compliance."""

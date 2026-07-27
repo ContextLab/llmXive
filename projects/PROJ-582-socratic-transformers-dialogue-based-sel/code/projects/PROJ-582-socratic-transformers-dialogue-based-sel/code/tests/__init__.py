@@ -1,3 +1,3 @@
 """
-Tests for Socratic Transformers project.
+Socratic Transformers Project Tests Package
 """

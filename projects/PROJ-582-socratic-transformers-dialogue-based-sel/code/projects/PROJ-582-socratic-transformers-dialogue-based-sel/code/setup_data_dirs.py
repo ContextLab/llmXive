@@ -1,52 +1,61 @@
 """
-Setup script to create the data directory structure for the Socratic Transformers project.
+Setup script for T004: Create data directory structure and .gitkeep files.
 
-This script creates the following directory structure under the project root:
-- data/raw/          : For raw downloaded datasets (GSM8K, MATH)
-- data/processed/    : For processed intermediate data (static QA, dialogue tuples)
-- data/results/      : For final experiment results, metrics, and logs
+This script creates the required data directories:
+- data/raw/
+- data/processed/
+- data/results/
 
-It also creates .gitkeep files in each directory to ensure they are tracked by git.
+And adds .gitkeep files to ensure they are tracked by git even when empty.
 """
 import os
 import sys
 from pathlib import Path
 
-def main():
-    """Create the data directory structure."""
-    # Determine the project root relative to this script
-    # The script is located at: projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/setup_data_dirs.py
-    # We want to create directories relative to the project root:
-    # projects/PROJ-582-socratic-transformers-dialogue-based-sel/
+
+def create_gitkeep(directory: Path) -> None:
+    """Create a .gitkeep file in the specified directory."""
+    gitkeep_path = directory / ".gitkeep"
+    # Write a minimal comment to explain the file's purpose
+    gitkeep_path.write_text(
+        "# This file ensures the directory is tracked by git even when empty.\n"
+    )
+    print(f"Created: {gitkeep_path}")
+
+
+def main() -> int:
+    """Main entry point for the data directory setup script."""
+    # Determine the project root (parent of the code directory)
+    # The script is located at: code/projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/setup_data_dirs.py
+    # We want to create data dirs relative to the project root
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent  # Go up two levels to project root
     
-    script_path = Path(__file__).resolve()
-    code_dir = script_path.parent
-    project_root = code_dir.parent
+    # Define the data directories
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/results",
+    ]
     
-    data_dir = project_root / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    results_dir = data_dir / "results"
+    print(f"Setting up data directories in: {project_root}")
     
-    directories = [data_dir, raw_dir, processed_dir, results_dir]
-    
-    print(f"Setting up data directories under: {data_dir}")
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"  Created: {directory}")
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
         
-        # Create .gitkeep file to ensure directory is tracked by git
-        gitkeep_path = directory / ".gitkeep"
-        gitkeep_path.write_text("# This directory is tracked by git\n")
-        print(f"  Created: {gitkeep_path}")
+        # Create the directory if it doesn't exist
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
+        
+        # Create .gitkeep file
+        create_gitkeep(full_path)
     
-    print("\nData directory structure setup complete.")
-    print(f"  {raw_dir}/")
-    print(f"  {processed_dir}/")
-    print(f"  {results_dir}/")
-    
+    print("\nData directory setup complete!")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

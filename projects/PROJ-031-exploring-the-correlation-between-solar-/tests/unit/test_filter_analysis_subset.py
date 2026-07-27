@@ -1,145 +1,129 @@
 """
-Unit tests for the analysis subset filtering logic (T016b).
+Unit tests for the filter_analysis_subset module.
 
-Tests verify that:
-1. Recurrent events are correctly filtered out
-2. Non-recurrent events are preserved
-3. The primary dataset remains unchanged (not tested here, but implied)
-4. Error handling for missing files and columns works correctly
+Tests verify that the filtering logic correctly excludes recurrent storms
+and produces the expected output dataset.
 """
 import os
 import tempfile
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
+from pathlib import Path
+from code.filter_analysis_subset import filter_non_recurrent_storms
 
-from filter_analysis_subset import filter_non_recurrent_storms
+@pytest.fixture
+def sample_aligned_events():
+    """Create a sample aligned events dataset with recurrent flags."""
+    data = {
+        'event_id': range(1, 11),
+        'storm_date': pd.date_range('2020-01-01', periods=10, freq='D'),
+        'dst_min': [-50, -100, -150, -80, -120, -200, -30, -90, -140, -160],
+        'flare_flux': [1e-4, 1e-3, 1e-2, 1e-4, 1e-3, 1e-2, 1e-5, 1e-4, 1e-3, 1e-2],
+        'cme_speed': [400, 800, 1200, 500, 900, 1500, 300, 600, 1000, 1300],
+        'is_recurrent': [False, True, False, True, False, False, False, True, False, True]
+    }
+    return pd.DataFrame(data)
 
+def test_filter_non_recurrent_storms_creates_output_file(sample_aligned_events):
+    """Test that the function creates the output CSV file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'aligned_events.csv')
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        sample_aligned_events.to_csv(input_path, index=False)
+        
+        result_df = filter_non_recurrent_storms(input_path, output_path)
+        
+        assert os.path.exists(output_path), "Output file was not created"
+        assert isinstance(result_df, pd.DataFrame), "Function did not return a DataFrame"
 
-class TestFilterAnalysisSubset:
-    """Test suite for filter_non_recurrent_storms function."""
+def test_filter_non_recurrent_storms_excludes_recurrent_events(sample_aligned_events):
+    """Test that recurrent events are correctly excluded from the output."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'aligned_events.csv')
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        sample_aligned_events.to_csv(input_path, index=False)
+        
+        result_df = filter_non_recurrent_storms(input_path, output_path)
+        
+        # Count expected non-recurrent events (is_recurrent == False)
+        expected_count = sample_aligned_events[~sample_aligned_events['is_recurrent'].astype(bool)].shape[0]
+        
+        assert len(result_df) == expected_count, \
+            f"Expected {expected_count} non-recurrent events, got {len(result_df)}"
+        
+        # Verify no recurrent events in the result
+        assert not result_df['is_recurrent'].astype(bool).any(), \
+            "Recurrent events were not fully excluded"
 
-    def test_filter_removes_recurrent_events(self):
-        """Verify that events with is_recurrent=True are removed."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "aligned_events.csv")
-            output_path = os.path.join(tmpdir, "analysis_subset.csv")
+def test_filter_non_recurrent_storms_preserves_data_integrity(sample_aligned_events):
+    """Test that non-recurrent events retain their original data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'aligned_events.csv')
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        sample_aligned_events.to_csv(input_path, index=False)
+        
+        result_df = filter_non_recurrent_storms(input_path, output_path)
+        
+        # Get indices of non-recurrent events from original data
+        non_recurrent_indices = sample_aligned_events[
+            ~sample_aligned_events['is_recurrent'].astype(bool)
+        ].index.tolist()
+        
+        # Verify the result contains exactly those events
+        original_non_recurrent = sample_aligned_events.loc[non_recurrent_indices]
+        
+        # Reset index for comparison
+        result_df_reset = result_df.reset_index(drop=True)
+        original_non_recurrent_reset = original_non_recurrent.reset_index(drop=True)
+        
+        pd.testing.assert_frame_equal(
+            result_df_reset, 
+            original_non_recurrent_reset,
+            check_dtype=True
+        )
 
-            # Create test data with mixed recurrent flags
-            test_data = {
-                "event_id": [1, 2, 3, 4, 5],
-                "timestamp": ["2020-01-01", "2020-01-02", "2020-01-03", "2020-01-04", "2020-01-05"],
-                "dst_min": [-50, -100, -30, -80, -120],
-                "is_recurrent": [False, True, False, True, False]
-            }
-            df = pd.DataFrame(test_data)
-            df.to_csv(input_path, index=False)
+def test_filter_non_recurrent_storms_missing_column_raises_error():
+    """Test that a missing recurrent flag column raises ValueError."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'aligned_events.csv')
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        # Create data without the is_recurrent column
+        data = {
+            'event_id': [1, 2, 3],
+            'dst_min': [-50, -100, -150]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(input_path, index=False)
+        
+        with pytest.raises(ValueError, match="Recurrent flag column"):
+            filter_non_recurrent_storms(input_path, output_path, 'missing_column')
 
-            # Run the filter
-            count = filter_non_recurrent_storms(input_path, output_path)
+def test_filter_non_recurrent_storms_file_not_found():
+    """Test that a missing input file raises FileNotFoundError."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        with pytest.raises(FileNotFoundError):
+            filter_non_recurrent_storms(
+                os.path.join(tmpdir, 'nonexistent.csv'),
+                output_path
+            )
 
-            # Verify output
-            result_df = pd.read_csv(output_path)
-            assert len(result_df) == 3  # Only non-recurrent events
-            assert count == 3
-            assert all(result_df["is_recurrent"] == False)
-            assert set(result_df["event_id"]) == {1, 3, 5}
-
-    def test_filter_handles_missing_recurrent_flag(self):
-        """Verify that rows with NaN/missing recurrent flag are kept."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "aligned_events.csv")
-            output_path = os.path.join(tmpdir, "analysis_subset.csv")
-
-            # Create test data with missing recurrent flags
-            test_data = {
-                "event_id": [1, 2, 3],
-                "timestamp": ["2020-01-01", "2020-01-02", "2020-01-03"],
-                "dst_min": [-50, -100, -30],
-                "is_recurrent": [False, np.nan, True]
-            }
-            df = pd.DataFrame(test_data)
-            df.to_csv(input_path, index=False)
-
-            # Run the filter
-            count = filter_non_recurrent_storms(input_path, output_path)
-
-            # Verify output (NaN values should be kept as non-recurrent)
-            result_df = pd.read_csv(output_path)
-            assert len(result_df) == 2  # Event 1 (False) and Event 2 (NaN)
-            assert count == 2
-            assert set(result_df["event_id"]) == {1, 2}
-
-    def test_filter_preserves_all_columns(self):
-        """Verify that all columns from input are preserved in output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "aligned_events.csv")
-            output_path = os.path.join(tmpdir, "analysis_subset.csv")
-
-            test_data = {
-                "event_id": [1, 2, 3],
-                "timestamp": ["2020-01-01", "2020-01-02", "2020-01-03"],
-                "dst_min": [-50, -100, -30],
-                "flare_flux": [1e-4, 2e-4, 3e-4],
-                "cme_speed": [500, 800, 600],
-                "is_recurrent": [False, True, False]
-            }
-            df = pd.DataFrame(test_data)
-            df.to_csv(input_path, index=False)
-
-            count = filter_non_recurrent_storms(input_path, output_path)
-            result_df = pd.read_csv(output_path)
-
-            assert list(result_df.columns) == list(df.columns)
-            assert len(result_df) == 2
-
-    def test_missing_input_file_raises_error(self):
-        """Verify that missing input file raises FileNotFoundError."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "nonexistent.csv")
-            output_path = os.path.join(tmpdir, "output.csv")
-
-            with pytest.raises(FileNotFoundError):
-                filter_non_recurrent_storms(input_path, output_path)
-
-    def test_missing_recurrent_column_raises_error(self):
-        """Verify that missing recurrent column raises ValueError."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "aligned_events.csv")
-            output_path = os.path.join(tmpdir, "analysis_subset.csv")
-
-            # Create data without is_recurrent column
-            test_data = {
-                "event_id": [1, 2, 3],
-                "timestamp": ["2020-01-01", "2020-01-02", "2020-01-03"],
-                "dst_min": [-50, -100, -30]
-            }
-            df = pd.DataFrame(test_data)
-            df.to_csv(input_path, index=False)
-
-            with pytest.raises(ValueError, match="Required column 'is_recurrent' not found"):
-                filter_non_recurrent_storms(input_path, output_path)
-
-    def test_empty_result_when_all_recurrent(self):
-        """Verify that output is empty (but valid) if all events are recurrent."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "aligned_events.csv")
-            output_path = os.path.join(tmpdir, "analysis_subset.csv")
-
-            test_data = {
-                "event_id": [1, 2, 3],
-                "timestamp": ["2020-01-01", "2020-01-02", "2020-01-03"],
-                "dst_min": [-50, -100, -30],
-                "is_recurrent": [True, True, True]
-            }
-            df = pd.DataFrame(test_data)
-            df.to_csv(input_path, index=False)
-
-            count = filter_non_recurrent_storms(input_path, output_path)
-            result_df = pd.read_csv(output_path)
-
-            assert count == 0
-            assert len(result_df) == 0
-            # Verify file exists and has headers
-            assert os.path.exists(output_path)
-            assert list(result_df.columns) == list(df.columns)
+def test_filter_non_recurrent_storms_all_recurrent_raises_error(sample_aligned_events):
+    """Test that all recurrent events raises RuntimeError."""
+    # Create a dataset where all events are recurrent
+    all_recurrent = sample_aligned_events.copy()
+    all_recurrent['is_recurrent'] = True
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, 'aligned_events.csv')
+        output_path = os.path.join(tmpdir, 'analysis_subset.csv')
+        
+        all_recurrent.to_csv(input_path, index=False)
+        
+        with pytest.raises(RuntimeError, match="Filtering resulted in an empty dataset"):
+            filter_non_recurrent_storms(input_path, output_path)

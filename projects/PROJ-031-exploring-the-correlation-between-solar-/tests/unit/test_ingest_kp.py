@@ -1,98 +1,168 @@
-import os
 import pytest
-import json
+import os
+import sys
+import csv
+import io
 from unittest.mock import patch, MagicMock
-from code.ingest import fetch_kp_indices, validate_kp_schema, write_kp_data
+from pathlib import Path
 
-@pytest.fixture
-def mock_kp_response():
-    """Mock response data for Kp indices."""
-    return [
-        {
-            "time_tag": "2023-01-01 00:00:00",
-            "kp_index": 2.33,
-            "ap_index": 7,
-            "date": "2023-01-01",
-            "time": "00:00"
-        },
-        {
-            "time_tag": "2023-01-01 03:00:00",
-            "kp_index": 1.67,
-            "ap_index": 4,
-            "date": "2023-01-01",
-            "time": "03:00"
-        }
-    ]
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_success(mock_get, mock_kp_response):
-    """Test successful fetch of Kp indices."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = mock_kp_response
-    mock_get.return_value = mock_response
+from ingest import (
+    fetch_kp_indices,
+    validate_kp_schema,
+    write_kp_data,
+    KP_DATA_PATH
+)
 
-    result = fetch_kp_indices()
-
-    assert len(result) == 2
-    assert result[0]['kp_index'] == 2.33
-    mock_get.assert_called_once()
-
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_empty_list(mock_get):
-    """Test fetch with empty list response."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = []
-    mock_get.return_value = mock_response
-
-    result = fetch_kp_indices()
-    assert result == []
-
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_request_error(mock_get):
-    """Test fetch handles network errors."""
-    mock_get.side_effect = Exception("Network error")
-
-    with pytest.raises(RuntimeError):
-        fetch_kp_indices()
-
-def test_validate_kp_schema_valid(mock_kp_response):
-    """Test validation of valid Kp data."""
-    assert validate_kp_schema(mock_kp_response) is True
-
-def test_validate_kp_schema_missing_field(mock_kp_response):
-    """Test validation fails with missing required field."""
-    invalid_data = [mock_kp_response[0].copy()]
-    del invalid_data[0]['kp_index']
+class TestFetchKpIndices:
+    """Tests for Kp index fetching functionality."""
     
-    assert validate_kp_schema(invalid_data) is False
-
-def test_validate_kp_schema_empty_list():
-    """Test validation fails with empty data."""
-    assert validate_kp_schema([]) is False
-
-def test_validate_kp_schema_invalid_type(mock_kp_response):
-    """Test validation fails with invalid types."""
-    invalid_data = [mock_kp_response[0].copy()]
-    invalid_data[0]['kp_index'] = "not_a_number"
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_success(self, mock_get):
+        """Test successful fetch of Kp indices."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.text = """Time,Kp,Ap
+        2023-01-01 00:00,2.3,15
+        2023-01-01 03:00,3.0,20
+        2023-01-01 06:00,2.7,18"""
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        # Call function
+        data = fetch_kp_indices()
+        
+        # Assertions
+        assert len(data) == 3
+        assert data[0]['time'] == '2023-01-01 00:00'
+        assert data[0]['kp'] == '2.3'
+        assert data[0]['ap'] == '15'
+        
+        mock_get.assert_called_once()
     
-    assert validate_kp_schema(invalid_data) is False
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_empty_response(self, mock_get):
+        """Test handling of empty response."""
+        mock_response = MagicMock()
+        mock_response.text = "Time,Kp,Ap"  # Only header
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        with pytest.raises(ValueError, match="No valid data found"):
+            fetch_kp_indices()
+    
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_network_error(self, mock_get):
+        """Test handling of network error."""
+        mock_get.side_effect = Exception("Network error")
+        
+        with pytest.raises(RuntimeError, match="Failed to fetch Kp indices"):
+            fetch_kp_indices()
 
-@patch('code.ingest.ensure_directories')
-@patch('code.ingest.open', new_callable=MagicMock)
-def test_write_kp_data(mock_open, mock_ensure, mock_kp_response, tmp_path):
-    """Test writing Kp data to CSV."""
-    # Setup mock file
-    mock_file = MagicMock()
-    mock_open.return_value.__enter__.return_value = mock_file
+class TestValidateKpSchema:
+    """Tests for Kp schema validation."""
+    
+    def test_valid_data(self):
+        """Test validation with valid data."""
+        data = [
+            {'time': '2023-01-01 00:00', 'kp': '2.3', 'ap': '15'},
+            {'time': '2023-01-01 03:00', 'kp': 'x', 'ap': '100'}
+        ]
+        
+        is_valid, errors = validate_kp_schema(data)
+        
+        assert is_valid is True
+        assert len(errors) == 0
+    
+    def test_missing_field(self):
+        """Test validation with missing field."""
+        data = [
+            {'time': '2023-01-01 00:00', 'kp': '2.3'}  # Missing 'ap'
+        ]
+        
+        is_valid, errors = validate_kp_schema(data)
+        
+        assert is_valid is False
+        assert len(errors) == 1
+        assert "Missing required field 'ap'" in errors[0]
+    
+    def test_invalid_kp_value(self):
+        """Test validation with invalid Kp value."""
+        data = [
+            {'time': '2023-01-01 00:00', 'kp': 'invalid', 'ap': '15'}
+        ]
+        
+        is_valid, errors = validate_kp_schema(data)
+        
+        assert is_valid is False
+        assert len(errors) == 1
+        assert "Invalid Kp value 'invalid'" in errors[0]
+    
+    def test_empty_data(self):
+        """Test validation with empty data."""
+        is_valid, errors = validate_kp_schema([])
+        
+        assert is_valid is False
+        assert len(errors) == 1
+        assert "Data list is empty" in errors[0]
 
-    output_path = str(tmp_path / "kp_indices.csv")
-    write_kp_data(mock_kp_response, output_path)
+class TestWriteKpData:
+    """Tests for Kp data writing."""
+    
+    def test_write_kp_data(self, tmp_path):
+        """Test writing Kp data to CSV."""
+        data = [
+            {'time': '2023-01-01 00:00', 'kp': '2.3', 'ap': '15'},
+            {'time': '2023-01-01 03:00', 'kp': '3.0', 'ap': '20'}
+        ]
+        
+        output_path = tmp_path / "kp_test.csv"
+        write_kp_data(data, str(output_path))
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        assert len(rows) == 2
+        assert rows[0]['time'] == '2023-01-01 00:00'
+        assert rows[0]['kp'] == '2.3'
 
-    # Verify file operations
-    mock_open.assert_called_once()
-    # Check that writeheader and writerow were called
-    writer = mock_open.return_value.__enter__.return_value
-    assert writer.writeheader.called
-    assert writer.writerow.called
+class TestIntegration:
+    """Integration tests for Kp ingestion pipeline."""
+    
+    @patch('ingest.requests.get')
+    def test_full_kp_ingestion_flow(self, mock_get, tmp_path):
+        """Test the full flow: fetch -> validate -> write."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.text = """Time,Kp,Ap
+        2023-01-01 00:00,2.3,15
+        2023-01-01 03:00,3.0,20"""
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        
+        output_path = tmp_path / "kp_integration.csv"
+        
+        # Fetch
+        data = fetch_kp_indices()
+        
+        # Validate
+        is_valid, errors = validate_kp_schema(data)
+        assert is_valid is True
+        
+        # Write
+        write_kp_data(data, str(output_path))
+        
+        # Verify file
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        assert len(rows) == 2
+        assert rows[0]['kp'] == '2.3'
+        assert rows[1]['kp'] == '3.0'

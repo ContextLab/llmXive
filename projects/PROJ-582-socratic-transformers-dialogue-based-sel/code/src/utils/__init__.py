@@ -1,1 +1,1 @@
-"""Shared utilities (config, logging, metrics, model loading)."""
+"""Core utilities: logging, config, metrics, model loading."""

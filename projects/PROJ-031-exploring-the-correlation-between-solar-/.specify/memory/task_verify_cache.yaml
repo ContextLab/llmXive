@@ -9,11 +9,11 @@ T013:
     \ satisfied."
 T013b:
   c: false
-  h: 43585f5ca0754e941dc4e4e34c6eba0e576d4fb42a0129035899083c92f5c898
-  r: The repository lacks the required `data/raw/kp_indices.csv` file, and the provided
-    `code/ingest.py` contains only a stub for fetching Kp data without any logic to
-    write the results to CSV or validate against a schema. The implementation is therefore
-    incomplete.
+  h: 2839062c29f57db00b95a3b879590713810ae08ae7ea41fbc2cde3e15863fbe9
+  r: "The repository lacks the required `data/raw/kp_indices.csv` file, and the provided\
+    \ `code/ingest.py` contains only stub functions for Dst indices and does not implement\
+    \ downloading Kp indices or writing/validating them against a schema. Consequently,\
+    \ the task\u2019s core requirement is not fulfilled."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,13 +29,12 @@ T017:
     \ updates are missing."
 T018:
   c: false
-  h: 95a01c4dccad08c0e6f86156591830bbd3ade2ff2510fd607fc50f2f7d190d12
-  r: The repository contains a `code/validate.py` with a validation function, but
-    the required schema file `contracts/aligned_event.schema.yaml` is missing, so
-    the validation cannot actually be performed. Moreover, there is no evidence that
-    the validation result is used to prevent writing `aligned_events.csv` or updating
-    `data/source_manifest.yaml`. Both the schema and the blocking integration are
-    absent.
+  h: 21529a69b3738a9ba861fb947bafad7694fd22dbeba4e3ce9fe7d90c898a37e7
+  r: The repository lacks the required `contracts/aligned_event.schema.yaml` file,
+    so the validator cannot actually check the CSV against the schema. Moreover, `code/validate.py`
+    only defines validation functions and does not contain any logic that prevents
+    writing `aligned_events.csv` or updating `data/source_manifest.yaml` when validation
+    fails. Both the schema and the blocking behavior are missing.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +42,10 @@ T019:
     \ metrics (e.g., counts of missing CME speeds, missing flare entries, etc.) are\
     \ being logged. Without an artifact demonstrating the added logging, the requirement\
     \ cannot be confirmed as satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, data file, or result output was provided that shows a linear\
+    \ regression model with flare and CME as separate predictors nor any calculated\
+    \ R\xB2 values. The claim lacks any tangible artifact to verify the analysis was\
+    \ performed."

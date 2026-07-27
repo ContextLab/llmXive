@@ -1,0 +1,34 @@
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts (e.g., a synthetic cohort CSV, covariate balance statistics, or
+    regression output files) were provided; the claim cannot be verified against any
+    concrete data or code. The required deliverables are missing, so the task is not
+    satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation, configuration, or example log output was provided;
+    the claim lacks any artifact showing added comprehensive logging for the ingestion,
+    preprocessing, matching, and validation steps (including fallback decisions).
+    The required code/files are missing, so the task is not satisfied.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log file, or documentation was provided showing that the GSS 2022 structure\
+    \ is validated, that missing PCL\u20115 or harassment variables trigger a warning\
+    \ and cause the GSS ingestion to be skipped, and that the fallback to the Cyberbullying\
+    \ dataset alone is documented. The required artifact is missing."
+T019:
+  c: false
+  h: cfc7054afad0bc67260b2d9e20463b763235fc7cd034b571fbb659f6277b2c98
+  r: The required artifact `tests/unit/test_bootstrap_ci.py` does not exist in the
+    repository, so no unit test for the bootstrapping logic is present. The task cannot
+    be considered completed until this file is added with appropriate test code.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that demonstrates the addition of\
+    \ a fallback mechanism to refit a standard OLS model when the robust model fails\
+    \ to converge, nor evidence that the status `E\u2011NONCONV\u2011001` is logged.\
+    \ The required artifact is missing."

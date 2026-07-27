@@ -1,309 +1,326 @@
 """
-CPU-safe training loop with hard timeout and OOM fallback.
+CPU-safe training loop for Socratic Transformers project.
 
-Implements FR-008 (Hard Timeout) and the OOM fallback mechanism for
-limited RAM constraints (7GB free-tier).
+Implements hard timeout enforcement (FR-008) and fallback to smaller model
+(Phi-1.5) if OOM occurs, adhering to compute constraints.
 """
 import gc
 import os
 import signal
 import sys
 import time
+import json
+import traceback
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
+from datetime import datetime
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from datasets import Dataset
-
-# Local imports (matching API surface)
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    TrainingArguments,
+    Trainer,
+    BitsAndBytesConfig,
+)
 from src.utils.config import get_config, SocraticConfig
 from src.utils.logging import get_logger
-from src.train.lora_config import LoRAConfig, create_lora_config_from_env
+from src.train.lora_config import create_lora_config_from_env
 
-# Custom Timeout Error for clarity
+# Custom exception for timeout
 class TimeoutError(Exception):
-    """Custom timeout exception for training loop."""
+    """Raised when training exceeds the hard timeout limit."""
     pass
 
-# Global flag for timeout handling
-_timeout_active = False
-_timeout_handler_pid = None
-
 def timeout_handler(signum, frame):
-    """Signal handler for hard timeout."""
-    global _timeout_active
-    _timeout_active = True
-    raise TimeoutError("Training loop exceeded hard timeout limit (FR-008).")
+    """Signal handler for timeout enforcement."""
+    raise TimeoutError("Training exceeded the hard timeout limit (FR-008).")
 
 def setup_timeout(seconds: int):
-    """
-    Setup a hard timeout using signal.SIGALRM.
-    Only works on Unix-like systems.
-    """
-    global _timeout_active, _timeout_handler_pid
+    """Setup a hard timeout using signal alarms (Unix only)."""
     if os.name == 'nt':
-        # Windows does not support SIGALRM
-        raise RuntimeError("Hard timeout via signal.SIGALRM is not supported on Windows.")
-    
-    _timeout_active = False
-    _timeout_handler_pid = os.getpid()
+        # Windows doesn't support signal.alarm in the same way
+        # We'll use a thread-based timeout fallback in run_training_loop if needed
+        return
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(seconds)
 
 def cancel_timeout():
-    """Cancel the active timeout alarm."""
+    """Cancel any active timeout alarm."""
     if os.name != 'nt':
         signal.alarm(0)
 
 def get_fallback_model_path() -> str:
     """
-    Returns the path/hub ID for the smaller fallback model (Phi-1.5).
-    Per FR-008 fallback requirement.
+    Returns the path for the fallback model (Phi-1.5) as per FR-008.
+    Uses the smaller 1.5B parameter model for CPU/OOM fallback.
     """
     return "microsoft/phi-1.5"
 
-def load_model_and_tokenizer(model_path: str, config: SocraticConfig) -> Tuple[Any, Any]:
+def load_model_and_tokenizer(
+    model_name: str,
+    config: SocraticConfig,
+    use_lora: bool = True,
+) -> Tuple[Any, Any]:
     """
-    Load model and tokenizer with quantization support.
-    Uses bitsandbytes 4-bit quantization as per T020/LoraConfig.
+    Loads model and tokenizer with 4-bit quantization for CPU efficiency.
+    
+    Args:
+        model_name: HuggingFace model identifier.
+        config: SocraticConfig instance.
+        use_lora: Whether to apply LoRA configuration.
+        
+    Returns:
+        Tuple of (model, tokenizer)
     """
-    logger = get_logger(__name__)
-    logger.info(f"Loading model: {model_path}")
-
-    # Check for available memory before loading
-    if torch.cuda.is_available():
-        free_mem = torch.cuda.mem_get_info()[0]
-        logger.info(f"GPU Free Memory: {free_mem / 1024**2:.2f} MB")
-    else:
-        logger.info("No GPU detected. Running in CPU mode (may be slow).")
-
+    logger = get_logger()
+    logger.info(f"Loading model: {model_name}")
+    
     try:
-        # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
-
-        # Load model with quantization if configured
-        if config.use_4bit_quantization:
-            from transformers import BitsAndBytesConfig
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-            )
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path,
-                quantization_config=bnb_config,
-                device_map="auto" if torch.cuda.is_available() else "cpu",
-                trust_remote_code=True
-            )
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path,
-                device_map="auto" if torch.cuda.is_available() else "cpu",
-                trust_remote_code=True
-            )
-
-        logger.info(f"Successfully loaded model: {model_path}")
+        
+        # Configure 4-bit quantization for memory efficiency
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            quantization_config=bnb_config,
+            device_map="auto", # Let transformers handle device placement
+            trust_remote_code=True,
+        )
+        
+        if use_lora:
+            lora_config = create_lora_config_from_env(config)
+            model = prepare_model_for_kbit_training(model)
+            model = get_peft_model(model, lora_config)
+            model.print_trainable_parameters()
+            
         return model, tokenizer
-
-    except RuntimeError as e:
-        if "out of memory" in str(e).lower() or "CUDA out of memory" in str(e):
-            logger.error(f"OOM detected while loading {model_path}: {e}")
-            raise MemoryError(f"OOM during model load: {e}")
+        
+    except Exception as e:
+        logger.error(f"Failed to load model {model_name}: {e}")
         raise
 
-def prepare_model_for_lora(model: Any, lora_config: LoRAConfig) -> Any:
+def prepare_model_for_lora(model: Any, config: SocraticConfig) -> Any:
     """
-    Prepare model for LoRA fine-tuning.
-    Handles k-bit training preparation if quantization is used.
+    Prepares model for LoRA training by enabling gradient checkpointing
+    and preparing for k-bit training.
     """
-    if hasattr(model, "is_loaded_in_4bit") and model.is_loaded_in_4bit:
-        model = prepare_model_for_kbit_training(model)
-    
-    peft_config = lora_config.to_peft_config()
-    model = get_peft_model(model, peft_config)
-    model.print_trainable_parameters()
+    model = prepare_model_for_kbit_training(model)
     return model
 
 def run_training_loop(
     model: Any,
     tokenizer: Any,
     train_dataset: Dataset,
-    output_dir: str,
+    eval_dataset: Optional[Dataset] = None,
     timeout_seconds: int = 21600, # 6 hours default
-    fallback_model_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Execute the training loop with hard timeout and OOM fallback.
-
+    Executes the training loop with hard timeout and OOM handling.
+    
     Args:
-        model: The PEFT-wrapped model.
+        model: The PEFT model.
         tokenizer: The tokenizer.
-        train_dataset: HuggingFace Dataset for training.
-        output_dir: Directory to save checkpoints.
-        timeout_seconds: Hard timeout in seconds (FR-008).
-        fallback_model_id: ID of the smaller model to try if OOM occurs.
-
+        train_dataset: Training dataset.
+        eval_dataset: Optional evaluation dataset.
+        timeout_seconds: Maximum training duration in seconds.
+        
     Returns:
-        Dict with training status and metrics.
+        Dictionary containing training results and metrics.
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
     config = get_config()
-    lora_cfg = create_lora_config_from_env()
-
-    # Setup timeout
-    if os.name != 'nt':
-        logger.info(f"Setting hard timeout to {timeout_seconds} seconds.")
-        setup_timeout(timeout_seconds)
-    else:
-        logger.warning("Running on Windows. Hard timeout via signal is disabled.")
-
+    results = {
+        "status": "unknown",
+        "model_used": config.model_name,
+        "start_time": datetime.now().isoformat(),
+        "end_time": None,
+        "error": None,
+        "metrics": {}
+    }
+    
     try:
+        # Setup hard timeout
+        setup_timeout(timeout_seconds)
+        
         # Prepare training arguments
         training_args = TrainingArguments(
-            output_dir=output_dir,
-            per_device_train_batch_size=lora_cfg.batch_size,
-            gradient_accumulation_steps=lora_cfg.gradient_accumulation_steps,
-            learning_rate=lora_cfg.learning_rate,
-            num_train_epochs=lora_cfg.num_train_epochs,
-            logging_steps=10,
+            output_dir=str(config.output_dir),
+            num_train_epochs=config.num_epochs,
+            per_device_train_batch_size=config.batch_size,
+            per_device_eval_batch_size=config.batch_size,
+            gradient_accumulation_steps=config.gradient_accumulation_steps,
+            learning_rate=config.learning_rate,
+            weight_decay=config.weight_decay,
+            warmup_steps=config.warmup_steps,
+            logging_steps=config.logging_steps,
+            save_steps=config.save_steps,
+            evaluation_strategy="steps" if eval_dataset else "no",
             save_strategy="steps",
-            save_steps=100,
-            fp16=torch.cuda.is_available() and not config.use_4bit_quantization,
-            bf16=torch.cuda.is_available() and config.use_4bit_quantization,
-            optim="adamw_torch",
-            lr_scheduler_type="linear",
-            warmup_ratio=0.03,
-            report_to="none", # Disable external tracking for simplicity
-            disable_tqdm=False,
+            load_best_model_at_end=True,
+            metric_for_best_model="loss",
+            report_to="none", # Disable external reporting for privacy/speed
+            fp16=False, # Use bf16 or no mixed precision on CPU
+            bf16=False, # Explicitly disable bf16 for CPU safety unless available
+            max_grad_norm=config.max_grad_norm,
+            remove_unused_columns=False,
         )
-
-        # Dummy trainer logic to avoid heavy dependency if not needed, 
-        # but standard practice uses Trainer. We'll use Trainer here.
-        from transformers import Trainer, TrainingArguments
-
+        
+        # Initialize Trainer
         trainer = Trainer(
             model=model,
             args=training_args,
             train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
             tokenizer=tokenizer,
         )
-
-        logger.info("Starting training loop...")
-        start_time = time.time()
-        trainer.train()
-        end_time = time.time()
-
-        logger.info(f"Training completed successfully in {end_time - start_time:.2f} seconds.")
         
-        # Save final model
-        trainer.save_model(output_dir)
-        tokenizer.save_pretrained(output_dir)
-
-        cancel_timeout()
-        return {
-            "status": "success",
-            "duration_seconds": end_time - start_time,
-            "model_path": output_dir,
-            "oom_fallback_used": False
-        }
-
-    except TimeoutError as e:
-        logger.critical(f"TIMEOUT: {e}")
-        cancel_timeout()
-        raise
-    
-    except MemoryError as e:
-        logger.critical(f"MEMORY ERROR: {e}")
-        if fallback_model_id:
-            logger.info(f"Attempting fallback to smaller model: {fallback_model_id}")
-            cancel_timeout()
-            # Clean up current model to free memory
-            del model
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            
-            # Recursively call with fallback model (simplified for this task)
-            # In a real runner, this would be handled by the orchestration layer.
-            # Here we return a specific error code for the runner to handle.
-            return {
-                "status": "oom_fallback_triggered",
-                "fallback_model_id": fallback_model_id,
-                "error": str(e)
-            }
+        logger.info("Starting training loop...")
+        trainer.train()
+        
+        # Evaluate if dataset provided
+        if eval_dataset:
+            logger.info("Running evaluation...")
+            eval_results = trainer.evaluate()
+            results["metrics"] = eval_results
         else:
+            # Basic loss from last checkpoint if no eval set
+            results["metrics"] = {"final_loss": trainer.state.log_history[-1].get("loss", None)}
+        
+        results["status"] = "completed"
+        logger.info("Training completed successfully.")
+        
+    except TimeoutError as e:
+        results["status"] = "timeout"
+        results["error"] = str(e)
+        logger.error(f"Training timed out: {e}")
+        
+    except RuntimeError as e:
+        if "CUDA out of memory" in str(e) or "OOM" in str(e):
+            results["status"] = "oom_fallback_triggered"
+            results["error"] = str(e)
+            logger.error(f"OOM error detected: {e}")
+            # The caller should handle the fallback logic
+            # We raise a specific exception to signal this
+            raise RuntimeError(f"OOM: {e}")
+        else:
+            results["status"] = "failed"
+            results["error"] = str(e)
+            logger.error(f"Training failed with RuntimeError: {e}")
             raise
-
+            
+    except Exception as e:
+        results["status"] = "failed"
+        results["error"] = str(e)
+        logger.error(f"Training failed with unexpected error: {e}")
+        traceback.print_exc()
+        raise
+        
     finally:
-        # Ensure timeout is cleared
-        if os.name != 'nt':
-            cancel_timeout()
+        cancel_timeout()
+        results["end_time"] = datetime.now().isoformat()
+        
+        # Log results
+        logger.info(f"Training results: {json.dumps(results, indent=2)}")
+        
+        # Save results to file
+        output_file = Path(config.output_dir) / "training_results.json"
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, "w") as f:
+            json.dump(results, f, indent=2)
+            
+        return results
 
 def main():
     """
-    Entry point for the training loop script.
-    Expects environment variables or config file to define:
-    - MODEL_PATH
-    - DATA_PATH (processed dataset)
-    - OUTPUT_DIR
-    - TIMEOUT_SECONDS
+    Main entry point for the training loop script.
+    Handles OOM fallback to Phi-1.5 if the primary model fails.
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
+    logger.info("Starting Socratic Transformers Training Loop (T021)")
+    
     config = get_config()
     
-    # Defaults
-    model_path = os.getenv("MODEL_PATH", "microsoft/phi-1.5") # Default to small model
-    data_path = os.getenv("DATA_PATH", "data/processed/dialogue_train.jsonl")
-    output_dir = os.getenv("OUTPUT_DIR", "data/results/training_run")
-    timeout_seconds = int(os.getenv("TIMEOUT_SECONDS", "21600"))
+    # Try primary model first
+    primary_model_name = config.model_name
+    fallback_model_name = get_fallback_model_path()
     
-    logger.info(f"Configuration: model={model_path}, data={data_path}, timeout={timeout_seconds}s")
-
-    # 1. Load Data
-    try:
-        # Assuming JSONL format as per T014/T015 outputs
-        from datasets import load_dataset
-        train_dataset = load_dataset("json", data_files=data_path, split="train")
-        logger.info(f"Loaded dataset with {len(train_dataset)} samples.")
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        sys.exit(1)
-
-    # 2. Load Model (Primary)
-    try:
-        model, tokenizer = load_model_and_tokenizer(model_path, config)
-    except MemoryError:
-        logger.warning(f"OOM on primary model {model_path}. Attempting fallback.")
-        fallback_id = get_fallback_model_path()
-        logger.info(f"Switching to fallback model: {fallback_id}")
-        model_path = fallback_id
-        model, tokenizer = load_model_and_tokenizer(model_path, config)
-
-    # 3. Prepare for LoRA
-    lora_cfg = create_lora_config_from_env()
-    model = prepare_model_for_lora(model, lora_cfg)
-
-    # 4. Run Training
-    output_path = Path(output_dir) / f"run_{int(time.time())}"
-    result = run_training_loop(
-        model=model,
-        tokenizer=tokenizer,
-        train_dataset=train_dataset,
-        output_dir=str(output_path),
-        timeout_seconds=timeout_seconds,
-        fallback_model_id=get_fallback_model_path()
-    )
-
-    if result["status"] == "oom_fallback_triggered":
-        logger.error("Training failed due to OOM even after fallback attempt.")
-        sys.exit(1)
+    current_model_name = primary_model_name
+    max_retries = 1 # Primary + 1 fallback
+    retry_count = 0
     
-    logger.info(f"Training finished. Result: {result}")
+    while retry_count < max_retries:
+        try:
+            logger.info(f"Attempting to load and train with model: {current_model_name}")
+            
+            # Load model and tokenizer
+            model, tokenizer = load_model_and_tokenizer(current_model_name, config)
+            
+            # Load data (using static extractor output or downloaded dataset)
+            # Assuming data is prepared in data/processed/
+            train_path = Path(config.data_dir) / "processed" / "train.json"
+            eval_path = Path(config.data_dir) / "processed" / "eval.json"
+            
+            if not train_path.exists():
+                raise FileNotFoundError(f"Training data not found at {train_path}")
+            
+            train_dataset = Dataset.from_json(str(train_path))
+            eval_dataset = Dataset.from_json(str(eval_path)) if eval_path.exists() else None
+            
+            # Run training
+            results = run_training_loop(
+                model, 
+                tokenizer, 
+                train_dataset, 
+                eval_dataset,
+                timeout_seconds=config.timeout_seconds
+            )
+            
+            logger.info(f"Training finished with status: {results['status']}")
+            
+            # If we hit OOM on primary, switch to fallback and retry once
+            if results['status'] == 'oom_fallback_triggered' and current_model_name == primary_model_name:
+                logger.warning("Primary model OOM. Switching to fallback model.")
+                current_model_name = fallback_model_name
+                retry_count += 1
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                continue
+            
+            # If successful or other error, break
+            break
+            
+        except FileNotFoundError as e:
+            logger.error(f"Data file error: {e}")
+            raise
+        except RuntimeError as e:
+            if "OOM" in str(e) and current_model_name == primary_model_name:
+                logger.warning("OOM on primary model. Retrying with fallback.")
+                current_model_name = fallback_model_name
+                retry_count += 1
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                continue
+            else:
+                logger.error(f"Critical error: {e}")
+                raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
+    
+    logger.info("Training process complete.")
 
 if __name__ == "__main__":
     main()

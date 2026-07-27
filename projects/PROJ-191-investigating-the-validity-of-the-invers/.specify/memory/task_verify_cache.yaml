@@ -20,3 +20,12 @@ T007:
     there is no evidence that `data/raw/`, `data/processed/`, and `data/results/`
     actually exist or that code creates them. The implementer must supply the created
     directories (or a script that creates them) as proof.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing the required fallback logic (switch
+    to bootstrap resampling when fewer than three independent runs are detected) was
+    provided. The evidence consists only of the task description and project specifications,
+    without any artifact demonstrating that the logic has been added, tested, or integrated
+    into the pipeline. The implementer must supply the actual implementation (e.g.,
+    source file changes, unit tests, or execution logs) showing the fallback behavior.

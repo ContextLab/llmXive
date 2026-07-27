@@ -1,3 +1,4 @@
 """
-Test suite for Socratic Transformers project.
+Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning
+Test package.
 """

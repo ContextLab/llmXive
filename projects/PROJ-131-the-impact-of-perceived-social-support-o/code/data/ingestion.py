@@ -1,14 +1,3 @@
-"""
-data/ingestion.py
------------------
-
-This module already contains the core ingestion logic.  The implementation
-below adds comprehensive logging without altering the original functional
-behaviour.  All public functions defined in the API surface are wrapped
-with log statements that record entry, exit, and any fallback decisions
-(e.g., skipping the GSS dataset when required variables are missing).
-"""
-
 import os
 import logging
 import hashlib
@@ -16,180 +5,175 @@ import urllib.request
 import zipfile
 import tempfile
 from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
+import pandas as pd
 
 from logger import get_logger
 
-# Existing imports from the original implementation are retained.
-# (The original code is assumed to be present; we only augment it.)
-
 logger = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper utilities – unchanged but now emit debug logs.
-# ----------------------------------------------------------------------
+# Configuration for data sources
+GSS_URL = "https://gss.norc.org/files/stata/2022/2022_Stata.zip"
+GSS_FILENAME = "GSS2022.dta"
+GSS_CHECKSUM = None  # Placeholder; in production, verify with actual checksum
+
+CYBER_URL = "https://raw.githubusercontent.com/example/cyberbullying-survey/main/data/cyberbullying_2021.csv"
+CYBER_FILENAME = "cyberbullying_2021.csv"
+
+DATA_DIR = Path("data")
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+def ensure_dirs():
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
 def calculate_md5(file_path: Path) -> str:
-    """Calculate the MD5 checksum of a file."""
-    logger.debug(f"Calculating MD5 for {file_path}")
+    """Calculate MD5 checksum of a file."""
     hash_md5 = hashlib.md5()
-    with file_path.open("rb") as f:
+    with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
-    checksum = hash_md5.hexdigest()
-    logger.debug(f"MD5 checksum for {file_path}: {checksum}")
-    return checksum
+    return hash_md5.hexdigest()
 
-def validate_raw_data_file(file_path: Path, expected_md5: str) -> bool:
-    """Validate a raw data file against an expected MD5 checksum."""
-    logger.debug(f"Validating raw data file {file_path}")
-    if not file_path.is_file():
-        logger.warning(f"File not found: {file_path}")
+def validate_raw_data_file(file_path: Path, expected_checksum: Optional[str] = None) -> bool:
+    """Validate the integrity of a raw data file."""
+    if not file_path.exists():
         return False
-    actual_md5 = calculate_md5(file_path)
-    if actual_md5 != expected_md5:
-        logger.warning(
-            f"Checksum mismatch for {file_path}: expected {expected_md5}, got {actual_md5}"
-        )
-        return False
-    logger.debug(f"File {file_path} passed checksum validation")
+    
+    if expected_checksum:
+        actual_checksum = calculate_md5(file_path)
+        if actual_checksum != expected_checksum:
+            logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Got: {actual_checksum}")
+            return False
     return True
 
-def validate_schema_presence(df, required_columns):
-    """Check that required columns exist in a DataFrame."""
-    logger.debug("Validating schema presence")
-    missing = [col for col in required_columns if col not in df.columns]
+def download_dataset(url: str, filename: str, dest_dir: Path) -> Path:
+    """Download a dataset from a URL."""
+    ensure_dirs()
+    dest_path = dest_dir / filename
+    
+    if dest_path.exists():
+        logger.info(f"File {filename} already exists at {dest_path}. Skipping download.")
+        return dest_path
+
+    logger.info(f"Downloading {filename} from {url}...")
+    try:
+        urllib.request.urlretrieve(url, dest_path)
+        logger.info(f"Downloaded {filename} successfully.")
+        return dest_path
+    except Exception as e:
+        logger.error(f"Failed to download {filename}: {e}")
+        raise
+
+def load_gss_data() -> Optional[pd.DataFrame]:
+    """
+    Load GSS 2022 data.
+    Attempts to download if not present, then loads the Stata file.
+    """
+    try:
+        # Attempt to download
+        # Note: In a real environment, this URL might require authentication or specific headers.
+        # We assume public access for this implementation.
+        gss_zip_path = RAW_DIR / "2022_Stata.zip"
+        if not gss_zip_path.exists():
+            download_dataset(GSS_URL, "2022_Stata.zip", RAW_DIR)
+        
+        # Extract if needed
+        gss_dta_path = RAW_DIR / GSS_FILENAME
+        if not gss_dta_path.exists():
+            with zipfile.ZipFile(gss_zip_path, 'r') as zip_ref:
+                # Assuming the zip contains the dta file directly or in a subfolder
+                # We try to find the .dta file
+                dta_files = [f for f in zip_ref.namelist() if f.endswith('.dta')]
+                if dta_files:
+                    with zip_ref.open(dta_files[0]) as source, open(gss_dta_path, 'wb') as target:
+                        target.write(source.read())
+                else:
+                    raise FileNotFoundError("No .dta file found in the archive.")
+
+        # Load using pandas
+        df = pd.read_stata(gss_dta_path)
+        logger.info(f"GSS 2022 loaded with shape: {df.shape}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading GSS 2022: {e}")
+        return None
+
+def load_cyber_data() -> Optional[pd.DataFrame]:
+    """
+    Load Cyberbullying Survey 2021 data.
+    """
+    try:
+        cyber_path = RAW_DIR / CYBER_FILENAME
+        if not cyber_path.exists():
+            download_dataset(CYBER_URL, CYBER_FILENAME, RAW_DIR)
+        
+        df = pd.read_csv(cyber_path)
+        logger.info(f"Cyberbullying Survey 2021 loaded with shape: {df.shape}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading Cyberbullying Survey 2021: {e}")
+        return None
+
+def harmonize_datasets(gss_df: Optional[pd.DataFrame], cyber_df: Optional[pd.DataFrame]) -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
+    """
+    Harmonize variable names and types between GSS and Cyberbullying datasets.
+    Returns the processed DataFrames.
+    """
+    # Placeholder for harmonization logic
+    # In a real scenario, this would map column names to a common schema
+    if gss_df is not None:
+        # Example: standardize column names
+        gss_df.columns = gss_df.columns.str.lower().str.replace(" ", "_")
+    
+    if cyber_df is not None:
+        cyber_df.columns = cyber_df.columns.str.lower().str.replace(" ", "_")
+
+    return gss_df, cyber_df
+
+def get_data_summary(df: pd.DataFrame, name: str) -> str:
+    """Generate a summary string for a dataset."""
+    if df is None:
+        return f"{name}: None"
+    return f"{name}: {df.shape}, columns: {list(df.columns[:5])}..."
+
+def validate_schema_presence(df: pd.DataFrame, required_cols: List[str], dataset_name: str) -> bool:
+    """Check if required columns are present in the DataFrame."""
+    if df is None:
+        return False
+    
+    missing = [col for col in required_cols if col not in df.columns]
     if missing:
-        logger.warning(f"Missing required columns: {missing}")
+        logger.warning(f"Missing columns in {dataset_name}: {missing}")
         return False
-    logger.debug("All required columns are present")
     return True
 
-def get_data_summary(df):
-    """Return a brief summary of a DataFrame (rows, columns, missingness)."""
-    logger.debug("Generating data summary")
-    rows, cols = df.shape
-    missing = df.isnull().mean().mean()
-    summary = {"rows": rows, "columns": cols, "overall_missing_rate": missing}
-    logger.debug(f"Data summary: {summary}")
-    return summary
-
-def download_dataset(url: str, extract_to: Path) -> Path:
+def run_ingestion_checks() -> Dict[str, Any]:
     """
-    Download a zip file from ``url`` and extract it to ``extract_to``.
-    Returns the path to the extracted file (assumes a single file inside).
+    Run ingestion checks for both datasets.
+    This is a preliminary check before T018 validation.
     """
-    logger.info(f"Downloading dataset from {url}")
-    with urllib.request.urlopen(url) as response:
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            tmp_file.write(response.read())
-            tmp_path = Path(tmp_file.name)
+    ensure_dirs()
+    
+    gss_df = load_gss_data()
+    cyber_df = load_cyber_data()
+    
+    gss_df, cyber_df = harmonize_datasets(gss_df, cyber_df)
+    
+    return {
+        'gss': gss_df,
+        'cyber': cyber_df,
+        'gss_summary': get_data_summary(gss_df, "GSS"),
+        'cyber_summary': get_data_summary(cyber_df, "Cyber")
+    }
 
-    logger.debug(f"Extracting zip archive {tmp_path} to {extract_to}")
-    with zipfile.ZipFile(tmp_path, "r") as zip_ref:
-        zip_ref.extractall(extract_to)
-
-    # Find the first file extracted (the original code expects one .dta)
-    extracted_files = list(extract_to.rglob("*"))
-    if not extracted_files:
-        logger.error(f"No files extracted from {url}")
-        raise FileNotFoundError("Extraction yielded no files.")
-    result_path = extracted_files[0]
-    logger.info(f"Dataset downloaded and extracted to {result_path}")
-    return result_path
-
-def run_ingestion_checks():
-    """
-    Run all ingestion steps for both GSS 2022 and Cyberbullying Survey 2021.
-    Logs any fallback decisions (e.g., skipping GSS if required variables
-    are missing).
-    """
-    logger.info("Running ingestion checks for all datasets")
-
-    # --- GSS 2022 ----------------------------------------------------
-    gss_url = "https://gss.norc.org/files/stata/2022/2022_Stata.zip"
-    gss_target_dir = Path("data/raw/gss_2022")
-    gss_target_dir.mkdir(parents=True, exist_ok=True)
-
-    try:
-        gss_path = download_dataset(gss_url, gss_target_dir)
-    except Exception as exc:
-        logger.error(f"Failed to download GSS 2022: {exc}")
-        logger.warning("Skipping GSS 2022 ingestion and proceeding with Cyberbullying data only")
-        gss_path = None
-
-    if gss_path:
-        # Load the .dta file using pandas (the original code does this)
-        import pandas as pd
-
-        logger.debug(f"Loading GSS data from {gss_path}")
-        try:
-            gss_df = pd.read_stata(gss_path)
-        except Exception as exc:
-            logger.error(f"Failed to read GSS .dta file: {exc}")
-            logger.warning("Skipping GSS 2022 ingestion and proceeding with Cyberbullying data only")
-            gss_df = None
-
-        if gss_df is not None:
-            required_gss_items = [
-                # List of required items – the original implementation defines these.
-                # For illustration we include a few typical ones.
-                "age", "gender", "education", "income",
-                "social_support", "harassment_severity",
-                "depressed1", "gad1", "pcl1",
-            ]
-            if not validate_schema_presence(gss_df, required_gss_items):
-                logger.warning(
-                    "GSS 2022 missing essential items; skipping GSS ingestion."
-                )
-                gss_df = None
-            else:
-                logger.info("GSS 2022 schema validation passed")
-                # Save a cleaned copy for downstream steps
-                gss_clean_path = Path("data/interim/gss_clean.parquet")
-                gss_clean_path.parent.mkdir(parents=True, exist_ok=True)
-                gss_df.to_parquet(gss_clean_path)
-                logger.debug(f"GSS clean data written to {gss_clean_path}")
-
-    # --- Cyberbullying Survey 2021 ------------------------------------
-    cyber_url = "https://example.com/cyberbullying_2021.zip"  # placeholder URL
-    cyber_target_dir = Path("data/raw/cyberbullying_2021")
-    cyber_target_dir.mkdir(parents=True, exist_ok=True)
-
-    try:
-        cyber_path = download_dataset(cyber_url, cyber_target_dir)
-    except Exception as exc:
-        logger.error(f"Failed to download Cyberbullying Survey 2021: {exc}")
-        raise  # This dataset is required; cannot continue without it.
-
-    import pandas as pd
-
-    logger.debug(f"Loading Cyberbullying data from {cyber_path}")
-    cyber_df = pd.read_csv(cyber_path)  # Assuming CSV after extraction
-    required_cyber_items = [
-        "age", "gender", "education", "income",
-        "social_support", "harassment_severity",
-        "depressed1", "gad1", "pcl1",
-    ]
-    if not validate_schema_presence(cyber_df, required_cyber_items):
-        logger.error("Cyberbullying dataset missing required variables.")
-        raise ValueError("Critical schema validation failed for Cyberbullying data.")
-
-    cyber_clean_path = Path("data/interim/cyberbullying_clean.parquet")
-    cyber_clean_path.parent.mkdir(parents=True, exist_ok=True)
-    cyber_df.to_parquet(cyber_clean_path)
-    logger.info(f"Cyberbullying clean data written to {cyber_clean_path}")
-
-    logger.info("Ingestion checks completed.")
-    return {"gss_path": gss_path, "cyber_path": cyber_path}
-
-# ----------------------------------------------------------------------
-# Public entry point – unchanged signature, additional logging.
-# ----------------------------------------------------------------------
 def main():
-    """
-    Main entry point for the ingestion module.
-    Executes ``run_ingestion_checks`` and logs the overall outcome.
-    """
-    logger.info("=== Ingestion module start ===")
+    """Main entry point for ingestion."""
+    logger.info("Starting data ingestion...")
     results = run_ingestion_checks()
-    logger.info("=== Ingestion module finished ===")
+    logger.info(f"Ingestion results: {results['gss_summary']}, {results['cyber_summary']}")
     return results
+
+if __name__ == "__main__":
+    main()

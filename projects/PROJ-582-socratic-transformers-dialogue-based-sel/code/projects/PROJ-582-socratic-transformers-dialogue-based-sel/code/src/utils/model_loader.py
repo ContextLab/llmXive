@@ -1,3 +1,7 @@
+"""
+Model loading utilities for Socratic Transformers project.
+Supports Low-bit quantization (GGUF or bitsandbytes CPU backend) to fit Limited RAM constraints.
+"""
 import os
 import gc
 import logging
@@ -5,228 +9,236 @@ from pathlib import Path
 from typing import Optional, Union, Dict, Any, Tuple
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, PreTrainedModel, PreTrainedTokenizer
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    PreTrainedModel,
+    PreTrainedTokenizer,
+)
 from peft import PeftModel
 
+# Import project config to respect seed and path settings
 from src.utils.config import get_config
 
 logger = logging.getLogger(__name__)
 
-def _get_quantization_config() -> Optional[BitsAndBytesConfig]:
-    """
-    Constructs a BitsAndBytesConfig for 4-bit quantization to fit Limited RAM constraints.
-    This configuration enables CPU offloading if GPU memory is insufficient,
-    adhering to the project's compute constraints.
-    """
+
+def _get_default_model_path() -> str:
+    """Return the default model path from config or environment."""
     config = get_config()
-    
-    # Default to 4-bit quantization for memory efficiency
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-        llm_int8_enable_fp32_cpu_offload=True, # Enable CPU offloading for layers that don't fit
+    if hasattr(config, 'base_model_path') and config.base_model_path:
+        return config.base_model_path
+    # Fallback to a small model suitable for CPU/low RAM if not specified
+    return "microsoft/phi-1.5"
+
+
+def _create_bitsandbytes_config(
+    load_in_4bit: bool = True,
+    bnb_4bit_compute_dtype: Optional[torch.dtype] = None,
+    bnb_4bit_quant_type: str = "nf4",
+    bnb_4bit_use_double_quant: bool = True,
+) -> BitsAndBytesConfig:
+    """
+    Create a BitsAndBytesConfig for 4-bit quantization.
+    Optimized for CPU backend or low-memory GPU environments.
+    """
+    if bnb_4bit_compute_dtype is None:
+        # Use float16 if available, else float32 to avoid OOM on CPU
+        bnb_4bit_compute_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+    return BitsAndBytesConfig(
+        load_in_4bit=load_in_4bit,
+        bnb_4bit_compute_dtype=bnb_4bit_compute_dtype,
+        bnb_4bit_quant_type=bnb_4bit_quant_type,
+        bnb_4bit_use_double_quant=bnb_4bit_use_double_quant,
+        llm_int8_threshold=6.0,
         llm_int8_has_fp16_weight=False,
-        llm_int8_skip_modules=["lm_head"], # Keep lm_head in fp16 for stability
     )
-    return bnb_config
+
 
 def load_model(
-    model_id: str,
-    adapter_id: Optional[str] = None,
-    device_map: Optional[Union[str, Dict[str, Any]]] = None,
-    trust_remote_code: bool = True
-) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:
+    model_id_or_path: Optional[str] = None,
+    trust_remote_code: bool = False,
+    device_map: Optional[str] = "auto",
+    use_lora: bool = False,
+    lora_adapter_path: Optional[str] = None,
+) -> Tuple[Union[PreTrainedModel, PeftModel], PreTrainedTokenizer]:
     """
-    Loads a base model and tokenizer with low-bit quantization support.
-    
-    This utility supports:
-    1. 4-bit quantization via bitsandbytes (NF4) to reduce RAM usage.
-    2. CPU offloading for models that exceed available GPU memory.
-    3. Optional loading of LoRA adapters if provided.
-    
+    Load a pre-trained model and tokenizer with Low-bit quantization support.
+
     Args:
-        model_id: HuggingFace model identifier (e.g., 'microsoft/phi-1.5').
-        adapter_id: Optional path to LoRA adapter weights.
-        device_map: Optional device mapping. If None, 'auto' is used with CPU offloading.
-        trust_remote_code: Allow loading models with custom code.
-    
+        model_id_or_path: HuggingFace model ID or local path. Uses config default if None.
+        trust_remote_code: Whether to trust remote code.
+        device_map: Device mapping strategy. 'auto' for CPU/GPU distribution.
+        use_lora: Whether to load LoRA adapters.
+        lora_adapter_path: Path to LoRA adapter weights.
+
     Returns:
-        Tuple of (model, tokenizer).
-    
+        Tuple of (model, tokenizer)
+
     Raises:
-        OSError: If the model cannot be loaded due to memory constraints or missing files.
-        ValueError: If the model configuration is incompatible with the quantization settings.
+        RuntimeError: If model loading fails due to memory or configuration issues.
     """
-    config = get_config()
-    model_path = model_id
-    tokenizer_path = model_id
+    if model_id_or_path is None:
+        model_id_or_path = _get_default_model_path()
 
-    logger.info(f"Loading model: {model_path} with 4-bit quantization...")
-    
-    # Prepare quantization config
-    quantization_config = _get_quantization_config()
+    logger.info(f"Loading model: {model_id_or_path}")
+    logger.info(f"Device map: {device_map}")
 
-    # Determine device map
-    if device_map is None:
-        # Use 'auto' to let transformers handle placement, 
-        # but rely on llm_int8_enable_fp32_cpu_offload for overflow
-        device_map = "auto"
-        logger.info("Using auto device map with CPU offloading enabled.")
+    # Configure quantization for low RAM
+    bnb_config = _create_bitsandbytes_config()
 
+    # Load tokenizer first
     try:
-        # Load tokenizer first
         tokenizer = AutoTokenizer.from_pretrained(
-            tokenizer_path,
+            model_id_or_path,
             trust_remote_code=trust_remote_code,
-            padding_side="left"
+            padding_side="left",
         )
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+        if tokenizer.pad_token_id is None:
+            tokenizer.pad_token_id = tokenizer.eos_token_id
+    except Exception as e:
+        logger.error(f"Failed to load tokenizer: {e}")
+        raise RuntimeError(f"Tokenizer loading failed: {e}")
 
-        # Load base model with quantization
+    # Load base model with quantization
+    try:
         model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            quantization_config=quantization_config,
+            model_id_or_path,
+            quantization_config=bnb_config,
             device_map=device_map,
             trust_remote_code=trust_remote_code,
-            torch_dtype=torch.float16,
-            low_cpu_mem_usage=True
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
         )
-        
-        logger.info(f"Base model loaded successfully on device: {model.device}")
-
-        # Load LoRA adapter if provided
-        if adapter_id:
-            logger.info(f"Loading LoRA adapter from: {adapter_id}")
-            model = PeftModel.from_pretrained(model, adapter_id)
-            logger.info("LoRA adapter loaded and merged.")
-
-        # Ensure model is in eval mode for inference/dialogue generation
-        model.eval()
-        
-        return model, tokenizer
-
     except Exception as e:
-        logger.error(f"Failed to load model {model_path}: {e}")
-        # Force garbage collection to free memory before raising
+        logger.error(f"Failed to load base model: {e}")
+        raise RuntimeError(f"Base model loading failed: {e}")
+
+    # Load LoRA adapter if requested
+    if use_lora and lora_adapter_path:
+        logger.info(f"Loading LoRA adapter from: {lora_adapter_path}")
+        try:
+            model = PeftModel.from_pretrained(model, lora_adapter_path)
+        except Exception as e:
+            logger.error(f"Failed to load LoRA adapter: {e}")
+            raise RuntimeError(f"LoRA adapter loading failed: {e}")
+
+    # Clear GPU cache if available
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
         gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        raise
+
+    logger.info(f"Model loaded successfully: {model_id_or_path}")
+    return model, tokenizer
+
 
 def get_model_card(model: PreTrainedModel) -> Dict[str, Any]:
     """
-    Extracts metadata from the loaded model's config and card.
-    
+    Extract metadata card from a loaded model.
+
     Args:
-        model: The loaded PreTrainedModel instance.
-    
+        model: Loaded PreTrainedModel or PeftModel.
+
     Returns:
-        Dictionary containing model metadata (name, type, parameters).
+        Dictionary containing model metadata.
     """
-    card_info = {
-        "model_type": getattr(model.config, "model_type", "unknown"),
-        "hidden_size": getattr(model.config, "hidden_size", None),
-        "num_attention_heads": getattr(model.config, "num_attention_heads", None),
-        "num_hidden_layers": getattr(model.config, "num_hidden_layers", None),
-        "vocab_size": getattr(model.config, "vocab_size", None),
-        "quantization": "4-bit NF4 (bitsandbytes)" if hasattr(model, "hf_quantizer") else "FP16/FP32",
-    }
-    return card_info
+    card = {}
+    if hasattr(model, 'config'):
+        card['model_type'] = model.config.model_type
+        card['hidden_size'] = getattr(model.config, 'hidden_size', None)
+        card['num_attention_heads'] = getattr(model.config, 'num_attention_heads', None)
+        card['num_hidden_layers'] = getattr(model.config, 'num_hidden_layers', None)
+        card['vocab_size'] = getattr(model.config, 'vocab_size', None)
+
+    if hasattr(model, 'peft_config'):
+        card['is_peft_model'] = True
+        card['peft_types'] = list(model.peft_config.keys()) if model.peft_config else []
+    else:
+        card['is_peft_model'] = False
+
+    return card
+
 
 def validate_model_compatibility(
     model: PreTrainedModel,
-    max_memory_gb: float = 7.0
+    min_hidden_size: int = 512,
+    max_hidden_size: int = 8192,
 ) -> bool:
     """
-    Validates if the loaded model is compatible with the specified memory constraint.
-    
-    This function estimates the memory footprint based on the model's parameter count
-    and the quantization scheme. It does not measure runtime memory usage directly
-    but provides a static check based on configuration.
-    
+    Validate that a loaded model meets hardware constraints.
+
     Args:
-        model: The loaded PreTrainedModel instance.
-        max_memory_gb: Maximum allowed RAM in GB (default 7.0 for free-tier).
-    
+        model: Loaded model to validate.
+        min_hidden_size: Minimum acceptable hidden dimension.
+        max_hidden_size: Maximum acceptable hidden dimension.
+
     Returns:
-        True if the model is estimated to fit, False otherwise.
-    
-    Note:
-        With 4-bit quantization, the model weights occupy approximately 0.5 bytes per parameter.
-        Activation memory is handled via CPU offloading if configured.
+        True if model is compatible, False otherwise.
     """
-    num_params = sum(p.numel() for p in model.parameters())
-    # Estimate: 0.5 bytes per param for 4-bit + overhead
-    estimated_weight_memory_gb = (num_params * 0.5) / (1024**3)
-    
-    # Add a conservative overhead factor for activations and CPU buffers
-    # Even with offloading, we need some headroom
-    estimated_total_memory_gb = estimated_weight_memory_gb * 1.5
-    
-    logger.info(f"Model parameter count: {num_params:,}")
-    logger.info(f"Estimated memory footprint: {estimated_total_memory_gb:.2f} GB")
-    
-    if estimated_total_memory_gb > max_memory_gb:
-        logger.warning(f"Model estimated memory ({estimated_total_memory_gb:.2f} GB) exceeds limit ({max_memory_gb} GB). "
-                     "Proceed with caution; OOM may occur if CPU offloading is insufficient.")
+    if not hasattr(model, 'config'):
+        logger.warning("Model has no config attribute, skipping validation.")
+        return True
+
+    hidden_size = getattr(model.config, 'hidden_size', None)
+    if hidden_size is None:
+        logger.warning("Could not determine hidden size, skipping validation.")
+        return True
+
+    if hidden_size < min_hidden_size:
+        logger.warning(f"Hidden size {hidden_size} is below minimum {min_hidden_size}")
         return False
-    
-    logger.info("Model compatibility check passed.")
+
+    if hidden_size > max_hidden_size:
+        logger.warning(f"Hidden size {hidden_size} exceeds maximum {max_hidden_size}")
+        return False
+
+    logger.info(f"Model hidden size {hidden_size} is within acceptable range")
     return True
 
-def main():
-    """
-    Entry point for testing the model loader independently.
-    Runs a small compatibility check and loads a small model to verify the pipeline.
-    """
-    from src.utils.config import init_project
-    import sys
 
-    # Initialize project structure if not done
-    init_project()
-    
-    # Use a small model for testing (Phi-1.5 is ~1.3B params, fits 4-bit in <2GB)
-    test_model_id = "microsoft/phi-1.5"
-    
+def main():
+    """CLI entry point for model loading demonstration."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Load model with Low-bit quantization")
+    parser.add_argument(
+        "--model-id",
+        type=str,
+        default=None,
+        help="HuggingFace model ID or local path (defaults to config or phi-1.5)"
+    )
+    parser.add_argument(
+        "--use-lora",
+        action="store_true",
+        help="Load LoRA adapter if available"
+    )
+    parser.add_argument(
+        "--lora-path",
+        type=str,
+        default=None,
+        help="Path to LoRA adapter weights"
+    )
+
+    args = parser.parse_args()
+
     try:
-        model, tokenizer = load_model(test_model_id)
-        
+        model, tokenizer = load_model(
+            model_id_or_path=args.model_id,
+            use_lora=args.use_lora,
+            lora_adapter_path=args.lora_path,
+        )
         card = get_model_card(model)
-        print(f"Model Loaded: {card}")
-        
-        is_compatible = validate_model_compatibility(model, max_memory_gb=7.0)
-        print(f"Compatibility (7GB limit): {is_compatible}")
-        
-        # Simple inference test to ensure the model is functional
-        test_prompt = "Question: What is 2 + 2?\nAnswer:"
-        inputs = tokenizer(test_prompt, return_tensors="pt").to(model.device)
-        
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=20,
-                do_sample=False,
-                pad_token_id=tokenizer.pad_token_id
-            )
-        
-        result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        print(f"Test Inference Result: {result}")
-        
-        # Clean up
-        del model, inputs, outputs
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            
-        print("Model loader validation successful.")
-        return 0
+        is_valid = validate_model_compatibility(model)
+
+        print(f"Model loaded: {args.model_id or 'default'}")
+        print(f"Model card: {card}")
+        print(f"Compatibility: {'VALID' if is_valid else 'INVALID'}")
 
     except Exception as e:
-        logger.error(f"Model loader test failed: {e}")
-        return 1
+        logger.error(f"Model loading failed: {e}")
+        raise
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

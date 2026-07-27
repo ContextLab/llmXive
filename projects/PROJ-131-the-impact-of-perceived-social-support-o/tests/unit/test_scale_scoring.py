@@ -9,25 +9,12 @@ import pandas as pd
 import numpy as np
 import yaml
 from pathlib import Path
+import sys
 
-# Import the scoring logic from the main codebase
-# Assuming the scoring logic was implemented in code/analysis/scales.py or similar
-# based on the project structure. If it's in a different location, adjust import.
-try:
-    from code.analysis.scales import score_cesd, score_gad7, load_scale_config
-except ImportError:
-    # Fallback if the module structure is slightly different or not yet created
-    # This block ensures the test file exists even if the implementation file is missing,
-    # though the test will fail if the implementation is missing.
-    # In a real scenario, we would raise an error or skip.
-    # For this task, we assume the implementation exists as per T004/T005 context.
-    # If the file doesn't exist, we define a mock to allow the test file to be syntactically valid
-    # but the test execution would fail. However, per instructions, we must write runnable code.
-    # We will assume the implementation exists in code/analysis/scales.py as is standard.
-    raise ImportError(
-        "Implementation module code.analysis.scales not found. "
-        "Ensure T004 (config) and the implementation file exist before running tests."
-    )
+# Ensure the code directory is in the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.analysis.scales import score_cesd, score_gad7, load_scale_config
 
 
 @pytest.fixture

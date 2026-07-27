@@ -1,0 +1,41 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test code file or snippet was provided; the claim lacks any artifact\
+    \ showing a test (expected to fail) for the aromaticity index calculation on benzene\
+    \ (\u201Cc1ccccc1\u201D). The required test code is missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test code file was supplied; the only evidence is a generic project\
+    \ specification unrelated to the requested test. The required artifact\u2014a\
+    \ failing unit test that checks conjugation path length for butadiene versus butane\u2014\
+    is missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any unit\u2011test code or file containing the\
+    \ tests; the response only repeats the task description and specifications without\
+    \ any actual artifact. Consequently, the required test code (expected to fail)\
+    \ is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or documentation implementing the required fallback logic
+    (logging a warning and substituting topological proxies when quantum descriptors
+    are missing) was provided. The evidence lacks any artifact demonstrating that
+    this behavior exists, so the task is not satisfied.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided showing that error handling for
+    invalid SMILES strings or missing conductivity values was added. The claim cannot
+    be verified because the required artifact (implementation changes or evidence
+    thereof) is absent.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test script, test data, or result output for the scaffold\u2011split integration\
+    \ test is present; the claim provides only narrative description without any concrete\
+    \ artifact (e.g., a pytest file, CI log, or generated report) that demonstrates\
+    \ \u201Cno structural leakage.\u201D Consequently the required evidence is missing."

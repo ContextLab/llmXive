@@ -1,76 +1,85 @@
 """
-Utility module for ensuring project directory structures exist.
+Directory management utilities for the llmXive science pipeline.
 
-Implements robust 'mkdir -p' logic for data directories required by the pipeline.
+Provides robust creation of project data directories with mkdir -p semantics.
 """
-from pathlib import Path
 import os
 import sys
+from pathlib import Path
 
-# Define the project root relative to this file's location (code/utils/)
-# Assuming the project structure is:
-# code/
-#   utils/
-#     directories.py
-# data/
-#   raw/
-#   processed/
-#   results/
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Directories to ensure exist
-DATA_DIRS = [
-    "data/raw",
-    "data/processed",
-    "data/results",
-]
-
-def ensure_data_directories() -> list[Path]:
+def ensure_data_directories(base_dir: Path | None = None) -> list[Path]:
     """
-    Creates the required data directory structure if it does not exist.
-    
-    Uses robust mkdir logic (parents=True, exist_ok=True) to mimic 'mkdir -p'.
-    
+    Ensure the standard data directory structure exists under the project root.
+
+    Creates:
+      - data/raw/
+      - data/processed/
+      - data/results/
+
+    Args:
+        base_dir: The project root directory. If None, defaults to the parent
+                  of this module's location (code/utils/..).
+
     Returns:
-        list[Path]: A list of Path objects for the directories that were ensured.
-        
-    Raises:
-        PermissionError: If the script lacks permission to create directories.
-        OSError: If any other OS-level error occurs during directory creation.
-    """
-    created_dirs = []
-    
-    for dir_rel_path in DATA_DIRS:
-        full_path = _PROJECT_ROOT / dir_rel_path
-        
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(full_path)
-        except PermissionError as e:
-            raise PermissionError(
-                f"Permission denied while creating directory: {full_path}. "
-                "Check write permissions for the project root."
-            ) from e
-        except OSError as e:
-            raise OSError(f"Failed to create directory {full_path}: {e}") from e
-    
-    return created_dirs
+        A list of Path objects for the created directories.
 
-def main() -> None:
+    Raises:
+        RuntimeError: If a directory cannot be created or is not writable.
+    """
+    if base_dir is None:
+        # Default to project root: code/utils/.. -> code/..
+        base_dir = Path(__file__).resolve().parent.parent.parent
+
+    data_root = base_dir / "data"
+    required_dirs = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "results",
+    ]
+
+    created = []
+    for dir_path in required_dirs:
+        try:
+            # parents=True ensures mkdir -p behavior
+            dir_path.mkdir(parents=True, exist_ok=True)
+            # Verify writability
+            test_file = dir_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            created.append(dir_path)
+        except (OSError, PermissionError) as e:
+            raise RuntimeError(
+                f"Failed to create or verify write access for {dir_path}: {e}"
+            ) from e
+
+    return created
+
+
+def main() -> int:
     """
     CLI entry point to ensure data directories exist.
-    
-    Prints the paths of created/verified directories to stdout.
+
+    Usage:
+        python -m utils.directories
+
+    Returns:
+        0 on success, non-zero on failure.
     """
     try:
-        dirs = ensure_data_directories()
-        print("Ensured existence of the following directories:")
+        base = Path(__file__).resolve().parent.parent.parent
+        dirs = ensure_data_directories(base)
+        print(f"Successfully ensured data directories under: {base / 'data'}")
         for d in dirs:
             print(f"  - {d}")
-        print("Success.")
-    except (PermissionError, OSError) as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        return 0
+    except RuntimeError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

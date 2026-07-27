@@ -1,9 +1,15 @@
 %YAML 1.2
 ---
-# Schema for model results and analysis artifacts
-# Generated for PROJ-528: Predicting Molecular Conductivity from Graph-Based Features
-# Defines the structure for T033 (model_results.json), T032 (sensitivity_analysis.json),
-# and T045 (analysis_summary.json) outputs.
+# Schema for Molecular Conductivity Prediction Model Results
+# This file defines the structure for the output of the model training and
+# sensitivity analysis pipeline (User Story 2 & 3).
+#
+# Fields:
+#   r2: Coefficient of determination (float)
+#   mae: Mean Absolute Error (float)
+#   cv_scores: Cross-validation metrics (list of objects)
+#   sensitivity_data: Sensitivity analysis results (list of objects)
+#   vif_scores: Variance Inflation Factor scores for features (dict)
 
 type: object
 required:
@@ -12,158 +18,99 @@ required:
   - cv_scores
   - sensitivity_data
   - vif_scores
-
 properties:
   r2:
-    type: object
-    description: "Coefficient of determination (R²) for trained models"
-    required:
-      - random_forest
-      - gradient_boosting
-    properties:
-      random_forest:
-        type: number
-        description: "R² score for the Random Forest model"
-      gradient_boosting:
-        type: number
-        description: "R² score for the Gradient Boosting model"
+    type: number
+    description: "Coefficient of determination (R²) on the test set."
+    minimum: -1.0
+    examples:
+      - 0.854
+      - 0.912
 
   mae:
-    type: object
-    description: "Mean Absolute Error for trained models"
-    required:
-      - random_forest
-      - gradient_boosting
-    properties:
-      random_forest:
-        type: number
-        description: "MAE for the Random Forest model"
-      gradient_boosting:
-        type: number
-        description: "MAE for the Gradient Boosting model"
+    type: number
+    description: "Mean Absolute Error on the test set."
+    minimum: 0.0
+    examples:
+      - 0.125
+      - 0.089
 
   cv_scores:
-    type: object
-    description: "Cross-validation metrics (5-fold) for each model"
-    required:
-      - random_forest
-      - gradient_boosting
-    properties:
-      random_forest:
-        type: object
-        properties:
-          r2_mean:
-            type: number
-          r2_std:
-            type: number
-          mae_mean:
-            type: number
-          mae_std:
-            type: number
-          fold_scores:
-            type: array
-            items:
-              type: object
-              properties:
-                fold:
-                  type: integer
-                r2:
-                  type: number
-                mae:
-                  type: number
-      gradient_boosting:
-        type: object
-        properties:
-          r2_mean:
-            type: number
-          r2_std:
-            type: number
-          mae_mean:
-            type: number
-          mae_std:
-            type: number
-          fold_scores:
-            type: array
-            items:
-              type: object
-              properties:
-                fold:
-                  type: integer
-                r2:
-                  type: number
-                mae:
-                  type: number
-
-  sensitivity_data:
     type: array
-    description: "Results from outlier sensitivity analysis (T032)"
+    description: "List of cross-validation fold results."
     items:
       type: object
       required:
-        - threshold
+        - fold
+        - r2
+        - mae
+      properties:
+        fold:
+          type: integer
+          description: "Fold index (1-based)."
+          minimum: 1
+        r2:
+          type: number
+          description: "R² score for this fold."
+        mae:
+          type: number
+          description: "MAE for this fold."
+    examples:
+      - - fold: 1
+          r2: 0.82
+          mae: 0.15
+        - fold: 2
+          r2: 0.88
+          mae: 0.11
+
+  sensitivity_data:
+    type: array
+    description: "Results from the outlier sensitivity analysis (sweeping thresholds)."
+    items:
+      type: object
+      required:
+        - threshold_sigma
         - r2
         - kruskal_stat
         - kruskal_pval
       properties:
-        threshold:
+        threshold_sigma:
           type: number
-          description: "Sigma threshold used for outlier exclusion (e.g., 3.0, 3.5)"
+          description: "Outlier threshold in standard deviations (e.g., 3.0, 3.5)."
         r2:
           type: number
-          description: "R² score achieved with this threshold"
+          description: "Model R² after applying this threshold."
         kruskal_stat:
           type: number
-          description: "Kruskal-Wallis H statistic comparing variances"
+          description: "Kruskal-Wallis H statistic comparing variances."
         kruskal_pval:
           type: number
-          description: "P-value from the Kruskal-Wallis test"
+          description: "P-value from the Kruskal-Wallis test."
+    examples:
+      - threshold_sigma: 3.0
+        r2: 0.85
+        kruskal_stat: 12.4
+        kruskal_pval: 0.002
+      - threshold_sigma: 3.5
+        r2: 0.86
+        kruskal_stat: 10.1
+        kruskal_pval: 0.006
 
   vif_scores:
     type: object
-    description: "Variance Inflation Factor analysis results (T037-T042)"
-    required:
-      - initial_vif
-      - final_vif
-      - excluded_features
-    properties:
-      initial_vif:
-        type: array
-        description: "VIF scores before filtering"
-        items:
-          type: object
-          properties:
-            feature:
-              type: string
-            vif:
-              type: number
-      final_vif:
-        type: array
-        description: "VIF scores after iterative filtering (all <= 10)"
-        items:
-          type: object
-          properties:
-            feature:
-              type: string
-            vif:
-              type: number
-      excluded_features:
-        type: array
-        description: "List of feature names excluded due to high VIF (> 10)"
-        items:
-          type: string
-      feature_importance:
-        type: array
-        description: "Final feature importance rankings"
-        items:
-          type: object
-          properties:
-            feature:
-              type: string
-            importance:
-              type: number
-            correlation:
-              type: number
-            p_value:
-              type: number
-            adjusted_p_value:
-              type: number
+    description: "Variance Inflation Factor scores for each feature in the final model."
+    additionalProperties:
+      type: number
+      description: "VIF value for the feature."
+      minimum: 1.0
+    examples:
+      degree_mean: 1.2
+      path_length_mean: 1.5
+      aromaticity_index: 2.1
+      bond_polarity: 1.8
+      resonance_energy: 1.1
+
+metadata:
+  version: "1.0.0"
+  generated_by: "llmXive pipeline"
+  schema_version: "1.0"

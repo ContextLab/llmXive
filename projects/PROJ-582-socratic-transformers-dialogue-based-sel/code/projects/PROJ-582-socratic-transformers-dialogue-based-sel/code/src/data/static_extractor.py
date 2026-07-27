@@ -1,11 +1,9 @@
 """
 Static QA Extractor for Socratic Transformers Project.
 
-This module implements the extraction of baseline (question, answer) tuples
-from downloaded datasets (GSM8K, MATH) for comparative study (FR-001).
-It serves as the foundation for generating the static baseline dataset.
+This module extracts baseline (question, answer) tuples from GSM8K and MATH
+datasets to serve as the static control condition (FR-001).
 """
-
 import json
 import os
 import sys
@@ -14,230 +12,201 @@ from typing import List, Dict, Any, Optional
 
 from datasets import load_dataset
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    sys.path.insert(0, str(project_root))
-
-from src.utils.config import get_config
-from src.utils.logging import get_logger
-
+# Ensure project root is in path for relative imports if run as script
+# but rely on installed package structure for normal usage
+try:
+    from src.utils.logging import get_logger
+except ImportError:
+    # Fallback for direct execution without package install
+    import logging
+    def get_logger(name):
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
 
 logger = get_logger(__name__)
 
-
-def extract_gsm8k(
-    dataset_path: Optional[str] = None,
-    split: str = "train",
-    max_samples: Optional[int] = None
-) -> List[Dict[str, Any]]:
+def extract_gsm8k(output_path: Path, limit: Optional[int] = None) -> List[Dict[str, Any]]:
     """
     Extract static QA tuples from the GSM8K dataset.
 
     Args:
-        dataset_path: Path to the dataset. If None, loads from HuggingFace.
-        split: Dataset split to use (default: "train").
-        max_samples: Maximum number of samples to extract. If None, uses all.
+        output_path: Path to write the JSONL output file.
+        limit: Maximum number of samples to extract. If None, extracts all.
 
     Returns:
-        List of dictionaries with 'question' and 'answer' keys.
+        List of dictionaries containing 'question' and 'answer'.
     """
-    logger.info(f"Loading GSM8K dataset from {dataset_path or 'HuggingFace'}...")
+    logger.info(f"Loading GSM8K dataset (limit={limit})...")
+    try:
+        dataset = load_dataset("gsm8k", "main", split="train")
+    except Exception as e:
+        logger.error(f"Failed to load GSM8K dataset: {e}")
+        raise
 
-    if dataset_path:
-        dataset = load_dataset("json", data_files=dataset_path, split=split)
-    else:
-        # Load from HuggingFace datasets
-        dataset = load_dataset("gsm8k", "main", split=split)
+    extracted_data = []
+    count = 0
 
-    logger.info(f"Extracting {len(dataset)} samples from GSM8K...")
-
-    extracted = []
-    for i, item in enumerate(dataset):
-        if max_samples is not None and i >= max_samples:
+    for item in dataset:
+        if limit is not None and count >= limit:
             break
 
+        # GSM8K format: question (str), answer (str with solution and final answer)
+        # We store the raw answer string as provided by the dataset for baseline comparison.
         question = item.get("question", "")
         answer = item.get("answer", "")
 
         if not question or not answer:
-            logger.warning(f"Skipping sample {i} due to missing question or answer")
+            logger.warning("Skipping item with missing question or answer.")
             continue
 
-        extracted.append({
+        record = {
             "source": "gsm8k",
             "question": question,
             "answer": answer,
-            "sample_id": f"gsm8k_{i}"
-        })
+            "type": "static_baseline"
+        }
+        extracted_data.append(record)
+        count += 1
 
-    logger.info(f"Successfully extracted {len(extracted)} samples from GSM8K")
-    return extracted
+    logger.info(f"Extracted {len(extracted_data)} samples from GSM8K.")
 
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-def extract_math(
-    dataset_path: Optional[str] = None,
-    split: str = "train",
-    max_samples: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    with open(output_path, "w", encoding="utf-8") as f:
+        for record in extracted_data:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    return extracted_data
+
+def extract_math(output_path: Path, limit: Optional[int] = None) -> List[Dict[str, Any]]:
     """
     Extract static QA tuples from the MATH dataset.
 
     Args:
-        dataset_path: Path to the dataset. If None, loads from HuggingFace.
-        split: Dataset split to use (default: "train").
-        max_samples: Maximum number of samples to extract. If None, uses all.
+        output_path: Path to write the JSONL output file.
+        limit: Maximum number of samples to extract. If None, extracts all.
 
     Returns:
-        List of dictionaries with 'question' and 'answer' keys.
+        List of dictionaries containing 'question' and 'answer'.
     """
-    logger.info(f"Loading MATH dataset from {dataset_path or 'HuggingFace'}...")
+    logger.info(f"Loading MATH dataset (limit={limit})...")
+    try:
+        # MATH dataset is often large; we load the train split
+        dataset = load_dataset("hendrycks/competition_math", "main", split="train")
+    except Exception as e:
+        logger.error(f"Failed to load MATH dataset: {e}")
+        raise
 
-    if dataset_path:
-        dataset = load_dataset("json", data_files=dataset_path, split=split)
-    else:
-        # Load from HuggingFace datasets
-        # MATH dataset is under 'hendrycks/competition_math'
-        dataset = load_dataset("hendrycks/competition_math", "main", split=split)
+    extracted_data = []
+    count = 0
 
-    logger.info(f"Extracting {len(dataset)} samples from MATH...")
-
-    extracted = []
-    for i, item in enumerate(dataset):
-        if max_samples is not None and i >= max_samples:
+    for item in dataset:
+        if limit is not None and count >= limit:
             break
 
         question = item.get("problem", "")
-        answer = item.get("solution", "")
+        answer = item.get("solution", "") # MATH often provides the full solution in 'solution' or 'answer'
+        # Sometimes 'answer' contains just the final result, but for baseline we want the ground truth.
+        # The 'solution' field usually contains the step-by-step and final answer.
+        # If 'solution' is empty, fallback to 'answer'.
+        if not answer and "answer" in item:
+            answer = item.get("answer", "")
 
         if not question or not answer:
-            logger.warning(f"Skipping sample {i} due to missing problem or solution")
+            logger.warning("Skipping MATH item with missing question or answer.")
             continue
 
-        # Clean up answer if it contains LaTeX formatting
-        # MATH dataset often has \boxed{answer} format
-        if "\\boxed{" in answer:
-            # Extract content between \boxed{ and }
-            start = answer.find("\\boxed{") + 7
-            end = answer.find("}", start)
-            if end != -1:
-                answer = answer[start:end]
-
-        extracted.append({
+        record = {
             "source": "math",
             "question": question,
             "answer": answer,
-            "sample_id": f"math_{i}"
-        })
+            "type": "static_baseline"
+        }
+        extracted_data.append(record)
+        count += 1
 
-    logger.info(f"Successfully extracted {len(extracted)} samples from MATH")
-    return extracted
+    logger.info(f"Extracted {len(extracted_data)} samples from MATH.")
 
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        for record in extracted_data:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    return extracted_data
 
 def extract_static_qa(
-    output_dir: str,
-    gsm8k_samples: Optional[int] = None,
-    math_samples: Optional[int] = None
+    gsm8k_limit: Optional[int] = 100,
+    math_limit: Optional[int] = 100,
+    base_output_dir: Optional[Path] = None
 ) -> Dict[str, str]:
     """
-    Generate the baseline static QA dataset from GSM8K and MATH.
+    Main entry point to generate the baseline static dataset.
 
-    This function creates the baseline dataset required for comparative study (FR-001).
-    It extracts question-answer pairs from both datasets and saves them as JSONL files.
+    Downloads/loads GSM8K and MATH, extracts QA pairs, and writes them to JSONL files.
 
     Args:
-        output_dir: Directory to save the output files.
-        gsm8k_samples: Number of GSM8K samples to extract. If None, uses all.
-        math_samples: Number of MATH samples to extract. If None, uses all.
+        gsm8k_limit: Max samples from GSM8K.
+        math_limit: Max samples from MATH.
+        base_output_dir: Base directory for output files. Defaults to project data/results/.
 
     Returns:
-        Dictionary with paths to the generated files:
-        - 'gsm8k_path': Path to GSM8K static QA file
-        - 'math_path': Path to MATH static QA file
-        - 'combined_path': Path to combined static QA file
+        Dictionary mapping dataset name to output file path.
     """
-    config = get_config()
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    if base_output_dir is None:
+        # Default to project structure: projects/.../code/data/results/
+        current_dir = Path(__file__).resolve().parent
+        project_root = current_dir.parent.parent.parent.parent
+        base_output_dir = project_root / "data" / "results"
 
-    logger.info(f"Starting static QA extraction to {output_dir}")
+    base_output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Extract GSM8K samples
-    gsm8k_data = extract_gsm8k(max_samples=gsm8k_samples)
-    gsm8k_path = output_path / "static_gsm8k.jsonl"
+    gsm8k_path = base_output_dir / "static_gsm8k_baseline.jsonl"
+    math_path = base_output_dir / "static_math_baseline.jsonl"
 
-    with open(gsm8k_path, "w", encoding="utf-8") as f:
-        for item in gsm8k_data:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    logger.info(f"Output directory set to: {base_output_dir}")
 
-    logger.info(f"Wrote {len(gsm8k_data)} GSM8K samples to {gsm8k_path}")
-
-    # Extract MATH samples
-    math_data = extract_math(max_samples=math_samples)
-    math_path = output_path / "static_math.jsonl"
-
-    with open(math_path, "w", encoding="utf-8") as f:
-        for item in math_data:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-    logger.info(f"Wrote {len(math_data)} MATH samples to {math_path}")
-
-    # Combine both datasets
-    combined_data = gsm8k_data + math_data
-    combined_path = output_path / "static_combined.jsonl"
-
-    with open(combined_path, "w", encoding="utf-8") as f:
-        for item in combined_data:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-    logger.info(f"Wrote {len(combined_data)} combined samples to {combined_path}")
+    extract_gsm8k(gsm8k_path, limit=gsm8k_limit)
+    extract_math(math_path, limit=math_limit)
 
     return {
-        "gsm8k_path": str(gsm8k_path),
-        "math_path": str(math_path),
-        "combined_path": str(combined_path)
+        "gsm8k": str(gsm8k_path),
+        "math": str(math_path)
     }
 
-
 def main():
-    """Main entry point for the static QA extractor."""
-    config = get_config()
+    """CLI entry point for static QA extraction."""
+    import argparse
 
-    # Determine output directory from config or default
-    output_dir = config.static_data_output_dir
-    if not output_dir:
-        # Fallback to default path structure
-        project_root = Path(__file__).resolve().parent.parent.parent
-        output_dir = project_root / "data" / "processed" / "static_baseline"
+    parser = argparse.ArgumentParser(description="Extract static QA baseline from GSM8K and MATH.")
+    parser.add_argument("--gsm8k-limit", type=int, default=100, help="Max GSM8K samples")
+    parser.add_argument("--math-limit", type=int, default=100, help="Max MATH samples")
+    parser.add_argument("--output-dir", type=str, default=None, help="Base output directory")
 
-    logger.info(f"Static QA extractor starting. Output directory: {output_dir}")
+    args = parser.parse_args()
 
-    # Extract static QA pairs
-    # Use sample limits for initial run to avoid excessive data
-    # These can be adjusted based on available resources
-    gsm8k_limit = config.gsm8k_sample_limit if hasattr(config, 'gsm8k_sample_limit') else None
-    math_limit = config.math_sample_limit if hasattr(config, 'math_sample_limit') else None
+    output_dir = Path(args.output_dir) if args.output_dir else None
 
-    result = extract_static_qa(
-        output_dir=str(output_dir),
-        gsm8k_samples=gsm8k_limit,
-        math_samples=math_limit
-    )
-
-    logger.info(f"Static QA extraction complete. Files generated:")
-    logger.info(f"  GSM8K: {result['gsm8k_path']}")
-    logger.info(f"  MATH: {result['math_path']}")
-    logger.info(f"  Combined: {result['combined_path']}")
-
-    # Print summary to stdout for quick verification
-    print(f"Static QA extraction complete:")
-    print(f"  GSM8K samples: {sum(1 for _ in open(result['gsm8k_path']))}")
-    print(f"  MATH samples: {sum(1 for _ in open(result['math_path']))}")
-    print(f"  Combined samples: {sum(1 for _ in open(result['combined_path']))}")
-    print(f"Output directory: {output_dir}")
-
-    return result
-
+    try:
+        results = extract_static_qa(
+            gsm8k_limit=args.gsm8k_limit,
+            math_limit=args.math_limit,
+            base_output_dir=output_dir
+        )
+        print("Extraction successful. Output files:")
+        for source, path in results.items():
+            print(f"  {source}: {path}")
+    except Exception as e:
+        logger.error(f"Extraction failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

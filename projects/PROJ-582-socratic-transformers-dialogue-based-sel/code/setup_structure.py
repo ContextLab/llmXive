@@ -1,70 +1,63 @@
 """
-Script to create the required project directory structure and placeholder files.
-This satisfies T001 by programmatically ensuring the tree exists.
+Setup script to initialize the project directory structure.
+Creates required directories and placeholder files as per T001.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root relative to this script's location or current dir
-    # The task specifies paths relative to the project root.
-    # We assume this script runs from the project root or we resolve relative to itself.
-    base_dir = Path(__file__).parent / "projects" / "PROJ-582-socratic-transformers-dialogue-based-sel" / "code"
-
-    # Directories to create
-    dirs = [
-        "src",
-        "src/data",
-        "src/train",
-        "src/eval",
-        "src/analyze",
-        "src/utils",
-        "tests",
-        "tests/contract",
-        "tests/integration",
+    base_dir = Path(__file__).parent
+    project_root = base_dir / "projects" / "PROJ-582-socratic-transformers-dialogue-based-sel" / "code"
+    
+    # Define directories to create
+    dirs_to_create = [
+        project_root / "src" / "data",
+        project_root / "src" / "train",
+        project_root / "src" / "eval",
+        project_root / "src" / "analyze",
+        project_root / "src" / "utils",
+        project_root / "tests",
+        project_root / "tests" / "contract",
+        project_root / "tests" / "integration",
+        # Data sub-structure for T004 (created here to ensure structure exists)
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
     ]
 
-    created_dirs = []
-    for d in dirs:
-        full_path = base_dir / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory exists: {full_path}")
-
-    # Files to create (if they don't exist)
-    files = [
-        "requirements.txt",
-        "src/__init__.py",
-        "tests/__init__.py",
-        "src/data/__init__.py",
-        "src/train/__init__.py",
-        "src/eval/__init__.py",
-        "src/analyze/__init__.py",
-        "src/utils/__init__.py",
-        "tests/contract/__init__.py",
-        "tests/integration/__init__.py",
+    # Define files to create (if they don't exist or are empty)
+    files_to_create = [
+        project_root / "src" / "__init__.py",
+        project_root / "tests" / "__init__.py",
+        project_root / "src" / "data" / "__init__.py",
+        project_root / "src" / "train" / "__init__.py",
+        project_root / "src" / "eval" / "__init__.py",
+        project_root / "src" / "analyze" / "__init__.py",
+        project_root / "src" / "utils" / "__init__.py",
+        project_root / "tests" / "contract" / "__init__.py",
+        project_root / "tests" / "integration" / "__init__.py",
+        project_root / "data" / "raw" / ".gitkeep",
+        project_root / "data" / "processed" / ".gitkeep",
+        project_root / "data" / "results" / ".gitkeep",
     ]
 
-    created_files = []
-    for f in files:
-        full_path = base_dir / f
-        if not full_path.exists():
-            # Create empty or minimal content
-            full_path.touch()
-            created_files.append(str(full_path))
-            print(f"Created file: {full_path}")
+    print(f"Setting up project structure at: {project_root}")
+
+    # Create directories
+    for d in dirs_to_create:
+        d.mkdir(parents=True, exist_ok=True)
+        print(f"  Created directory: {d.relative_to(project_root)}")
+
+    # Create files
+    for f in files_to_create:
+        if not f.exists():
+            f.touch()
+            print(f"  Created file: {f.relative_to(project_root)}")
         else:
-            print(f"File exists: {full_path}")
+            print(f"  Skipped existing file: {f.relative_to(project_root)}")
 
-    print("\n--- Setup Summary ---")
-    print(f"Created {len(created_dirs)} directories.")
-    print(f"Created {len(created_files)} files.")
-    print("Project structure T001 verification complete.")
-
+    print("Project structure setup complete.")
     return 0
 
 if __name__ == "__main__":

@@ -1,17 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `ruff.toml`, or Black settings)
-    or scripts enabling ruff/black linting/formatting are present in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`.
-    Without these artifacts, the task of configuring the tools cannot be confirmed
-    as completed.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/results/`)\
-    \ or the `.gitkeep` placeholder files is provided; the implementer\u2019s claim\
-    \ is unsubstantiated. The next implementer must create the three data sub\u2011\
-    directories and add a `.gitkeep` file in each to satisfy the task."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
