@@ -8,6 +8,7 @@ distributions, with specific safeguards against numerical instability
 
 import numpy as np
 from typing import Union, List, Optional
+import torch
 
 def compute_shannon_entropy(probs: Union[np.ndarray, List[float]]) -> float:
     """
@@ -133,34 +134,48 @@ def compute_layer_wise_entropy(
     return compute_batch_entropy(probs)
 
 
-def calculate_entropy(logits: np.ndarray) -> float:
+def calculate_entropy(logits: Union[np.ndarray, torch.Tensor]) -> float:
     """
     Calculate Shannon entropy from raw logits.
 
-    This is the primary API function required by T004. It converts
-    logits to probabilities using softmax and then computes the
-    Shannon entropy with clamping to prevent log(0) errors.
+    This is the primary API function required by T004. It accepts raw logits
+    (as a numpy array or torch tensor), applies softmax internally to convert
+    to probabilities, clamps probability values < 1e-9 to 1e-9 BEFORE taking
+    the logarithm to prevent log(0) errors, and returns a float.
 
     Args:
-        logits: A 1D numpy array of raw logit values.
+        logits: A 1D numpy array or torch tensor of raw logit values.
 
     Returns:
         float: The calculated Shannon entropy.
 
     Example:
+        >>> import numpy as np
         >>> logits = np.array([2.0, 1.0, 0.0])
         >>> calculate_entropy(logits)
         0.693147...
+        
+        >>> import torch
+        >>> logits = torch.tensor([2.0, 1.0, 0.0])
+        >>> calculate_entropy(logits)
+        0.693147...
     """
-    if not isinstance(logits, np.ndarray):
-        raise TypeError(f"Expected numpy array, got {type(logits)}")
+    # Handle torch tensor input
+    if isinstance(logits, torch.Tensor):
+        # Convert to numpy for consistent processing
+        # Detach if on GPU or requires grad
+        logits_np = logits.detach().cpu().numpy()
+    elif isinstance(logits, np.ndarray):
+        logits_np = logits
+    else:
+        raise TypeError(f"Expected numpy array or torch tensor, got {type(logits)}")
     
-    if logits.ndim != 1:
-        raise ValueError(f"Expected 1D input, got {logits.ndim}D")
+    if logits_np.ndim != 1:
+        raise ValueError(f"Expected 1D input, got {logits_np.ndim}D")
 
     # Apply softmax to convert logits to probabilities
     # Subtract max for numerical stability
-    exp_logits = np.exp(logits - np.max(logits))
+    exp_logits = np.exp(logits_np - np.max(logits_np))
     probs = exp_logits / np.sum(exp_logits)
 
     # Compute entropy using the clamped logic

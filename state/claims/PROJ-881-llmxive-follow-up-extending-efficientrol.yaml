@@ -337,3 +337,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T14:30:46Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: GSM8K validity determined by exact match with dataset solution
+  claim_id: c_4501292d
+  context: For GSM8K, validity is determined by exact match with the dataset solution.
+    For MiniGrid, validity is determined by exact match with the canonical A* solver
+    path (external ground truth) as required by the Spec's Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_validity_determined_by_exact_match_with_dataset_soluti
+  kind: entity_fact
+  raw_text: For GSM8K, validity is determined by exact match with the dataset solution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:05:55Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 2
+  canonical: MiniGrid validity determined by exact match with canonical A* solver
+    path
+  claim_id: c_40e441b3
+  context: For GSM8K, validity is determined by exact match with the dataset solution.
+    For MiniGrid, validity is determined by exact match with the canonical A* solver
+    path (external ground truth) as required by the Spec's Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MiniGrid_validity_determined_by_exact_match_with_canonical_A
+  kind: entity_fact
+  raw_text: For MiniGrid, validity is determined by exact match with the canonical
+    A* solver path.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:06:51Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Process fixed-size token batches of 50 tokens for memory safety during
+    entropy extraction
+  claim_id: c_83d0e719
+  context: Implement streaming/chunking logic in src/generation/generation.py to process
+    fixed-size token batches of 50 tokens (for memory safety during entropy extraction)
+    and write to disk immediately after each batch to stay within 7GB RAM limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST implement the logic to process fixed-size token batches
+    of 50 tokens for memory safety during entropy extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:10:13Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: RAM usage under 6.5GB for 512-token sequences in batches of 50
+  claim_id: c_57ecfa5f
+  context: Profile src/generation/generation.py using cProfile and verify RAM usage
+    stays < 6.5GB for sequences up to 512 tokens processed in batches of 50 tokens.
+  evidence:
+    candidates:
+    - - GB for
+      - 512.0
+    - - RAM usage under
+      - 6.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_under_6.5GB_for_512-token_sequences_in_batches_of
+  kind: magnitude
+  raw_text: Verify RAM usage stays less than 6.5GB for sequences up to 512 tokens
+    processed in batches of 50 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T01:12:16Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: Compare AUC-ROC for short and long sequence subsets at 100 tokens
+  claim_id: c_fbb27811
+  context: Implement src/analysis/decay_analysis.py to split the dataset into short
+    (sequence length <= 100 tokens) and long (sequence length > 100 tokens) subsets.
+    Calculate and compare AUC-ROC for both subsets to measure decay of predictive
+    power (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate and compare AUC-ROC for short (sequence length <= 100 tokens)
+    and long (sequence length > 100 tokens) subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:12:23Z'

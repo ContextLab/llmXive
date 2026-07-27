@@ -1,40 +1,36 @@
-# Ruff configuration for llmXive Follow-up
-# This file extends or overrides settings from pyproject.toml if needed,
-# but primarily serves as the entry point for ruff check/format.
+# Ruff configuration file
+# This file extends the settings in pyproject.toml for specific overrides if needed
+# or serves as the primary config if pyproject.toml is not detected by the tool.
 
-extend = "pyproject.toml"
+line-length = 88
+target-version = "py39"
 
 [lint]
-# Enable specific rule sets
 select = [
-    "E", # pycodestyle errors
-    "W", # pycodestyle warnings
-    "F", # Pyflakes
-    "I", # isort
-    "B", # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-    "N", # pep8-naming
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
     "ARG", # flake8-unused-arguments
     "SIM", # flake8-simplify
 ]
-
-# Ignore specific rules that conflict with project style or are noisy
 ignore = [
-    "E501", # Line too long (handled by Black)
-    "B008", # Do not perform function call in argument defaults (common in fastapi/pytest)
-    "ARG001", # Unused function argument (sometimes valid in protocols)
-    "ARG002", # Unused method argument
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+    "ARG001", # unused arguments in tests are common
+    "ARG002", # unused arguments in tests are common
 ]
 
-# Per-file ignores
-[lint.per-file-ignores]
-"tests/*" = ["ARG", "S101"] # Allow asserts in tests, ignore unused args in fixtures
-"src/*/main.py" = ["T201"] # Allow print in main entry points
+[lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+combine-as-imports = true
 
-[format]
-# Format settings matching Black
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ARG001", "ARG002"] # assert statements and unused args in tests
+"scripts/**/*.py" = ["T201"] # print statements allowed in scripts

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a research pipeline to investigate whether intermediate-layer Shannon entropy in transformer models predicts token validity (ground-truth match) during autoregressive generation. The system downloads GSM and MiniGrid datasets (using `minari/babyai-nav` for MiniGrid), generates ground-truth sequences using a CPU-tractable model (1.5B or quantized B), extracts entropy profiles from intermediate layers, and fits a Mixed-Effects Logistic Regression (GLMM) to predict validity. The plan addresses the "fatal feasibility" constraints of the GitHub Actions free-tier (Multiple CPU, 7GB RAM) by implementing strict streaming, batching, and memory back-off strategies, while reserving GPU offloading for the specific case of running the base model if the CPU-tractable variant is insufficient.
+This feature implements a research pipeline to investigate whether intermediate-layer Shannon entropy in transformer models predicts token validity (ground-truth match) during autoregressive generation. The system downloads GSM and MiniGrid datasets (using `minari/babyai-nav` for MiniGrid), generates ground-truth sequences using a CPU-tractable model (quantized B), extracts entropy profiles from intermediate layers, and fits a Mixed-Effects Logistic Regression (GLMM) to predict validity. The plan addresses the "fatal feasibility" constraints of the GitHub Actions free-tier (Multiple CPU, 7GB RAM) by implementing strict streaming, batching, and memory back-off strategies, while reserving GPU offloading for the specific case of running the base model if the CPU-tractable variant is insufficient.
 
 ## Technical Context
 
@@ -98,7 +98,7 @@ projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Streaming/Batching (50 tokens for inference, 500 rows for dataset) | Required to fit within 7GB RAM when processing sequences up to 512 tokens. | Loading full sequences in memory would exceed RAM limits for the target model size. |
+| Streaming/Batching (a small token batch for inference, 500 rows for dataset) | Required to fit within 7GB RAM when processing sequences up to 512 tokens. | Loading full sequences in memory would exceed RAM limits for the target model size. |
 | GPU Offload (Kaggle) | Required if CPU-tractable model (1.5B) is insufficient for the task or if quantized 7B is needed for higher fidelity. | CPU-only emulation of GPU tasks is fabrication; real computation must be scaled down to fit Kaggle's Sufficient VRAM capacity to support the model architecture and batch size required by the research question.. |
 | GLMM (Mixed-Effects) | Required to handle nested data (tokens within sequences) and avoid Type I error inflation. | Standard Logistic Regression was rejected because it treats tokens as independent, violating statistical rigor for sequence data. |
 
@@ -118,8 +118,8 @@ projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 - **T-STRAT**: Implement `src/data/preprocessing.py` to split data into "short" (<32 tokens) and "long" (>64 tokens) subsets for SC-004 analysis.
 
 ### Phase 3: Generation & Instrumentation
-- **T-GEN**: Implement `src/generation/generation.py` with `generate_baseline` (streaming 500 examples) and `label_validity` (exact match for GSM8K, canonical solver path for MiniGrid).
-- **T-ENT-EXT**: Implement `src/generation/instrument.py` to extract entropy profiles in batches of 50 tokens. **Note**: Process sequences in batches of 50 tokens *within* a sequence, but do not split a single sequence across batches if it breaks the context window. If a sequence is >50 tokens, it is processed in multiple 50-token chunks, but the validity labeling and entropy extraction are performed on the full sequence context, with the batch size only limiting the *memory footprint* of the intermediate state storage. The '500 rows' refers to the dataset chunk size for streaming, while '50 tokens' refers to the inference batch size for a single sequence's intermediate states.
+- **T-GEN**: Implement `src/generation/generation.py` with `generate_baseline` (streaming a batch of examples) and `label_validity` (exact match for GSM8K, canonical solver path for MiniGrid).
+- **T-ENT-EXT**: Implement `src/generation/instrument.py` to extract entropy profiles in batches of tokens. **Note**: Process sequences in batches of tokens. *within* a sequence, but do not split a single sequence across batches if it breaks the context window. If a sequence is >50 tokens, it is processed in multiple 50-token chunks, but the validity labeling and entropy extraction are performed on the full sequence context, with the batch size only limiting the *memory footprint* of the intermediate state storage. The dataset chunk size for streaming refers to a configurable unit of data., while '50 tokens' refers to the inference batch size for a single sequence's intermediate states.
 
 ### Phase 4: Analysis & Reporting
 - **T-GLMM**: Implement `src/analysis/models.py` to fit Mixed-Effects Logistic Regression (GLMM) with random intercepts for `sequence_id` and `layer_id` to account for nested structure.
@@ -139,12 +139,12 @@ projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 ## Compute Feasibility
 
 ### CPU-First Strategy
-- **Model**: A medium-scale model (e.g., TinyLlama-1.1B) is selected for CPU execution.
+- **Model**: A medium-scale model (e.g., TinyLlama) is selected for CPU execution.
 - **Optimization**: `torch.backends.cudnn.benchmark = False`, `torch.set_float32_matmul_precision('medium')`.
 - **Memory**: Intermediate states are discarded immediately after entropy calculation. Batching (50 tokens for inference, 500 examples for dataset streaming) ensures RAM usage stays < 7GB.
 
 ### GPU Escape Hatch (Kaggle)
-- **Trigger**: If the 1.5B model fails to generate valid sequences or if a 7B quantized model is required for higher fidelity.
+- **Trigger**: If the small-scale model fails to generate valid sequences or if a larger quantized model is required for higher fidelity.
 - **Implementation**: The code detects `CUDA_VISIBLE_DEVICES`. If present, it loads a quantized large language model on the GPU.
 - **Scaling**: The GPU run is scaled to a representative sample of examples per task to fit within the Extended Kaggle kernel limit
 
@@ -158,7 +158,7 @@ The study investigates the scalability of deep learning models under constrained
 | Decision | Rationale |
 |:--- |:--- |
 | **GLMM over Standard Regression** | Required by the nested nature of token data (tokens within sequences). Standard regression violates independence assumptions. |
-| **Streaming/Batching (50 tokens for inference, 500 rows for dataset)** | Essential to fit within 7GB RAM. Loading full sequences for 1000 examples with intermediate states would exceed memory. |
+| **Streaming/Batching (50 tokens for inference, 500 rows for dataset)** | Essential to fit within 7GB RAM. Loading full sequences for a large number of examples with intermediate states would exceed memory.. |
 | **GSM8K + Minari (babyai-nav)** | Provides diversity in reasoning (math) vs. spatial (navigation) tasks. Minari provides pre-computed action sequences, ensuring valid ground truth. |
 | **BH + Bonferroni** | FR-006 requires handling multiple comparisons. BH is more powerful for exploratory analysis; Bonferroni is conservative. Both are implemented (BH primary, Bonferroni sensitivity). |
 | **Canonical Solver for MiniGrid** | Resolves non-deterministic ground truth. The solver generates a single canonical path; any deviation is "invalid". The model accounts for alternative valid paths via a `path_type` covariate. |

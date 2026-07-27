@@ -150,4 +150,4 @@ class Config:
             The Path to the model directory.
         """
         self.model_path.mkdir(parents=True, exist_ok=True)
-        return self.model_path
+        return self.model_dir

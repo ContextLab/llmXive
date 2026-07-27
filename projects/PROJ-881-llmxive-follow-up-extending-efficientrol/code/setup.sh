@@ -1,61 +1,83 @@
 #!/bin/bash
-# Setup script for llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
-# Creates the required project directory structure
-
 set -e
 
 PROJECT_ROOT="projects/PROJ-881-llmxive-follow-up-extending-efficientrol"
-CODE_DIR="$PROJECT_ROOT/code"
+CODE_ROOT="${PROJECT_ROOT}/code"
 
-# Define all required directories
-DIRS=(
-    "$CODE_DIR/src"
-    "$CODE_DIR/tests"
-    "$CODE_DIR/data"
-    "$CODE_DIR/docs"
-    "$CODE_DIR/scripts"
-    "$CODE_DIR/results"
-    "$CODE_DIR/specs/001-entropy-validity-prediction/contracts"
-    "$PROJECT_ROOT/logs"
-    "$PROJECT_ROOT/state"
+# Phase 1: Create root project directory structure
+mkdir -p "${CODE_ROOT}"
+mkdir -p "${CODE_ROOT}/tests"
+mkdir -p "${CODE_ROOT}/data"
+mkdir -p "${CODE_ROOT}/docs"
+mkdir -p "${CODE_ROOT}/scripts"
+mkdir -p "${CODE_ROOT}/results"
+mkdir -p "${CODE_ROOT}/specs/001-entropy-validity-prediction/contracts"
+
+# Phase 1: Create source subdirectories within code root
+mkdir -p "${CODE_ROOT}/src"
+mkdir -p "${CODE_ROOT}/src/utils"
+mkdir -p "${CODE_ROOT}/src/data"
+mkdir -p "${CODE_ROOT}/src/generation"
+mkdir -p "${CODE_ROOT}/src/analysis"
+mkdir -p "${CODE_ROOT}/logs"
+
+# Verify structure
+REQUIRED_DIRS=(
+  "${CODE_ROOT}"
+  "${CODE_ROOT}/tests"
+  "${CODE_ROOT}/data"
+  "${CODE_ROOT}/docs"
+  "${CODE_ROOT}/scripts"
+  "${CODE_ROOT}/results"
+  "${CODE_ROOT}/specs/001-entropy-validity-prediction/contracts"
+  "${CODE_ROOT}/src"
+  "${CODE_ROOT}/src/utils"
+  "${CODE_ROOT}/src/data"
+  "${CODE_ROOT}/src/generation"
+  "${CODE_ROOT}/src/analysis"
+  "${CODE_ROOT}/logs"
 )
 
-echo "Creating project directory structure..."
-
-# Create all directories
-for dir in "${DIRS[@]}"; do
-    mkdir -p "$dir"
+MISSING=0
+for dir in "${REQUIRED_DIRS[@]}"; do
+  if [ ! -d "$dir" ]; then
+    echo "Missing directory: $dir"
+    MISSING=1
+  fi
 done
 
-# Verify all directories exist
-ALL_EXIST=true
-for dir in "${DIRS[@]}"; do
-    if [ ! -d "$dir" ]; then
-        echo "ERROR: Directory $dir was not created successfully"
-        ALL_EXIST=false
-    fi
-done
-
-if [ "$ALL_EXIST" = false ]; then
-    echo "Structure creation failed"
-    exit 1
+if [ $MISSING -eq 1 ]; then
+  echo "Structure creation failed"
+  exit 1
 fi
 
-# Generate project_structure.log
-LOG_FILE="$CODE_DIR/project_structure.log"
-{
-    echo "Project Structure Creation Log"
-    echo "=============================="
-    echo "Timestamp: $(date -Iseconds)"
-    echo ""
-    echo "Directories created:"
-    for dir in "${DIRS[@]}"; do
-        echo "  - $dir [EXISTS]"
-    done
-    echo ""
-    echo "Status: SUCCESS"
-    echo "Structure created"
-} > "$LOG_FILE"
-
 echo "Structure created"
-echo "Log file generated: $LOG_FILE"
+
+# Generate project_structure.log with absolute paths
+LOG_FILE="${CODE_ROOT}/../project_structure.log"
+python3 -c "
+import json
+import os
+
+dirs = [
+    '${CODE_ROOT}',
+    '${CODE_ROOT}/tests',
+    '${CODE_ROOT}/data',
+    '${CODE_ROOT}/docs',
+    '${CODE_ROOT}/scripts',
+    '${CODE_ROOT}/results',
+    '${CODE_ROOT}/specs/001-entropy-validity-prediction/contracts',
+    '${CODE_ROOT}/src',
+    '${CODE_ROOT}/src/utils',
+    '${CODE_ROOT}/src/data',
+    '${CODE_ROOT}/src/generation',
+    '${CODE_ROOT}/src/analysis',
+    '${CODE_ROOT}/logs'
+]
+
+# Convert to absolute paths
+abs_paths = [os.path.abspath(d) for d in dirs]
+
+with open('${LOG_FILE}', 'w') as f:
+    json.dump(abs_paths, f, indent=2)
+"

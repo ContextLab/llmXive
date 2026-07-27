@@ -1,17 +1,64 @@
-T007:
-  c: true
-  h: 8803e2f6d4e93800d39a3542ac3e4e0f3225e9c73815d491140f21d45e33ae5b
-  r: "The repository contains a non\u2011empty `code/src/data/download.py` (\u2248\
-    9\u202FKB) that implements streaming downloads of GSM8K and MiniGrid from HuggingFace\
-    \ with a configurable subset limit and no synthetic fallbacks, matching the task\
-    \ specification."
-T008:
+T001a:
   c: false
-  h: 40db9efed9ce5eedfbfc7a4c553237ba0da5b76731fda494e45f6917b170ea5e
-  r: "The `.env.example` file is present and correctly defines the three required\
-    \ keys, but the `code/src/config.py` file is either missing or incomplete (the\
-    \ displayed content ends abruptly mid\u2011statement, indicating a broken or unfinished\
-    \ implementation). The required configuration loader is therefore not fully provided."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `setup.sh` file was provided, and there is no evidence that a script containing\
+    \ the required `mkdir -p` commands for the listed directories exists. The implementer\
+    \ must supply a non\u2011empty `setup.sh` with explicit `mkdir -p` statements\
+    \ for all specified paths."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `setup.sh` file was provided, nor any evidence that it creates the required
+    `src/`, `tests/`, `data/`, `docs/`, `scripts/`, and `results/` subdirectories.
+    The implementer must supply a `setup.sh` script containing the appropriate `mkdir
+    -p` commands for these directories.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `project_structure.log` file was presented; the claim that `setup.sh` now
+    logs the created directory paths cannot be verified because the required log artifact
+    is missing. The next implementer must provide the actual `project_structure.log`
+    containing the JSON list of absolute paths.
+T002:
+  c: false
+  h: de5dac160f67e754bc9620f42e68d04a10681ca01c9e7fa29c15e811e1b7bdc3
+  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`\
+    \ does not exist, even though a `code/requirements.txt` with the correct packages\
+    \ is present elsewhere. The task\u2019s deliverable is missing at the specified\
+    \ path."
+T004:
+  c: false
+  h: 9642a0c829cf19182cba1106b7c1407231e6e78ae5138286d1ea67df6e5a2ca6
+  r: "The provided `entropy_calc.py` defines `compute_shannon_entropy` and related\
+    \ helpers, but does **not** implement a `calculate_entropy(logits)` function that\
+    \ takes raw torch logits, applies softmax, clamps probabilities, and returns a\
+    \ float. Moreover, the required unit test `tests/unit/test_entropy_calc.py::test_clamp_prevents_log_zero`\
+    \ is missing. The task\u2019s core deliverable is therefore not present."
+T005:
+  c: false
+  h: 987c8b183234c13e8ee25e17f8ea49006c804f1c35cc20c636e5f6271ef5bef2
+  r: 'The provided `validators.py` is either missing or incomplete: the file is truncated,
+    lacks the `EntropyProfile` implementation, and contains no actual validation functions
+    for the three schemas. The required `src/utils/validators.py` with full validation
+    logic is not present.'
+T006:
+  c: false
+  h: fd2a90e37ff10ea6f274df890f1ee1e66eb3644fb84bb144f6d830ad36873b71
+  r: "The provided `code/src/data/preprocessing.py` enforces a fixed batch size of\
+    \ exactly\u202F50 tokens (via `validate_batch_size`), yet the integration tests\
+    \ expect `validate_batch_size` to accept arbitrary sizes and only reject clearly\
+    \ invalid values (0, negative, >\u202F10000). Consequently, `test_validate_batch_size_valid`,\
+    \ `test_validate_batch_size_invalid`, and `test_stream_tokens_in_batches` would\
+    \ fail. Moreover, the truncated `stream_batch` implementation does not show the\
+    \ required merging of 50\u2011token chunks back into a single sequence or explicit\
+    \ handling of a `MemoryError`. The missing or incorrec"
+T007:
+  c: false
+  h: dee2fa44b8e77df83082d33a067629073efd55cd357a38cc594015ec0309f72e
+  r: The required file `src/data/download.py` does not exist (only a `code/src/data/download.py`
+    is present), and the shown snippet is truncated before confirming that MiniGrid
+    fetching is implemented. The deliverable path and full functionality are therefore
+    missing.
 T009:
   c: false
   h: 8233450ba8cbd420a5cbf7ee6b1e2a43523fb6668409b7c7926a266325cf8f2b
@@ -76,3 +123,11 @@ T031:
     \ output file `code/results/final_report.json` is absent, and the provided code\
     \ does not demonstrate that it writes a JSON report with AUC\u2011ROC, p\u2011\
     values, and the optimal threshold. The task therefore remains unfinished."
+T041:
+  c: false
+  h: d46000989533479f01766c17b0e41239458a1ef0bb55b36970ac234512e6a809
+  r: "The provided `code/src/generation/generation.py` contains logging and placeholder\
+    \ generation functions but lacks any use of `datasets.load_dataset(..., streaming=True)`,\
+    \ chunking of 500 rows, or hard\u2011stop enforcement for GSM8K and MiniGrid.\
+    \ Moreover, the required file `src/generation/generation.py` is missing entirely.\
+    \ The task\u2019s core streaming\u2011logic requirement is not satisfied."
