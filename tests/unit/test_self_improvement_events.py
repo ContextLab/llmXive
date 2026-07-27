@@ -264,6 +264,31 @@ def test_the_canonical_serializer_refuses_non_finite_numbers():
         event_to_json(ev)
 
 
+@pytest.mark.parametrize("event_type", ["AttemptCreditRetained", "AttemptCreditReleased",
+                                        "AttemptCreditReconciled"])
+def test_a_reservation_transition_names_its_reservation_and_attempt(event_type):
+    validate_lane_event(
+        _raw(event_type=event_type, attempt_id="A1", payload={"reservation_id": "r1"})
+    )
+
+
+@pytest.mark.parametrize("event_type", ["AttemptCreditRetained", "AttemptCreditReleased",
+                                        "AttemptCreditReconciled"])
+@pytest.mark.parametrize("attempt_id, payload, why", [
+    ("A1", {}, "reservation_id"),                          # names no reservation
+    ("A1", {"reservation_id": ""}, "reservation_id"),
+    ("A1", {"reservation_id": 7}, "reservation_id"),
+    (None, {"reservation_id": "r1"}, "envelope attempt_id"),  # the projection filters on it
+    ("A1", {"reservation_id": "r1", "note": "x"}, "unexpected"),
+])
+def test_a_malformed_reservation_transition_is_rejected(event_type, attempt_id, payload, why):
+    # project_reservations filters by the envelope attempt_id and keys on reservation_id.
+    # An event missing either is skipped rather than applied — so a Released that vanished
+    # would leave its credits counting against the Attempt's budget forever.
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_raw(event_type=event_type, attempt_id=attempt_id, payload=payload))
+
+
 # ---- the coordinator stream's payload schemas ----
 
 

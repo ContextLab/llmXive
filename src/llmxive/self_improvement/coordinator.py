@@ -7,9 +7,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Any
 
-from llmxive.self_improvement.events import COORDINATOR_STREAM, Event, derive_event_id
+from llmxive.self_improvement.events import (
+    COORDINATOR_STREAM,
+    Event,
+    derive_event_id,
+    payload_field,
+)
 from llmxive.self_improvement.lane_log import LaneLogConfig, append, read
 
 _COORDINATOR_TYPES = {"ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet"}
@@ -33,20 +37,6 @@ class LaneCoordinator:
 EMPTY_COORDINATOR = LaneCoordinator(0, None, None, (), False, None, 0)
 
 
-def _field(event: Event, key: str) -> Any:
-    """A payload field the fold acts on, as a ValueError rather than a KeyError.
-
-    ``validate_lane_event`` already rejects a malformed coordinator payload at the write
-    boundary; this is what keeps a hand-built or otherwise unvalidated ``Event`` from
-    reaching the fold as a crash instead of a refusal."""
-    try:
-        return event.payload[key]
-    except (KeyError, TypeError) as exc:
-        raise ValueError(
-            f"{event.event_type} event {event.event_id!r} payload lacks {key!r} — fail closed"
-        ) from exc
-
-
 def project_coordinator(events: list[Event]) -> LaneCoordinator:
     """Fold the coordinator stream, enforcing the LEGAL TRANSITION MATRIX. The projection
     is the recovery authority, so it fails closed on any illegal history — a
@@ -67,20 +57,20 @@ def project_coordinator(events: list[Event]) -> LaneCoordinator:
                 raise ValueError(
                     f"illegal transition ClaimAcquired while active ({c.active_problem_id!r})"
                 )
-            c = replace(c, active_problem_id=_field(e, "problem_id"),
-                        active_attempt_id=_field(e, "attempt_id"))
+            c = replace(c, active_problem_id=payload_field(e, "problem_id"),
+                        active_attempt_id=payload_field(e, "attempt_id"))
         elif e.event_type == "ClaimReleased":
             if c.active_problem_id is None:  # only active → idle
                 raise ValueError("illegal transition ClaimReleased while idle")
             if (c.active_problem_id, c.active_attempt_id) != (
-                _field(e, "problem_id"), _field(e, "attempt_id")
+                payload_field(e, "problem_id"), payload_field(e, "attempt_id")
             ):
                 raise ValueError("illegal transition ClaimReleased by a non-owner")
             c = replace(c, active_problem_id=None, active_attempt_id=None)
         elif e.event_type == "MonitorStarted":
-            c = replace(c, monitored_attempts=(*c.monitored_attempts, _field(e, "attempt_id")))
+            c = replace(c, monitored_attempts=(*c.monitored_attempts, payload_field(e, "attempt_id")))
         elif e.event_type == "PromotionEnabledSet":
-            enabled = _field(e, "promotion_enabled")
+            enabled = payload_field(e, "promotion_enabled")
             if not isinstance(enabled, bool):
                 # NOT coerced: bool("false") is True, so coercion would open the
                 # autonomous-merge gate a record was written to close.

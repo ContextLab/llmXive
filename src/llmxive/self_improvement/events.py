@@ -266,6 +266,25 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
     _positive_int(payload, "call_ceiling")
 
 
+_RESERVATION_TRANSITION_KEYS = frozenset({"reservation_id"})
+
+
+def _validate_reservation_transition(raw: Mapping[str, Any]) -> None:
+    """``AttemptCreditRetained``/``Released``/``Reconciled`` — the money state machine's
+    transitions.
+
+    Both fields the projection reads are required. Without ``reservation_id`` the
+    transition names nothing and would be skipped; without the envelope ``attempt_id`` the
+    projection — which filters on it — would never see the event at all. Either way a
+    ``Released`` that silently vanishes leaves its credits counting against the Attempt's
+    budget forever, and a lost ``Retained`` breaks the reconcile chain that follows it."""
+    payload = raw["payload"]
+    _exact_keys(payload, _RESERVATION_TRANSITION_KEYS, f"{raw['event_type']} payload")
+    if not raw.get("attempt_id"):
+        raise ValueError(f"an {raw['event_type']} event must carry its envelope attempt_id")
+    _require(payload, "reservation_id", str)
+
+
 _CLAIM_KEYS = frozenset({"problem_id", "attempt_id"})
 _MONITOR_KEYS = frozenset({"attempt_id"})
 _PROMOTION_KEYS = frozenset({"promotion_enabled", "policy_version"})
@@ -326,6 +345,9 @@ def _validate_promotion_enabled_set(raw: Mapping[str, Any]) -> None:
 TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     "AttemptConfigured": _validate_attempt_configured,
     "AttemptCreditReserved": _validate_attempt_credit_reserved,
+    "AttemptCreditRetained": _validate_reservation_transition,
+    "AttemptCreditReleased": _validate_reservation_transition,
+    "AttemptCreditReconciled": _validate_reservation_transition,
     "LaneCallClaimed": _validate_lane_call_claimed,
     # The coordinator stream: these four are what `project_coordinator` folds, and the
     # projection is the lane's recovery authority — a malformed payload must be refused at
@@ -440,6 +462,21 @@ def validate_lane_event(raw: dict) -> None:
             validator(raw)          # the WHOLE event — payload/envelope cross-checks
         except ValueError as exc:
             raise ValueError(f"{raw['event_type']} payload invalid: {exc}") from exc
+
+
+def payload_field(event: Event, key: str) -> Any:
+    """A payload field a PROJECTION acts on, as a ValueError rather than a KeyError.
+
+    :func:`validate_lane_event` already rejects a malformed payload at the write boundary;
+    this is what keeps a hand-built or otherwise unvalidated ``Event`` from reaching a fold
+    as a crash instead of a refusal. Shared by every projection so the fail-closed shape is
+    written once."""
+    try:
+        return event.payload[key]
+    except (KeyError, TypeError) as exc:
+        raise ValueError(
+            f"{event.event_type} event {event.event_id!r} payload lacks {key!r} — fail closed"
+        ) from exc
 
 
 def event_to_json(event: Event) -> str:
