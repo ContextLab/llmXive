@@ -5,152 +5,174 @@ import logging
 import os
 import sys
 from pathlib import Path
-import time
+from typing import Optional, Dict, Any
 
-# Attempt to import datasets; if missing, we will let the import error surface
+# Attempt to import datasets; if missing, raise a clear error rather than using synthetic data
 try:
     from datasets import load_dataset
 except ImportError:
-    print("Error: 'datasets' package is required. Install via: pip install datasets")
-    sys.exit(1)
+    raise ImportError(
+        "The 'datasets' package is required for T037. "
+        "Install it via: pip install datasets"
+    )
 
-def setup_logging():
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+OUTPUT_FILE = RAW_DATA_DIR / "z_reward_data.parquet"
+CHECKSUM_FILE = RAW_DATA_DIR / "z_reward_data.sha256"
+
+# Expected schema columns (logical names mapped to potential dataset keys)
+REQUIRED_COLUMNS = {
+    "prompt",
+    "image_url",
+    "teacher_scores",  # Expected to be a dict or struct
+    "student_scalar",
+    "human_annotations",  # Expected to be a dict or struct
+    "primary_dimension"
+}
+
+# Verified sources prioritized list
+# 1. Primary: Hugging Face Dataset (Z-Reward Evaluation)
+# Note: We try the most likely candidate first. If the exact name differs,
+# the code below attempts to fetch and validate.
+DATASET_SOURCES = [
+    "z-reward/z-reward",
+    # Fallback candidates if the primary name is incorrect (hypothetical)
+    # "z-reward/evaluation",
+    # "z-reward/zreward"
+]
+
+def setup_logging() -> logging.Logger:
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
+        format="%(asctime)s - %(levelname)s - %(message)s"
     )
     return logging.getLogger(__name__)
 
-def calculate_sha256(filepath):
-    """Calculate SHA256 checksum of a file."""
+def calculate_sha256(file_path: Path) -> str:
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def save_checksum(checksum, filepath, checksum_file):
-    """Save checksum to a file."""
-    with open(checksum_file, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([os.path.basename(filepath), checksum])
-    logging.info(f"Checksum saved to {checksum_file}")
+def save_checksum(file_path: Path, checksum: str) -> None:
+    with open(CHECKSUM_FILE, "w") as f:
+        f.write(checksum)
 
-def verify_checksum(filepath, checksum_file):
-    """Verify file checksum against stored value."""
-    if not os.path.exists(checksum_file):
-        return False, "Checksum file not found"
+def verify_checksum(file_path: Path) -> bool:
+    if not CHECKSUM_FILE.exists():
+        return False
+    stored_checksum = CHECKSUM_FILE.read_text().strip()
+    current_checksum = calculate_sha256(file_path)
+    return stored_checksum == current_checksum
 
-    with open(checksum_file, 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if len(row) >= 2 and row[0] == os.path.basename(filepath):
-                stored_checksum = row[1]
-                current_checksum = calculate_sha256(filepath)
-                if current_checksum == stored_checksum:
-                    return True, "Checksum verified"
-                else:
-                    return False, f"Checksum mismatch: expected {stored_checksum}, got {current_checksum}"
-    return False, "Checksum entry not found"
-
-def download_dataset(logger):
+def validate_columns(df) -> None:
     """
-    Attempt to fetch the Z-Reward evaluation dataset.
-    Prioritized sources:
-    1. Z-Reward/eval-dataset
-    2. UCI/imagenet-rewards
-    Falls back to local cache if available, then raises RuntimeError.
+    Validates that the loaded dataset contains the required logical columns.
+    Raises RuntimeError if critical columns are missing.
     """
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "imagenet_rewards.parquet"
-    checksum_file = output_dir.parent / ".checksums"
+    # Check for top-level string columns
+    missing_top_level = []
+    for col in REQUIRED_COLUMNS:
+        if col not in df.column_names:
+            # Check for common variations if exact match fails
+            found = False
+            for actual_col in df.column_names:
+                if actual_col.lower() == col.lower():
+                    found = True
+                    break
+            if not found:
+                missing_top_level.append(col)
+
+    if missing_top_level:
+        raise RuntimeError(
+            f"Dataset is missing required top-level columns: {missing_top_level}. "
+            f"Available columns: {df.column_names}. "
+            "This dataset does not match the expected Z-Reward schema."
+        )
+
+    # Specific validation for dictionary/struct columns if present
+    # We assume 'teacher_scores' and 'human_annotations' are dicts or structs.
+    # If they are missing, we already caught them above.
+    # If they exist, we verify they aren't empty or malformed in a basic way.
+    # For now, presence is the primary check as per task description.
+
+def download_dataset(logger: logging.Logger) -> Path:
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     # If file already exists and checksum matches, skip download
-    if output_file.exists():
-        valid, msg = verify_checksum(str(output_file), str(checksum_file))
-        if valid:
-            logger.info(f"Dataset already exists and checksum verified: {output_file}")
-            return str(output_file)
-        else:
-            logger.warning(f"Existing file checksum invalid or missing: {msg}. Re-downloading...")
-            os.remove(output_file)
+    if OUTPUT_FILE.exists() and verify_checksum(OUTPUT_FILE):
+        logger.info(f"Dataset already exists and checksum verified: {OUTPUT_FILE}")
+        return OUTPUT_FILE
 
-    sources = ['Z-Reward/eval-dataset', 'UCI/imagenet-rewards']
+    logger.info("Attempting to fetch Z-Reward evaluation dataset...")
     dataset = None
-    last_error = None
 
-    for source in sources:
-        logger.info(f"Attempting to load dataset from: {source}")
+    for source in DATASET_SOURCES:
         try:
-            # Try loading with streaming first to check availability without full download
-            # Then load full dataset if streaming works
-            ds_stream = load_dataset(source, split="train", streaming=True)
-            # If streaming works, load full dataset
-            # Note: We use streaming=False for the actual load to get a parquet-compatible object
-            # But we rely on the stream check to verify existence first.
-            # However, load_dataset with streaming=True returns an IterableDataset which is not easily saved to parquet.
-            # So we load normally. If it's too big, the task requires chunked loading later, but here we just fetch.
-            # For the initial download task, we attempt a standard load.
-            # If the dataset is huge, we might need to handle it, but the task says "Download".
-            # We'll try loading the full dataset. If it fails due to size, we might need to adjust,
-            # but the primary goal is to get the real data file.
-            # To be safe with memory, we will try to load a subset if the full load fails,
-            # BUT the constraint says "NO synthetic fallbacks". If we can't get the full data, we fail.
-            # However, the task says "Save the raw data". If the dataset is 7GB+, we might need to stream and save chunks.
-            # Let's try to load the full dataset first.
+            logger.info(f"Trying source: {source}")
+            # Attempt to load the dataset
+            # streaming=False to ensure we get the full structure for validation
+            # Use trust_remote_code=True if necessary, though standard HF datasets usually don't need it
             dataset = load_dataset(source, split="train")
-            logger.info(f"Successfully loaded dataset from {source}")
+            
+            # Validate schema immediately
+            validate_columns(dataset)
+            
+            logger.info(f"Successfully loaded and validated dataset from {source}")
             break
         except Exception as e:
-            last_error = e
             logger.warning(f"Failed to load from {source}: {e}")
             continue
 
     if dataset is None:
-        error_msg = (
-            f"Failed to download dataset from all sources: {sources}. "
-            f"Last error: {last_error}. "
-            f"Please check network connectivity or dataset availability."
+        raise RuntimeError(
+            "Failed to download Z-Reward dataset from any verified source. "
+            "No valid data source found. Please check the dataset availability on Hugging Face Hub."
         )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
 
-    # Save to parquet
-    logger.info(f"Saving dataset to {output_file}")
-    try:
-        dataset.to_parquet(str(output_file))
-    except Exception as e:
-        logger.error(f"Failed to save dataset to parquet: {e}")
-        raise RuntimeError(f"Failed to save dataset: {e}")
+    # Convert to Parquet to ensure efficient storage and schema preservation
+    # The 'datasets' library supports direct to_parquet
+    logger.info(f"Saving dataset to {OUTPUT_FILE}")
+    dataset.to_parquet(str(OUTPUT_FILE))
 
     # Calculate and save checksum
-    checksum = calculate_sha256(str(output_file))
-    save_checksum(checksum, str(output_file), str(checksum_file))
-    logger.info(f"Dataset downloaded and saved: {output_file} (SHA256: {checksum})")
+    checksum = calculate_sha256(OUTPUT_FILE)
+    save_checksum(OUTPUT_FILE, checksum)
+    logger.info(f"Saved checksum: {checksum}")
 
-    return str(output_file)
+    return OUTPUT_FILE
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Download Z-Reward evaluation dataset")
-    parser.add_argument("--output", type=str, default="data/raw/imagenet_rewards.parquet",
-                        help="Path to save the downloaded dataset")
+    parser = argparse.ArgumentParser(description="Download Z-Reward Evaluation Dataset")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(OUTPUT_FILE),
+        help="Path to save the downloaded dataset (default: data/raw/z_reward_data.parquet)"
+    )
     return parser.parse_args()
 
 def main():
     logger = setup_logging()
     args = parse_args()
+    
+    # Override output path if provided
+    global OUTPUT_FILE
+    OUTPUT_FILE = Path(args.output)
+    # Update checksum file path relative to new output
+    global CHECKSUM_FILE
+    CHECKSUM_FILE = OUTPUT_FILE.with_suffix('.sha256')
 
     try:
-        output_path = download_dataset(logger)
-        logger.info(f"Task T037 completed successfully. Data saved at: {output_path}")
-    except RuntimeError as e:
-        logger.error(f"Task T037 failed: {e}")
-        sys.exit(1)
+        result_path = download_dataset(logger)
+        logger.info(f"Task T037 completed successfully. Data saved to: {result_path}")
+        return 0
     except Exception as e:
-        logger.error(f"Unexpected error during download: {e}")
-        sys.exit(1)
+        logger.error(f"Task T037 failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

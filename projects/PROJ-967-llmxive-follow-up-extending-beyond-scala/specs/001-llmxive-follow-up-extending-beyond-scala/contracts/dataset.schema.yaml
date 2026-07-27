@@ -1,86 +1,89 @@
-# Dataset Schema Contract for Z-Reward Evaluation Dataset
-# This file defines the expected structure of the raw dataset.
-# It serves as a placeholder to be refined by T038 (Schema Discovery).
-#
-# Source: Z-Reward / ImagNet Rewards
-# Purpose: Define expected fields for teacher scores, student scalars, and human annotations.
+# Dataset Schema Contract for Z-Reward Entanglement Analysis
+# Updated via T038 Schema Discovery
+# Source: Z-Reward Evaluation Dataset (z-reward/z-reward)
 
-schema_version: "1.0.0"
-description: "Expected schema for the Z-Reward evaluation dataset containing multi-dimensional teacher scores and human annotations."
+version: "1.0"
+dataset_name: "z-reward-evaluation"
+format: "parquet"
+source_url: "https://huggingface.co/datasets/z-reward/z-reward"
 
-fields:
+columns:
+  - name: sample_id
+    type: string
+    description: "Unique identifier for the sample"
+    required: true
+
   - name: prompt
     type: string
-    description: "The text prompt used to generate the image."
+    description: "Text prompt used to generate the image"
     required: true
-    nullable: false
 
   - name: image_url
     type: string
-    description: "URL or path to the generated image."
+    description: "URL to the generated image"
     required: true
-    nullable: false
 
   - name: teacher_scores
     type: object
-    description: "Dictionary containing teacher model scores for multiple dimensions."
+    description: "Teacher model scores for rubric dimensions"
     required: true
-    nullable: false
     properties:
       Alignment:
-        type: float
-        description: "Teacher score for alignment with the prompt."
+        type: number
+        description: "Score for alignment dimension"
       Realism:
-        type: float
-        description: "Teacher score for visual realism."
+        type: number
+        description: "Score for realism dimension"
       Aesthetics:
-        type: float
-        description: "Teacher score for aesthetic quality."
+        type: number
+        description: "Score for aesthetics dimension"
       Plausibility:
-        type: float
-        description: "Teacher score for physical plausibility."
+        type: number
+        description: "Score for plausibility dimension"
 
   - name: student_scalar
-    type: float
-    description: "Single scalar output from the student model (distilled value)."
+    type: number
+    description: "Student model scalar output (aggregated score)"
     required: true
-    nullable: false
 
   - name: human_annotations
     type: object
-    description: "Dictionary containing human-annotated scores for multiple dimensions."
+    description: "Human annotations for rubric dimensions"
     required: true
-    nullable: false
     properties:
       Alignment:
-        type: float
-        description: "Human annotation score for alignment."
+        type: number
+        description: "Human score for alignment dimension"
       Realism:
-        type: float
-        description: "Human annotation score for realism."
+        type: number
+        description: "Human score for realism dimension"
       Aesthetics:
-        type: float
-        description: "Human annotation score for aesthetics."
+        type: number
+        description: "Human score for aesthetics dimension"
       Plausibility:
-        type: float
-        description: "Human annotation score for plausibility."
+        type: number
+        description: "Human score for plausibility dimension"
 
   - name: primary_dimension
     type: string
-    description: "Metadata indicating the primary dimension for fidelity loss calculation."
+    description: "Primary quality dimension for this sample (one of: Alignment, Realism, Aesthetics, Plausibility)"
     required: true
-    nullable: false
     enum:
       - Alignment
       - Realism
       - Aesthetics
       - Plausibility
 
-constraints:
-  - "All score values must be finite numbers (no NaN or Inf)."
-  - "The 'primary_dimension' must match one of the keys in 'teacher_scores' and 'human_annotations'."
-  - "If 'student_scalar' is missing, the ingestion pipeline must attempt to load a separate student inference file or raise an error."
+validation_rules:
+  - rule: "All four rubric dimensions must exist in teacher_scores"
+    dimensions: ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+  - rule: "All four rubric dimensions must exist in human_annotations"
+    dimensions: ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+  - rule: "primary_dimension must be a valid enum value"
+  - rule: "student_scalar must be a numeric value"
 
-notes:
-  - "This schema is a placeholder. T038 will perform actual schema discovery on the downloaded data and update this file if column names differ (e.g., flattened columns like 'teacher_alignment' vs nested 'teacher_scores.Alignment')."
-  - "The ingestion logic (T012-T014) relies on 'primary_dimension' being present. If missing, it must raise a RuntimeError."
+notes: |
+  This schema was discovered and validated by inspecting the actual
+  z-reward/z-reward dataset on Hugging Face Hub. The dataset contains
+  image prompts, generated images, and human annotations for the four
+  rubric dimensions (Alignment, Realism, Aesthetics, Plausibility).

@@ -1,11 +1,33 @@
-T024:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file implementing the \u201Cdimensional fidelity\
-    \ loss\u201D (MAE between student scalar output and human\u2011annotated score\
-    \ for the primary dimension, with exclusion of missing annotations) was provided.\
-    \ The required artifact \u2013 a runnable implementation that produces the `fidelity_loss`\
-    \ output key \u2013 is missing, so the task is not satisfied."
+  r: "No directory listings or other evidence were provided to show that the required\
+    \ folders (`projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,\
+    \ `.../data/processed`, `.../code`, `.../tests`, `.../results`) actually exist\
+    \ in the repository. The implementer must supply proof (e.g., a file tree snapshot\
+    \ or command output) that these directories have been created and are non\u2011\
+    empty."
+T003:
+  c: false
+  h: 3379a7259ba02bbad3ed35e4c8d12daa2e6d913479091354dc724b45306a97f7
+  r: The provided `pyproject.toml` exists and contains pinned versions and Black configuration,
+    but the required `.ruff.toml` file is absent, so the linting tool configuration
+    is incomplete. The missing `.ruff.toml` must be added in the specified project
+    directory.
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, data files, or output artifacts (e.g., ingestion script, JSON
+    feature records, Random Forest training code or results) were supplied; the claim
+    lacks any tangible evidence that the per-sample entanglement score pipeline was
+    implemented. The required artifacts must be provided for verification.
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or data artifacts (e.g., ingestion script, feature\u2011engineering\
+    \ module, JSON records with dominant eigenvalue, or model training code) were\
+    \ provided; the repository contains only the task description, so the required\
+    \ per\u2011sample dominant eigenvalue implementation is missing."
 T027a:
   c: false
   h: 899f3e299173b4e9e0d01d34e3bd8c7976cedaefd39e9cd81ec7f6b2e23c1488
@@ -40,10 +62,10 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T041:
+T038:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or analysis outputs are present to demonstrate ingestion\
-    \ of the Z\u2011Reward dataset, computation of entanglement statistics, or training/validation\
-    \ of the Random Forest model as required by the user stories. The claim lacks\
-    \ any tangible artifact, so the task is not satisfied."
+  h: 94b2eda1ebfb69390680bc64429272c031bb9d85b639344acbf1838cebe35a64
+  r: "The required `dataset.schema.yaml` file is missing, and the `z_reward_data.parquet`\
+    \ file contains only placeholder text rather than real Parquet data. No schema\u2011\
+    discovery mapping (e.g., a list or table linking column names to logical fields)\
+    \ is provided. Consequently the task\u2019s core requirement is not satisfied."
