@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a recursive self-improvement pipeline for a GPT model of moderate scale. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSM8K, ARC-Challenge, and Wikitext-2.
+This project implements a recursive self-improvement pipeline for a GPT model of moderate scale. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSMK, ARC-Challenge, and Wikitext-2.
 
 **Critical Scope Adjustment**: Due to the strict time limit and GB RAM constraint of the GitHub Actions free-tier runner, the **primary deliverable is a Single Cycle (US-1)**. The 3-cycle trajectory (US-2) is re-classified as a "Scaling Study" that will only be attempted if the single cycle completes successfully within 1.5 hours. If the single cycle exceeds the time limit, the job terminates, and the result is recorded as "Incomplete - Timeout".
 
@@ -97,7 +97,7 @@ projects/PROJ-561-self-improving-llm-recursive-architectur/
 | **Single Cycle Primary** | Required by US-1 to verify the mechanism. 3 cycles (US-2) is a scaling study due to time constraints. | Attempting 3 cycles on free-tier risks timeout, invalidating the entire experiment. |
 | **Fail-Fast for All Datasets** | Required to prevent invalid scientific claims on synthetic data. Synthetic data cannot measure reasoning or language modeling. | Allowing synthetic data for any part of the experiment would render the "recursive improvement" hypothesis untestable. |
 | **Paired Bootstrap Testing** | Required by US-1 and SC-001/002 to establish statistical significance without parametric assumptions on small benchmark samples. | Standard t-tests assume normality which may not hold for accuracy metrics on small held-out sets; bootstrap is more robust. |
-| **Memory Management Module** | Required to fit GPT-2 124M + training overhead into 7GB RAM. | Standard PyTorch loading often exceeds substantial memory thresholds with gradient accumulation; explicit gradient checkpointing, CPU offloading, and batch size reduction are necessary. |
+| **Memory Management Module** | Required to fit GPT 124M + training overhead into 7GB RAM. | Standard PyTorch loading often exceeds substantial memory thresholds with gradient accumulation; explicit gradient checkpointing, CPU offloading, and batch size reduction are necessary. |
 | **No Synthetic Data Fallback** | Required because synthetic data lacks semantic structure for training or evaluation. | Relying on synthetic data would invalidate the scientific hypothesis. |
 
 ## Risk Mitigation
