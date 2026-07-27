@@ -1,43 +1,34 @@
-"""
-Script to execute resource metric capture for T005e.
-This script ensures the data/processed directory exists and runs capture_metrics().
-"""
 import os
 import sys
 import json
 from pathlib import Path
-
-# Add src to path
-src_path = Path(__file__).parent.parent / "src"
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
-
-from utils import capture_metrics
+from src.utils import capture_metrics
 
 def main():
     """
-    Execute resource monitoring and save to data/processed/resource_metrics.json.
+    Main entry point for the resource monitoring script.
+    Invokes capture_metrics() and ensures the output is written to disk.
     """
-    print("Starting resource metric capture (Task T005e)...")
+    output_path = "data/processed/resource_metrics.json"
     
-    # Ensure the output directory exists
-    output_path = Path("data/processed/resource_metrics.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    # Capture metrics
-    metrics = capture_metrics(output_path=str(output_path))
+    print(f"Capturing resource metrics to {output_path}...")
+    metrics = capture_metrics(output_path)
+    
+    print("Resource metrics captured successfully:")
+    print(json.dumps(metrics, indent=2))
     
     # Verify file was written
-    if output_path.exists():
-        print(f"SUCCESS: Resource metrics saved to {output_path}")
+    if os.path.exists(output_path):
+        print(f"Verification: {output_path} exists.")
         with open(output_path, 'r') as f:
-            data = json.load(f)
-            print(f"Captured memory: {data.get('memory', {}).get('used_gb', 'N/A')} GB used")
-            print(f"Captured GPU status: {data.get('gpu', {}).get('available', 'N/A')}")
-        return 0
+            saved_metrics = json.load(f)
+        print(f"Saved content: {saved_metrics}")
     else:
-        print("ERROR: Failed to write metrics file.")
-        return 1
+        print(f"ERROR: {output_path} was not created.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

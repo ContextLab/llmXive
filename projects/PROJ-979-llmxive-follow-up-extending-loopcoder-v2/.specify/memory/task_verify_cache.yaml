@@ -19,6 +19,22 @@ T004c:
   r: The repository lacks a `stratify_data()` implementation in `code/src/data_loader.py`
     (the file is truncated before such a function appears) and the required `data/processed/strata_log.json`
     file does not exist. Both the core function and its output artifact are missing.
+T004f:
+  c: false
+  h: 58a3875ad99899ea19e8b3f3eaa4aaf2d566816dd7e8370f50f3e59a82601ca4
+  r: "The repository lacks the required data files (`data/processed/strata_log.json`,\
+    \ `splits.json`, and the output `filtered_splits.json`). Moreover, the provided\
+    \ `code/src/data_loader.py` excerpt does not contain an implementation of the\
+    \ `filter_strata()` function (or it is incomplete/truncated), so the core functionality\
+    \ is missing. The task\u2019s specifications are therefore not satisfied."
+T005e:
+  c: false
+  h: bf0ff8845db120dc0ba4af11f5e298f2735ba4453e9c0f6fd74ac95de75880ce
+  r: "The `capture_metrics()` function is present but does not use `nvidia\u2011smi`\
+    \ via subprocess and calls a non\u2011existent `torch.cuda.utilization()` API,\
+    \ so GPU metrics are not correctly gathered. The `main()` function is truncated\
+    \ (`save_resource_metrics(metrics, arg`), and the required `data/processed/resource_metrics.json`\
+    \ file was not created. The utility therefore does not meet the specification."
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,22 +42,22 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T012d:
+T012a:
   c: false
-  h: 12b8d1812f7daffbdcfe2a3224768e90d973df2de716e7971f2cc6797d9c7e6f
-  r: "The repository lacks the required `data/processed/exclusion_log.json` file,\
-    \ and the shown portion of `code/src/entropy.py` does not contain any logic that\
-    \ writes exclusion counts or rates to that JSON path. Consequently, the exclusion\u2011\
-    logging feature is not implemented."
-T013a:
+  h: d5b7cd21fb94add2cede6d9d5dbf67491344c54d631d76ddd49058e3c0c3d48e
+  r: "The required input file `data/processed/filtered_splits.json` is absent, so\
+    \ the sampling function cannot be run on the specified data. Additionally, the\
+    \ provided `entropy.py` does not clearly show loading the model from the `CODELLAMA_CPU_PATH`\
+    \ or `CODELLAMA_GPU_PATH` environment variables nor a top\u2011level function\
+    \ that reads the JSON and returns a list of 10 generated strings. These missing\
+    \ pieces prevent the task from being genuinely fulfilled."
+T013d:
   c: false
-  h: 08e3a415f94bdd8b679b467bd1550ed7df25f042eac7d64509a10aa6e53d3d4e
-  r: "The provided `code/src/inference.py` shows model loading and a single\u2011\
-    step `generate_solution` function, but there is no visible implementation of a\
-    \ loop runner that iterates over\u202Fk\u202Fvalues and tracks convergence, nor\
-    \ any evidence that it avoids reading `data/processed/entropy_results.csv`. The\
-    \ required loop\u2011running logic is missing (or not demonstrably present). The\
-    \ task is therefore not satisfied."
+  h: 76c444a315e0136b9b307d59bc4b850bc7857649fad641315c5527e437a9c482
+  r: "The repository lacks the required `data/processed/convergence_results.csv` file,\
+    \ and the provided `code/src/inference.py` does not contain any implementation\
+    \ that logs convergence trajectories to such a CSV with the specified schema.\
+    \ The task\u2019s core requirement is therefore unmet."
 T019:
   c: false
   h: cec17e7b99f9d4caf19a8136e847fa8deb938714ecceb947b4e5dc20fd31315f

@@ -88,7 +88,7 @@ projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/
 
 **Architecture Note (Principle VI)**:
 - `entropy.py` implements **FR-001**: Extracts entropy at $k=1$ only. It writes results to `data/processed/entropy_results.csv` and **must not** run convergence loops.
-- `inference.py` implements **FR-002**: Reads `data/processed/entropy_results.csv` (optional) and runs iterative loops $k \in \{1, 2, 3\}$. It writes `convergence_results.csv`.
+- `inference.py` implements **FR-002**: Reads `data/processed/entropy_results.csv` (optional) and runs iterative loops $k \in \{, 2, 3\}$. It writes `convergence_results.csv`.
 - This strict separation ensures that the entropy metric (predictor) is not contaminated by the convergence outcome (target) during the extraction phase.
 
 ## Complexity Tracking

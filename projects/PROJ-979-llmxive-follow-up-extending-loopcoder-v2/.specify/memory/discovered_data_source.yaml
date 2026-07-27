@@ -1,10 +1,12 @@
 status: none
-intent: download HumanEval and MBPP code generation benchmarks as Python package dataset
+intent: download HumanEval and MBPP code generation benchmarks parquet files python
+  package dataset
 required_fields:
 - task_id
 - prompt
-- reference_code
+- canonical_solution
 - test_cases
-cache_key: df3088c5ffd1d4395941d640aa2b9d055529448369b5a92a0f7a22d9e7e4a56f
-searched_at: '2026-07-24T07:37:03.532670+00:00'
+- language
+cache_key: dc667540524645060943765e1a6a874e03ad47663b3964ed2ef5bc016841876a
+searched_at: '2026-07-27T17:26:24.202726+00:00'
 retry_count: 1

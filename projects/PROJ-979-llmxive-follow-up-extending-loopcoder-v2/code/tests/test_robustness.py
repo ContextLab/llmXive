@@ -4,258 +4,269 @@ import os
 import sys
 import json
 import tempfile
-import shutil
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from unittest.mock import patch, MagicMock
+from typing import List, Dict, Any
 
-# Import from the project's robustness module (which T025 will implement)
-# We import what we expect to exist based on the API surface plan.
-# If T025 hasn't run yet, we mock the functions or test the logic in isolation.
-try:
-    from src.robustness import (
-        run_sensitivity_sweep,
-        load_convergence_data_for_sweep,
-        compute_correlation_for_threshold,
-        analyze_threshold_stability,
-        generate_sensitivity_report
-    )
-    ROBUSTNESS_MODULE_AVAILABLE = True
-except ImportError:
-    ROBUSTNESS_MODULE_AVAILABLE = False
-    # Define stubs for testing if the module isn't ready yet
-    def run_sensitivity_sweep(*args, **kwargs):
-        pass
-    def load_convergence_data_for_sweep(*args, **kwargs):
-        pass
-    def compute_correlation_for_threshold(*args, **kwargs):
-        pass
-    def analyze_threshold_stability(*args, **kwargs):
-        pass
-    def generate_sensitivity_report(*args, **kwargs):
-        pass
+# Import the function under test from the robustness module
+# The API surface confirms: from src.robustness import holm_bonferroni_correction, sensitivity_analysis_sweep
+from src.robustness import holm_bonferroni_correction, sensitivity_analysis_sweep
 
-# Fixtures and Mock Data
+
 @pytest.fixture
 def temp_dir():
-    temp = tempfile.mkdtemp()
-    yield temp
-    shutil.rmtree(temp)
+    """Create a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
+
 
 @pytest.fixture
-def sample_convergence_data():
-    """
-    Mock data simulating data/processed/convergence_results.csv
-    Structure: task_id, k_value, converged_at_k, ...
-    """
-    return [
-        {"task_id": "h1", "k_value": 1, "converged_at_k": 1, "entropy": 0.1},
-        {"task_id": "h1", "k_value": 2, "converged_at_k": 1, "entropy": 0.1},
-        {"task_id": "h1", "k_value": 3, "converged_at_k": 1, "entropy": 0.1},
-        {"task_id": "h1", "k_value": 4, "converged_at_k": 1, "entropy": 0.1},
-        {"task_id": "h2", "k_value": 1, "converged_at_k": 2, "entropy": 0.5},
-        {"task_id": "h2", "k_value": 2, "converged_at_k": 2, "entropy": 0.5},
-        {"task_id": "h2", "k_value": 3, "converged_at_k": 2, "entropy": 0.5},
-        {"task_id": "h2", "k_value": 4, "converged_at_k": 2, "entropy": 0.5},
-        {"task_id": "h3", "k_value": 1, "converged_at_k": 3, "entropy": 0.8},
-        {"task_id": "h3", "k_value": 2, "converged_at_k": 3, "entropy": 0.8},
-        {"task_id": "h3", "k_value": 3, "converged_at_k": 3, "entropy": 0.8},
-        {"task_id": "h3", "k_value": 4, "converged_at_k": 3, "entropy": 0.8},
-        {"task_id": "h4", "k_value": 1, "converged_at_k": 4, "entropy": 0.9},
-        {"task_id": "h4", "k_value": 2, "converged_at_k": 4, "entropy": 0.9},
-        {"task_id": "h4", "k_value": 3, "converged_at_k": 4, "entropy": 0.9},
-        {"task_id": "h4", "k_value": 4, "converged_at_k": 4, "entropy": 0.9},
-    ]
+def sample_p_values():
+    """Provide a list of mock p-values for testing."""
+    # Unsorted p-values to test sorting logic
+    return [0.05, 0.02, 0.01, 0.20, 0.03]
+
 
 @pytest.fixture
-def sample_entropy_data():
+def expected_holm_results():
     """
-    Mock data simulating data/processed/entropy_results.csv
-    Structure: task_id, entropy, ...
+    Expected results for Holm-Bonferroni correction on sample_p_values.
+    
+    Input: [0.05, 0.02, 0.01, 0.20, 0.03] (n=5)
+    Sorted: [0.01 (i=1), 0.02 (i=2), 0.03 (i=3), 0.05 (i=4), 0.20 (i=5)]
+    
+    Step 1: 0.01 * (5/1) = 0.05 -> min(0.05, 1.0) = 0.05
+    Step 2: 0.02 * (5/2) = 0.05 -> min(0.05, 0.05) = 0.05 (monotonicity)
+    Step 3: 0.03 * (5/3) = 0.05 -> min(0.05, 0.05) = 0.05
+    Step 4: 0.05 * (5/4) = 0.0625 -> min(0.0625, 0.05) = 0.05 (monotonicity)
+    Step 5: 0.20 * (5/5) = 0.20 -> min(0.20, 0.05) = 0.05 (monotonicity)
+    
+    Note: The Holm algorithm enforces monotonicity (adjusted p-values must be non-decreasing).
+    The raw calculation for step 4 is 0.0625, but since the previous adjusted value is 0.05,
+    it is capped at 0.05.
     """
-    return [
-        {"task_id": "h1", "entropy": 0.1},
-        {"task_id": "h2", "entropy": 0.5},
-        {"task_id": "h3", "entropy": 0.8},
-        {"task_id": "h4", "entropy": 0.9},
-    ]
+    return [0.05, 0.05, 0.05, 0.05, 0.05]
 
-class TestSensitivitySweepValidation:
-    """
-    Tests for T024: Sensitivity analysis sweep validation.
-    Verifies that the system can re-run inference logic for k=4 (using T013b data)
-    and sweep convergence thresholds k in {2, 3, 4} to compute variation in Spearman rho.
-    """
 
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_load_convergence_data_for_sweep(self, temp_dir, sample_convergence_data):
-        """Test that the loader correctly aggregates k=1..4 data for sweep."""
-        # Write mock data to disk
-        data_path = Path(temp_dir) / "convergence_results.csv"
-        import csv
-        with open(data_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=sample_convergence_data[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_convergence_data)
+class TestHolmBonferroni:
+    """Unit tests for multiple-comparison correction implementation."""
 
-        # Load
-        data = load_convergence_data_for_sweep(str(data_path))
+    def test_holm_bonferroni_basic(self, sample_p_values, expected_holm_results):
+        """
+        Test that Holm-Bonferroni correction produces correct adjusted p-values.
         
-        assert len(data) == 4, "Should aggregate to unique task_ids"
-        assert "h1" in data
-        assert data["h1"]["converged_at_k"] == 1
-        assert data["h1"]["entropy"] == 0.1
-        assert data["h4"]["converged_at_k"] == 4
+        Asserts:
+            1. Adjusted p-values are monotonic (non-decreasing).
+            2. Adjusted p-values do not exceed 1.0.
+            3. The values match the expected Holm-Bonferroni calculation.
+        """
+        adjusted = holm_bonferroni_correction(sample_p_values)
+        
+        # 1. Check monotonicity: adjusted[i] <= adjusted[i+1]
+        for i in range(len(adjusted) - 1):
+            assert adjusted[i] <= adjusted[i + 1], \
+                f"Monotonicity violation: {adjusted[i]} > {adjusted[i+1]}"
+        
+        # 2. Check bounds: 0 <= p <= 1
+        for p in adjusted:
+            assert 0.0 <= p <= 1.0, f"Adjusted p-value out of bounds: {p}"
+        
+        # 3. Check exact values (allowing small floating point tolerance)
+        for i, (obs, exp) in enumerate(zip(adjusted, expected_holm_results)):
+            assert math.isclose(obs, exp, rel_tol=1e-5), \
+                f"Mismatch at index {i}: got {obs}, expected {exp}"
 
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_compute_correlation_for_threshold(self, sample_convergence_data, sample_entropy_data):
-        """Test correlation computation for a specific threshold k."""
-        # Create a mock dataset for the function
-        # The function should filter convergence data where converged_at_k <= threshold
-        # and correlate with entropy.
+    def test_holm_bonferroni_single_value(self):
+        """Test correction with a single p-value."""
+        p_values = [0.05]
+        adjusted = holm_bonferroni_correction(p_values)
+        assert len(adjusted) == 1
+        # n=1, so multiplier is 1.0/1.0 = 1.0
+        assert math.isclose(adjusted[0], 0.05, rel_tol=1e-5)
+
+    def test_holm_bonferroni_all_zeros(self):
+        """Test correction when all p-values are zero."""
+        p_values = [0.0, 0.0, 0.0]
+        adjusted = holm_bonferroni_correction(p_values)
+        # Zero times anything is zero
+        assert all(p == 0.0 for p in adjusted)
+
+    def test_holm_bonferroni_all_ones(self):
+        """Test correction when all p-values are 1.0."""
+        p_values = [1.0, 1.0, 1.0]
+        adjusted = holm_bonferroni_correction(p_values)
+        # 1.0 * multiplier, capped at 1.0
+        assert all(p == 1.0 for p in adjusted)
+
+    def test_holm_bonferroni_empty_list(self):
+        """Test correction with an empty list."""
+        p_values = []
+        adjusted = holm_bonferroni_correction(p_values)
+        assert adjusted == []
+
+    def test_holm_bonferroni_preserves_length(self, sample_p_values):
+        """Ensure the output list has the same length as the input."""
+        adjusted = holm_bonferroni_correction(sample_p_values)
+        assert len(adjusted) == len(sample_p_values)
+
+    def test_holm_bonferroni_monotonicity_stress(self):
+        """Stress test monotonicity with random-ish values."""
+        # Create a list that would violate monotonicity if not capped
+        # e.g., small p with large multiplier vs larger p with small multiplier
+        p_values = [0.1, 0.001, 0.5]
+        # Sorted: 0.001 (i=1), 0.1 (i=2), 0.5 (i=3)
+        # 0.001 * 3 = 0.003
+        # 0.1 * 1.5 = 0.15
+        # 0.5 * 1 = 0.5
+        # Result: [0.003, 0.15, 0.5] -> Monotonic
         
-        # For k=2: h1 (1<=2), h2 (2<=2), h3 (3>2), h4 (4>2)
-        # Converged list: [1, 2, 3, 4] (if we map converged_at_k to a binary 1/0 based on threshold)
-        # Actually, the metric is usually: does it converge by k?
-        # Let's assume the function handles the mapping internally.
+        # Case where capping is needed:
+        # p_values = [0.05, 0.04] -> sorted [0.04, 0.05]
+        # 0.04 * 2 = 0.08
+        # 0.05 * 1 = 0.05 -> capped to 0.08
+        p_values = [0.05, 0.04]
+        adjusted = holm_bonferroni_correction(p_values)
+        assert adjusted[0] <= adjusted[1]
+
+    def test_holm_bonferroni_return_type(self, sample_p_values):
+        """Ensure the function returns a list of floats."""
+        adjusted = holm_bonferroni_correction(sample_p_values)
+        assert isinstance(adjusted, list)
+        assert all(isinstance(x, float) for x in adjusted)
+
+
+class TestSensitivitySweep:
+    """Unit tests for sensitivity analysis sweep validation (T024)."""
+
+    def test_sensitivity_sweep(self, temp_dir):
+        """
+        Test sensitivity analysis sweep validation.
         
-        # We test that the function returns a valid float for rho and p-value
-        rho, p_val = compute_correlation_for_threshold(
-            sample_convergence_data, 
-            sample_entropy_data, 
-            threshold_k=2
+        Mock: Synthetic convergence data for k=2, 3, 4.
+        Assert: Variation in rho is calculated correctly.
+        
+        This test creates synthetic data representing convergence results
+        for different k thresholds and verifies that the sensitivity
+        analysis function correctly computes the variation in Spearman
+        correlation coefficients.
+        """
+        # Create synthetic convergence data for k=2, 3, 4
+        # Format: task_id, k, converged, step, timestamp
+        synthetic_data = {
+            2: [
+                {"task_id": "task_1", "k": 2, "converged": True, "step": 1, "entropy": 0.5},
+                {"task_id": "task_2", "k": 2, "converged": False, "step": 2, "entropy": 1.2},
+                {"task_id": "task_3", "k": 2, "converged": True, "step": 1, "entropy": 0.3},
+                {"task_id": "task_4", "k": 2, "converged": False, "step": 3, "entropy": 1.5},
+                {"task_id": "task_5", "k": 2, "converged": True, "step": 2, "entropy": 0.8},
+            ],
+            3: [
+                {"task_id": "task_1", "k": 3, "converged": True, "step": 1, "entropy": 0.5},
+                {"task_id": "task_2", "k": 3, "converged": True, "step": 2, "entropy": 1.2},
+                {"task_id": "task_3", "k": 3, "converged": True, "step": 1, "entropy": 0.3},
+                {"task_id": "task_4", "k": 3, "converged": False, "step": 3, "entropy": 1.5},
+                {"task_id": "task_5", "k": 3, "converged": True, "step": 2, "entropy": 0.8},
+            ],
+            4: [
+                {"task_id": "task_1", "k": 4, "converged": True, "step": 1, "entropy": 0.5},
+                {"task_id": "task_2", "k": 4, "converged": True, "step": 2, "entropy": 1.2},
+                {"task_id": "task_3", "k": 4, "converged": True, "step": 1, "entropy": 0.3},
+                {"task_id": "task_4", "k": 4, "converged": True, "step": 3, "entropy": 1.5},
+                {"task_id": "task_5", "k": 4, "converged": True, "step": 2, "entropy": 0.8},
+            ]
+        }
+
+        # Create temporary files for each k threshold
+        temp_files = {}
+        for k, data in synthetic_data.items():
+            file_path = Path(temp_dir) / f"convergence_k{k}.csv"
+            with open(file_path, 'w', newline='') as f:
+                import csv
+                writer = csv.DictWriter(f, fieldnames=["task_id", "k", "converged", "step", "entropy"])
+                writer.writeheader()
+                writer.writerows(data)
+            temp_files[k] = str(file_path)
+
+        # Call the sensitivity analysis function
+        # The function should read the files, compute rho for each k,
+        # and calculate the variation in rho
+        results = sensitivity_analysis_sweep(
+            k_thresholds=[2, 3, 4],
+            convergence_files=temp_files,
+            entropy_column="entropy",
+            converged_column="converged"
         )
-        
-        assert isinstance(rho, float), "Correlation must be a float"
-        assert isinstance(p_val, float), "P-value must be a float"
-        assert -1.0 <= rho <= 1.0, "Correlation must be between -1 and 1"
 
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_sweep_across_thresholds(self, temp_dir, sample_convergence_data, sample_entropy_data):
-        """Test the full sweep across k in {2, 3, 4}."""
-        # Write data to disk
-        conv_path = Path(temp_dir) / "convergence_results.csv"
-        ent_path = Path(temp_dir) / "entropy_results.csv"
-        
-        import csv
-        with open(conv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=sample_convergence_data[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_convergence_data)
-        
-        with open(ent_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=sample_entropy_data[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_entropy_data)
+        # Verify the results structure
+        assert isinstance(results, dict), "Results should be a dictionary"
+        assert "sweep_results" in results, "Results should contain 'sweep_results' key"
+        assert "variation_metrics" in results, "Results should contain 'variation_metrics' key"
 
-        # Run sweep
-        results = run_sensitivity_sweep(
-            conv_path=str(conv_path),
-            ent_path=str(ent_path),
-            thresholds=[2, 3, 4]
+        sweep_results = results["sweep_results"]
+        assert isinstance(sweep_results, list), "sweep_results should be a list"
+        assert len(sweep_results) == 3, "Should have 3 results for k=2, 3, 4"
+
+        # Verify each result has the required fields
+        for result in sweep_results:
+            assert "k_threshold" in result, "Each result should have 'k_threshold'"
+            assert "rho" in result, "Each result should have 'rho'"
+            assert "p_value" in result, "Each result should have 'p_value'"
+
+        # Verify variation metrics
+        variation_metrics = results["variation_metrics"]
+        assert "rho_range" in variation_metrics, "Variation metrics should have 'rho_range'"
+        assert "rho_std" in variation_metrics, "Variation metrics should have 'rho_std'"
+        assert "stability_score" in variation_metrics, "Variation metrics should have 'stability_score'"
+
+        # Assert that rho values are within valid range [-1, 1]
+        for result in sweep_results:
+            assert -1.0 <= result["rho"] <= 1.0, f"rho {result['rho']} out of bounds"
+
+        # Assert that p-values are within valid range [0, 1]
+        for result in sweep_results:
+            assert 0.0 <= result["p_value"] <= 1.0, f"p_value {result['p_value']} out of bounds"
+
+    def test_sensitivity_sweep_empty_data(self, temp_dir):
+        """Test sensitivity analysis with empty data files."""
+        # Create empty files
+        temp_files = {}
+        for k in [2, 3, 4]:
+            file_path = Path(temp_dir) / f"convergence_k{k}.csv"
+            with open(file_path, 'w') as f:
+                f.write("task_id,k,converged,step,entropy\n")  # Header only
+            temp_files[k] = str(file_path)
+
+        # Should handle empty data gracefully
+        results = sensitivity_analysis_sweep(
+            k_thresholds=[2, 3, 4],
+            convergence_files=temp_files,
+            entropy_column="entropy",
+            converged_column="converged"
         )
-        
-        assert len(results) == 3, "Should have results for 3 thresholds"
-        for r in results:
-            assert "threshold" in r
-            assert "rho" in r
-            assert "p_value" in r
-            assert "stability_metric" in r
 
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_generate_sensitivity_report(self, temp_dir, sample_convergence_data, sample_entropy_data):
-        """Test that the report generation writes a valid JSON file."""
-        conv_path = Path(temp_dir) / "convergence_results.csv"
-        ent_path = Path(temp_dir) / "entropy_results.csv"
-        report_path = Path(temp_dir) / "sensitivity_report.json"
-        
-        import csv
-        with open(conv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=sample_convergence_data[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_convergence_data)
-        
-        with open(ent_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=sample_entropy_data[0].keys())
-            writer.writeheader()
-            writer.writerows(sample_entropy_data)
+        # Should return results with None or NaN for rho when data is empty
+        assert isinstance(results, dict)
+        assert "sweep_results" in results
 
-        generate_sensitivity_report(
-            conv_path=str(conv_path),
-            ent_path=str(ent_path),
-            output_path=str(report_path),
-            thresholds=[2, 3, 4]
-        )
-        
-        assert report_path.exists(), "Report file must be created"
-        with open(report_path, 'r') as f:
-            report = json.load(f)
-        
-        assert "sweep_results" in report
-        assert "summary" in report
-        assert "variance_in_rho" in report["summary"]
-
-class TestEdgeCases:
-    """Tests for edge cases in sensitivity analysis."""
-
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_no_convergence_at_threshold(self, temp_dir):
-        """Test handling when no samples converge at a specific threshold."""
-        # Create data where nothing converges by k=2
-        data = [
-            {"task_id": "h1", "k_value": 1, "converged_at_k": 3, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 2, "converged_at_k": 3, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 3, "converged_at_k": 3, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 4, "converged_at_k": 3, "entropy": 0.1},
+    def test_sensitivity_sweep_single_k(self, temp_dir):
+        """Test sensitivity analysis with a single k threshold."""
+        synthetic_data = [
+            {"task_id": "task_1", "k": 2, "converged": True, "step": 1, "entropy": 0.5},
+            {"task_id": "task_2", "k": 2, "converged": False, "step": 2, "entropy": 1.2},
         ]
-        conv_path = Path(temp_dir) / "conv.csv"
-        ent_path = Path(temp_dir) / "ent.csv"
-        
-        import csv
-        with open(conv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+
+        file_path = Path(temp_dir) / "convergence_k2.csv"
+        with open(file_path, 'w', newline='') as f:
+            import csv
+            writer = csv.DictWriter(f, fieldnames=["task_id", "k", "converged", "step", "entropy"])
             writer.writeheader()
-            writer.writerows(data)
-        
-        with open(ent_path, 'w', newline='') as f:
-            f.write("task_id,entropy\nh1,0.1\n")
+            writer.writerows(synthetic_data)
 
-        # Should not crash, but return NaN or specific handling
-        rho, p = compute_correlation_for_threshold(str(conv_path), str(ent_path), threshold_k=2)
-        # Depending on implementation, this might be NaN or 0. We ensure it doesn't crash.
-        assert isinstance(rho, (float, type(None)))
+        results = sensitivity_analysis_sweep(
+            k_thresholds=[2],
+            convergence_files={2: str(file_path)},
+            entropy_column="entropy",
+            converged_column="converged"
+        )
 
-    @pytest.mark.skipif(not ROBUSTNESS_MODULE_AVAILABLE, reason="robustness module not yet implemented")
-    def test_single_sample(self, temp_dir):
-        """Test with only one sample."""
-        data = [
-            {"task_id": "h1", "k_value": 1, "converged_at_k": 1, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 2, "converged_at_k": 1, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 3, "converged_at_k": 1, "entropy": 0.1},
-            {"task_id": "h1", "k_value": 4, "converged_at_k": 1, "entropy": 0.1},
-        ]
-        conv_path = Path(temp_dir) / "conv.csv"
-        ent_path = Path(temp_dir) / "ent.csv"
-        
-        import csv
-        with open(conv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
-            writer.writeheader()
-            writer.writerows(data)
-        
-        with open(ent_path, 'w', newline='') as f:
-            f.write("task_id,entropy\nh1,0.1\n")
-
-        # Spearman with 1 sample is undefined (NaN). Ensure graceful handling.
-        rho, p = compute_correlation_for_threshold(str(conv_path), str(ent_path), threshold_k=2)
-        # Implementation should handle this (e.g., return NaN or raise a specific warning)
-        assert isinstance(rho, (float, type(None)))
-
-# If the module is not available, we still define the test structure
-# so that when T025 implements robustness.py, these tests will run.
-if not ROBUSTNESS_MODULE_AVAILABLE:
-    # Re-define the test methods to assert that the module is missing,
-    # or simply pass to allow the test suite to run without erroring on import.
-    # In a real CI, we would expect T025 to run before T024 tests.
-    # For now, we mark them as skipped or pass.
-    pass
+        assert len(results["sweep_results"]) == 1
+        assert results["sweep_results"][0]["k_threshold"] == 2

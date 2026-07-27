@@ -275,3 +275,160 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T18:28:27Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Substitution of LoopCoder-v2 with CodeLlama-1.3b and 3b/7b models
+  claim_id: c_42108254
+  context: The spec's Assumptions and FR-001/FR-002 mandate LoopCoder-v2-2B. However,
+    the LoopCoder-v2 checkpoint is not verified/available. This project substitutes
+    LoopCoder-v-2B with CodeLlama-1.3b-Instruct (CPU validation) and CodeLlama-3b/7b-Instruct
+    (GPU full analysis).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project substitutes LoopCoder-v-2B with CodeLlama-1.3b-Instruct for
+    CPU validation and CodeLlama-3b/7b-Instruct for GPU full analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:28:28Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Usage of HumanEval and MBPP datasets
+  claim_id: c_4cc4f840
+  context: 'Implement code/src/data_loader.py function fetch_datasets(): Fetch HumanEval
+    and MBPP via datasets.load_dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Usage_of_HumanEval_and_MBPP_datasets
+  kind: entity_fact
+  raw_text: The project uses the HumanEval and MBPP datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:29:22Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Strata threshold set to 50
+  claim_id: c_058c62ed
+  context: 'Create code/config.yaml with default statistical and configuration parameters.
+    Content: strata_threshold: 50 (for FR-007 underpowered strata flagging)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets a strata threshold of 50 for underpowered strata
+    flagging.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:29:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Entropy n_samples set to 10
+  claim_id: c_0f3ffe18
+  context: 'Create code/config.yaml with default statistical and configuration parameters.
+    Content: entropy_n_samples: 10 (for FR-001 sampling)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entropy sampling uses 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:29:51Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Convergence k_range set to 1, 2, 3
+  claim_id: c_cbb792c4
+  context: 'Create code/config.yaml with default statistical and configuration parameters.
+    Content: convergence_k_range: [1, 2, 3] (for FR-002 core loops)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The convergence k-range includes values 1, 2, and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:30:16Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Validation sample size N=50
+  claim_id: c_e874c6c8
+  context: Run full validation suite on CPU (N=50) to verify pipeline within 6-hour
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation run uses a sample size of N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:31:01Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'FLOPs formula: parameters * sequence_length * k'
+  claim_id: c_ba4e47c8
+  context: 'Define FLOPs utility function in code/src/utils.py: Implement formula
+    FLOPs = parameters * sequence_length * k for baseline calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FLOPs_formula:_parameters_*_sequence_length_*_k
+  kind: entity_fact
+  raw_text: The FLOPs calculation uses the formula parameters multiplied by sequence_length
+    multiplied by k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:32:42Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Router predicts optimal loop count as multi-class target
+  claim_id: c_e907eb28
+  context: 'Implement logistic regression router training in code/src/analysis.py:
+    Train on entropy proxies using sklearn.linear_model.LogisticRegression (multi_class=''multinomial'',
+    solver=''lbfgs'') to predict optimal loop count (Multi-class target: discrete
+    levels).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Router_predicts_optimal_loop_count_as_multi-class_target
+  kind: entity_fact
+  raw_text: The router simulation predicts optimal loop counts using multi-class levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:33:08Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps k=2, 3, 4
+  claim_id: c_555232d9
+  context: 'Implement sensitivity analysis loop in code/src/robustness.py: Sweep convergence
+    threshold k in {2, 3, 4} and compute variation in rho.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps convergence thresholds k in {2, 3, 4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T17:34:47Z'
