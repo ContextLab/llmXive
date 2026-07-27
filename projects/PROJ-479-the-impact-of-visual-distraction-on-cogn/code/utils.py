@@ -5,6 +5,7 @@ import hashlib
 import json
 from datetime import datetime
 from typing import Optional
+from PIL import Image, ExifTags
 
 # Global seed state
 _global_seed = None
@@ -85,3 +86,83 @@ def get_global_seed() -> int:
     if _global_seed is None:
         return 42
     return _global_seed
+
+def sanitize_image_pii(image_dir: str) -> int:
+    """
+    Implements PII Sanitization (Task T016):
+    1. Renames all images in `image_dir` to `img_<sha256_hash>.jpg`.
+    2. Strips all EXIF data from images using Pillow.
+    3. Logs the count of sanitized images.
+    
+    Args:
+        image_dir (str): Path to the directory containing images.
+        
+    Returns:
+        int: Number of images successfully sanitized.
+    """
+    logger = get_logger(__name__)
+    sanitized_count = 0
+    
+    if not os.path.exists(image_dir):
+        log_structured_error("image_processing_failures", f"Directory not found: {image_dir}")
+        return 0
+
+    files = [f for f in os.listdir(image_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff'))]
+    
+    if not files:
+        logger.warning(f"No image files found in {image_dir}")
+        return 0
+
+    for filename in files:
+        old_path = os.path.join(image_dir, filename)
+        
+        # Compute SHA256 of the file content
+        try:
+            file_hash = compute_file_checksum(old_path)
+        except Exception as e:
+            log_structured_error("image_processing_failures", f"Failed to compute checksum for {filename}", {"error": str(e)})
+            continue
+        
+        new_filename = f"img_{file_hash}.jpg"
+        new_path = os.path.join(image_dir, new_filename)
+        
+        # Skip if already sanitized (hash matches filename pattern)
+        if filename.startswith("img_") and filename.endswith(".jpg") and len(filename) == 40: # 8 (img_) + 32 (hash) + 4 (.jpg)
+            # Verify it's actually the hash of itself to avoid double processing
+            try:
+                current_hash = compute_file_checksum(old_path)
+                if filename == f"img_{current_hash}.jpg":
+                    logger.debug(f"Skipping already sanitized image: {filename}")
+                    continue
+            except:
+                pass
+
+        try:
+            # Open image and strip EXIF
+            with Image.open(old_path) as img:
+                # Convert to RGB if necessary (e.g., for PNGs with alpha or CMYK JPEGs)
+                if img.mode in ('RGBA', 'P', 'LA'):
+                    img = img.convert('RGB')
+                elif img.mode == 'CMYK':
+                    img = img.convert('RGB')
+                
+                # Save without EXIF data
+                # Explicitly setting exif=None ensures no metadata is copied
+                img.save(new_path, "JPEG", exif=None, quality=95)
+            
+            # Remove the old file
+            os.remove(old_path)
+            
+            # If the new name is different from the old name (and not just a rename to hash), remove old
+            # Note: We already removed old_path above. If new_path == old_path, we have a problem, 
+            # but the logic above prevents that unless the hash happens to match the filename exactly.
+            
+            sanitized_count += 1
+            logger.info(f"Sanitized and renamed: {filename} -> {new_filename}")
+            
+        except Exception as e:
+            log_structured_error("image_processing_failures", f"Failed to sanitize image {filename}", {"error": str(e)})
+            continue
+
+    logger.info(f"PII Sanitization complete. {sanitized_count} images processed.")
+    return sanitized_count
