@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create project directory structure: `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/`, `data/raw/`, `data/derived/`, `results/`, `tests/`, `contracts/`
 - [ ] T001b [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt` with pinned versions: pandas, numpy, scikit-learn, imbalanced-learn, scipy, requests, pytest
-- [ ] T001c [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/__init__.py` and `tests/__init__.py`
+- [X] T001c [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/__init__.py` and `tests/__init__.py`
 
 ---
 
@@ -55,10 +55,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
-- [ ] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`.
-- [ ] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
-- [~] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
+- [X] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. [UNRESOLVED-CLAIM: c_70c4c2aa — status=not_enough_info] Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
+- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. [UNRESOLVED-CLAIM: c_d943ed21 — status=not_enough_info] **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`. [UNRESOLVED-CLAIM: c_28ed7393 — status=not_enough_info]
+- [X] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
+- [ ] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
 - [X] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
 - [X] T008b [P] Implement `code/analyze.py`: Implement error rate calculation (Type I/II), KS test wrapper (p-value distributions only), and JSON reporting structure. **Dependency**: Requires T007 output.
 
@@ -83,7 +83,7 @@
 
 - [X] T013 [US1] Implement baseline Monte Carlo loop (1,000 iterations per config as per FR-004) in `code/simulation.py` (no augmentation step). **Logic**: Include internal functions for (1) label permutation (shuffle all labels using pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) for Type II error. **Target Column**: Use the priority 'target' -> 'class' -> 'label' -> last column for both ground-truth logic and subsampling. **Dependency**: Requires T007 infrastructure.
 - [X] T014 [US1] Implement error rate calculation in `code/analyze.py`: Compute proportion of p < 0.05 and bootstrap 95% CIs for baseline results.
-- [~] T015 [US1] Save baseline results to `results/[dataset]_[size]_baseline_null.json` and `results/[dataset]_[size]_baseline_alt.json`. **Naming convention**: `[dataset]` = lowercase underscore (e.g., 'breast_cancer'), `[size]` = integer (e.g., '15').
+- [ ] T015 [US1] Save baseline results to `results/[dataset]_[size]_baseline_null.json` and `results/[dataset]_[size]_baseline_alt.json`. **Naming convention**: `[dataset]` = lowercase underscore (e.g., 'breast_cancer'), `[size]` = integer (e.g., '15').
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,15 +97,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for SMOTE edge case handling (zero variance samples) in `tests/test_augment.py`
-- [ ] T017 [P] [US2] Unit test for Gaussian noise injection parameters in `tests/test_augment.py`
+- [X] T016 [P] [US2] Unit test for SMOTE edge case handling (zero variance samples) in `tests/test_augment.py`
+- [X] T017 [P] [US2] Unit test for Gaussian noise injection parameters in `tests/test_augment.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1).
-- [ ] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance.
-- [ ] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`.
-- [ ] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop) and T018-T020 completion.**
+- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1). [UNRESOLVED-CLAIM: c_d4284862 — status=not_enough_info]
+- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance. [UNRESOLVED-CLAIM: c_6a0211af — status=not_enough_info]
+- [X] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`.
+- [X] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop) and T018-T020 completion.**
 - [ ] T022 [US2] Implement logic to detect and exclude zero-variance synthetic samples before hypothesis testing to prevent division-by-zero.
 - [ ] T023 [US2] Save augmented results to `results/[dataset]_[size]_[method]_null.json` and `results/[dataset]_[size]_[method]_alt.json`. **Mandatory**: Distinct files for Null and Alt conditions for each method.
 

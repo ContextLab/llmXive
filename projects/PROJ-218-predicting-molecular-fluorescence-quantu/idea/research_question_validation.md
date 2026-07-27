@@ -1,37 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+**Verdict**: pass
 
-**Verdict**: concern
-
-The question contains both a method-performance framing ("Can a GNN... achieve R² ≥ 0.7?") and a phenomenon framing ("Which molecular substructures contribute..."). The first part evaluates model capability rather than molecular properties, while the second part asks about genuine structure-property relationships. The phenomenon question is valid but is currently buried under implementation criteria.
+The research question explicitly asks which molecular substructures and structural features contribute to variation in fluorescence quantum yield, focusing on the underlying chemical mechanism rather than the performance of a specific algorithm. While the methodology section proposes using Graph Neural Networks (GNNs), the question itself is framed around the physical property and its structural determinants, making the choice of GNN a tool for discovery rather than the subject of the inquiry.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor derives from molecular structure (SMILES/graph representations encoding atom types, bonds, and topology). The predicted variable is experimental fluorescence quantum yield measured via spectroscopy. These are independent measurement modalities with no shared primary signal—structural graph features do not mechanically determine photophysical measurements.
+The predictor data source is the static molecular graph (derived from SMILES strings representing atomic connectivity and bond types), while the predicted variable is the experimentally measured fluorescence quantum yield (a photophysical property obtained via spectroscopy). These are independent data modalities; the graph structure does not mathematically contain the experimental yield value, so the predictive relationship is empirical rather than mechanically guaranteed.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Either outcome is scientifically informative: a successful model (R² ≥ 0.7) would demonstrate that static molecular graphs capture sufficient signal for FQY prediction, supporting ML-accelerated screening. A null or weak result would suggest FQY depends heavily on factors not encoded in graphs (solvent effects, conformational dynamics, aggregation), which is itself valuable domain knowledge.
+A positive result (identifying specific substructures that drive high yield) would provide actionable design rules for synthetic chemists, while a null result (demonstrating that static graphs fail to predict FQY) would be scientifically significant by proving that dynamic factors (like solvent interaction or excited-state geometry relaxation) are essential predictors that static topology cannot capture. Neither outcome is predetermined by current domain knowledge in a way that renders the study uninformative.
 
 ### Question-narrowing check
+**Verdict**: pass
 
-**Verdict**: concern
-
-The first sentence names implementation constraints (GNN architecture, R² threshold, public data availability) rather than a domain relationship. The second sentence names a valid domain question (substructure → FQY relationship). The question should be reframed to foreground the structure-property relationship and treat the GNN as a tool rather than the subject.
+The question names a specific domain relationship ("Which molecular substructures... contribute most strongly to variation in fluorescence quantum yield") rather than focusing on implementation constraints like model architecture depth, training time, or hardware limits. The inquiry is fundamentally about the structure-property relationship in photochemistry, not about the capacity of a specific machine learning setup.
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-The core phenomenon question about substructure contributions to fluorescence quantum yield is valid and scientifically interesting, but the current framing mixes method-evaluation with domain inquiry. A cleaner reframing would separate the scientific question from the ML implementation.
-
-[REVISED]
-Which molecular substructures and structural features contribute most strongly to variation in fluorescence quantum yield, and to what extent can static molecular graph representations predict this photophysical property?
-[/REVISED]
-
-This reframing makes the structure-property relationship the primary question while still allowing GNN methodology to be used as the predictive tool without making model performance itself the research question.
+All four validation checks pass without significant concern. The research question is well-framed around a substantive scientific phenomenon, uses independent data sources for prediction and target, and poses a non-trivial inquiry where both positive and negative outcomes yield valuable insights. The project is ready to advance to the initialization phase.

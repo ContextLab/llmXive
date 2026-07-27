@@ -1,1 +1,1 @@
-"""Test package for the augmentation impact study."""
+"""Test suite for the augmentation impact study."""

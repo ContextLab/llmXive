@@ -1,78 +1,78 @@
 # Data Model: Investigating the Impact of Network Topology on Neural Entrainment to Rhythmic Stimuli
 
-## Overview
+## 1. Entities
 
-This document defines the data structures, schemas, and transformation logic for the project. The data flow is: **Raw/Simulated Data** → **Processed/Joined Data** → **Analysis Results** → **Visualizations**.
+### Subject
+Represents an individual participant in the study.
+- `subject_id` (str): Unique identifier (Primary Key).
+- `dataset_source` (str): Source of the data (e.g., "HCP", "Simulated").
 
-## Entities
+### TopologyMetric
+Represents a calculated network property for a subject.
+- `subject_id` (str): Foreign Key to Subject.
+- `atlas_type` (str): "Schaefer", "AAL", or "Power".
+- `metric_name` (str): "clustering_coefficient" or "characteristic_path_length".
+- `value` (float): The calculated metric value.
+- `flag` (str): "normal", "zero_variance", "non_informative".
 
-### 1. Subject
-Represents an individual participant.
-*   `subject_id` (str): Unique identifier (e.g., "100101").
-*   `atlas_type` (str): Parcellation scheme used ("Schaefer", "AAL", "Power").
-*   `data_source` (str): "Real" or "Simulated".
+### EntrainmentStrength
+Represents the quantified neural response.
+- `subject_id` (str): Foreign Key to Subject.
+- `value` (float): Phase-Locking Value (PLV) or equivalent.
+- `source` (str): "Real" or "Simulated (Validation Only)".
 
-### 2. TopologyMetric
-Network properties derived from the connectivity matrix.
-*   `subject_id` (str): FK to Subject.
-*   `metric_name` (str): "Clustering_Coefficient" or "Characteristic_Path_Length".
-*   `value` (float): Calculated metric value.
-*   `is_zero_variance` (bool): Flag if variance is 0 across the sample.
+### PrecomputedConnectivity
+Represents pre-computed connectivity matrices or metrics.
+- `subject_id` (str): Foreign Key to Subject.
+- `atlas_type` (str): "Schaefer", "AAL", or "Power".
+- `connectivity_matrix` (array): The pre-computed connectivity matrix (flattened or 2D).
+- `clustering_coefficient` (float): Pre-computed clustering coefficient.
+- `characteristic_path_length` (float): Pre-computed characteristic path length.
 
-### 3. EntrainmentStrength
-The dependent variable (Phase-Locking Value).
-*   `subject_id` (str): FK to Subject.
-*   `entrainment_metric` (float): Phase-Locking Value (0.0 to 1.0).
+### RawTimeSeries
+Represents raw fMRI time series data.
+- `subject_id` (str): Foreign Key to Subject.
+- `atlas_type` (str): "Schaefer", "AAL", or "Power".
+- `time_series` (array): The raw fMRI time series data (N_timepoints x N_regions).
 
-### 4. CorrelationResult
-Output of the statistical analysis.
-*   `model_id` (str): Unique ID for the model run.
-*   `predictor` (str): "Clustering_Coefficient" or "Characteristic_Path_Length".
-*   `coefficient` (float): Standardized beta.
-*   `p_value` (float): Raw p-value (or p-value for orthogonalized predictor).
-*   `adjusted_p_value` (float): Holm-Bonferroni corrected p-value.
-*   `is_significant` (bool): `adjusted_p_value < 0.05`.
-*   `vif` (float): Variance Inflation Factor.
-*   `collinearity_warning` (bool): True if VIF > 5.
-*   `power_warning` (bool): True if N < 30.
-*   `r_squared` (float): Model R-squared.
+## 2. Data Flow
 
-## File Formats
+1.  **Input**: `data/raw/hcp_connectivity_subset.csv` (or similar), `data/raw/entrainment_metrics.csv`.
+2.  **Processing**:
+    - Load and validate.
+    - Check for `PrecomputedConnectivity` or `RawTimeSeries` in the input.
+    - If `RawTimeSeries`, parcellate and compute connectivity matrices.
+    - Compute graph metrics (if not pre-computed).
+    - Check for zero variance.
+    - Filter out non-informative metrics.
+    - Join on `subject_id`.
+3.  **Output**: `data/processed/joined_data.csv`, `data/processed/correlation_results.csv`.
+4.  **Visualization**: `data/visualizations/scatter_topology_entrainment.png`.
 
-### Raw Input (Simulated or Real)
-*   `data/raw/entrainment_metrics.csv`: CSV with `subject_id`, `entrainment_metric`.
-*   `data/raw/connectivity_matrices/`: Directory containing `.npy` or `.csv` matrices (simulated or real).
+## 3. Schema Definitions
 
-### Processed Data
-*   `data/processed/joined_data.csv`: Merged data with `subject_id`, `Clustering_Coefficient`, `Characteristic_Path_Length`, `entrainment_metric`.
-*   `data/processed/metric_flags.json`: JSON list of flags for zero-variance metrics.
-*   `data/processed/metadata.json`: JSON with run parameters (N, atlas, seed, data_source).
-*   `data/processed/correlation_results.csv`: Output of the statistical analysis (schema: `correlation_results.schema.yaml`).
-*   `data/processed/sensitivity_results.csv`: Output of sensitivity analysis (schema: `sensitivity.schema.yaml`).
+### Input Schema: Entrainment CSV
+- `subject_id`: string, required.
+- `entrainment_metric`: float, required.
 
-### Visualizations
-*   `data/visualizations/scatter_topology_entrainment.png`: Scatter plot with 95% CI.
-*   `data/visualizations/sensitivity_bar_chart.png`: Bar chart of absolute differences.
+### Output Schema: Correlation Results
+- `atlas_type`: string.
+- `metric_name`: string.
+- `r`: float (Spearman correlation).
+- `p_value`: float.
+- `adjusted_p_value`: float (Holm-Bonferroni).
+- `is_significant`: boolean.
+- `n_subjects`: integer.
+- `status`: string ("Valid", "Data Insufficient", "Collinearity Warning").
 
-## Transformation Logic
-
-1.  **Load & Validate**:
-    *   Check for `entrainment_metrics.csv`. If missing or N < 30 after join, trigger **Simulated Data Fallback**.
-    *   Validate columns: `subject_id` (str), `entrainment_metric` (float).
-    *   **Error Path**: If validation fails (e.g., non-numeric), **HALT** with "Invalid Entrainment Data".
-2.  **Graph Metric Calculation**:
-    *   Convert connectivity matrix to `networkx.Graph` (weighted).
-    *   Compute `clustering_coefficient` and `characteristic_path_length`.
-    *   Check for zero variance; if found, set `is_zero_variance = True` and write to `metric_flags.json`.
-3.  **Join**:
-    *   Inner join `subject_id` between topology and entrainment data.
-    *   Count N. If N < 30, trigger simulation.
-4.  **Analysis**:
-    *   Fit MLR.
-    *   Calculate VIF. If VIF > 5, perform **Orthogonalization**.
-    *   Apply Holm-Bonferroni correction.
-    *   **Output**: Always report effect sizes (R-squared, betas). If VIF > 5, report orthogonalized betas and note "Collinearity Detected".
-5.  **Output**:
-    *   Write `correlation_results.csv` and `sensitivity_results.csv`.
-    *   Generate PNGs.
-    *   Update `state/...yaml` with hashes.
+### Output Schema: MLR Results (if VIF <= 5)
+- `r_squared`: float.
+- `adj_r_squared`: float.
+- `coefficient_clustering`: float.
+- `p_clustering`: float.
+- `coefficient_path`: float.
+- `p_path`: float.
+- `vif_clustering`: float.
+- `vif_path`: float.
+- `adjusted_p_clustering`: float.
+- `adjusted_p_path`: float.

@@ -12,6 +12,13 @@ T003:
     evidence, nor any documentation showing that ruff and black have been installed
     and integrated into the project workflow. The required artifacts to demonstrate
     that linting (ruff) and formatting (black) are configured are missing.
+T023:
+  c: false
+  h: b23732eece13cbf730b56389586fdb4d129b40dde716aae3052196abaf21a9f9
+  r: The `process_batch` implementation in `code/metrics.py` is cut off (`output_file
+    = Path(outpu`), so it never writes the CSV. Consequently `data/processed/metrics.csv`
+    does not exist, and the integration test cannot pass. The required batch logic
+    and output file are missing.
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,6 +31,15 @@ T025:
   r: No code, script, or documentation showing that batch processing now logs its
     progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
     is not satisfied.
+T029:
+  c: false
+  h: 5e8ff594e76c06306406f2f82ab480918bd96f57d18e322da27e686ab5401eb3
+  r: The `stratified_split` function in `code/evaluator.py` is truncated (ends with
+    `save_metrics(train_df` and never saves the test set or returns the DataFrames).
+    Additionally, the required input file `data/processed/metrics.csv` and the expected
+    output files `data/processed/train_metrics.csv` and `data/processed/test_metrics.csv`
+    are missing. The unit test is present, but the core implementation and required
+    data artifacts are incomplete.
 T030:
   c: false
   h: cbdec122ad02090a41eee122ae0be73c61a2219a6483d93b341b7bbce77703e8

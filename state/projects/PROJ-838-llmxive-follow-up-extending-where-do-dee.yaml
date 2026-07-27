@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T03:05:30.108460Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-838-llmxive-follow-up-extending-where-do-dee
-last_run_id: db2bbf96-336b-41ec-9011-1106762df891
+last_run_id: 613cfb3c-4c88-4749-a288-10e3e0eaa90f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee
 title: 'llmXive follow-up: extending "Where Do Deep-Research Agents Go Wrong? Span-Level
   Error Localization "'
-updated_at: '2026-07-26T20:22:41.040292Z'
+updated_at: '2026-07-27T22:25:57.702948Z'
