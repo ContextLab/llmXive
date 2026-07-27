@@ -1,5 +1,8 @@
 """
-Script to run simulation on generated graphs and save results.
+Script wrapper to invoke the simulation runner.
+
+This script provides a clean entry point for the quickstart run-book.
+It delegates to code/src/simulation/run_simulation.py.
 """
 
 import argparse
@@ -7,52 +10,26 @@ import logging
 import sys
 from pathlib import Path
 
-from code.src.simulation.run_simulation import main as run_simulation_main
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-def setup_logging(log_level: int = logging.INFO) -> None:
-    """Configure logging for the script."""
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+from code.src.simulation.run_simulation import main as run_simulation_main, setup_logging
 
-def main() -> int:
-    """Main entry point for the simulation runner script."""
-    parser = argparse.ArgumentParser(description="Run simulation on generated graphs")
-    parser.add_argument("--config", type=str, default="code/config.yaml",
-                      help="Path to configuration file")
-    parser.add_argument("--output", type=str, default="data/analysis",
-                      help="Output directory for results")
-    parser.add_argument("--graphs", type=str, default="data/raw",
-                      help="Directory containing generated graphs")
-    parser.add_argument("--log-level", type=str, default="INFO",
-                      choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-                      help="Logging level")
-
+def main():
+    """Wrapper entry point."""
+    parser = argparse.ArgumentParser(description="Run energy propagation simulations.")
+    parser.add_argument("--config", type=str, help="Path to config.yaml")
+    parser.add_argument("--manifest", type=str, help="Path to global batch manifest")
+    parser.add_argument("--output", type=str, help="Path to output results JSON")
+    parser.add_argument("--log", type=str, help="Path to run log JSON")
     args = parser.parse_args()
-    setup_logging(getattr(logging, args.log_level.upper()))
-
-    try:
-        # Convert paths to Path objects
-        config_path = Path(args.config)
-        output_dir = Path(args.output)
-        graphs_dir = Path(args.graphs)
-
-        # Run the simulation
-        exit_code = run_simulation_main([
-            "--config", str(config_path),
-            "--output", str(output_dir),
-            "--graphs", str(graphs_dir)
-        ])
-
-        return exit_code
-
-    except Exception as e:
-        logging.error(f"Simulation runner failed: {e}", exc_info=True)
-        return 1
+    
+    # Setup logging
+    logger = setup_logging(Path(args.log) if args.log else None)
+    
+    # Call the main simulation runner
+    return run_simulation_main()
 
 if __name__ == "__main__":
     sys.exit(main())

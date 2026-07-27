@@ -1,80 +1,176 @@
 """
-Script to demonstrate transient metrics extraction.
-This script is primarily for testing the metrics module logic independently
-or as a helper if the main simulation runner needs to be invoked specifically for this.
+Script to run transient phase metric extraction on simulation results.
 
-However, per T027b, the extraction is integrated into the simulation runner.
-This script serves as a standalone validator if needed.
+This script loads simulation results, extracts transient phase metrics,
+and saves the aggregated report.
 """
+
 import argparse
 import json
 import logging
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import numpy as np
-import networkx as nx
 
-from code.src.simulation.metrics import extract_transient_metrics, save_transient_metrics, compute_energy_density_profile, compute_spatial_variance
-from code.src.utils.config import load_config, get_global_config
-from code.src.utils.io import ensure_data_directory
+from code.src.simulation.metrics import (
+    extract_transient_phase_metrics,
+    calculate_relaxation_time,
+    aggregate_transient_report,
+    save_transient_metrics
+)
+from code.src.simulation.stability import check_numerical_stability
 
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
-def generate_dummy_history(steps: int, nodes: int = 10) -> list:
-    """
-    Generates a dummy history list for testing purposes.
-    In a real scenario, this data comes from the simulation loop.
-    """
-    history = []
-    # Create a dummy graph
-    graph = nx.erdos_renyi_graph(nodes, 0.3)
+def load_simulation_results(input_path: str) -> Dict[str, Any]:
+    """Load simulation results from JSON file."""
+    input_file = Path(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Simulation results file not found: {input_path}")
     
-    for step in range(steps):
-        # Simulate some spin state (random for dummy)
-        spins = np.random.choice([-1, 1], size=nodes)
-        energy_density = compute_energy_density_profile(spins, graph)
-        variance = compute_spatial_variance(energy_density)
+    with open(input_file, 'r') as f:
+        return json.load(f)
+
+
+def extract_all_transient_metrics(simulation_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Extract transient phase metrics for all simulation runs.
+    
+    Args:
+        simulation_results: Dictionary containing simulation results.
         
-        history.append({
-            "step": step,
-            "spatial_variance": variance,
-            "energy_density_profile": energy_density.tolist()
-        })
+    Returns:
+        List of transient phase reports for each simulation run.
+    """
+    reports = []
     
-    return history
+    # Handle different possible structures
+    runs = simulation_results.get('runs', [simulation_results])
+    
+    for run in runs:
+        simulation_id = run.get('simulation_id', 'unknown')
+        logger.info(f"Processing transient metrics for simulation: {simulation_id}")
+        
+        # Extract necessary data
+        energy_history = run.get('energy_history', [])
+        spins_history = run.get('spins_history', [])
+        time_steps = run.get('time_steps', list(range(len(energy_history))))
+        adjacency_matrix = run.get('adjacency_matrix')
+        
+        if adjacency_matrix and isinstance(adjacency_matrix, list):
+            adjacency_matrix = np.array(adjacency_matrix)
+        
+        if not energy_history or not spins_history:
+            logger.warning(f"Missing energy or spins history for {simulation_id}, skipping")
+            continue
+        
+        # Convert spins_history to numpy arrays if needed
+        if spins_history and isinstance(spins_history[0], list):
+            spins_history = [np.array(s) for s in spins_history]
+        
+        # Extract transient metrics
+        transient_metrics = extract_transient_phase_metrics(
+            energy_history,
+            spins_history,
+            time_steps,
+            adjacency_matrix
+        )
+        
+        # Calculate relaxation time
+        relaxation_metrics = calculate_relaxation_time(energy_history, time_steps)
+        
+        # Perform stability check
+        stability_check = check_numerical_stability(energy_history)
+        
+        # Aggregate report
+        report = aggregate_transient_report(
+            simulation_id,
+            transient_metrics,
+            relaxation_metrics,
+            stability_check
+        )
+        
+        reports.append(report)
+    
+    return reports
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run transient metrics extraction test.")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
-    parser.add_argument("--steps", type=int, default=None, help="Override transient steps from config")
-    parser.add_argument("--output", type=str, default="data/analysis/transient_metrics.json", help="Output file path")
+    """Main function to run transient phase metric extraction."""
+    parser = argparse.ArgumentParser(
+        description="Extract transient phase metrics from simulation results"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/analysis/simulation_results.json",
+        help="Path to simulation results JSON file"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/analysis/transient_phase_report.json",
+        help="Path to save transient phase report"
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    
     args = parser.parse_args()
-
-    # Load config
-    config = load_config(args.config)
-    transient_steps = args.steps if args.steps is not None else config.get("simulation_params", {}).get("transient_steps", 10)
-
-    logger.info(f"Extracting transient metrics for {transient_steps} steps...")
-
-    # Generate dummy history (in real flow, this is passed from simulation)
-    # We simulate a longer run to ensure we have data beyond transient
-    total_steps = transient_steps + 20
-    history = generate_dummy_history(total_steps)
-
-    # Extract metrics
-    result = extract_transient_metrics(history, transient_steps)
-
-    # Save
-    output_path = Path(args.output)
-    ensure_data_directory(output_path)
-    save_transient_metrics(result, str(output_path))
-
-    logger.info(f"Transient metrics extraction complete. Saved to {output_path}")
-    print(json.dumps(result, indent=2))
+    
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    
+    try:
+        # Load simulation results
+        logger.info(f"Loading simulation results from {args.input}")
+        simulation_results = load_simulation_results(args.input)
+        
+        # Extract transient metrics
+        logger.info("Extracting transient phase metrics")
+        reports = extract_all_transient_metrics(simulation_results)
+        
+        if not reports:
+            logger.warning("No transient metrics extracted. Check input data.")
+            # Create an empty report structure
+            reports = [{
+                'simulation_id': 'none',
+                'timestamp': str(np.datetime64('now')),
+                'summary': {
+                    'total_steps': 0,
+                    'transient_steps': 0,
+                    'equilibrium_reached': False
+                }
+            }]
+        
+        # Save aggregated report
+        logger.info(f"Saving transient phase report to {args.output}")
+        save_transient_metrics({
+            'transient_reports': reports,
+            'total_simulations': len(reports),
+            'equilibrium_reached_count': sum(1 for r in reports if r.get('summary', {}).get('equilibrium_reached', False))
+        }, args.output)
+        
+        logger.info("Transient phase metric extraction completed successfully")
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error during transient phase metric extraction: {e}", exc_info=True)
+        return 1
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    sys.exit(main())

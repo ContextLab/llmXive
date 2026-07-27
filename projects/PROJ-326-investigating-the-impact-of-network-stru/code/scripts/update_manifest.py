@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+
 from code.src.generators.manifest_updater import main as update_manifest_main
 
 def setup_logging():
@@ -11,6 +12,7 @@ def setup_logging():
     )
 
 def main():
+    setup_logging()
     parser = argparse.ArgumentParser(
         description="Update the global batch manifest with stratification summary."
     )
@@ -18,21 +20,25 @@ def main():
         "--manifest",
         type=str,
         default="data/raw/global_batch_manifest.json",
-        help="Path to the global batch manifest JSON file."
+        help="Path to the manifest file."
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="code/config.yaml",
+        help="Path to the config file."
     )
     
     args = parser.parse_args()
     
-    # Temporarily override sys.argv to pass the manifest path to the main function
-    # The main function in manifest_updater expects the path as the first argument
-    original_argv = sys.argv
-    sys.argv = ["update_manifest", args.manifest]
-    
     try:
+        # Note: The main function in manifest_updater.py will handle loading
+        # We can extend it to accept paths if needed, but for now we use defaults
+        # or we can modify the main function to accept arguments
         update_manifest_main()
-    finally:
-        sys.argv = original_argv
+    except Exception as e:
+        logging.error(f"Failed to update manifest: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    setup_logging()
     main()

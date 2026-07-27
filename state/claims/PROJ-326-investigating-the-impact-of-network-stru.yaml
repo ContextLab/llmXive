@@ -1115,3 +1115,530 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T22:58:15Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: statistical report lists Bonferroni and BH results with selected method
+  claim_id: c_42e8eac5
+  context: T071 [US3] [FR-006] Add explicit Bonferroni vs. BH comparison task... This
+    task MUST ensure the output artifact `data/analysis/statistical_report.json` contains
+    a `correction_methods` object listing both Bonferroni and BH results, and a `selected_method`
+    field indicating the one used per config.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_report_lists_Bonferroni_and_BH_results_with_sele
+  kind: entity_fact
+  raw_text: This task MUST ensure the output artifact `data/analysis/statistical_report.json`
+    contains a `correction_methods` object listing both Bonferroni and BH results,
+    and a `selected_method` field indicating the one used per config.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:28:06Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: threshold sweep visualization plots at least 5 distinct points
+  claim_id: c_6575c8d6
+  context: "T072 [US3] [FR-008] Implement threshold sweep visualization... to generate\
+    \ a line plot of diffusion rate vs. clustering threshold, ensuring \u22655 distinct\
+    \ points are plotted."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_sweep_visualization_plots_at_least_5_distinct_poin
+  kind: magnitude
+  raw_text: "This task MUST generate a line plot of diffusion rate vs. clustering\
+    \ threshold, ensuring \u22655 distinct points are plotted."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:29:11Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: graph diversity validator returns a status object
+  claim_id: c_2b7fb994
+  context: T074 [US1] [FR-001] Implement graph diversity validator... to ensure the
+    final batch contains at least 3 distinct topology classes (ER, SF, WS) and that
+    No single class exceeds a majority of the total batch. This task MUST return a
+    status object.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_diversity_validator_returns_a_status_object
+  kind: entity_fact
+  raw_text: This task MUST return a status object.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:29:31Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: final batch contains at least 3 distinct topology classes
+  claim_id: c_44d95b3c
+  context: T074 [US1] [FR-001] Implement graph diversity validator in `code/src/generators/validate_batch.py`
+    to ensure the final batch contains at least 3 distinct topology classes (ER, SF,
+    WS) and that No single class exceeds a majority of the total batch.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_batch_contains_at_least_3_distinct_topology_classes
+  kind: magnitude
+  raw_text: The final batch must contain at least 3 distinct topology classes (ER,
+    SF, WS).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:29:51Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: no single topology class exceeds majority of total batch
+  claim_id: c_2219119d
+  context: T074 [US1] [FR-001] Implement graph diversity validator in `code/src/generators/validate_batch.py`
+    to ensure the final batch contains at least 3 distinct topology classes (ER, SF,
+    WS) and that No single class exceeds a majority of the total batch.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_single_topology_class_exceeds_majority_of_total_batch
+  kind: entity_fact
+  raw_text: No single class exceeds a majority of the total batch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:30:29Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: figures and tables include associational disclaimer
+  claim_id: c_c7a3539d
+  context: T073 [US3] [ROC-001] Add associational framing check... to automatically
+    append a disclaimer to all generated figures and tables stating 'Findings are
+    associational, not causal (ROC-001).' This task MUST run after T037b and append
+    the exact string to all figure captions and table footers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST append the exact string 'Findings are associational, not
+    causal (ROC-001).' to all figure captions and table footers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:30:49Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: diffusion rate calculated as rate of change of spatial variance over
+    time steps
+  claim_id: c_8e592a32
+  context: T027 [US2] Implement diffusion rate calculator in `code/src/simulation/diffusion.py`.
+    This task MUST calculate `diffusion_rate` as the rate of change of spatial variance
+    over time steps and return it as a field in the dictionary passed to the serialization
+    function defined in T029.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_rate_calculated_as_rate_of_change_of_spatial_varia
+  kind: entity_fact
+  raw_text: The task MUST calculate `diffusion_rate` as the rate of change of spatial
+    variance over time steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:31:06Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: rejection rate calculated as rejected attempts divided by total attempts
+  claim_id: c_f708ce29
+  context: T056 [US1] [FR-001] Implement 'Sample Size Adjustment' logic... This task
+    MUST calculate rejection rate as `rejected_attempts / total_attempts`. If rate
+    > 0.2, it MUST increase `batch_size` by [deferred] for the next iteration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rejection_rate_calculated_as_rejected_attempts_divided_by_to
+  kind: entity_fact
+  raw_text: The task MUST calculate rejection rate as `rejected_attempts / total_attempts`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:31:45Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: linear regression of threshold vs diffusion rate coefficients saved to
+    sensitivity sweep json
+  claim_id: c_6964fef9
+  context: T035c [US3] [FR-008] Implement correlation of thresholds with diffusion
+    rates in `code/src/analysis/sensitivity.py`. This task MUST perform a linear regression
+    of `threshold` vs `diffusion_rate` and save the coefficients to `data/analysis/sensitivity_sweep.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_of_threshold_vs_diffusion_rate_coefficient
+  kind: entity_fact
+  raw_text: The task MUST perform a linear regression of `threshold` vs `diffusion_rate`
+    and save the coefficients to `data/analysis/sensitivity_sweep.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:32:18Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: runtime abort mechanism enforces config.yaml timeout_seconds
+  claim_id: c_0c17423f
+  context: T026b [US2] Implement hard runtime abort mechanism and logging in `code/src/simulation/stability.py`.
+    This task MUST enforce the time limit defined in `config.yaml` under `simulation_params.timeout_seconds`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_abort_mechanism_enforces_config.yaml_timeout_seconds
+  kind: entity_fact
+  raw_text: The task MUST enforce the time limit defined in `config.yaml` under `simulation_params.timeout_seconds`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:32:26Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: runtime duration logged to simulation results schema
+  claim_id: c_4e7e25a6
+  context: T026b [US2] Implement hard runtime abort mechanism and logging in `code/src/simulation/stability.py`.
+    It MUST log `runtime_duration_seconds` to the schema defined in T029a.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_duration_logged_to_simulation_results_schema
+  kind: entity_fact
+  raw_text: The task MUST log `runtime_duration_seconds` to the schema defined in
+    T029a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:32:39Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: simulation runner measures and logs runtime duration seconds
+  claim_id: c_bfcc4841
+  context: T028 [US2] Create simulation runner script in `code/src/simulation/run_simulation.py`.
+    This task MUST explicitly measure and log `runtime_duration_seconds` and populate
+    the schema defined in T029a.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_runner_measures_and_logs_runtime_duration_seconds
+  kind: entity_fact
+  raw_text: The task MUST explicitly measure and log `runtime_duration_seconds` and
+    populate the schema defined in T029a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:32:52Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: metrics written to global batch manifest json
+  claim_id: c_d16a6763
+  context: T017 [P] [US1] Implement metric extraction function in `code/src/generators/metrics.py`
+    (degree distribution, clustering, average path length). This task MUST write metrics
+    to the `global_batch_manifest.json` defined in T018c.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_written_to_global_batch_manifest_json
+  kind: entity_fact
+  raw_text: The task MUST write metrics to the `global_batch_manifest.json` defined
+    in T018c.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:33:28Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: run log json created as empty array if not exists
+  claim_id: c_5d0eb46e
+  context: 'T005 [US1] Create `code/src/utils/logging.py` to initialize logging infrastructure.
+    This task MUST create `data/run_log.json` as an empty JSON array `[]` if it does
+    not exist, and implement `log_metric` helper to append entries with fields: `timestamp`
+    (ISO 8601), `event_type` (enum: graph_generated, simulation_start, simulation_end,
+    divergence_detected, timeout_reached), `run_id` (string), `seed` (int), `status`
+    (string), `duration_seconds` (float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_log_json_created_as_empty_array_if_not_exists
+  kind: entity_fact
+  raw_text: The task MUST create `data/run_log.json` as an empty JSON array `[]` if
+    it does not exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:33:53Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: seed injection sets numpy random seed and random state for networkx graph
+    generators
+  claim_id: c_e2f6c18a
+  context: T004b [P] [FR-007] Implement seed injection logic in `code/src/utils/config.py`
+    to load `global_seed` from `config.yaml` and propagate it to all generators. This
+    task MUST explicitly set `numpy.random.seed(seed)`, `random.seed(seed)`, and pass
+    `random_state=seed` to `networkx.watts_strogatz_graph`, `networkx.barabasi_albert_graph`,
+    and `networkx.erdos_renyi_graph`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seed_injection_sets_numpy_random_seed_and_random_state_for_n
+  kind: entity_fact
+  raw_text: The task MUST explicitly set `numpy.random.seed(seed)`, `random.seed(seed)`,
+    and pass `random_state=seed` to `networkx.watts_strogatz_graph`, `networkx.barabasi_albert_graph`,
+    and `networkx.erdos_renyi_graph`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:34:14Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: connectivity verification includes retry loop and warning log on failure
+  claim_id: c_d40ad69f
+  context: T051 [P] [FR-001] Implement explicit connectivity verification in `code/src/generators/base.py`
+    to enforce `nx.is_connected()` before returning any generated graph. This task
+    MUST include a retry loop for each graph; if multiple attempts fail, the system
+    MUST log a warning and proceed to the next graph (per spec edge case).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_verification_includes_retry_loop_and_warning_lo
+  kind: entity_fact
+  raw_text: The task MUST include a retry loop for each graph; if multiple attempts
+    fail, the system MUST log a warning and proceed to the next graph.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:34:38Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: stratified sampling loop calls generation trigger and quota checker
+  claim_id: c_eb44b1ba
+  context: T062c [US1] [FR-001][SC-005] Implement stratified sampling loop controller
+    in `code/src/generators/stratified_runner.py` that explicitly enforces target
+    distribution by generating graphs until bin quotas are met. This task MUST call
+    T062f to trigger generation and T062e to check quotas.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_loop_calls_generation_trigger_and_quota
+  kind: entity_fact
+  raw_text: The task MUST call T062f to trigger generation and T062e to check quotas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:34:54Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep iterates over thresholds running simulation and analysis
+  claim_id: c_b5c357dd
+  context: T035b [US3] [FR-008] Implement sensitivity sweep for clustering coefficient
+    thresholds in `code/src/analysis/sensitivity.py`. This task MUST iterate over
+    the thresholds, run the simulation/analysis for each, and record the results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_iterates_over_thresholds_running_simulatio
+  kind: entity_fact
+  raw_text: The task MUST iterate over the thresholds, run the simulation/analysis
+    for each, and record the results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:35:18Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: sample size adjustment re-runs batch generation if power insufficient
+  claim_id: c_c91076b6
+  context: T044a [US3] Implement 'Sample Size Adjustment' feedback loop in `code/src/analysis/power.py`.
+    This task MUST re-run batch generation if power is insufficient.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_size_adjustment_re-runs_batch_generation_if_power_ins
+  kind: entity_fact
+  raw_text: The task MUST re-run batch generation if power is insufficient.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:35:49Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: data loading merges JSON artifacts into single DataFrame
+  claim_id: c_e54787e4
+  context: T037a [US3] [FR-005] Implement data loading/merging logic in `code/src/analysis/aggregate_results.py`.
+    This task MUST load all required JSON artifacts and merge them into a single DataFrame.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_merges_JSON_artifacts_into_single_DataFrame
+  kind: entity_fact
+  raw_text: The task MUST load all required JSON artifacts and merge them into a single
+    DataFrame.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:36:06Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: statistical aggregation computes summary statistics for merged data
+  claim_id: c_fdcc20cb
+  context: T037c [P] [FR-005] Implement statistical aggregation logic in `code/src/analysis/aggregate_results.py`.
+    This task MUST compute summary statistics (mean, std, etc.) for the merged data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_aggregation_computes_summary_statistics_for_merg
+  kind: entity_fact
+  raw_text: The task MUST compute summary statistics (mean, std, etc.) for the merged
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:36:29Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: final serialization writes aggregated results to aggregated results json
+  claim_id: c_1842a2dc
+  context: T037d [P] [FR-005] Implement final serialization in `code/src/analysis/aggregate_results.py`.
+    This task MUST write the aggregated results to `data/analysis/aggregated_results.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_serialization_writes_aggregated_results_to_aggregated
+  kind: entity_fact
+  raw_text: The task MUST write the aggregated results to `data/analysis/aggregated_results.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:36:47Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: CPU-time profiling measures time per spin flip iteration and outputs
+    to profiler report
+  claim_id: c_e676e9b2
+  context: "T070 [US2] [FR-002][SC-002] Implement **CPU-time profiling** in `code/src/simulation/profiler.py`\
+    \ to measure per-step execution time and validate SC-002 (\u226460 min runtime)\
+    \ during unit tests. This task MUST measure `time_per_spin_flip_iteration` and\
+    \ output to `data/analysis/profiler_report.json`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-time_profiling_measures_time_per_spin_flip_iteration_and
+  kind: entity_fact
+  raw_text: The task MUST measure `time_per_spin_flip_iteration` and output to `data/analysis/profiler_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:36:52Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: runtime abort uses signal alarm or threading timer for hard abort
+  claim_id: c_5a97dc27
+  context: T026b [US2] Implement hard runtime abort mechanism and logging in `code/src/simulation/stability.py`.
+    It MUST use `signal.alarm(simulation_params.timeout_seconds)` for Unix systems
+    or `threading.Timer` for cross-platform, ensuring a hard abort on timeout.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_abort_uses_signal_alarm_or_threading_timer_for_hard
+  kind: entity_fact
+  raw_text: The task MUST use `signal.alarm(simulation_params.timeout_seconds)` for
+    Unix systems or `threading.Timer` for cross-platform, ensuring a hard abort on
+    timeout.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:37:15Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: runtime abort logs runtime duration seconds to schema
+  claim_id: c_7c476bba
+  context: T026b [US2] Implement hard runtime abort mechanism and logging in `code/src/simulation/stability.py`.
+    It MUST log `runtime_duration_seconds` to the schema defined in T029a.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_abort_logs_runtime_duration_seconds_to_schema
+  kind: entity_fact
+  raw_text: The task MUST log `runtime_duration_seconds` to the schema defined in
+    T029a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:37:17Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 3
+  canonical: statistical report contains correction methods object and selected method
+    field
+  claim_id: c_7e40d012
+  context: T071 [US3] [FR-006] Add explicit **Bonferroni vs. BH comparison** task
+    in `code/src/analysis/anova.py` to log both correction methods and report which
+    is selected based on `config.yaml` preference. This task MUST ensure the output
+    artifact `data/analysis/statistical_report.json` contains a `correction_methods`
+    object listing both Bonferroni and BH results, and a `selected_method` field indicating
+    the one used per config.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_report_contains_correction_methods_object_and_se
+  kind: entity_fact
+  raw_text: The task MUST ensure the output artifact `data/analysis/statistical_report.json`
+    contains a `correction_methods` object listing both Bonferroni and BH results,
+    and a `selected_method` field indicating the one used per config.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T23:37:21Z'

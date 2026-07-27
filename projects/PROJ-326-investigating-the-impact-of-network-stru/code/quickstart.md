@@ -1,79 +1,69 @@
 # Quickstart Guide
 
-## Prerequisites
+This guide outlines the commands to execute the full research pipeline.
+Ensure you have installed dependencies via `pip install -r code/requirements.txt`.
 
-- Python 3.8+
-- pip
-- git
+## 1. Generate Synthetic Networks
 
-## Installation
-
-```bash
-cd code
-pip install -r requirements.txt
-```
-
-## Usage
-
-The pipeline is orchestrated via `main.py` with specific phase commands.
-
-### 1. Initialize Directories and Logs
+Generates batches of graphs based on `code/config.yaml` topology targets.
 
 ```bash
-python setup_directories.py
-python scripts/run_logging_init.py
+python code/src/generators/batch_runner.py --config code/config.yaml --output data/raw/global_batch_manifest.json
 ```
 
-### 2. Generate Network Batch
+## 2. Run Simulations
+
+Executes energy propagation simulations on the generated graphs.
 
 ```bash
-python scripts/run_batch_generation.py --config code/config.yaml
+python code/scripts/run_simulation.py --config code/config.yaml
 ```
 
-### 3. Run Simulations
+## 3. Sensitivity Analysis
+
+Runs sensitivity sweeps on clustering thresholds.
 
 ```bash
-python scripts/run_simulation.py --config code/config.yaml
+python code/scripts/run_sensitivity_sweep.py --config code/config.yaml
 ```
 
-### 4. Run Sensitivity Sweep
+## 4. Aggregate and Analyze
+
+Aggregates results, performs regression/ANOVA, and generates final reports.
 
 ```bash
-python scripts/run_sensitivity_sweep.py --config code/config.yaml
+python code/scripts/run_analysis.py --config code/config.yaml
 ```
 
-### 5. Run Analysis
+## 5. Final Serialization
+
+Produces the final `data/analysis/final_results.json` and figures.
 
 ```bash
-python scripts/run_analysis.py --config code/config.yaml
+python code/scripts/run_final_serialization.py --config code/config.yaml
 ```
 
-### 6. Aggregate Results
+## Full Pipeline Execution
+
+To run the entire pipeline sequentially:
 
 ```bash
-python scripts/run_aggregation.py --config code/config.yaml
+python code/src/generators/batch_runner.py --config code/config.yaml
+python code/scripts/run_simulation.py --config code/config.yaml
+python code/scripts/run_sensitivity_sweep.py --config code/config.yaml
+python code/scripts/run_analysis.py --config code/config.yaml
+python code/scripts/run_final_serialization.py --config code/config.yaml
 ```
-
-### 7. Validate Batch
-
-```bash
-python scripts/validate_batch.py --config code/config.yaml
-```
-
-### 8. Generate Final Report
-
-```bash
-python scripts/run_final_serialization.py --config code/config.yaml
-```
-
-## Configuration
-
-All parameters are defined in `code/config.yaml`. Do not modify seeds manually; use the config file.
 
 ## Verification
 
-Run the validation script to ensure all artifacts are present:
+Verify the outputs exist:
 
 ```bash
-python scripts/validate_quickstart.py
+ls -lh data/raw/global_batch_manifest.json
+ls -lh data/analysis/simulation_results.json
+ls -lh data/analysis/sensitivity_sweep.json
+ls -lh data/analysis/aggregated_results.json
+ls -lh data/analysis/final_results.json
+ls -lh data/run_log.json
 ```

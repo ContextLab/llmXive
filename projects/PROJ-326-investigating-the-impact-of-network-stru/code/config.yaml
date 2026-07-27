@@ -1,32 +1,37 @@
-# Global Configuration for Network Topology Energy Transfer Study
+# Global configuration for the Network Topology Energy Transfer project
 global_seed: 42
-run_id: "proj-326-run-001"
 
 topology_targets:
-  er: 10
-  sw: 10
-  sf: 10
+  erdos_renyi:
+    n: 100
+    p: 0.05
+  watts_strogatz:
+    n: 100
+    k: 4
+    p: 0.1
+  barabasi_albert:
+    n: 100
+    m: 2
 
 simulation_params:
-  steps: 100
-  temperature: 1.0
   timeout_seconds: 3600
+  energy_threshold: 1e6
+  energy_tolerance: 1e-3
+  steps: 1000
+  beta: 1.0
 
 stratification_params:
   bins: [0.1, 0.2, 0.3, 0.4, 0.5]
   target_counts:
-    er: 5
-    sw: 5
-    sf: 5
+    0.1: 10
+    0.2: 10
+    0.3: 10
+    0.4: 10
+    0.5: 10
   tolerance: 0.05
 
-# T056 Configuration: Rejection Adjustment
-rejection_adjustment_factor: 1.5
-
-# T064 Configuration: Collinearity
 collinearity_params:
   vif_threshold: 5.0
 
-# T066 Configuration: Outliers
 outlier_params:
   iqr_multiplier: 1.5

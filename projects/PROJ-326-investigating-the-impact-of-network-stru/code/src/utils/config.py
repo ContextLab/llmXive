@@ -1,61 +1,115 @@
-import yaml
+"""
+Configuration management module.
+
+Implements T004b: Seed injection logic and configuration loading.
+"""
 import logging
+import random
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-def load_config(config_path: Path) -> Dict[str, Any]:
-    """
-    Load configuration from a YAML file.
-    
-    Args:
-        config_path: Path to the config.yaml file.
-        
-    Returns:
-        Dictionary containing the configuration.
-        
-    Raises:
-        FileNotFoundError: If the config file does not exist.
-        yaml.YAMLError: If the YAML is invalid.
-    """
-    if not config_path.exists():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(config_path, 'r') as f:
-        try:
-            config = yaml.safe_load(f)
-            return config if config else {}
-        except yaml.YAMLError as e:
-            logging.error(f"Error parsing YAML config: {e}")
-            raise
+import numpy as np
+import yaml
 
-def get_global_config(config: Dict[str, Any]) -> Dict[str, Any]:
+logger = logging.getLogger(__name__)
+
+def load_config(config_path: str) -> Dict[str, Any]:
     """
-    Extract global configuration parameters.
+    Load configuration from YAML file.
     
-    Args:
-        config: Full configuration dictionary.
-        
-    Returns:
-        Dictionary with global parameters.
+    T004b: This function validates the schema and returns the config dict.
     """
-    return {
-        "global_seed": config.get("global_seed"),
-        "simulation_timeout_seconds": config.get("simulation_timeout_seconds", 3600)
-    }
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    with open(path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Validate required keys
+    required_keys = ['global_seed', 'stratification_params', 'topology_targets']
+    for key in required_keys:
+        if key not in config:
+            raise ValueError(f"Missing required configuration key: {key}")
+    
+    return config
+
+def get_global_config() -> Dict[str, Any]:
+    """
+    Get the global configuration with seed injection applied.
+    
+    T004b: This function sets numpy.random.seed, random.seed, and
+    passes random_state to NetworkX generators.
+    """
+    config = load_config('code/config.yaml')
+    seed = config.get('global_seed', 42)
+    
+    # T004b: Inject seed into all random number generators
+    np.random.seed(seed)
+    random.seed(seed)
+    
+    logger.info(f"Global seed set to {seed}")
+    
+    return config
+
+def set_seed_for_generator(seed: int):
+    """
+    Set seed for a specific generator run.
+    
+    T004b: Ensures reproducibility by setting seeds before generation.
+    """
+    np.random.seed(seed)
+    random.seed(seed)
+
+def get_generator_params(config: Dict[str, Any], topology_type: str) -> Dict[str, Any]:
+    """
+    Get parameters for a specific topology generator.
+    
+    T004b: Returns params with random_state set for NetworkX functions.
+    """
+    if topology_type not in config.get('simulation_params', {}):
+        raise ValueError(f"Unknown topology type: {topology_type}")
+    
+    params = config['simulation_params'][topology_type].copy()
+    
+    # T004b: Ensure random_state is set for NetworkX generators
+    # NetworkX functions like watts_strogatz_graph, barabasi_albert_graph,
+    # and erdos_renyi_graph accept a 'seed' or 'random_state' parameter.
+    # We pass the global seed here.
+    params['seed'] = config.get('global_seed', 42)
+    
+    return params
 
 def validate_config_schema(config: Dict[str, Any]) -> bool:
     """
-    Validate that the config has required keys.
+    Validate configuration against required schema.
     
-    Args:
-        config: Configuration dictionary.
-        
-    Returns:
-        True if valid, False otherwise.
+    T007: Base configuration loader validation.
     """
-    required_keys = ["global_seed"]
-    for key in required_keys:
+    required = {
+        'global_seed': int,
+        'stratification_params': dict,
+        'topology_targets': list,
+        'simulation_params': dict
+    }
+    
+    for key, expected_type in required.items():
         if key not in config:
-            logging.warning(f"Missing required config key: {key}")
+            logger.error(f"Missing required key: {key}")
             return False
+        if not isinstance(config[key], expected_type):
+            logger.error(f"Invalid type for {key}: expected {expected_type}, "
+                       f"got {type(config[key])}")
+            return False
+    
+    # Validate stratification_params
+    strat = config['stratification_params']
+    if 'bins' not in strat or not isinstance(strat['bins'], list):
+        logger.error("stratification_params must contain 'bins' list")
+        return False
+    
+    if 'target_counts' not in strat or not isinstance(strat['target_counts'], dict):
+        logger.error("stratification_params must contain 'target_counts' dict")
+        return False
+    
     return True

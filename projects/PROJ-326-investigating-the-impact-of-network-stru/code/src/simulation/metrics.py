@@ -1,246 +1,469 @@
 """
-Metrics module for simulation analysis.
-Implements energy density profile tracking, spatial variance calculation,
-and transient phase metric extraction.
+Simulation metrics module for energy propagation analysis.
+
+This module provides functions to calculate various metrics from spin system simulations,
+including energy density profiles, spatial variance, and transient phase characteristics.
 """
-import numpy as np
-import networkx as nx
+
 import json
 import logging
-import json
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from code.src.utils.config import get_global_config
-from code.src.utils.io import ensure_data_directory
+import numpy as np
+
+from code.src.simulation.stability import check_numerical_stability
 
 logger = logging.getLogger(__name__)
 
 
-def compute_energy_density_profile(spins: np.ndarray, graph: nx.Graph) -> np.ndarray:
+def calculate_energy_density_profile(energy_history: List[float], 
+                                     time_steps: List[int]) -> Dict[str, Any]:
     """
-    Compute the local energy density for each node in the network.
-
-    For an Ising model with Hamiltonian H = -J * sum_{<i,j>} s_i * s_j,
-    the local energy contribution for node i is:
-    E_i = -J * sum_{j in neighbors(i)} s_i * s_j
-
+    Calculate the energy density profile over time.
+    
     Args:
-        spins: 1D numpy array of spin values (+1 or -1) for each node.
-               Index corresponds to node ID (assuming contiguous 0..N-1).
-        graph: NetworkX graph representing the network topology.
-
-    Returns:
-        1D numpy array of energy density values for each node.
-    """
-    if spins.shape[0] != len(graph):
-        raise ValueError(f"Spins array length ({spins.shape[0]}) must match graph node count ({len(graph)})")
-
-    n_nodes = len(graph)
-    energy_density = np.zeros(n_nodes, dtype=np.float64)
-
-    # Assume J=1 for simplified dynamics as per T024 context
-    J = 1.0
-
-    # Convert graph to adjacency list for faster iteration
-    for node, neighbors in graph.adj.items():
-        if node >= n_nodes or node < 0:
-            continue
+        energy_history: List of total energy values at each time step.
+        time_steps: List of time step indices.
         
-        spin_i = spins[node]
-        neighbor_sum = 0.0
-        
-        for neighbor in neighbors:
-            if neighbor >= n_nodes or neighbor < 0:
-                continue
-            neighbor_sum += spins[neighbor]
-        
-        # Local energy: -J * s_i * sum(s_j)
-        energy_density[node] = -J * spin_i * neighbor_sum
-
-    return energy_density
-
-
-def compute_spatial_variance(energy_density: np.ndarray) -> float:
-    """
-    Calculate the spatial variance of the energy density profile across the network.
-
-    This metric quantifies the heterogeneity of energy distribution.
-    Increasing spatial variance indicates growing spatial correlations
-    or phase separation in the spin system.
-
-    Args:
-        energy_density: 1D numpy array of energy density values per node.
-
     Returns:
-        Float representing the variance of the energy density distribution.
+        Dictionary containing:
+            - 'time_steps': list of time steps
+            - 'energy_density': list of energy density values (energy / num_spins)
+            - 'mean_energy': mean energy over the simulation
+            - 'std_energy': standard deviation of energy
+            - 'initial_energy': energy at t=0
+            - 'final_energy': energy at final time step
     """
-    if energy_density.size == 0:
-        logger.warning("Empty energy density array provided to spatial variance calculation.")
-        return 0.0
-
-    variance = np.var(energy_density, ddof=0) # Population variance
-    return float(variance)
-
-
-def track_metrics_history(history: List[Dict[str, Any]], step: int, spins: np.ndarray, graph: nx.Graph) -> Dict[str, Any]:
-    """
-    Compute and append metrics for a single simulation step.
-
-    Args:
-        history: List of previous metric snapshots.
-        step: Current simulation time step.
-        spins: Current spin configuration.
-        graph: Network topology.
-
-    Returns:
-        Dictionary containing step metrics (energy density profile, spatial variance).
-    """
-    energy_density = compute_energy_density_profile(spins, graph)
-    spatial_variance = compute_spatial_variance(energy_density)
-
-    snapshot = {
-        "step": step,
-        "spatial_variance": spatial_variance,
-        "energy_density_profile": energy_density.tolist()
+    if not energy_history or not time_steps:
+        logger.warning("Empty energy history or time steps provided")
+        return {
+            'time_steps': [],
+            'energy_density': [],
+            'mean_energy': 0.0,
+            'std_energy': 0.0,
+            'initial_energy': 0.0,
+            'final_energy': 0.0,
+            'num_spins': 0
+        }
+    
+    num_spins = len(energy_history[0]) if isinstance(energy_history[0], (list, np.ndarray)) else 1
+    if num_spins == 1 and len(energy_history) > 1:
+        # If energy_history is a list of scalars, num_spins is 1
+        num_spins = 1
+    elif isinstance(energy_history[0], (list, np.ndarray)):
+        num_spins = len(energy_history[0])
+    
+    # Calculate energy density (energy per spin)
+    if num_spins > 1:
+        energy_density = [e / num_spins for e in energy_history]
+    else:
+        energy_density = energy_history
+    
+    return {
+        'time_steps': time_steps,
+        'energy_density': energy_density,
+        'mean_energy': float(np.mean(energy_history)),
+        'std_energy': float(np.std(energy_history)),
+        'initial_energy': float(energy_history[0]),
+        'final_energy': float(energy_history[-1]),
+        'num_spins': num_spins
     }
 
-    history.append(snapshot)
-    return snapshot
 
-
-def validate_metrics(metrics: Dict[str, Any]) -> bool:
+def calculate_spatial_variance(spins_history: List[np.ndarray], 
+                               adjacency_matrix: np.ndarray) -> Dict[str, Any]:
     """
-    Validate that computed metrics are numerically stable and within expected bounds.
-
-    Args:
-        metrics: Dictionary containing 'spatial_variance' and 'energy_density_profile'.
-
-    Returns:
-        True if valid, False otherwise.
-    """
-    if "spatial_variance" not in metrics:
-        logger.error("Missing 'spatial_variance' in metrics.")
-        return False
+    Calculate spatial variance of spin configurations over time.
     
-    if "energy_density_profile" not in metrics:
-        logger.error("Missing 'energy_density_profile' in metrics.")
-        return False
-
-    var = metrics["spatial_variance"]
-    if not np.isfinite(var):
-        logger.error(f"Spatial variance is not finite: {var}")
-        return False
-
-    if var < 0:
-        logger.error(f"Spatial variance is negative: {var}")
-        return False
-
-    profile = np.array(metrics["energy_density_profile"])
-    if not np.all(np.isfinite(profile)):
-        logger.error("Energy density profile contains non-finite values.")
-        return False
-
-    return True
-
-
-def extract_transient_metrics(history: List[Dict[str, Any]], transient_steps: int) -> Dict[str, Any]:
-    """
-    Extract and aggregate metrics specifically for the transient phase of the simulation.
-
-    This function isolates the first N steps (defined by transient_steps) from the
-    full simulation history and computes aggregate statistics (mean, std, min, max)
-    for the spatial variance during this period.
-
-    Args:
-        history: List of metric snapshots from the simulation run.
-               Each snapshot should be a dict with 'step', 'spatial_variance', etc.
-        transient_steps: Number of initial steps to consider as the transient phase.
-
-    Returns:
-        Dictionary containing transient phase statistics:
-        {
-            "transient_steps": int,
-            "steps_analyzed": int,
-            "spatial_variance": {
-                "mean": float,
-                "std": float,
-                "min": float,
-                "max": float
-            },
-            "raw_transient_data": [list of step snapshots]
-        }
-    """
-    if not history:
-        logger.warning("Empty history provided to transient metric extraction.")
-        return {
-            "transient_steps": transient_steps,
-            "steps_analyzed": 0,
-            "spatial_variance": {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0},
-            "raw_transient_data": []
-        }
-
-    # Filter for transient steps (0 to transient_steps - 1)
-    # Note: history is usually 0-indexed by step count
-    transient_data = [
-        entry for entry in history 
-        if entry.get("step", -1) < transient_steps
-    ]
-
-    if not transient_data:
-        logger.warning(f"No steps found in range [0, {transient_steps}) in history.")
-        return {
-            "transient_steps": transient_steps,
-            "steps_analyzed": 0,
-            "spatial_variance": {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0},
-            "raw_transient_data": []
-        }
-
-    variances = [entry["spatial_variance"] for entry in transient_data]
+    Spatial variance measures how much the spin values vary across the network
+    at each time step, indicating the degree of order/disorder in the system.
     
-    stats = {
-        "transient_steps": transient_steps,
-        "steps_analyzed": len(transient_data),
-        "spatial_variance": {
-            "mean": float(np.mean(variances)),
-            "std": float(np.std(variances)),
-            "min": float(np.min(variances)),
-            "max": float(np.max(variances))
-        },
-        "raw_transient_data": transient_data
+    Args:
+        spins_history: List of spin configurations (1D arrays) at each time step.
+        adjacency_matrix: Network adjacency matrix.
+        
+    Returns:
+        Dictionary containing:
+            - 'time_steps': list of time steps
+            - 'spatial_variance': list of variance values
+            - 'mean_variance': mean spatial variance
+            - 'max_variance': maximum spatial variance
+            - 'min_variance': minimum spatial variance
+            - 'is_monotonic': whether variance generally increases (for stability check)
+    """
+    if not spins_history:
+        logger.warning("Empty spins history provided")
+        return {
+            'time_steps': [],
+            'spatial_variance': [],
+            'mean_variance': 0.0,
+            'max_variance': 0.0,
+            'min_variance': 0.0,
+            'is_monotonic': True
+        }
+    
+    variances = []
+    for spins in spins_history:
+        if isinstance(spins, np.ndarray):
+            variance = float(np.var(spins))
+        else:
+            variance = float(np.var(np.array(spins)))
+        variances.append(variance)
+    
+    # Check monotonicity (variance should generally increase or stay stable)
+    # Allow small decreases due to numerical noise
+    monotonic_violations = 0
+    for i in range(1, len(variances)):
+        if variances[i] < variances[i-1] - 1e-6:  # Small tolerance
+            monotonic_violations += 1
+    
+    is_monotonic = monotonic_violations <= max(1, len(variances) * 0.1)  # Allow 10% violations
+    
+    return {
+        'time_steps': list(range(len(spins_history))),
+        'spatial_variance': variances,
+        'mean_variance': float(np.mean(variances)),
+        'max_variance': float(np.max(variances)),
+        'min_variance': float(np.min(variances)),
+        'is_monotonic': is_monotonic,
+        'monotonic_violations': monotonic_violations
     }
 
-    return stats
+
+def extract_transient_phase_metrics(energy_history: List[float],
+                                    spins_history: List[np.ndarray],
+                                    time_steps: List[int],
+                                    adjacency_matrix: Optional[np.ndarray] = None,
+                                    transient_threshold: float = 0.1,
+                                    min_transient_steps: int = 5) -> Dict[str, Any]:
+    """
+    Extract metrics characterizing the transient phase of the simulation.
+    
+    The transient phase is the initial period where the system evolves from its
+    initial state toward equilibrium. This function identifies the transient
+    phase and calculates key metrics about it.
+    
+    Args:
+        energy_history: List of total energy values at each time step.
+        spins_history: List of spin configurations at each time step.
+        time_steps: List of time step indices.
+        adjacency_matrix: Network adjacency matrix (optional, for spatial analysis).
+        transient_threshold: Threshold for detecting when transient phase ends
+                           (fraction of total energy change).
+        min_transient_steps: Minimum number of steps considered as transient.
+        
+    Returns:
+        Dictionary containing:
+            - 'transient_start': index where transient phase starts
+            - 'transient_end': index where transient phase ends
+            - 'transient_duration': number of steps in transient phase
+            - 'transient_energy_change': total energy change during transient
+            - 'transient_energy_rate': average rate of energy change
+            - 'transient_variance_change': change in spatial variance during transient
+            - 'equilibrium_detected': whether equilibrium was reached
+            - 'equilibrium_time': time step when equilibrium was detected
+            - 'pre_transient_metrics': metrics before transient
+            - 'transient_metrics': metrics during transient
+            - 'post_transient_metrics': metrics after transient
+    """
+    if not energy_history or not spins_history or not time_steps:
+        logger.warning("Empty history provided for transient phase extraction")
+        return {
+            'transient_start': 0,
+            'transient_end': 0,
+            'transient_duration': 0,
+            'transient_energy_change': 0.0,
+            'transient_energy_rate': 0.0,
+            'transient_variance_change': 0.0,
+            'equilibrium_detected': False,
+            'equilibrium_time': None,
+            'pre_transient_metrics': {},
+            'transient_metrics': {},
+            'post_transient_metrics': {},
+            'num_steps': 0
+        }
+    
+    num_steps = len(energy_history)
+    
+    # Calculate energy changes
+    energy_changes = np.diff(energy_history)
+    total_energy_change = abs(energy_history[-1] - energy_history[0])
+    
+    if total_energy_change == 0:
+        # No energy change, entire simulation is equilibrium
+        return {
+            'transient_start': 0,
+            'transient_end': 0,
+            'transient_duration': 0,
+            'transient_energy_change': 0.0,
+            'transient_energy_rate': 0.0,
+            'transient_variance_change': 0.0,
+            'equilibrium_detected': True,
+            'equilibrium_time': 0,
+            'pre_transient_metrics': {},
+            'transient_metrics': {},
+            'post_transient_metrics': {},
+            'num_steps': num_steps
+        }
+    
+    # Detect transient phase end: when energy change rate drops below threshold
+    # Use a rolling window to smooth the change rate
+    window_size = min(5, num_steps // 2) if num_steps > 2 else 1
+    if window_size < 1:
+        window_size = 1
+    
+    smoothed_changes = []
+    for i in range(num_steps - 1):
+        start = max(0, i - window_size // 2)
+        end = min(num_steps - 1, i + window_size // 2 + 1)
+        if end > start:
+            avg_change = np.mean(np.abs(energy_changes[start:end]))
+        else:
+            avg_change = abs(energy_changes[i]) if i < len(energy_changes) else 0
+        smoothed_changes.append(avg_change)
+    
+    # Find when the smoothed change rate drops below threshold
+    threshold_value = transient_threshold * (total_energy_change / num_steps)
+    transient_end = num_steps - 1  # Default to end if not detected
+    
+    for i, change_rate in enumerate(smoothed_changes):
+        if change_rate < threshold_value:
+            transient_end = i + min_transient_steps
+            break
+    
+    # Ensure transient_end is within bounds
+    transient_end = min(transient_end, num_steps - 1)
+    transient_start = 0
+    
+    # Calculate transient duration
+    transient_duration = max(min_transient_steps, transient_end - transient_start)
+    
+    # Extract metrics for each phase
+    pre_transient_end = transient_start
+    post_transient_start = transient_end + 1
+    
+    # Pre-transient metrics (usually just initial state)
+    pre_transient_metrics = {}
+    if pre_transient_end > 0:
+        pre_transient_metrics = {
+            'energy_mean': float(np.mean(energy_history[:pre_transient_end+1])),
+            'energy_std': float(np.std(energy_history[:pre_transient_end+1])),
+            'num_steps': pre_transient_end + 1
+        }
+    
+    # Transient metrics
+    transient_energy = energy_history[transient_start:transient_end+1]
+    transient_energy_change = abs(transient_energy[-1] - transient_energy[0]) if len(transient_energy) > 1 else 0.0
+    transient_energy_rate = transient_energy_change / transient_duration if transient_duration > 0 else 0.0
+    
+    transient_metrics = {
+        'energy_mean': float(np.mean(transient_energy)) if transient_energy else 0.0,
+        'energy_std': float(np.std(transient_energy)) if transient_energy else 0.0,
+        'energy_change': transient_energy_change,
+        'energy_rate': transient_energy_rate,
+        'num_steps': transient_duration
+    }
+    
+    # Post-transient metrics
+    post_transient_metrics = {}
+    if post_transient_start < num_steps:
+        post_energy = energy_history[post_transient_start:]
+        post_transient_metrics = {
+            'energy_mean': float(np.mean(post_energy)),
+            'energy_std': float(np.std(post_energy)),
+            'num_steps': num_steps - post_transient_start
+        }
+    
+    # Calculate spatial variance change during transient if adjacency matrix provided
+    transient_variance_change = 0.0
+    if adjacency_matrix is not None and len(spins_history) > transient_end:
+        # Calculate variance at start and end of transient
+        start_spins = spins_history[transient_start] if isinstance(spins_history[transient_start], np.ndarray) else np.array(spins_history[transient_start])
+        end_spins = spins_history[transient_end] if isinstance(spins_history[transient_end], np.ndarray) else np.array(spins_history[transient_end])
+        
+        start_variance = float(np.var(start_spins))
+        end_variance = float(np.var(end_spins))
+        transient_variance_change = end_variance - start_variance
+    
+    # Check if equilibrium was detected
+    equilibrium_detected = transient_end < num_steps - 1
+    equilibrium_time = transient_end if equilibrium_detected else None
+    
+    return {
+        'transient_start': transient_start,
+        'transient_end': transient_end,
+        'transient_duration': transient_duration,
+        'transient_energy_change': transient_energy_change,
+        'transient_energy_rate': transient_energy_rate,
+        'transient_variance_change': transient_variance_change,
+        'equilibrium_detected': equilibrium_detected,
+        'equilibrium_time': equilibrium_time,
+        'pre_transient_metrics': pre_transient_metrics,
+        'transient_metrics': transient_metrics,
+        'post_transient_metrics': post_transient_metrics,
+        'num_steps': num_steps
+    }
+
+
+def calculate_relaxation_time(energy_history: List[float], 
+                              time_steps: List[int],
+                              threshold_fraction: float = 0.05) -> Dict[str, Any]:
+    """
+    Calculate the relaxation time of the system.
+    
+    Relaxation time is the time it takes for the system to reach within a certain
+    fraction of its final equilibrium value.
+    
+    Args:
+        energy_history: List of total energy values at each time step.
+        time_steps: List of time step indices.
+        threshold_fraction: Fraction of final value to consider as equilibrium.
+        
+    Returns:
+        Dictionary containing:
+            - 'relaxation_time': time step when equilibrium is reached
+            - 'final_energy': final energy value
+            - 'initial_energy': initial energy value
+            - 'equilibrium_threshold': the threshold value used
+            - 'reached_equilibrium': whether equilibrium was reached
+    """
+    if not energy_history or not time_steps:
+        logger.warning("Empty history for relaxation time calculation")
+        return {
+            'relaxation_time': None,
+            'final_energy': 0.0,
+            'initial_energy': 0.0,
+            'equilibrium_threshold': 0.0,
+            'reached_equilibrium': False
+        }
+    
+    initial_energy = energy_history[0]
+    final_energy = energy_history[-1]
+    total_change = abs(final_energy - initial_energy)
+    
+    if total_change == 0:
+        return {
+            'relaxation_time': 0,
+            'final_energy': float(final_energy),
+            'initial_energy': float(initial_energy),
+            'equilibrium_threshold': 0.0,
+            'reached_equilibrium': True
+        }
+    
+    threshold = threshold_fraction * total_change
+    equilibrium_threshold = final_energy + np.sign(final_energy - initial_energy) * threshold
+    
+    relaxation_time = None
+    for i, energy in enumerate(energy_history):
+        if abs(energy - final_energy) <= threshold:
+            relaxation_time = time_steps[i] if i < len(time_steps) else i
+            break
+    
+    return {
+        'relaxation_time': relaxation_time,
+        'final_energy': float(final_energy),
+        'initial_energy': float(initial_energy),
+        'equilibrium_threshold': float(equilibrium_threshold),
+        'reached_equilibrium': relaxation_time is not None
+    }
+
+
+def aggregate_transient_report(simulation_id: str,
+                               transient_metrics: Dict[str, Any],
+                               relaxation_metrics: Dict[str, Any],
+                               stability_check: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Aggregate transient phase metrics into a comprehensive report.
+    
+    Args:
+        simulation_id: Unique identifier for the simulation run.
+        transient_metrics: Output from extract_transient_phase_metrics.
+        relaxation_metrics: Output from calculate_relaxation_time.
+        stability_check: Output from stability checks.
+        
+    Returns:
+        Dictionary containing aggregated transient phase report.
+    """
+    report = {
+        'simulation_id': simulation_id,
+        'timestamp': str(np.datetime64('now')),
+        'transient_phase': transient_metrics,
+        'relaxation': relaxation_metrics,
+        'stability': stability_check,
+        'summary': {
+            'total_steps': transient_metrics.get('num_steps', 0),
+            'transient_steps': transient_metrics.get('transient_duration', 0),
+            'equilibrium_steps': transient_metrics.get('num_steps', 0) - transient_metrics.get('transient_duration', 0),
+            'equilibrium_reached': transient_metrics.get('equilibrium_detected', False),
+            'relaxation_time': relaxation_metrics.get('relaxation_time'),
+            'numerically_stable': stability_check.get('is_stable', True)
+        }
+    }
+    
+    return report
 
 
 def save_transient_metrics(metrics: Dict[str, Any], output_path: str) -> None:
     """
     Save transient phase metrics to a JSON file.
-
-    Args:
-        metrics: Dictionary containing transient metrics (output of extract_transient_metrics).
-        output_path: File path where the JSON will be saved.
-    """
-    path = Path(output_path)
-    ensure_data_directory(path)
     
-    with open(path, 'w') as f:
-        json.dump(metrics, f, indent=2)
+    Args:
+        metrics: Dictionary containing transient phase metrics.
+        output_path: Path to save the JSON file.
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(metrics, f, indent=2, default=str)
     
     logger.info(f"Transient metrics saved to {output_path}")
 
 
-def main() -> None:
+def main():
     """
-    CLI entry point for transient metrics extraction (for testing/debugging).
-    Normally called by the simulation runner.
+    Main function to demonstrate transient phase metric extraction.
+    This is typically called by a script to process simulation results.
     """
-    config = get_global_config()
-    transient_steps = config.get("simulation_params", {}).get("transient_steps", 10)
+    # Example usage with dummy data
+    import numpy as np
     
-    # Example usage:
-    # This would typically be called by run_simulation.py with the actual history
-    logger.info(f"Transient metrics extraction configured for {transient_steps} steps.")
-    logger.info("To use: Call extract_transient_metrics(history, transient_steps) and save_transient_metrics.")
+    # Simulate some energy history
+    np.random.seed(42)
+    num_steps = 100
+    energy_history = list(np.cumsum(np.random.randn(num_steps) * 0.1) + 10)
+    spins_history = [np.random.choice([-1, 1], 10) for _ in range(num_steps)]
+    time_steps = list(range(num_steps))
+    
+    # Create a simple adjacency matrix (random graph)
+    adjacency_matrix = np.random.rand(10, 10)
+    adjacency_matrix = (adjacency_matrix + adjacency_matrix.T) / 2
+    np.fill_diagonal(adjacency_matrix, 0)
+    adjacency_matrix = (adjacency_matrix > 0.5).astype(int)
+    
+    # Extract transient metrics
+    transient_metrics = extract_transient_phase_metrics(
+        energy_history, spins_history, time_steps, adjacency_matrix
+    )
+    
+    # Calculate relaxation time
+    relaxation_metrics = calculate_relaxation_time(energy_history, time_steps)
+    
+    # Stability check (dummy)
+    stability_check = {'is_stable': True, 'max_value': 1.0}
+    
+    # Aggregate report
+    report = aggregate_transient_metrics(
+        "demo_simulation", transient_metrics, relaxation_metrics, stability_check
+    )
+    
+    # Save to file
+    save_transient_metrics(report, "data/analysis/transient_phase_report.json")
+    
+    print("Transient phase metrics extracted and saved successfully.")
+    return report
+
 
 if __name__ == "__main__":
     main()
