@@ -19,8 +19,12 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — declared artifact(s) missing/empty/invalid: src/cli/main.py
 - **T011** — declared artifact(s) missing/empty/invalid: src/services/download.py
 - **T012** — declared artifact(s) missing/empty/invalid: src/services/filter.py
+- **T013** — No code, script, or documentation was provided showing added error handling for missing files or malformed JSON in the download or filter scripts; the evidence section contains no artifacts to verify the claim. The required implementation is therefore missing.
+- **T014** — The required file `src/cli/main.py` does not exist in the repository, so the download and filter functionality cannot be verified or executed. The task’s core artifact is missing, making the implementation incomplete.
 - **T017** — declared artifact(s) missing/empty/invalid: src/models/vlm.py
 - **T018** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
 - **T019** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
 - **T020** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
 - **T021** — declared artifact(s) missing/empty/invalid: src/cli/main.py
+- **T024a** — declared artifact(s) missing/empty/invalid: src/services/analysis.py, outputs/circular_validation_risk_report.json
+- **T024** — declared artifact(s) missing/empty/invalid: src/services/analysis.py

@@ -41,9 +41,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/raw, data/processed, tests/)
+- [X] T001 Create project structure per implementation plan (code/, data/raw, data/processed, tests/)
 - [X] T002 Initialize Python project with requirements.txt (pandas, numpy, scipy, scikit-learn, statsmodels, pyyaml, pytest, miceforest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools (Create `.ruff.toml` and `pyproject.toml` with rules)
 
 ---
 
@@ -54,12 +54,15 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [FR-001] Implement `code/data_ingestion.py` with a configurable, verified URL fetcher for GSS/ACS data that dynamically checks for the presence of `weight`, `psu`, and `strata` columns before proceeding. The system MUST preserve these design variables (weights, strata, PSU) in the output artifact. Output the downloaded and parsed data to `data/raw/gss_2018_subset.csv`.
-- [ ] T005 [P] [FR-002b] Implement `code/synthetic_generator.py` to create datasets with known super-population parameters (mean, variance) and controlled missingness (MCAR/MAR), outputting `true_mean`, `true_variance`, `missingness_mechanism`, and the synthetic dataset artifact to `data/processed/synthetic_mar_v1.csv` conforming to `contracts/dataset.schema.yaml`.
-- [ ] T006 Create base data contracts in `specs/contracts/` with specific filenames: `dataset.schema.yaml`, `imputation_result.schema.yaml`, `bias_metric.schema.yaml`.
+- [X] T004b [FR-001] **Execute Data Fetch**: Run the fetcher defined in T004 to download the GSS 2018 subset from the verified URL, save it to `data/raw/gss_2018_subset.csv`, compute its SHA-256 checksum, and record it in `state/manifest.yaml`. This task produces the raw artifact required for downstream validation.
+- [X] T005 [FR-002b] Implement `code/synthetic_generator.py` to create datasets with known super-population parameters (mean, variance) and controlled missingness (MCAR/MAR). The generator MUST output: (1) The synthetic dataset artifact to `data/processed/synthetic_mar_v1.csv` conforming to `contracts/dataset.schema.yaml`; and (2) A metadata JSON file `data/processed/synthetic_mar_v1_meta.json` containing `true_mean`, `true_variance`, and `missingness_mechanism` fields required by SC-001 and FR-003.
+- [X] T005b [FR-002b] **Execute Synthetic Generator**: Run the generator defined in T005 to produce `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`. Verify the outputs against the schema and record checksums in `state/manifest.yaml`.
+- [X] T006 Create base data contracts in `specs/contracts/` with specific filenames: `dataset.schema.yaml`, `imputation_result.schema.yaml`, `bias_metric.schema.yaml`.
 - [X] T007 Implement `code/update_state.py` to generate content hashes for artifacts and update `state/manifest.yaml` under the key `artifact_hashes` (Constitution Principle V).
 - [X] T008 [P] Implement `code/config.py` containing the `SeedManager` class/utility to derive distinct per-chain seeds from a base seed (e.g., base_seed + chain_id) to ensure reproducible convergence diagnostics for MICE, ensuring 4 distinct chains do not initialize identically. **Must explicitly implement logic to generate 4 unique seeds for downstream MICE runs.**
 - [X] T009 [FR-001] Implement design-based variance estimation utility in `code/variance_estimator.py` (Taylor series linearization) that explicitly detects missing design columns (`psu`, `strata`) and **ABORTS** analysis for that variable if they are missing. Do not proceed with fallback.
-- [X] T009b [Edge Case] Implement small-cluster fallback logic in `code/variance_estimator.py` to detect clusters where `psu` size = 1; issue a warning and flag variance as "potentially unstable", but do not abort (distinct from T009's missing column abort).
+- [X] T009b [FR-001] [Edge Case] Implement small-cluster fallback logic in `code/variance_estimator.py` to detect clusters where `psu` size = 1; issue a warning and flag variance as "potentially unstable", but do not abort (distinct from T009's missing column abort).
+- [X] T009c [FR-003] Implement Jackknife variance estimator in `code/variance_estimator.py` to calculate robust design-based variance for real-world datasets. This task is required to satisfy FR-003 and SC-002 (relative efficiency calculation) where Taylor Series is insufficient for the benchmark.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,7 +88,7 @@
 - [X] T014 [US1] Implement Complete-Case analysis logic in `code/imputation_pipeline.py`
 - [X] T015 [US1] Implement design-based variance calculation (Taylor series) for complete-case data in `code/variance_estimator.py`, utilizing the PSU=1 warning logic from T009b (but NOT the abort logic from T009, as T009 is for missing columns).
 - [ ] T016 [US1] Output JSON summary with status "success" for US1 in `data/processed/baseline_results.json` with required keys: `mean`, `variance`, `status`, `design_type`.
-- [ ] T017 [US1] Add robust error handling for small cluster sizes (PSU=1) with warning and exclusion logic (Integrated into T009b/T015)
+- [X] T017 [US1] [Edge Case] **Implement PSU=1 Fallback Logic**: Implement the specific fallback logic for extremely small cluster sizes (PSU=1) as required by the spec edge cases. This task uses the detection logic from T009b to trigger a simplified variance estimator (or exclusion) and records the warning/exclusion evidence in `data/processed/psu1_warnings.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,15 +107,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement Single Mean Imputation as a reusable function in `code/imputation_pipeline.py`
-- [ ] T021a [US2] Implement MICE Chain Runner in `code/imputation_pipeline.py`: Explicitly run 4 independent instances of `miceforest.ImputedDataSet` with `max_iter=1000` each, deriving distinct seeds from T008 for each instance. **Consume the `missingness_mechanism` field from T005's output artifact** to log the assumed mechanism (MCAR/MAR) for every imputation run, satisfying Constitution Principle VII. **Discard the initial burn-in iterations of the pooled process** (interpreted as the total burn-in period) before pooling the remaining `m` imputations via Rubin's Rules. The function MUST accept `m` (number of imputations) as a configurable parameter to support sensitivity sweeps. Handle binary outcomes using Predictive Mean Matching (PMM) with `RandomForestRegressor` (integrated logic, no separate task).
-- [ ] T021b [US2] [REMOVED] Convergence diagnostics logic integrated into T021a.
-- [ ] T021c [US2] Implement Retry Logic in `code/imputation_pipeline.py`: On convergence failure, retry up to 3 times with a new seed (`base_seed + 100*attempt`). If still failing, set `status: warning` and record `error_message`.
-- [ ] T022 [US2] **REMOVED**: Logic for convergence check and retry logic is fully integrated into T021a-c.
-- [ ] T023 [US2] [FR-003] Implement bias calculation in `code/analysis.py` that: (1) Consumes output artifacts from T005 (synthetic ground truth including `true_variance`), T020 (Single Mean), and T021 (MICE); (2) Validates the artifact schema; (3) Calculates percentage bias; (4) **Computes the ratio (|MICE_bias| / |Single_bias|) ONLY if missingness_mechanism == MAR**; (5) **Logs the result and sets `is_pass_sc002` boolean** based on whether MICE bias magnitude is <= 80% of Single Imputation bias magnitude in synthetic MAR scenarios, **without raising an exception** if the condition is not met. Output to `data/processed/bias_metrics.json`.
-- [ ] T024 [US2] [FR-003] Implement relative efficiency calculation against Jackknife/BRR benchmark for real data in `code/analysis.py`.
-- [ ] T025 [US2] Generate comparison table (percentage bias) for synthetic and real datasets in `data/processed/imputation_comparison.json`
-- [ ] T026 [US2] **REMOVED**: Binary Outcome Handling (PMM) is integrated into T021a.
+- [X] T020 [US2] Implement Single Mean Imputation as a reusable function in `code/imputation_pipeline.py`
+- [X] T021a [US2] Implement MICE Chain Runner in `code/imputation_pipeline.py`: Explicitly run 4 independent instances of `miceforest.ImputedDataSet` with `max_iter=1000` each, deriving distinct seeds from T008 for each instance. **Consume the `missingness_mechanism` field from T005's output artifact** to log the assumed mechanism (MCAR/MAR) for every imputation run, satisfying Constitution Principle VII. **Discard the initial burn-in iterations of the pooled process** (interpreted as the total burn-in period) before pooling the remaining `m` imputations via Rubin's Rules. The function MUST accept `m` (number of imputations) as a configurable parameter to support sensitivity sweeps. Handle binary outcomes using Predictive Mean Matching (PMM) with `RandomForestRegressor` (integrated logic, no separate task).
+- [X] T021c [US2] [REMOVED] Convergence diagnostics logic integrated into T021a.
+- [X] T027 [US2] [FR-002] Implement Retry Logic in `code/imputation_pipeline.py`: On convergence failure, retry up to 3 times with a new seed (`base_seed + 100*attempt`). If still failing, set `status: warning` and record `error_message`. (Replaces T021c, aligns with Plan T027).
+- [X] T022 [US2] **REMOVED**: Logic for convergence check and retry logic is fully integrated into T021a and T027.
+- [X] T023 [US2] [FR-003] Implement bias calculation in `code/analysis.py` that: (1) Consumes output artifacts from T005 (synthetic ground truth including `true_variance`), T020 (Single Mean), and T021 (MICE); (2) Validates the artifact schema; (3) Calculates percentage bias; (4) **Computes the ratio (|MICE_bias| / |Single_bias|) ONLY if missingness_mechanism == MAR**; (5) **Logs the result and sets `is_pass_sc002` boolean** based on whether MICE bias magnitude is <= 80% of Single Imputation bias magnitude in synthetic MAR scenarios, **without raising an exception** if the condition is not met. Output to `data/processed/bias_metrics.json`. (Depends on T005, T020, T021).
+- [X] T024 [US2] [FR-003] Implement relative efficiency calculation against Jackknife/BRR benchmark for real data in `code/analysis.py`. (Depends on T009c).
+- [X] T025 [US2] Generate comparison table (percentage bias) for synthetic and real datasets in `data/processed/imputation_comparison.json`
+- [X] T026 [US2] **REMOVED**: Binary Outcome Handling (PMM) is integrated into T021a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,12 +134,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] [FR-004] Implement Holm-Bonferroni correction for p-values in paired t-tests in `code/analysis.py`. (Note: Holm-Bonferroni is stricter than generic Bonferroni and mandated by the Plan).
-- [ ] T030 [US3] Implement sensitivity analysis sweep in `code/analysis.py` that: (1) Orchestrates a loop over the reusable functions defined in T020 and T021; (2) **Sweeps the parameter `m` (number of imputations) over a set of concrete values.** (as defined in FR-005, used to resolve SC-003 ambiguity); (3) **Reports the variation in variance bias rate** for each value in the set.
-- [ ] T031 [US3] [FR-006] Generate final report in `data/processed/final_report.md` that: (1) **Explicitly inserts the phrase "associational"** to label all findings; (2) **Strictly avoids causal language**; (3) **Includes the mandatory footer: "All findings are associational; no causal claims are made."**; (4) Satisfies FR-006.
-- [ ] T032 [US3] Include "Multiplicity Correction" and "Sensitivity Analysis" sections in final report
-- [ ] T033 [US3] Implement stability analysis in `code/analysis.py` that: (1) Computes `stability_score = std(bias_rates)` across the sweep defined in T030 (parameter range {5, 10, 20}); (2) Verifies the condition "variation in bias < 5%" as per SC-003; (3) Stores result in `SensitivitySweepResult`.
-- [ ] T034 [US3] **REMOVED**: Redundant with T009 and T015.
+- [X] T029 [US3] [FR-004] Implement Holm-Bonferroni correction for p-values in paired t-tests in `code/analysis.py`. (Note: Holm-Bonferroni is stricter than generic Bonferroni and mandated by the Plan).
+- [X] T030 [US3] [FR-005] Implement sensitivity analysis sweep in `code/analysis.py` that: (1) Orchestrates a loop over the reusable functions defined in T020 and T021; (2) **Sweeps the parameter `m` (number of imputations) over a set of concrete values {5, 10, 20}**; (3) **Executes the full pipeline for each `m`**; (4) **Generates the artifact `data/processed/sensitivity_sweep_results.json`**; (5) **Creates the "Sensitivity Analysis" table in the final report** showing the variation in variance bias rate for each value.
+- [X] T031 [US3] [FR-006] Generate final report in `data/processed/final_report.md` that: (1) **Explicitly inserts the phrase "associational"** to label all findings; (2) **Strictly avoids causal language**; (3) **Includes the mandatory footer: "All findings are associational; no causal claims are made."**; (4) Satisfies FR-006.
+- [X] T032 [US3] Include "Multiplicity Correction" and "Sensitivity Analysis" sections in final report
+- [X] T033 [US3] Implement stability analysis in `code/analysis.py` that: (1) Computes `stability_score = std(bias_rates)` across the sweep defined in T030 (parameter range {5, 10, 20}); (2) Verifies the condition "variation in bias < 5%" as per SC-003; (3) Stores result in `SensitivitySweepResult`.
+- [X] T034 [US3] **REMOVED**: Redundant with T009 and T015.
 
 **Checkpoint**: All user stories should now be independently functional
 

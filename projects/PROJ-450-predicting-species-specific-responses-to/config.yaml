@@ -1,15 +1,27 @@
-# Configuration for PROJ-450
-# T025 Power Analysis Parameters
+project:
+  name: "predicting-species-specific-responses"
+  version: "1.0.0"
 
-# Effect size for power analysis (Cohen's r or f^2)
-# Default moderate magnitude: 0.3 (correlation)
-effect_size: 0.3
+data:
+  sources:
+    gbif:
+      url: "https://api.gbif.org/v1"
+    worldclim:
+      version: "2.1"
+      path: "data/raw/worldclim_v2"
 
-# Output settings
-output_dir: results
+analysis:
+  power_analysis:
+    alpha: 0.05
+    power: 0.8
+    effect_size: 0.35  # Moderate magnitude (approx r=0.5, f2=0.33)
+    moe_target: 0.15
+    min_n: 30
 
-# Power analysis parameters
-alpha: 0.05
-target_power: 0.80
-target_moe: 0.15
-min_species: 30
+  regression:
+    method: "pgls" # or "wls"
+    phylogeny_file: "data/phylogeny.tre"
+
+logging:
+  level: "INFO"
+  file: "results/pipeline.log"

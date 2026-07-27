@@ -1,104 +1,107 @@
 # tests/unit/test_compute_centroids.R
-# Unit tests for compute_centroids.R logic
+# Unit tests for compute_centroids.R (T015a)
+# Uses testthat framework
 
 library(testthat)
-library(dplyr)
-library(readr)
-library(here)
 
-# Source the script logic (we will test the functions if extracted, 
-# but since it's a script, we test the data transformation logic directly)
+# We will test the logic by mocking the input data and checking the aggregation
+# Since the script sources utils.R, we need to ensure utils.R is available or mock it
+# For unit testing the core logic, we extract the aggregation logic into a function
+# or test the script execution with a temporary file.
 
-test_that("compute_centroids calculates arithmetic mean correctly", {
-  # Create a mock dataset
-  mock_data <- tibble(
-    species = c("A", "A", "A", "B", "B"),
-    period = c("1970-2000", "1970-2000", "1991-2020", "1970-2000", "1970-2000"),
-    temp = c(10.0, 12.0, 11.0, 20.0, 22.0),
-    precip = c(100.0, 100.0, 150.0, 500.0, 500.0),
-    lon = c(1, 1, 1, 2, 2),
-    lat = c(1, 1, 1, 2, 2)
+# Helper to simulate the core aggregation logic
+compute_centroids_logic <- function(df) {
+  required_cols <- c("species", "period", "temp", "precip")
+  missing_cols <- setdiff(required_cols, names(df))
+  if (length(missing_cols) > 0) {
+    stop(paste("Missing columns:", paste(missing_cols, collapse = ", ")))
+  }
+  
+  df$temp <- as.numeric(df$temp)
+  df$precip <- as.numeric(df$precip)
+  
+  valid_rows <- complete.cases(df[, required_cols])
+  df <- df[valid_rows, ]
+  
+  centroids <- aggregate(
+    cbind(temp, precip) ~ species + period,
+    data = df,
+    FUN = mean,
+    na.rm = TRUE
   )
   
-  # Expected results:
-  # Species A, 1970-2000: temp = 11.0, precip = 100.0, count = 2
-  # Species A, 1991-2020: temp = 11.0, precip = 150.0, count = 1
-  # Species B, 1970-2000: temp = 21.0, precip = 500.0, count = 2
+  centroids$computed_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  centroids$record_count <- ave(df$temp, df$species, df$period, FUN = length)
   
-  result <- mock_data %>%
-    group_by(species, period) %>%
-    summarise(
-      mean_temp = mean(temp, na.rm = TRUE),
-      mean_precip = mean(precip, na.rm = TRUE),
-      count = n(),
-      .groups = 'drop'
-    ) %>%
-    arrange(species, period)
+  centroids <- centroids[, c("species", "period", "temp", "precip", "record_count", "computed_at")]
+  return(centroids)
+}
+
+test_that("compute_centroids_logic calculates correct means", {
+  # Create mock data
+  mock_df <- data.frame(
+    species = c("Sp1", "Sp1", "Sp1", "Sp2", "Sp2"),
+    period = c("1970-2000", "1970-2000", "1991-2020", "1970-2000", "1991-2020"),
+    temp = c(10.0, 12.0, 14.0, 20.0, 22.0),
+    precip = c(100, 200, 300, 400, 500),
+    stringsAsFactors = FALSE
+  )
   
-  expect_equal(nrow(result), 3)
-  expect_equal(result$mean_temp[1], 11.0) # A, 1970-2000
-  expect_equal(result$mean_precip[1], 100.0)
-  expect_equal(result$count[1], 2)
+  result <- compute_centroids_logic(mock_df)
   
-  expect_equal(result$mean_temp[3], 21.0) # B, 1970-2000
-  expect_equal(result$count[3], 2)
+  # Check Sp1, 1970-2000: mean temp = (10+12)/2 = 11, precip = (100+200)/2 = 150
+  sp1_70 <- result[result$species == "Sp1" & result$period == "1970-2000", ]
+  expect_equal(sp1_70$temp, 11.0)
+  expect_equal(sp1_70$precip, 150.0)
+  expect_equal(sp1_70$record_count, 2)
+  
+  # Check Sp2, 1991-2020: mean temp = 22, precip = 500
+  sp2_91 <- result[result$species == "Sp2" & result$period == "1991-2020", ]
+  expect_equal(sp2_91$temp, 22.0)
+  expect_equal(sp2_91$precip, 500.0)
+  expect_equal(sp2_91$record_count, 1)
 })
 
-test_that("compute_centroids handles NA values correctly", {
-  mock_data <- tibble(
-    species = c("A", "A", "A"),
+test_that("compute_centroids_logic handles NA values", {
+  mock_df <- data.frame(
+    species = c("Sp1", "Sp1", "Sp1"),
     period = c("1970-2000", "1970-2000", "1970-2000"),
     temp = c(10.0, NA, 12.0),
-    precip = c(100.0, 100.0, NA)
+    precip = c(100, 200, NA),
+    stringsAsFactors = FALSE
   )
   
-  # Logic: Filter out rows with ANY NA in temp or precip before grouping
-  # Row 1: (10, 100) -> Keep
-  # Row 2: (NA, 100) -> Drop
-  # Row 3: (12, NA) -> Drop
-  # Result: Only Row 1 remains.
+  # Should remove rows with NA
+  result <- compute_centroids_logic(mock_df)
   
-  cleaned <- mock_data %>%
-    filter(!is.na(temp) & !is.na(precip))
-  
-  expect_equal(nrow(cleaned), 1)
-  expect_equal(cleaned$temp[1], 10.0)
+  # Only one valid row (10, 100)
+  expect_equal(nrow(result), 1)
+  expect_equal(result$temp, 10.0)
+  expect_equal(result$precip, 100.0)
+  expect_equal(result$record_count, 1)
 })
 
-test_that("compute_centroids handles all NA values gracefully", {
-  mock_data <- tibble(
-    species = c("A", "A"),
-    period = c("1970-2000", "1970-2000"),
-    temp = c(NA, NA),
-    precip = c(NA, NA)
+test_that("compute_centroids_logic errors on missing columns", {
+  mock_df <- data.frame(
+    species = c("Sp1"),
+    period = c("1970-2000"),
+    temp = c(10.0)
+    # missing 'precip'
   )
   
-  cleaned <- mock_data %>%
-    filter(!is.na(temp) & !is.na(precip))
-  
-  expect_equal(nrow(cleaned), 0)
+  expect_error(compute_centroids_logic(mock_df), "Missing columns")
 })
 
-test_that("compute_centroids output schema matches requirements", {
-  mock_data <- tibble(
-    species = c("A"),
+test_that("compute_centroids_logic outputs correct column order", {
+  mock_df <- data.frame(
+    species = c("Sp1"),
     period = c("1970-2000"),
     temp = c(10.0),
-    precip = c(100.0)
+    precip = c(100.0),
+    stringsAsFactors = FALSE
   )
   
-  result <- mock_data %>%
-    group_by(species, period) %>%
-    summarise(
-      mean_temp = mean(temp, na.rm = TRUE),
-      mean_precip = mean(precip, na.rm = TRUE),
-      count = n(),
-      .groups = 'drop'
-    )
-  
-  expect_true("mean_temp" %in% colnames(result))
-  expect_true("mean_precip" %in% colnames(result))
-  expect_true("count" %in% colnames(result))
-  expect_true("species" %in% colnames(result))
-  expect_true("period" %in% colnames(result))
+  result <- compute_centroids_logic(mock_df)
+  expected_cols <- c("species", "period", "temp", "precip", "record_count", "computed_at")
+  expect_equal(names(result), expected_cols)
 })

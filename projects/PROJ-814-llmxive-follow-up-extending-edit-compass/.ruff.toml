@@ -1,0 +1,14 @@
+# Standalone ruff configuration file for IDE compatibility
+# (pyproject.toml also contains configuration for toolchain integration)
+
+extend = "pyproject.toml"
+
+[lint]
+# Enable specific rules if needed beyond pyproject.toml defaults
+extend-select = [
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]

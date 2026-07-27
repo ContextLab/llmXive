@@ -1,40 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `src/services` directory was created; the only\
-    \ artifacts shown relate to a high\u2011level feature specification, not a filesystem\
-    \ change. The required directory is missing from the provided evidence."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `src/models` directory was presented; the claim provides only\
-    \ a description of higher\u2011level feature work and no filesystem artifact confirming\
-    \ the required directory exists (and is non\u2011empty). The implementer must\
-    \ create the `src/models` folder in the repository and show its presence."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented that a `src/utils` directory actually exists in the
-    project; the implementer provided no file listing, screenshots, or other proof
-    of its creation. The required artifact is therefore missing.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `src/data-models` directory exists in the repository;\
-    \ the implementer did not supply a file\u2011system listing or any artifact confirming\
-    \ the directory was created. The required directory is therefore missing."
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `tests/unit` directory exists in the repository;
-    the implementer did not supply a directory listing, screenshot, or any file showing
-    the creation of `tests/unit`. Without this artifact, the requirement to create
-    the directory is not satisfied.
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `tests/contract` directory exists in the repository;
-    the artifact list is empty, so the required directory was not created.
 T001h:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +40,16 @@ T004:
     `data/scores/`, `outputs/`) is provided; the implementer did not include any artifacts
     showing these folders exist or contain any files. The task remains undone until
     the directories are created and verified.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided showing added error handling for
+    missing files or malformed JSON in the download or filter scripts; the evidence
+    section contains no artifacts to verify the claim. The required implementation
+    is therefore missing.
+T014:
+  c: false
+  h: 0a1ef335411aa8d8d1ccfc91c8c85bb0d067a3d3220bd47e87a66d609559243f
+  r: "The required file `src/cli/main.py` does not exist in the repository, so the\
+    \ download and filter functionality cannot be verified or executed. The task\u2019\
+    s core artifact is missing, making the implementation incomplete."

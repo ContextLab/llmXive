@@ -1,25 +1,109 @@
-"""
-Metrics module for calculating statistical power and other evaluation metrics.
+from __future__ import annotations
 
-Implements T027, T028: Power calculation logic.
-Referenced by T021 (Unit Test).
-"""
-import numpy as np
-from typing import List, Tuple, Optional, Union
 import logging
+from typing import List, Tuple, Optional, Union, Dict, Any
 
-# Import logger from existing utility
-# Note: The API surface says `from utils.logger import get_logger`
-# We assume the path is relative to code/
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+# Ensure logger is set up (assumes setup_logging called elsewhere or in utils)
 try:
     from utils.logger import get_logger
+    logger = get_logger(__name__)
 except ImportError:
-    # Fallback for direct execution or different path setup
-    import logging
-    def get_logger(name: str):
-        return logging.getLogger(name)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+
+def calculate_condition_number(X: np.ndarray) -> float:
+    """
+    Calculate the condition number of the design matrix X.
+    
+    The condition number measures the sensitivity of the solution of a linear
+    system to errors in the data. A high condition number indicates potential
+    multicollinearity.
+    
+    Args:
+        X: Design matrix (n_samples, n_features). Should NOT include intercept
+           unless explicitly intended for that calculation.
+    
+    Returns:
+        Condition number (float). Returns np.inf if matrix is singular or
+        calculation fails.
+    """
+    if X.shape[0] < X.shape[1]:
+        logger.warning("Design matrix has more features than samples; condition number may be infinite.")
+        return float('inf')
+    
+    try:
+        # Center the matrix to remove intercept effects if not already centered
+        # though condition number is usually calculated on the raw design matrix
+        # for collinearity diagnostics.
+        singular_values = np.linalg.svd(X, compute_uv=False)
+        if singular_values[-1] == 0:
+            return float('inf')
+        return float(singular_values[0] / singular_values[-1])
+    except np.linalg.LinAlgError:
+        logger.error("SVD calculation failed for condition number.")
+        return float('inf')
+
+
+def calculate_vif(X: np.ndarray, feature_names: Optional[List[str]] = None) -> Union[pd.Series, Dict[str, float]]:
+    """
+    Calculate Variance Inflation Factor (VIF) for each feature in the design matrix.
+    
+    VIF quantifies the severity of multicollinearity in an ordinary least squares
+    regression analysis. A VIF > 10 (or sometimes > 5) indicates high multicollinearity.
+    
+    Args:
+        X: Design matrix (n_samples, n_features). Should NOT include the intercept column.
+        feature_names: Optional list of feature names. If None, returns a dict with
+                       indices as keys.
+    
+    Returns:
+        If feature_names provided, returns a pandas Series with feature names as index.
+        Otherwise, returns a dict mapping feature indices to VIF values.
+    """
+    n_features = X.shape[1]
+    
+    if feature_names is None:
+        feature_names = [f"Feature_{i}" for i in range(n_features)]
+    
+    if len(feature_names) != n_features:
+        raise ValueError("feature_names length must match number of columns in X")
+    
+    vif_values = {}
+    
+    for i in range(n_features):
+        # Create a design matrix for the i-th feature against all other features
+        y_i = X[:, i]
+        X_others = np.delete(X, i, axis=1)
+        
+        # Add intercept for the auxiliary regression
+        X_others_with_intercept = sm.add_constant(X_others)
+        
+        try:
+            # Fit OLS model: Feature_i ~ All Other Features
+            model = sm.OLS(y_i, X_others_with_intercept).fit()
+            r_squared = model.rsquared
+            
+            # Calculate VIF: 1 / (1 - R^2)
+            if r_squared == 1.0:
+                vif = float('inf')
+            else:
+                vif = 1.0 / (1.0 - r_squared)
+            
+            vif_values[feature_names[i]] = vif
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for feature {feature_names[i]}: {e}")
+            vif_values[feature_names[i]] = float('inf')
+    
+    # Return as Series if names provided, else dict
+    if feature_names:
+        return pd.Series(vif_values)
+    return vif_values
+
 
 def calculate_empirical_power(
     true_coefficients: np.ndarray,
@@ -28,161 +112,89 @@ def calculate_empirical_power(
     alpha: float = 0.05
 ) -> float:
     """
-    Calculate empirical power for a single simulation run.
-    
-    Power is defined as the proportion of true non-zero coefficients that were
-    both selected by the variable selection method AND found to be statistically
-    significant (p < alpha) in the refitted OLS model.
-    
-    Formula: Power = (True Positives) / (Total True Non-Zero Coefficients)
-    True Positive = (Selected AND Significant AND True Non-Zero)
+    Calculate empirical power as the proportion of true non-zero coefficients
+    that are selected AND significant.
     
     Args:
-        true_coefficients: Array of true coefficients (ground truth) from the data generation process.
-        selected_mask: Boolean array indicating which variables were selected by the method.
-        p_values: Array of p-values corresponding to the coefficients in the refitted model.
-                  Must align with the dimensions of true_coefficients and selected_mask.
-        alpha: Significance threshold (default 0.05).
+        true_coefficients: Array of true coefficients.
+        selected_mask: Boolean array indicating which variables were selected.
+        p_values: Array of p-values for the selected variables (aligned with true_coefficients).
+        alpha: Significance threshold.
     
     Returns:
-        Empirical power as a float between 0.0 and 1.0.
-        Returns 0.0 if there are no true non-zero coefficients (undefined power).
+        Empirical power (float between 0 and 1).
     """
-    # Ensure inputs are numpy arrays
-    true_coefficients = np.asarray(true_coefficients, dtype=float)
-    selected_mask = np.asarray(selected_mask, dtype=bool)
-    p_values = np.asarray(p_values, dtype=float)
+    # Identify true non-zero coefficients
+    true_nonzero_mask = true_coefficients != 0
     
-    # Validate shapes
-    if not (true_coefficients.shape == selected_mask.shape == p_values.shape):
-        raise ValueError(
-            f"Input arrays must have the same shape. "
-            f"Got true_coefficients: {true_coefficients.shape}, "
-            f"selected_mask: {selected_mask.shape}, "
-            f"p_values: {p_values.shape}"
-        )
-    
-    # Identify true non-zero coefficients (ground truth signal)
-    # Using a small epsilon for float comparison safety
-    epsilon = 1e-8
-    true_non_zero_mask = np.abs(true_coefficients) > epsilon
-    
-    num_true_non_zero = np.sum(true_non_zero_mask)
-    
-    # If no true signal exists, power is undefined. Return 0.0.
-    if num_true_non_zero == 0:
-        logger.debug("No true non-zero coefficients found. Returning power = 0.0.")
+    if not np.any(true_nonzero_mask):
+        logger.warning("No true non-zero coefficients found; power is undefined (returning 0.0).")
         return 0.0
     
-    # Identify significant coefficients (p < alpha)
+    # Find true positives: selected AND significant AND truly non-zero
     significant_mask = p_values < alpha
+    true_positives = selected_mask & significant_mask & true_nonzero_mask
     
-    # True Positives: Selected AND Significant AND True Non-Zero
-    true_positives_mask = selected_mask & significant_mask & true_non_zero_mask
-    num_true_positives = np.sum(true_positives_mask)
+    num_true_nonzero = np.sum(true_nonzero_mask)
+    num_true_positives = np.sum(true_positives)
     
-    # Calculate Power
-    power = num_true_positives / num_true_non_zero
+    if num_true_nonzero == 0:
+        return 0.0
     
-    logger.debug(
-        f"Power calculation: TP={num_true_positives}, "
-        f"TotalSignal={num_true_non_zero}, Power={power:.4f}"
-    )
-    
-    return float(power)
+    return float(num_true_positives / num_true_nonzero)
+
 
 def calculate_false_discovery_rate(
     selected_mask: np.ndarray,
-    true_coefficients: np.ndarray
+    true_coefficients: np.ndarray,
+    p_values: np.ndarray,
+    alpha: float = 0.05
 ) -> float:
     """
-    Calculate False Discovery Rate (FDR).
-    FDR = (False Positives) / (Total Selected)
-    False Positive = Selected AND True Zero
+    Calculate False Discovery Rate (FDR) among selected variables.
+    
+    FDR = (False Positives) / (Total Selected & Significant)
     
     Args:
-        selected_mask: Boolean array of selected variables.
+        selected_mask: Boolean array indicating selected variables.
         true_coefficients: Array of true coefficients.
-        
-    Returns:
-        FDR as a float. Returns 0.0 if no variables selected.
-    """
-    selected_mask = np.asarray(selected_mask, dtype=bool)
-    true_coefficients = np.asarray(true_coefficients, dtype=float)
+        p_values: Array of p-values.
+        alpha: Significance threshold.
     
-    if not np.any(selected_mask):
+    Returns:
+        FDR (float between 0 and 1).
+    """
+    significant_mask = p_values < alpha
+    selected_and_significant = selected_mask & significant_mask
+    
+    if not np.any(selected_and_significant):
         return 0.0
     
-    true_zero_mask = np.abs(true_coefficients) <= 1e-8
-    false_positives = np.sum(selected_mask & true_zero_mask)
-    total_selected = np.sum(selected_mask)
+    # False positives: selected AND significant BUT truly zero
+    false_positives = selected_and_significant & (true_coefficients == 0)
     
-    return float(false_positives / total_selected)
+    num_selected_significant = np.sum(selected_and_significant)
+    num_false_positives = np.sum(false_positives)
+    
+    return float(num_false_positives / num_selected_significant)
 
-def calculate_condition_number(X: np.ndarray) -> float:
-    """
-    Calculate the condition number of the design matrix X.
-    Used for collinearity diagnostics (FR-007).
-    
-    Args:
-        X: Design matrix (n_samples, n_features).
-        
-    Returns:
-        Condition number (float).
-    """
-    try:
-        # Use SVD for stability
-        _, s, _ = np.linalg.svd(X, full_matrices=False)
-        if s[-1] == 0:
-            return float('inf')
-        return float(s[0] / s[-1])
-    except np.linalg.LinAlgError:
-        logger.error("Error calculating condition number (singular matrix).")
-        return float('inf')
 
-def calculate_vif(X: np.ndarray) -> np.ndarray:
-    """
-    Calculate Variance Inflation Factors (VIF) for each predictor.
-    Used for collinearity diagnostics (FR-007).
-    
-    Args:
-        X: Design matrix (n_samples, n_features).
-        
-    Returns:
-        Array of VIF values.
-    """
-    n_features = X.shape[1]
-    vif_values = np.zeros(n_features)
-    
-    # Add intercept if not present? Assuming X is centered or includes intercept
-    # Standard VIF calculation: Regress X_j on all other X_k
-    
-    for i in range(n_features):
-        y = X[:, i]
-        X_others = np.delete(X, i, axis=1)
-        
-        # Simple OLS: (X_others^T X_others)^-1 X_others^T y
-        # Check for singularity
-        try:
-            # Add a small regularization if needed, but standard OLS first
-            coeffs = np.linalg.lstsq(X_others, y, rcond=None)[0]
-            y_pred = X_others @ coeffs
-            ss_res = np.sum((y - y_pred) ** 2)
-            ss_tot = np.sum((y - np.mean(y)) ** 2)
-            
-            if ss_tot == 0:
-                vif_values[i] = 0.0
-            else:
-                r_squared = 1 - (ss_res / ss_tot)
-                vif_values[i] = 1.0 / (1 - r_squared) if (1 - r_squared) > 1e-10 else float('inf')
-        except np.linalg.LinAlgError:
-            vif_values[i] = float('inf')
-    
-    return vif_values
-
-# Placeholder for main execution if needed
 def main():
-    logger.info("Metrics module loaded. No direct execution defined.")
+    """
+    Main entry point for metrics calculations.
+    
+    This function is intended to be called by the pipeline to compute
+    collinearity diagnostics (VIF, Condition Number) and power metrics
+    for the simulation results.
+    
+    It expects to be integrated into the broader pipeline flow where
+    simulation data is available.
+    """
+    logger.info("Metrics module loaded. Ready to calculate VIF, Condition Number, and Power.")
+    # This function serves as an entry point for integration testing or
+    # direct execution if specific diagnostic runs are needed.
+    pass
+
 
 if __name__ == "__main__":
     main()

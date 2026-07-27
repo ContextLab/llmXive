@@ -1,10 +1,4 @@
 """
-Unit tests for the llmXive automated science pipeline.
-
-This package contains tests for individual components including:
-- Download services
-- Filter logic
-- Scoring calculations
-- Analysis functions
+Unit tests package for llmXive follow-up project.
+This directory contains unit tests for individual components.
 """
-pass

@@ -1,118 +1,106 @@
 #!/usr/bin/env Rscript
 # compute_centroids.R
-#
-# Purpose:
-#   1. Load raw occurrence data with climate values (from T014).
-#   2. Compute arithmetic mean (centroid) of climate variables per species/period.
-#   3. Output `centroids.csv` (aggregated means).
-#   4. Output `points_with_climate.csv` (raw occurrence points with climate values)
-#      as an intermediate artifact for FR-005 global z-scoring (T021).
+# Task: T015a & T015b
+# Description: Calculate arithmetic mean of climate variables per species/period
+#              and output:
+#              1. data/processed/centroids.csv (aggregated means)
+#              2. data/processed/points_with_climate.csv (raw points with climate)
 #
 # Inputs:
-#   - data/processed/points_with_climate_temp_precip.csv (output of T014 extract_climate.R)
+#   - data/processed/points_with_climate.csv (from T014 extract_climate.R)
 #
 # Outputs:
-#   - data/processed/centroids.csv (aggregated means per species/period)
-#   - data/processed/points_with_climate.csv (raw points with climate values, copy/renamed)
-#
-# Dependencies:
-#   - dplyr, readr, here, utils (from T002)
-#   - src/code/utils.R (logging, validation from T004)
+#   - data/processed/centroids.csv
+#   - data/processed/points_with_climate.csv (ensured to exist)
 
-library(dplyr)
-library(readr)
-library(here)
-library(lubridate)
+# Load project-wide utilities and configuration
+# Assuming T004 utils.R is available in src/code/
+source("src/code/utils.R")
 
-# Source utility functions
-source(here("src", "code", "utils.R"))
+# Ensure required directories exist
+ensure_dir("data/processed")
 
-# Configuration
-INPUT_FILE <- here("data", "processed", "points_with_climate_temp_precip.csv")
-OUTPUT_CENTROIDS <- here("data", "processed", "centroids.csv")
-OUTPUT_POINTS <- here("data", "processed", "points_with_climate.csv")
+# Define file paths
+input_file <- "data/processed/points_with_climate.csv"
+centroids_output <- "data/processed/centroids.csv"
 
-log_info("Starting compute_centroids.R")
-
-# Check input file exists
-if (!file.exists(INPUT_FILE)) {
-  log_error(paste("Input file not found:", INPUT_FILE))
-  stop("Input file missing. Run extract_climate.R first.")
+# Check if input file exists
+if (!file.exists(input_file)) {
+  stop(paste("CRITICAL: Input file not found:", input_file, 
+             "\nPlease run src/code/extract_climate.R (T014) first."))
 }
 
-log_info(paste("Loading data from:", INPUT_FILE))
-df <- read_csv(INPUT_FILE, show_col_types = FALSE)
+log_info("Starting centroid computation...")
+log_info(paste("Reading data from:", input_file))
+
+# Read the raw occurrence data with climate values
+# Expected columns: species, period, temp, precip, lat, lon, ...
+tryCatch({
+  df <- read.csv(input_file, stringsAsFactors = FALSE)
+}, error = function(e) {
+  stop(paste("Failed to read input CSV:", e$message))
+})
+
+log_info(paste("Loaded", nrow(df), "records."))
 
 # Validate required columns
-required_cols <- c("species", "period", "lat", "lon", "temp_mean", "precip_mean")
+required_cols <- c("species", "period", "temp", "precip")
 missing_cols <- setdiff(required_cols, names(df))
 if (length(missing_cols) > 0) {
-  log_error(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
-  stop("Input data missing required columns.")
+  stop(paste("Input file is missing required columns:", 
+             paste(missing_cols, collapse = ", ")))
 }
 
-# Remove rows with NA in critical climate columns for centroid calculation
-# (but keep them in the points output if needed for other reasons, though z-scoring will fail on NA)
-# We will filter NA for centroid calculation to ensure valid means.
-df_clean <- df %>%
-  filter(!is.na(temp_mean) & !is.na(precip_mean))
+# Ensure numeric types for climate variables
+df$temp <- as.numeric(df$temp)
+df$precip <- as.numeric(df$precip)
 
-log_info(paste("Records after NA removal for centroid calculation:", nrow(df_clean)))
+# Filter out rows with NA climate values to ensure accurate means
+# (Though T014 should have handled this, we double-check)
+valid_rows <- complete.cases(df[, required_cols])
+if (sum(!valid_rows) > 0) {
+  log_warning(paste("Removing", sum(!valid_rows), 
+                    "records with NA climate values."))
+  df <- df[valid_rows, ]
+}
 
-# --- Task T015a: Compute Centroids ---
-log_info("Computing centroids per species/period...")
+# T015a: Calculate arithmetic mean of climate variables per species/period
+log_info("Computing centroids (arithmetic means) per species and period...")
 
-centroids <- df_clean %>%
-  group_by(species, period) %>%
-  summarise(
-    temp_mean_centroid = mean(temp_mean, na.rm = TRUE),
-    precip_mean_centroid = mean(precip_mean, na.rm = TRUE),
-    n_records = n(),
-    .groups = "drop"
-  )
+# Use base R aggregate to compute means
+# Group by species and period, calculate mean of temp and precip
+centroids <- aggregate(
+  cbind(temp, precip) ~ species + period,
+  data = df,
+  FUN = mean,
+  na.rm = TRUE
+)
 
-# Ensure output directory exists
-ensure_dir(here("data", "processed"))
+# Add metadata columns
+centroids$computed_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+centroids$record_count <- ave(df$temp, df$species, df$period, FUN = length)
 
-# Write centroids
-write_csv(centroids, OUTPUT_CENTROIDS)
-log_info(paste("Centroids saved to:", OUTPUT_CENTROIDS))
+# Reorder columns for clarity
+centroids <- centroids[, c("species", "period", "temp", "precip", "record_count", "computed_at")]
 
-# --- Task T015b: Output Raw Points with Climate ---
-# The requirement is to output the raw occurrence points with climate values.
-# The input file already contains this. We copy it to the specified output path
-# to ensure the artifact exists at the expected location for downstream tasks (T021).
-log_info("Preparing raw points with climate for FR-005 global z-scoring...")
+# Write centroids output
+log_info(paste("Writing centroids to:", centroids_output))
+write.csv(centroids, centroids_output, row.names = FALSE)
 
-# We use the cleaned version (NA removed) to ensure downstream z-scoring doesn't break on NAs,
-# or we keep the original if the spec implies keeping all.
-# FR-005 implies global z-scoring which typically requires complete cases.
-# We will output the cleaned version to be safe for the next step,
-# but label it clearly as the artifact for z-scoring.
-# If the spec strictly wants *raw* (including NAs), we would copy `df`.
-# However, "raw occurrence points with climate values" usually implies the result of the extraction.
-# Given T021 needs this for z-scoring, we provide the clean version.
-# To be strictly compliant with "raw", we will output the full dataframe `df` but
-# note that downstream steps must handle NAs.
-# Actually, looking at T021: "perform global z-scoring... from points_with_climate.csv".
-# Z-scoring fails on NAs. So the artifact must be usable.
-# Let's output the version with NAs removed to ensure the pipeline works,
-# as "raw" in this context often means "un-aggregated" rather than "including errors".
-# However, to be safest, I will output the version with NAs removed for the z-scoring task.
-# If the user strictly wants the exact input copy, they can change this.
-# Decision: Output the clean data to ensure T021 runs successfully.
+# Verify output
+if (!file.exists(centroids_output)) {
+  stop("Failed to write centroids output file.")
+}
 
-# Re-reading T015b: "output `data/processed/points_with_climate.csv` (raw occurrence points with climate values)"
-# It is an intermediate artifact specifically for FR-005.
-# FR-005 says "global z-scoring". Z-scoring requires non-NA.
-# So we output the clean version.
+log_success(paste("Successfully generated", nrow(centroids), "centroid records."))
 
-points_output <- df_clean %>%
-  select(species, period, lat, lon, temp_mean, precip_mean)
+# T015b: Ensure points_with_climate.csv is written (as intermediate artifact)
+# The input file is already points_with_climate.csv, but we ensure it is 
+# explicitly written to the output location as required by the task spec.
+log_info("Ensuring points_with_climate.csv is present as intermediate artifact...")
+write.csv(df, input_file, row.names = FALSE)
 
-write_csv(points_output, OUTPUT_POINTS)
-log_info(paste("Raw points with climate saved to:", OUTPUT_POINTS))
+log_success("Centroid computation and intermediate artifact generation complete.")
 
-log_info("compute_centroids.R completed successfully.")
-log_info(paste("Output 1:", OUTPUT_CENTROIDS))
-log_info(paste("Output 2:", OUTPUT_POINTS))
+# Return invisible to allow sourcing
+invisible(TRUE)

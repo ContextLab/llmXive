@@ -1,15 +1,15 @@
 """
-Models package for llmXive follow-up project.
+Models package for llmXive project.
 
-This package contains model definitions, wrappers, and utilities for:
-- VLM (Vision-Language Model) wrappers
+This package contains model wrappers and utilities for:
+- Vision-Language Models (VLM)
 - Embedding models
-- Scoring models
-
-Currently empty as per task T001c (directory creation).
-Future tasks will populate this with model implementations.
+- Scoring models (SSIM, LPIPS)
 """
 
-# Package marker - this file ensures src/models is recognized as a Python package
-__version__ = "0.1.0"
-__author__ = "llmXive Team"
+from .vlm import VLMWrapper, create_vlm_wrapper
+
+__all__ = [
+    "VLMWrapper",
+    "create_vlm_wrapper"
+]

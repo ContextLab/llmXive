@@ -91,8 +91,8 @@
 
 - [ ] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo, handling errors and saving to `data/raw/`
 - [ ] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`
-- [~] T013 [US1] Add error handling for missing files or malformed JSON in download/filter scripts
-- [~] T014 [US1] Integrate download and filter into `src/cli/main.py` (Stage: `download-filter`)
+- [ ] T013 [US1] Add error handling for missing files or malformed JSON in download/filter scripts
+- [ ] T014 [US1] Integrate download and filter into `src/cli/main.py` (Stage: `download-filter`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -133,7 +133,7 @@
 
 - [X] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`.
 - [X] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations.
-- [ ] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values.
+- [X] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values.
 
 ### Implementation for User Story 3
 

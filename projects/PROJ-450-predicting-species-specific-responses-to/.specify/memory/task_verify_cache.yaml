@@ -1,27 +1,38 @@
 T015a:
   c: false
-  h: 9b874a504c573cb0958e128d0eb8af9b649e58ccb829c3b5455633ee8ed5e833
-  r: "The repository contains a `compute_centroids.R` script that appears to implement\
-    \ the required calculations and writes to `data/processed/centroids.csv`, but\
-    \ the expected output file `data/processed/centroids.csv` is absent from the project\
-    \ directory. Without the actual CSV artifact, the task\u2019s deliverable is not\
-    \ satisfied."
+  h: 4c5db2ffeab8144a73ab25e16bf1c461b795695113685b81b47a4168f96227b4
+  r: "The R script `src/code/compute_centroids.R` is present and appears to implement\
+    \ the centroid calculation, but the required output file `data/processed/centroids.csv`\
+    \ does not exist, so the task\u2019s core deliverable (the generated CSV of aggregated\
+    \ means) is missing. The script must be run (or fixed) so that this CSV is created\
+    \ with the expected columns."
 T015b:
   c: false
-  h: 43b3e5b10438e2315555f5e54b804198a43698e416b3dba01152609d2d1fa0fd
-  r: "The `src/code/compute_centroids.R` script is present but the expected output\
-    \ file `data/processed/points_with_climate.csv` does not exist on disk, and the\
-    \ script\u2019s copy\u2011logic is truncated. Without this intermediate artifact,\
-    \ the task requirement is not satisfied."
+  h: 897be3d3b575eef716a281f3de98d19274065d1909f2e38a75700610f8d9e5d2
+  r: The script `src/code/compute_centroids.R` exists but never creates or writes
+    `data/processed/points_with_climate.csv`; it only reads that file as input. Moreover,
+    the file is absent from the repository (`data/processed/points_with_climate.csv`
+    is missing). Hence the required intermediate artifact is not produced, so the
+    task is not fulfilled.
+T021:
+  c: false
+  h: 432ef72e1b4bced2396bb015c8dca568ee22fa4fbe3ba7c5f58e713ed67ea54f
+  r: "The provided `compute_shifts.R` script is truncated (ends mid\u2011line) and\
+    \ never computes the Euclidean distance \u0394N nor writes the required `shifts.csv`.\
+    \ Moreover, the prerequisite input file `data/processed/points_with_climate.csv`\
+    \ is absent, so the script cannot run. Both the necessary data and the full implementation\
+    \ are missing."
 T023a:
   c: false
-  h: c78dfa2c8b588a73be3bea08b1ef3d01f473c49fe7bcc5ca76d0e62faf51e11c
-  r: "The provided `src/code/analyze_shifts.R` stops after preliminary data checks\
-    \ and does not contain any code that performs the PGLS or WLS regression, computes\
-    \ or writes the slope, confidence interval, R\xB2, p\u2011value, or per\u2011\
-    region summaries. Additionally, the required `data/phylogeny.tre` file is absent,\
-    \ so the primary\u2011method branch cannot be exercised. These core elements of\
-    \ the task are missing."
+  h: 58dcbb6fa1a5177a1eef97a97160c6d8730e0011503a8d5183baa013b1a7cf64
+  r: "The provided `src/code/analyze_shifts.R` is present but only a partial implementation\
+    \ is shown; the script stops mid\u2011line before any regression is actually performed,\
+    \ and there is no evidence that it computes and writes the required slope, confidence\
+    \ interval, R\xB2, p\u2011value, or per\u2011region summary tables. Additionally,\
+    \ the required phylogeny file is missing (though a fallback to WLS is allowed,\
+    \ the script must still carry out the WLS analysis, which is not demonstrated).\
+    \ The next implementer must supply the complete regression logic (PGLS when a\
+    \ valid tree exists, otherwise WLS) and ensure the sp"
 T025:
   c: false
   h: 73c1807a98497c0ce9f882050ad022cbe83026d1594c4eddeaeff1737952cd3b
@@ -45,3 +56,17 @@ T035:
     the implementer did not provide the required artifact (e.g., a test report, console
     output, or CI badge) demonstrating that all unit and integration tests were actually
     run. Consequently the claim cannot be verified.
+T036a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no log files, no `centroids.csv`, and no evidence that\
+    \ \u226590\u202F% of the supplied species with \u226550 valid records produced\
+    \ complete centroid records for both periods. Consequently the required validation\
+    \ artifact is missing."
+T036b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No regression summary per region, count of valid vs total regions, or any validation\
+    \ output is present; the implementer provided no artifact or data to demonstrate\
+    \ that \u226580\u202F% of regions produced computable results. The claim cannot\
+    \ be verified without such evidence."

@@ -334,24 +334,6 @@
   updated_at: '2026-07-15T16:19:53Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
-  canonical: power calculation matches expected values within 0.01 tolerance
-  claim_id: c_752abffa
-  context: "Independent Test: Run selection methods on a subset of simulations and\
-    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
-    \ expected values within \xB10.01 tolerance."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
-    \ values within \xB10.01 tolerance"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T16:19:53Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
   canonical: unit of analysis is dataset times SNR times sparsity
   claim_id: c_4fe61a28
   context: "Implement code/analysis/comparators.py to perform Kruskal-Wallis tests\
@@ -365,23 +347,6 @@
   raw_text: "unit of analysis is n=dataset\xD7SNR\xD7Sparsity"
   resolved_value: null
   resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T16:19:55Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
-  canonical: pipeline completion within 6 hours on 2 vCPUs
-  claim_id: c_2d2e1749
-  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
-    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
-    profile execution time
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: ensure completion within 6 hours on 2 vCPUs
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
@@ -515,50 +480,6 @@
   source_type: external
   status: verified
   updated_at: '2026-07-15T16:36:52Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
-  canonical: 10 datasets loaded with at least 100 rows and 3 predictors
-  claim_id: c_16ba3ea7
-  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
-    3 predictors are loaded, and that A large set of synthetic outcome vectors (Multiple\
-    \ simulations across 12 conditions) are generated and stored in data/processed/\
-    \ with correct metadata."
-  evidence:
-    candidates:
-    - - Look for 10 datasets loaded with at least
-      - 100.0
-    - - Donate Create account Log in
-      - 10.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/10_datasets_loaded_with_at_least_100_rows_and_3_predictors
-  kind: magnitude
-  raw_text: "The Independent Test verifies that 10 datasets with \u2265100 rows and\
-    \ \u22653 predictors are loaded."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-18T14:14:25Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
-  canonical: Synthetic outcome vectors generated across 12 conditions
-  claim_id: c_a82c5377
-  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
-    3 predictors are loaded, and that A large set of synthetic outcome vectors (Multiple\
-    \ simulations across 12 conditions) are generated and stored in data/processed/\
-    \ with correct metadata."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Independent Test verifies that a large set of synthetic outcome vectors
-    (Multiple simulations across 12 conditions) are generated.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T14:16:10Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
   canonical: Pipeline generates 24000 simulation results
@@ -928,23 +849,6 @@
   updated_at: '2026-07-20T05:04:14Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
-  canonical: Kruskal-Wallis test performed on 24000 rows of simulation-level data
-  claim_id: c_178d4aa1
-  context: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
-    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
-    per Spec FR-005; unit of analysis is individual simulation (FR-005)
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Kruskal-Wallis tests on the simulation-level data (n=24,000 rows)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-20T05:05:20Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
   canonical: Full pipeline execution time target is 6 hours
   claim_id: c_86363fda
   context: Implement runtime profiling in code/utils/profiler.py to measure total
@@ -1187,24 +1091,6 @@
   status: not_enough_info
   updated_at: '2026-07-20T05:13:13Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 3
-  canonical: Power calculation matches expected values within 0.01 tolerance
-  claim_id: c_8ccd9e2c
-  context: "Independent Test: Run selection methods on a subset of simulations and\
-    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
-    \ expected values within \xB10.01 tolerance."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
-    \ values within \xB10.01 tolerance"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-20T05:14:11Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
   canonical: scikit-learn version requirement is 1.4.0 or higher
   claim_id: c_66438793
@@ -1356,3 +1242,796 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T05:17:04Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: Reference DOI 10.21105/joss.01686
+  claim_id: c_e37f34d1
+  context: 'References: DOI:10.21105/joss.01686., extract covariance structures, and
+    simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: DOI:10.21105/joss.01686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T04:47:47Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: 10 datasets loaded with at least 100 rows and 3 predictors
+  claim_id: c_16ba3ea7
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that A large set of synthetic outcome vectors (Multiple\
+    \ simulations across 12 conditions) are generated and stored in data/processed/\
+    \ with correct metadata."
+  evidence:
+    candidates:
+    - - Look for 10 datasets loaded with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_loaded_with_at_least_100_rows_and_3_predictors
+  kind: magnitude
+  raw_text: "The Independent Test verifies that 10 datasets with \u2265100 rows and\
+    \ \u22653 predictors are loaded."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T04:48:03Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: Synthetic outcome vectors generated across 12 conditions
+  claim_id: c_a82c5377
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that A large set of synthetic outcome vectors (Multiple\
+    \ simulations across 12 conditions) are generated and stored in data/processed/\
+    \ with correct metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test verifies that a large set of synthetic outcome vectors
+    (Multiple simulations across 12 conditions) are generated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:48:18Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 24000 rows generated from 200 simulations across 10 datasets, 4 SNR levels,
+    and 3 sparsity levels
+  claim_id: c_1582687a
+  context: 'Unit test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 24000
+    (200 sims * 10 datasets * 4 SNR * 3 Sparsity)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: len(results_df) == 24000 (200 sims * 10 datasets * 4 SNR * 3 Sparsity)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:48:31Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 4
+  canonical: Power calculation matches expected values within 0.01 tolerance
+  claim_id: c_8ccd9e2c
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:49:19Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 24000 rows of simulation-level data used for Kruskal-Wallis tests
+  claim_id: c_f89aaf07
+  context: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
+    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulation-level data (n=24,000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:49:50Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time under 6 hours on 2 vCPUs
+  claim_id: c_9193a2a8
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008)
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: complete within 6 hours on 2 vCPUs
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T04:49:55Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Datasets with condition number greater than 10 to the power of 10 skipped
+  claim_id: c_c22023ef
+  context: Implement code/data/downloader.py logic to skip datasets with condition
+    number > 10^10 and log warning to code/utils/logger.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_condition_number_greater_than_10_to_the_power
+  kind: magnitude
+  raw_text: condition number > 10^10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:01Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Sparsity levels set to 0.2 and 0.4
+  claim_id: c_1b8cea75
+  context: Implement code/data/simulators.py configuration to support low to moderate
+    SNR levels and Sparsity levels {0.2, 0.4}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sparsity levels {0.2, 0.4}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:05Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Alpha thresholds include 0.10
+  claim_id: c_0aeb7729
+  context: Implement code/viz/plots.py to generate Power vs. SNR curves for each selection
+    method, explicitly faceted or differentiated by Sparsity level AND Alpha thresholds
+    {, conventional significance levels, 0.10}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Alpha thresholds {, conventional significance levels, 0.10}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:10Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0 or higher
+  claim_id: c_d15584f9
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    scikit-learn>=1.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:13Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0 or higher
+  claim_id: c_a886b019
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    statsmodels>=0.14.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: openml version 0.14.0 or higher
+  claim_id: c_244774aa
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    openml>=0.14.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: openml>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:20Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Python target version 3.11
+  claim_id: c_bb9a03dd
+  context: Configure linting and formatting by creating code/pyproject.toml with [tool.black]
+    section (target-version = 3.11)
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Guido van Rossum began working on Python in the late 1980s as a successor
+        to the ABC programming language. Python 3.0, released in 2008, was a major
+        revision and not completely backward-compatible with earlier versions. Beginning
+        with Python 3.5, capabilities and keywords for typing were added to the language,
+        allowing optional static typing. As of 2026, the Python Software Foundation
+        supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the project's
+        annual release cycle and five-year support policy. Python 3.15 is currently
+        in the beta development phase, and the stable release is expected to launch
+        in October 2026. Earlier versions in the 3.x series have reached end-of-life
+        and no longer receive security updates.
+      source_id: Python (programming language)
+      url: https://en.wikipedia.org/wiki/Python_(programming_language)
+      value: '3.11'
+    filled: true
+  kind: numeric
+  raw_text: target-version = 3.11
+  resolved_value: '3.11'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T04:50:26Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Line length limit of 88 characters
+  claim_id: c_4535f8e3
+  context: Configure linting and formatting by creating code/pyproject.toml with [tool.black]
+    section (target-version = 3.11, line-length = 88)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:30Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Flake8 max line length of 88 characters
+  claim_id: c_5393cf20
+  context: code/.flake8 file with [flake8] section (max-line-length = 88, extend-ignore
+    = E203)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max-line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:50:34Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: DOI 10.21105/joss.01686
+  claim_id: c_d14f4b3f
+  context: 'References: DOI:10.21105/joss.01686., extract covariance structures, and
+    simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: DOI:10.21105/joss.01686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T04:52:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: pipeline generates 24000 rows from 200 simulations per dataset across
+    10 datasets 4 SNR levels and 3 sparsity levels
+  claim_id: c_72ba979b
+  context: 'Integration test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 24000
+    (200 sims * 10 datasets * 4 SNR * 3 Sparsity) (FR-002, US-1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: function test_pipeline_generates_expected_rows asserts len(results_df)
+    == 24000 (200 sims * 10 datasets * 4 SNR * 3 Sparsity)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:12Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: downloader fetches 10 datasets
+  claim_id: c_8619efe6
+  context: 'Unit test for OpenML downloader in tests/unit/test_downloader.py: function
+    test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3) (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: function test_downloader_fetches_10_datasets asserts len(datasets) ==
+    10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:14Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0 or higher
+  claim_id: c_292be484
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    scikit-learn>=1.4.0 , statsmodels>=0.14.0 , openml>=0.14.0 , pandas, numpy, scipy,
+    matplotlib, seaborn) (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:14Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0 or higher
+  claim_id: c_aa158a07
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    scikit-learn>=1.4.0 , statsmodels>=0.14.0 , openml>=0.14.0 , pandas, numpy, scipy,
+    matplotlib, seaborn) (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:14Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: openml version 0.14.0 or higher
+  claim_id: c_9be5e016
+  context: Initialize Python project with requirements.txt pinning versions (e.g.,
+    scikit-learn>=1.4.0 , statsmodels>=0.14.0 , openml>=0.14.0 , pandas, numpy, scipy,
+    matplotlib, seaborn) (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: openml>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:15Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: pipeline completes within 6 hours on 2 vCPUs
+  claim_id: c_2fd20f18
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure the full pipeline completes within 6 hours on 2 vCPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:25Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: parallelize loops using joblib with 2 jobs
+  claim_id: c_36d3524f
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:27Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: condition number greater than 10 to the power of 10
+  claim_id: c_8a03a7c8
+  context: Implement code/data/downloader.py logic to skip datasets with condition
+    number > 10^10 and log warning to code/utils/logger.py (FR-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Condition_number_greater_than_10_to_the_power_of_10
+  kind: magnitude
+  raw_text: condition number > 10^10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:29Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: sparsity levels 0.2 and 0.4
+  claim_id: c_d10fa7c1
+  context: Implement code/data/simulators.py configuration to support low to moderate
+    SNR levels and Sparsity levels {0.2, 0.4} (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sparsity levels {0.2, 0.4}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:29Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: alpha thresholds include 0.10
+  claim_id: c_bb4567cb
+  context: Implement code/viz/plots.py to generate Power vs. SNR curves for each selection
+    method, explicitly faceted or differentiated by Sparsity level AND Alpha thresholds
+    {, conventional significance levels, 0.10} in the code logic (FR-003, US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Alpha thresholds {, conventional significance levels, 0.10}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:53:29Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: citation DOI 10.21105/joss.01686
+  claim_id: c_72834058
+  context: 'The method involves selecting representative datasets from the OpenML
+    repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686.,
+    extract covariance structures, and simulate synthetic outcome vectors across 4
+    SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: reference DOI:10.21105/joss.01686.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T04:54:24Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 10 datasets with at least 100 rows and 3 predictors loaded
+  claim_id: c_6e1e9219
+  context: "Independent Test: Verify that The Independent Test verifies that 10 datasets\
+    \ with \u2265100 rows and \u22653 predictors are loaded., and that The Independent\
+    \ Test verifies that a large set of synthetic outcome vectors (Multiple simulations\
+    \ across 12 conditions) are generated."
+  evidence:
+    candidates:
+    - - Look for 10 datasets with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_with_at_least_100_rows_and_3_predictors_loaded
+  kind: magnitude
+  raw_text: "The Independent Test verifies that 10 datasets with \u2265100 rows and\
+    \ \u22653 predictors are loaded."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T04:54:26Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: synthetic outcome vectors generated across 12 conditions
+  claim_id: c_3ac2d8ca
+  context: "Independent Test: Verify that The Independent Test verifies that 10 datasets\
+    \ with \u2265100 rows and \u22653 predictors are loaded., and that The Independent\
+    \ Test verifies that a large set of synthetic outcome vectors (Multiple simulations\
+    \ across 12 conditions) are generated."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test verifies that a large set of synthetic outcome vectors
+    (Multiple simulations across 12 conditions) are generated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:54:26Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 24000 simulation results generated from 200 simulations per 10 datasets
+    across 4 SNR and 3 sparsity levels
+  claim_id: c_7b157a20
+  context: 'Integration test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 24000
+    (200 sims * 10 datasets * 4 SNR * 3 Sparsity) (FR-002, US-1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: function test_pipeline_generates_expected_rows asserts len(results_df)
+    == 24000 (200 sims * 10 datasets * 4 SNR * 3 Sparsity)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:54:26Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: Kruskal-Wallis test performed on 24000 rows of simulation-level data
+  claim_id: c_178d4aa1
+  context: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
+    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005; unit of analysis is individual simulation (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Kruskal-Wallis tests on the simulation-level data (n=24,000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:54:27Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: pipeline completion within 6 hours on 2 vCPUs
+  claim_id: c_2d2e1749
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure completion within 6 hours on 2 vCPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:54:42Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: citation Wikipedia Python programming language
+  claim_id: c_14da7b06
+  context: 'Configure linting and formatting by creating code/pyproject.toml with
+    [tool.black] section ({{claim:c_bb9a03dd}} (Wikipedia: Python (programming language),
+    https://en.wikipedia.org/wiki/Python_(programming_language)), line-length = 88)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_Wikipedia_Python_programming_language
+  kind: entity_fact
+  raw_text: 'Wikipedia: Python (programming language), https://en.wikipedia.org/wiki/Python_(programming_language)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:55:01Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: 10 datasets with at least 100 rows and 3 predictors loaded
+  claim_id: c_1220898d
+  context: The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol.
+  evidence:
+    candidates:
+    - - Look for 10 datasets with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_with_at_least_100_rows_and_3_predictors_loaded
+  kind: magnitude
+  raw_text: "The Independent Test verifies that 10 datasets with \u2265100 rows and\
+    \ \u22653 predictors are loaded."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T04:55:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: synthetic outcome vectors generated across 12 conditions
+  claim_id: c_a9cc2f16
+  context: 'References: DOI:10.21105/joss.01686., extract covariance structures, and
+    simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test verifies that a large set of synthetic outcome vectors
+    (Multiple simulations across 12 conditions) are generated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:55:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: pipeline generates 24000 rows from 200 sims per 10 datasets across 4
+    SNR and 3 Sparsity levels
+  claim_id: c_65562b50
+  context: 'Integration test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 24000
+    (200 sims * 10 datasets * 4 SNR * 3 Sparsity) (FR-002, US-1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: function test_pipeline_generates_expected_rows asserts len(results_df)
+    == 24000 (200 sims * 10 datasets * 4 SNR * 3 Sparsity)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:55:45Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: datasets with condition number greater than 10 to the power of 10 are
+    skipped
+  claim_id: c_e03a77ef
+  context: Implement code/data/downloader.py logic to skip datasets with condition
+    number > 10^10 and log warning to code/utils/logger.py (FR-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_condition_number_greater_than_10_to_the_power
+  kind: magnitude
+  raw_text: datasets with condition number > 10^10 are skipped
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:02Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: simulation supports sparsity levels of 0.2 and 0.4
+  claim_id: c_d03be923
+  context: Implement code/data/simulators.py configuration to support low to moderate
+    SNR levels and Sparsity levels {0.2, 0.4} (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sparsity levels {0.2, 0.4} are supported
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: Kruskal-Wallis tests performed on 24000 simulation-level rows
+  claim_id: c_3fdc1869
+  context: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
+    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005; unit of analysis is individual simulation (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Kruskal-Wallis tests on the simulation-level data (n=24,000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 3
+  canonical: power calculation matches expected values within 0.01 tolerance
+  claim_id: c_752abffa
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: full pipeline completes within 6 hours on 2 vCPUs
+  claim_id: c_bb017c94
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full pipeline completes within 6 hours on 2 vCPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:30Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: SNR and Sparsity loops parallelized with n_jobs=2
+  claim_id: c_7be1df07
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T04:56:30Z'

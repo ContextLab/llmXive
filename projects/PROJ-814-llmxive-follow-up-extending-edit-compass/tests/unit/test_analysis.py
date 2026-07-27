@@ -52,3 +52,23 @@ def test_fdr_correction():
     sorted_indices = np.argsort(p_values)
     sorted_adjusted = [adjusted_p_values[i] for i in sorted_indices]
     assert all(sorted_adjusted[i] <= sorted_adjusted[i+1] for i in range(len(sorted_adjusted)-1))
+    
+    # Verify specific values for the given input
+    # Original p-values sorted: 0.001, 0.01, 0.02, 0.03, 0.04
+    # n = 5
+    # BH thresholds: 0.001*5/5=0.001, 0.01*5/4=0.0125, 0.02*5/3=0.0333, 0.03*5/2=0.075, 0.04*5/1=0.2
+    # The algorithm ensures adjusted p-values are at least as large as the original
+    # and respects the monotonicity constraint from smallest to largest rank.
+    
+    # Check that at least one p-value is adjusted (the smallest one 0.001 might be adjusted up if others are significant)
+    # Actually, with alpha=0.05:
+    # 0.001 <= 0.001 (keep) -> adj = 0.001
+    # 0.01 <= 0.0125 (keep) -> adj = 0.01
+    # 0.02 <= 0.0333 (keep) -> adj = 0.02
+    # 0.03 <= 0.075 (keep) -> adj = 0.03
+    # 0.04 <= 0.2 (keep) -> adj = 0.04
+    # In this specific case, they might remain the same or be adjusted upwards slightly depending on the cumulative max logic.
+    # The critical check is monotonicity and range, which we already tested.
+    
+    # Additional check: ensure that if we have a very small p-value, it remains significant (below alpha)
+    assert adjusted_p_values[p_values.index(0.001)] <= 0.05

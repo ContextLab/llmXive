@@ -1,2 +1,2 @@
-# This directory stores raw datasets downloaded from external sources (e.g., OpenML).
-# Do not commit large files here.
+# This directory stores raw data downloaded from external sources (e.g., OpenML).
+# Do not modify files in this directory directly.

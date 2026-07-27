@@ -1,6 +1,6 @@
 """
-Filter service for Edit-Compass dataset.
-Loads raw data, filters by specific categories, and saves to data/filtered/.
+Filter service for the Edit-Compass dataset.
+Loads raw data, filters by specific categories, and saves the result.
 """
 import os
 import sys
@@ -9,191 +9,193 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[2]
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
+# Adjust import path to match project structure
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.utils.logging import get_logger, setup_logging
-from src.services.download import DATASET_REPO, DATASET_FILE
+
+# Target categories as per task requirements
+TARGET_CATEGORIES = ["World Knowledge Reasoning", "Visual Reasoning"]
 
 logger = get_logger(__name__)
 
-# Configuration
-TARGET_CATEGORIES = ["World Knowledge Reasoning", "Visual Reasoning"]
-RAW_DIR = Path("data/raw")
-FILTERED_DIR = Path("data/filtered")
-
-def load_raw_data(raw_file_path: Path) -> List[Dict[str, Any]]:
+def load_raw_data(raw_data_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the raw dataset file (JSON or JSONL).
+    Loads the raw JSON dataset from the specified path.
     
     Args:
-        raw_file_path: Path to the raw data file.
+        raw_data_path: Path to the raw JSON file.
         
     Returns:
-        List of data records.
+        List of dictionaries representing dataset entries.
         
     Raises:
-        FileNotFoundError: If the raw file does not exist.
-        ValueError: If the file format is unsupported or invalid.
+        FileNotFoundError: If the raw data file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    if not raw_file_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_file_path}")
+    if not raw_data_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_data_path}")
     
-    logger.info(f"Loading raw data from {raw_file_path}")
+    logger.info(f"Loading raw data from {raw_data_path}")
     
-    data = []
-    try:
-        with open(raw_file_path, 'r', encoding='utf-8') as f:
-            # Try JSON first
-            try:
-                data = json.load(f)
-                if not isinstance(data, list):
-                    raise ValueError("Expected a JSON list at the root of the file.")
-            except json.JSONDecodeError:
-                # Fallback to JSONL
-                logger.info("JSON decode failed, attempting JSONL format...")
-                for line_num, line in enumerate(f, 1):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        record = json.loads(line)
-                        data.append(record)
-                    except json.JSONDecodeError as e:
-                        raise ValueError(f"Invalid JSON on line {line_num}: {e}")
-                        
-        logger.info(f"Successfully loaded {len(data)} records from raw file.")
-        return data
+    with open(raw_data_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
         
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error loading data: {e}")
-        raise
+    if not isinstance(data, list):
+        logger.warning(f"Raw data is not a list. Attempting to extract list from root key or wrapping.")
+        # Handle case where data might be a dict with a list inside, though rare for this format
+        # If it's a dict, we can't easily filter without knowing the key, so we assume list or fail.
+        if isinstance(data, dict):
+            # Try to find a list inside
+            for key, value in data.items():
+                if isinstance(value, list):
+                    logger.info(f"Extracted list from key '{key}'")
+                    return value
+            raise ValueError("Raw data is a dict but contains no list values to filter.")
+        else:
+            raise ValueError(f"Raw data format unexpected: {type(data)}")
+    
+    logger.info(f"Successfully loaded {len(data)} records from raw data.")
+    return data
 
-def filter_by_categories(
-    data: List[Dict[str, Any]], 
-    categories: List[str]
-) -> List[Dict[str, Any]]:
+def filter_by_categories(data: List[Dict[str, Any]], categories: List[str]) -> List[Dict[str, Any]]:
     """
-    Filter records where the 'category' field matches one of the target categories.
+    Filters the dataset to include only records where the 'category' field
+    matches one of the specified target categories.
     
     Args:
-        data: List of raw records.
-        categories: List of category strings to filter for.
+        data: List of dataset records.
+        categories: List of category strings to filter by.
         
     Returns:
         Filtered list of records.
     """
-    logger.info(f"Filtering for categories: {categories}")
+    if not data:
+        logger.warning("Input data is empty. Returning empty list.")
+        return []
     
     filtered = []
+    count_total = len(data)
+    count_matched = 0
+    
+    # Normalize categories for case-insensitive comparison if needed, 
+    # but strict match is safer for benchmark consistency.
+    target_set = set(categories)
+    
     for record in data:
-        # Handle potential variations in key name or structure
-        record_category = record.get("category")
-        
-        # If category is a list, check intersection
-        if isinstance(record_category, list):
-            if any(cat in categories for cat in record_category):
-                filtered.append(record)
-        # If category is a string, direct match
-        elif record_category in categories:
-            filtered.append(record)
-        # If category is missing, skip
-        else:
+        # Ensure record is a dict
+        if not isinstance(record, dict):
+            logger.warning(f"Skipping non-dict record: {record}")
             continue
             
-    logger.info(f"Filtered down to {len(filtered)} records matching target categories.")
+        record_category = record.get("category")
+        
+        if record_category in target_set:
+            filtered.append(record)
+            count_matched += 1
+        else:
+            # Optional: log skipped records if debug level is high
+            pass
+            
+    logger.info(f"Filtering complete. Total: {count_total}, Matched: {count_matched}.")
+    logger.info(f"Matched categories: {set(r.get('category') for r in filtered)}")
+    
+    if count_matched == 0:
+        logger.error("No records matched the target categories. The output file will be empty.")
+        
     return filtered
 
-def save_filtered_data(
-    data: List[Dict[str, Any]], 
-    output_path: Path
-) -> None:
+def save_filtered_data(data: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Save the filtered data to a JSON file.
+    Saves the filtered data to a JSON file.
     
     Args:
         data: List of filtered records.
-        output_path: Path to the output file.
+        output_path: Path to the output JSON file.
         
     Raises:
-        IOError: If writing to the output path fails.
+        IOError: If the file cannot be written.
     """
-    if not output_path.parent.exists():
-        logger.info(f"Creating output directory: {output_path.parent}")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving {len(data)} records to {output_path}")
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
         
-    logger.info(f"Saving {len(data)} filtered records to {output_path}")
+    logger.info(f"Successfully saved filtered data to {output_path}")
+
+def main() -> int:
+    """
+    Main entry point for the filter script.
+    Expects environment variables or arguments for paths, or uses defaults.
+    Returns 0 on success, 1 on failure.
+    """
+    # Setup logging
+    setup_logging(level=logging.INFO)
+    
+    # Default paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    raw_data_dir = project_root / "data" / "raw"
+    filtered_data_dir = project_root / "data" / "filtered"
+    
+    # Determine input file: look for .json or .jsonl in data/raw
+    # Assuming the download task produces a specific file or we scan for it.
+    # For robustness, we look for the first .json file if not specified.
+    input_file = None
+    
+    # Check for explicit input file argument (simulated via env for script simplicity)
+    input_file_env = os.getenv("FILTER_INPUT_FILE")
+    if input_file_env:
+        input_file = raw_data_dir / input_file_env
+    else:
+        # Scan for available files
+        candidates = list(raw_data_dir.glob("*.json")) + list(raw_data_dir.glob("*.jsonl"))
+        if not candidates:
+            logger.error(f"No JSON/JSONL files found in {raw_data_dir}. "
+                         f"Please ensure T011 (download) has completed successfully.")
+            return 1
+        
+        # Prefer the largest or most recent if multiple exist, or just take the first
+        # For Edit-Compass, it's likely a single large file.
+        input_file = max(candidates, key=lambda p: p.stat().st_size)
+        
+    if not input_file.exists():
+        logger.error(f"Selected input file does not exist: {input_file}")
+        return 1
+        
+    output_file = filtered_data_dir / "filtered_dataset.json"
     
     try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        logger.info("Successfully saved filtered data.")
-    except Exception as e:
-        logger.error(f"Failed to save filtered data: {e}")
-        raise
-
-def main():
-    """
-    Main entry point for the filter service.
-    Loads raw data, filters by TARGET_CATEGORIES, and saves to data/filtered/.
-    """
-    setup_logging()
-    
-    # Determine input file
-    # The download task saves to data/raw/DATASET_FILE
-    raw_file = RAW_DIR / DATASET_FILE
-    
-    # Fallback if the specific file name isn't found but directory has files
-    if not raw_file.exists():
-        # Look for any .json or .jsonl file in raw dir
-        raw_files = list(RAW_DIR.glob("*.json")) + list(RAW_DIR.glob("*.jsonl"))
-        if not raw_files:
-            logger.error(f"No raw data files found in {RAW_DIR}. "
-                         f"Please run the download task first.")
-            sys.exit(1)
-        raw_file = raw_files[0]
-        logger.warning(f"Using fallback raw file: {raw_file}")
-
-    try:
-        # 1. Load
-        raw_data = load_raw_data(raw_file)
+        # Load
+        raw_data = load_raw_data(input_file)
         
-        if not raw_data:
-            logger.warning("Raw data is empty. Exiting.")
-            sys.exit(0)
-
-        # 2. Filter
+        # Filter
         filtered_data = filter_by_categories(raw_data, TARGET_CATEGORIES)
         
-        if not filtered_data:
-            logger.error(
-                f"No records found matching categories: {TARGET_CATEGORIES}. "
-                f"The raw data may not contain these categories or the key 'category'."
-            )
-            # Per T010b requirement: exit with clear error if no matches
-            sys.exit(1)
-
-        # 3. Save
-        output_file = FILTERED_DIR / "filtered_dataset.json"
+        # Save
         save_filtered_data(filtered_data, output_file)
         
-        logger.info(f"Filtering complete. Output saved to: {output_file}")
+        if not filtered_data:
+            logger.warning("Filtered dataset is empty. Check category names in the raw data.")
+            # Do not fail strictly, but warn heavily as per T010b logic
+            # However, if the task requires valid data, we might return 1.
+            # Given T010b says "exit with clear error", we treat empty result as a failure condition
+            # if we expected data.
+            logger.error("CRITICAL: Filtered dataset is empty. The pipeline cannot proceed without data.")
+            return 1
+        
+        return 0
         
     except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
+        logger.error(f"File not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during filtering: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during filtering: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

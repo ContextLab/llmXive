@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `projects/PROJ-504-evaluating-the-impact-of-variable-select/` containing `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` (FR-001)
-- [X] T002 Initialize Python project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0 [UNRESOLVED-CLAIM: c_a8c4ba54 — status=not_enough_info]`, `openml>=0.14.0 [UNRESOLVED-CLAIM: c_1140efc1 — status=not_enough_info]`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
-- [X] T003 [P] Configure linting and formatting by creating `code/pyproject.toml` with `[tool.black]` section (target-version = 3.11, line-length = 88) and `code/.flake8` file with `[flake8]` section (max-line-length = 88, extend-ignore = E203) to enforce style consistency (FR-003)
+- [X] T002 Initialize Python project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0 `, `statsmodels>=0.14.0 `, `openml>=0.14.0 `, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
+- [X] T003 [P] Configure linting and formatting by creating `code/pyproject.toml` with `[tool.black]` section ({{claim:c_bb9a03dd}} (Wikipedia: Python (programming language), https://en.wikipedia.org/wiki/Python_(programming_language)), line-length = 88) and `code/.flake8` file with `[flake8]` section (max-line-length = 88, extend-ignore = E203) to enforce style consistency (FR-003)
 
 ---
 
@@ -70,9 +70,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Data Pipeline & Simulation Loop (Priority: P1) 🎯 MVP
 
-**Goal**: Download a set of real OpenML regression datasets for evaluation. The research question focuses on assessing the generalizability of the proposed method across diverse regression tasks. The method involves selecting representative datasets from the OpenML repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686 [UNRESOLVED-CLAIM: c_645310e9 — status=verified]., extract covariance structures, and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth coefficients.
+**Goal**: Download a set of real OpenML regression datasets for evaluation. The research question focuses on assessing the generalizability of the proposed method across diverse regression tasks. The method involves selecting representative datasets from the OpenML repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686., extract covariance structures, and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth coefficients.
 
-**Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded [UNRESOLVED-CLAIM: c_f7565a5e — status=refuted], and that A large set of synthetic outcome vectors (Multiple simulations across 12 conditions) are generated and stored in `data/processed/` with correct metadata. [UNRESOLVED-CLAIM: c_3db94142 — status=not_enough_info]
+**Independent Test**: Verify that The Independent Test verifies that 10 datasets with ≥100 rows and ≥3 predictors are loaded. [UNRESOLVED-CLAIM: c_1220898d — status=refuted], and that The Independent Test verifies that a large set of synthetic outcome vectors (Multiple simulations across 12 conditions) are generated. [UNRESOLVED-CLAIM: c_a9cc2f16 — status=not_enough_info] and stored in `data/processed/` with correct metadata.
 
 ### Tests for User Story 1 (TDD-First) ⚠️
 
@@ -80,7 +80,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T010 [TDD-First] [P] [US1] Unit test for OpenML downloader in `tests/unit/test_downloader.py`: function `test_downloader_fetches_10_datasets` asserts `len(datasets) == 10` and `all(d.n_rows >= 100)` and `all(d.n_features >= 3)` (FR-001)
 - [X] T011 [TDD-First] [P] [US1] Unit test for simulator in `tests/unit/test_simulators.py`: function `test_simulator_generates_correct_snr` asserts generated Y variance matches SNR target within tolerance (FR-002)
-- [X] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_expected_rows` asserts `len(results_df) == 24000` (200 sims * 10 datasets * 4 SNR * 3 Sparsity) [UNRESOLVED-CLAIM: c_31ab221d — status=not_enough_info] (FR-002, US-1)
+- [X] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_expected_rows` asserts `len(results_df) == 24000` (200 sims * 10 datasets * 4 SNR * 3 Sparsity) (FR-002, US-1)
 
 ### Implementation for User Story 1
 
@@ -100,7 +100,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Apply Forward Stepwise, Backward Elimination, and LASSO selection methods to each simulated dataset, refit OLS, and calculate empirical power (proportion of true non-zero coefficients selected AND significant).
 
-**Independent Test**: Run selection methods on a subset of simulations and verify that Power = (True Positives / Total True Non-Zero Coefficients) matches expected values within ±0.01 tolerance [UNRESOLVED-CLAIM: c_8ccd9e2c — status=not_enough_info].
+**Independent Test**: Run selection methods on a subset of simulations and verify that Power = (True Positives / Total True Non-Zero Coefficients) matches expected values within ±0.01 tolerance [UNRESOLVED-CLAIM: c_752abffa — status=not_enough_info].
 
 ### Tests for User Story 2 (TDD-First) ⚠️
 
@@ -111,12 +111,12 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2 (Implementation MUST follow tests)
 
 - [ ] T027 [US2] Implement `code/analysis/metrics.py` to record selected variables, decision thresholds, and collinearity diagnostics (VIF/condition number) directly into the main simulation results dataframe (Parquet/CSV) at **`data/processed/simulation_results.csv`**; **Do NOT write to `results/` directory** (FR-003, FR-007, Constitution Principle IV, VII)
-- [ ] T024 [P] [US2] Implement `code/analysis/selectors.py` for Forward Stepwise selection using CPU-only execution and **AIC criterion** (FR-003)
-- [ ] T025 [P] [US2] Implement `code/analysis/selectors.py` for Backward Elimination selection using CPU-only execution (FR-003)
-- [ ] T026 [P] [US2] Implement `code/analysis/selectors.py` for LASSO selection using CPU-only execution (FR-003)
-- [ ] T028 [US2] Implement `code/analysis/metrics.py` to refit OLS on variables selected by Forward Stepwise, Backward Elimination, AND LASSO; calculate p-values for power determination; **PRIMARY METRIC**: Empirical Power (proportion of true non-zero coefficients selected AND significant with p < 0.05) (FR-004, FR-009)
-- [ ] T029 [US2] Implement `code/analysis/metrics.py` to calculate empirical power as proportion of true non-zero coefficients selected AND significant (p < 0.05) per Spec FR-004; includes logic to filter `true_coefficients != 0` before calculating the denominator (FR-004)
-- [ ] T030 [US2] Implement `code/analysis/metrics.py` to calculate VIF or condition number for all datasets as collinearity diagnostics (FR-007)
+- [X] T024 [P] [US2] Implement `code/analysis/selectors.py` for Forward Stepwise selection using CPU-only execution and **AIC criterion** (FR-003)
+- [X] T025 [P] [US2] Implement `code/analysis/selectors.py` for Backward Elimination selection using CPU-only execution (FR-003)
+- [X] T026 [P] [US2] Implement `code/analysis/selectors.py` for LASSO selection using CPU-only execution (FR-003)
+- [X] T028 [US2] Implement `code/analysis/metrics.py` to refit OLS on variables selected by Forward Stepwise, Backward Elimination, AND LASSO; calculate p-values for power determination; **PRIMARY METRIC**: Empirical Power (proportion of true non-zero coefficients selected AND significant with p < 0.05) (FR-004, FR-009)
+- [X] T029 [US2] Implement `code/analysis/metrics.py` to calculate empirical power as proportion of true non-zero coefficients selected AND significant (p < 0.05) per Spec FR-004; includes logic to filter `true_coefficients != 0` before calculating the denominator (FR-004)
+- [X] T030 [US2] Implement `code/analysis/metrics.py` to calculate VIF or condition number for all datasets as collinearity diagnostics (FR-007)
 - [ ] T032 [US2] Add explicit handling in `code/analysis/metrics.py` to exclude true-zero coefficients from the power denominator, treating them as true negatives (FR-004, Edge Case: Zero true coefficient)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,9 +139,9 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T036 [US3] Validate `data/processed/simulation_results.csv` contains required columns (method, snr, sparsity, power_rate) and sufficient rows to ensure simulation-level granularity is preserved for T037 (FR-005)
 - [ ] T037 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the **simulation-level data** (n=24,000 rows) from `data/processed/simulation_results.csv` per Spec FR-005; unit of analysis is individual simulation (FR-005)
-- [ ] T038 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity [UNRESOLVED-CLAIM: c_01214f8d — status=not_enough_info] on simulation-level data per Spec FR-005 (FR-005)
+- [ ] T038 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity on simulation-level data per Spec FR-005 (FR-005)
 - [ ] T039 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha across a range of representative values (FR-006)
-- [ ] T040 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method, explicitly faceted or differentiated by Sparsity level **AND Alpha thresholds {, conventional significance levels, 0.10}** in the code logic (FR-003, US-3)
+- [ ] T040 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method, explicitly faceted or differentiated by Sparsity level **AND Alpha thresholds {, conventional significance levels, 0.10} ** in the code logic (FR-003, US-3)
 - [ ] T041 [US3] Implement `code/viz/plots.py` to save all plots to `results/plots/`
 - [ ] T042 [US3] Generate final summary report as Markdown at `results/final_report.md` with sections: 'Executive Summary', 'Statistical Results (Kruskal-Wallis, Dunn)', 'Power Curves', and 'Methodology Notes'; include a verification step to ensure summary stats match `data/processed/simulation_results.csv` by **computing mean power per condition and comparing to CSV rows** (FR-005)
 
@@ -159,7 +159,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T046 [P] Additional unit tests in `tests/unit/`
 - [ ] T047 Run quickstart.md validation
 - [ ] T048 Verify reproducibility by re-running pipeline with pinned seeds and comparing checksums
-- [ ] T049 [P] Implement runtime profiling in `code/utils/profiler.py` to measure total execution time per phase and ensure the full pipeline completes within 6 hours [UNRESOLVED-CLAIM: c_66a9719e — status=not_enough_info] (FR-008); add logging for slow steps to identify bottlenecks
+- [ ] T049 [P] Implement runtime profiling in `code/utils/profiler.py` to measure total execution time per phase and ensure the full pipeline completes within 6 hours (FR-008); add logging for slow steps to identify bottlenecks
 - [ ] T050 [US3] Ensure sensitivity analysis in `code/analysis/comparators.py` explicitly iterates over a range of Alpha values and generates separate power curves for each (FR-006)
 
 ---
