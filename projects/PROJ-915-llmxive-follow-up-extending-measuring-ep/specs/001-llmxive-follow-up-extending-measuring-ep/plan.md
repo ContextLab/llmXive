@@ -85,7 +85,7 @@ projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/
 | **3.5 – Human Outcome Validation Gate** | Randomly sample a subset of labeled responses. Two expert raters independently assign adherence/refusal labels. Compute Cohen’s κ; if κ < 0.7 abort regression and log. | `code/validation.py` |
 | **4 – Statistical Modeling** | *Model A*: Logistic regression (Adherent vs Non‑Adherent) with linguistic features. <br> *Model B*: Logistic regression (Epistemic Refusal vs Non‑Refusal) **excluding** rows where `safety_refusal=True`. <br> *Perfect Separation*: If standard MLE fails, automatically switch to Firth's penalized regression. <br> *Selection Bias*: If baseline rate < 5% or > 95%, report limitation; apply IPW only as a sensitivity check, not a fix for separation. <br> *Power Analysis*: Post‑hoc power calculation; report limitations. | `code/modeling.py` |
 | **5 – Sensitivity Analysis** | Sweep probability thresholds `{0.01, 0.05, 0.10}` for "high authority density" risk; recompute ASR and Refusal Rate; report variance ≤ 5% (SC‑004). | `code/modeling.py` |
-| **6 – Manual Annotation Pilot** | Recruit raters on Prolific; present prompts with extracted features; collect perceived authority density (1‑5). Store as `annotation_pilot.csv`. Correlate with automated feature values. | `code/annotation.py` |
+| **6 – Manual Annotation Pilot** | Recruit raters on Prolific; present prompts with extracted features; collect perceived authority density (scale). Store as `annotation_pilot.csv`. Correlate with automated feature values. | `code/annotation.py` |
 | **7 – Compute‑Time Guard** | After each stage, update cumulative runtime; if > 6 h (Constitution Principle VII), abort and log. | `code/validation.py` |
 
 ## Risks & Mitigations

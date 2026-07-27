@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 def find_python_files(directory: Path) -> List[Path]:
     """Recursively find all .py files in directory."""
+    if not directory.exists():
+        logger.warning(f"Directory {directory} does not exist.")
+        return []
     return list(directory.rglob("*.py"))
 
 def run_bandit_scan(file_path: Path, config_path: Path) -> Optional[Dict[str, Any]]:
@@ -33,23 +36,29 @@ def run_bandit_scan(file_path: Path, config_path: Path) -> Optional[Dict[str, An
             cmd,
             capture_output=True,
             text=True,
-            timeout=30 # Timeout to prevent hanging on large files
+            timeout=60 # Timeout to prevent hanging on large files
         )
         
-        if result.returncode == 0 or result.returncode == 1: # 1 means vulns found
+        # Bandit returns 0 if no issues, 1 if issues found, 2 if error
+        if result.returncode in (0, 1): 
             if result.stdout:
-                return json.loads(result.stdout)
-            return {"errors": [], "results": []}
+                try:
+                    return json.loads(result.stdout)
+                except json.JSONDecodeError:
+                    # Sometimes bandit outputs partial JSON or text on error
+                    logger.warning(f"Failed to parse JSON output for {file_path}: {result.stdout[:200]}")
+                    return {"errors": [], "results": [], "file": str(file_path)}
+            return {"errors": [], "results": [], "file": str(file_path)}
         else:
-            logger.warning(f"Bandit failed for {file_path}: {result.stderr}")
+            # Check if it's a syntax error or other issue
+            if "SyntaxError" in result.stderr or "IndentationError" in result.stderr:
+                logger.warning(f"Syntax error in {file_path}, skipping: {result.stderr.strip()}")
+            else:
+                logger.warning(f"Bandit failed for {file_path}: {result.stderr}")
             return None
             
     except subprocess.TimeoutExpired:
         logger.error(f"Bandit timeout for {file_path}")
-        return None
-    except json.JSONDecodeError as e:
-        # LOGGING FOR STATIC ANALYSIS PARSE ERRORS
-        logger.error(f"Failed to parse Bandit JSON output for {file_path}: {e}")
         return None
     except Exception as e:
         logger.error(f"Unexpected error running Bandit on {file_path}: {e}")
@@ -60,14 +69,16 @@ def parse_bandit_report(report: Dict[str, Any]) -> List[Dict[str, Any]]:
     Parse raw Bandit JSON report into a structured list of vulnerabilities.
     """
     vulnerabilities = []
-    if "results" in report:
+    if "results" in report and report["results"]:
         for item in report["results"]:
             vuln = {
                 "file_path": item.get("filename", "unknown"),
                 "cwe_id": item.get("issue_cwe", {}).get("id", "unknown"),
                 "severity": item.get("issue_severity", "unknown"),
                 "line_number": item.get("line_number", 0),
-                "issue_text": item.get("issue_text", "")
+                "issue_text": item.get("issue_text", ""),
+                "test_id": item.get("test_id", "unknown"),
+                "test_name": item.get("test_name", "unknown")
             }
             vulnerabilities.append(vuln)
     return vulnerabilities
@@ -83,11 +94,19 @@ def main():
     ensure_directories()
     
     generated_dir = paths['data'] / 'generated'
-    human_dir = paths['data'] / 'human' # Assuming human code is in data/human
+    human_dir = paths['data'] / 'human'
     bandit_config = paths['code'] / 'config' / 'bandit_config.yaml'
     
     raw_reports_path = paths['data'] / 'processed' / 'bandit_raw_reports.json'
     vuln_reports_path = paths['data'] / 'processed' / 'vulnerability_reports.json'
+    
+    # Check if bandit is installed
+    try:
+        subprocess.run([sys.executable, "-m", "bandit", "--version"], 
+                     capture_output=True, check=True)
+    except subprocess.CalledProcessError:
+        logger.error("Bandit is not installed or not working. Run: pip install bandit")
+        sys.exit(1)
     
     all_files = []
     if generated_dir.exists():
@@ -96,6 +115,14 @@ def main():
         all_files.extend(find_python_files(human_dir))
     
     logger.info(f"Found {len(all_files)} Python files to analyze.")
+    
+    if not all_files:
+        logger.warning("No Python files found to analyze. Creating empty output files.")
+        with open(raw_reports_path, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        with open(vuln_reports_path, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        return
     
     raw_results = []
     structured_results = []
@@ -108,8 +135,12 @@ def main():
         
         if report is None:
             # LOGGING FOR PARSE ERRORS / SCAN FAILURES
-            logger.error(f"Skipping {file_path} due to scan or parse failure.")
+            logger.error(f"Skipping {file_path} due to scan or parse failure (likely syntax error).")
             continue
+            
+        # Add file path to raw report if missing
+        if "file" not in report:
+            report["file"] = str(file_path)
             
         raw_results.append({"file": str(file_path), "report": report})
         
@@ -127,6 +158,8 @@ def main():
     with open(vuln_reports_path, 'w', encoding='utf-8') as f:
         json.dump(structured_results, f, indent=2)
     logger.info(f"Saved vulnerability reports to {vuln_reports_path}")
+    
+    logger.info(f"Analysis complete. Found {len(structured_results)} total vulnerabilities.")
 
 if __name__ == "__main__":
     main()

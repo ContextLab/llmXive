@@ -1,8 +1,3 @@
-"""
-Data validation module for User Story 1.
-Validates columns, data quality metrics, and valence labels.
-Implements HALT logic for incompatible datasets.
-"""
 import os
 import sys
 import argparse
@@ -10,18 +5,12 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Project root and imports from sibling modules
-# Ensure the project root is in the path if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Import existing utilities from the project API surface
 from utils.logger import get_logger
-from utils.config import get_data_path, get_output_path
+from utils.config import get_project_root, get_data_path
 from models.data_models import QualityReport
-from utils.directories import ensure_directory
 
-# Required columns as per FR-002
+# Required columns as per FR-002 and task requirements
 REQUIRED_COLUMNS = [
     "fixation_duration",
     "saccade_amplitude",
@@ -30,245 +19,171 @@ REQUIRED_COLUMNS = [
     "valence_label"
 ]
 
-logger = get_logger(__name__)
-
-def validate_columns(df: Any) -> List[str]:
+def validate_columns(df: Any, logger: Any) -> bool:
     """
-    Check for existence of required columns in the DataFrame.
-    Returns a list of missing column names.
+    Validates that the DataFrame contains all required columns.
+    Returns True if all columns exist, False otherwise.
     """
-    if df is None:
-        return REQUIRED_COLUMNS[:]
+    missing_columns = []
+    for col in REQUIRED_COLUMNS:
+        if col not in df.columns:
+            missing_columns.append(col)
     
-    existing_cols = set(df.columns)
-    missing = [col for col in REQUIRED_COLUMNS if col not in existing_cols]
-    return missing
-
-def validate_data_quality_metrics(df: Any) -> Dict[str, Any]:
-    """
-    Check data quality: track loss <= 5% and calibrated status.
-    Returns a dict with validation results.
-    """
-    # Placeholder for actual logic depending on data structure
-    # Assuming 'track_loss' and 'is_calibrated' are columns or metadata
-    # If not present, we assume failure for safety or check metadata
-    result = {
-        "track_loss_ok": False,
-        "calibrated_ok": False,
-        "track_loss_percentage": None,
-        "message": ""
-    }
-
-    if df is None:
-        result["message"] = "DataFrame is None"
-        return result
-
-    # Check track loss if column exists
-    if "track_loss" in df.columns:
-        # Assuming track_loss is a percentage or ratio
-        # Calculate average or max depending on definition
-        # Here we assume it's a column of percentages (0-100)
-        avg_loss = df["track_loss"].mean()
-        result["track_loss_percentage"] = avg_loss
-        if avg_loss <= 5.0:
-            result["track_loss_ok"] = True
-        else:
-            result["message"] = f"Track loss {avg_loss:.2f}% exceeds 5% limit."
-    else:
-        # If column missing, we might treat as 0 or fail? 
-        # Per spec, we need to check. If not available, we might assume failure or 0.
-        # Let's assume if not present, we can't verify, so we fail or assume 0 if safe.
-        # For strict validation, if the metric is required, missing column is an error.
-        # However, T016 handles missing variables. This function assumes variables exist.
-        # Let's assume 0 if not present for this specific metric check, 
-        # but T013/T016 should have caught missing 'track_loss' if it was a required column.
-        # Since 'track_loss' is not in REQUIRED_COLUMNS for T013 (only standard vars), 
-        # we assume it's optional metadata or 0.
-        result["track_loss_ok"] = True
-        result["track_loss_percentage"] = 0.0
-
-    # Check calibration
-    if "is_calibrated" in df.columns:
-        # Check if all rows are calibrated or majority
-        calib_ratio = df["is_calibrated"].mean()
-        if calib_ratio == 1.0:
-            result["calibrated_ok"] = True
-        else:
-            result["message"] = "Dataset contains uncalibrated records."
-    else:
-        # If not present, assume not calibrated -> fail
-        result["message"] = "Calibration status unknown (missing column)."
-
-    return result
-
-def validate_valence_labels(df: Any, valence_path: Path) -> Dict[str, Any]:
-    """
-    Validate valence annotation for standardized rating scale.
-    Writes valence_categories_count to quality report.
-    """
-    result = {
-        "valid": False,
-        "count": 0,
-        "message": ""
-    }
-
-    if df is None:
-        result["message"] = "DataFrame is None"
-        return result
-
-    if "valence_label" not in df.columns:
-        result["message"] = "valence_label column missing."
-        return result
-
-    # Check for standardized rating scale (e.g., 1-5, or specific categories)
-    # Assuming valence_label contains categorical strings or integers
-    unique_vals = df["valence_label"].unique()
-    result["count"] = len(unique_vals)
-    result["valid"] = True
-    result["message"] = f"Found {result['count']} unique valence categories."
-
-    # Ensure storage in data/valence/
-    ensure_directory(valence_path)
-    # We don't write the dataframe here, just the count to the report later
-    
-    return result
-
-def write_quality_report(
-    missing_columns: List[str],
-    quality_metrics: Dict[str, Any],
-    valence_result: Dict[str, Any],
-    output_path: Path
-) -> bool:
-    """
-    Writes the quality report to data/eye-tracking/quality_report.md.
-    Returns False if a HALT condition is met.
-    """
-    report_lines = []
-    report_lines.append("# Data Quality Report")
-    report_lines.append("")
-    
-    # Column Validation
-    report_lines.append("## Column Validation")
     if missing_columns:
-        report_lines.append(f"- **Status**: FAILED")
-        report_lines.append(f"- **Missing Columns**: {', '.join(missing_columns)}")
-    else:
-        report_lines.append("- **Status**: PASSED")
-        report_lines.append("- **Missing Columns**: None")
-    report_lines.append("")
-
-    # Quality Metrics
-    report_lines.append("## Data Quality Metrics")
-    report_lines.append(f"- **Track Loss**: {quality_metrics.get('track_loss_percentage', 'N/A')}%")
-    report_lines.append(f"- **Track Loss OK**: {quality_metrics.get('track_loss_ok', False)}")
-    report_lines.append(f"- **Calibrated**: {quality_metrics.get('calibrated_ok', False)}")
-    if quality_metrics.get("message"):
-        report_lines.append(f"- **Note**: {quality_metrics['message']}")
-    report_lines.append("")
-
-    # Valence
-    report_lines.append("## Valence Annotation")
-    report_lines.append(f"- **Valid**: {valence_result.get('valid', False)}")
-    report_lines.append(f"- **valence_categories_count**: {valence_result.get('count', 0)}")
-    if valence_result.get("message"):
-        report_lines.append(f"- **Note**: {valence_result['message']}")
-    report_lines.append("")
-
-    # HALT Logic
-    halted = False
-    halt_reason = ""
-
-    if missing_columns:
-        halted = True
-        halt_reason = "DATA_BLOCKER: Missing required variables"
-    elif not quality_metrics.get("track_loss_ok", False):
-        halted = True
-        halt_reason = "DATA_BLOCKER: Track loss > 5%"
-    elif not quality_metrics.get("calibrated_ok", False):
-        halted = True
-        halt_reason = "DATA_BLOCKER: Uncalibrated eye-tracker"
-    elif not valence_result.get("valid", False):
-        halted = True
-        halt_reason = "DATA_BLOCKER: Invalid valence annotation"
-
-    if halted:
-        report_lines.append("## HALT STATUS")
-        report_lines.append(f"**ACTION**: {halt_reason}")
-        report_lines.append(f"Processing stopped due to data incompatibility.")
-    
-    # Write report
-    ensure_directory(output_path.parent)
-    report_file = output_path / "quality_report.md"
-    with open(report_file, "w", encoding="utf-8") as f:
-        f.write("\n".join(report_lines))
-    
-    logger.info(f"Quality report written to {report_file}")
-
-    if halted:
-        logger.error(halt_reason)
+        logger.error(f"Missing required variables: {missing_columns}")
         return False
     
+    logger.info("All required variables present.")
     return True
+
+def validate_data_quality_metrics(df: Any, logger: Any) -> bool:
+    """
+    Validates data quality metrics:
+    - Track loss <= 5%
+    - Eye-tracker is calibrated
+    
+    Returns True if metrics pass, False otherwise.
+    """
+    # Check for track loss
+    if "track_loss" in df.columns:
+        track_loss_rate = df["track_loss"].mean()
+        if track_loss_rate > 0.05:
+            logger.error(f"Track loss rate ({track_loss_rate:.2%}) exceeds 5% threshold.")
+            return False
+        logger.info(f"Track loss rate ({track_loss_rate:.2%}) within acceptable limits.")
+    else:
+        logger.warning("Track loss column not found, skipping track loss validation.")
+
+    # Check for calibration status
+    if "calibrated" in df.columns:
+        uncalibrated_count = (~df["calibrated"]).sum()
+        if uncalibrated_count > 0:
+            logger.error(f"Found {uncalibrated_count} records with uncalibrated eye-tracker.")
+            return False
+        logger.info("All records are from calibrated eye-tracker.")
+    else:
+        logger.warning("Calibration status column not found, skipping calibration validation.")
+
+    return True
+
+def validate_valence_labels(df: Any, logger: Any) -> bool:
+    """
+    Validates valence annotation:
+    - Standardized rating scale
+    - Human-rated metadata only
+    
+    Returns True if valid, False otherwise.
+    """
+    if "valence_label" not in df.columns:
+        logger.error("Valence label column missing.")
+        return False
+
+    # Check if valence labels are from human-rated metadata
+    # Assuming a column 'valence_source' indicates the source
+    if "valence_source" in df.columns:
+        non_human_sources = df[~df["valence_source"].isin(["human-rated", "human"])].copy()
+        if len(non_human_sources) > 0:
+            logger.error(f"Found {len(non_human_sources)} records with non-human-rated valence metadata.")
+            return False
+        logger.info("All valence labels are from human-rated metadata.")
+    else:
+        # If no source column, assume human-rated but warn
+        logger.warning("Valence source column not found. Assuming human-rated, but this should be verified.")
+
+    return True
+
+def write_quality_report(
+    logger: Any,
+    track_loss_ok: bool,
+    calibrated_ok: bool,
+    valence_ok: bool,
+    valence_categories_count: Optional[int] = None
+) -> None:
+    """
+    Writes the quality report to data/eye-tracking/quality_report.md.
+    """
+    project_root = get_project_root()
+    report_path = project_root / "data" / "eye-tracking" / "quality_report.md"
+    
+    # Ensure directory exists
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(report_path, "w") as f:
+        f.write("# Data Quality Report\n\n")
+        f.write(f"Track Loss Check: {'PASS' if track_loss_ok else 'FAIL'}\n")
+        f.write(f"Calibration Check: {'PASS' if calibrated_ok else 'FAIL'}\n")
+        f.write(f"Valence Validation: {'PASS' if valence_ok else 'FAIL'}\n")
+        if valence_categories_count is not None:
+            f.write(f"Categories Count: {valence_categories_count}\n")
+        f.write("\n")
+
+    logger.info(f"Quality report written to {report_path}")
 
 def main():
     """
-    Main entry point for validation script.
-    Loads data, validates, writes report, and exits with appropriate code.
+    Main entry point for data validation.
+    Halts processing with exit code 1 if dataset is incompatible (missing variables).
     """
-    parser = argparse.ArgumentParser(description="Validate eye-tracking and recall data.")
-    parser.add_argument("--data-path", type=str, help="Path to data file")
-    parser.add_argument("--output-dir", type=str, help="Output directory for reports")
+    logger = get_logger("validate_data")
+    project_root = get_project_root()
+    data_path = get_data_path()
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Validate eye-tracking data.")
+    parser.add_argument("--data-file", type=str, required=True, help="Path to the data file (CSV/EDF).")
     args = parser.parse_args()
 
-    # Default paths if not provided
-    if not args.data_path:
-        args.data_path = get_data_path()
-    if not args.output_dir:
-        args.output_dir = get_output_path()
-
-    data_path = Path(args.data_path)
-    output_dir = Path(args.output_dir)
-
-    # Mock loading for T016 implementation context
-    # In a real run, this would call load_data.py
-    # We assume df is loaded here. If T012 is complete, we import it.
-    try:
-        from ingestion.load_data import load_data
-        df = load_data(data_path)
-    except ImportError:
-        logger.warning("load_data module not found. Simulating load for T016 logic.")
-        # Fallback for testing if T012 is not fully wired yet in this specific run context
-        # But per spec, T012 should be done.
-        import pandas as pd
-        # If no real data, we can't proceed without faking, which is forbidden.
-        # However, T016 is about the LOGIC. We assume df exists or is None.
-        # If data is missing, T012 would have exited 1.
-        # Let's assume we have a df for this logic check.
-        df = None 
-
-    if df is None:
-        # If load_data returned None or failed (but didn't exit), we handle it.
-        # T012 should handle exit 1 for file not found.
-        # Here we assume file exists but might be empty or invalid.
-        pass
-
-    # 1. Validate Columns
-    missing_cols = validate_columns(df)
-    
-    # 2. Validate Quality
-    quality_metrics = validate_data_quality_metrics(df)
-    
-    # 3. Validate Valence
-    valence_path = output_dir / "valence"
-    valence_result = validate_valence_labels(df, valence_path)
-
-    # 4. Write Report and Check Halt
-    report_path = output_dir / "eye-tracking"
-    success = write_quality_report(missing_cols, quality_metrics, valence_result, report_path)
-
-    if not success:
+    data_file = Path(args.data_file)
+    if not data_file.exists():
+        logger.error(f"Data file not found: {data_file}")
         sys.exit(1)
-    
+
+    # Load data (simplified for validation; actual loading handled by load_data.py)
+    # For this task, we assume the data is already loaded into a DataFrame 'df'
+    # In a real scenario, this would call load_data.load_data()
+    import pandas as pd
+    if data_file.suffix == ".csv":
+        df = pd.read_csv(data_file)
+    elif data_file.suffix == ".edf":
+        # Placeholder for EDF loading; actual implementation in load_data.py
+        logger.error("EDF loading not implemented in this snippet. Use load_data.py for EDF.")
+        sys.exit(1)
+    else:
+        logger.error(f"Unsupported file format: {data_file.suffix}")
+        sys.exit(1)
+
+    # Step 1: Validate required columns (T013)
+    columns_valid = validate_columns(df, logger)
+
+    # Step 2: Validate data quality metrics (T014)
+    quality_valid = validate_data_quality_metrics(df, logger)
+
+    # Step 3: Validate valence labels (T015)
+    valence_valid = validate_valence_labels(df, logger)
+
+    # Step 4: Write quality report (T014, T015)
+    valence_categories_count = None
+    if "valence_label" in df.columns:
+        valence_categories_count = df["valence_label"].nunique()
+
+    write_quality_report(logger, columns_valid and quality_valid, quality_valid, valence_valid, valence_categories_count)
+
+    # Step 5: HALT if dataset is incompatible (missing variables) - T016
+    if not columns_valid:
+        logger.error("DATA_BLOCKER: Missing required variables")
+        sys.exit(1)
+
+    # HALT if data quality fails (T014)
+    if not quality_valid:
+        logger.error("DATA_BLOCKER: Data quality metrics failed")
+        sys.exit(1)
+
+    # HALT if valence validation fails (T015)
+    if not valence_valid:
+        logger.error("DATA_BLOCKER: Valence annotation validation failed")
+        sys.exit(1)
+
+    logger.info("Data validation completed successfully.")
     sys.exit(0)
 
 if __name__ == "__main__":

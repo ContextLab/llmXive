@@ -1,284 +1,168 @@
-"""
-Main pipeline orchestrator for evaluating code generation model vulnerability density.
-
-This script coordinates the execution of dataset download, code generation,
-static analysis, and statistical analysis based on user-provided arguments.
-"""
-
 import argparse
 import logging
 import sys
 import time
 from pathlib import Path
 from typing import Optional
+import resource
+import os
 
-# Import from sibling modules based on provided API surface
-from download import download_human_eval, download_mbpp, main as download_main
-from state_utils import store_artifact_hashes, compute_artifact_hashes
-from config import get_config, get_path
+# Import existing pipeline stages
+from download import main as run_download_main
+from generate import main as run_generation_main
+from analyze import main as run_analysis_main
+from stats import main as run_statistics_main
+from config import get_config, set_seed, ensure_directories, get_paths
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(get_path('log_file'))
+        logging.FileHandler('logs/pipeline.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
+# Resource limits (SC-004)
+MAX_CPU_HOURS = 6.0
+MAX_MEMORY_GB = 7.0
+
+def log_resource_usage(stage_name: str, start_time: float, start_mem: int):
+    """
+    Logs CPU time and memory usage for a specific stage.
+    Checks against SC-004 limits (<=6h CPU, <=7GB RAM).
+    """
+    end_time = time.time()
+    end_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # In KB on Linux/macOS
+
+    elapsed_seconds = end_time - start_time
+    elapsed_hours = elapsed_seconds / 3600.0
+    memory_gb = end_mem / (1024 * 1024)  # Convert KB to GB
+
+    logger.info(f"--- Resource Usage: {stage_name} ---")
+    logger.info(f"  CPU Time Elapsed: {elapsed_hours:.2f} hours ({elapsed_seconds:.1f} seconds)")
+    logger.info(f"  Peak Memory Usage: {memory_gb:.2f} GB ({end_mem / 1024:.1f} MB)")
+
+    # Check limits
+    if elapsed_hours > MAX_CPU_HOURS:
+        logger.error(f"CRITICAL: CPU time limit exceeded for {stage_name}. Limit: {MAX_CPU_HOURS}h, Actual: {elapsed_hours:.2f}h")
+        raise MemoryError(f"Pipeline exceeded CPU time limit ({MAX_CPU_HOURS}h).")
+
+    if memory_gb > MAX_MEMORY_GB:
+        logger.error(f"CRITICAL: Memory limit exceeded for {stage_name}. Limit: {MAX_MEMORY_GB}GB, Actual: {memory_gb:.2f}GB")
+        raise MemoryError(f"Pipeline exceeded memory limit ({MAX_MEMORY_GB}GB).")
+
+    logger.info(f"  Status: OK (Within limits)")
 
 def parse_args() -> argparse.Namespace:
-    """Parse command line arguments for the pipeline."""
-    parser = argparse.ArgumentParser(
-        description='LLM Code Vulnerability Density Evaluation Pipeline'
-    )
-
-    parser.add_argument(
-        '--models',
-        nargs='+',
-        default=['starcoder', 'codegen'],
-        choices=['starcoder', 'codegen'],
-        help='List of models to evaluate (default: starcoder codegen)'
-    )
-
-    parser.add_argument(
-        '--benchmarks',
-        nargs='+',
-        default=['humaneval', 'mbpp'],
-        choices=['humaneval', 'mbpp'],
-        help='List of benchmarks to use (default: humaneval mbpp)'
-    )
-
-    parser.add_argument(
-        '--skip-download',
-        action='store_true',
-        help='Skip dataset download if already present'
-    )
-
-    parser.add_argument(
-        '--skip-generation',
-        action='store_true',
-        help='Skip code generation step'
-    )
-
-    parser.add_argument(
-        '--skip-analysis',
-        action='store_true',
-        help='Skip static analysis step'
-    )
-
-    parser.add_argument(
-        '--skip-stats',
-        action='store_true',
-        help='Skip statistical analysis step'
-    )
-
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed for reproducibility (default: 42)'
-    )
-
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose logging'
-    )
-
+    parser = argparse.ArgumentParser(description="llmXive Vulnerability Density Pipeline")
+    parser.add_argument("--models", type=str, nargs="+", default=["starcoder", "codegen"],
+                        help="List of models to evaluate (e.g., starcoder codegen)")
+    parser.add_argument("--benchmarks", type=str, nargs="+", default=["humaneval", "mbpp"],
+                        help="List of benchmarks to use (e.g., humaneval mbpp)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--skip-download", action="store_true", help="Skip dataset download if already present")
+    parser.add_argument("--skip-generation", action="store_true", help="Skip code generation if samples exist")
+    parser.add_argument("--skip-analysis", action="store_true", help="Skip static analysis if reports exist")
+    parser.add_argument("--skip-stats", action="store_true", help="Skip statistical analysis if results exist")
     return parser.parse_args()
 
-
-def run_download(benchmarks: list, skip: bool) -> bool:
-    """
-    Run dataset download phase.
-
-    Args:
-        benchmarks: List of benchmark names to download.
-        skip: Whether to skip this step.
-
-    Returns:
-        bool: True if successful or skipped, False on failure.
-    """
-    if skip:
-        logger.info("Skipping dataset download as requested.")
-        return True
-
-    logger.info("Starting dataset download phase...")
+def run_download(args: argparse.Namespace):
+    logger.info("Starting Download Stage...")
+    start_time = time.time()
+    start_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    
     try:
-        for benchmark in benchmarks:
-            logger.info(f"Downloading {benchmark} dataset...")
-            if benchmark == 'humaneval':
-                download_human_eval()
-            elif benchmark == 'mbpp':
-                download_mbpp()
-            else:
-                logger.warning(f"Unknown benchmark: {benchmark}, skipping.")
-                continue
+        # Prepare arguments for download module
+        sys.argv = ['download', '--benchmarks'] + args.benchmarks
+        run_download_main()
+    except SystemExit as e:
+        if e.code != 0:
+            raise
+    finally:
+        log_resource_usage("Download", start_time, start_mem)
 
-        logger.info("Dataset download completed successfully.")
-        return True
-    except Exception as e:
-        logger.error(f"Dataset download failed: {e}")
-        return False
+def run_generation(args: argparse.Namespace):
+    logger.info("Starting Generation Stage...")
+    start_time = time.time()
+    start_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-
-def run_generation(models: list, benchmarks: list, skip: bool) -> bool:
-    """
-    Run code generation phase.
-
-    Args:
-        models: List of models to use for generation.
-        benchmarks: List of benchmarks to generate code for.
-        skip: Whether to skip this step.
-
-    Returns:
-        bool: True if successful or skipped, False on failure.
-    """
-    if skip:
-        logger.info("Skipping code generation as requested.")
-        return True
-
-    logger.info("Starting code generation phase...")
-    # Placeholder for generation logic
-    # This will be implemented in code/generate.py
-    # For now, we simulate the step to ensure the pipeline structure works
     try:
-        for model in models:
-            for benchmark in benchmarks:
-                logger.info(f"Generating code for {model} on {benchmark}...")
-                # TODO: Call actual generation function from code/generate.py
-                # generate_code(model, benchmark)
-                logger.info(f"Generation completed for {model} on {benchmark}.")
+        # Prepare arguments for generation module
+        sys.argv = ['generate', '--models'] + args.models + ['--benchmarks'] + args.benchmarks + ['--seed', str(args.seed)]
+        run_generation_main()
+    except SystemExit as e:
+        if e.code != 0:
+            raise
+    finally:
+        log_resource_usage("Generation", start_time, start_mem)
 
-        logger.info("Code generation phase completed successfully.")
-        return True
-    except Exception as e:
-        logger.error(f"Code generation failed: {e}")
-        return False
+def run_analysis(args: argparse.Namespace):
+    logger.info("Starting Analysis Stage...")
+    start_time = time.time()
+    start_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-
-def run_analysis(models: list, benchmarks: list, skip: bool) -> bool:
-    """
-    Run static analysis phase.
-
-    Args:
-        models: List of models whose code was generated.
-        benchmarks: List of benchmarks used.
-        skip: Whether to skip this step.
-
-    Returns:
-        bool: True if successful or skipped, False on failure.
-    """
-    if skip:
-        logger.info("Skipping static analysis as requested.")
-        return True
-
-    logger.info("Starting static analysis phase...")
-    # Placeholder for analysis logic
-    # This will be implemented in code/analyze.py
     try:
-        for model in models:
-            for benchmark in benchmarks:
-                logger.info(f"Running Bandit analysis on {model} - {benchmark}...")
-                # TODO: Call actual analysis function from code/analyze.py
-                # run_bandit_analysis(model, benchmark)
-                logger.info(f"Analysis completed for {model} on {benchmark}.")
+        # Prepare arguments for analysis module
+        sys.argv = ['analyze']
+        run_analysis_main()
+    except SystemExit as e:
+        if e.code != 0:
+            raise
+    finally:
+        log_resource_usage("Analysis", start_time, start_mem)
 
-        logger.info("Static analysis phase completed successfully.")
-        return True
-    except Exception as e:
-        logger.error(f"Static analysis failed: {e}")
-        return False
+def run_statistics(args: argparse.Namespace):
+    logger.info("Starting Statistics Stage...")
+    start_time = time.time()
+    start_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-
-def run_statistics(skip: bool) -> bool:
-    """
-    Run statistical analysis phase.
-
-    Args:
-        skip: Whether to skip this step.
-
-    Returns:
-        bool: True if successful or skipped, False on failure.
-    """
-    if skip:
-        logger.info("Skipping statistical analysis as requested.")
-        return True
-
-    logger.info("Starting statistical analysis phase...")
-    # Placeholder for stats logic
-    # This will be implemented in code/stats.py
     try:
-        logger.info("Running ZINB regression and permutation tests...")
-        # TODO: Call actual stats function from code/stats.py
-        # run_statistical_analysis()
-        logger.info("Statistical analysis completed successfully.")
-        return True
-    except Exception as e:
-        logger.error(f"Statistical analysis failed: {e}")
-        return False
+        # Prepare arguments for stats module
+        sys.argv = ['stats']
+        run_statistics_main()
+    except SystemExit as e:
+        if e.code != 0:
+            raise
+    finally:
+        log_resource_usage("Statistics", start_time, start_mem)
 
-
-def main() -> int:
-    """
-    Main entry point for the pipeline orchestrator.
-
-    Returns:
-        int: Exit code (0 for success, 1 for failure).
-    """
+def main():
     args = parse_args()
+    
+    # Initialize config and paths
+    config = get_config()
+    set_seed(args.seed)
+    ensure_directories()
+    paths = get_paths()
 
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    logger.info("========================================")
-    logger.info("Starting LLM Code Vulnerability Density Pipeline")
-    logger.info("========================================")
+    logger.info(f"Pipeline started with seed: {args.seed}")
     logger.info(f"Models: {args.models}")
     logger.info(f"Benchmarks: {args.benchmarks}")
-    logger.info(f"Seed: {args.seed}")
+    logger.info(f"Max CPU Limit: {MAX_CPU_HOURS}h, Max Memory Limit: {MAX_MEMORY_GB}GB")
 
-    start_time = time.time()
-
-    # Step 1: Download datasets
-    if not run_download(args.benchmarks, args.skip_download):
-        logger.error("Pipeline failed at dataset download step.")
-        return 1
-
-    # Step 2: Generate code
-    if not run_generation(args.models, args.benchmarks, args.skip_generation):
-        logger.error("Pipeline failed at code generation step.")
-        return 1
-
-    # Step 3: Analyze vulnerabilities
-    if not run_analysis(args.models, args.benchmarks, args.skip_analysis):
-        logger.error("Pipeline failed at static analysis step.")
-        return 1
-
-    # Step 4: Statistical analysis
-    if not run_statistics(args.skip_stats):
-        logger.error("Pipeline failed at statistical analysis step.")
-        return 1
-
-    # Compute and store artifact hashes
-    logger.info("Computing and storing artifact hashes...")
     try:
-        hashes = compute_artifact_hashes()
-        store_artifact_hashes(hashes)
-        logger.info("Artifact hashes stored successfully.")
+        if not args.skip_download:
+            run_download(args)
+        
+        if not args.skip_generation:
+            run_generation(args)
+        
+        if not args.skip_analysis:
+            run_analysis(args)
+        
+        if not args.skip_stats:
+            run_statistics(args)
+
+        logger.info("Pipeline completed successfully within resource limits.")
+    except MemoryError as e:
+        logger.error(f"Pipeline halted due to resource constraints: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.warning(f"Failed to store artifact hashes: {e}")
-
-    end_time = time.time()
-    logger.info("========================================")
-    logger.info(f"Pipeline completed successfully in {end_time - start_time:.2f} seconds")
-    logger.info("========================================")
-
-    return 0
-
+        logger.error(f"Pipeline failed with unexpected error: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

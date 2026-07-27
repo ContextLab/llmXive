@@ -77,8 +77,8 @@
 
 - [X] T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.
 - [X] T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.
-- [ ] T014 [US1] Add data quality checks for ≤5% track loss and calibrated eye-tracker status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**: Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if track loss > 5% or uncalibrated.
-- [ ] T015 [US1] Implement valence annotation validation for standardized rating scale and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER` per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.
+- [X] T014 [US1] Add data quality checks for ≤5% track loss and calibrated eye-tracker status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**: Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if track loss > 5% or uncalibrated.
+- [X] T015 [US1] Implement valence annotation validation for standardized rating scale and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER` per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.
 - [ ] T016 [US1] Add logic to halt processing and log error if dataset is incompatible (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required variables`.
 - [ ] T017 [US1] Add logging for data ingestion success rate and quality metrics (SC-001). **Deliverable**: If count of available public datasets == 0, log `DATA_BLOCKER: No verified datasets found` and exit 1. Do NOT calculate percentage. If count > 0, log `Ingestion Success Rate: X%`.
 
@@ -104,11 +104,11 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] **CONDITIONAL: SKIP IF US1 HALTS** Create `lmm_model.py` in `code/analysis/` to compute LMM using `statsmodels` mixedlm (FR-003). **Deliverable**: `output/results/lmm_summary.csv` with columns `metric`, `valence`, `coef`, `p_raw`.
-- [~] T021 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement logic to model attention metrics vs. recall accuracy for each valence category (multiple metrics × multiple categories). **Deliverable**: Loop over combinations, store results.
+- [ ] T021 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement logic to model attention metrics vs. recall accuracy for each valence category (multiple metrics × multiple categories). **Deliverable**: Loop over combinations, store results.
 - [ ] T022 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Create `correction.py` in `code/analysis/` to apply Bonferroni correction across all 9 metric-category combinations (FR-004). **Deliverable**: `output/results/correction_results.json` with `p_corrected`.
-- [~] T023 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep p-values across {0.01, 0.05, 0.1} and report rate variations (FR-006). **Deliverable**: `output/results/sensitivity_analysis.json`. **Note**: Do NOT use learning rates; this is a statistical threshold sweep.
-- [~] T024 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add explicit "associational" labeling to all output results to prohibit causal language (FR-005). **Deliverable**: Append `association_label: "associational"` to all result objects.
-- [~] T025 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add error handling for missing recall scores per participant-passages (Edge Case). **Deliverable**: Log warning, skip missing rows, continue.
+- [ ] T023 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep p-values across {0.01, 0.05, 0.1} and report rate variations (FR-006). **Deliverable**: `output/results/sensitivity_analysis.json`. **Note**: Do NOT use learning rates; this is a statistical threshold sweep.
+- [ ] T024 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add explicit "associational" labeling to all output results to prohibit causal language (FR-005). **Deliverable**: Append `association_label: "associational"` to all result objects.
+- [ ] T025 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add error handling for missing recall scores per participant-passages (Edge Case). **Deliverable**: Log warning, skip missing rows, continue.
 - [~] T026 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement memory-efficient data loading (chunking/sampling) to ensure <7 GB RAM usage (SC-004). **Deliverable**: Use `pd.read_csv(chunksize=...)` or `sample(n=...)`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -156,10 +156,10 @@
 - [~] T046 Code cleanup and refactoring for memory efficiency.
 - [~] T047 Performance optimization to ensure total pipeline <6h runtime (FR-008).
 - [~] T048 [P] Additional unit tests for edge cases (missing data, sensitivity analysis stability) in `tests/unit/`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
-  in "<unicode string>", line 2, column 13:
-        contents: |
-                ^) -->
-- [ ] T049 Run `quickstart.md` validation and verify data gap documentation.
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [~] T049 Run `quickstart.md` validation and verify data gap documentation. <!-- FAILED: unspecified -->
 
 ---
 

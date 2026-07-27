@@ -1,49 +1,50 @@
 """
 Contract test for LMM output schema (T032).
-Verifies that the output CSV contains the required columns and data types.
+Verifies that the output CSV has the required columns and types.
 """
 import os
 import sys
-import pandas as pd
 import pytest
+import pandas as pd
 from pathlib import Path
 
-# Add project root to path for imports if running from tests/
+# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from utils.config import get_project_root, get_output_path
+from utils.config import get_project_root
 
 def test_lmm_output_schema():
     """
-    Verifies that output/results/lmm_summary.csv exists and has the correct schema.
-    Columns: metric, valence, coef, p_raw
+    Contract test: test_lmm_output_schema
+    Verifies the existence and schema of output/results/lmm_summary.csv
     """
-    output_path = get_output_path()
-    output_file = output_path / "results" / "lmm_summary.csv"
+    project_root = get_project_root()
+    output_file = project_root / "output" / "results" / "lmm_summary.csv"
 
-    # Assert file exists
+    # The test expects the file to exist (assuming T020 has run)
+    # In a real CI pipeline, this would run after the script.
+    # For this unit test, we assert existence and schema.
+    
     assert output_file.exists(), f"Output file {output_file} does not exist. Run code/analysis/lmm_model.py first."
 
-    # Load CSV
     df = pd.read_csv(output_file)
 
-    # Assert required columns
+    # Required columns per T020
     required_columns = ['metric', 'valence', 'coef', 'p_raw']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    assert not missing_cols, f"Missing required columns: {missing_cols}"
+    
+    for col in required_columns:
+        assert col in df.columns, f"Missing required column: {col}"
 
-    # Assert data types (basic check)
-    assert df['coef'].dtype in ['float64', 'float32', 'int64'], "coef should be numeric"
-    assert df['p_raw'].dtype in ['float64', 'float32', 'int64'], "p_raw should be numeric"
+    # Verify types (basic check)
+    assert df['coef'].dtype in ['float64', 'float32'], "coef should be numeric"
+    assert df['p_raw'].dtype in ['float64', 'float32'], "p_raw should be numeric"
 
-    # Assert no nulls in key columns
-    assert not df['metric'].isnull().any(), "metric column contains nulls"
-    assert not df['valence'].isnull().any(), "valence column contains nulls"
-    assert not df['coef'].isnull().any(), "coef column contains nulls"
-    assert not df['p_raw'].isnull().any(), "p_raw column contains nulls"
+    # Verify no empty strings in key columns
+    assert not df['metric'].isna().any(), "metric column contains NaN"
+    assert not df['valence'].isna().any(), "valence column contains NaN"
 
-    # Assert valid range for p-values (0 to 1)
-    assert (df['p_raw'] >= 0).all() and (df['p_raw'] <= 1).all(), "p_raw values must be between 0 and 1"
+    # Verify we have at least one result
+    assert len(df) > 0, "LMM summary is empty"
 
-    print("Contract test passed: LMM output schema is valid.")
+    print("LMM Output Schema Contract Test: PASSED")

@@ -88,9 +88,9 @@ expected <block end>, but found '<scalar>'
 - [X] T011 Implement the loader function in `code/download.py` for StarCoder and CodeGen (CPU-only, default precision, no 8-bit/4-bit quantization) to fit ≤7GB RAM. **Note**: Must run sequentially to respect RAM limits; do not load multiple models simultaneously.
 - [X] T012 [US1] Implement `code/generate.py` to select **ALL tasks** from HumanEval and MBPP benchmarks (FR-002) and execute the generation loop. **Logic**: For each task, iterate generation until ≥ 64 valid samples are obtained OR 200 attempts are exhausted. If 200 attempts are exhausted for any task, log the error, flag the dataset as 'insufficient data', and halt the pipeline. **Validation**: Execute benchmark tests on generated samples to determine validity. **Output**: Valid samples saved to `data/generated/{model}/{benchmark}/{task_id}/samples/`.
 - [ ] T013 [US1] Implement `code/analyze.py` to **execute Bandit** on all files in `data/generated/` and `data/human/` using `code/config/bandit_config.yaml`, handling syntax errors by skipping files and logging errors (US-1 Edge Case). **Output**: `data/processed/bandit_raw_reports.json`.
-- [ ] T013b [US1] Implement parsing logic in `code/analyze.py` to read `data/processed/bandit_raw_reports.json` and generate a structured vulnerability report `data/processed/vulnerability_reports.json` containing `file_path`, `cwe_id`, `severity`, and `line_number`.
+- [ ] T013b [US1] Implement parsing logic in `code/analyze.py` to read `data/processed/bandit_raw_reports.json` and generate a structured vulnerability report `data/processed/vulnerability_reports.json` containing `file_path`, `cwe_id`, `severity`, and `line_number`. <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Implement `code/stats.py` to calculate `vulnerability_count` and `lines_of_code` **per sample** (one row per file) from `data/processed/vulnerability_reports.json`, producing `data/processed/raw_vulnerability_counts.csv` (FR-004). Schema: `task_id`, `source_type`, `file_path`, `lines_of_code`, `vulnerability_count`.
-- [ ] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** (LLM) vs **single count per task** (Human) from `data/processed/raw_vulnerability_counts.csv`, producing `data/processed/aggregated_analysis_dataset.csv` (Plan Update: Unit of Analysis = Task).
+- [ ] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** (LLM) vs **single count per task** (Human) from `data/processed/raw_vulnerability_counts.csv`, producing `data/processed/aggregated_analysis_dataset.csv` (Plan Update: Unit of Analysis = Task). <!-- FAILED: unspecified -->
 - [X] T016 [US1] Add error handling in `code/generate.py` to halt and flag dataset as 'insufficient data' if <64 valid samples are obtained after 200 attempts per task (US-1 Acceptance 5).
 - [X] T017 [US1] Add logging for generation failures and static analysis parse errors in `code/generate.py` and `code/analyze.py`.
 
@@ -107,13 +107,13 @@ expected <block end>, but found '<scalar>'
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for ZINB convergence fallback logic in `tests/unit/test_stats.py`
-- [ ] T019 [P] [US2] Integration test for stratified analysis and multiple-comparison correction in `tests/integration/test_statistical_analysis.py`
+- [X] T019 [P] [US2] Integration test for stratified analysis and multiple-comparison correction in `tests/integration/test_statistical_analysis.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/stats.py` (ZINB) to define and fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `data/processed/aggregated_analysis_dataset.csv`. **Note**: Do NOT use `(1|task_id)` as `task_id` is unique per row. **Fallback**: If ZINB fails to converge after 3 attempts, execute a permutation test on raw counts (FR-005, FR-015). **Input**: Raw counts (no FPR adjustment).
+- [ ] T020 [US2] Implement `code/stats.py` (ZINB) to define and fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `data/processed/aggregated_analysis_dataset.csv`. **Note**: Do NOT use `(1|task_id)` as `task_id` is unique per row. **Fallback**: If ZINB fails to converge after 3 attempts, execute a permutation test on raw counts (FR-005, FR-015). **Input**: Raw counts (no FPR adjustment).
 - [X] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID, skip tests if n<5 per group, and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
-- [~] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
+- [ ] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
 - [~] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Output**: `data/processed/fpr_metrics.json`. **Note**: This FPR is reported as a sensitivity metric only; do NOT apply the adjustment formula to the primary outcome.
 - [X] T025 [US2] Implement post-hoc power analysis in `code/stats.py` if valid sample count <64; flag dataset as 'under-powered' if power <0.80 (FR-009).
 - [X] T026 [US2] Implement cross-benchmark (HumanEval vs MBPP) and cross-model (StarCoder vs CodeGen) comparison logic in `code/stats.py` (FR-011, FR-013).
@@ -132,15 +132,15 @@ expected <block end>, but found '<scalar>'
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028 [P] [US3] Unit test for visualization generation in `tests/unit/test_viz.py`
-- [ ] T029 [P] [US3] Contract test for report generation output format in `tests/contract/test_report.py`
+- [X] T029 [P] [US3] Contract test for report generation output format in `tests/contract/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `code/viz.py` to generate boxplots comparing LLM vs. Human vulnerability counts (FR-008).
-- [ ] T031 [US3] Implement `code/viz.py` to generate bar charts for top 5 vulnerability types by frequency per source (FR-008).
-- [ ] T032 [US3] Implement `code/report.py` to generate `results/summary.md` containing key statistics, effect sizes, FPR sensitivity metrics, and paths to generated images (FR-008).
-- [ ] T033 [US3] Ensure report generation reads exclusively from `data/processed` to satisfy Single Source of Truth (Constitution Principle IV).
-- [ ] T034 [US3] Add resource usage logging (CPU time, memory) to `code/main.py` to verify ≤6h / ≤7GB limits (SC-004).
+- [X] T030 [P] [US3] Implement `code/viz.py` to generate boxplots comparing LLM vs. Human vulnerability counts (FR-008).
+- [X] T031 [US3] Implement `code/viz.py` to generate bar charts for top 5 vulnerability types by frequency per source (FR-008).
+- [~] T032 [US3] Implement `code/report.py` to generate `results/summary.md` containing key statistics, effect sizes, FPR sensitivity metrics, and paths to generated images (FR-008).
+- [~] T033 [US3] Ensure report generation reads exclusively from `data/processed` to satisfy Single Source of Truth (Constitution Principle IV).
+- [X] T034 [US3] Add resource usage logging (CPU time, memory) to `code/main.py` to verify ≤6h / ≤7GB limits (SC-004).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,8 +150,8 @@ expected <block end>, but found '<scalar>'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Update `docs/quickstart.md` with instructions to run the full pipeline and reproduce results
-- [ ] T036 Code cleanup and refactoring of `code/stats.py` for readability
+- [X] T035 [P] Update `docs/quickstart.md` with instructions to run the full pipeline and reproduce results
+- [X] T036 Code cleanup and refactoring of `code/stats.py` for readability
 - [ ] T037 Verify reproducibility by running pipeline twice with same seed and checking absolute difference ≤1e-6 in **all derived floating-point outputs** (SC-005).
 - [ ] T038 [P] Run `pytest` suite to ensure all unit and integration tests pass
 - [ ] T039 Security hardening: Verify no PII leakage in logs or generated reports

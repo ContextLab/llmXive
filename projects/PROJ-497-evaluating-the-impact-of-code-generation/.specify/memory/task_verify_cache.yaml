@@ -1,46 +1,53 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `data/`, `results/`, `state/`,\
-    \ `tests/`) being present was provided; without showing that these folders exist\
-    \ (and contain at least placeholder files), the task requirement is not satisfied.\
-    \ The implementer must create and list these project\u2011structure directories."
 T013:
   c: false
-  h: 32248c183e9935e363f2d567acc10af0892dab0e372c14de6832c48cb1821052
-  r: The provided `code/analyze.py` is truncated (ends at `raw_r`) and does not contain
-    the logic to scan all files in `data/generated/` and `data/human/`, aggregate
-    results, or write `data/processed/bandit_raw_reports.json`. Moreover, the required
-    output JSON file is missing from the repository.
+  h: 35e50ccc8795705df7d2ec6a86972e1bd95e997208341a4f73c54a7f54ca2632
+  r: "The repository contains a partially shown `code/analyze.py`, but the file is\
+    \ truncated and does not demonstrate logic that scans both `data/generated/` and\
+    \ `data/human/`, aggregates results, and writes them to `data/processed/bandit_raw_reports.json`.\
+    \ Moreover, the required output file `data/processed/bandit_raw_reports.json`\
+    \ is absent. The task\u2019s core deliverable is therefore not present."
 T013b:
   c: false
-  h: 514b1516ed153f2f66fc28f87df871bceb20b04b70f6ac16c65d0019ff841372
-  r: The repository lacks the required `data/processed/bandit_raw_reports.json` file,
-    and there is no code that reads this file or writes `data/processed/vulnerability_reports.json`.
-    The shown `code/analyze.py` is truncated and does not implement the parsing and
-    generation logic demanded by the task. The necessary artifacts are missing, so
-    the requirement is not met.
+  h: 5a4b52e0dff58d1d7c6c007cd1eb612d577e1becced6cf3d3db2ae2767380411
+  r: "The repository lacks both `data/processed/bandit_raw_reports.json` (input) and\
+    \ `data/processed/vulnerability_reports.json` (output), and the shown `code/analyze.py`\
+    \ snippet does not contain logic that reads the raw JSON and writes the required\
+    \ structured report. Consequently the task\u2019s core requirement is not satisfied."
 T014:
   c: false
-  h: 21ac944af58095872b3b1ee4d80a561813148d5252228d2365a0dfb0a86b52a9
-  r: "The repository lacks the required `data/processed/vulnerability_reports.json`\
-    \ input file and the generated `data/processed/raw_vulnerability_counts.csv` output\
-    \ file. Moreover, the provided `code/stats.py` is truncated and does not demonstrably\
-    \ contain the logic to read the JSON and write the CSV with the specified schema.\
-    \ Without these artifacts, the task\u2019s requirement is not satisfied."
+  h: 047b7850be2f6007c874081dac221644271ab726087ea249ae969f86a102915f
+  r: "The repository lacks the required input `data/processed/vulnerability_reports.json`\
+    \ and the generated output `data/processed/raw_vulnerability_counts.csv`. Moreover,\
+    \ `code/stats.py` is only partially shown, ends abruptly in the middle of a function,\
+    \ and does not contain a clear implementation that reads the JSON report and writes\
+    \ the CSV with the specified columns. The task\u2019s core functionality and artifacts\
+    \ are therefore missing."
 T015:
   c: false
-  h: 6fc0da9ab04a6c7fabb6d46c6d3e4433fd0c4eb6487fd0fb48f74301875b0dae
+  h: e62edfa0203265b9f90985cff252d50c74b86d2e2e87a611f6369e12e1d162ed
   r: "The required input file `data/processed/raw_vulnerability_counts.csv` does not\
     \ exist, and the expected output `data/processed/aggregated_analysis_dataset.csv`\
-    \ is also missing. Without the source data, we cannot confirm that `code/stats.py`\
-    \ actually implements the required aggregation logic or produces the specified\
-    \ CSV. The implementer must provide the raw CSV, run the aggregation to generate\
-    \ the output CSV, and ensure the script contains the correct mean\u2011vs\u2011\
-    single count calculations."
+    \ is also missing. Moreover, the provided `code/stats.py` snippet is truncated\
+    \ and shows no concrete aggregation logic for computing mean vulnerability counts\
+    \ per task. Consequently, the task\u2019s deliverables are not present."
 T019:
   c: false
   h: 5ea5f8496087697594b6b9cbd55895b566c28bfce75905ad13a5a4f1d3ca9b92
   r: "The required integration test file `tests/integration/test_statistical_analysis.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further evidence of the test implementation is provided."
+T020:
+  c: false
+  h: 092d067342ca4606e2017a134d2293d3a1aeab05ab0e558ec9bb16c6c1e33b9a
+  r: The required dataset `data/processed/aggregated_analysis_dataset.csv` is missing,
+    so the script cannot perform the ZINB regression on the specified data. Additionally,
+    the provided `code/stats.py` is truncated and does not show a complete implementation
+    of the ZINB fitting (with the `(1|benchmark)` random effect) or the fallback permutation
+    test. The missing CSV and incomplete code must be added to satisfy the task.
+T022:
+  c: false
+  h: 7f6ebfb42764f6404012e02b35901a1a9f7c5065923aa5c5f39c518a953d0353
+  r: "The repository contains `code/validator.py`, but the file is truncated and does\
+    \ not show the required deterministic stratified sampling, heuristic matching,\
+    \ or CSV writing logic. Moreover, the expected output file `data/processed/validator_flags.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."

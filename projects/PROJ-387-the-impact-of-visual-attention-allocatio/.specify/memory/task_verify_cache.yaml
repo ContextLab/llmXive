@@ -1,0 +1,43 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that demonstrates the ingestion process\
+    \ halting with exit code\u202F1 and emitting the required `DATA_BLOCKER: Missing\
+    \ required variables` message when required columns are absent. The claim lacks\
+    \ any tangible artifact to verify the required behavior."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output was provided that implements the required logging\
+    \ behavior (checking dataset count, logging the `DATA_BLOCKER` message and exiting\
+    \ on zero, or logging `Ingestion Success Rate: X%` on non\u2011zero). Without\
+    \ such artifacts, the task\u2019s deliverable cannot be confirmed as completed."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data artifact was provided that implements a loop over attention\u2011\
+    metric and valence\u2011category combinations and stores the resulting model outputs.\
+    \ The required implementation and stored results are missing."
+T023:
+  c: false
+  h: a856c442ce8e5ef98fa38e988c9c3baedfdafba47db423142b7ff60a7293b7ac
+  r: "The repository contains a partially\u2011implemented `sensitivity.py` but the\
+    \ script\u2019s entry point is truncated and never invokes `run_sensitivity_analysis`\
+    \ with the required thresholds {0.01,\u202F0.05,\u202F0.1}. Moreover, the expected\
+    \ output file `output/results/sensitivity_analysis.json` is absent from the disk.\
+    \ The deliverable is therefore not present and the implementation does not demonstrably\
+    \ meet the task\u2019s specifications."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No artifact showing result objects with an `association_label: "associational"`
+    field was provided; without such output the requirement of appending the label
+    to all results is not demonstrated.'
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, script, or log output that implements error handling for missing\
+    \ recall scores, logs a warning, skips the problematic rows, and continues processing.\
+    \ Consequently, the required artifact (the implemented error\u2011handling logic)\
+    \ is missing."

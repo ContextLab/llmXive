@@ -1,19 +1,9 @@
-? "T014 [US1] Add data quality checks for \u22645% track loss and calibrated eye-tracker\
-  \ status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**:\
-  \ Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if\
-  \ track loss > 5% or uncalibrated."
-: 2
-? 'T015 [US1] Implement valence annotation validation for standardized rating scale
-  and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution
-  VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER`
-  per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.'
-: 2
-? 'T016 [US1] Add logic to halt processing and log error if dataset is incompatible
-  (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required
-  variables`.'
-: 2
-? 'T017 [US1] Add logging for data ingestion success rate and quality metrics (SC-001).
-  **Deliverable**: If count of available public datasets == 0, log `DATA_BLOCKER:
-  No verified datasets found` and exit 1. Do NOT calculate percentage. If count >
-  0, log `Ingestion Success Rate: X%`.'
-: 2
+T016: 1
+T017: 1
+T020: 1
+T021: 1
+T022: 1
+T023: 1
+T024: 1
+T025: 1
+T043: 1
