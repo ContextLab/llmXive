@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T22:19:44.995297Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-175-statistical-analysis-of-publicly-availab
-last_run_id: 7c335056-b185-4a04-bda2-9390047dd0da
+last_run_id: d10f4e77-3254-48f2-9512-54bc1c077a59
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Recipe Data for Ingredient Substitution
   Prediction
-updated_at: '2026-07-27T15:10:14.614700Z'
+updated_at: '2026-07-27T15:13:06.986867Z'

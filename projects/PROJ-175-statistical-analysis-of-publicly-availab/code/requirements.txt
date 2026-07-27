@@ -10,5 +10,4 @@ tqdm
 huggingface_hub
 sentence-transformers
 psutil
-arviz
 torch

@@ -9,68 +9,88 @@ import time
 import subprocess
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-LOGS_DIR = DATA_DIR
+# Ensure project root is in path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-def run_script():
-    """Execute the logistic regression fitting script."""
-    script_path = PROJECT_ROOT / "code" / "models" / "fit_logistic.py"
-    output_log_path = LOGS_DIR / "model_fitting_log.json"
-
+def run_script(script_name, args=None):
+    """
+    Runs a specific script and logs the result.
+    """
+    cmd = [sys.executable, str(project_root / "code" / script_name)]
+    if args:
+        cmd.extend(args)
+    
+    print(f"Running: {' '.join(cmd)}")
     start_time = time.time()
-    status = "SUCCESS"
-    error_msg = None
-
+    
     try:
-        # Check memory limit before running
-        # We assume the script itself handles memory checks, but we log here too
-        result = subprocess.run(
-            [sys.executable, str(script_path)],
-            capture_output=True,
-            text=True,
-            cwd=str(PROJECT_ROOT)
-        )
-
-        if result.returncode != 0:
-            status = "FAILED"
-            error_msg = result.stderr
-            print(f"Script failed with return code {result.returncode}")
-            print(f"Error: {error_msg}")
-        else:
-            print("Script executed successfully")
-            print(result.stdout)
-
-    except Exception as e:
-        status = "FAILED"
-        error_msg = str(e)
-        print(f"Exception occurred: {e}")
-
-    end_time = time.time()
-    duration = end_time - start_time
-
-    log_entry = {
-        "task_id": "T022",
-        "status": status,
-        "duration_seconds": duration,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "script_path": str(script_path),
-        "error": error_msg
-    }
-
-    # Ensure logs directory exists
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-    with open(output_log_path, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-
-    print(f"Log saved to {output_log_path}")
-
-    if status == "FAILED":
-        sys.exit(1)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        elapsed = time.time() - start_time
+        return {
+            "status": "SUCCESS",
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "elapsed_seconds": elapsed
+        }
+    except subprocess.CalledProcessError as e:
+        elapsed = time.time() - start_time
+        return {
+            "status": "FAILED",
+            "returncode": e.returncode,
+            "stdout": e.stdout,
+            "stderr": e.stderr,
+            "elapsed_seconds": elapsed
+        }
 
 def main():
-    run_script()
+    print("Executing Model Fitting Phase...")
+    
+    log_entries = []
+    
+    # Step 1: Fit Logistic Regression (T022)
+    # This script handles Null and Full models
+    print("\n--- Step 1: Logistic Regression Fit (T022) ---")
+    res_logistic = run_script("models/fit_logistic.py")
+    log_entries.append({
+        "step": "fit_logistic",
+        "task_id": "T022",
+        "result": res_logistic
+    })
+    
+    # Step 2: Fit Bayesian Model (T025) - CPU only enforcement handled inside script
+    # Note: T025 depends on T050 (CPU check). We run it here if T022 succeeded.
+    if res_logistic["status"] == "SUCCESS":
+        print("\n--- Step 2: Bayesian Model Fit (T025) ---")
+        res_bayesian = run_script("models/fit_bayesian.py")
+        log_entries.append({
+            "step": "fit_bayesian",
+            "task_id": "T025",
+            "result": res_bayesian
+        })
+    else:
+        log_entries.append({
+            "step": "fit_bayesian",
+            "task_id": "T025",
+            "result": {"status": "SKIPPED", "reason": "Logistic fit failed"}
+        })
+
+    # Save Execution Log
+    log_path = project_root / "data" / "model_fitting_log.json"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'w') as f:
+        json.dump({
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "executions": log_entries
+        }, f, indent=2)
+    
+    print(f"\nModel fitting log saved to {log_path}")
+    
+    # Exit with error if critical steps failed
+    if res_logistic["status"] == "FAILED":
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

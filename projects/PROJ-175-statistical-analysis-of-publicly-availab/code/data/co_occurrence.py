@@ -1,152 +1,228 @@
 """
-Co-occurrence Matrix Construction (Task T015).
+Task T015: Co-occurrence Matrix Construction
 
-Builds global matrix C with log-transform using epsilon from T049.
-Output: data/processed/co_occurrence_matrix.parquet
+Builds the global co-occurrence matrix C from processed ingredient pairs.
+Applies log-transform with epsilon smoothing derived from T049.
+Outputs data/processed/co_occurrence_matrix.parquet.
 """
 import os
 import sys
 import json
-import gc
-import time
-from pathlib import Path
-
 import pandas as pd
+from pathlib import Path
 import numpy as np
+from tqdm import tqdm
 
-# Ensure project root is in path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports if run as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.utils.memory_monitor import check_memory_limit
-
-OUTPUT_DIR = Path("data/processed")
-INPUT_PAIRS = Path("data/processed/ingredient_pairs.parquet")
-EPSILON_CONFIG = Path("data/zero_handling_log.json")
-OUTPUT_FILE = Path("data/processed/co_occurrence_matrix.parquet")
-
-
-def load_epsilon():
+def load_epsilon_config():
     """Load epsilon value from T049 configuration."""
-    if not EPSILON_CONFIG.exists():
-        raise FileNotFoundError(f"Configuration file not found: {EPSILON_CONFIG}. Run T049 first.")
+    config_path = PROJECT_ROOT / "data" / "zero_handling_log.json"
+    if not config_path.exists():
+        raise FileNotFoundError(
+            f"Zero handling log not found at {config_path}. "
+            "Run T049 to generate epsilon configuration."
+        )
     
-    with open(EPSILON_CONFIG, 'r') as f:
+    with open(config_path, "r") as f:
         config = json.load(f)
     
-    # Expecting a key 'epsilon' or similar in the zero handling log
-    epsilon = config.get('epsilon', 1e-6)
-    return float(epsilon)
-
+    if "epsilon" not in config:
+        raise ValueError("Epsilon value not found in zero_handling_log.json")
+    
+    return config["epsilon"]
 
 def load_ingredient_pairs():
     """
-    Load the ingredient pairs dataframe.
-    Expects a parquet file with columns: ingredient_a, ingredient_b, count (or frequency).
+    Load the normalized ingredient pairs from T014/T013 processing.
+    Expects data/processed/ingredient_pairs.parquet or .csv.
     """
-    if not INPUT_PAIRS.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_PAIRS}. Run T013/T014 first.")
+    parquet_path = PROJECT_ROOT / "data" / "processed" / "ingredient_pairs.parquet"
+    csv_path = PROJECT_ROOT / "data" / "processed" / "ingredient_pairs.csv"
     
-    df = pd.read_parquet(INPUT_PAIRS)
+    if parquet_path.exists():
+        df = pd.read_parquet(parquet_path)
+    elif csv_path.exists():
+        df = pd.read_csv(csv_path)
+    else:
+        raise FileNotFoundError(
+            f"Ingredient pairs file not found. "
+            f"Expected {parquet_path} or {csv_path}. "
+            "Run T014 preprocessing first."
+        )
     
     # Validate required columns
-    required_cols = ['ingredient_a', 'ingredient_b', 'count']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Input file missing required columns: {missing}")
+    required_cols = ["ingredient_a", "ingredient_b", "co_occurrence_count"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in ingredient pairs: {missing_cols}")
     
     return df
 
-
-def build_co_occurrence_matrix(df, epsilon):
+def build_cooccurrence_matrix(df, epsilon):
     """
     Build the global co-occurrence matrix C and apply log-transform.
     
-    C_ij = log(count_ij + epsilon)
+    C_log = log(C + epsilon)
     
-    Returns a DataFrame where index and columns are ingredient IDs,
-    and values are log-transformed co-occurrence counts.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with ingredient_a, ingredient_b, co_occurrence_count
+    epsilon : float
+        Smoothing parameter for log transform
+    
+    Returns
+    -------
+    pd.DataFrame
+        Matrix in long format: ingredient_a, ingredient_b, log_co_occurrence
     """
-    print(f"Building co-occurrence matrix from {len(df):,} pairs...")
+    # Create unique ingredient list
+    all_ingredients = pd.concat([df["ingredient_a"], df["ingredient_b"]]).unique()
+    ingredient_to_idx = {ing: idx for idx, ing in enumerate(all_ingredients)}
+    n_ingredients = len(all_ingredients)
     
-    # Check memory before heavy operation
-    check_memory_limit(limit_mb=6144)
+    print(f"Building co-occurrence matrix for {n_ingredients} unique ingredients...")
     
-    # Pivot to create the matrix
-    # We assume 'count' is the frequency of co-occurrence
-    matrix = df.pivot_table(
-        index='ingredient_a', 
-        columns='ingredient_b', 
-        values='count', 
-        fill_value=0
-    )
+    # Initialize sparse matrix using dictionary for memory efficiency
+    # We'll store only non-zero entries
+    cooccurrence_dict = {}
     
-    # Ensure symmetric matrix (co-occurrence is usually symmetric)
-    # If the source data is already symmetric, this is redundant but safe.
-    # If not, we take the max or sum. Here we assume the pivot handles one direction
-    # and we mirror it if the transpose exists, or just fill missing with 0.
-    # To be robust: if the dataset contains (A, B) but not (B, A), we should fill.
-    # The pivot_table with fill_value=0 handles missing entries.
+    # Process in chunks to monitor memory
+    chunk_size = 100000
+    total_rows = len(df)
     
-    # Check memory after pivot
-    check_memory_limit(limit_mb=6144)
+    for start_idx in tqdm(range(0, total_rows, chunk_size), desc="Processing pairs"):
+        chunk = df.iloc[start_idx:start_idx + chunk_size]
+        
+        for _, row in chunk.iterrows():
+            ing_a = row["ingredient_a"]
+            ing_b = row["ingredient_b"]
+            count = row["co_occurrence_count"]
+            
+            # Skip zero counts if any
+            if count <= 0:
+                continue
+            
+            # Store symmetric pairs (only one direction in dict, expand later)
+            pair_key = tuple(sorted([ing_a, ing_b]))
+            if pair_key not in cooccurrence_dict:
+                cooccurrence_dict[pair_key] = count
+            else:
+                # Sum counts if same pair appears multiple times
+                cooccurrence_dict[pair_key] += count
     
-    # Apply log transform: log(count + epsilon)
-    # Add epsilon to avoid log(0)
-    matrix = np.log(matrix + epsilon)
+    # Convert to DataFrame
+    rows = []
+    for (ing_a, ing_b), count in cooccurrence_dict.items():
+        rows.append({
+            "ingredient_a": ing_a,
+            "ingredient_b": ing_b,
+            "raw_co_occurrence": count,
+            "log_co_occurrence": np.log(count + epsilon)
+        })
     
-    print(f"Matrix shape: {matrix.shape}")
-    print(f"Min value: {matrix.min().min():.4f}, Max value: {matrix.max().max():.4f}")
+    result_df = pd.DataFrame(rows)
     
-    return matrix
+    # Log statistics
+    print(f"Matrix built: {len(result_df)} unique ingredient pairs")
+    print(f"Log transform applied with epsilon={epsilon}")
+    print(f"Log co-occurrence range: [{result_df['log_co_occurrence'].min():.4f}, {result_df['log_co_occurrence'].max():.4f}]")
+    
+    return result_df
 
-
-def save_matrix(matrix, output_path):
-    """Save the matrix to parquet."""
+def save_output(df, output_path):
+    """
+    Save the co-occurrence matrix to parquet format.
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with log_co_occurrence
+    output_path : Path
+        Path to save the parquet file
+    """
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    matrix.to_parquet(output_path, index=True)
-    print(f"Saved co-occurrence matrix to {output_path}")
-
+    
+    # Save to parquet
+    df.to_parquet(output_path, index=False)
+    
+    print(f"Co-occurrence matrix saved to {output_path}")
+    print(f"Shape: {df.shape}")
+    print(f"Columns: {list(df.columns)}")
+    
+    # Log metadata
+    metadata = {
+        "output_file": str(output_path),
+        "num_pairs": len(df),
+        "columns": list(df.columns),
+        "log_co_occurrence_stats": {
+            "min": float(df["log_co_occurrence"].min()),
+            "max": float(df["log_co_occurrence"].max()),
+            "mean": float(df["log_co_occurrence"].mean()),
+            "std": float(df["log_co_occurrence"].std())
+        }
+    }
+    
+    metadata_path = output_path.parent / "co_occurrence_matrix_metadata.json"
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+    
+    return metadata
 
 def main():
-    """Main entry point for T015."""
-    start_time = time.time()
+    """Main execution function for T015."""
+    print("=" * 60)
+    print("Task T015: Building Co-occurrence Matrix with Log Transform")
+    print("=" * 60)
+    
+    # Ensure processed directory exists
+    processed_dir = PROJECT_ROOT / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
     try:
-        # 1. Load Epsilon
-        epsilon = load_epsilon()
-        print(f"Using epsilon: {epsilon}")
+        # Step 1: Load epsilon configuration from T049
+        print("\n[1/3] Loading epsilon configuration...")
+        epsilon = load_epsilon_config()
+        print(f"✓ Epsilon loaded: {epsilon}")
         
-        # 2. Load Ingredient Pairs
-        df = load_ingredient_pairs()
-        print(f"Loaded {len(df):,} ingredient pairs.")
+        # Step 2: Load ingredient pairs from preprocessing
+        print("\n[2/3] Loading ingredient pairs...")
+        df_pairs = load_ingredient_pairs()
+        print(f"✓ Loaded {len(df_pairs)} ingredient pairs")
         
-        # 3. Build Matrix
-        matrix = build_co_occurrence_matrix(df, epsilon)
+        # Step 3: Build co-occurrence matrix with log transform
+        print("\n[3/3] Building co-occurrence matrix...")
+        df_matrix = build_cooccurrence_matrix(df_pairs, epsilon)
         
-        # 4. Save Output
-        save_matrix(matrix, OUTPUT_FILE)
+        # Step 4: Save output
+        output_path = processed_dir / "co_occurrence_matrix.parquet"
+        metadata = save_output(df_matrix, output_path)
         
-        elapsed = time.time() - start_time
-        print(f"T015 completed successfully in {elapsed:.2f} seconds.")
+        print("\n" + "=" * 60)
+        print("T015 COMPLETED SUCCESSFULLY")
+        print("=" * 60)
+        print(f"Output: {output_path}")
+        print(f"Pairs processed: {metadata['num_pairs']}")
+        
+        return 0
         
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
+        print(f"\n✗ ERROR: {e}")
+        print("Prerequisite tasks may not have completed successfully.")
+        return 1
     except ValueError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
-    except MemoryError as e:
-        print(f"ERROR: Memory limit exceeded: {e}")
-        sys.exit(1)
+        print(f"\n✗ ERROR: {e}")
+        return 1
     except Exception as e:
-        print(f"ERROR: Unexpected error during T015: {e}")
+        print(f"\n✗ UNEXPECTED ERROR: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)
-    finally:
-        gc.collect()
-
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

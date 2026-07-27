@@ -1,6 +1,6 @@
 """
-Execution Wrapper for T029.
-Orchestrates the metrics calculation step.
+Execution wrapper for T029: Metrics Calculation.
+Ensures the evaluation script runs and writes its output to the correct location.
 """
 import os
 import sys
@@ -10,56 +10,64 @@ import logging
 from pathlib import Path
 
 # Add project root to path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT_DIR))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from evaluation.metrics import main as run_metrics
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(ROOT_DIR / "data" / "evaluation_log.json", mode='w')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def run_evaluation_step() -> bool:
+def run_evaluation_step():
     """
-    Runs the metrics calculation step.
-    Returns True if successful, False otherwise.
+    Executes the metrics calculation script.
     """
-    logger.info("Starting Evaluation Step (T029)")
+    print("Starting Evaluation Step (T029)...")
     start_time = time.time()
-
+    
     try:
         run_metrics()
-        end_time = time.time()
-        duration = end_time - start_time
-        logger.info(f"Evaluation Step completed successfully in {duration:.2f} seconds.")
-        return True
-    except Exception as e:
-        logger.error(f"Evaluation Step failed: {e}", exc_info=True)
+        
+        # Verify output exists
+        output_file = PROJECT_ROOT / "data" / "evaluation_metrics.json"
+        if not output_file.exists():
+            raise FileNotFoundError("Evaluation metrics file was not created.")
+        
         end_time = time.time()
         duration = end_time - start_time
         
-        # Log failure to the JSON log file
         log_entry = {
-            "step": "T029_Metrics_Calculation",
+            "task": "T029",
+            "status": "SUCCESS",
+            "duration_seconds": duration,
+            "output_file": str(output_file.relative_to(PROJECT_ROOT))
+        }
+        
+        # Write execution log
+        log_path = PROJECT_ROOT / "data" / "evaluation_log.json"
+        with open(log_path, 'w') as f:
+            json.dump(log_entry, f, indent=2)
+        
+        print(f"Evaluation step completed successfully in {duration:.2f}s.")
+        return 0
+        
+    except Exception as e:
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        log_entry = {
+            "task": "T029",
             "status": "FAILED",
             "error": str(e),
-            "duration_seconds": duration,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S")
+            "duration_seconds": duration
         }
-        log_file = ROOT_DIR / "data" / "evaluation_log.json"
-        with open(log_file, "w") as f:
+        
+        log_path = PROJECT_ROOT / "data" / "evaluation_log.json"
+        with open(log_path, 'w') as f:
             json.dump(log_entry, f, indent=2)
-        return False
+        
+        print(f"Evaluation step failed: {e}")
+        return 1
 
 def main():
-    success = run_evaluation_step()
-    sys.exit(0 if success else 1)
+    sys.exit(run_evaluation_step())
 
 if __name__ == "__main__":
     main()

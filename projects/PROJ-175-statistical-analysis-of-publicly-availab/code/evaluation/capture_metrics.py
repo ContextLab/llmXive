@@ -1,101 +1,76 @@
-"""
-Metrics Capture Module
-Consolidates all metrics into final validation report.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
+from datetime import datetime
 
-# Ensure parent is in path
-if str(Path(__file__).parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+FINAL_DIR = DATA_DIR / "final"
+LOG_DIR = DATA_DIR / "logs"
 
 def load_json_safe(path: Path) -> Optional[Dict]:
-    """Load JSON file safely."""
     if not path.exists():
         return None
     try:
         with open(path, 'r') as f:
             return json.load(f)
-    except:
+    except json.JSONDecodeError:
         return None
 
-def extract_pipeline_metrics(log_path: Path) -> Dict:
-    """Extract pipeline execution metrics."""
+def extract_pipeline_metrics() -> Dict:
+    log_path = LOG_DIR / "pipeline_execution_log.json"
     data = load_json_safe(log_path)
     if not data:
-        return {"status": "UNKNOWN", "duration": 0}
-    if isinstance(data, list):
-        return data[-1] if data else {"status": "UNKNOWN"}
-    return data
+        return {"status": "unknown", "steps": []}
+    return {"status": "completed", "steps_count": len(data)}
 
-def extract_logistic_metrics(log_path: Path) -> Dict:
-    """Extract logistic regression metrics."""
-    return load_json_safe(log_path) or {}
+def extract_logistic_metrics() -> Dict:
+    path = FINAL_DIR / "logistic_results.json"
+    return load_json_safe(path) or {}
 
-def extract_bayesian_metrics(log_path: Path) -> Dict:
-    """Extract Bayesian model metrics."""
-    return load_json_safe(log_path) or {}
+def extract_bayesian_metrics() -> Dict:
+    path = FINAL_DIR / "bayesian_results.json"
+    return load_json_safe(path) or {}
 
-def extract_vif_metrics(log_path: Path) -> Dict:
-    """Extract VIF metrics."""
-    return load_json_safe(log_path) or {}
+def extract_vif_metrics() -> Dict:
+    path = DATA_DIR / "vif_scores_initial.json"
+    return load_json_safe(path) or {}
 
-def extract_auc_delta_metrics(log_path: Path) -> Dict:
-    """Extract AUC delta metrics."""
-    return load_json_safe(log_path) or {}
+def extract_auc_delta_metrics() -> Dict:
+    path = DATA_DIR / "auc_delta_metrics.json"
+    return load_json_safe(path) or {}
 
-def extract_lrt_vif_corrected(log_path: Path) -> Dict:
-    """Extract LRT/VIF corrected metrics."""
-    return load_json_safe(log_path) or {}
+def extract_calibration_results() -> Dict:
+    path = DATA_DIR / "calibration_test_results.json"
+    return load_json_safe(path) or {}
 
-def extract_bayesian_convergence(log_path: Path) -> Dict:
-    """Extract Bayesian convergence metrics."""
-    return load_json_safe(log_path) or {}
-
-def extract_vif_test_set(log_path: Path) -> Dict:
-    """Extract VIF test set metrics."""
-    return load_json_safe(log_path) or {}
-
-def extract_calibration_results(log_path: Path) -> Dict:
-    """Extract calibration results."""
-    return load_json_safe(log_path) or {}
-
-def generate_final_validation_report(output_path: Path):
-    """Generate final validation report from all metrics."""
-    project_root = Path(__file__).parent.parent.parent
-    data_dir = project_root / "data"
+def generate_final_validation_report():
+    """
+    Aggregates all metrics into data/evaluation_log.json
+    """
+    print("Generating final validation report...")
     
     report = {
-        "pipeline": extract_pipeline_metrics(data_dir / "pipeline_execution_log.json"),
-        "logistic": extract_logistic_metrics(data_dir / "final" / "logistic_results.json"),
-        "bayesian": extract_bayesian_metrics(data_dir / "final" / "bayesian_results.json"),
-        "vif": extract_vif_metrics(data_dir / "vif_scores_initial.json"),
-        "auc_delta": extract_auc_delta_metrics(data_dir / "auc_delta_metrics.json"),
-        "bayesian_convergence": extract_bayesian_convergence(data_dir / "bayesian_convergence_log.json"),
-        "vif_test": extract_vif_test_set(data_dir / "vif_test_set.json"),
-        "calibration": extract_calibration_results(data_dir / "calibration_test_results.json")
+        "timestamp": datetime.now().isoformat(),
+        "pipeline": extract_pipeline_metrics(),
+        "logistic_model": extract_logistic_metrics(),
+        "bayesian_model": extract_bayesian_metrics(),
+        "vif": extract_vif_metrics(),
+        "auc_delta": extract_auc_delta_metrics(),
+        "calibration": extract_calibration_results()
     }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    output_path = DATA_DIR / "evaluation_log.json"
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    
+    print(f"Final validation report saved to {output_path}")
 
 def main():
-    """Main entry point for metrics capture."""
-    parser = argparse.ArgumentParser(description="Capture final metrics")
-    parser.add_argument('--output', type=str, default='data/final_validation_report.json')
-    args = parser.parse_args()
-    
-    output_path = Path(args.output)
-    
-    print("Generating final validation report...")
-    generate_final_validation_report(output_path)
-    
-    print("Metrics capture completed successfully.")
+    generate_final_validation_report()
 
 if __name__ == "__main__":
     import argparse

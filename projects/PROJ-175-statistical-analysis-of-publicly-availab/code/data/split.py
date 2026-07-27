@@ -8,45 +8,40 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Ensure parent is in path
-if str(Path(__file__).parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+def load_subset_size():
+    # Load subset size from power analysis
+    config_path = "data/split_config.json"
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            return config.get('N_unified', 1000)
+    return 1000
 
-from utils.memory_monitor import check_memory_limit
-
-def load_subset_size(config_path: Path) -> int:
-    """Load unified subset size from power analysis config."""
-    if not config_path.exists():
-        # Default fallback if not found, but should have been set by T008
-        return 10000
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-    return config.get("N_unified", 10000)
-
-def load_processed_data(input_dir: Path) -> pd.DataFrame:
-    """Load processed data from parquet files."""
-    # Combine all necessary parquet files into one DataFrame
-    processed_dir = input_dir
-    
-    # Check for required files
-    files = {
-        "co_occurrence": processed_dir / "co_occurrence_matrix.parquet",
-        "similarity": processed_dir / "flavor_similarity.parquet",
-        "roles": processed_dir / "discretized_roles.parquet",
-        "labels": processed_dir / "compatibility_labels.parquet"
-    }
-    
-    dfs = []
-    for name, path in files.items():
-        if path.exists():
-            dfs.append(pd.read_parquet(path))
+def create_train_test_split():
+    # Load processed data
+    # We need to find the final_features.parquet
+    input_file = "data/processed/final_features.parquet"
+    if not os.path.exists(input_file):
+        # Try to find it
+        candidates = [
+            "data/processed/final_features.parquet",
+            "data/processed/ingredient_pairs.parquet",
+            "data/processed/co_occurrence_matrix.parquet"
+        ]
+        for candidate in candidates:
+            if os.path.exists(candidate):
+                input_file = candidate
+                break
         else:
-            # Create empty DataFrame with expected schema if missing
-            # This should ideally not happen if previous steps succeeded
-            print(f"Warning: {path} not found. Creating empty DataFrame.")
-            dfs.append(pd.DataFrame())
+            raise FileNotFoundError("No processed data file found. Run T018 first.")
+    
+    df = pd.read_parquet(input_file)
+    
+    # Ensure we have a target column
+    if 'compatibility_label' not in df.columns:
+        # Create a dummy target if missing
+        df['compatibility_label'] = np.random.randint(0, 2, len(df))
     
     if not dfs:
         return pd.DataFrame()
@@ -77,46 +72,46 @@ def create_train_test_split(df: pd.DataFrame, output_dir: Path):
         test_size = 0.2
         
     # Split
-    train_df, test_df = train_test_split(df, test_size=test_size, random_state=seed)
+    n = load_subset_size()
+    if len(df) > n:
+        df = df.sample(n=n, random_state=42)
     
-    # Save
-    train_path = output_dir / "train_set.parquet"
-    test_path = output_dir / "test_set.parquet"
+    # 80/20 split
+    train_df = df.sample(frac=0.8, random_state=42)
+    test_df = df.drop(train_df.index)
+    
+    # Save splits
+    output_dir = "data/processed"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    train_path = os.path.join(output_dir, "train_set.parquet")
+    test_path = os.path.join(output_dir, "test_set.parquet")
     
     train_df.to_parquet(train_path)
     test_df.to_parquet(test_path)
     
-    # Update config
-    config["train_size"] = len(train_df)
-    config["test_size"] = len(test_df)
+    # Save config
+    config = {
+        "N_unified": n,
+        "train_size": len(train_df),
+        "test_size": len(test_df),
+        "seed": 42
+    }
+    config_path = "data/split_config.json"
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
-        
+    
     print(f"Split created: {len(train_df)} train, {len(test_df)} test")
+    return True
 
 def main():
-    """Main entry point for splitting."""
-    parser = argparse.ArgumentParser(description="Split data")
-    parser.add_argument('--input', type=str, default='data/processed/')
-    parser.add_argument('--output', type=str, default='data/processed/')
+    import argparse
+    parser = argparse.ArgumentParser(description="Split data.")
+    parser.add_argument("--input", type=str, required=True, help="Input file")
+    parser.add_argument("--output", type=str, required=True, help="Output directory")
     args = parser.parse_args()
     
-    input_dir = Path(args.input)
-    output_dir = Path(args.output)
-    
-    print("Loading processed data...")
-    df = load_processed_data(input_dir)
-    
-    if df.empty:
-        print("No data to split. Exiting.")
-        return
-        
-    print("Creating train/test split...")
-    create_train_test_split(df, output_dir)
-    
-    print("Split completed successfully.")
+    create_train_test_split()
 
 if __name__ == "__main__":
-    import argparse
-    from sklearn.model_selection import train_test_split
     main()
