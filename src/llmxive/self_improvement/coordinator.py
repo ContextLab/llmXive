@@ -6,9 +6,11 @@ effect (US2) is a later slice."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from pathlib import Path
 from typing import Any
 
-from llmxive.self_improvement.events import Event
+from llmxive.self_improvement.events import COORDINATOR_STREAM, Event, derive_event_id
+from llmxive.self_improvement.lane_log import LaneLogConfig, append, read
 
 _COORDINATOR_TYPES = {"ClaimAcquired", "ClaimReleased", "MonitorStarted", "PromotionEnabledSet"}
 
@@ -91,4 +93,86 @@ def project_coordinator(events: list[Event]) -> LaneCoordinator:
     return c
 
 
-__all__ = ["EMPTY_COORDINATOR", "LaneCoordinator", "project_coordinator"]
+def _coord_event(event_type: str, idem: tuple[str, ...], payload: dict, actor: str,
+                 timestamp: str, attempt_id: str) -> Event:
+    """One coordinator event with a DETERMINISTIC id, so a re-invoked operation rebuilds
+    the same event rather than minting a second record of the same decision.
+
+    The revision anchors and ``seq`` are deliberately left unset: the store stamps all of
+    them inside the CAS from the verified parent (see ``lane_log._finalize``), and a value
+    fixed out here would be a guess about a revision we have not yet won."""
+    return Event(
+        event_id=derive_event_id(COORDINATOR_STREAM, "\x00".join(idem)), event_type=event_type,
+        problem_id=COORDINATOR_STREAM, actor=actor, payload=payload, timestamp=timestamp,
+        attempt_id=attempt_id,
+    )
+
+
+def _already_landed(events: list[Event], event_id: str) -> bool:
+    return any(e.event_id == event_id for e in events)
+
+
+def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
+              config: LaneLogConfig | None = None) -> LaneCoordinator:
+    """Take the lane's singleton claim for ``(problem_id, attempt_id)``, or raise
+    :class:`LaneRevisionConflict` if another Problem holds it (or the lane revision moved
+    under us — the caller recomputes and retries or yields; it NEVER forces).
+
+    Re-invoking with the same pair is idempotent: the event id is derived from
+    ``("claim", problem_id, attempt_id)``, so a retry after a lost acknowledgement finds
+    its own record and returns the same projection instead of appending a second claim.
+    That rests on Attempt ids being single-use, which spec 025 guarantees — a crashed
+    Attempt is a FAILED Attempt and its successor gets a new id."""
+    events = read(repo, COORDINATOR_STREAM, config=config)
+    revision = project_coordinator(events).lane_revision
+    event = _coord_event("ClaimAcquired", ("claim", problem_id, attempt_id),
+                         {"problem_id": problem_id, "attempt_id": attempt_id},
+                         actor, timestamp, attempt_id)
+
+    def _idle_or_landed(evs: list[Event]) -> tuple[bool, str]:
+        if _already_landed(evs, event.event_id):
+            return (True, "")  # this exact claim already landed → idempotent
+        active = project_coordinator(evs).active_problem_id
+        return (active is None, "" if active is None else f"lane occupied by {active!r}")
+
+    append(repo, event, expected_revision=revision, precondition=_idle_or_landed, config=config)
+    return project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
+
+
+def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
+                config: LaneLogConfig | None = None) -> LaneCoordinator:
+    """Release the lane's claim, or raise :class:`LaneRevisionConflict` if
+    ``(problem_id, attempt_id)`` does not own it.
+
+    The ownership check is what stops a DELAYED release from clearing someone else's
+    claim: a caller that still believes it holds the lane cannot evict the Attempt that
+    actually does. A release whose own record already landed is idempotent — it is
+    reporting a fact, not requesting a change, so it neither appends a second record nor
+    fails; the returned projection shows whoever holds the lane now, which may be another
+    Attempt."""
+    events = read(repo, COORDINATOR_STREAM, config=config)
+    revision = project_coordinator(events).lane_revision
+    event = _coord_event("ClaimReleased", ("release", problem_id, attempt_id),
+                         {"problem_id": problem_id, "attempt_id": attempt_id},
+                         actor, timestamp, attempt_id)
+
+    def _owns_or_landed(evs: list[Event]) -> tuple[bool, str]:
+        if _already_landed(evs, event.event_id):
+            return (True, "")  # this exact release already landed → idempotent
+        c = project_coordinator(evs)
+        owns = (c.active_problem_id, c.active_attempt_id) == (problem_id, attempt_id)
+        return (owns, "" if owns else
+                f"release owner mismatch: active={c.active_problem_id!r}/"
+                f"{c.active_attempt_id!r}, releasing {problem_id!r}/{attempt_id!r}")
+
+    append(repo, event, expected_revision=revision, precondition=_owns_or_landed, config=config)
+    return project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
+
+
+__all__ = [
+    "EMPTY_COORDINATOR",
+    "LaneCoordinator",
+    "cas_claim",
+    "cas_release",
+    "project_coordinator",
+]
