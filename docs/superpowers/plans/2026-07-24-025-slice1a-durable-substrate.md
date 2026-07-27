@@ -1436,7 +1436,7 @@ def counting_total(reservations: dict[str, AttemptReservation]) -> float:
 
 **Interfaces:**
 - Produces: `class AttemptCreditLedger` implementing the slice-0 `ReservationAuthority`. Constructor `(*, repo, problem_id, attempt_id, attempt_budget_credits, call_ceiling, actor, clock, config=LaneLogConfig())`; holds a `threading.Lock`.
-  **Forward reference (round-5 F1):** as written here the budget is constructor-local, which lets a second worker present a larger one. **Task 13** binds both limits to a durable `AttemptConfigured` record and rewrites this constructor to enforce `bind_attempt_config(...).attempt_budget_credits`; the `call_ceiling` parameter above exists because ONE record binds both. Implement Task 7 as specified, then apply Task 13's change — Task 13 carries the regression test. `reserve(credits, *, reservation_id, call_id) -> bool` — **first validates the amount** (round-7 F1: finite, not `bool`, strictly `> 0`, else `ValueError` — NOT `False`, which would look like a routine budget skip); then, under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. The in-process `Lock` makes the concurrent PANEL (one process, one shared ledger instance) atomic (US1 scenario 5); the ref-CAS + budget-recheck precondition makes CROSS-clone reservers safe.
+  **Forward reference (round-5 F1):** as written here the budget is constructor-local, which lets a second worker present a larger one. **Task 13** binds both limits to a durable `AttemptConfigured` record and rewrites this constructor to enforce `bind_attempt_config(...).attempt_budget_credits`; the `call_ceiling` parameter above exists because ONE record binds both. Implement Task 7 as specified, then apply Task 13's change — Task 13 carries the regression test. `reserve(credits, *, reservation_id, call_id) -> bool` — **first validates the amount** (round-7 F1: finite, not `bool`, strictly `> 0`, else `ValueError` — NOT `False`, which would look like a routine budget skip); then, under the lock, a bounded retry loop: project the Attempt's reservations from `read(problem_id)`; same `(credits, call_id)` under an existing id → `True` (idempotent); different identity → `raise ValueError` (integrity); `counting_total + credits > budget` → `False`; else `append` an `AttemptCreditReserved` event (`expected_revision = len(read)`) with a precondition re-checking the budget against fresh events (so a **cross-clone** competitor that consumed the budget flips this to `False` on recompute); on `LaneRevisionConflict` retry; after the cap `raise LaneContention`. **Corrected during implementation:** the ref-CAS + budget-recheck precondition is what makes overspending impossible — in-process AND cross-clone. Verified by removing the `Lock`: both the shared-ledger panel test and the two-clone race still hold. The `Lock` is a CONTENTION measure (without it every thread in a wide panel reads, builds, loses the ref-CAS and retries — quadratic churn that can exhaust the retry budget and report `LaneContention` for mere crowding). Describe it that way; do not claim it as the safety mechanism.
 - Consumes: `LaneContention` from `lane_log.py` (Task 3) — the shared "the CAS never converged" condition, defined ONCE beside `LaneRevisionConflict` because both ledgers (and any later CAS user) raise it. Do NOT redeclare it per module.
 
 - [ ] **Steps:** Tests: (0) **amount validation (F1)** — `reserve(-1)`, `reserve(0)`, `reserve(nan)`, `reserve(inf)`, `reserve(-inf)`, `reserve(True)` each raise `ValueError` BEFORE any append, and leave both the reservation projection and the remaining budget byte-for-byte unchanged (assert `project_reservations(read(...))` is empty and a subsequent honest `reserve` for the FULL budget still succeeds); (1) within-budget True / over-budget False / at-budget True; (2) idempotent same identity; (3) conflicting identity raises; (4) `ThreadPoolExecutor(2)` sharing one ledger, budget admits one → exactly one `True`; (5) **barrier-driven two-clone race** (F6): two clones of one bare remote both reserving the last credits, each syncing the same parent then released together by a `threading.Barrier` — the ref-CAS + budget-recheck admits at most the remaining budget (the loser recomputes and returns `False`, never both `True`). RED (`ImportError`) → GREEN. Commit `feat(025 slice-1A T7): AttemptCreditLedger.reserve — lock + ref-CAS budget guard + collision`.
@@ -1486,7 +1486,17 @@ The reserve body (append-with-budget-precondition + retry):
                     return (counting_total(r) + _c <= self._budget, "precondition: over budget")
 
                 try:
-                    append(self._repo, event, expected_revision=len(events),
+                    # AS SHIPPED: expected_revision=None, not len(events). A revision CAS
+                    # here compares the length of the WHOLE per-Problem stream, which also
+                    # carries Task 10's unconditional audit appends — so a busy route would
+                    # spend reserve's retry budget losing to events with no bearing on
+                    # money, then raise LaneContention on the money path. The budget
+                    # precondition is the actual invariant and is recomputed inside every
+                    # CAS attempt. This also makes the precondition the DECIDING check, so
+                    # the two-clone race test genuinely proves it: with the budget check
+                    # stubbed out, that test fails (with `expected_revision=len(events)` it
+                    # passed either way, proving only the revision comparison).
+                    append(self._repo, event, expected_revision=None,
                            precondition=_budget_ok, config=self._config)
                     return True
                 except LaneRevisionConflict:
@@ -1570,6 +1580,11 @@ def test_release_versus_retain_race_exactly_one_transition_lands(repo):
         "AttemptCreditRetained": frozenset({STATE_OPEN}),
         "AttemptCreditReconciled": frozenset({STATE_RETAINED}),
     }
+
+    # NOTE (as shipped): `_FROM_STATES` is NOT declared — it would DUPLICATE the policy.
+    # Its content is exactly `{et: _TRANSITIONS[et].keys()}`, and two copies of the legal
+    # edges can drift into a state where the CAS admits a transition the projection then
+    # rejects. `_cas_append` reads `_TRANSITIONS[event_type]` directly.
 
     def _cas_append(self, event_type: str, idem: tuple[str, ...], payload: dict) -> None:
         rid = str(payload["reservation_id"])
