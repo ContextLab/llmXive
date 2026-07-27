@@ -54,14 +54,14 @@
   verification_status: pending
   verified_against_url: https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/
   verified_at: '2026-07-24T12:00:42.563129Z'
-- artifact_hash: b809191c1bf5e8ea64bf90568f7c847c6b53700b4fee96fca9b5175f6b7de747
+- artifact_hash: d76142240793ccdf38b83962424feb8706e423e36e962739aa387010dfb30ccf
   artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: False - Wikidata
   kind: url
-  value: https://...`
-  verification_status: unreachable
-  verified_against_url: https://
-  verified_at: '2026-07-26T11:20:10.911381Z'
+  value: https://www.wikidata.org/wiki/Q105812849
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q105812849
+  verified_at: '2026-07-27T15:53:51.315502Z'

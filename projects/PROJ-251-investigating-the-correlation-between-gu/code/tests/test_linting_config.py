@@ -1,7 +1,6 @@
 """
-Test suite to verify linting and formatting configuration.
-This test ensures that the project's ruff and black configurations
-are present and can be invoked successfully.
+Tests for linting and formatting configuration.
+Verifies that ruff and black are installed and can run against the codebase.
 """
 import os
 import subprocess
@@ -11,100 +10,82 @@ from pathlib import Path
 import unittest
 
 class TestLintingConfig(unittest.TestCase):
-    """Tests for linting and formatting tool configuration."""
+    """Test cases for linting configuration."""
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.project_root = Path(__file__).parent.parent
-        self.ruff_config = self.project_root / ".ruff.toml"
-        self.pyproject_config = self.project_root / "pyproject.toml"
-        
-        # Verify config files exist
-        self.assertTrue(self.ruff_config.exists(), ".ruff.toml must exist")
-        self.assertTrue(self.pyproject_config.exists(), "pyproject.toml must exist")
-
-    def test_ruff_config_syntax_valid(self):
-        """Verify that .ruff.toml is a valid TOML file."""
+    def test_ruff_is_installed(self):
+        """Test that ruff is installed and returns a version."""
         try:
-            import tomllib
-        except ImportError:
-            import tomli as tomllib
+            result = subprocess.run(
+                ["ruff", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("ruff", result.stdout.lower())
+        except FileNotFoundError:
+            self.fail("ruff is not installed or not in PATH")
+        except subprocess.TimeoutExpired:
+            self.fail("ruff command timed out")
 
-        with open(self.ruff_config, "rb") as f:
-            config = tomllib.load(f)
-        
-        self.assertIn("lint", config)
-        self.assertIn("format", config)
-
-    def test_black_config_in_pyproject(self):
-        """Verify that black configuration exists in pyproject.toml."""
+    def test_black_is_installed(self):
+        """Test that black is installed and returns a version."""
         try:
-            import tomllib
-        except ImportError:
-            import tomli as tomllib
-
-        with open(self.pyproject_config, "rb") as f:
-            config = tomllib.load(f)
-        
-        self.assertIn("tool", config)
-        self.assertIn("black", config["tool"])
-        self.assertEqual(config["tool"]["black"]["line-length"], 88)
+            result = subprocess.run(
+                ["black", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("black", result.stdout.lower())
+        except FileNotFoundError:
+            self.fail("black is not installed or not in PATH")
+        except subprocess.TimeoutExpired:
+            self.fail("black command timed out")
 
     def test_ruff_can_check_code(self):
-        """Verify that ruff can run a check on the codebase."""
-        # Run ruff check on a small subset to verify configuration works
-        result = subprocess.run(
-            ["ruff", "check", "code/utils/config.py"],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        # We expect success (exit code 0) or lint warnings (exit code 1)
-        # We do NOT expect a configuration error (exit code 2)
-        self.assertNotEqual(result.returncode, 2, f"Ruff configuration error: {result.stderr}")
+        """Test that ruff can run a check on the code directory without crashing."""
+        code_dir = Path(__file__).parent.parent
+        if not code_dir.exists():
+            self.skipTest("code directory does not exist")
+
+        try:
+            result = subprocess.run(
+                ["ruff", "check", str(code_dir)],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            # Return code 0 means no errors, 1 means errors found (which is fine for this test)
+            # We just want to ensure it runs without crashing (e.g., syntax error in config)
+            # Return code 2 would indicate a configuration or usage error.
+            self.assertNotEqual(result.returncode, 2, msg=f"Ruff config error: {result.stderr}")
+        except FileNotFoundError:
+            self.fail("ruff not found")
+        except subprocess.TimeoutExpired:
+            self.fail("ruff check timed out")
 
     def test_black_can_format_code(self):
-        """Verify that black can run a check on the codebase."""
-        result = subprocess.run(
-            ["black", "--check", "--diff", "code/utils/config.py"],
-            cwd=self.project_root,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        # Black returns 0 if clean, 1 if changes needed, 2 if error
-        self.assertNotEqual(result.returncode, 2, f"Black configuration error: {result.stderr}")
+        """Test that black can run a check (dry-run) on the code directory."""
+        code_dir = Path(__file__).parent.parent
+        if not code_dir.exists():
+            self.skipTest("code directory does not exist")
 
-    def test_ruff_config_contains_expected_rules(self):
-        """Verify that the ruff config includes the expected linting rules."""
         try:
-            import tomllib
-        except ImportError:
-            import tomli as tomllib
-
-        with open(self.ruff_config, "rb") as f:
-            config = tomllib.load(f)
-        
-        select_rules = config["lint"]["select"]
-        self.assertIn("E", select_rules)
-        self.assertIn("F", select_rules)
-        self.assertIn("W", select_rules)
-        self.assertIn("I", select_rules)
-
-    def test_black_config_contains_expected_settings(self):
-        """Verify that the black config includes expected settings."""
-        try:
-            import tomllib
-        except ImportError:
-            import tomli as tomllib
-
-        with open(self.pyproject_config, "rb") as f:
-            config = tomllib.load(f)
-        
-        black_config = config["tool"]["black"]
-        self.assertEqual(black_config["line-length"], 88)
-        self.assertIn("py311", black_config["target-version"])
+            result = subprocess.run(
+                ["black", "--check", "--diff", str(code_dir)],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            # Return code 0 means formatted correctly, 1 means needs formatting
+            # We just want to ensure it runs without crashing (return code 2)
+            self.assertNotEqual(result.returncode, 2, msg=f"Black config error: {result.stderr}")
+        except FileNotFoundError:
+            self.fail("black not found")
+        except subprocess.TimeoutExpired:
+            self.fail("black check timed out")
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,23 +1,15 @@
+# Extends the configuration in pyproject.toml for specific file overrides if needed
+# or can be used as a standalone config if pyproject.toml is not preferred.
+# Currently, we rely on pyproject.toml for the main configuration.
+# This file ensures ruff looks for config in the root if pyproject.toml is missing.
+
+extend = "pyproject.toml"
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
+# Additional project-specific ignores can be added here
+ignore = []
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+# Allow unused imports in test files for setup purposes
+"code/tests/*.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]

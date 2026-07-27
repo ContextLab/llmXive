@@ -1,17 +1,32 @@
+# Core Data Science & Statistics
 pandas>=2.0.0
 numpy>=1.24.0
-scipy>=1.10.0
-scikit-learn>=1.2.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# Configuration & Utilities
 pyyaml>=6.0
-requests>=2.28.0
-biom-format>=2.1.14
-sra-tools>=3.0.0
-qiime2>=2023.7.0
-dada2>=1.28.0
+requests>=2.31.0
 python-dotenv>=1.0.0
-statsmodels>=0.14.0
-jsonschema>=4.17.0
-psutil>=5.9.0
+
+# Bioinformatics (Biological Data Formats)
+biom-format>=2.1.16
+
+# SRA & QIIME2 Tools (Runtime dependencies)
+# Note: sra-tools (prefetch, fasterq-dump) and qiime2 are typically installed via conda/mamba
+# as they require specific system libraries. They are listed here for documentation purposes
+# or if installed via pip in specific environments, but the conda environment is preferred.
+# If pip installation is required, use:
+# sra-tools>=3.0.0
+# qiime2>=2023.9.0  # Note: QIIME2 is primarily distributed via conda.
+
+# Validation
+jsonschema>=4.19.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Linting & Formatting (Development)
 ruff>=0.1.0
 black>=23.0.0
-pytest>=7.0.0
