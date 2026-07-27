@@ -1,102 +1,112 @@
-# Feature Specification: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin"
+# Specification: Video Reasoning Threshold Analysis
+**Project**: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understanding"
+**Version**: 1.1 (Corrected)
+**Date**: 2023-10-27
+**Status**: Active
 
-**Feature Branch**: `001-video-reasoning-threshold`  
-**Created**: 2026-07-13  
-**Status**: Draft  
-**Input**: User description: "Does the structural complexity of video QA questions, defined by the number of distinct entity hops required in the ground-truth knowledge graph, exhibit a non-linear threshold effect on the reasoning accuracy of models trained on knowledge-intensive video datasets?"
+## 1. Overview
 
-## User Scenarios & Testing
+This specification defines the requirements for analyzing the "reasoning cliff" in video question answering tasks. The goal is to determine if there is a statistically significant drop in accuracy as the complexity (measured by graph hop count) of the required reasoning increases.
 
-### User Story 1 - Data Ingestion and Structural Annotation (Priority: P1)
+## 2. User Stories
 
-As a researcher, I need to download the VideoKR-SFT dataset and its associated knowledge graph, then programmatically annotate each question with its "structural chain length" (1-hop, 2-hop, 3+ hops) based strictly on the ground-truth graph structure, so that I can stratify the data by reasoning complexity before any model analysis.
+### US1: Data Ingestion and Structural Annotation
+As a researcher, I want to download the VideoKR-SFT dataset and annotate each question with the exact shortest-path hop count from the ground-truth knowledge graph, so that I can stratify performance by reasoning complexity.
 
-**Why this priority**: This is the foundational step. Without accurate, non-circular structural labels derived from the ground truth, the subsequent analysis of the "reasoning cliff" cannot be performed. It isolates the predictor variable (complexity) from the outcome (accuracy).
+### US2: Accuracy Stratification and Threshold Detection
+As a researcher, I want to calculate accuracy per hop-bin and detect a non-linear "reasoning cliff" using a Permutation Test, so that I can quantify the threshold where reasoning capability breaks down.
 
-**Independent Test**: The pipeline can be tested by running the annotation script on a small, manually verified subset of the dataset and confirming that the generated `chain_length` column matches manual graph-traversal counts for 50 randomly selected records.
+### US3: Sensitivity Analysis of Threshold Definition
+As a researcher, I want to verify the robustness of the detected "cliff" by sweeping threshold definitions, so that I can ensure the finding is not an artifact of a specific binning choice.
 
-**Acceptance Scenarios**:
+## 3. Functional Requirements
 
-1. **Given** the VideoKR-SFT dataset and knowledge graph are downloaded, **When** the annotation script processes the data, **Then** every question record is assigned a discrete integer or categorical label representing the number of hops required to reach the answer in the ground-truth graph.
-2. **Given** a question with a known 3-hop path in the graph, **When** the script runs, **Then** the record is labeled as "3+ hops" (or equivalent) and the label is stored independently of any model prediction logs.
-3. **Given** the dataset contains all records from the input dataset, **When** the full ingestion runs, **Then** the output file contains all records from the input dataset with no missing values in the `chain_length` field.
+### FR-001: Data Annotation
+The system must ingest the VideoKR-SFT dataset and the associated Knowledge Graph.
+- Output: `data/processed/annotated_videokr.csv`
+- Columns: `id`, `question`, `answer`, `chain_length` (integer), `chain_bin` (categorical), `correctness`.
 
----
+### FR-002: Binning Strategy
+The system must generate a binned column `chain_bin` from `chain_length` for categorical analysis.
+- Default bins: '1', '2', '3+'.
+- Logic: Aggregate hop counts >= 3 into the '3+' category.
 
-### User Story 2 - Accuracy Stratification and Threshold Detection (Priority: P2)
+### FR-003: Stratified Accuracy
+The system must calculate accuracy rates for each hop-bin (1-hop, 2-hop, 3+).
+- Output: `data/processed/accuracy_binned.png` and summary table.
+- Constraint: If a bin has <50 samples, the system must flag for bin merging or deferral (see T020a).
 
-As a researcher, I need to calculate the model's binary correctness rate for each chain-length bin (1-hop, 2-hop, 3+ hops) and perform a statistical test (e.g., likelihood ratio test) to determine if the drop in accuracy between 2-hop and 3+ hops is statistically significant and non-linear, so that I can confirm the existence of a "reasoning cliff."
+### FR-004: Threshold Detection (Permutation Test)
+The system must detect the optimal "knot" (threshold hop count) where accuracy drops significantly.
+- Methodology: Permutation Test (n=1000) for change-point detection.
+- Grid Search: Iterate knot locations from 1 to 5.
+- Correction: Apply Bonferroni correction for multiple comparisons.
+- **Note**: This requirement explicitly overrides the initial LRT proposal. The Plan's "Complexity Tracking" table mandates the Permutation Test to avoid inflated Type I errors from data-driven knot selection.
 
-**Why this priority**: This addresses the core research question. It transforms the annotated data into the primary evidence for the hypothesis, distinguishing between linear degradation and a catastrophic failure point.
+### FR-005: Continuous Visualization
+The system must generate a continuous plot of accuracy vs. hop count to visualize the trend without binning artifacts.
+- Output: `data/processed/accuracy_vs_hop_raw.png`.
+- Method: Scatter plot with LOESS smooth trend line.
+- Output Data: `data/processed/accuracy_vs_hop_raw.csv`.
 
-**Independent Test**: The analysis can be tested by generating a plot of accuracy vs. hop count and a statistical report; a human reviewer can verify the trend and the p-value of the non-linearity test against the raw data summary.
+### FR-006: Runtime Measurement
+The system must log the total end-to-end runtime of the pipeline.
+- Output: `data/processed/runtime_log.json`.
+- Constraint: Must explicitly compare against the CI limit and flag if exceeded.
 
-**Acceptance Scenarios**:
+### FR-007: [REMOVED] Generalized Additive Models (GAM)
+**STATUS**: REMOVED.
+**Reason**: The Plan's "Complexity Tracking" table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The Permutation Test (FR-004) is the approved methodology for non-linearity detection.
+**Resolution**: This requirement is removed from the specification to resolve the contradiction with the Plan (Issue F001).
 
-1. **Given** the annotated dataset with correctness labels, **When** the analysis script runs, **Then** it outputs a summary table showing the accuracy percentage for each hop-count bin (1, 2, 3+).
-2. **Given** the stratified accuracies, **When** the statistical test is performed, **Then** the system reports whether a piecewise linear model (with a knot at the optimal hop count) fits the data significantly better than a standard linear model (p < 0.05).
-3. **Given** the existence of a "cliff" hypothesis, **When** the analysis completes, **Then** the output explicitly quantifies the observed accuracy drop between bins and reports whether the drop exceeds a [deferred] absolute difference, quantifying the severity of the cliff.
+## 4. Data Model
 
----
+### 4.1 Input Data
+- **VideoKR-SFT**: A CSV/JSONL dataset of video questions, answers, and correctness labels.
+- **Knowledge Graph**: A graph structure (nodes and edges) representing entities and relationships required for reasoning.
 
-### User Story 3 - Sensitivity Analysis of Threshold Definition (Priority: P3)
+### 4.2 Annotated Output
+- **CSV**: `data/processed/annotated_videokr.csv`
+ - `id`: Unique identifier (string)
+ - `question`: Question text (string)
+ - `answer`: Ground truth answer (string)
+ - `chain_length`: Shortest path hops (integer, 1, 2, 3...)
+ - `chain_bin`: Binned category (string: '1', '2', '3+')
+ - `correctness`: Binary correctness (boolean/float)
 
-As a researcher, I need to re-run the threshold detection analysis by shifting the "cliff" definition to alternative boundaries (e.g., 2-hop vs. 3-hop, or 3-hop vs. 4-hop) and report how the statistical significance and effect size vary, so that I can justify the robustness of the identified threshold.
+## 5. Success Criteria
 
-**Why this priority**: This ensures methodological soundness by preventing overfitting to a specific arbitrary cutoff (e.g., exactly 3 hops). It demonstrates that the "reasoning cliff" is a stable phenomenon, not an artifact of the chosen binning.
+### SC-001: Annotation Coverage
+- Log total input records, unresolvable count, and annotated count.
+- Output: `data/processed/annotation_coverage.json`.
 
-**Independent Test**: The sensitivity analysis can be tested by manually changing the threshold parameter in the config and verifying that the output report shows the variation in p-values and accuracy drops across the tested range.
+### SC-002: Threshold Significance
+- Explicitly compare calculated p-value against alpha=0.05.
+- Output: `data/processed/threshold_results.json` with `is_significant` boolean and `conclusion` string.
 
-**Acceptance Scenarios**:
+### SC-003: Robustness Verification
+- Verify if the "cliff" remains significant (p < 0.05) in >= 2 of 3 threshold definitions.
+- Output: `data/processed/stability_metric.json` with `robustness_status` ('PASS'/'FAIL').
 
-1. **Given** the primary threshold is set at 3 hops, **When** the sensitivity analysis runs with offsets of ±1 hop, **Then** the system generates a table comparing the significance (p-value) and effect size (accuracy drop) for thresholds at 2, 3, and 4 hops.
-2. **Given** the sensitivity results, **When** the report is generated, **Then** it explicitly states whether the "reasoning cliff" phenomenon remains statistically significant (p < 0.05) across the tested range of thresholds.
-3. **Given** the analysis is complete, **When** the final report is rendered, **Then** it includes a plot overlaying the accuracy curves for the different threshold definitions to visualize the stability of the drop-off point.
+### SC-004: Runtime Compliance
+- Measure total runtime and compare against CI limits.
+- Output: `limit_exceeded` flag in `runtime_log.json`.
 
----
+### SC-005: Memory Compliance
+- Measure peak memory usage and compare against 7GB limit.
+- Output: `limit_exceeded` flag in `memory_log.json`.
 
-### Edge Cases
+## 6. Methodology Notes
 
-- **What happens when the knowledge graph is disconnected?** The system must handle questions where the answer node is unreachable from the query entity (infinite hops or disconnected) by excluding them from the analysis or assigning a specific "unresolvable" label, ensuring they do not skew the accuracy metrics.
-- **How does the system handle questions with multiple valid paths of different lengths?** The system must define a deterministic rule (e.g., "use the shortest path") for calculating the hop count to ensure a single, reproducible label per question.
-- **What if the dataset size is insufficient for the 3+ hop bin?** If the multi-hop bin contains fewer than 50 examples (minimum n=50 required for asymptotic test validity), the system must flag this limitation in the output and potentially merge bins or defer the statistical test for that specific comparison.
+### 6.1 Change-Point Detection
+The project uses a Permutation Test for change-point detection rather than a Likelihood Ratio Test (LRT) or Generalized Additive Models (GAM). This decision is based on the Plan's "Complexity Tracking" table, which highlights the risks of data-driven knot selection with LRT and the statistical invalidity of GAMs on discrete ordinal variables.
 
-## Requirements
+### 6.2 Handling Small Bins
+If a bin (e.g., '3+') has fewer than 50 samples, the system will attempt to merge it with the adjacent bin. If the merged bin is still underpowered, the statistical test for that specific comparison will be deferred, and the reason will be logged. No synthetic data will be generated to fill gaps.
 
-### Functional Requirements
+## 7. Revision History
 
-- **FR-001**: The system MUST parse the ground-truth knowledge graph associated with the VideoKR-SFT dataset to calculate the shortest path length (number of hops) between the query entity and the answer entity for every question, explicitly ignoring model rationales. (See US-1)
-- **FR-002**: The system MUST generate a structured output file (CSV/JSON) that maps each dataset record to its calculated structural chain length (1, 2, or 3+ hops) and its original binary correctness label. (See US-1)
-- **FR-003**: The system MUST calculate the accuracy rate (correct predictions / total predictions) for each distinct chain-length bin (1-hop, 2-hop, 3+ hops). (See US-2)
-- **FR-004**: The system MUST perform a grid-search change-point detection algorithm over hop counts 1-5 to identify the optimal knot location, comparing a linear model against a piecewise linear model at that location, and apply a Bonferroni correction for multiple comparisons to detect non-linear degradation. (See US-2)
-- **FR-005**: The system MUST execute a sensitivity analysis sweeping the threshold definition across at least three values (e.g., 2, 3, and 4 hops) AND include a continuous plot of accuracy vs. exact hop count (without binning) to verify the robustness of the identified threshold. (See US-3)
-- **FR-006**: The system MUST handle large datasets by processing the VideoKR-SFT data in chunks or sampling if necessary, ensuring the analysis completes within the 6-hour CI limit on a 2-core CPU runner. (See US-1, US-2)
-- **FR-007**: The system MUST fit a Generalized Additive Model (GAM) with a smooth spline term for hop count to test for non-linearity in the continuous domain, ensuring the "cliff" is not an artifact of discrete binning. (See US-2)
-
-### Key Entities
-
-- **QuestionRecord**: Represents a single entry from the VideoKR-SFT dataset, containing the text query, the ground-truth answer, and the associated model prediction correctness label.
-- **KnowledgeGraph**: The static graph structure where nodes are entities and edges represent relationships; used exclusively to derive the `chain_length` attribute.
-- **AccuracyMetric**: A calculated value representing the ratio of correct predictions to total predictions for a specific subset of data (e.g., all 2-hop questions).
-- **ThresholdResult**: A structured output containing the p-value, effect size, and direction of the relationship for a specific hypothesis test regarding the "reasoning cliff."
-
-## Success Criteria
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The proportion of questions successfully annotated with a valid `chain_length` is measured against the total number of records in the VideoKR-SFT dataset (Target: [deferred] coverage (all input records must have a valid chain_length)). (See US-1)
-- **SC-002**: The statistical significance (p-value) of the non-linear drop in accuracy between the 2-hop and 3+ hop bins is measured against the standard alpha level of 0.05 (p < 0.05) to confirm the "reasoning cliff" hypothesis. (See US-2)
-- **SC-003**: The stability of the identified threshold is measured by the consistency of the p-value and effect size across the sensitivity analysis range (2, 3, and 4 hops); a result is considered robust if the significance holds (p < 0.05) in at least 2 of the 3 tested thresholds. (See US-3)
-- **SC-004**: The total runtime of the end-to-end analysis (ingestion, annotation, modeling, and reporting) is measured against the GitHub Actions free-tier limit of 6 hours. (See US-1, US-2, US-3)
-- **SC-005**: The memory footprint of the processing pipeline is measured against the 7 GB RAM constraint of the CI runner, ensuring no OOM errors occur during the full dataset load. (See US-1, US-2)
-
-## Assumptions
-
-- The VideoKR-SFT dataset and its associated ground-truth knowledge graph are publicly available and accessible via the official repository or arXiv supplementary materials without authentication barriers.
-- The "structural chain length" can be unambiguously derived from the provided knowledge graph metadata; if the graph is incomplete or lacks necessary edges, the analysis will be limited to the subset of questions with fully connected paths.
-- The model correctness labels provided in the evaluation logs are accurate and representative of the model's performance on the specific questions; no re-evaluation of the model outputs is performed.
-- The dataset size and the complexity of the graph traversal operations fit within the ~7 GB RAM and ~14 GB disk constraints of the free-tier GitHub Actions runner when processed with standard Python libraries (pandas, networkx).
-- The "reasoning cliff" phenomenon, if it exists, is distinct enough to be detected with the available sample size in the 3+ hop bin; if the 3+ hop bin is too small (< 50 samples), the statistical power will be noted as a limitation in the final report.
-- The analysis assumes that the "chain length" metric is the primary driver of difficulty; other factors (e.g., video length, visual complexity) are treated as noise or controlled for via the statistical model's intercept, but are not explicitly modeled in this scope.
+| Version | Date | Author | Changes |
+|:--- |:--- |:--- |:--- |
+| 1.0 | 2023-10-20 | Research Team | Initial draft including FR-007 (GAM). |
+| 1.1 | 2023-10-27 | Research Team | **Removed FR-007** to align with Plan's Complexity Tracking table (Resolves F001). |

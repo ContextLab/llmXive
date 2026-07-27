@@ -1,68 +1,124 @@
-"""Stratify accuracy by hop bin."""
+"""
+Module: stratify_accuracy
+
+Purpose:
+    Calculates accuracy rates for different hop-count bins to analyze
+    the relationship between reasoning depth and model performance.
+
+Functions:
+    - load_annotated_data: Loads the annotated dataset.
+    - bin_hop_length: Bins the hop lengths.
+    - calculate_accuracy_by_bin: Calculates accuracy per bin.
+    - write_results: Writes results to a file.
+    - main: Entry point for the script.
+"""
 import csv
 import json
 import logging
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from utils.config import get_project_root, get_path, ensure_dir
 
-def load_annotated_data(input_path: Union[str, Path]) -> List[Dict[str, Any]]:
-    """Load annotated data from CSV file."""
-    data = []
-    with open(input_path, "r") as f:
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def load_annotated_data(file_path: Path) -> list:
+    """
+    Loads the annotated dataset from a CSV file.
+
+    Args:
+        file_path (Path): Path to the CSV file.
+
+    Returns:
+        list: List of records.
+    """
+    records = []
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            data.append(row)
-    return data
+            records.append(row)
+    return records
 
-def bin_hop_length(chain_length: int) -> str:
-    """Bin hop length into categories."""
-    if chain_length == 1:
-        return "1"
-    elif chain_length == 2:
-        return "2"
+def bin_hop_length(hop_count: int) -> str:
+    """
+    Bins the hop length into categories.
+
+    Args:
+        hop_count (int): The hop count.
+
+    Returns:
+        str: The bin label.
+    """
+    if hop_count <= 1:
+        return '1'
+    elif hop_count == 2:
+        return '2'
     else:
-        return "3+"
+        return '3+'
 
-def calculate_accuracy_by_bin(data: List[Dict[str, Any]]) -> Dict[str, Dict[str, int]]:
-    """Calculate accuracy for each hop bin."""
-    bin_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {"correct": 0, "total": 0})
+def calculate_accuracy_by_bin(records: list) -> dict:
+    """
+    Calculates accuracy for each bin.
 
-    for row in data:
-        chain_length = int(row.get("chain_length", 0))
-        bin_label = bin_hop_length(chain_length)
-        bin_stats[bin_label]["total"] += 1
-        if row.get("correctness") == "correct":
-            bin_stats[bin_label]["correct"] += 1
+    Args:
+        records (list): List of annotated records.
 
-    return dict(bin_stats)
+    Returns:
+        dict: Accuracy per bin.
+    """
+    bin_stats = defaultdict(lambda: {'correct': 0, 'total': 0})
 
-def write_results(results: Dict[str, Dict[str, int]], output_path: Union[str, Path]) -> None:
-    """Write accuracy results to JSON file."""
-    output_path = Path(output_path)
-    ensure_dir(output_path.parent)
+    for record in records:
+        hop = int(record.get('chain_length', -1))
+        bin_label = bin_hop_length(hop)
+        is_correct = record.get('correctness', 'False').lower() == 'true'
 
-    accuracy_results = {}
-    for bin_label, stats in results.items():
-        accuracy = stats["correct"] / stats["total"] if stats["total"] > 0 else 0.0
-        accuracy_results[bin_label] = {
-            "accuracy": accuracy,
-            "correct": stats["correct"],
-            "total": stats["total"]
+        bin_stats[bin_label]['total'] += 1
+        if is_correct:
+            bin_stats[bin_label]['correct'] += 1
+
+    results = {}
+    for bin_label, stats in bin_stats.items():
+        accuracy = stats['correct'] / stats['total'] if stats['total'] > 0 else 0.0
+        results[bin_label] = {
+            'accuracy': accuracy,
+            'count': stats['total']
         }
 
-    with open(output_path, "w") as f:
-        json.dump(accuracy_results, f, indent=2)
+    return results
 
-def main() -> None:
-    """Main entry point for accuracy stratification."""
-    input_path = get_path("data/processed/annotated_videokr.csv")
-    output_path = get_path("data/processed/stratified_accuracy.json")
+def write_results(results: dict, output_path: Path):
+    """
+    Writes results to a JSON file.
 
-    data = load_annotated_data(input_path)
-    results = calculate_accuracy_by_bin(data)
+    Args:
+        results (dict): Results to write.
+        output_path (Path): Output file path.
+    """
+    ensure_dir(output_path.parent)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+def main():
+    """
+    Main entry point for the stratify_accuracy script.
+    """
+    logger.info("Stratifying accuracy by hop bin...")
+    project_root = get_project_root()
+    input_path = project_root / "data" / "processed" / "annotated_videokr.csv"
+    output_path = project_root / "data" / "processed" / "stratified_accuracy.json"
+
+    if not input_path.exists():
+        logger.error("Input file not found.")
+        sys.exit(1)
+
+    records = load_annotated_data(input_path)
+    results = calculate_accuracy_by_bin(records)
     write_results(results, output_path)
-    logging.info(f"Stratified accuracy written to {output_path}")
+
+    logger.info(f"Results written to {output_path}")
+
+if __name__ == "__main__":
+    main()

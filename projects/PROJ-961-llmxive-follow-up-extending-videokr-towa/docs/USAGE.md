@@ -1,92 +1,105 @@
-# Usage Guide: VideoKR Reasoning Cliff Analysis
+# Usage Guide: llmXive VideoKR Analysis Pipeline
 
-This guide details how to run the analysis pipeline, interpret outputs, and troubleshoot common issues.
+This guide provides detailed instructions for running the pipeline components, understanding the data flow, and interpreting the outputs.
 
 ## Quick Start
 
-The entire pipeline can be run sequentially. Ensure you have sufficient disk space (approx. 2GB for raw data + processed artifacts).
+1. **Clone the repository** and navigate to the project root.
+2. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. **Run the pipeline**:
+ Execute the scripts in the order listed below to ensure data dependencies are met.
 
-```bash
-# 1. Ingest and Annotate
-python code/ingest/annotate_graph.py
+## Step-by-Step Execution
 
-# 2. Stratify Accuracy
-python code/analysis/stratify_accuracy.py
+### 1. Data Ingestion (User Story 1)
 
-# 3. Detect Threshold
-python code/analysis/detect_threshold.py
+**Goal**: Download raw data and annotate with graph hops.
 
-# 4. Fit GAM
-python code/analysis/fit_gam.py
+- **Download Data**:
+ ```bash
+ python code/ingest/download_data.py
+ ```
+ *Output*: Raw data files in `data/raw/`.
 
-# 5. Sensitivity Analysis
-python code/analysis/sensitivity.py
+- **Annotate Graph**:
+ ```bash
+ python code/ingest/annotate_graph.py
+ ```
+ *Output*: `data/processed/annotated_videokr.csv`.
+ *Note*: This script streams the dataset to handle large files and maps entities to graph nodes.
 
-# 6. Generate Plots
-python code/analysis/generate_plots.py
-python code/analysis/plot_sensitivity_overlay.py
-```
+- **Verify Coverage**:
+ ```bash
+ python code/ingest/calculate_annotation_coverage.py
+ ```
+ *Output*: `data/processed/annotation_coverage.json`.
 
-## Detailed Script Reference
+### 2. Accuracy Stratification (User Story 2)
 
-### `code/ingest/annotate_graph.py`
+**Goal**: Calculate accuracy per hop and detect the "reasoning cliff".
 
-**Purpose**: Downloads VideoKR-SFT and the Knowledge Graph, then annotates each question with its shortest path chain length.
+- **Stratify Accuracy**:
+ ```bash
+ python code/analysis/stratify_accuracy.py
+ ```
+ *Output*: Binned accuracy data.
 
-**Key Features**:
-- **Two-Stage Sampling**: Implements a pilot (1000 records) followed by oversampling to ensure at least 50 records per hop bin.
-- **Entity Linking**: Uses fuzzy matching to map question entities to graph nodes.
-- **Disconnected Graphs**: Records with no path are labeled "unresolvable" and excluded from statistical tests.
+- **Detect Threshold**:
+ ```bash
+ python code/analysis/detect_threshold.py
+ ```
+ *Output*: `data/processed/threshold_results.json`.
+ *Method*: Permutation test with Bonferroni correction.
 
-**Outputs**:
-- `data/processed/annotated_videokr.csv`: Full dataset with `chain_length` and `correctness` columns.
-- `data/processed/sampling_log.json`: Log of the sampling strategy execution.
+- **Generate Plots**:
+ ```bash
+ python code/analysis/generate_plots.py
+ ```
+ *Output*: `accuracy_vs_hop_raw.png`, `accuracy_binned.png`.
 
-### `code/analysis/detect_threshold.py`
+- **Binned Summary**:
+ ```bash
+ python code/analysis/generate_binned_summary.py
+ ```
+ *Output*: `data/processed/accuracy_binned.png` (binned view).
 
-**Purpose**: Performs grid-search change-point detection using a Permutation Test.
+### 3. Sensitivity Analysis (User Story 3)
 
-**Key Features**:
-- **Bonferroni Correction**: Adjusts p-values for multiple comparisons across potential knot locations.
-- **Small Bin Handling**: Automatically merges 3+ hop bins if sample size < 50, or defers the test with a logged reason.
+**Goal**: Verify robustness of the threshold across different definitions.
 
-**Outputs**:
-- `data/processed/threshold_results.json`: Contains `p_value`, `effect_size`, `optimal_knot`, and `bin_status`.
+- **Run Sensitivity Sweep**:
+ ```bash
+ python code/analysis/sensitivity.py
+ ```
+ *Output*: `data/processed/sensitivity_thresholds.csv`.
 
-### `code/analysis/fit_gam.py`
+- **Generate Reports**:
+ ```bash
+ python code/analysis/generate_sensitivity_table.py
+ python code/analysis/generate_sensitivity_summary.py
+ python code/analysis/plot_sensitivity_overlay.py
+ ```
+ *Output*: `sensitivity_summary.md`, `sensitivity_overlay.png`, `stability_metric.json`.
 
-**Purpose**: Fits a Generalized Additive Model to test for non-linearity in the continuous domain.
+### 4. Final Reporting
 
-**Warning**: GAMs are typically invalid for low-cardinality discrete ordinal variables. This implementation is required by Spec FR-007; interpret results with extreme caution.
-
-**Outputs**:
-- `data/processed/gam_results.json`: Contains `p_value_non_linearity` and smoothness parameters.
-
-### `code/analysis/sensitivity.py`
-
-**Purpose**: Verifies the robustness of the "cliff" by sweeping threshold definitions.
-
-**Key Features**:
-- Re-runs the two-stage sampling strategy for each threshold (2, 3, 4 hops).
-- Compares significance and effect sizes across thresholds.
-
-**Outputs**:
-- `data/processed/sensitivity_results.json`: Results for each threshold iteration.
-- `data/processed/sensitivity_report.md`: Markdown summary of stability.
+- **Generate Final Report**:
+ ```bash
+ python code/analysis/generate_final_report.py
+ ```
+ *Output*: `data/processed/final_report.md`.
 
 ## Troubleshooting
 
-### "No real data source found"
-The pipeline strictly requires real data. Ensure `data/raw/` is not empty. If the download fails, check your internet connection and verify the URLs in `code/ingest/download_data.py`.
-
-### "Insufficient samples for statistical test"
-If the 3+ hop bin has < 50 samples, the script will automatically merge it with the 2-hop bin. Check `data/processed/threshold_results.json` for `bin_status: "merged"`.
-
-### "ImportError: No module named..."
-Ensure you are running scripts from the project root and that `requirements.txt` has been installed.
+- **Missing Data**: If scripts fail with "File not found", ensure `data/raw/` contains the downloaded datasets. Run `code/ingest/download_data.py` first.
+- **Memory Errors**: The `annotate_graph.py` script uses chunked processing. If you encounter memory errors, ensure you have sufficient RAM (7GB+ recommended) or check the logging for chunk sizes.
+- **Graph Disconnected**: If many records are marked "unresolvable", check the connectivity of the loaded knowledge graph.
 
 ## Output Interpretation
 
-- **Reasoning Cliff**: A significant drop in accuracy (p < 0.05) between hop bins indicates a reasoning cliff.
-- **Effect Size**: The magnitude of the accuracy drop. Larger values indicate a steeper cliff.
-- **GAM p-value**: A low p-value (< 0.05) suggests non-linear performance degradation, supporting the cliff hypothesis.
+- **`threshold_results.json`**: Look for `is_significant: true`. If true, a statistically significant "cliff" was detected at the `optimal_knot` hop count.
+- **`stability_metric.json`**: A `robustness_status` of "PASS" indicates the cliff is robust across multiple threshold definitions (>= 2 significant thresholds).
+- **`final_report.md`**: The comprehensive document aggregating all findings, including the methodology override note regarding GAMs.

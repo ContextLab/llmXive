@@ -1,64 +1,103 @@
-"""Checksum verification for raw data integrity."""
+"""
+Module: checksum
+
+Purpose:
+    Provides utilities for verifying the integrity of raw data files
+    using SHA-256 checksums.
+
+Functions:
+    - verify_raw_data_integrity: Verifies a single file against a checksum.
+    - generate_checksum_file: Generates a checksum file for a directory.
+    - verify_all_raw_data: Verifies all files in the raw data directory.
+    - main: Entry point for the script.
+"""
 import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
+
 from utils.config import get_project_root, get_path, ensure_dir, get_config
 
-def verify_raw_data_integrity(file_path: Union[str, Path], expected_hash: str) -> bool:
-    """Verify the SHA-256 hash of a file against an expected value."""
+def verify_raw_data_integrity(file_path: Path, expected_checksum: str) -> bool:
+    """
+    Verifies the integrity of a single file against an expected checksum.
+
+    Args:
+        file_path (Path): Path to the file.
+        expected_checksum (str): Expected SHA-256 hash.
+
+    Returns:
+        bool: True if valid, False otherwise.
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest() == expected_hash
+    return sha256_hash.hexdigest() == expected_checksum
 
-def generate_checksum_file(file_path: Union[str, Path], output_path: Union[str, Path]) -> str:
-    """Generate a checksum file for a given file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    hash_value = sha256_hash.hexdigest()
+def generate_checksum_file(directory: Path, output_path: Path):
+    """
+    Generates a JSON file containing checksums for all files in a directory.
 
-    output_path = Path(output_path)
-    ensure_dir(output_path.parent)
-    with open(output_path, "w") as f:
-        json.dump({"hash": hash_value, "file": str(file_path)}, f, indent=2)
-
-    return hash_value
-
-def verify_all_raw_data(data_dir: Union[str, Path], checksum_dir: Optional[Union[str, Path]] = None) -> List[Tuple[str, bool]]:
-    """Verify all raw data files against their checksums."""
-    data_dir = Path(data_dir)
-    if checksum_dir is None:
-        checksum_dir = data_dir.parent / "checksums"
-
-    results: List[Tuple[str, bool]] = []
-    for file_path in data_dir.rglob("*"):
+    Args:
+        directory (Path): Directory to scan.
+        output_path (Path): Path to the output JSON file.
+    """
+    checksums = {}
+    for file_path in directory.rglob("*"):
         if file_path.is_file():
-            relative_path = file_path.relative_to(data_dir)
-            checksum_path = Path(checksum_dir) / f"{relative_path}.json"
+            sha256_hash = hashlib.sha256()
+            with open(file_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+            checksums[str(file_path.relative_to(directory))] = sha256_hash.hexdigest()
 
-            if checksum_path.exists():
-                with open(checksum_path, "r") as f:
-                    checksum_data = json.load(f)
-                expected_hash = checksum_data["hash"]
-                is_valid = verify_raw_data_integrity(file_path, expected_hash)
-                results.append((str(file_path), is_valid))
-            else:
-                results.append((str(file_path), False))
+    with open(output_path, 'w') as f:
+        json.dump(checksums, f, indent=2)
+
+def verify_all_raw_data() -> Dict[str, bool]:
+    """
+    Verifies all files in the raw data directory against stored checksums.
+
+    Returns:
+        Dict[str, bool]: Mapping of filename to verification status.
+    """
+    config = get_config()
+    raw_dir = get_path("raw_data_dir", "data/raw")
+    checksum_file = get_path("checksums_file", "data/raw/checksums.json")
+
+    if not checksum_file.exists():
+        return {}
+
+    with open(checksum_file, 'r') as f:
+        stored_checksums = json.load(f)
+
+    results = {}
+    for filename, expected in stored_checksums.items():
+        file_path = raw_dir / filename
+        if file_path.exists():
+            results[filename] = verify_raw_data_integrity(file_path, expected)
+        else:
+            results[filename] = False
 
     return results
 
-def main() -> None:
-    """Main entry point for checksum verification."""
-    data_dir = get_path("data/raw")
-    if data_dir.exists():
-        results = verify_all_raw_data(data_dir)
-        for file_path, is_valid in results:
-            status = "OK" if is_valid else "FAILED"
-            print(f"{status}: {file_path}")
+def main():
+    """
+    Main entry point for the checksum script.
+
+    Runs verification for all raw data files.
+    """
+    results = verify_all_raw_data()
+    all_valid = all(results.values())
+    if all_valid:
+        print("All raw data files verified successfully.")
     else:
-        print("No raw data directory found.")
+        print("Some raw data files failed verification.")
+        for name, valid in results.items():
+            if not valid:
+                print(f"  - {name}: FAILED")
+
+if __name__ == "__main__":
+    main()
