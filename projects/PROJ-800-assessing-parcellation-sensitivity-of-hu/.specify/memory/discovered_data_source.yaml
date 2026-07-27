@@ -1,19 +1,14 @@
 status: none
-intent: download HCP 1200 subject resting-state fMRI dataset with AAL and Schaefer
-  atlases python package dataset
+intent: Human Connectome Project S1200 precomputed functional connectivity matrices
+  AAL Schaefer python package dataset
 required_fields:
 - subject_id
+- parcellation
+- n_nodes
+- adjacency_matrix
+- node_labels
 - age
 - sex
-- raw_fmri_file_path
-- repetition_time
-- scan_session_id
-- adjacency_matrix_AAL90
-- adjacency_matrix_Schaefer200
-- adjacency_matrix_Schaefer400
-- node_labels_AAL90
-- node_labels_Schaefer200
-- node_labels_Schaefer400
-cache_key: f3d32fd5ca2d0fd38658abc44915f02d87214c5131b6310258e59db60c5df558
-searched_at: '2026-07-19T13:50:49.942370+00:00'
+cache_key: 80794f5406fcd4dcc4111c11616d08ddd666d0af3bf25c4a4d86559679d1721d
+searched_at: '2026-07-27T03:12:08.665430+00:00'
 retry_count: 1

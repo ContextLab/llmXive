@@ -1,47 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Adjacency Matrix Schema"
-description: "Schema for adjacency matrices generated from parcellation."
-type: object
+title: "AdjacencyMatrix"
+type: "object"
 properties:
-  metadata:
-    type: object
-    properties:
-      subject_id:
-        type: string
-        description: "Unique identifier for the subject."
-      atlas_name:
-        type: string
-        description: "Name of the atlas used (e.g., AAL-90, Schaefer-200)."
-      node_count:
-        type: integer
-        description: "Number of nodes in the matrix."
-      matrix_shape:
-        type: array
-        items:
-          type: integer
-        minItems: 2
-        maxItems: 2
-        description: "Shape of the matrix (N, N)."
-      checksum:
-        type: string
-        description: "SHA-256 checksum of the matrix file."
-      creation_timestamp:
-        type: string
-        format: date-time
-        description: "ISO 8601 timestamp of file creation."
-    required:
-      - subject_id
-      - atlas_name
-      - node_count
-      - matrix_shape
-      - checksum
-      - creation_timestamp
-  data:
-    type: array
-    description: "Flattened or nested array of matrix values (float32)."
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  atlas_name:
+    type: "string"
+    description: "Name of the atlas used (e.g., 'AAL-90', 'Schaefer-200')"
+  node_count:
+    type: "integer"
+    description: "Number of nodes in the matrix"
+  matrix_shape:
+    type: "array"
     items:
-      type: number
-      description: "Edge weight (correlation value)."
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Shape of the matrix [N, N]"
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of the matrix data"
+  node_labels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of node labels"
 required:
-  - metadata
-  - data
+  - subject_id
+  - atlas_name
+  - node_count
+  - matrix_shape
+  - checksum
+  - node_labels
+additionalProperties: false

@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HubSet"
+title: "CentralityScore"
 type: "object"
 properties:
   subject_id:
@@ -14,22 +14,24 @@ properties:
       - "degree"
       - "betweenness"
     description: "Centrality metric used"
-  threshold_percent:
-    type: "number"
-    description: "Percentage of nodes considered hubs (e.g., 0.10)"
-  hub_count:
-    type: "integer"
-    description: "Number of hubs (floor(N * threshold_percent))"
-  hub_nodes:
+  scores_shape:
     type: "array"
     items:
       type: "integer"
-    description: "Indices of the hub nodes"
+    minItems: 1
+    maxItems: 1
+    description: "Shape of the scores array [N]"
+  rank_order_shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 1
+    maxItems: 1
+    description: "Shape of the rank order array [N]"
 required:
   - subject_id
   - atlas_name
   - metric_type
-  - threshold_percent
-  - hub_count
-  - hub_nodes
+  - scores_shape
+  - rank_order_shape
 additionalProperties: false

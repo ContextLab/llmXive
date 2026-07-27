@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or file listing was provided to confirm that the required\
+    \ folders (`projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/data/{raw,processed,results}`\
+    \ and `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/{code,tests}`)\
+    \ actually exist. The implementer\u2019s claim cannot be verified without concrete\
+    \ evidence of the created directories."
 T024:
   c: false
   h: b4f14c78cb8b1da4b7c32b60d0bb6c70cf7b693ef6c516dac27d73a57fb7ad67

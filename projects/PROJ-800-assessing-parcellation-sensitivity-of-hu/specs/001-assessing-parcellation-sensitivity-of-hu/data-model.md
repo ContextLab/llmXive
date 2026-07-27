@@ -1,71 +1,65 @@
 # Data Model: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
 
-## 1. Overview
+## Overview
+This document defines the data structures used throughout the pipeline. All models are implemented in `code/models/` and validated against the contracts in `contracts/`.
 
-This document defines the data structures, schemas, and file formats used in the project. All data is stored in `data/` with strict versioning and checksumming.
+## Core Entities
 
-## 2. Data Flow
+### 1. AdjacencyMatrix
+Represents the connectivity matrix for a single subject under a specific parcellation scheme.
 
-```mermaid
-graph TD
-    A[Raw fMRI NIfTI] -->|Streaming| B[Preprocessing (if needed)]
-    B --> C[Parcellation: AAL-90]
-    B --> D[Parcellation: Schaefer-200]
-    B --> E[Parcellation: Schaefer-400]
-    C --> F[Adjacency Matrix 90]
-    D --> G[Adjacency Matrix 200]
-    E --> H[Adjacency Matrix 400]
-    F --> I[Centrality: Degree/Betweenness]
-    G --> J[Centrality: Degree/Betweenness]
-    H --> K[Centrality: Degree/Betweenness]
-    I --> L[Hub Set: Top 10%]
-    J --> M[Hub Set: Top 10%]
-    K --> N[Hub Set: Top 10%]
-    L --> O[Overlap Analysis]
-    M --> O
-    N --> O
-    O --> P[Results: Stats, Plots]
-```
+*   **Attributes**:
+    *   `subject_id`: Unique identifier for the subject.
+    *   `atlas_name`: Name of the atlas (e.g., "AAL-90", "Schaefer-200").
+    *   `node_count`: Integer, number of nodes (N).
+    *   `matrix`: 2D numpy array (N x N), symmetric, weighted.
+    *   `node_labels`: List of strings, names of brain regions.
+    *   `checksum`: SHA256 hash of the matrix data.
+*   **Constraints**:
+    *   Matrix must be symmetric.
+    *   Diagonal must be zero.
+    *   Values must be non-negative (correlation-based).
 
-## 3. File Specifications
+### 2. CentralityScore
+Stores centrality metrics for a single subject's graph.
 
-### 3.1 Raw Data
--   **Format**: NIfTI (.nii.gz)
--   **Location**: `data/raw/`
--   **Naming**: `{subject_id}_task-rest_space-MNI_desc-preproc_bold.nii.gz`
--   **Checksum**: SHA-256 recorded in `state/...yaml`.
+*   **Attributes**:
+    *   `subject_id`: Unique identifier.
+    *   `atlas_name`: Name of the atlas.
+    *   `metric_type`: "degree" or "betweenness".
+    *   `scores`: 1D numpy array (N,), centrality value for each node.
+    *   `rank_order`: 1D numpy array (N,), rank of each node (1 = highest).
+*   **Constraints**:
+    *   Length of `scores` must equal `node_count` of the corresponding `AdjacencyMatrix`.
+    *   No missing values (NaN).
 
-### 3.2 Processed Data
--   **Adjacency Matrices**:
-    -   **Format**: NumPy (.npy)
-    -   **Shape**: (N_nodes, N_nodes)
-    -   **Location**: `data/processed/{subject_id}_{atlas}_adjacency.npy`
-    -   **Schema**: See `contracts/adjacency_matrix.schema.yaml`.
--   **Centrality Scores**:
-    -   **Format**: CSV (.csv)
-    -   **Columns**: `node_id`, `degree_centrality`, `betweenness_centrality`, `is_hub` (bool)
-    -   **Location**: `data/processed/{subject_id}_{atlas}_centrality.csv`
-    -   **Schema**: See `contracts/hub_set.schema.yaml`.
--   **Spatial Mapping**:
-    -   **Format**: NumPy (.npy)
-    -   **Content**: Array mapping high-res indices to low-res indices (generated via Voxel-Wise Hub Mask Overlap logic).
-    -   **Location**: `data/processed/mapping_schaefer_to_aal.npy`
+### 3. HubSet
+Represents the set of nodes identified as hubs based on a centrality threshold.
 
-### 3.3 Results
--   **Overlap Statistics**:
-    -   **Format**: JSON (.json)
-    -   **Location**: `data/results/overlap_stats.json`
-    -   **Schema**: See `contracts/overlap_result.schema.yaml`.
--   **Validation Report**:
-    -   **Format**: JSON (.json)
-    -   **Location**: `data/results/validation_report.json`
-    -   **Content**: Checksums, status, runtime metrics.
--   **Plots**:
-    -   **Format**: PNG (.png)
-    -   **Location**: `data/results/`
+*   **Attributes**:
+    *   `subject_id`: Unique identifier.
+    *   `atlas_name`: Name of the atlas.
+    *   `metric_type`: "degree" or "betweenness".
+    *   `threshold_percent`: Float, percentage used for cutoff (e.g., 0.10).
+    *   `hub_nodes`: List of integers, indices of hub nodes.
+    *   `hub_count`: Integer, number of hubs (`floor(N * threshold)`).
+*   **Constraints**:
+    *   `hub_count` must equal `floor(node_count * threshold_percent)`.
 
-## 4. Data Integrity
+### 4. SpatialMapping
+Lookup table for mapping high-resolution nodes to low-resolution nodes.
 
--   **Checksumming**: Every file in `data/raw` and `data/processed` is checksummed upon creation.
--   **Immutability**: Raw files are never modified. Derived files are new.
--   **PII**: No PII in data; subject IDs are anonymized.
+*   **Attributes**:
+    *   `source_atlas`: High-res atlas name (e.g., "Schaefer-200").
+    *   `target_atlas`: Low-res atlas name (e.g., "AAL-90").
+    *   `mapping_dict`: Dictionary `{source_index: target_index}`.
+    *   `unmapped_nodes`: List of source indices with no overlap.
+*   **Constraints**:
+    *   Each source node maps to at most one target node.
+
+## Data Flow
+1.  **Raw Data** -> `loader.py` -> `AdjacencyMatrix` (N=20, 3 resolutions).
+2.  `AdjacencyMatrix` -> `centrality.py` -> `CentralityScore`.
+3.  `CentralityScore` -> `overlap.py` (thresholding) -> `HubSet`.
+4.  `HubSet` (different resolutions) -> `overlap.py` (spatial mapping) -> **Overlap Metrics** (Excess Overlap, Spearman).
+5.  **Overlap Metrics** -> `visualization.py` -> Plots & `validation_report.json`.

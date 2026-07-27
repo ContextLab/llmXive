@@ -46,7 +46,7 @@ properties:
         description: "Mean Spearman correlation of ranks."
       p_value:
         type: number
-        description: "Permutation test p-value."
+        description: "P-value from the Volumetric Spatial Spin Test (node-label permutation preserving spatial adjacency)."
       is_significant:
         type: boolean
         description: "True if p-value < alpha (after correction)."

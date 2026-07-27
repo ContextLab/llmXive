@@ -1,11 +1,34 @@
-- artifact_hash: 7216f02753a796e791a8984ec5e9c3996393d7f0027c6e50647291360287a95f
+- artifact_hash: d1e982c4dbed081abc81723f4725931789a31c1d08679a183e38f892558a1293
   artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: OpenNeuro
   kind: url
-  value: https://openneuro.org/datasets/ds000224`
-  verification_status: verified
-  verified_against_url: https://openneuro.org/datasets/ds000224
-  verified_at: '2026-07-09T16:37:20.800067Z'
+  value: https://openneuro.org/datasets/ds000114`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000114
+  verified_at: '2026-07-27T03:21:39.800823Z'
+- artifact_hash: d1e982c4dbed081abc81723f4725931789a31c1d08679a183e38f892558a1293
+  artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nitrc.org/projects/aal/`
+  verification_status: mismatch
+  verified_against_url: https://www.nitrc.org/projects/aal/
+  verified_at: '2026-07-27T03:21:39.800823Z'
+- artifact_hash: d1e982c4dbed081abc81723f4725931789a31c1d08679a183e38f892558a1293
+  artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
+    \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal`
+  verification_status: pending
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verified_at: '2026-07-27T03:21:39.800823Z'

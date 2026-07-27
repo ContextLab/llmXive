@@ -1,10 +1,10 @@
 # Quickstart: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Access to GitHub Actions (for CI) or a local environment with sufficient RAM.
+*   Python 3.11+
+*   `pip` (or `conda`)
+*   Git
+*   Access to the verified datasets (via Hugging Face or OpenNeuro).
 
 ## Installation
 
@@ -14,59 +14,60 @@
     cd projects/PROJ-800-assessing-parcellation-sensitivity-of-hu
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install Dependencies**:
+3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
+    *Note: `requirements.txt` includes `networkx`, `nilearn`, `scipy`, `pandas`, `matplotlib`, `huggingface_hub`.*
 
-4.  **Install Pre-commit Hooks** (optional but recommended):
+4.  **Verify environment**:
     ```bash
-    pre-commit install
+    python -c "import networkx; import nilearn; print('Environment OK')"
     ```
 
 ## Running the Pipeline
 
-### 1. Download & Process (Single Subject Test)
-To test the pipeline on a single subject (e.g., `sub-01`):
+### Option A: Full Analysis (If Data Available)
+Run the main orchestration script. This will attempt to download data, process it, and generate results.
 ```bash
-python code/main.py --subject sub-01 --atlas AAL-90,Schaefer-200,Schaefer-400 --mode test
-```
-*Note: This will download only the required data for `sub-01` and process it.*
-
-### 2. Full Run (N=50 or N=100)
-To run the full analysis (adjust N in config or env var):
-```bash
-export SUBJECT_COUNT=50
 python code/main.py --mode full
 ```
+*   **Output**: `data/results/validation_report.json`, `data/results/plots/` (Venn, Heatmap, Line).
 
-### 3. Generate Results
-The pipeline automatically generates:
--   Adjacency matrices in `data/processed/`
--   Centrality scores and hub sets in `data/processed/`
--   Overlap statistics and plots in `data/results/`
-
-### 4. Validation
-Run the validation script to ensure data integrity:
+### Option B: Pre-computed Data Mode
+If raw data processing is not feasible, run with pre-computed matrices (if available in `data/raw/`).
 ```bash
-python code/utils/checksums.py --verify
+python code/main.py --mode precomputed
 ```
 
+### Option C: Methodological Demo (Synthetic Data)
+If no real data is available, run with synthetic data to demonstrate the pipeline logic.
+```bash
+python code/main.py --mode demo
+```
+
+## Verification
+1.  **Check Artifacts**:
+    ```bash
+    ls -l data/processed/
+    ls -l data/results/
+    ```
+2.  **Run Tests**:
+    ```bash
+    pytest tests/ -v
+    ```
+3.  **Validate Citations**:
+    ```bash
+    python code/validators/validate_citations.py
+    ```
+
 ## Troubleshooting
-
--   **Memory Error**: Ensure you are using the `streaming=True` mode. If running locally, reduce `SUBJECT_COUNT`.
--   **Dataset Not Found**: Check `research.md` for the verified dataset URL. Ensure internet connection.
--   **Permission Denied**: Check file permissions in `data/` directory.
-
-## Output Files
-
--   `data/results/overlap_stats.json`: Main statistical results.
--   `data/results/heatmap_centrality.png`: Correlation heatmap.
--   `data/results/venn_diagram_hubs.png`: Hub overlap visualization.
--   `data/results/validation_report.json`: Integrity report.
+*   **Memory Error**: Ensure `streaming=True` is used in the loader. Reduce `N` in `config.py` if necessary.
+*   **Data Not Found**: Check the "Verified datasets" section in `research.md`. If the URL is invalid, the pipeline will switch to `demo` mode.
+*   **Time Out**: The Spatial Spin Test will automatically reduce iterations to 500 if the time limit is approached.
