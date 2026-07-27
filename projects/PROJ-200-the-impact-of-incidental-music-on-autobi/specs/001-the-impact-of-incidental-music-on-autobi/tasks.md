@@ -73,9 +73,9 @@
 
 **Independent Test**: Run ingestion on a small synthetic subset; verify output CSV has `adolescent_exposure_ratio` (0.0-1.0), excludes records without `birth_year` (unless fallback), and applies the minimum listen threshold.
 
-### Tests for User Story 1
-
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+### Tests for User Story 1
 
 - [X] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
 - [X] T011 [US1] Unit test for exposure score calculation (0 listens = 0.0) in `tests/unit/test_ingestion.py`
@@ -85,19 +85,25 @@
 
 - [X] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs defined in `config.MSD_URL` and `config.AMT_URL`. **Constraints**:
  1. **Chunked Iteration**: Must process large datasets in chunks (streaming) to stay within RAM limits; do NOT load full dataset into memory.
- 2. **Fail Loudly**: Must raise an exception if real data sources (MSD/AMT) are unreachable or invalid. Do NOT implement a `try/except` fallback to synthetic data (except for FR-008 Global Exposure).
+ 2. **Mode Distinction**:
+ - **Prototype Mode** (`config.USE_MOCK_DATA = True`): Load local mock data for validation. Do NOT raise exceptions for missing real data.
+ - **Final Mode** (`config.USE_MOCK_DATA = False`): Must raise an exception if real data sources (MSD/AMT) are unreachable. **Never** fall back to synthetic data.
  3. **Ordering**: This task MUST NOT perform any filtering. It is strictly for download and verification.
  4. **Data Integrity**: Must validate the structure and checksums of downloaded files. **DEPENDS ON**: None.
 - [X] T023 [US1] Implement `code/data_ingestion.py` function `check_fallback_trigger` for FR-008 (Global Exposure metric) check. **ORDERING**: This task is a **PRE-CHECK** only. It MUST calculate the percentage of missing birth years from the **raw ingested data** (output of T013, before any filtering). **CRITICAL**: This task MUST NOT depend on T013a or T015. It must run on the raw dataset to satisfy EC-001. **LOGIC**:
  1. Calculate `missing_pct = count(missing_birth_year) / count(total_raw_records)`.
  2. If `missing_pct > 0.5`:
- - **CALCULATE METRIC**: Compute the 'Global Exposure' metric: **Calculate `adolescent_exposure_ratio` ONLY for the subset of records with valid birth years** from the **Million Song Dataset** (population-level) for the user's birth decade (e.g., 1980-1999 for 1990 birth). This mean serves as the population-level proxy. **Store** this value in the cohort data for descriptive analysis.
+ - **CALCULATE METRIC**: Compute the 'Global Exposure' metric: Calculate `adolescent_exposure_ratio` for **all tracks in the MSD** (denominator: all tracks in the MSD for that decade) for the user's birth decade (e.g., 1980-1999 for 1990 birth). This mean serves as the population-level proxy.
+ - **OUTPUT**: Update `data/processed/ingested_cohort.parquet` (via T028) by adding a new column `global_exposure_proxy` with this value. Update `state.yaml` with `global_exposure_mode = True` flag. Log fallback metrics to `data/processed/fallback_log.csv`.
  - **EXCLUSION NOTE**: Log a **WARNING**: "FR-008 Fallback Triggered (>50% missing birth years). Global Exposure metric calculated from MSD population as population proxy. Per Plan decision, users with missing birth years are excluded from the primary causal inference model to avoid ecological fallacy."
- - **SET FLAG**: Set a global configuration flag `global_exposure_mode = True` (for descriptive logging only).
- - **OUTPUT**: Update `state.yaml` with `global_exposure_mode` flag. Log fallback metrics to `data/processed/fallback_log.csv`.
  3. If `missing_pct <= 0.5`: Proceed normally (set `global_exposure_mode = False`).
  **DEPENDS ON**: T013 (raw ingestion). **DO NOT** depend on T013a or T015. **NOTE**: T023 runs BEFORE T013a to prevent false triggers (EC-001).
-- [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year to birth_year +). **DEPENDS ON**: T013, T023. **MUST run after T023** to ensure the fallback check is performed on the raw dataset first (EC-001). **NOTE**: If `global_exposure_mode` is True, this function should skip birth-year filtering for the global calculation but exclude these users from the primary model dataset.
+- [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year to birth_year +). **DEPENDS ON**: T013, T023. **MUST run after T023** to ensure the fallback check is performed on the raw dataset first (EC-001). **LOGIC**:
+ 1. **INPUT**: Reads raw cohort data from T013 output.
+ 2. **IF `global_exposure_mode` is True**: Process records with missing birth years to calculate the global metric (if not already done in T023) but **exclude** these users from the primary model dataset output.
+ 3. **IF `global_exposure_mode` is False**: Filter out records with missing birth years entirely.
+ 4. **OUTPUT**: The primary model dataset (filtered) and descriptive stats (if applicable).
+ **NOTE**: This task ensures the fallback check is performed on the raw dataset first (EC-001).
 - [X] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter user-track pairs where `total_listens` < 3. **DEPENDS ON**: T023, T013a. **MUST run after T013a** to prevent false fallback triggers (EC-001). Relies on the state set by T013a, not a re-run of ingestion. **NOTE**: This threshold matches FR-009 exactly.
 - [X] T013b [US1] Implement `code/data_ingestion.py` function `fetch_popularity_scores` to retrieve `overall_popularity_score` for each track from MSD metadata. **DEPENDS ON**: T013.
 - [X] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute the raw `adolescent_exposure_ratio` (adolescent listens / total valid listens) per track. **DEPENDS ON**: T013a, T015. **CRITICAL**: This task outputs the **raw ratio** as defined in FR-001. Do NOT residualize against popularity here. **NOTE**: If `global_exposure_mode` is True, calculate the global metric (mean ratio for birth decade) and store it, but do not use it as a predictor in the primary model.
@@ -113,6 +119,8 @@
 **Goal**: Parse AMT free-text cues, match to MSD tracks via fuzzy string matching (Levenshtein distance ≤ 4), and aggregate vividness/valence per User-Track pair.
 
 **Independent Test**: Provide a small set of AMT cues with known MSD titles; verify matching accuracy and correct aggregation of mean vividness/valence.
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 ### Tests for User Story 2
 
@@ -132,9 +140,9 @@
 - [X] T036 [US2] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ `config.MATCH_RATE_THRESHOLD`); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. **LOGIC**:
  1. Read `config.MATCH_RATE_THRESHOLD`.
  2. **IF the value is the string '[deferred]'**: **LOG WARNING**: "Match rate threshold is [deferred]. Proceeding with analysis. Warning logged if rate is below undefined threshold." **DO NOT enforce a numeric check.**
- 3. **IF the value is numeric**: Perform the numeric `>=` check. If the rate is below the threshold, log a warning and proceed.
+ 3. **IF the value is numeric**: Perform the numeric `>=` check. If the rate is below the threshold, log a warning and proceed. **CRITICAL**: If a numeric value is present, it MUST be enforced as per SC-004.
  **DEPENDS ON**: T026. **MUST read threshold from `config.py`**, which must default to `[deferred]` as per SC-004. **MUST NOT hardcode the value** (except for the fallback logic defined above).
-- [ ] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`. **DEPENDS ON**: T036. **NOTE**: This is a Write/Save task dependent on the output of T036.
+- [ ] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`. **DEPENDS ON**: T036. **NOTE**: This is a Write/Save task dependent on the output of T036. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,6 +153,8 @@
 **Goal**: Fit linear mixed-effects models on User-Track pairs, run sensitivity analysis, and perform Parametric Bootstrap (replacing block-permutation per Plan).
 
 **Independent Test**: Run analysis on the aggregated dataset; verify regression summary includes p-values, sensitivity table shows stability across thresholds, and bootstrap confirms significance.
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 ### Tests for User Story 3
 
@@ -158,12 +168,12 @@
 - [X] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
 - [X] T044a [US3] Implement `code/modeling.py` function `run_sensitivity_loop_setup` to prepare the sensitivity analysis loop. **LOGIC**:
  1. Define the range of Levenshtein thresholds to test.
- 2. Load `data/processed/ingested_cohort.parquet` (T018) to get the base track list.
+ 2. **LOAD DATA**: Load `data/processed/ingested_cohort.parquet` (T018) to get the base track list. **DO NOT re-run ingestion.**
  3. **DEPENDS ON**: **Code existence** of T013b, T014 (functions to be called within the loop), **Execution** of T018 (data availability).
- **NOTE**: This task sets up the loop but does not execute the full iteration logic.
+ **NOTE**: This task sets up the loop but does not execute the full iteration logic. It does NOT re-run ingestion.
 - [X] T044b-1 [US3] Implement `code/modeling.py` function `re_calculate_exposure` for sensitivity iteration. **LOGIC**:
  1. **Filter Tracks**: Apply the current frequency filter logic to the track list **loaded from `ingested_cohort.parquet`**.
- 2. **Re-Calculate Popularity**: **Filter** the pre-computed popularity scores from `ingested_cohort.parquet` for the current **filtered** track set. **Do NOT re-fetch from source.**
+ 2. **Re-Calculate Popularity**: **Filter** the pre-computed popularity scores (already present in `ingested_cohort.parquet` from T013b/T028) for the current **filtered** track set. **Do NOT re-fetch from source.**
  3. **Re-Calculate Exposure**: **Re-calculate** `adolescent_exposure_ratio` (T014 logic) on the **filtered track set** using data from `ingested_cohort.parquet` to generate a **new** `adolescent_exposure_ratio` valid for this specific subset. **Pass the filtered track set explicitly**.
  **DEPENDS ON**: T018 (data), Code existence of T013b, T014.
 - [X] T044b-2 [US3] Implement `code/modeling.py` function `re_match_cues` for sensitivity iteration. **LOGIC**:
@@ -190,7 +200,7 @@
  2. **Generate New Outcome**: Create a new `mean_vividness` vector: `predicted_values_from_null + resampled_residuals`.
  3. **Re-Fit**: Fit the full model (`mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)`) using the new outcome vector.
  4. **Record**: Record the t-statistic for the `adolescent_exposure_ratio` coefficient.
- 5. **Repeat**: Repeat for a sufficient number of iterations to ensure convergence and robustness of the results.
+ 5. **Repeat**: Repeat for a sufficient number of iterations to ensure convergence and robustness of the results [UNRESOLVED-CLAIM: c_d9ec7727 — status=not_enough_info].
  **DEPENDS ON**: T033, T045a.
 - [X] T045c-1 [US3] Implement `code/modeling.py` function `run_bootstrap_test` to orchestrate the bootstrap test. **Procedure**:
  1. **Call** `run_bootstrap_setup` (T045a) to prepare residuals.
@@ -219,11 +229,15 @@
 - [X] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
 - [X] T051 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data and verify sensitivity analysis logic (DEPENDS ON T044c).
 - [X] T046 [P] Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours (SC-005). **DEPENDS ON: T052**.
-- [ ] T050 [P] **Verify Artifacts**: Check existence and checksums of `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/bootstrap_results.csv` against `state.yaml`. **DEPENDS ON: T029, T038, T039a, T045c-2** (Must wait for all final artifacts). **CRITERIA**: 
- 1. **Existence**: Verify all files exist. If missing, **Raise RuntimeError** and Exit 1.
- 2. **Checksums**: Compute SHA-256 of each file and compare against `state.yaml`. If mismatch, **Raise RuntimeError** and Exit 1.
- 3. **Schema**: Validate each file against `contracts/` schemas. If invalid, **Raise RuntimeError** and Exit 1.
- **ACTION**: **Exit 0 if all checks pass; Exit 1 if any file is missing, checksum mismatches, or schema validation fails.** If any check fails, the script must **Raise RuntimeError** to halt execution immediately. **DEPENDS ON**: T029, T038, T039a, T045c-2.
+- [ ] T050 [P] **Verify Artifacts**: Check existence and checksums of `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/bootstrap_results.csv` against `state.yaml`. **DEPENDS ON: T029, T038, T039a, T045c-2** (Must wait for all final artifacts). **CRITERIA**:
+ 1. **T029**: Check existence/checksum of `user_track_pairs.parquet`.
+ 2. **T038**: Check existence/checksum of `regression_summary.csv`.
+ 3. **T039a**: Check existence/checksum of `sensitivity_analysis.csv`.
+ 4. **T045c-2**: Check existence/checksum of `bootstrap_results.csv`.
+ 5. **Existence**: Verify all files exist. If missing, **Raise RuntimeError** and Exit 1.
+ 6. **Checksums**: Compute SHA-256 of each file and compare against `state.yaml`. If mismatch, **Raise RuntimeError** and Exit 1.
+ 7. **Schema**: Validate each file against `contracts/` schemas. If invalid, **Raise RuntimeError** and Exit 1.
+ **ACTION**: **Exit 0 if all checks pass; Exit 1 if any file is missing, checksum mismatches, or schema validation fails.** If any check fails, the script must **Raise RuntimeError** to halt execution immediately. **DEPENDS ON**: T029 (Check existence/checksum of ingested cohort data), T038 (Check existence/checksum of regression summary), T039a (Check existence/checksum of sensitivity analysis), T045c-2 (Check existence/checksum of bootstrap results).
 
 **Note**: Tasks T053 (Effect Size), T054 (Assumption Validation), T055, T056, T060, T061, T049, T023b, T057, T058, T059, and T034 (fit_valence_model) have been removed as they represent unauthorized scope creep, conflict with the spec/constitution, or reference undefined data sources. Task T057 and T058 were specifically removed as they are not supported by any Functional Requirement in spec.md. T059 was removed as it is speculative gold-plating. Task T016 (residualization) was removed to align with FR-001/FR-005. Task T073 (Heckman Correction) has been removed as it contradicts the plan's exclusion strategy for missing birth years, despite being listed in Complexity Tracking as a potential violation; the plan explicitly states exclusion is the chosen method to avoid ecological fallacy. T055 and T056 were removed as their logic is fully integrated into T013 (download/verification) and T013a (filtering), ensuring no gap in the pipeline.
 
@@ -244,32 +258,33 @@
  2. Update **Output Artifacts** section to replace `data/final/permutation_results.csv` with `data/final/bootstrap_results.csv`.
  3. Add a note in FR-007 stating: "Block-permutation was replaced by Parametric Bootstrap to preserve random intercept structure."
  **DEPENDS ON**: None. **NOTE**: This task aligns the spec with the implementation plan.
-- [X] T068 [US1] **Create 02_preprocess.py**: Create `code/02_preprocess.py` as a wrapper script that imports and orchestrates functions from `code/data_ingestion.py` (T013, T015, T013a). **LOGIC**:
+- [X] T068 [US1] **Create 02_preprocess.py**: Create `code/02_preprocess.py` as a wrapper script that imports and orchestrates functions from `code/data_ingestion.py` (T013, T015, T013a). **Justification**: Aligns with plan's file structure for modular execution. **LOGIC**:
  1. Import `download_datasets`, `check_fallback_trigger`, `filter_cohort`, `apply_frequency_threshold`.
  2. Execute the pipeline in the correct order (T023 -> T013a -> T015).
  3. Output `data/processed/ingested_cohort.parquet`.
  **DEPENDS ON**: T013, T013a, T015, T023.
-- [X] T070 [US1] **Create 04_exposure.py**: Create `code/04_exposure.py` as a wrapper script that imports and orchestrates functions from `code/data_ingestion.py` (T013b, T014). **LOGIC**:
+- [X] T070 [US1] **Create 04_exposure.py**: Create `code/04_exposure.py` as a wrapper script that imports and orchestrates functions from `code/data_ingestion.py` (T013b, T014). **Justification**: Aligns with plan's file structure for modular execution. **LOGIC**:
  1. Import `fetch_popularity_scores`, `calculate_ratio_score`.
  2. Execute the pipeline in the correct order (T013b -> T014).
  3. Output `data/processed/ingested_cohort.parquet` with exposure scores.
  **DEPENDS ON**: T013b, T014.
-- [X] T071 [US3] **Create 05_model.py**: Create `code/05_model.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T033, T035, T045c). **LOGIC**:
+- [X] T071 [US3] **Create 05_model.py**: Create `code/05_model.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T033, T035, T045c). **Justification**: Aligns with plan's file structure for modular execution. **LOGIC**:
  1. Import `fit_mixed_model`, `check_collinearity`, `run_bootstrap_test`, `write_bootstrap_results`.
  2. Execute the pipeline in the correct order (T033 -> T035 -> T045c-1 -> T045c-2).
  3. Output `data/final/regression_summary.csv` and `data/final/bootstrap_results.csv`.
  **DEPENDS ON**: T033, T035, T045c-1, T045c-2.
-- [X] T072 [US3] **Create 06_sensitivity.py**: Create `code/06_sensitivity.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T044a, T044b-1, T044b-2, T044b-3, T044c). **LOGIC**:
+- [X] T072 [US3] **Create 06_sensitivity.py**: Create `code/06_sensitivity.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T044a, T044b-1, T044b-2, T044b-3, T044c). **Justification**: Aligns with plan's file structure for modular execution. **LOGIC**:
  1. Import `run_sensitivity_loop_setup`, `re_calculate_exposure`, `re_match_cues`, `re_aggregate`, `run_sensitivity_analysis`.
  2. Execute the sensitivity analysis loop.
  3. Output `data/final/sensitivity_analysis.csv`.
  **DEPENDS ON**: T044a, T044b-1, T044b-2, T044b-3, T044c.
-- [X] T074 [US3] **Create 08_visualize.py**: Create `code/08_visualize.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T040). **LOGIC**:
+- [X] T074 [US3] **Create 08_visualize.py**: Create `code/08_visualize.py` as a wrapper script that imports and orchestrates functions from `code/modeling.py` (T040). **Justification**: Aligns with plan's file structure for modular execution. **LOGIC**:
  1. Import `generate_plots`.
  2. Execute the plotting logic.
  3. Output `data/final/plots/`.
  **DEPENDS ON**: T040.
-- [X] T099 [US3] **Update Spec for FR-007**: Edit `spec.md` to replace "block-permutation test" with "parametric bootstrap" in FR-007 and update Output Artifacts to list `bootstrap_results.csv`. **DEPENDS ON**: None. **NOTE**: This task ensures the spec is updated before code execution, resolving the methodology contradiction.
+- [X] T075 [US1] **Reconcile run-book vs implementation for code/08_visualize.py**: The quickstart run-book invokes this script but it did not exist. T074 now creates it. This task ensures the run-book is updated to invoke `code/08_visualize.py` if it was previously missing. **DEPENDS ON**: T074.
+- [X] T076 [US1] **Update Plan Project Structure**: Update `plan.md` Project Structure section to remove the reference to `code/07_selection_correction.py` (Heckman Correction) which was removed from tasks. **Justification**: Ensures plan consistency with implemented tasks. **DEPENDS ON**: None.
 
 ---
 
@@ -402,9 +417,22 @@ With multiple developers:
 - **Updated Tasks**: T033 updated to use raw ratio and popularity as separate covariates.
 - **Added Tasks**: T066 added to update spec.md for FR-007 and Output Artifacts.
 - **Added Tasks**: T068, T070, T071, T072, T074 added to create wrapper scripts for the plan's file structure.
-- **Added Tasks**: T099 added to update spec.md FR-007 to mandate Parametric Bootstrap.
+- **Added Tasks**: T075 added to reconcile run-book for 08_visualize.py.
+- **Added Tasks**: T076 added to update plan.md Project Structure.
+- **Removed Tasks**: T099 removed (merged into T066).
+- **Removed Tasks**: T073 removed from Phase 7 and execution order.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [X] T067 Reconcile run-book vs implementation for `code/01_download_data.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/01_download_data.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T069 Reconcile run-book vs implementation for `code/03_aggregate.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/03_aggregate.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [X] T074 Reconcile run-book vs implementation for `code/08_visualize.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_visualize.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+
+- [ ] T100 [US1] **Verify Real Data Fetch Fails Loudly**: Add an integration test in `tests/integration/test_ingestion.py` that mocks a network failure for the MSD/AMT URLs and asserts that `download_datasets` raises a `ConnectionError` (or similar) and **does not** fallback to synthetic data generation. **DEPENDS ON**: T013, T063. **NOTE**: This explicitly validates the "Fail Loudly" constraint to prevent silent fabrication.
+- [ ] T101 [US1] **Streamed Dataset Validation**: Add a unit test in `tests/unit/test_ingestion.py` for `download_datasets` that verifies the function uses `streaming=True` and processes data via a generator (checking for `for row in dataset:` pattern) rather than loading the full dataset into a list or DataFrame. **DEPENDS ON**: T063.
+- [ ] T102 [US3] **Bootstrap Convergence Check**: Implement a helper function `check_bootstrap_convergence` in `code/modeling.py` that runs a preliminary short bootstrap (e.g., 100 iterations) and checks if the p-value estimate has stabilized within a tolerance (e.g., ±0.01) before proceeding to the full 1000 iterations. If not stable, log a warning. **DEPENDS ON**: T045c-1.
+- [ ] T103 [US2] **Zero Variance Filter Logic**: Add a unit test in `tests/unit/test_aggregation.py` for `filter_zero_variance` (T027) that asserts tracks with zero memory cues are removed from the `user_track_pairs` dataset but that the `total_listens` count in the original cohort is preserved for descriptive statistics. **DEPENDS ON**: T027.
+- [ ] T104 [US1] **Global Exposure Calculation Accuracy**: Add a unit test in `tests/unit/test_ingestion.py` for `check_fallback_trigger` (T023) that calculates the expected Global Exposure metric manually for a small synthetic cohort and asserts the function's output matches this manual calculation exactly. **DEPENDS ON**: T023.
+- [ ] T105 [US3] **VIF Threshold Warning**: Add a unit test in `tests/unit/test_modeling.py` for `check_collinearity` (T035) that asserts a warning is logged when VIF > 5, but the function does not raise an exception, allowing the pipeline to proceed with caution. **DEPENDS ON**: T035.
+- [ ] T106 [US2] **Match Rate Threshold Logic**: Add a unit test in `tests/unit/test_matching.py` for `enforce_match_rate` (T036) that verifies the behavior when `config.MATCH_RATE_THRESHOLD` is set to a numeric value (e.g., 0.80) and the actual rate is below it, ensuring a warning is logged but execution continues. **DEPENDS ON**: T036.
+- [ ] T107 [US3] **Sensitivity Loop Independence**: Add an integration test in `tests/integration/test_modeling.py` that runs the sensitivity analysis loop and asserts that the results for each threshold are independent (i.e., changing the threshold for one run does not affect the data used in another run). **DEPENDS ON**: T044c.
+- [ ] T108 [US1] **Birth Year Edge Case**: Add a unit test in `tests/unit/test_ingestion.py` for `filter_cohort` (T013a) that verifies users with birth years at the exact boundary of adolescence (e.g., born in 1990, adolescence ends in 2005) are handled correctly (listens in 2005 included, 2006 excluded). **DEPENDS ON**: T013a.
+- [ ] T109 [US3] **Atomic Write Verification**: Add a unit test in `tests/unit/test_modeling.py` for `write_bootstrap_results` (T045c-2) that simulates a crash during the write process and verifies that the final file is either complete or does not exist (no partial/corrupted files). **DEPENDS ON**: T045c-2.

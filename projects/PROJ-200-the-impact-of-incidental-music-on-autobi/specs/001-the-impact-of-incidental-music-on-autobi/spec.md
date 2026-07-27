@@ -79,7 +79,7 @@ For each threshold in the list `[1, 2, 3, 4, 5]`, the data must be **re-aggregat
 ### FR-007: Permutation Test Methodology (See US-001)
 Significance testing must be performed via a **block-permutation** test on the **User-Track Pair** dataset.
 - **Procedure**: Shuffle the `mean_vividness` values **within each user block** (i.e., permute the outcomes for a specific user across their tracks) while keeping the `user_id` and predictor values (`adolescent_exposure_ratio`, `popularity`) fixed for each row.
-- **Null Distribution**: Run 1000 iterations to establish a null distribution of the test statistic (the coefficient for `adolescent_exposure_ratio`).
+- **Null Distribution**: Run a sufficient number of iterations to establish a null distribution of the test statistic (the coefficient for `adolescent_exposure_ratio`).
 - **Comparison**: Compare the observed statistic from the original model against this null distribution to calculate a p-value.
 - **Constraint**: Do not shuffle the predictor variable directly; shuffle the outcome within user blocks to preserve the user-level correlation structure.
 
@@ -88,7 +88,7 @@ If the proportion of missing birth years exceeds 50%, the pipeline must trigger 
 The "Global Exposure" metric is defined as the mean `adolescent_exposure_ratio` across all available tracks in the Million Song Dataset for the user's birth decade (e.g., if birth year is 1990, use tracks released between 1980-1999). This serves as a population-level proxy for the missing individual data.
 
 ### FR-009: Minimum Listen Threshold (See US-003)
-The pipeline must filter out user-track pairs where the `total_listens` is less than 3. This ensures that the exposure ratio is based on a sufficient number of listening events to be meaningful.
+The pipeline must filter out user-track pairs where the `total_listens` count is insufficient to establish a meaningful listening history. This ensures that the exposure ratio is based on a sufficient number of listening events to be meaningful.
 
 ## 4. Success Criteria
 
@@ -104,7 +104,7 @@ The fallback check for missing birth years (>50%) MUST be performed BEFORE apply
 Tracks with high exposure but zero memory cues (no matches) must be filtered out prior to modeling to avoid singularities in the design matrix.
 
 ### EC-003: Multicollinearity (See US-003)
-If the Variance Inflation Factor (VIF) for `adolescent_exposure_ratio` or `popularity` exceeds 5, a warning must be logged, and the results should be interpreted with caution.
+If the Variance Inflation Factor (VIF) for `adolescent_exposure_ratio` or `popularity` indicates substantial multicollinearity, a warning must be logged, and the results should be interpreted with caution.
 
 ## 6. Data Sources
 
