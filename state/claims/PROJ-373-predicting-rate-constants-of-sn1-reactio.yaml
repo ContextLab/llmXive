@@ -595,3 +595,238 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T09:13:32Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset chemistry/dts-sn1 used as primary source for SN1
+    data
+  claim_id: c_a470a478
+  context: 'T011 [US1] Implement code/data/ingest.py to fetch verified SN1 data. Primary
+    Source: HuggingFace dataset chemistry/dts-sn1 (URL: https://huggingface.co/datasets/chemistry/dts-sn1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_chemistry/dts-sn1_used_as_primary_source
+  kind: entity_fact
+  raw_text: 'Primary Source: HuggingFace dataset ''chemistry/dts-sn1'' (URL: https://huggingface.co/datasets/chemistry/dts-sn1).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:27:02Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: UCI ucimlrepo SN subset used as fallback data source
+  claim_id: c_65569e12
+  context: 'Primary Source: HuggingFace dataset chemistry/dts-sn1... Fallback: UCI
+    ucimlrepo SN subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_ucimlrepo_SN_subset_used_as_fallback_data_source
+  kind: entity_fact
+  raw_text: 'Fallback: UCI ''ucimlrepo'' SN subset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:27:37Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional unless explicitly requested
+  claim_id: c_9b092a9a
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_unless_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:29:35Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Primary source for SN1 data is HuggingFace dataset chemistry/dts-sn1
+  claim_id: c_93f9abf2
+  context: 'Implement code/data/ingest.py to fetch verified SN1 data. Primary Source:
+    HuggingFace dataset chemistry/dts-sn1 (URL: https://huggingface.co/datasets/chemistry/dts-sn1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_source_for_SN1_data_is_HuggingFace_dataset_chemistry
+  kind: entity_fact
+  raw_text: 'Primary Source: HuggingFace dataset chemistry/dts-sn1 (URL: https://huggingface.co/datasets/chemistry/dts-sn1).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:29:37Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Fallback source for SN1 data is UCI ucimlrepo SN subset
+  claim_id: c_ac7dccb7
+  context: 'Fallback: UCI ucimlrepo SN subset. Column Mapping: Map smiles -> SMILES,
+    rate -> rate_constant, substrate -> substrate_class.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_source_for_SN1_data_is_UCI_ucimlrepo_SN_subset
+  kind: entity_fact
+  raw_text: 'Fallback: UCI ucimlrepo SN subset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:29:39Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Training job completes within 6 hours on 2-core CPU with R2 and MAE metrics
+  claim_id: c_8d94ac67
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner, saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training job completes within 6 hours on a 2-core CPU runner, saves\
+    \ model weights, and outputs R\xB2/MAE metrics comparing MPNN to linear regression\
+    \ with statistical significance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:30:10Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Top 5 features must have Kendall Tau correlation greater than 0.7
+  claim_id: c_87305327
+  context: Aggregate node-level SHAP to global feature rankings and compute Kendall's
+    Tau correlation of the resulting feature rankings across the 3 seeds. Validate
+    that the top 5 features are consistent (Kendall's Tau > 0.7).
+  evidence:
+    asserted: '5.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: magnitude
+  raw_text: Validate that the top 5 features are consistent (Kendall's Tau > 0.7).
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T13:30:10Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Identify top 5 atoms per molecule with absolute SHAP value greater than
+    0.1
+  claim_id: c_a2bc6ff7
+  context: 'For each molecule in the test set, identify the top 5 atoms with the highest
+    absolute SHAP value (or atoms with |SHAP| > 0.1). Tie-breaking: Select the top
+    5 by absolute SHAP value; if ties exist, select the first 5 by atom index.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_top_5_atoms_per_molecule_with_absolute_SHAP_value_g
+  kind: magnitude
+  raw_text: For each molecule in the test set, identify the top 5 atoms with the highest
+    absolute SHAP value (or atoms with |SHAP| > 0.1).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:30:23Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Test 5 specific hyperparameter configurations for sensitivity analysis
+  claim_id: c_5abb95a0
+  context: 'Test the following 5 configurations explicitly: (1) LR=0.01, Dropout=0.0;
+    (2) LR=0.01, Dropout=0.5; (3) LR=0.001, Dropout=0.0; (4) LR=0.001, Dropout=0.5;
+    (5) LR=0.1, Dropout=0.2. Use default values from config.py for hidden_dim and
+    num_layers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test the following 5 configurations explicitly: (1) LR=0.01, Dropout=0.0;
+    (2) LR=0.01, Dropout=0.5; (3) LR=0.001, Dropout=0.0; (4) LR=0.001, Dropout=0.5;
+    (5) LR=0.1, Dropout=0.2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:30:47Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Flag predictor pairs with VIF greater than 5
+  claim_id: c_dca75ba1
+  context: Calculate VIF for all predictor features. Identify and flag all pairs of
+    predictors with VIF > 5. Generate a descriptive joint analysis report listing
+    the specific correlated pairs, their VIF values, and a brief description of their
+    chemical relationship using a static dictionary.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictor_pairs_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Identify and flag all pairs of predictors with VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:31:11Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Perform PCA if VIF exceeds 10 for a feature
+  claim_id: c_4fb11e81
+  context: 'Generate a descriptive joint analysis report listing the specific correlated
+    pairs, their VIF values, and a brief description of their chemical relationship
+    using a static dictionary. If a feature is not in the dictionary, report ''Chemical
+    relationship: Undetermined (requires expert review)''. Perform PCA only if VIF
+    > 10 for a feature, as a fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform PCA only if VIF > 10 for a feature, as a fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:31:12Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Abort full pipeline validation if it exceeds 4 hours
+  claim_id: c_27f73919
+  context: 'Re-run the full pipeline (main.py) from ingestion to final report generation
+    using the production configuration. Verify all artifacts are generated and match
+    the expected schemas. Compare results against the integration test (T033) to ensure
+    no regression. Log any discrepancies or warnings. Constraint: If the full run
+    exceeds 4 hours, abort and document the partial run as a ''Feasibility Test''
+    rather than a full validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the full run exceeds 4 hours, abort and document the partial run as
+    a 'Feasibility Test' rather than a full validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T13:31:36Z'
