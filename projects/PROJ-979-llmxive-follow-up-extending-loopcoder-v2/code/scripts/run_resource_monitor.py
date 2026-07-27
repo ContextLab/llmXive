@@ -2,33 +2,38 @@ import os
 import sys
 import json
 from pathlib import Path
-from src.utils import capture_metrics
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from utils import capture_metrics
+
 
 def main():
     """
-    Main entry point for the resource monitoring script.
-    Invokes capture_metrics() and ensures the output is written to disk.
+    Run resource monitoring and save metrics to data/processed/resource_metrics.json.
+    This script is invoked by the run-book to satisfy SC-005.
     """
     output_path = "data/processed/resource_metrics.json"
     
     # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
     print(f"Capturing resource metrics to {output_path}...")
     metrics = capture_metrics(output_path)
     
-    print("Resource metrics captured successfully:")
+    print("Resource metrics captured:")
     print(json.dumps(metrics, indent=2))
     
     # Verify file was written
     if os.path.exists(output_path):
-        print(f"Verification: {output_path} exists.")
-        with open(output_path, 'r') as f:
-            saved_metrics = json.load(f)
-        print(f"Saved content: {saved_metrics}")
+        print(f"SUCCESS: Metrics file written to {output_path}")
     else:
-        print(f"ERROR: {output_path} was not created.")
+        print(f"ERROR: Failed to write metrics file to {output_path}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

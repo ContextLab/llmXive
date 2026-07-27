@@ -21,20 +21,20 @@ T004c:
     file does not exist. Both the core function and its output artifact are missing.
 T004f:
   c: false
-  h: 58a3875ad99899ea19e8b3f3eaa4aaf2d566816dd7e8370f50f3e59a82601ca4
-  r: "The repository lacks the required data files (`data/processed/strata_log.json`,\
-    \ `splits.json`, and the output `filtered_splits.json`). Moreover, the provided\
-    \ `code/src/data_loader.py` excerpt does not contain an implementation of the\
-    \ `filter_strata()` function (or it is incomplete/truncated), so the core functionality\
-    \ is missing. The task\u2019s specifications are therefore not satisfied."
+  h: 9ac656824f87ceca9d7cd9f79b9d5eb0e2353c869e6558271a20175f63cc78d4
+  r: "The repository lacks the required input files `data/processed/strata_log.json`\
+    \ and `data/processed/splits.json`, and the output file `data/processed/filtered_splits.json`\
+    \ is also absent. Moreover, the provided `code/src/data_loader.py` does not contain\
+    \ an implementation of the `filter_strata()` function (the file is truncated before\
+    \ any such code). Consequently, the task\u2019s core functionality and verification\
+    \ steps are not present."
 T005e:
   c: false
-  h: bf0ff8845db120dc0ba4af11f5e298f2735ba4453e9c0f6fd74ac95de75880ce
-  r: "The `capture_metrics()` function is present but does not use `nvidia\u2011smi`\
-    \ via subprocess and calls a non\u2011existent `torch.cuda.utilization()` API,\
-    \ so GPU metrics are not correctly gathered. The `main()` function is truncated\
-    \ (`save_resource_metrics(metrics, arg`), and the required `data/processed/resource_metrics.json`\
-    \ file was not created. The utility therefore does not meet the specification."
+  h: 380713214c30ca8bd9581bb617c6fa4d2af9cdb9bbedfb45ad3fb6c7d7947edb
+  r: "The `capture_metrics()` function is only partially implemented (runtime not\
+    \ calculated, no JSON write, and the GPU\u2011utilization code is invalid), and\
+    \ the required output file `data/processed/resource_metrics.json` does not exist.\
+    \ The task\u2019s specification is therefore not satisfied."
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,20 +44,33 @@ T008b:
     baseline hypothesis are not documented.
 T012a:
   c: false
-  h: d5b7cd21fb94add2cede6d9d5dbf67491344c54d631d76ddd49058e3c0c3d48e
-  r: "The required input file `data/processed/filtered_splits.json` is absent, so\
-    \ the sampling function cannot be run on the specified data. Additionally, the\
-    \ provided `entropy.py` does not clearly show loading the model from the `CODELLAMA_CPU_PATH`\
-    \ or `CODELLAMA_GPU_PATH` environment variables nor a top\u2011level function\
-    \ that reads the JSON and returns a list of 10 generated strings. These missing\
-    \ pieces prevent the task from being genuinely fulfilled."
+  h: 914a5827326cd3ce68222eb9d6cd556a5bf0f1020efcceac8429c926651a17ca
+  r: "The repository lacks the required `data/processed/filtered_splits.json` file,\
+    \ and `entropy.py` does not load the model from the `CODELLAMA_CPU_PATH` or `CODELLAMA_GPU_PATH`\
+    \ environment variables nor does it read the JSON input and produce the list\u2011\
+    of\u2011strings output. These essential parts of the task are missing."
+T012d:
+  c: false
+  h: 12b8d1812f7daffbdcfe2a3224768e90d973df2de716e7971f2cc6797d9c7e6f
+  r: "The repository lacks the required `data/processed/exclusion_log.json` file,\
+    \ and the shown portion of `code/src/entropy.py` does not contain any logic that\
+    \ writes exclusion counts or rates to that JSON path. Consequently, the exclusion\u2011\
+    logging feature is not implemented."
 T013d:
   c: false
-  h: 76c444a315e0136b9b307d59bc4b850bc7857649fad641315c5527e437a9c482
-  r: "The repository lacks the required `data/processed/convergence_results.csv` file,\
-    \ and the provided `code/src/inference.py` does not contain any implementation\
-    \ that logs convergence trajectories to such a CSV with the specified schema.\
-    \ The task\u2019s core requirement is therefore unmet."
+  h: 76c04f25261e36b175475a534fc262d3ae0d41d6a4d9dda6fbaa7610e84331af
+  r: "The `inference.py` file does not contain any code that writes convergence trajectories\
+    \ to `data/processed/convergence_results.csv` with the required columns, and the\
+    \ CSV file itself is absent from the repository. The task\u2019s core output is\
+    \ therefore missing."
+T013e:
+  c: false
+  h: 7fa52188febbf8d67d0588de9fefb4ad8469691100b10940c3d1d10230bf565f
+  r: "The required input `data/processed/filtered_splits.json` does not exist, and\
+    \ the expected output `data/processed/convergence_results_k4.csv` is also missing.\
+    \ Moreover, the provided `code/src/inference.py` shows no implementation of a\
+    \ sensitivity\u2011only pass for\u202Fk=4, nor any code that writes the required\
+    \ CSV. These essential artifacts are absent, so the task is not completed."
 T019:
   c: false
   h: cec17e7b99f9d4caf19a8136e847fa8deb938714ecceb947b4e5dc20fd31315f

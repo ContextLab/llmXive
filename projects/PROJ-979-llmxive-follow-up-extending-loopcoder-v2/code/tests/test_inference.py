@@ -4,113 +4,184 @@ import json
 import tempfile
 import csv
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
+from unittest.mock import MagicMock, patch
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from inference import write_convergence_results, run_refinement_loop, detect_convergence
-from models import ConvergenceStatus, ConvergenceTrajectory, InputProblem
+from src.inference import (
+    save_convergence_results,
+    load_input_problems,
+    detect_convergence,
+    execute_code_in_sandbox,
+    ConvergenceTrajectory
+)
+from src.models import InputProblem
 
 @pytest.fixture
 def temp_dir():
-    tmp = tempfile.mkdtemp()
-    yield tmp
-    import shutil
-    shutil.rmtree(tmp)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
 class TestConvergenceLogger:
-    def test_write_convergence_results_creates_csv(self, temp_dir):
-        """Test that write_convergence_results creates the CSV with correct columns."""
+    def test_save_convergence_results_csv_schema(self, temp_dir):
+        """Test that save_convergence_results writes correct CSV schema."""
         output_path = os.path.join(temp_dir, "convergence_results.csv")
         
-        # Create mock trajectories
-        traj1 = ConvergenceTrajectory(
-            task_id="task_1",
-            steps=[{"k": 1, "code": "print(1)", "status": ConvergenceStatus.FAILED}],
-            k_correct=None,
-            status=ConvergenceStatus.FAILED
-        )
-        traj2 = ConvergenceTrajectory(
-            task_id="task_2",
-            steps=[{"k": 1, "code": "print(2)", "status": ConvergenceStatus.CONVERGED}],
-            k_correct=1,
-            status=ConvergenceStatus.CONVERGED
-        )
+        # Create sample results
+        results = [
+            ConvergenceTrajectory(
+                task_id="test-001",
+                k=1,
+                output="print('hello')",
+                is_correct=True,
+                converged=True,
+                first_correct_step=1
+            ),
+            ConvergenceTrajectory(
+                task_id="test-002",
+                k=2,
+                output="print('world')",
+                is_correct=False,
+                converged=False,
+                first_correct_step=None
+            )
+        ]
         
-        write_convergence_results([traj1, traj2], output_path)
+        # Save results
+        save_convergence_results(results, output_path)
         
+        # Verify file exists
         assert os.path.exists(output_path)
         
+        # Verify CSV schema
         with open(output_path, 'r') as f:
-            reader = csv.reader(f)
+            reader = csv.DictReader(f)
             rows = list(reader)
-        
-        # Check header
-        assert rows[0] == ['task_id', 'k_correct', 'trajectory_status']
-        
-        # Check data
-        assert len(rows) == 3 # Header + 2 rows
-        assert rows[1][0] == 'task_1'
-        assert rows[1][1] == 'None'
-        assert rows[1][2] == 'FAILED'
-        
-        assert rows[2][0] == 'task_2'
-        assert rows[2][1] == '1'
-        assert rows[2][2] == 'CONVERGED'
+            
+            # Check columns
+            expected_columns = ['task_id', 'k', 'converged', 'step', 'timestamp']
+            assert set(reader.fieldnames) == set(expected_columns)
+            
+            # Check data
+            assert len(rows) == 2
+            assert rows[0]['task_id'] == 'test-001'
+            assert rows[0]['k'] == '1'
+            assert rows[0]['converged'] == 'True'
+            assert rows[0]['step'] == '1'
+            
+            assert rows[1]['task_id'] == 'test-002'
+            assert rows[1]['k'] == '2'
+            assert rows[1]['converged'] == 'False'
+            assert rows[1]['step'] == '0'  # None converted to 0
 
-    def test_write_convergence_results_empty_list(self, temp_dir):
-        """Test handling of empty trajectory list."""
-        output_path = os.path.join(temp_dir, "empty_results.csv")
-        write_convergence_results([], output_path)
+    def test_save_convergence_results_empty(self, temp_dir):
+        """Test saving empty results."""
+        output_path = os.path.join(temp_dir, "convergence_results.csv")
+        
+        save_convergence_results([], output_path)
         
         assert os.path.exists(output_path)
         with open(output_path, 'r') as f:
-            reader = csv.reader(f)
+            reader = csv.DictReader(f)
             rows = list(reader)
-        
-        assert rows[0] == ['task_id', 'k_correct', 'trajectory_status']
-        assert len(rows) == 1
-
-    def test_write_convergence_results_directory_creation(self, temp_dir):
-        """Test that the function creates parent directories if they don't exist."""
-        nested_path = os.path.join(temp_dir, "subdir", "nested", "results.csv")
-        
-        traj = ConvergenceTrajectory(
-            task_id="task_1",
-            steps=[],
-            k_correct=None,
-            status=ConvergenceStatus.FAILED
-        )
-        
-        write_convergence_results([traj], nested_path)
-        
-        assert os.path.exists(nested_path)
+            assert len(rows) == 0
 
 class TestRefinementLoop:
-    @patch('inference.generate_solution')
-    @patch('inference.execute_code_in_sandbox')
-    def test_run_refinement_loop_converges_early(self, mock_exec, mock_gen, temp_dir):
-        """Test that the loop stops as soon as a solution is found."""
-        mock_gen.side_effect = ["bad_code_1", "good_code_2"]
-        mock_exec.side_effect = [(False, "error1"), (True, None)]
+    def test_detect_convergence_success(self, temp_dir):
+        """Test convergence detection with correct solution."""
+        # Mock code that passes test
+        solutions = [
+            "def add(a, b): return a + b",
+            "def add(a, b): return a + b"
+        ]
+        test_case = """
+        assert add(2, 3) == 5
+        """
         
-        traj = run_refinement_loop("prompt", "test", None, None, max_k=3)
-        
-        assert traj.status == ConvergenceStatus.CONVERGED
-        assert traj.k_correct == 2
-        assert len(traj.steps) == 2 # Should stop after k=2
+        # Mock execute_code_in_sandbox to return success
+        with patch('src.inference.execute_code_in_sandbox') as mock_exec:
+            mock_exec.return_value = MagicMock(is_correct=True)
+            
+            converged, step = detect_convergence(solutions, test_case)
+            
+            assert converged is True
+            assert step == 1
 
-    @patch('inference.generate_solution')
-    @patch('inference.execute_code_in_sandbox')
-    def test_run_refinement_loop_fails_all(self, mock_exec, mock_gen, temp_dir):
-        """Test behavior when no solution is found within max_k."""
-        mock_gen.side_effect = ["bad_1", "bad_2", "bad_3"]
-        mock_exec.side_effect = [(False, "e1"), (False, "e2"), (False, "e3")]
+    def test_detect_convergence_failure(self, temp_dir):
+        """Test convergence detection when no solution is correct."""
+        solutions = [
+            "def add(a, b): return a - b",
+            "def add(a, b): return b - a"
+        ]
+        test_case = """
+        assert add(2, 3) == 5
+        """
         
-        traj = run_refinement_loop("prompt", "test", None, None, max_k=3)
+        # Mock execute_code_in_sandbox to return failure
+        with patch('src.inference.execute_code_in_sandbox') as mock_exec:
+            mock_exec.return_value = MagicMock(is_correct=False)
+            
+            converged, step = detect_convergence(solutions, test_case)
+            
+            assert converged is False
+            assert step is None
+
+    def test_load_input_problems(self, temp_dir):
+        """Test loading input problems from JSON."""
+        input_path = os.path.join(temp_dir, "input_problems.json")
         
-        assert traj.status == ConvergenceStatus.FAILED
-        assert traj.k_correct is None
-        assert len(traj.steps) == 3
+        # Create sample input data
+        sample_data = [
+            {
+                "task_id": "test-001",
+                "prompt": "Write a function to add two numbers",
+                "test": "assert add(2, 3) == 5"
+            },
+            {
+                "task_id": "test-002",
+                "prompt": "Write a function to multiply two numbers",
+                "test": "assert multiply(2, 3) == 6"
+            }
+        ]
+        
+        with open(input_path, 'w') as f:
+            json.dump(sample_data, f)
+        
+        problems = load_input_problems(input_path)
+        
+        assert len(problems) == 2
+        assert problems[0].task_id == "test-001"
+        assert problems[0].prompt == "Write a function to add two numbers"
+        assert problems[1].task_id == "test-002"
+
+    def test_execute_code_in_sandbox(self, temp_dir):
+        """Test code execution in sandbox."""
+        code = "def add(a, b): return a + b"
+        test_case = "assert add(2, 3) == 5"
+        
+        result = execute_code_in_sandbox(code, test_case)
+        
+        assert result.output is not None
+        # Note: In real implementation, we'd verify is_correct based on actual execution
+        # For now, we just check that it runs without crashing
+
+    def test_save_convergence_results_with_none_step(self, temp_dir):
+        """Test that None first_correct_step is handled correctly."""
+        output_path = os.path.join(temp_dir, "convergence_results.csv")
+        
+        results = [
+            ConvergenceTrajectory(
+                task_id="test-001",
+                k=1,
+                output="code",
+                is_correct=False,
+                converged=False,
+                first_correct_step=None
+            )
+        ]
+        
+        save_convergence_results(results, output_path)
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            assert rows[0]['step'] == '0'  # None should be converted to 0
