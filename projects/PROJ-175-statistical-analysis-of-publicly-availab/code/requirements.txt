@@ -8,5 +8,7 @@ scipy
 requests
 tqdm
 huggingface_hub
+sentence-transformers
 psutil
-pytest
+arviz
+torch

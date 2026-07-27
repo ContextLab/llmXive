@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "final_features.parquet",
+    "required": []
+  },
+  {
+    "data_file": "train_set.parquet",
+    "required": []
+  }
+]

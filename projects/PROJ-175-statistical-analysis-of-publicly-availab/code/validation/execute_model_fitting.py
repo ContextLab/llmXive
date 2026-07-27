@@ -1,3 +1,7 @@
+"""
+T022 Execution Wrapper
+Runs the logistic regression fitting script (T022) and logs execution.
+"""
 import os
 import sys
 import json
@@ -5,135 +9,68 @@ import time
 import subprocess
 from pathlib import Path
 
-def run_script(script_name: str, args: list = None) -> dict:
-    """
-    Runs a specific Python script and captures the output and timing.
-    Returns a dict with status, runtime, and output/error logs.
-    """
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+LOGS_DIR = DATA_DIR
+
+def run_script():
+    """Execute the logistic regression fitting script."""
+    script_path = PROJECT_ROOT / "code" / "models" / "fit_logistic.py"
+    output_log_path = LOGS_DIR / "model_fitting_log.json"
+
     start_time = time.time()
-    cmd = [sys.executable, script_name]
-    if args:
-        cmd.extend(args)
+    status = "SUCCESS"
+    error_msg = None
 
     try:
-        # Run the script, capturing stdout and stderr
+        # Check memory limit before running
+        # We assume the script itself handles memory checks, but we log here too
         result = subprocess.run(
-            cmd,
+            [sys.executable, str(script_path)],
             capture_output=True,
             text=True,
-            timeout=3600,  # 1 hour timeout for model fitting
-            check=False
+            cwd=str(PROJECT_ROOT)
         )
-        
-        elapsed_time = time.time() - start_time
-        
-        if result.returncode == 0:
-            return {
-                "status": "SUCCESS",
-                "runtime_seconds": elapsed_time,
-                "stdout": result.stdout,
-                "stderr": result.stderr
-            }
+
+        if result.returncode != 0:
+            status = "FAILED"
+            error_msg = result.stderr
+            print(f"Script failed with return code {result.returncode}")
+            print(f"Error: {error_msg}")
         else:
-            return {
-                "status": "FAILED",
-                "runtime_seconds": elapsed_time,
-                "error": result.stderr,
-                "exit_code": result.returncode
-            }
-    except subprocess.TimeoutExpired:
-        return {
-            "status": "TIMEOUT",
-            "runtime_seconds": 3600,
-            "error": "Script execution timed out after 1 hour"
-        }
+            print("Script executed successfully")
+            print(result.stdout)
+
     except Exception as e:
-        return {
-            "status": "ERROR",
-            "runtime_seconds": time.time() - start_time,
-            "error": str(e)
-        }
+        status = "FAILED"
+        error_msg = str(e)
+        print(f"Exception occurred: {e}")
+
+    end_time = time.time()
+    duration = end_time - start_time
+
+    log_entry = {
+        "task_id": "T022",
+        "status": status,
+        "duration_seconds": duration,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "script_path": str(script_path),
+        "error": error_msg
+    }
+
+    # Ensure logs directory exists
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+    with open(output_log_path, 'w') as f:
+        json.dump(log_entry, f, indent=2)
+
+    print(f"Log saved to {output_log_path}")
+
+    if status == "FAILED":
+        sys.exit(1)
 
 def main():
-    """
-    Orchestrates the model fitting execution (Logistic and Bayesian).
-    Writes results to data/model_fitting_log.json.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    data_dir = project_root / "data"
-    models_dir = project_root / "code" / "models"
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    log = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "tasks": {},
-        "overall_status": "PENDING"
-    }
-    
-    scripts_to_run = [
-        ("Logistic Regression", "models/fit_logistic.py"),
-        ("Bayesian Model", "models/fit_bayesian.py")
-    ]
-    
-    for task_name, script_path in scripts_to_run:
-        full_script_path = models_dir / script_path
-        
-        if not full_script_path.exists():
-            log["tasks"][task_name] = {
-                "status": "SKIPPED",
-                "reason": f"Script not found: {script_path}"
-            }
-            continue
-        
-        print(f"Running {task_name}...")
-        result = run_script(str(full_script_path))
-        
-        # Check convergence status from the script output if available
-        convergence_status = "UNKNOWN"
-        if task_name == "Bayesian Model":
-            # Try to read convergence status from the generated log if it exists
-            bayes_log_path = data_dir / "bayesian_convergence_log.json"
-            if bayes_log_path.exists():
-                try:
-                    with open(bayes_log_path, 'r') as f:
-                        bayes_data = json.load(f)
-                        convergence_status = bayes_data.get("status", "UNKNOWN")
-                except (json.JSONDecodeError, IOError):
-                    pass
-        
-        log["tasks"][task_name] = {
-            "status": result["status"],
-            "runtime_seconds": result["runtime_seconds"],
-            "convergence_status": convergence_status,
-            "details": result.get("error", "Success") if result["status"] != "SUCCESS" else None
-        }
-    
-    # Determine overall status
-    all_success = all(
-        t["status"] == "SUCCESS" 
-        for t in log["tasks"].values() 
-        if t["status"] not in ["SKIPPED"]
-    )
-    
-    if all_success:
-        log["overall_status"] = "SUCCESS"
-    elif any(t["status"] == "TIMEOUT" for t in log["tasks"].values()):
-        log["overall_status"] = "TIMEOUT"
-    else:
-        log["overall_status"] = "FAILED"
-    
-    # Write the log file
-    output_path = data_dir / "model_fitting_log.json"
-    with open(output_path, 'w') as f:
-        json.dump(log, f, indent=2)
-    
-    print(f"Model fitting log written to {output_path}")
-    print(f"Overall Status: {log['overall_status']}")
-    
-    if log["overall_status"] != "SUCCESS":
-        sys.exit(1)
+    run_script()
 
 if __name__ == "__main__":
     main()

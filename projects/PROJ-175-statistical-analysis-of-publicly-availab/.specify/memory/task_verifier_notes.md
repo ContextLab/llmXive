@@ -2,9 +2,15 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
+- **T014** — The repository contains `code/data/preprocess.py`, but it only builds a tiny hard‑coded canonical map and writes a placeholder JSON (`canonical_map_size` etc.) to a path derived from `processed_dir.parent`, not to the required `data/normalization_config.json` (which is missing). No actual mapping or exclusion counts are logged, and the script does not process real Recipe1M ingredient data. The required output file is absent, so the normalization step is not genuinely implemented.
+- **T008** — The `data/power_analysis.json` file exists and contains the required fields, but the required second artifact `data/split_config.json` is missing, so the task’s deliverables are not fully satisfied.
+- **T015** — declared artifact(s) missing/empty/invalid: data/processed/co_occurrence_matrix.parquet
+- **T016** — declared artifact(s) missing/empty/invalid: data/processed/flavor_similarity.parquet
+- **T019** — declared artifact(s) missing/empty/invalid: data/split_config.json
+- **T040b** — The required artifact `data/final/logistic_results.json` does not exist, so the logistic regression re‑fit after predictor drop has not been recorded as required. The task therefore remains unfinished.
+- **T022** — Both required artifacts are absent: `data/final_predictors.json` (the predictor list) and `data/final/logistic_results.json` (the logistic regression results) do not exist on disk, so the model fitting cannot have been performed. The task therefore is not satisfied.
+- **T025** — The required output file `data/final/bayesian_results.json` is missing, so the core artifact of the task was not produced. The convergence log exists, but without the results JSON the task’s primary requirement is unmet.
+- **T047** — declared artifact(s) missing/empty/invalid: data/vif_test_set.json
+- **T029** — declared artifact(s) missing/empty/invalid: data/evaluation_metrics.json
+- **T099** — declared artifact(s) missing/empty/invalid: code/run_full_pipeline.py
 - **T043a** — declared artifact(s) missing/empty/invalid: data/pipeline_execution_log.json
-- **T043b** — The required artifact `data/model_fitting_log.json` does not exist, so there is no evidence of model fitting execution, runtime, convergence, or success status. The implementer must generate this JSON log file on the CI runner.
-- **T043c** — The required artifact `data/evaluation_log.json` does not exist in the repository, so the evaluation script was not run or its output was not saved as specified. The missing file must be generated and committed for the task to be considered complete.
-- **T043d** — The three required source log files (`pipeline_execution_log.json`, `model_fitting_log.json`, `evaluation_log.json`) are missing, so no real metrics could be extracted. The existing `final_validation_report.json` only contains placeholder status fields and does not reflect any data from the absent logs. The task’s core requirement is therefore unmet.
-- **T044** — The `docs/final_report.md` exists and correctly reflects the JSON data, but the required `docs/draft_final_report.md` is absent and the report’s section heading is “Results” instead of the specified “Results (LRT, VIF, AUC Delta)”. These missing/incorrect elements prevent the task from being fully satisfied.
-- **T059** — The required configuration files `data/split_config.json` and `data/normalization_config.json` are missing, and the deliverable `data/reproducibility_audit.json` does not exist. Moreover, the provided `code/audit_reproducibility.py` is incomplete (truncated) and does not perform the full pipeline execution, hash verification, or JSON report generation required by the task.

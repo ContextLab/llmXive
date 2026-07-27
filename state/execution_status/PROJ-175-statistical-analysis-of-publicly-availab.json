@@ -1,0 +1,24 @@
+{
+  "project_id": "PROJ-175-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/evaluation/metrics.py: function `get_predictions` returns a bare RNG draw (line 29) \u2014 a reported value computed from no real input; 1 run-book script(s) missing (plan/impl path mismatch): python run_full_pipeline.py; 5 command(s) failed: python code/data/download.py --dataset recipe1m --output data/raw/ (rc=1); python code/data/preprocess.py --input data/raw/ --output data/processed/ (rc=1); python code/data/split.py --input data/processed/ingredient_pairs.csv --output data/processed/ (rc=1); 9 declared deliverable(s) absent: data/evaluation_log.json; data/evaluation_metrics.json; data/final/bayesian_results.json",
+  "artifacts": [
+    "code/data/normalization_config.json",
+    "code/data/zero_handling_log.json"
+  ],
+  "failures": [
+    "python code/data/download.py --dataset recipe1m --output data/raw/ -> rc=1\n    Starting dataset download...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/download.py\", line 143, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/download.py\", line 140, in main\n    download_datasets()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/download.py\", line 1",
+    "python code/data/preprocess.py --input data/raw/ --output data/processed/ -> rc=1\n    ive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parquet.py\", line 199, in write\n    path_or_handle, handles, filesystem = _get_path_or_handle(\n                                          ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parquet.py\", line 141, in _get_path_or_handle\n    handles = get_handle(\n              ^^^^^^",
+    "python code/data/split.py --input data/processed/ingredient_pairs.csv --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/split.py\", line 48, in <module>\n    create_train_test_split()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/data/split.py\", line 26, in create_train_test_split\n    raise FileNotFoundError(\"final_features.parquet not found. Run T018 first.\")\nFileNotFoundError: final_features.parquet not ",
+    "python code/models/fit_logistic.py --input data/processed/train.csv --output data/logs/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/fit_logistic.py\", line 76, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/fit_logistic.py\", line 69, in main\n    df = load_processed_data()\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly",
+    "python code/models/fit_bayesian.py --input data/processed/train.csv --output data/logs/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/fit_bayesian.py\", line 74, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/fit_bayesian.py\", line 53, in main\n    import torch\nModuleNotFoundError: No module named 'torch'",
+    "python run_full_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/run_full_pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-27T14:20:07Z"
+}
