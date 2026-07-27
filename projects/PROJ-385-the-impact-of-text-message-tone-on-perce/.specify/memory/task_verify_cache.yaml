@@ -54,3 +54,27 @@ T028:
     \ Additionally, the provided script is truncated and does not show the full implementation\
     \ of applying definitions and re\u2011running the LMM. The task\u2019s core requirements\
     \ are therefore not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an updated `specs/001-text-tone-emotional-support/quickstart.md`
+    file is provided; the response contains only the specification text and no documentation
+    artifact, so we cannot confirm the required documentation changes were made.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting report, log file, or any evidence that the `code/` directory
+    was checked and produced zero errors is present. The required artifact (a successful
+    lint/format check output) is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an end\u2011to\u2011end pipeline execution with a fixed random\
+    \ seed is present\u2014no logs, output files, or reproducibility report were supplied,\
+    \ so the required artifact is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of additional unit test files for edge cases (missing data handling,
+    randomization failure) was provided in the `tests/unit/` directory; the required
+    artifacts are missing.

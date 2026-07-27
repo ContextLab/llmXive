@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 17aeb4a19778040c5513a05ec461a94fe8014cce938e2ad53c6deff20f6eb890
+  artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Rules | Ruff
+  kind: url
+  value: https://docs.astral.sh/ruff/rules/
+  verification_status: pending
+  verified_against_url: https://docs.astral.sh/ruff/rules/
+  verified_at: '2026-07-27T03:58:12.964798Z'

@@ -1,6 +1,22 @@
-# Ruff configuration file
-# This file is a legacy alternative to pyproject.toml configuration
-# but is included for compatibility with older ruff versions or specific editor setups.
-# Primary configuration is in pyproject.toml.
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+]
 
-extend = "../pyproject.toml"
+[lint.isort]
+known-first-party = ["config", "logging_config", "setup_data_dirs", "setup_linting", "setup_project_structure", "validate_schemas", "verify_logging"]
