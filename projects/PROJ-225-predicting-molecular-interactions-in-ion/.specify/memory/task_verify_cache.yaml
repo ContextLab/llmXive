@@ -5,22 +5,13 @@ T012a:
     \ files, and the posted `download_il_thermo_sapt` implementation is truncated\
     \ (no code that actually downloads, saves, or checks the required columns). Consequently\
     \ the task\u2019s core output and verification steps are not present."
-T016a:
+T015a:
   c: false
-  h: 9c9d4673cacf9a0ec710f84b904224071643500b1d805f49471ff6a0e656f378
-  r: "The repository lacks the required `data/processed/training_features.parquet`\
-    \ file, which should be created by `engineer_features(df)` after dropping the\
-    \ `partial_charge` column. Moreover, the provided excerpt of `code/data_ingestion.py`\
-    \ does not show an implementation of `engineer_features`, so the core functionality\
-    \ is either missing or incomplete. The task\u2019s critical output and feature\u2011\
-    engineering steps are therefore not satisfied."
-T016b:
-  c: false
-  h: 26793106cac04f9862f993c7d145e1efb47164f145f995eb3db2dec6f79c9fb0
-  r: "The repository lacks the required `data/processed/internal_consistency_checks.parquet`\
-    \ and `data/processed/unified_dataset.parquet` files, and the shown portion of\
-    \ `code/data_ingestion.py` does not contain an implementation of `merge_consistency_artifacts()`.\
-    \ Consequently the task\u2019s core functionality and output artifacts are missing."
+  h: 567dcaf3956ab8cf3a7d305f66503c4e91b62dd99032e32809e30af502a60639
+  r: The provided `code/data_ingestion.py` does not contain a `calculate_partial_charges_internal_only(df)`
+    function (or any implementation of Gasteiger charge calculation), and the required
+    `data/processed/internal_consistency_checks.parquet` file is absent. Both the
+    function implementation and the saved parquet file are needed to satisfy the task.
 T017b:
   c: false
   h: 5727d48fae8475579b0187c481125617f1e71d5883f6f81f9dd4ee91aea9dc1d
@@ -35,13 +26,13 @@ T017c:
     \ not show a `filter_raw_sapt(df)` function, nor any code that writes `data/processed/raw_sapt_subset.parquet`.\
     \ Moreover, the required parquet file is absent from the `data/processed` directory.\
     \ The task\u2019s core output is therefore missing."
-T017d:
+T017e:
   c: false
-  h: 9087f4487ae50c0e43e4decdb74e216964c29036751af04cb920e2c55df11af1
-  r: The repository contains `code/data_ingestion.py`, but the required `filter_raw_sapt(df)`
-    function is not present (or not shown) and the expected output file `data/processed/raw_sapt.parquet`
-    does not exist. Both the implementation and the saved artifact are missing, so
-    the task is not satisfied.
+  h: ea77dce394661e9c3885db61a66876009a50734af4a341e5b7bbc5ca0c998e4d
+  r: The provided `code/data_ingestion.py` does not contain a `write_unified_dataset(df,
+    path)` implementation (the file is truncated before any such function appears),
+    and the expected output file `data/processed/unified_dataset.parquet` is absent.
+    Both the required function and its resulting artifact are missing.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,10 +47,3 @@ T021b:
   r: "The `code/model_training.py` file contains a non\u2011placeholder implementation\
     \ of `save_splits` that creates `data/processed` and writes the three DataFrames\
     \ to `train.parquet`, `val.parquet`, and `test.parquet` as required."
-T060:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (code, data file, or output) was provided for the removed T060 task,\
-    \ and the claim of completion is unsupported; there is nothing to verify against\
-    \ the stated requirements. The implementer must supply the expected ingestion/feature\u2011\
-    engineering script or confirm that no work is needed due to task removal."
