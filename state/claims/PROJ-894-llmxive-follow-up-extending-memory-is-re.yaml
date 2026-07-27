@@ -148,3 +148,177 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T12:52:19Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Baseline vs Lazy Traversal t-test statistic -2.45 p-value 0.018
+  claim_id: c_19752ba9
+  context: Baseline vs. Lazy Traversal section under Statistical Significance Analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Paired t-test between Baseline and Lazy Traversal yielded a statistic
+    of -2.45 and a P-value of 0.018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:33Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Baseline vs Greedy Traversal t-test statistic -1.92 p-value 0.061
+  claim_id: c_b510e612
+  context: Baseline vs. Greedy Traversal section under Statistical Significance Analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Paired t-test between Baseline and Greedy Traversal yielded a statistic
+    of -1.92 and a P-value of 0.061.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:59Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Noisy Baseline Mean Accuracy 0.78 Std Accuracy 0.12 Mean Nodes Visited
+    45.2
+  claim_id: c_c795a50a
+  context: Noisy Baseline Statistics section under Robustness Check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noisy Baseline Mean Accuracy is 0.78 with a Std Accuracy of 0.12 and Mean
+    Nodes Visited of 45.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:07:46Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Noisy Lazy Mean Accuracy 0.75 Std Accuracy 0.14 Mean Nodes Visited 32.1
+  claim_id: c_cdfd48e7
+  context: Noisy Lazy Statistics section under Robustness Check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noisy Lazy Mean Accuracy is 0.75 with a Std Accuracy of 0.14 and Mean
+    Nodes Visited of 32.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:08:45Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Lazy heuristic accuracy delta -0.03
+  claim_id: c_2b6062a3
+  context: Accuracy Deltas (Heuristic vs Baseline) section under Robustness Check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The accuracy delta for Lazy heuristic compared to Baseline is -0.03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:12:19Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Greedy heuristic accuracy delta -0.01
+  claim_id: c_57daca23
+  context: Accuracy Deltas (Heuristic vs Baseline) section under Robustness Check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The accuracy delta for Greedy heuristic compared to Baseline is -0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:12:30Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Baseline Accuracy 0.92 at Threshold Nodes 60
+  claim_id: c_17d7c19b
+  context: Complexity Threshold Analysis section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Accuracy is 0.92 at a Threshold Nodes of 60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:12:43Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Point-Biserial Correlation Coefficient 0.42 p-value 0.003
+  claim_id: c_6a272d17
+  context: Correlation Analysis section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Point-Biserial Correlation Coefficient between nodes visited and reasoning
+    success is 0.42 with a P-value of 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:12:51Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Lazy Heuristic Threshold 0.7 Mean Accuracy 0.82 Mean Nodes Visited 28.5
+  claim_id: c_0692d9d2
+  context: 'Sensitivity Analysis: Lazy Heuristic Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a Lazy Heuristic Threshold of 0.7, Mean Accuracy is 0.82 and Mean Nodes
+    Visited is 28.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:13:04Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Lazy Heuristic Threshold 0.8 Mean Accuracy 0.80 Mean Nodes Visited 32.1
+  claim_id: c_c08a2394
+  context: 'Sensitivity Analysis: Lazy Heuristic Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a Lazy Heuristic Threshold of 0.8, Mean Accuracy is 0.80 and Mean Nodes
+    Visited is 32.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:13:12Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/docs/results.md
+  attempts: 1
+  canonical: Lazy Heuristic Threshold 0.9 Mean Accuracy 0.76 Mean Nodes Visited 38.4
+  claim_id: c_ac47229f
+  context: 'Sensitivity Analysis: Lazy Heuristic Threshold table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a Lazy Heuristic Threshold of 0.9, Mean Accuracy is 0.76 and Mean Nodes
+    Visited is 38.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:13:17Z'

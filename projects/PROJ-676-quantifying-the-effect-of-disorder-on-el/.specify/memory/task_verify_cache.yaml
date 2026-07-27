@@ -1,0 +1,30 @@
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the three required JSON schema files (`hamiltonian_schema.json`,
+    `eigenstate_schema.json`, `localization_length_schema.json`) in the path `specs/001-quantifying-disorder-effect/contracts/`
+    was provided; the claim lacks any artifact to verify. The task therefore remains
+    unfinished.
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `disorder_realization_schema.json` file was presented in the evidence, nor
+    any excerpt of its contents showing the required fields (W, L, realization_index).
+    Without the actual artifact, we cannot confirm that the file exists or meets the
+    specification. The implementer must add the JSON schema file at the indicated
+    path with the correct schema definition.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, logs, or documentation were provided showing an error\u2011handling\
+    \ and logging infrastructure added to the `code/` directory, nor any evidence\
+    \ that numerical residuals and convergence flags are captured for every eigenvalue\
+    \ problem. The required artifact is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the required `dict` with keys `xi`, `uncertainty`, and\
+    \ `fit_params` was provided; the evidence consists only of task and specification\
+    \ text, with no code, data, or output showing a finite\u2011size scaling fit.\
+    \ The implementer must supply the actual dictionary result (or code that generates\
+    \ it) for the task to be considered complete."

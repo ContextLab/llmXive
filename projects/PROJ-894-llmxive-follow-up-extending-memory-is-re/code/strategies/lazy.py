@@ -1,169 +1,178 @@
 """
-Lazy Traversal Strategy: Defers edge expansion until an evidence threshold is met.
+Lazy Traversal Strategy Implementation.
+Defers edge expansion until a confidence threshold is met.
 """
 from typing import Dict, Any, List, Set, Optional, Tuple
 import networkx as nx
 import logging
 import time
-
 from strategies.base import BaseTraversal
 from graph_utils import validate_graph, get_graph_statistics
 
 logger = logging.getLogger(__name__)
 
-
 class LazyTraversal(BaseTraversal):
     """
-    Lazy traversal heuristic that defers edge expansion until an evidence threshold is met.
+    Lazy Traversal Strategy.
+    
+    This strategy attempts to find a path or relevant subgraph by expanding edges
+    only when the confidence (or evidence) score exceeds a certain threshold.
+    This reduces the number of LLM queries and nodes visited compared to full traversal.
     """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        super().__init__(config)
-        self.evidence_threshold = self.config.get("evidence_threshold", 0.8)
-
-    def get_strategy_name(self) -> str:
-        return "Lazy"
-
-    def _validate_graph(self, graph: nx.DiGraph, start_node: str) -> bool:
-        """Validate the graph structure."""
-        if not validate_graph(graph):
-            logger.error("Graph validation failed")
-            return False
-
-        if start_node not in graph.nodes:
-            logger.error(f"Start node '{start_node}' not found in graph")
-            return False
-
-        return True
-
-    def _calculate_evidence(self, node_id: str, graph: nx.DiGraph) -> float:
+    
+    def __init__(self, evidence_threshold: float = 0.8, max_iterations: int = 100):
         """
-        Calculate evidence score for a node.
-        
-        In a real implementation, this would involve LLM inference to determine
-        relevance. Here we use a placeholder based on node properties.
+        Initialize Lazy Traversal.
         
         Args:
-            node_id: The node to evaluate.
-            graph: The graph containing the node.
-            
-        Returns:
-            Evidence score between 0 and 1.
+            evidence_threshold: Minimum confidence score required to expand an edge.
+            max_iterations: Maximum number of expansion steps to prevent infinite loops.
         """
-        node_data = graph.nodes[node_id]
-        # Placeholder: use 'relevance' if available, else random-like deterministic value
-        if "relevance" in node_data:
-            return node_data["relevance"]
-        # Deterministic fallback based on node ID hash
-        return (hash(node_id) % 100) / 100.0
+        super().__init__()
+        self.evidence_threshold = evidence_threshold
+        self.max_iterations = max_iterations
 
-    def traverse(
-        self,
-        graph: nx.DiGraph,
-        start_node: str,
-        target_node: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[bool, List[str], Dict[str, Any]]:
+    def _calculate_edge_confidence(self, G: nx.Graph, edge: Tuple[Any, Any], 
+                                   context: str) -> float:
         """
-        Traverse the graph using lazy expansion.
+        Calculate the confidence score for an edge based on context.
+        
+        In a real implementation, this would call the LLM to score the relevance
+        of the edge's content to the current query context.
+        
+        For this implementation, we simulate a confidence score based on edge attributes
+        or a heuristic.
         
         Args:
-            graph: The memory graph to traverse.
-            start_node: The starting node for traversal.
-            target_node: Optional target node to reach.
-            context: Optional context dictionary.
-            
+            G: The graph.
+            edge: Tuple (u, v).
+            context: The query context.
+        
         Returns:
-            A tuple of (success, path, stats).
+            Float between 0.0 and 1.0 representing confidence.
         """
-        start_time = self._start_timer()
-        self.reset_stats()
+        # Placeholder: In a real system, this would be an LLM call.
+        # We'll simulate based on edge weight or a random heuristic for now.
+        # If edge has a 'weight' or 'confidence' attribute, use it.
+        if G.has_edge(*edge):
+            attrs = G.edges[edge]
+            if 'confidence' in attrs:
+                return attrs['confidence']
+            # Simulate based on edge weight if present
+            if 'weight' in attrs:
+                # Normalize weight to 0-1 if it's in a reasonable range
+                w = attrs['weight']
+                if w > 1:
+                    return min(1.0, w / 10.0) # Heuristic
+                return w
+        return 0.5 # Default neutral confidence
 
-        if not self._validate_graph(graph, start_node):
-            return False, [], self.get_stats()
+    def run(self, G: nx.Graph, question: str) -> Dict[str, Any]:
+        """
+        Execute the Lazy Traversal strategy.
+        
+        Args:
+            G: The memory graph.
+            question: The user question to answer.
+        
+        Returns:
+            Dictionary containing 'answer', 'nodes_visited', 'path', 'status'.
+        """
+        if not validate_graph(G):
+            logger.error("Invalid graph provided to LazyTraversal.")
+            return {"answer": "", "nodes_visited": 0, "status": "error", "error": "Invalid graph"}
 
-        visited = set()
+        start_time = time.time()
+        visited_nodes: Set[Any] = set()
+        nodes_visited = 0
+        current_nodes: List[Any] = []
+        
+        # Identify start nodes (e.g., nodes related to entities in the question)
+        # For simplicity, we start from all nodes or a specific entry point if defined.
+        # Assuming we start from nodes that match keywords in the question.
+        keywords = question.split()
+        start_nodes = [n for n in G.nodes() if any(kw.lower() in str(n).lower() for kw in keywords)]
+        
+        if not start_nodes:
+            # Fallback: start from random node or first node
+            start_nodes = list(G.nodes())[:1]
+            logger.warning(f"No matching start nodes found for question. Using fallback: {start_nodes}")
+
+        current_nodes = start_nodes
+        visited_nodes.update(current_nodes)
+        nodes_visited += len(current_nodes)
+        
         path = []
-        # Priority queue simulation: list of (evidence, node)
-        frontier = []
-        
-        # Initialize with start node
-        start_evidence = self._calculate_evidence(start_node, graph)
-        frontier.append((start_evidence, start_node))
-        visited.add(start_node)
+        found_answer = False
+        answer = ""
+        iterations = 0
 
-        logger.info(f"Starting lazy traversal from node: {start_node} (threshold={self.evidence_threshold})")
-
-        while frontier:
-            # Sort by evidence descending (greedy-like selection from available)
-            frontier.sort(key=lambda x: x[0], reverse=True)
-            current_evidence, current_node = frontier.pop(0)
+        while current_nodes and iterations < self.max_iterations:
+            iterations += 1
+            next_nodes = []
             
-            self._record_node_visit()
-            path.append(current_node)
-
-            # Check if we reached the target
-            if target_node and current_node == target_node:
-                logger.info(f"Target node {target_node} reached")
+            for node in current_nodes:
+                neighbors = list(G.neighbors(node))
+                for neighbor in neighbors:
+                    if neighbor in visited_nodes:
+                        continue
+                    
+                    # Evaluate edge confidence
+                    edge = (node, neighbor)
+                    confidence = self._calculate_edge_confidence(G, edge, question)
+                    
+                    if confidence >= self.evidence_threshold:
+                        # Expand this edge
+                        visited_nodes.add(neighbor)
+                        next_nodes.append(neighbor)
+                        nodes_visited += 1
+                        path.append((node, neighbor, confidence))
+                        
+                        # Check if this node contains the answer (heuristic)
+                        # In a real system, we'd check the node's content against the question
+                        if "answer" in str(neighbor).lower() or "solution" in str(neighbor).lower():
+                            found_answer = True
+                            answer = str(neighbor)
+                            break
+                
+                if found_answer:
+                    break
+            
+            current_nodes = list(set(next_nodes)) # Avoid duplicates
+            if found_answer:
                 break
 
-            # Only expand if evidence is above threshold
-            if current_evidence < self.evidence_threshold:
-                logger.debug(f"Skipping expansion of {current_node} (evidence={current_evidence:.2f} < {self.evidence_threshold})")
-                continue
-
-            # Expand neighbors
-            neighbors = list(graph.successors(current_node))
-            for neighbor in neighbors:
-                self._record_edge_traversal()
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    neighbor_evidence = self._calculate_evidence(neighbor, graph)
-                    frontier.append((neighbor_evidence, neighbor))
-                    self._record_inference(5.0)  # Placeholder inference time
-
-        end_time = self._stop_timer(start_time)
-        logger.info(
-            f"Lazy traversal completed. Visited {self._stats['nodes_visited']} nodes "
-            f"in {self._stats['total_execution_time_ms']:.2f}ms"
-        )
-
-        success = len(path) > 0
-        return success, path, self.get_stats()
-
-    def run_sensitivity_analysis(
-        self,
-        graph: nx.DiGraph,
-        start_node: str,
-        thresholds: List[float],
-    ) -> Dict[float, Dict[str, Any]]:
-        """
-        Run sensitivity analysis over different evidence thresholds.
+        elapsed_time = time.time() - start_time
         
-        Args:
-            graph: The graph to traverse.
-            start_node: The starting node.
-            thresholds: List of thresholds to test.
-            
-        Returns:
-            Dictionary mapping thresholds to results.
-        """
-        results = {}
-        for thresh in thresholds:
-            self.evidence_threshold = thresh
-            success, path, stats = self.traverse(graph, start_node)
-            results[thresh] = {
-                "success": success,
-                "path_length": len(path),
-                "nodes_visited": stats["nodes_visited"],
-            }
-        return results
+        # If no answer found, return empty or a default
+        if not found_answer:
+            answer = "No answer found within threshold constraints."
+            logger.info(f"Lazy traversal completed without finding a confident answer. Nodes visited: {nodes_visited}")
 
-    def main():
-        """Entry point for standalone execution (placeholder)."""
-        logger.info("LazyTraversal main entry point")
+        return {
+            "answer": answer,
+            "nodes_visited": nodes_visited,
+            "path": path,
+            "status": "success" if found_answer else "incomplete",
+            "elapsed_time": elapsed_time
+        }
 
-def run_sensitivity_analysis(graph, start_node, thresholds):
-    """Wrapper for external calls."""
-    strategy = LazyTraversal()
-    return strategy.run_sensitivity_analysis(graph, start_node, thresholds)
+def run_sensitivity_analysis(G: nx.Graph, question: str, thresholds: List[float]) -> List[Dict[str, Any]]:
+    """
+    Run the Lazy strategy with multiple evidence thresholds to analyze sensitivity.
+    
+    Args:
+        G: The memory graph.
+        question: The user question.
+        thresholds: List of threshold values to test.
+    
+    Returns:
+        List of result dictionaries for each threshold.
+    """
+    results = []
+    for thresh in thresholds:
+        strategy = LazyTraversal(evidence_threshold=thresh)
+        result = strategy.run(G, question)
+        result['threshold'] = thresh
+        results.append(result)
+    return results

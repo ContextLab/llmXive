@@ -97,29 +97,29 @@
 ### Implementation for User Story 1
 
 - [X] T013 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (recent years) with error handling for missing years
-- [ ] T014 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
-- [ ] T015 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
-- [ ] T016 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
+- [X] T014 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
+- [X] T015 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
+- [X] T016 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
  - Merge using country code + year
  - Match climate data to survey coordinates **within a defined proximity radius** using the **WGS84 (EPSG:4326) CRS** and **Haversine formula** for distance calculation.
  - Match climate data using **growing season average (3-month pre-harvest mean)** as the temporal window.
  - Flag unmatched rows and log warnings.
-- [ ] T017 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
-- [ ] T018 [US1] [FR-005] Implement **stratified sampling** in `code/data/clean.py`:
+- [X] T017 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
+- [X] T018 [US1] [FR-005] Implement **stratified sampling** in `code/data/clean.py`: <!-- FAILED: unspecified -->
  - **Target**: Aim for N ≥ 5000 households **per country** (Kenya, India, Vietnam) as a statistical power goal.
  - **Trigger**: Apply stratified sampling **ONLY IF** the raw data exceeds the **7 GB RAM** limit.
  - **Logic**: If raw data > 7GB, apply stratified sampling to reduce size while preserving representation. If raw data < 7GB, retain all data (do not downsample for N targets).
  - **Verification**: After processing, calculate the final sample size. If the target N ≥ 5000 is not met (regardless of the 7GB trigger), log a specific warning: "Target N >= 5000 per country not met. Proceeding with available data."
  - **Output**: MUST output `data/processed/ipw_weights.parquet` containing the sampling fractions for each stratum to be consumed by T023.
  - **Note**: This task implements **sampling** only. Inverse Probability Weighting (IPW) for the model is handled in T023.
-- [ ] T018b [US1] [SC-001] **Calculate Merge Success Rate** in `code/data/clean.py`:
+- [X] T018b [US1] [SC-001] **Calculate Merge Success Rate** in `code/data/clean.py`:
  - **Action**: Calculate the merge success rate as: `(Number of successfully merged records) / (Total available non-duplicate LSMS records for target countries) * 100`.
  - **Output**: Log this rate to `data/processed/merge_stats.json` with the schema: `{"merge_success_rate_pct": float, "total_available_records": int, "merged_records": int, "missingness_rate": float}`.
  - **Dependency**: Must run after T016 (Merge) and before T018 (Sampling).
-- [ ] T018c [P] [US1] **Implement Provenance Logger** in `code/utils/logging.py`:
+- [X] T018c [P] [US1] **Implement Provenance Logger** in `code/utils/logging.py`:
  - **Action**: Log a JSON mapping **every derived CSA variable, including the final weighted composite index**, to its source LSMS question ID and response ID.
  - **Output**: Write to `data/processed/provenance_log.json`.
-- [ ] T018d [P] [US1] **Implement IPW Weight Calculation Verification** in `code/data/clean.py`:
+- [X] T018d [P] [US1] **Implement IPW Weight Calculation Verification** in `code/data/clean.py`: <!-- FAILED: unspecified -->
  - **Dependency**: Must run after T018 completes the sampling logic and outputs `data/processed/ipw_weights.parquet`.
  - **Action**: Verify that the weights file exists and contains valid probabilities for all strata defined in T018.
  - **Output**: Log a verification report confirming the weights are ready for T023.
@@ -142,7 +142,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] [FR-003] Implement CSA Index construction in `code/data/features.py`:
+- [X] T022 [US2] [FR-003] Implement CSA Index construction in `code/data/features.py`:
  - **Strict Adherence**: This implementation MUST strictly follow the formula defined in T007b (`data-model.md`), which includes digital/finance variables as per FR-003.
  - **Dependency**: Strictly follow the formula and weighting strategy defined in T007b.
  - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency, digital-technology access, finance access) as defined in `data-model.md` (T007b).

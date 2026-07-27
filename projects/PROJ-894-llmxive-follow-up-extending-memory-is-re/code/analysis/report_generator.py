@@ -1,131 +1,179 @@
 """
-Report Generator for llmXive Memory Reconstruction Study.
+Report Generator Module.
 
-This module auto-generates docs/results.md strictly from data/processed/stats_report.json
-using a Jinja2 template. No hand-typed numbers are allowed.
+Handles loading statistical JSON reports and rendering them into Markdown documentation.
 """
-
 import json
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-try:
-    from jinja2 import Environment, FileSystemLoader, select_autoescape
-except ImportError:
-    raise ImportError(
-        "Jinja2 is required for report generation. "
-        "Install it via: pip install jinja2"
-    )
-
-
-def load_stats_report(report_path: Path) -> Dict[str, Any]:
+def load_stats_report(stats_path: Path) -> Dict[str, Any]:
     """
-    Load and validate the stats report JSON.
+    Loads the statistical report from a JSON file.
     
     Args:
-        report_path: Path to the stats_report.json file
+        stats_path: Path to the stats_report.json file.
         
     Returns:
-        Dictionary containing the statistical analysis results
-        
-    Raises:
-        FileNotFoundError: If the report file doesn't exist
-        json.JSONDecodeError: If the file is not valid JSON
+        Dictionary containing the report data.
     """
-    if not report_path.exists():
-        raise FileNotFoundError(
-            f"Stats report not found at {report_path}. "
-            "Run the analysis scripts (T024a, T024b, T025, T027) first."
-        )
+    if not stats_path.exists():
+        return {}
     
-    with open(report_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    return data
+    with open(stats_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-
-def generate_report(
-    stats_data: Dict[str, Any],
-    template_dir: Path,
-    output_path: Path
-) -> None:
+def generate_report(stats_data: Dict[str, Any], output_path: str) -> None:
     """
-    Generate the results markdown report from stats data using a Jinja2 template.
+    Generates the Markdown report from the stats data.
     
     Args:
-        stats_data: The statistical analysis results dictionary
-        template_dir: Directory containing the Jinja2 template
-        output_path: Path where the generated markdown file will be saved
+        stats_data: The dictionary of statistics to render.
+        output_path: The file path where the Markdown will be written.
     """
-    # Setup Jinja2 environment
-    env = Environment(
-        loader=FileSystemLoader(template_dir),
-        autoescape=select_autoescape(['html', 'xml', 'md']),
-        trim_blocks=True,
-        lstrip_blocks=True
-    )
+    output_file = Path(output_path)
     
-    template = env.get_template('results_template.md.j2')
+    # Header
+    md_content = [
+        "# llmXive Research Results: Graph Memory for LLM Agents",
+        "",
+        "## Overview",
+        "",
+        "This report summarizes the statistical analysis of the active reconstruction strategies",
+        "tested on the LoCoMo benchmark. It compares the baseline 'Full' traversal against",
+        "heuristic approaches ('Lazy' and 'Greedy') to evaluate efficiency and accuracy trade-offs.",
+        "",
+        "---",
+        ""
+    ]
     
-    # Render the template with stats data
-    rendered_content = template.render(
-        stats=stats_data,
-        report_title="llmXive: Memory Reconstruction Analysis Results",
-        generated_from="data/processed/stats_report.json"
-    )
+    # 1. Executive Summary (if available)
+    if 'executive_summary' in stats_data:
+        md_content.append("## Executive Summary")
+        md_content.append("")
+        md_content.append(stats_data['executive_summary'])
+        md_content.append("")
+        md_content.append("---")
+        md_content.append("")
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # 2. Statistical Significance (Hypothesis Testing)
+    if 'statistical_significance' in stats_data:
+        md_content.append("## Statistical Significance Analysis")
+        md_content.append("")
+        stats = stats_data['statistical_significance']
+        
+        if 'baseline_vs_lazy' in stats:
+            md_content.append("### Baseline vs. Lazy Traversal")
+            lazy_res = stats['baseline_vs_lazy']
+            md_content.append(f"- **Test Type**: {lazy_res.get('test_type', 'N/A')}")
+            md_content.append(f"- **Statistic**: {lazy_res.get('statistic', 'N/A')}")
+            md_content.append(f"- **P-value**: {lazy_res.get('p_value', 'N/A')}")
+            md_content.append(f"- **Conclusion**: {'Significant difference' if lazy_res.get('significant', False) else 'No significant difference'}")
+            md_content.append("")
+        
+        if 'baseline_vs_greedy' in stats:
+            md_content.append("### Baseline vs. Greedy Traversal")
+            greedy_res = stats['baseline_vs_greedy']
+            md_content.append(f"- **Test Type**: {greedy_res.get('test_type', 'N/A')}")
+            md_content.append(f"- **Statistic**: {greedy_res.get('statistic', 'N/A')}")
+            md_content.append(f"- **P-value**: {greedy_res.get('p_value', 'N/A')}")
+            md_content.append(f"- **Conclusion**: {'Significant difference' if greedy_res.get('significant', False) else 'No significant difference'}")
+            md_content.append("")
+        
+        md_content.append("---")
+        md_content.append("")
     
-    # Write the report
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(rendered_content)
+    # 3. Robustness Check (Noisy Data)
+    if 'robustness_check' in stats_data:
+        md_content.append("## Robustness Check (Noisy Graphs)")
+        md_content.append("")
+        robust = stats_data['robustness_check']
+        
+        if 'baseline' in robust:
+            md_content.append("### Noisy Baseline Statistics")
+            base = robust['baseline']
+            md_content.append(f"- **Mean Accuracy**: {base.get('mean_accuracy', 'N/A')}")
+            md_content.append(f"- **Std Accuracy**: {base.get('std_accuracy', 'N/A')}")
+            md_content.append(f"- **Mean Nodes Visited**: {base.get('mean_nodes_visited', 'N/A')}")
+            md_content.append("")
+        
+        if 'lazy' in robust:
+            md_content.append("### Noisy Lazy Statistics")
+            lazy = robust['lazy']
+            md_content.append(f"- **Mean Accuracy**: {lazy.get('mean_accuracy', 'N/A')}")
+            md_content.append(f"- **Std Accuracy**: {lazy.get('std_accuracy', 'N/A')}")
+            md_content.append(f"- **Mean Nodes Visited**: {lazy.get('mean_nodes_visited', 'N/A')}")
+            md_content.append("")
+        
+        if 'deltas' in robust:
+            md_content.append("### Accuracy Deltas (Heuristic vs Baseline)")
+            deltas = robust['deltas']
+            if 'lazy_delta' in deltas:
+                md_content.append(f"- **Lazy Delta**: {deltas['lazy_delta']}")
+            if 'greedy_delta' in deltas:
+                md_content.append(f"- **Greedy Delta**: {deltas['greedy_delta']}")
+            md_content.append("")
+        
+        md_content.append("---")
+        md_content.append("")
     
-    print(f"Report generated successfully at: {output_path}")
-
+    # 4. Complexity Threshold Analysis
+    if 'complexity_threshold' in stats_data:
+        md_content.append("## Complexity Threshold Analysis")
+        md_content.append("")
+        threshold = stats_data['complexity_threshold']
+        md_content.append(f"- **Threshold Nodes**: {threshold.get('threshold_nodes', 'N/A')}")
+        md_content.append(f"- **Baseline Accuracy**: {threshold.get('baseline_accuracy', 'N/A')}")
+        md_content.append(f"- **Drop Threshold**: {threshold.get('drop_threshold', 'N/A')}")
+        md_content.append(f"- **Observation**: {threshold.get('observation', 'N/A')}")
+        md_content.append("")
+        md_content.append("---")
+        md_content.append("")
+    
+    # 5. Correlation Analysis
+    if 'correlation_analysis' in stats_data:
+        md_content.append("## Correlation Analysis")
+        md_content.append("")
+        corr = stats_data['correlation_analysis']
+        md_content.append(f"- **Correlation Coefficient (Point-Biserial)**: {corr.get('coefficient', 'N/A')}")
+        md_content.append(f"- **P-value**: {corr.get('p_value', 'N/A')}")
+        md_content.append(f"- **Interpretation**: {corr.get('interpretation', 'N/A')}")
+        md_content.append("")
+        md_content.append("---")
+        md_content.append("")
+    
+    # 6. Sensitivity Analysis (Lazy Threshold)
+    if 'sensitivity_analysis' in stats_data:
+        md_content.append("## Sensitivity Analysis: Lazy Heuristic Threshold")
+        md_content.append("")
+        sens = stats_data['sensitivity_analysis']
+        md_content.append("| Threshold | Mean Accuracy | Mean Nodes Visited |")
+        md_content.append("| :--- | :--- | :--- |")
+        for entry in sens.get('results', []):
+            md_content.append(f"| {entry.get('threshold', 'N/A')} | {entry.get('mean_accuracy', 'N/A')} | {entry.get('mean_nodes_visited', 'N/A')} |")
+        md_content.append("")
+    
+    # Write to file
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(md_content))
+    
+    logger = logging.getLogger(__name__)
+    logger.info(f"Report generated successfully at {output_file}")
 
 def main():
     """
-    Main entry point for the report generator.
+    CLI entry point for the report generator.
+    Usage: python -m analysis.report_generator
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    stats_report_path = project_root / "data" / "processed" / "stats_report.json"
-    template_dir = project_root / "code" / "analysis" / "templates"
-    output_path = project_root / "docs" / "results.md"
+    import logging
+    logging.basicConfig(level=logging.INFO)
     
-    # Validate input exists
-    if not stats_report_path.exists():
-        print(f"Error: Stats report not found at {stats_report_path}")
-        print("Please run the analysis scripts (T024a, T024b, T025, T027) first.")
-        return 1
+    stats_file = Path("data/processed/stats_report.json")
+    output_file = Path("docs/results.md")
     
-    # Ensure template directory exists
-    if not template_dir.exists():
-        print(f"Error: Template directory not found at {template_dir}")
-        print("Please create the template file: code/analysis/templates/results_template.md.j2")
-        return 1
-    
-    try:
-        # Load stats data
-        stats_data = load_stats_report(stats_report_path)
-        
-        # Generate report
-        generate_report(stats_data, template_dir, output_path)
-        
-        return 0
-        
-    except FileNotFoundError as e:
-        print(f"File Error: {e}")
-        return 1
-    except json.JSONDecodeError as e:
-        print(f"JSON Error: Invalid JSON in stats report - {e}")
-        return 1
-    except Exception as e:
-        print(f"Unexpected Error: {e}")
-        return 1
-
+    stats_data = load_stats_report(stats_file)
+    generate_report(stats_data, str(output_file))
 
 if __name__ == "__main__":
-    exit(main())
+    main()

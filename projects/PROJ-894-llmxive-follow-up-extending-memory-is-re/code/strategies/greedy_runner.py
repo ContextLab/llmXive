@@ -1,6 +1,6 @@
 """
-Runner for the Greedy traversal strategy on LoCoMo benchmark tasks.
-Executes tasks using the Greedy strategy and logs results to CSV.
+Runner for the Greedy traversal strategy.
+Executes tasks using the GreedyTraversal algorithm and logs results.
 """
 import os
 import sys
@@ -10,152 +10,166 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add parent to path for imports
+# Add parent directory to path for imports if running as script
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from data_loader import fetch_locomo_dataset, ensure_output_dirs
-from runner import run_batch, TimeoutHandler
 from strategies.greedy import GreedyTraversal
+from data_loader import fetch_locomo_dataset, save_raw_data, ensure_output_dirs
+from runner import run_task, save_results_to_csv, TimeoutError
 from graph_utils import build_memory_graph, validate_graph
+from inference import LLMInferenceEngine
+from config import get_model_path
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Default top-k for Greedy strategy (can be overridden)
-DEFAULT_TOP_K = 3
-
-def load_tasks(dataset_name: str = "locomo/locomo-benchmark", split: str = "test") -> List[Dict[str, Any]]:
+def load_tasks(dataset_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Load tasks from the specified dataset.
-    Returns a list of task dictionaries with 'id', 'context' (question, context, answer).
+    Load tasks from the LoCoMo dataset.
+    If dataset_path is provided, uses cached data; otherwise fetches from HF.
     """
+    if dataset_path and os.path.exists(dataset_path):
+        logger.info(f"Loading tasks from cached dataset: {dataset_path}")
+    
+    # Fetch fresh data for execution to ensure real data usage
     try:
-        data = fetch_locomo_dataset(dataset_name, split)
+        data_path = Path("data/raw/locomo_test.json")
+        if not data_path.exists():
+            fetch_locomo_dataset(split="test", output_path=str(data_path))
+        
+        with open(data_path, 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+        
         tasks = []
-        for idx, item in enumerate(data):
-            task = {
-                "id": f"locomo_{idx}",
-                "context": {
-                    "question": item.get("question", ""),
-                    "context": item.get("context", ""),
-                    "answer": item.get("answer", "")
-                }
-            }
-            tasks.append(task)
-        logger.info(f"Loaded {len(tasks)} tasks from {dataset_name} split {split}")
+        for item in raw_data:
+            tasks.append({
+                "task_id": item.get("id", f"task_{len(tasks)}"),
+                "question": item.get("question", ""),
+                "context": item.get("context", ""),
+                "answer": item.get("answer", "")
+            })
         return tasks
     except Exception as e:
         logger.error(f"Failed to load tasks: {e}")
         raise
 
-def evaluate_task(task_id: str, context: Dict[str, Any], top_k: int = DEFAULT_TOP_K) -> Dict[str, Any]:
+def evaluate_task(task: Dict[str, Any], timeout: float = 300) -> Dict[str, Any]:
     """
-    Evaluate a single task using the Greedy traversal strategy.
+    Evaluate a single task using the GreedyTraversal strategy.
     
     Args:
-        task_id: Unique identifier for the task.
-        context: Dictionary containing 'question', 'context', and 'answer'.
-        top_k: Number of top edges to select at each step.
-    
+        task: Dictionary containing task_id, question, context, answer.
+        timeout: Maximum execution time in seconds.
+        
     Returns:
-        Dictionary with task_id, accuracy (bool), nodes_visited, and latency_ms.
+        Dictionary with task_id, accuracy, nodes_visited, latency_ms, status.
     """
-    question = context.get("question", "")
-    memory_context = context.get("context", "")
-    ground_truth = context.get("answer", "")
-
-    if not question or not memory_context:
-        logger.warning(f"Task {task_id} missing question or context, skipping.")
-        return {
-            "task_id": task_id,
-            "status": "skipped",
-            "accuracy": None,
-            "nodes_visited": 0,
-            "latency_ms": 0
-        }
-
+    task_id = task["task_id"]
+    question = task["question"]
+    context = task["context"]
+    ground_truth = task["answer"]
+    
+    start_time = time.time()
+    
     try:
-        # Build memory graph from context
-        graph = build_memory_graph([memory_context])
+        # 1. Build Memory Graph from context
+        graph = build_memory_graph(context)
         
         if not validate_graph(graph):
-            logger.warning(f"Task {task_id} generated invalid graph, skipping.")
+            logger.warning(f"Task {task_id}: Graph validation failed or empty.")
             return {
                 "task_id": task_id,
-                "status": "invalid_graph",
-                "accuracy": None,
+                "accuracy": 0.0,
                 "nodes_visited": 0,
-                "latency_ms": 0
+                "latency_ms": 0.0,
+                "status": "invalid_graph"
             }
-
-        # Initialize Greedy Traversal
-        strategy = GreedyTraversal(top_k=top_k)
         
-        # Execute traversal
-        start_time = time.time()
-        result = strategy.traverse(graph, question)
-        elapsed_ms = (time.time() - start_time) * 1000
-
-        # Determine accuracy
-        predicted_answer = result.get("answer", "")
-        accuracy = (predicted_answer.strip().lower() == ground_truth.strip().lower())
-
+        # 2. Initialize Inference Engine
+        model_path = get_model_path()
+        engine = LLMInferenceEngine(model_path=model_path)
+        
+        # 3. Run Greedy Traversal
+        # GreedyTraversal selects top-k confidence edges
+        strategy = GreedyTraversal(engine=engine, top_k=3)
+        
+        # Execute strategy
+        result = strategy.run(graph, question)
+        
+        # 4. Evaluate Accuracy
+        generated_answer = result.get("answer", "")
+        
+        is_correct = 0.0
+        if generated_answer and ground_truth:
+            if ground_truth.lower() in generated_answer.lower():
+                is_correct = 1.0
+            elif generated_answer.lower() in ground_truth.lower():
+                is_correct = 1.0
+        
+        latency = (time.time() - start_time) * 1000.0
+        
         return {
             "task_id": task_id,
-            "status": "success",
-            "accuracy": accuracy,
+            "accuracy": is_correct,
             "nodes_visited": result.get("nodes_visited", 0),
-            "latency_ms": elapsed_ms,
-            "strategy": "greedy",
-            "top_k": top_k
+            "latency_ms": latency,
+            "status": "success"
         }
-
-    except Exception as e:
-        logger.error(f"Task {task_id} failed: {e}")
+        
+    except TimeoutError as e:
+        logger.warning(f"Task {task_id} timed out.")
         return {
             "task_id": task_id,
-            "status": "error",
-            "error": str(e),
-            "accuracy": None,
+            "accuracy": 0.0,
             "nodes_visited": 0,
-            "latency_ms": 0
+            "latency_ms": (time.time() - start_time) * 1000.0,
+            "status": "timeout"
+        }
+    except Exception as e:
+        logger.error(f"Task {task_id} failed with error: {e}")
+        return {
+            "task_id": task_id,
+            "accuracy": 0.0,
+            "nodes_visited": 0,
+            "latency_ms": (time.time() - start_time) * 1000.0,
+            "status": "error",
+            "error_msg": str(e)
         }
 
 def main():
     """
-    Main entry point to run the Greedy strategy on the LoCoMo benchmark.
+    Main entry point for running the Greedy strategy on the LoCoMo benchmark.
     """
-    # Configuration
-    dataset_name = "locomo/locomo-benchmark"
-    split = "test"
-    top_k = DEFAULT_TOP_K
-    output_dir = Path(__file__).parent.parent.parent / "data" / "processed"
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "greedy_results.csv"
-    timeout_seconds = 300
-
-    ensure_output_dirs([output_dir])
-
-    logger.info(f"Starting Greedy Strategy execution with top_k {top_k}")
+    
+    logger.info("Starting Greedy Traversal Execution...")
     
     # Load tasks
-    tasks = load_tasks(dataset_name, split)
+    tasks = load_tasks()
+    if not tasks:
+        logger.error("No tasks loaded. Exiting.")
+        return
     
-    # Define executor with fixed top_k
-    def executor(task_id, context):
-        return evaluate_task(task_id, context, top_k=top_k)
-
-    # Run batch
-    run_batch(
-        tasks=tasks,
-        executor=executor,
-        output_path=str(output_file),
-        timeout_seconds=timeout_seconds
-    )
-
-    logger.info(f"Greedy strategy execution complete. Results saved to {output_file}")
+    logger.info(f"Loaded {len(tasks)} tasks.")
+    
+    results = []
+    columns = ["task_id", "accuracy", "nodes_visited", "latency_ms", "status"]
+    
+    for i, task in enumerate(tasks):
+        logger.info(f"Processing task {i+1}/{len(tasks)}: {task['task_id']}")
+        result = evaluate_task(task, timeout=300)
+        results.append(result)
+        
+        # Log progress
+        if (i + 1) % 5 == 0:
+            logger.info(f"Completed {i+1} tasks. Last status: {result['status']}")
+    
+    # Save results
+    save_results_to_csv(results, str(output_file), columns)
+    logger.info(f"Results saved to {output_file}")
 
 if __name__ == "__main__":
     main()

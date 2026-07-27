@@ -1,0 +1,396 @@
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: All states localized in 1D disordered systems for non-zero disorder
+  claim_id: c_49c087bd
+  context: Anderson Localization in 1D section citing Anderson (1958).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In one-dimensional disordered systems, all states are localized for any
+    non-zero disorder strength W (Anderson, 1958).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:41:16Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Convergence achieved when L greater than or equal to 5 times localization
+    length in 1D tight-binding
+  claim_id: c_db274538
+  context: Izrailev (1992) findings on convergence criteria.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_achieved_when_L_greater_than_or_equal_to_5_times
+  kind: magnitude
+  raw_text: "For 1D tight-binding models with uncorrelated disorder, convergence is\
+    \ achieved when L \u2273 5\u03BE."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:41:49Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length scales as 100 divided by W squared for strong disorder
+  claim_id: c_377942b2
+  context: Izrailev (1992) scaling relation for strong disorder.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For strong disorder (W \u226B 1), the localization length \u03BE scales\
+    \ as 100/W\xB2 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:43:14Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Convergence requires L greater than or equal to 500 divided by W squared
+    for strong disorder
+  claim_id: c_4ac059a8
+  context: Izrailev (1992) derived requirement for system size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_requires_L_greater_than_or_equal_to_500_divided
+  kind: magnitude
+  raw_text: "For strong disorder (W \u226B 1), convergence requires L \u2273 500/W\xB2\
+    ."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:44:08Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Finite-size corrections below 10 to the power of -4 when L greater than
+    10 times localization length
+  claim_id: c_67a845f2
+  context: Kroha et al. (1991) systematic study on finite-size corrections.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Finite-size_corrections_below_10_to_the_power_of_-4_when_L_g
+  kind: magnitude
+  raw_text: "For L > 10\u03BE, the finite-size corrections are below 10\u207B\u2074\
+    ."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:44:55Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length exceeds 10000 sites for weak disorder
+  claim_id: c_03ae1d71
+  context: Kroha et al. (1991) observation on weak disorder.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For weak disorder (W < 1), the localization length \u03BE can exceed\
+    \ 10\u2074 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:44:55Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L max greater than or equal to 8 times localization length recommended
+    for accurate TMM determination
+  claim_id: c_7057aaba
+  context: Slevin & Ohtsuki (1999) recommendation for TMM accuracy.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/L_max_greater_than_or_equal_to_8_times_localization_length_r
+  kind: magnitude
+  raw_text: "For accurate determination of localization length via TMM, L_max \u2265\
+    \ 8\u03BE is recommended."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:45:47Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 100000 sites for disorder W equal to
+    0.1
+  claim_id: c_d618166b
+  context: Project configuration estimates for disorder range W=0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=0.1, the localization length \u03BE is estimated to be approximately\
+    \ 10\u2075 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:46:42Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 10 sites for disorder W equal to 10.0
+  claim_id: c_a221a8b0
+  context: Project configuration estimates for disorder range W=10.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=10.0, the localization length \u03BE is estimated to be approximately\
+    \ 10 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:46:42Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length less than or equal to 1000 sites for disorder W greater
+    than or equal to 1.0
+  claim_id: c_4ba6bf7d
+  context: "Project configuration analysis for W \u2265 1.0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Localization_length_less_than_or_equal_to_1000_sites_for_dis
+  kind: magnitude
+  raw_text: "For W \u2265 1.0, the localization length \u03BE is less than or equal\
+    \ to 1000 sites."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:56:36Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L equal to 1600 provides 16 times localization length for disorder W
+    greater than or equal to 1.0
+  claim_id: c_4056fa9b
+  context: Rationale for L=1600 coverage of strong disorder.
+  evidence:
+    candidates:
+    - - Donate Create account Log in L equal to
+      - 1600.0
+    - - L equal to 1600 provides
+      - 16.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/L_equal_to_1600_provides_16_times_localization_length_for_di
+  kind: magnitude
+  raw_text: "For W \u2265 1.0, L=1600 provides a system size greater than or equal\
+    \ to 16\u03BE."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T01:58:22Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Relative error less than 10 to the power of -7 for L equal to 1600 and
+    disorder W greater than or equal to 1.0
+  claim_id: c_23316577
+  context: Expected accuracy for strong disorder with L=1600.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Relative_error_less_than_10_to_the_power_of_-7_for_L_equal_t
+  kind: magnitude
+  raw_text: "For W \u2265 1.0, L=1600 ensures a relative error less than 10\u207B\u2077\
+    ."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:05Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 400 sites for disorder W equal to 0.5
+  claim_id: c_15648695
+  context: Expected accuracy table for W=0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=0.5, the localization length \u03BE is estimated to be approximately\
+    \ 400 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:12Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L equal to 1600 provides 4 times localization length for disorder W equal
+    to 0.5
+  claim_id: c_38431c73
+  context: Expected accuracy table for W=0.5 coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=0.5, L=1600 provides a system size of 4\u03BE."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:14Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Expected error approximately 2 percent for disorder W equal to 0.5
+  claim_id: c_994d45f1
+  context: Expected accuracy table for W=0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For W=0.5, the expected error is approximately 2%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:20Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 100 sites for disorder W equal to 1.0
+  claim_id: c_1af247a7
+  context: Expected accuracy table for W=1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=1.0, the localization length \u03BE is estimated to be approximately\
+    \ 100 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:26Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L equal to 1600 provides 16 times localization length for disorder W
+    equal to 1.0
+  claim_id: c_dfb09991
+  context: Expected accuracy table for W=1.0 coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=1.0, L=1600 provides a system size of 16\u03BE."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:29Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Expected error less than 0.1 percent for disorder W equal to 1.0
+  claim_id: c_5d487275
+  context: Expected accuracy table for W=1.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expected_error_less_than_0.1_percent_for_disorder_W_equal_to
+  kind: magnitude
+  raw_text: For W=1.0, the expected error is less than 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:40Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 25 sites for disorder W equal to 2.0
+  claim_id: c_041809e6
+  context: Expected accuracy table for W=2.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=2.0, the localization length \u03BE is estimated to be approximately\
+    \ 25 sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:47Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L equal to 1600 provides 64 times localization length for disorder W
+    equal to 2.0
+  claim_id: c_1dd894e0
+  context: Expected accuracy table for W=2.0 coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=2.0, L=1600 provides a system size of 64\u03BE."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:00:49Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Expected error less than 10 to the power of -9 for disorder W equal to
+    2.0
+  claim_id: c_dd40aa57
+  context: Expected accuracy table for W=2.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expected_error_less_than_10_to_the_power_of_-9_for_disorder
+  kind: magnitude
+  raw_text: "For W=2.0, the expected error is less than 10\u207B\u2079."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:01:05Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: Localization length approximately 1 site for disorder W equal to 10.0
+  claim_id: c_00e775d7
+  context: Expected accuracy table for W=10.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=10.0, the localization length \u03BE is estimated to be approximately\
+    \ 1 site."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:04:00Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/research_notes.md
+  attempts: 1
+  canonical: L equal to 1600 provides 1600 times localization length for disorder
+    W equal to 10.0
+  claim_id: c_a1dd70a2
+  context: Expected accuracy table for W=10.0 coverage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For W=10.0, L=1600 provides a system size of 1600\u03BE."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:04:08Z'

@@ -1,44 +1,47 @@
 """
-Ingestion wrapper script to execute data download and merge logic.
+Ingestion wrapper script for T048.
+Executes data download and merge logic.
 """
 import logging
 import sys
 from pathlib import Path
+
+# Add project root to path if needed
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from data.download import download_lsms_batch, download_nasa_power_batch, download_faostat_batch
-from data.clean import run_sampling_pipeline
+from data.clean import run_sampling_pipeline, clean_and_merge
 from utils.logging import initialize_logging
 
+logger = initialize_logging()
+
 def main():
-    """Run the ingestion pipeline."""
-    # Initialize logging
-    logger = initialize_logging()
-    logger.log_operation("ingestion_start")
+    logger.log("start_ingestion")
+    try:
+        # 1. Download
+        logger.log("step_download_lsms")
+        download_lsms_batch()
+        
+        logger.log("step_download_climate")
+        download_nasa_power_batch()
+        
+        logger.log("step_download_faostat")
+        download_faostat_batch()
 
-    # Download data
-    logger.info("Downloading LSMS data...")
-    lsms_files = download_lsms_batch()
-    logger.info(f"Downloaded {len(lsms_files)} LSMS files")
+        # 2. Clean and Merge (T016)
+        logger.log("step_clean_merge")
+        clean_and_merge()
 
-    logger.info("Downloading NASA POWER data...")
-    # Coordinates for target countries
-    locations = [
-        {"lat": -1.2921, "lon": 36.8219}, # Kenya
-        {"lat": 28.6139, "lon": 77.2090}, # India
-        {"lat": 21.0285, "lon": 105.8542} # Vietnam
-    ]
-    nasa_files = download_nasa_power_batch(locations, "2015-01-01", "2021-12-31")
-    logger.info(f"Downloaded {len(nasa_files)} NASA POWER files")
+        # 3. Sampling (T018)
+        logger.log("step_sampling")
+        run_sampling_pipeline()
 
-    logger.info("Downloading FAOSTAT data...")
-    faostat_files = download_faostat_batch(["CROP", "LIVESTOCK", "FORESTRY"])
-    logger.info(f"Downloaded {len(faostat_files)} FAOSTAT files")
-
-    # Run cleaning and sampling pipeline
-    logger.info("Running sampling pipeline...")
-    run_sampling_pipeline()
-
-    logger.log_operation("ingestion_complete")
-    print("Ingestion pipeline completed successfully.")
+        logger.log("end_ingestion", status="success")
+    except Exception as e:
+        logger.log("end_ingestion", status="failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
     main()

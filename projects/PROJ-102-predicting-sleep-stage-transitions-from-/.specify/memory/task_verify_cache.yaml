@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `src/`, `tests/`, `data/`, or `specs/` directories\
+    \ is provided; the implementer did not supply any file listings, screenshots,\
+    \ or other artifacts confirming their creation. The task remains undone until\
+    \ those directories are shown to exist and contain appropriate (non\u2011empty)\
+    \ project files."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the `data/raw`, `data/processed`, and `data/interim`\
+    \ directories actually exist in the repository; the implementer\u2019s claim is\
+    \ not backed by any visible file\u2011system artifact. The required subdirectories\
+    \ must be created and shown (e.g., via a directory listing or commit diff)."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `src/data`, `src/features`, `src/models`, or `src/utils`
+    directories is present in the provided artifacts; the implementer did not supply
+    any file listings, screenshots, or code confirming their creation. The task therefore
+    remains unfinished.
+T010:
+  c: false
+  h: b26a0c49ee655b01c31615f9267335ab6303475c856b3aa7a5690b06709b7c5e
+  r: "The required artifact `tests/unit/test_preprocess.py` does not exist, so no\
+    \ unit test verifying \u226590% attenuation of the notch filter at 50/60\u202F\
+    Hz is present. The task remains undone."
+T014:
+  c: false
+  h: f1e241c78f35079f663e983581edb4420e4662ee3990f4406ca52b57056aaae3
+  r: "The repository contains a `src/data/preprocess.py` file, but the shown content\
+    \ is truncated and does not demonstrate the required segmentation logic or the\
+    \ code that writes the centered 60\u2011second transition windows to `data/processed/centered_transition_windows.parquet`.\
+    \ Moreover, the expected parquet file is absent from the project. Both the implementation\
+    \ and the required output artifact are missing."
+T014b:
+  c: false
+  h: 8e7f2d1df21af17ef34955112a53c288ffd5bc8661b9eab8babbcaea1d3e1f9f
+  r: "The required output file `data/processed/pre_transition_windows.parquet` does\
+    \ not exist, and the provided `src/data/preprocess.py` is truncated and shows\
+    \ no implementation of the 60\u2011second pre\u2011transition window extraction\
+    \ or saving to Parquet. Consequently, the task\u2019s core requirement is unmet."

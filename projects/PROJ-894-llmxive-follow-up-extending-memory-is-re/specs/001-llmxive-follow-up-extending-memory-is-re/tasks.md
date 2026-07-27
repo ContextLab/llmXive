@@ -141,7 +141,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T028a [P] Update `README.md` with execution instructions and environment setup in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
-- [ ] T028b [P] Generate `docs/results.md` from `stats.json` and finalize documentation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
+- [X] T028b [P] Generate `docs/results.md` from `stats.json` and finalize documentation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
 - [~] T029a Refactor strategy modules (`full.py`, `lazy.py`, `greedy.py`) to inherit from a common base class in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/`
 - [X] T030 [P] Profile graph traversal loops in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py` using `cProfile`, identify the top hotspots, and implement optimizations to reduce average task latency by at least 15% in the `full.py` traversal loop. Verify improvement with a benchmark script.
 - [~] T031 [P] Additional unit tests for edge cases (zero edges, single node) in `tests/unit/`

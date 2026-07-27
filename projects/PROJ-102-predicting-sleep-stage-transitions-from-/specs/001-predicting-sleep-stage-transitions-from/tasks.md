@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement configuration management in `src/utils/config.py` (paths, seeds, hyperparameters)
+- [X] T004 Implement configuration management in `src/utils/config.py` (paths, seeds, hyperparameters)
 - [ ] T005 [P] Setup logging infrastructure in `src/utils/logging.py`
-- [ ] T006 Create base data schemas and validation logic in `tests/contract/test_schemas.py`
+- [X] T006 Create base data schemas and validation logic in `tests/contract/test_schemas.py`
 - [X] T007 [P] Implement constraint checking for model parameters and memory in `tests/contract/test_constraints.py`
 - [ ] T008 Setup CI pipeline (`ci.yml`) to run contract tests and reference validator before merge
 
@@ -57,7 +57,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Contract test for data download and checksum verification in `tests/unit/test_download.py`
-- [~] T010 [P] [US1] Unit test for notch filter attenuation (≥90% at 50/60Hz) in `tests/unit/test_preprocess.py` <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [ ] T010 [P] [US1] Unit test for notch filter attenuation (≥90% at 50/60Hz) in `tests/unit/test_preprocess.py` <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 1, column 7:
  def run_tests():
  ^
@@ -70,10 +70,10 @@ expected <block end>, but found '<scalar>'
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/data/download.py`: Download Sleep-EDF SC subset from PhysioNet, verify checksums, handle missing subjects gracefully
-- [ ] T013 [US1] Implement `src/data/preprocess.py`: Linear interpolation for missing data, bandpass (0.5–45 Hz), notch (50/60 Hz) filters
+- [X] T013 [US1] Implement `src/data/preprocess.py`: Linear interpolation for missing data, bandpass (0.5–45 Hz), notch (50/60 Hz) filters
 - [ ] T014 [US1] Implement `src/data/preprocess.py`: Segmentation logic for 30s stable epochs and 60s **centered** transition windows (for statistical analysis), saving to `data/processed/centered_transition_windows.parquet`
 - [ ] T014b [US1] Implement `src/data/preprocess.py`: Segmentation logic for **60s pre-transition input windows** ending 30s *before* annotated stage changes (for model training input) to avoid tautology, saving to `data/processed/pre_transition_windows.parquet` (depends on T014 raw data extraction)
-- [ ] T014c [US1] Implement `src/data/preprocess.py`: Extract available EOG channels (e.g., EOG-M1) if present; if EOG is missing or insufficient, create a metadata flag indicating "EOG unavailable" to trigger fallback logic in T021, saving to `data/processed/eog_signals.parquet`
+- [~] T014c [US1] Implement `src/data/preprocess.py`: Extract available EOG channels (e.g., EOG-M1) if present; if EOG is missing or insufficient, create a metadata flag indicating "EOG unavailable" to trigger fallback logic in T021, saving to `data/processed/eog_signals.parquet`
 - [ ] T015 [US1] Implement `src/data/loader.py`: Utilities to load and iterate over processed epochs/windows
 - [ ] T016 [US1] Add metadata flagging for imputed segments in the output dataframes
 

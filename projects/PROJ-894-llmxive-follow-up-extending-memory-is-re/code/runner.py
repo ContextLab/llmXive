@@ -8,7 +8,7 @@ import logging
 import csv
 import json
 from pathlib import Path
-from typing import Callable, Any, Dict, Optional
+from typing import Callable, Any, Dict, Optional, List
 from threading import Timer
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ def run_batch(tasks: list, timeout: float = 300) -> list:
         results.append(res)
     return results
 
-def save_results_to_csv(results: list, output_path: str, columns: list):
+def save_results_to_csv(results: List[Dict[str, Any]], output_path: str, columns: List[str]):
     """
     Save task results to a CSV file.
     
@@ -111,17 +111,9 @@ def save_results_to_csv(results: list, output_path: str, columns: list):
         writer.writeheader()
         
         for res in results:
-            if res["status"] == "success":
-                row = {col: res["data"].get(col, "") for col in columns}
-                # Add metadata
-                row["task_id"] = res["data"].get("task_id", "unknown")
-                row["accuracy"] = res["data"].get("accuracy", 0.0)
-                row["nodes_visited"] = res["data"].get("nodes_visited", 0)
-                row["latency_ms"] = res["data"].get("latency_ms", 0.0)
-                writer.writerow(row)
-            else:
-                # Log failed tasks
-                logger.warning(f"Skipping failed task in CSV: {res.get('error', 'unknown error')}")
+            # Ensure all columns are present, fill with defaults if missing
+            row = {col: res.get(col, "") for col in columns}
+            writer.writerow(row)
 
 def main():
     """Example usage of the runner."""

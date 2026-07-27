@@ -3886,3 +3886,144 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T22:29:40Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Project targets Kenya, India, and Vietnam
+  claim_id: c_192a3055
+  context: Implement LSMS downloader in code/data/download.py targeting Kenya, India,
+    Vietnam (recent years) with error handling for missing years
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_targets_Kenya,_India,_and_Vietnam
+  kind: entity_fact
+  raw_text: The project targets Kenya, India, and Vietnam for data ingestion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:27:53Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target sample size of 5000 households per country
+  claim_id: c_473ec798
+  context: "Target: Aim for N \u2265 5000 households per country (Kenya, India, Vietnam)\
+    \ as a statistical power goal."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sampling strategy aims for a target of N \u2265 5000 households per\
+    \ country."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:27:54Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index uses equal weighting of 0.2 per component
+  claim_id: c_6e4f472d
+  context: Define weights as configurable parameters with equal weighting (0.2 each)
+    as the DEFAULT strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CSA Index formula uses equal weighting of 0.2 for each of the five
+    components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:28:15Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: CSA Index components are conservation tillage, crop diversification,
+    irrigation efficiency, digital access, finance access
+  claim_id: c_d4295b25
+  context: 'Define the CSA Index formula abstractly as a weighted composite: CSA_Index
+    = f(Conservation Tillage, Crop Diversification, Irrigation Efficiency, Digital
+    Access, Finance Access).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_components_are_conservation_tillage,_crop_diversif
+  kind: entity_fact
+  raw_text: The CSA Index includes conservation tillage, crop diversification, irrigation
+    efficiency, digital access, and finance access.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:28:37Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Minimum sample size floor of 1000 households per country
+  claim_id: c_a18d985b
+  context: 'Floor: Adequate sample size of 1000 households per country minimum.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model fitting process has a minimum adequate sample size floor of
+    1000 households per country.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:29:13Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoff values from 0.2 to 0.8 in steps of
+    0.1
+  claim_id: c_6c341bb9
+  context: 'Sensitivity analysis on CSA adoption threshold: sweep cutoff values from
+    0.2 (moderate) to 0.8 (strict) in steps of 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check sweeps CSA adoption threshold cutoff values from
+    0.2 to 0.8 in steps of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:29:33Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Fixed-Effects Regression used instead of Mixed-Effects for 3 countries
+  claim_id: c_f2381906
+  context: Mixed-Effects is statistically invalid for N=3 countries. This approach
+    controls for unobserved country-level heterogeneity...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a Fixed-Effects Regression model (OLS with Country Dummies)
+    because Mixed-Effects is statistically invalid for N=3 countries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:29:57Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Cutoff 0.2 mapped to moderate, 0.8 mapped to strict
+  claim_id: c_5c05f74c
+  context: 'Traceability: Explicitly map 0.2 to ''moderate'' and 0.8 to ''strict''
+    per Spec FR-007 and Plan Complexity Tracking.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis maps the 0.2 cutoff to 'moderate' and the 0.8
+    cutoff to 'strict'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:30:23Z'
