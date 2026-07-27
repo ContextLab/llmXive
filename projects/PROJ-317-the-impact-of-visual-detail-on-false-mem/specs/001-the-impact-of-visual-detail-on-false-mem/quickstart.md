@@ -2,77 +2,61 @@
 
 ## Prerequisites
 
-* Python 3.11+
-* Git
-* (Optional) HuggingFace CLI (if using private datasets, though COCO is public)
+*   Python 3.11+
+*   `pip`
+*   Git
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-317-the-impact-of-visual-detail-on-false-mem
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Running the Pipeline
-
-### Step 0: Power Analysis (Blocking Gate)
-Run the power analysis to determine sample size.
 ```bash
-python code/analysis/stats.py --power-analysis
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-317-the-impact-of-visual-detail-on-false-mem
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
-*Check `data/analysis/power_report.json`. If N < 50, the pipeline halts.*
 
-### Step 1: Generate Stimuli (Phase 1)
-This step downloads images (COCO 2017), filters for complexity, and creates manipulated versions.
+## Running the Pipeline (CI Validation)
+
+This command runs the pipeline with the **Pre-bundled Subset** to validate the logic without external dependencies.
 
 ```bash
-python code/stimuli/downloader.py --output data/stimuli
-python code/stimuli/filter.py --input data/stimuli/raw --output data/stimuli/filtered
-python code/stimuli/manipulator.py --input data/stimuli/filtered --output data/stimuli/manipulated
-python code/stimuli/metadata.py --input data/stimuli/manipulated --output data/stimuli/metadata
+# 1. Generate stimuli from pre-bundled subset
+python code/stimuli/generator.py --mode pre-bundled --count 30 --seed 42
+
+# 2. Run simulated participant sessions (mock data for validation)
+python code/participants/interface.py --mode mock --n-sessions 60
+
+# 3. Run power analysis (should pass gate if N >= 50)
+python code/analysis/power.py
+
+# 4. Run ANOVA and generate visualization
+python code/analysis/anova.py
+python code/analysis/viz.py --output data/analysis/results.png
 ```
-*Note: Check `data/logs/manipulation_errors.log` for any skipped images.*
 
-### Step 2: Run Participant Interface (Phase 2)
-Start the web interface for data collection.
-*Note: For local testing, you can simulate a participant using `code/tests/simulate_participant.py`.*
+## Running the Full Study (Requires Visual Genome Verification)
 
-```bash
-streamlit run code/interface/app.py
-```
-*Access at `
-*Note: The consent form will enforce a brief reading time before the session starts.*
-
-### Step 3: Analyze Results (Phase 3)
-Run the statistical analysis on collected data.
+*Note: Requires Visual Genome to be verified in the dataset list or manually downloaded.*
 
 ```bash
-python code/analysis/stats.py --input data/responses --output data/analysis/results.json
-python code/analysis/viz.py --input data/analysis/results.json --output data/analysis/plots.png
+# 1. Fetch real stimuli (if verified)
+python code/utils/data_loader.py --source visual_genome --limit 30
+
+# 2. Run participant sessions (requires actual recruitment or mock mode)
+python code/participants/interface.py --mode real --n-sessions 60
+
+# 3. Analyze
+python code/analysis/anova.py
 ```
 
 ## Verification
 
-1. **Check Stimuli**: Ensure `data/stimuli/` contains at least 30 pairs of images (enhanced/reduced).
-2. **Check Logs**: Verify `data/logs/manipulation_errors.log` exists (may be empty).
-3. **Check Analysis**: Ensure `data/analysis/results.json` contains `anova_p` and `effect_size`.
-4. **Check Ethics**: Ensure `data/ethics/consent_template.md` contains the IRB approval number.
-
-## Troubleshooting
-
-* **"No images found"**: The downloader may have failed to fetch COCO. Check network or switch to the mock generator by setting `USE_MOCK=true` in environment variables.
-* **"Session incomplete"**: Participants who drop out are logged in `data/logs/dropouts.log`. Ensure N ≥ 50 for valid power.
-* **"Memory Error"**: If processing large images, reduce the batch size in `manipulator.py`.
-* **"Consent Timer"**: If the consent timer is not working, check the browser console for JavaScript errors.
+*   Check `data/stimuli/` for generated images.
+*   Check `data/responses/` for participant data.
+*   Check `data/analysis/results.png` for the plot.

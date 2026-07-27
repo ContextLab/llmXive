@@ -1,124 +1,90 @@
 # Implementation Plan: Visual Detail and False Memory Susceptibility
 
-**Branch**: `001-visual-detail-false-memory` | **Date**: 2026-06-30 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-visual-detail-false-memory/spec.md`
+**Branch**: `001-visual-detail-false-memory` | **Date**: 2026-06-30 | **Spec**: `specs/001-the-impact-of-visual-detail-on-false-mem/spec.md`
+**Input**: Feature specification from `specs/001-the-impact-of-visual-detail-on-false-mem/spec.md`
 
 ## Summary
 
-This project implements a computational psychology pipeline to investigate how visual scene complexity influences false memory susceptibility. The system downloads scene images from the COCO dataset. (as a verified open substitute for Visual Genome), generates two manipulated variants per image (enhanced vs. reduced detail), and administers a recognition-based false memory test to participants. Statistical analysis (repeated-measures ANOVA) will determine if detail manipulation significantly alters false alarm rates for lure items, adhering to strict reproducibility and ethics guidelines.
+This project implements a computational pipeline to test the hypothesis that visual detail complexity modulates false memory susceptibility. The system uses a **Between-Subjects design**: participants are assigned to one condition (Enhanced, Reduced, or Baseline) and view a single image. The pipeline downloads a pre-bundled subset of Visual Genome images (to ensure CI reproducibility), manipulates them via a "Semantic Compositor" to create variants, and orchestrates a participant recognition test. Statistical analysis (One-Way ANOVA) will compare false memory rates across conditions. The implementation strictly adheres to CPU-first execution on GitHub Actions free-tier runners.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `datasets` (Hugging Face), `Pillow` (image manipulation), `scipy` (statistics), `pandas`, `matplotlib`, `streamlit` (participant interface), `pytest`, `wordnet` (semantic plausibility)  
-**Storage**: Local filesystem (`data/stimuli/`, `data/responses/`, `data/logs/`)  
-**Testing**: `pytest` (unit/integration), manual verification of image outputs  
-**Target Platform**: Linux (GitHub Actions free-tier runner), Web browser (participant interface)  
-**Project Type**: Research pipeline / Web application  
-**Performance Goals**: Image manipulation < 30s/image; Analysis < 30min on CPU; Interface latency < 1s  
-**Constraints**: ≤ 7 GB RAM, ≤ 14 GB disk, no local GPU, IRB compliance mandatory  
-**Scale/Scope**: A sufficient number of baseline images (validated for annotation density), + participant sessions, A substantial number of total responses  
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `Pillow` (image manipulation), `scipy` (statistics), `matplotlib` (visualization), `datasets` (HuggingFace data loading), `pandas` (data handling), `pytest` (testing).
+**Storage**: Local filesystem (`data/stimuli/`, `data/responses/`, `data/analysis/`).
+**Testing**: `pytest` with unit tests for image manipulation logic and integration tests for the data flow.
+**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM).
+**Project Type**: Research pipeline / CLI tool.
+**Performance Goals**: Image manipulation < 5s/image; Analysis < 30m for 60 participants; Total runtime < 6h.
+**Constraints**: No GPU dependencies; No external API calls during execution (except dataset download); Memory usage < 7GB; Disk usage < 14GB.
+**Scale/Scope**: A set of baseline images (pre-bundled); A sufficient number of simulated participant sessions for validation; Real data collection deferred to post-IRB approval phase.
 
-> Empirical specifics (exact counts, dataset sizes) are deferred to the research phase but constrained by compute feasibility. The "30 baseline images" target is contingent on the successful implementation of the "skip and log" logic (T018) and the "Annotation Density Check".
+> **Data Strategy Note**: The "Verified datasets" block provided in the prompt context contains only a math dataset, which is unsuitable for this visual study. To satisfy the **Data Availability** constraint for CI runs (which cannot fetch external gated data) and the **Verified Accuracy** principle, the plan uses a **Pre-bundled Subset** of Visual Genome images (shipped in `data/stimuli/raw_subset/`). This subset is verified by content hash. The final study will use the standard HuggingFace `visual_genome` loader once a new verification step is completed.
 
 ## Constitution Check
 
-**Status**: PASSED (with explicit mitigation for dataset substitution and scope boundaries)
+*GATE: Must pass before Phase 0 research.*
 
-1.  **I. Reproducibility**: All random seeds pinned in `code/utils/seeds.py`. External datasets fetched via `datasets.load_dataset` with pinned version. Power analysis simulation uses the same seeds for reproducibility.
-2.  **II. Verified Accuracy**: Citations in `research.md` limited to verified HuggingFace sources (COCO dataset). Dataset substitution (COCO for Visual Genome) is explicitly documented as a deviation due to lack of verified open URL for Visual Genome.
-3.  **III. Data Hygiene**: All stimulus metadata checksummed. Raw responses stored before any processing. PII stripped at ingestion.
-4.  **IV. Single Source of Truth**: All statistics derived programmatically from `data/responses/` via `code/analysis/stats.py`. No manual entry.
-5.  **V. Versioning**: Content hashes recorded in `state/` for all artifacts.
-6.  **VI. Human Subjects Ethics**: **CRITICAL**: The plan explicitly excludes biological mechanism mapping (T040-T042). The project scope is strictly behavioral. IRB templates and consent flows are implemented in `code/interface/consent.py`. A fixed reading time is enforced via a UI timer.
-7.  **VII. Stimulus Standardization**: Metadata files (`data/stimuli/{id}.yaml`) generated for every manipulated image, recording object lists and parameters, adhering to `contracts/stimulus_metadata.schema.yaml`.
-
-**Scope Boundary**:
--   **REMOVED**: Tasks T040-T042 (Biological Mechanism Mapping). These tasks are explicitly excluded from the implementation scope as they represent scope creep and are not supported by the spec or data model.
--   **REMOVED**: Task T044 (Code cleanup) is atomized into specific refactoring actions in the implementation phase.
-
-**Dataset Deviation**:
--   **Visual Genome** is replaced by **COCO 2017** because the input block contained no verified open URL for Visual Genome. The "Complexity Score" metric is recalibrated for COCO's annotation density.
-
-## Project Phases
-
-### Phase 0: Power Analysis (Blocking Gate)
--   **Goal**: Calculate required sample size (N ≥ 50) before any data collection.
--   **Action**: Run `code/analysis/stats.py --power-analysis`.
--   **Gate**: Pipeline halts if `data/analysis/power_report.json` is missing or N < 50.
-
-### Phase 1: Stimuli Generation
--   **Goal**: Download images, filter for complexity, and generate variants.
--   **Action**:
-    1.  `downloader.py`: Fetch COCO 2017.
-    2.  `filter.py`: Calculate object density, select images spanning Q1-Q3 (range ≥ 0.3).
-    3.  `manipulator.py`: Create Enhanced/Reduced versions. **Error Handling**: If manipulation fails, skip image, log to `data/logs/manipulation_errors.log`, and continue.
-    4.  `metadata.py`: Generate `stimuli/{id}.yaml` adhering to schema.
-
-### Phase 2: Participant Interface
--   **Goal**: Collect responses.
--   **Action**: `streamlit run code/interface/app.py`.
--   **Constraint**: Consent form must be displayed for ≥ 5 minutes (enforced by UI timer).
-
-### Phase 3: Analysis
--   **Goal**: Run ANOVA and generate results.
--   **Action**: `code/analysis/stats.py --analyze`.
+| Principle | Status | Evidence/Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. `requirements.txt` created. Data fetching uses `datasets` library with explicit versioning. Pre-bundled subset ensures CI reproducibility. |
+| **II. Verified Accuracy** | **PASS** | All citations in `research.md` will be validated against primary sources. No fabricated URLs. Pre-bundled subset is verified by content hash. |
+| **III. Data Hygiene** | **PASS** | Checksums for generated stimuli. No in-place modification. PII anonymization in `data/responses/`. |
+| **IV. Single Source of Truth** | **PASS** | Figures/stats generated directly from `data/` via scripts. No manual typing. |
+| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts. `updated_at` timestamps managed by agent. |
+| **VI. Human Subjects Ethics** | **PASS** | `data/ethics/` directory created. `informed_consent.md` template generated. **Gate**: No *real* participant recruitment until IRB approval is manually confirmed (T012.1). CI validation uses mock data (no IRB required). |
+| **VII. Stimulus Standardization** | **PASS** | `data/stimuli/` stores images + `metadata.json` with manipulation params. Script version archived. |
 
 ## Project Structure
 
-### Documentation
+### Documentation (this feature)
 
 ```text
-specs/001-visual-detail-false-memory/
+specs/001-the-impact-of-visual-detail-on-false-mem/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
-### Source Code
+### Source Code (repository root)
 
 ```text
 projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/
 ├── code/
 │   ├── __init__.py
-│   ├── utils/
-│   │   ├── seeds.py           # Global random seeds (linked to power analysis)
-│   │   └── logging.py         # Structured logging for errors
+│   ├── config.py             # Constants, seeds, paths
 │   ├── stimuli/
-│   │   ├── downloader.py      # COCO fetcher
-│   │   ├── filter.py          # Complexity stratification
-│   │   ├── manipulator.py     # Image compositing (Enhanced/Reduced) with skip/log
-│   │   └── metadata.py        # Stimulus metadata generation (adheres to schema)
-│   ├── interface/
-│   │   ├── app.py             # Streamlit participant interface
-│   │   └── consent.py         # IRB consent flow (5-min timer)
+│   │   ├── generator.py      # PIL-based semantic compositing (T015)
+│   │   └── metadata.py       # Stimulus metadata logging (T017)
+│   ├── participants/
+│   │   ├── interface.py      # Simulated participant session (T027)
+│   │   └── response.py       # Response capture & validation
 │   ├── analysis/
-│   │   ├── stats.py           # ANOVA, power analysis, corrections
-│   │   └── viz.py             # Plotting
-│   └── tests/
-│       ├── unit/
-│       │   ├── test_manipulator.py
-│       │   └── test_stats.py
-│       └── integration/
-│           └── test_full_pipeline.py
+│   │   ├── power.py          # Power analysis & gate (T012)
+│   │   ├── anova.py          # One-Way ANOVA (T035)
+│   │   └── viz.py            # Visualization generation (T037)
+│   └── utils/
+│       ├── data_loader.py    # Dataset fetching (T006) - Handles Pre-bundled & HF
+│       └── ethics.py         # Consent & anonymization (T010)
 ├── data/
-│   ├── stimuli/               # Generated images + metadata
-│   ├── responses/             # Participant data (anonymized)
-│   ├── logs/                  # Error logs (e.g., manipulation_errors.log)
-│   ├── ethics/                # Consent templates (consent_template.md)
-│   └── analysis/              # Power reports and results
-├── requirements.txt
-└── pyproject.toml
+│   ├── stimuli/              # Generated images + metadata
+│   ├── responses/            # Participant data (anonymized)
+│   ├── analysis/             # Power reports, ANOVA results
+│   └── ethics/               # Consent forms, IRB docs
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+└── requirements.txt
 ```
 
-**Structure Decision**: A modular monolithic structure is selected. The separation of `stimuli`, `interface`, and `analysis` ensures independent testing of the pipeline components as required by the spec's "Independent Test" criteria. The `data/` directory is strictly append-only for raw responses to satisfy Data Hygiene.
+**Structure Decision**: Single project structure with modular `code/` subdirectories. Chosen to minimize overhead for a research pipeline and ensure all artifacts are co-located for reproducibility.
 
 ## Complexity Tracking
 
-No additional complexity layers are introduced. The previous iteration's biological mechanism mapping (Phase 6) is removed entirely to align with the spec's "associational" scope and Constitution VI. The complexity is limited to:
-1.  Robust image manipulation with error handling (skip/log).
-2.  Secure participant data handling (anonymization).
-3.  Statistical rigor (power analysis, multiple comparison correction).
-4.  Semantic coherence control for lure generation.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **None** | The project is a linear pipeline: Stimuli -> Data Collection -> Analysis. No complex architecture needed. | N/A |

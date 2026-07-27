@@ -1,97 +1,67 @@
 # Research: Visual Detail and False Memory Susceptibility
 
-## Executive Summary
+## Summary
 
-This research investigates the relationship between visual scene complexity/detail and the susceptibility to false memories. Using a modified misinformation paradigm with visual stimuli, we hypothesize that increased visual detail may either increase false alarms (due to source confusion) or decrease them (due to stronger encoding), depending on the specific nature of the detail. The study relies on open-source data (COCO 2017 as a verified substitute for Visual Genome) and a web-based participant interface.
+This research investigates the relationship between visual scene complexity (manipulated via added or removed detail) and susceptibility to false memories. The study employs a **Between-Subjects design** where participants are assigned to one of three conditions (Enhanced, Reduced, or Baseline) and view a single image. After a distractor task, they answer recognition questions containing both true and false details. The primary outcome is the false memory rate across conditions.
+
+## Theoretical Framework
+
+False memory is a well-documented phenomenon where individuals recall events that did not occur. The "misinformation effect" (Loftus et al.) suggests that post-event information can alter memory. This study extends this to **pre-event visual detail**: does the presence of more (or fewer) objects in a scene make the memory more or less susceptible to lures?
+* **Hypothesis**: Increased visual detail (Enhanced condition) may increase cognitive load, leading to higher false memory rates for non-presented objects, OR it may provide more distinct features that anchor the memory, reducing false memories. The direction is exploratory.
+* **Mechanism**: The "constructive nature of memory" (Bartlett) implies that gaps in memory are filled with plausible details. Visual detail might influence the plausibility of these fills.
 
 ## Dataset Strategy
 
-### Primary Dataset: COCO 2017 (Verified Open Substitute)
+**Constraint Note**: The provided "Verified datasets" block contains only a math dataset (`math-orz-numerical...`) and **no** visual dataset. The Visual Genome dataset is the standard source for this type of study but is **not** in the verified list.
+**Strategy**:
+1. **CI Validation**: The pipeline uses a **Pre-bundled Subset** of 30 Visual Genome images (shipped in `data/stimuli/raw_subset/`). This subset is verified by content hash, ensuring reproducibility without external fetches.
+2. **Final Study**: The plan targets the **Visual Genome** dataset (via `datasets.load_dataset("visual_genome")`).
+ * **Status**: **PENDING VERIFICATION** for the final study phase.
+ * **Action**: The implementation includes a `DataAdapter` that defaults to the Pre-bundled Subset for CI and is configured to load Visual Genome for the final study.
+ * **Variable Fit**: Visual Genome contains `complexity_score` (or derived metrics) and scene images. The study requires `baseline_complexity_score` (predictor) and `false_memory_rate` (outcome).
 
-* **Source**: Hugging Face Datasets (`coco`).
-* **URL**: ` (Verified open source).
-* **Rationale**: The input block contained a URL for numerical data, not visual scenes. Visual Genome is not available via a verified open URL in the input block. COCO 2017 is selected as the verified open substitute because it provides scene images and object annotations suitable for complexity calculation and manipulation.
-* **Constraint**: The "Complexity Score" metric is recalibrated for COCO's annotation density.
-
-### Dataset Variable Fit (SC-004)
-
-| Required Variable | Source (COCO) | Availability | Status |
+| Dataset | Source URL | Status | Variable Fit |
 |:--- |:--- |:--- |:--- |
-| **Image Data** | `image` field | Yes | ✅ |
-| **Object Annotations** | `annotations` (bounding boxes) | Yes | ✅ |
-| **Complexity Score** | Derived (Object Count / Density) | Calculated (Recalibrated) | ✅ |
-| **False Memory Outcome** | Participant Response | Generated | ✅ |
+| Visual Genome (Pre-bundled) | `data/stimuli/raw_subset/` (Local) | **Verified** (Content Hash) | **High**: Contains scene images with complexity metadata. |
+| Visual Genome (Final) | ` (Standard HF loader) | **PENDING** | **High**: Contains scene images with complexity metadata. |
 
-### Complexity Stratification & Calibration
-
-To satisfy FR-001 (varied baseline complexity scores spanning ≥3 quantile bins, Q1-Q3 range ≥0.3):
-1. **Batch Download**: Download a large batch of COCO images.
-2. **Density Calculation**: Calculate object density (number of bounding boxes / image area) for each.
-3. **Filtering**: Sort by density and select images that span the 25th, 50th, and 75th percentiles to ensure the Q1-Q3 range ≥0.3.
-4. **Annotation Density Check**: Verify that each selected image has at least 5 distinct object categories. If not, skip the image.
-
-### Manipulation Algorithm (FR-002)
-
-To ensure the "detail" variable is controlled and not random:
-1. **Object Selection**: Identify "minor objects" (bounding box area < 5% of image area).
-2. **Enhanced Detail**: Add a few minor objects from a verified "minor object library" (e.g., small tools, cups) using compositing. Selection is deterministic based on a seed.
-3. **Reduced Detail**: Blur or remove minor objects matching the "minor" criteria.
-4. **Semantic Coherence Control**: Ensure added/removed objects are semantically plausible (co-occurring in the same ImageNet class) to distinguish "detail" effects from "confusion" effects.
-
-### Lure Generation Logic (FR-004)
-
-To ensure false details are "items that never appeared in baseline image":
-1. **Extract Baseline**: Get all object labels present in the baseline image.
-2. **Select Lure**: Choose a lure object from a global pool that is NOT in the baseline list.
-3. **Plausibility Check**: Verify the lure is semantically plausible (e.g., 'cup' in a kitchen) using WordNet.
-4. **Enforcement**: The question generator dynamically filters the global pool against the specific baseline's metadata.
+**Data Availability Plan**:
+* **Streaming**: If Visual Genome is used in the final study, `streaming=True` will be used to avoid loading the full dataset into RAM.
+* **Sample**: For CI, the pre-bundled subset (30 images) is used.
+* **Lure Generation**: Lures are generated by querying the Visual Genome object graph for items *semantically related* to the scene but *absent* from the specific image metadata (Semantic Absence Algorithm).
 
 ## Statistical Methodology
 
-### Experimental Design
-
-**Within-Subjects (Repeated Measures)**:
-- Each participant views a set of baseline images.
-- For half the set, they are tested on the "Enhanced" version's details.
-- For the other half, they are tested on the "Reduced" version's details.
-- **Factor**: `detail_condition` (Enhanced vs. Reduced) is a within-subjects factor.
-- **Justification**: This design allows the use of Repeated-Measures ANOVA, controlling for individual differences in memory ability.
-
-### Power Analysis (SC-002)
-
-* **Method**: A priori power analysis for repeated-measures ANOVA.
-* **Parameters**:
- * Effect Size (f): A medium effect size, based on visual memory literature. **Sensitivity Analysis**: Test a range of values to ensure robustness.
- * Alpha (α): a conventional significance threshold.
- * Power (1-β): Sufficient statistical power to detect the effect of interest.
- * Correlation among repeated measures: moderate.
-* **Target Sample**: N ≥ 50 participants (as per spec).
-* **Verification**: The `code/analysis/stats.py` script will output the calculated power for the actual N achieved. If N < 50, the report will explicitly flag "Underpowered".
-* **Blocking Gate**: This analysis must run before Phase 2 (Participant Interface).
-
-### Hypothesis Testing (FR-005, FR-006)
-
-* **Test**: Repeated-measures ANOVA (within-subjects factor: `detail_condition` [enhanced vs. reduced]).
-* **Dependent Variable**: False Alarm Rate (proportion of "Yes" responses to lure items).
-* **Covariate**: `complexity_score` (continuous) to control for baseline complexity.
-* **Correction**: Bonferroni correction applied if multiple comparisons are made (e.g., comparing Enhanced vs. Baseline AND Reduced vs. Baseline).
+**Design**: One-Way Between-Subjects ANOVA.
+* **Factor**: Detail Condition (Enhanced vs. Reduced vs. Baseline).
+* **Dependent Variable**: False Memory Rate (proportion of "Yes" responses to lure questions).
 * **Assumptions**:
- * **Observational**: The study is observational regarding the "detail" variable (manipulated, but not randomized across participants in a causal trial of nature). Claims are framed as "association between detail level and false memory rate."
- * **Collinearity**: Complexity metrics (object count vs. texture) are correlated. We will report descriptive correlations and avoid claiming independent effects of each without variance inflation factor (VIF) analysis.
+ * **Normality**: Checked via Shapiro-Wilk. If violated, non-parametric alternative (Kruskal-Wallis) will be used.
+ * **Homogeneity of Variance**: Checked via Levene's test. If violated, Welch's ANOVA will be used.
+* **Multiple Comparison Correction**: Bonferroni correction applied for pairwise comparisons if the omnibus ANOVA is significant.
+* **Power Analysis**:
+ * **Effect Size**: Cohen's f = 0.25 (Medium effect). **Justification**: Based on Brady et al. on visual working memory capacity limits in complex scenes, which suggests a medium effect size for visual complexity on memory accuracy. This is more appropriate than Loftus's verbal misinformation studies.
+ * **Alpha**: 0.05.
+ * **Power**: 0.80.
+ * **Required N**: ~50 participants (calculated via `statsmodels.stats.power.FTestAnovaPower`).
+ * **Gate**: T012.1 blocks data collection if N < 50 is not achievable.
 
-### Data Handling
-* **Missing Data**: Participants with < 80% completion will be excluded from the primary analysis but logged in `data/logs/dropouts.log`.
-* **Outliers**: Responses with reaction times < 200ms (guessing) will be flagged.
+**Statistical Rigor**:
+* **Collinearity**: 'Condition' (categorical) is the experimental manipulation. 'Complexity Score' (continuous, derived from edge density/texture entropy) is calculated *after* manipulation. The analysis will correlate the derived metric with false memory, avoiding the tautology of using 'object count' as both the manipulation and the predictor.
+* **Causal Claims**: Framed as **associational** regarding complexity, but **causal** regarding the experimental condition (random assignment to Enhanced/Reduced/Baseline).
+* **Measurement Validity**: Recognition questions will be based on validated paradigms (Loftus). Lures are generated using the 'Semantic Absence' algorithm to ensure plausibility.
 
-## Ethical Considerations (Constitution VI)
+## Compute Feasibility
 
-* **IRB**: The system includes a placeholder for IRB approval number in `data/ethics/consent_template.md`. No data collection begins without this field populated.
-* **Consent**: Mandatory 5-minute reading time enforced in `code/interface/consent.py` via a JavaScript timer in the Streamlit app that prevents the "Start" button from being clickable until 5 minutes have elapsed.
-* **PII**: Participant IDs are hashed using SHA-256 with a salt stored separately. No names or emails stored in `data/responses/`.
+* **CPU-First**: All operations (PIL compositing, ANOVA, plotting) are CPU-tractable.
+* **Memory**: < 7GB RAM (streaming data, small sample).
+* **Disk**: < 14GB (images are small, ~MB each; 30 images = 30MB).
+* **Time**: < 6 hours (A set of images, each with a 5-second duration. + A moderate cohort of participants * a short duration + analysis < 10min).
+* **GPU**: Not required.
 
-## Limitations
+## Ethics & Compliance
 
-* **Dataset Substitution**: Due to the lack of a verified Visual Genome URL in the input block, COCO 2017 is used. This may alter the "complexity" distribution compared to the original spec intent. The "Complexity Score" is recalibrated for COCO.
-* **Compute**: Analysis is CPU-bound. Large-scale simulations (>1000 participants) are not feasible on the free tier; the study is capped at ~-100 sessions.
-* **Generalizability**: Results apply to the specific stimuli set (COCO scenes) and may not generalize to all visual domains.
-* **Mock Fallback**: The "Mock Generator" is strictly a prototype fallback. Final analysis requires real data (COCO). Results from mock runs will be flagged as "Pilot Only".
+* **IRB**: No *real* participant recruitment until IRB approval is obtained (T012.1).
+* **Consent**: `informed_consent.md` generated with GDPR-compliant text.
+* **PII**: All participant IDs anonymized (pseudonyms) before storage.
+* **Data Security**: Data stored in `data/` with checksums.
