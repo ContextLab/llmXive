@@ -29,7 +29,7 @@ The system MUST train three separate Gradient-Boosting Regressors (XGBoost) to p
 
 **Why this priority**: This is the core analytical engine. It transforms the engineered features into predictive models, directly addressing the research question of which mechanisms dominate.
 
-**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., a small number of samples) with a 2-minute timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
+**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., a small number of samples) with a short timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
 
 **Acceptance Scenarios**:
 
@@ -101,6 +101,6 @@ The system MUST group predictions by cation/anion structural families, compute m
 - The multiple-comparison correction (e.g., Bonferroni) will not overly penalize the statistical power to detect significant family trends.
 - The dataset is large enough to support the required stratified split by StructuralFamily.
 - The RDKit library can successfully generate the required graph embeddings and descriptors for all ions in the dataset without encountering parsing errors.
-- The Optuna hyperparameter optimization will converge to a reasonable set of hyperparameters within the 5-minute trial limit and 60 trial count.
+- The Optuna hyperparameter optimization will converge to a reasonable set of hyperparameters within a reasonable time limit and trial count.
 - The experimental validation data will be available for at least 20 IonPairs not in the training set.
 - The family-wise error rate correction will be applied to the ANOVA p-values to ensure the statistical findings are robust.

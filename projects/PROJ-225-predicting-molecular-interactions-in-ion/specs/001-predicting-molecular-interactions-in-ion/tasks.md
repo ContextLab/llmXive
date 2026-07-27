@@ -47,7 +47,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and formal alignment of Spec/Plan contradictions
 
-- [X] T000-Amend [P] **SPEC AMENDMENT**: Update `specs/001-predicting-molecular-interactions-in-ion/spec.md` and `plan.md` to formally replace FR-007/SC-003/US-3 requirements for "experimental enthalpy of mixing" with "Independent DFT validation set". **Action**: Edit `spec.md` to change FR-007 text to "System MUST compare ML predictions against a subset of IonPairs with available *Independent DFT* data (generated via Verified Synthetic Generation)". Update SC-003 to reflect this change (MAE ≤ 0.5 kcal mol⁻¹ against DFT). Update US-3 Acceptance Scenario 3 to use DFT data. Update `plan.md` to reference the amended spec. **Verification**: Commit message must cite "Spec Amendment FR-007/SC-003".
+- [ ] T000-Amend [P] **SPEC AMENDMENT**: Edit `specs/001-predicting-molecular-interactions-in-ion/spec.md` to change FR-007 text from "experimental enthalpy of mixing" to "Independent DFT validation set (generated via Verified Synthetic Generation)". Update SC-003 to reflect this change (MAE ≤ 0.5 kcal mol⁻¹ against DFT). Update US-3 Acceptance Scenario 3 to use DFT data. Edit `plan.md` to reference the amended spec. **Verification**: Verify `spec.md` FR-007 text reads "Independent DFT validation" and `SC-003` references DFT.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -77,21 +77,22 @@ description: "Task list template for feature implementation"
 - [X] T008b [P] Implement `code/utils.py` custom exception hierarchy: `DataIngestionError`, `ModelTrainingError`, `AnalysisError`.
 - [X] T009a [P] Create `code/.env.example` with `SPICE_URL`, `IL_SAPT_URL`, `ILTHERMO_URL`, `DFT_VALIDATION_URL`. Verify file exists and contains these keys.
 - [X] T009b [P] Implement `code/config.py` to load `.env` and validate required keys exist, raising `DataIngestionError` if missing.
-- [ ] T012d-DownloadSPICE [P] [US1] Implement `code/data_ingestion.py` function `download_spice_dataset(url)`: **PRIMARY SOURCE**. Fetch the SPICE dataset using the URL from `code/config.py`. **Constraint**: Do NOT use hardcoded URLs. Save to `data/raw/spice.parquet`. Verify file exists and contains columns `cation_id`, `anion_id`, `smiles_cation`, `smiles_anion`, `structural_family`, `electrostatic_energy`, `dispersion_energy`, `hbond_energy`.
-- [ ] T012a [US1] Implement `code/data_ingestion.py` function `download_il_thermo_sapt(url)`: **SECONDARY SOURCE**. Fetch ILThermo and curated SAPT/DFT datasets using URLs from `code/config.py` (if available). **Constraint**: This is secondary to SPICE. Save to `data/raw/il_thermo.parquet` and `data/raw/sapt.parquet`. Verify file exists and contains columns `cation_id`, `anion_id`, `smiles_cation`, `smiles_anion`, `structural_family`, `electrostatic_energy`, `dispersion_energy`, `hbond_energy`. **Dependency**: Must run after T012d-DownloadSPICE.
-- [ ] T013c-Structures [P] [US1] Implement `code/data_ingestion.py` function `extract_structures_from_data(df)`: Extract unique cation/anion SMILES from the downloaded SPICE/ILThermo/SAPT dataset (`data/raw/spice.parquet`, `data/raw/il_thermo.parquet`, or `data/raw/sapt.parquet`) and save to `data/raw/il_structures.json`. **Dependency**: Must run after T012d-DownloadSPICE and T012a. Verify `data/raw/il_structures.json` exists and contains valid SMILES.
-- [ ] T012c-TrainGen [P] [US1] [Plan Phase 0] [Constitution VI] Implement `code/data_ingestion.py` function `generate_sapt_training_labels()`: **SYNTHETIC TRAINING FALLBACK**. Implement the "Verified Synthetic Generation" protocol using `psi4` and `data/raw/il_structures.json` to generate SAPT energy components for the TRAINING set if the real SAPT source is missing. **Logic**: Check if `data/processed/sapt_training_labels.parquet` exists. If not, randomly select a representative subset of IonPairs (seed=42) from `data/raw/il_structures.json` and calculate SAPT/DFT energy components using `run_psi_sapt`. Save to `data/processed/sapt_training_labels.parquet`. **Note**: This implements the Plan's fallback for missing training data. **Dependency**: Must run after T013c-Structures.
+- [ ] T012a-SpineLoad [US1] Implement `code/data_ingestion.py` function `download_spice_dataset(url)`: **PRIMARY SOURCE**. Fetch the SPICE dataset using the URL from `code/config.py`. **Constraint**: Do NOT use hardcoded URLs. Save to `data/raw/spice.parquet`. Verify file exists and contains columns `cation_id`, `anion_id`, `smiles_cation`, `smiles_anion`, `structural_family`, `electrostatic_energy`, `dispersion_energy`, `hbond_energy`.
+- [ ] T012b-SaptLoad [US1] Implement `code/data_ingestion.py` function `download_il_sapt_dataset(url)`: **SECONDARY SOURCE**. Attempt to fetch the IL-SAPT dataset. If the URL is missing or the fetch fails, log a WARNING and proceed with SPICE only. Save to `data/raw/sapt.parquet` if successful. **Dependency**: Must run after T012a-SpineLoad (to ensure primary data is available).
+- [ ] T012c-Unify [US1] Implement `code/data_ingestion.py` function `unify_datasets()`: **UNIFIED INGESTION**. Merge `data/raw/spice.parquet` and `data/raw/sapt.parquet` (if present) into a unified dataframe. **Output**: A unified dataframe with columns `cation_id`, `anion_id`, `smiles_cation`, `smiles_anion`, `structural_family`, `electrostatic_energy`, `dispersion_energy`, `hbond_energy`, `source`. **Dependency**: Must run after T012a-SpineLoad and T012b-SaptLoad.
+- [ ] T013c-Structures [P] [US1] Implement `code/data_ingestion.py` function `extract_structures_from_data(df)`: Extract unique cation/anion SMILES from the unified dataset (`data/raw/spice.parquet`, `data/raw/sapt.parquet`) and save to `data/raw/il_structures.json`. **Dependency**: Must run after T012c-Unify. Verify `data/raw/il_structures.json` exists and contains valid SMILES.
+- [ ] T012c-TrainGen [US1] [Plan Phase 0] [Constitution VI] Implement `code/data_ingestion.py` function `generate_sapt_training_labels()`: **SYNTHETIC TRAINING FALLBACK**. Implement the "Verified Synthetic Generation" protocol using `psi4` and `data/raw/il_structures.json` to generate SAPT energy components for the TRAINING set if the real SAPT source is missing. **Logic**: Check if `data/raw/sapt.parquet` exists and has > 0 rows. If not, randomly select N=500 IonPairs (seed=42) stratified by StructuralFamily from `data/raw/il_structures.json` and calculate SAPT/DFT energy components using `run_psi_sapt`. Save to `data/processed/sapt_training_labels.parquet`. **Note**: This implements the Plan's fallback for missing training data. **Dependency**: Must run after T013c-Structures.
 - [ ] T012b-Gen [P] [US1] [Plan Phase 2] [Constitution VI] Implement `code/data_ingestion.py` function `generate_dft_validation_set()`: **INDEPENDENT DFT VALIDATION**. Implement the "Verified Synthetic Generation" protocol using `psi4` and `data/raw/il_structures.json`. **Logic**: Check if `data/validation/dft_validation_set.parquet` exists. If not, randomly select a representative subset of IonPairs (seed=42) from `data/raw/il_structures.json` and calculate SAPT/DFT energy components using `run_psi_sapt`. Save to `data/validation/dft_validation_set.parquet`. **Note**: This implements the amended FR-007 requirement for Independent DFT validation. **Dependency**: Must run after T013c-Structures.
 - [X] T012c [P] Implement `code/data_ingestion.py` function `verify_checksum(file_path, expected_hash)` to validate downloaded data.
-- [ ] T015a [P] [US1] Implement `code/data_ingestion.py` function `calculate_partial_charges_internal_only(df)`: Calculate Gasteiger partial charges using RDKit for *internal consistency checks only*. **Constraint**: These values MUST NOT be used as input features for training. Save the result to `data/processed/internal_consistency_checks.parquet` before dropping from the main dataset. **Note**: This satisfies FR-002 generation requirement.
-- [ ] T016a [US1] Implement `code/data_ingestion.py` function `engineer_features(df)`: Parse SMILES, compute TPSA, Molecular Surface Area, H-bond counts, and graph embeddings. **CRITICAL**: Depends on T015a. Call `calculate_partial_charges_internal_only` to save the internal consistency artifact, then DROP the `partial_charge` column from the *training feature matrix* (save to `data/processed/training_features.parquet`). **Note**: The `partial_charge` column must be retained in the *final unified dataset* output file (via T016b) to satisfy US-1 Independent Test, but excluded from the *training feature set*.
+- [ ] T015a [US1] Implement `code/data_ingestion.py` function `calculate_partial_charges_internal_only(df)`: Calculate Gasteiger partial charges using RDKit for *internal consistency checks only*. **Constraint**: These values MUST NOT be used as input features for training. Save the result to `data/processed/internal_consistency_checks.parquet` before dropping from the main dataset. **Note**: This satisfies FR-002 generation requirement.
+- [ ] T016a [US1] Implement `code/data_ingestion.py` function `engineer_features(df)`: Parse SMILES, compute TPSA, Molecular Surface Area, H-bond counts, and graph embeddings. **CRITICAL**: Depends on T015a. Call `calculate_partial_charges_internal_only` to save the internal consistency artifact. Then, **DROP** the `partial_charge` column from the DataFrame passed to the model training function. Save the full DataFrame (with `partial_charge`) to `data/processed/unified_dataset.parquet` and the training feature set (without `partial_charge`) to `data/processed/training_features.parquet`. **Note**: The `partial_charge` column must be retained in the *final unified dataset* output file (via T016b) to satisfy US-1 Independent Test, but excluded from the *training feature set*.
 - [ ] T016b [P] [US1] Implement `code/data_ingestion.py` function `merge_consistency_artifacts()`: Read `data/processed/internal_consistency_checks.parquet` (from T015a) and merge it into the final unified dataset for the 'Internal Consistency' report, ensuring the `partial_charge` column is present in the final output file (`data/processed/unified_dataset.parquet`) as required by Spec US-1 Independent Test, while ensuring it was not used for training. **Dependency**: Must run after T016a and T015a.
-- [ ] T017a-Check [P] [US1] Implement `code/data_ingestion.py` function `check_data_source_existence()`: **DATA SOURCE CHECK**. Check if `data/raw/spice.parquet` exists. Check if `data/raw/sapt.parquet` exists. Return a dictionary of boolean flags indicating availability. **Dependency**: Must run after T012d-DownloadSPICE and T012a.
-- [ ] T017b-Select [P] [US1] Implement `code/data_ingestion.py` function `select_data_sources(flags)`: **DATA SOURCE SELECTION**. Based on flags from T017a-Check: If SPICE exists, select it. If SAPT exists, select it. If neither exists, trigger the "Verified Synthetic Generation" protocol (T012c-TrainGen logic) for training labels. Return the paths to the selected files. **Note**: Logic must handle separate structure and energy sources and implement the Plan's fallback.
+- [ ] T017a-Check [US1] Implement `code/data_ingestion.py` function `check_data_source_existence()`: **DATA SOURCE CHECK**. Check if `data/raw/spice.parquet` exists. Check if `data/raw/sapt.parquet` exists. Return a dictionary with keys: `{'spice_exists': bool, 'sapt_exists': bool, 'il_thermo_exists': bool}`. **Dependency**: Must run after T012a-SpineLoad and T012b-SaptLoad.
+- [ ] T017b-Select [US1] Implement `code/data_ingestion.py` function `select_data_sources(flags)`: **DATA SOURCE SELECTION**. Based on flags from T017a-Check: If SPICE exists, select it. If SAPT exists, select it. If neither exists, trigger the "Verified Synthetic Generation" protocol (T012c-TrainGen logic) for training labels. Return a dictionary with keys `selected_paths` (list[str]) and `source_type` (str). **Note**: Logic must handle separate structure and energy sources and implement the Plan's fallback. **Dependency**: Must run after T017a-Check.
 - [ ] T017c-Path [P] [US1] Implement `code/data_ingestion.py` function `get_selected_paths()`: **FILE PATH RETURN**. Return the paths to the selected data files based on the selection logic in T017b-Select. **Dependency**: Must run after T017a-Check and T017b-Select.
-- [ ] T017d [P] [US1] Implement `code/data_ingestion.py` function `filter_raw_sapt(df)`: Filter the unified dataset to extract the subset of data originating strictly from the SAPT source (where `source == 'sapt'`). Save to `data/processed/raw_sapt.parquet`. **Dependency**: Must run after T017c-Path. <!-- FAILED: unspecified -->
+- [ ] T017d [US1] Implement `code/data_ingestion.py` function `filter_raw_sapt(df)`: Filter the unified dataset to extract the subset of data originating strictly from the SAPT source (where `source == 'sapt'`). Save to `data/processed/raw_sapt.parquet`. **Dependency**: Must run after T017c-Path.
 - [ ] T017e [P] [US1] Implement `code/data_ingestion.py` function `write_unified_dataset(df, path)` to save to `data/processed/unified_dataset.parquet`.
-- [ ] T017f-SynthFilter [P] [US1] Implement `code/data_ingestion.py` function `filter_synthetic_raw_sapt()`: **SYNTHETIC RAW SAPT FILTER**. If real SAPT data is missing (and T012c-TrainGen was used), filter the synthetic training labels (`data/processed/sapt_training_labels.parquet`) to create a 'raw SAPT' equivalent subset for ANOVA analysis. Save to `data/processed/synthetic_raw_sapt.parquet`. **Dependency**: Must run after T012c-TrainGen.
+- [ ] T017f-SynthFilter [US1] Implement `code/data_ingestion.py` function `filter_synthetic_raw_sapt()`: **SYNTHETIC RAW SAPT FILTER**. If real SAPT data is missing (and T012c-TrainGen was used), filter the synthetic training labels (`data/processed/sapt_training_labels.parquet`) to create a 'raw SAPT' equivalent subset for ANOVA analysis. Save to `data/processed/synthetic_raw_sapt.parquet`. **Dependency**: Must run after T012c-TrainGen.
 - [X] T017b [P] [US1] Implement `code/data_ingestion.py` function `merge_il_thermo_sapt(il_df, sapt_df)`: Merge ILThermo and SAPT on `cation_id` and `anion_id`.
 - [X] T017c [P] [US1] Implement `code/data_ingestion.py` function `merge_training_data(base_df, sapt_df)`: **REAL DATA MERGE ONLY**. Merge the base structure dataframe with the real SAPT energy dataframe. **Constraint**: This function must NOT handle synthetic data. If `sapt_df` is missing or empty, raise `DataIngestionError`. This function is strictly for the training pipeline.
 - [X] T018a [US1] Implement `code/data_ingestion.py` function `validate_unified_dataset(df, schema_path)` using `pandera`.
@@ -128,6 +129,7 @@ description: "Task list template for feature implementation"
 - [X] T028c [US2] Add logging for timeout: In `code/model_training.py`, wrap `optuna_objective` in a timeout handler and add `logger.warning(f"Trial {trial.number} timed out after {TRIAL_TIMEOUT} seconds")` if it exceeds the limit.
 - [X] T029a [US2] Implement `code/model_training.py` function `perform_sensitivity_analysis(study_results)` to calculate the variance of MAE across the top hyperparameter configurations.
 - [X] T029b [US2] Implement `code/model_training.py` function `log_sensitivity_results(results)` to write detailed sensitivity analysis to logs.
+- [ ] T062 [US2/Review] [Timeout Handling] Refactor `code/model_training.py` `optuna_objective` to ensure the 5-minute timeout is enforced at the OS level. **Logic**: Use `multiprocessing.Process` to wrap the model training call. Call `proc.start()`, then `proc.join(timeout=300)`. Check `proc.is_alive()`. If alive, call `proc.terminate()`. Log the specific timeout event with the trial ID. **Log Message**: `logger.warning(f"Trial {trial.number} terminated by timeout after {TRIAL_TIMEOUT} seconds")`. **Dependency**: Must run after T025b.
 
 ---
 
@@ -147,16 +149,17 @@ description: "Task list template for feature implementation"
 - [X] T033c [US3] Write corrected results to `analysis/anova_corrected.json` with explicit p-value threshold logic.
 - [X] T034 [US3] Implement `code/analysis.py` function `calculate_cohens_d(group1, group2)` for significant families.
 - [X] T035a [US3] Implement `code/analysis.py` function `validate_against_dft(models, dft_validation_set)`: Validate models against the generated DFT set (`data/validation/dft_validation_set.parquet` from T012b-Gen). Calculate MAE and log the result. **Note**: This satisfies amended FR-007 and Plan Phase 2. **Dependency**: Must run after T012b-Gen and T012c-TrainGen.
-- [X] T035b [US3] Implement `code/analysis.py` function `calculate_sc003_compliance(dft_mae, test_mae)`: Calculate MAE against DFT set and compare against SC-003 relative metric (out-of-sample MAE ≤ 2.0 × baseline test set MAE). **Note**: This updates SC-003 to reflect the amended DFT validation strategy. <!-- FAILED: unspecified -->
+- [X] T035b [US3] Implement `code/analysis.py` function `calculate_sc003_compliance(dft_mae, test_mae)`: Calculate MAE against DFT set and compare against SC-003 relative metric (out-of-sample MAE ≤ 2.0 × baseline test set MAE). **Note**: This updates SC-003 to reflect the amended DFT validation strategy.
 - [X] T036a [US3] Implement `code/analysis.py` function `calculate_correlation_matrix(descriptors, targets)`.
 - [X] T036b [US3] Implement `code/analysis.py` function `check_tautology(correlation_matrix, threshold=0.95)`.
 - [X] T037a [US3] Implement `code/analysis.py` function `aggregate_validation_results(anova_predictions, anova_raw, tukey, dft_mae, sc003_status, tautology)`.
 - [X] T037b [US3] Implement `code/analysis.py` function `write_validation_report(report, path)` to `contracts/validation_report.json`.
-- [X] T038a [US3] Add logging for p-values: In `code/analysis.py`, inside `run_anova_predictions`, add `logger.info(f"ANOVA p-value for {energy_col}: {p_value:.4f}, Corrected: {corrected_p:.4f}")`. <!-- ATOMIZE: requested -->
+- [X] T038a [US3] Add logging for p-values: In `code/analysis.py`, inside `run_anova_predictions`, add `logger.info(f"ANOVA p-value for {energy_col}: {p_value:.4f}, Corrected: {corrected_p:.4f}")`.
 - [X] T038b [US3] Add logging for effect sizes: In `code/analysis.py`, inside `calculate_cohens_d`, add `logger.info(f"Cohen's d for {family1} vs {family2}: {d:.4f}")`.
 - [X] T038c [US3] Add logging for validation MAE: In `code/analysis.py`, inside `validate_against_dft`, add `logger.info(f"DFT Validation MAE: {mae:.4f} kcal/mol")`.
 - [X] T039a [US3] Implement `code/analysis.py` function `run_anova_on_predictions(predictions_df, family_col)`.
 - [X] T039b [US3] Implement `code/analysis.py` function `compare_raw_vs_prediction_anova(raw_results, prediction_results)`.
+- [ ] T063 [US3/Review] [ANOVA Robustness] Implement `code/analysis.py` function `check_anova_assumptions(df, energy_col, family_col)`: Before running ANOVA, verify the assumptions of normality (Shapiro-Wilk) and homogeneity of variance (Levene's test). **Logic**: If assumptions are violated (p < 0.05), log a WARNING and automatically switch to a non-parametric alternative (Kruskal-Wallis test) for that specific energy component, while still reporting the original ANOVA results for comparison. **Threshold**: p < 0.05. **Fallback**: `scipy.stats.kruskal`. **Output**: Save the non-parametric results to a new key `anova_results_kruskal` in the `contracts/validation_report.json` file.
 
 ---
 
@@ -173,6 +176,7 @@ description: "Task list template for feature implementation"
 - [X] T050 [US3/Review] Add a "Data Provenance" section to `contracts/validation_report.json`.
 - [X] T054 [US3/Review] Add logging for p-values, effect sizes, and validation MAE. **Implementation**: Ensure `code/analysis.py` logs the raw p-value, the Bonferroni-corrected p-value, Cohen's d, and the final MAE for DFT validation sets.
 - [X] T055 [P] Refactor `code/model_training.py` to handle "Stratification Failure". **Implementation**: If `train_test_split` fails to stratify due to a family having < 2 samples, log a WARNING, remove that family from the split, and proceed, ensuring the split is valid for the remaining families.
+- [ ] T060-VerifyStatic [P] [US1/Review] [Static Download] Implement a verification task for the static download strategy. **Logic**: Verify that no `streaming=True` flags are present in `code/data_ingestion.py` or `code/config.py`. Verify that `data/raw/` contains static `.parquet` files. Update `specs/001-predicting-molecular-interactions-in-ion/quickstart.md` to explicitly state "Static download strategy in use". **Verification**: Confirm no streaming code exists and documentation is updated.
 
 ---
 
@@ -185,7 +189,97 @@ description: "Task list template for feature implementation"
 - [X] T049 [US2/Review] Update `code/model_training.py` to log the exact dataset size and the number of samples per StructuralFamily used in the stratified split. **Implementation**: Add logging in `train_electrostatic_model` (T022) and `stratified_split` (T021a) to output `n_train`, `n_val`, `n_test`, and a frequency count of `StructuralFamily` in each split.
 - [X] T052 [US1/Review] Add explicit "Sample Definition" logging to `code/data_ingestion.py`. **Implementation**: If streaming or sampling is used, log the exact rule: "Using streaming mode", "Sample size: N rows", "Seed: 42", "Split: train".
 - [X] T053 [US1/Review] Implement a "Real Data Verification" check in `code/data_ingestion.py`. **Implementation**: Add a function `verify_real_data_source(path)` that checks file size > 0 and row count > 0 before processing. If the file is empty or missing, raise `DataIngestionError` immediately.
-- [ ] T060 [US1/Review] [Streaming] **REMOVED**. Task T060 was removed because streaming violates Constitution Principle III (Data Hygiene). The SPICE dataset is now downloaded as a static file in T012d-DownloadSPICE.
 - [X] T061 [US1/Review] [Data Integrity] Implement `code/data_ingestion.py` function `validate_family_coverage(df)`: A strict validation step that runs after T016a. **Logic**: Verify that every `StructuralFamily` present in the raw SAPT source (if available) is represented in the final unified dataset with at least N=10 samples. If a family is missing or under-represented, raise `DataIngestionError` with a clear message listing the missing families. **Error Message Format**: "DataIngestionError: Family coverage insufficient. Missing or under-represented families: {families}. Minimum required: {N} samples." **Config**: N value must be read from `config.py` (default 10).
-- [ ] T062 [US2/Review] [Timeout Handling] Refactor `code/model_training.py` `optuna_objective` to ensure the 5-minute timeout is enforced at the OS level. **Logic**: Wrap the model training call in a `multiprocessing.Process` with a timeout to guarantee the trial is killed if it exceeds `TRIAL_TIMEOUT`, preventing the entire pipeline from hanging on a single bad trial. Log the specific timeout event with the trial ID. **Log Message**: `logger.warning(f"Trial {trial.number} terminated by timeout after {TRIAL_TIMEOUT} seconds")`.
-- [ ] T063 [US3/Review] [ANOVA Robustness] Implement `code/analysis.py` function `check_anova_assumptions(df, energy_col, family_col)`: Before running ANOVA, verify the assumptions of normality (Shapiro-Wilk) and homogeneity of variance (Levene's test). **Logic**: If assumptions are violated (p < 0.05), log a WARNING and automatically switch to a non-parametric alternative (Kruskal-Wallis test) for that specific energy component, while still reporting the original ANOVA results for comparison. **Threshold**: p < 0.05. **Fallback**: `scipy.stats.kruskal`.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
