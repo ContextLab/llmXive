@@ -10,6 +10,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from llmxive.self_improvement.attempt_config import bind_attempt_config
 from llmxive.self_improvement.events import Event, derive_event_id, payload_field
 from llmxive.self_improvement.lane_log import (
     LaneContention,
@@ -139,11 +140,19 @@ class AttemptCreditLedger:
         self._repo = repo
         self._problem_id = problem_id
         self._attempt_id = attempt_id
-        self._budget = float(attempt_budget_credits)
-        self._call_ceiling = call_ceiling
         self._actor = actor
         self._clock = clock
         self._config = config
+        # The budget this ledger ENFORCES is the Attempt's DURABLE one, not whatever this
+        # worker was constructed with. A different value fails closed HERE, before a single
+        # reservation can be admitted against a silently-raised cap. One AttemptConfigured
+        # record binds BOTH limits, which is why the call ceiling is passed in too — two
+        # records could drift, and the drift would be invisible until a limit was exceeded.
+        self._budget = bind_attempt_config(
+            repo, problem_id=problem_id, attempt_id=attempt_id, call_ceiling=call_ceiling,
+            attempt_budget_credits=attempt_budget_credits, actor=actor, clock=clock,
+            config=config,
+        ).attempt_budget_credits
         self._lock = threading.Lock()
 
     # -- helpers ---------------------------------------------------------------

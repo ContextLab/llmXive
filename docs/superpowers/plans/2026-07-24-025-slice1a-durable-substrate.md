@@ -2317,7 +2317,12 @@ class LaneCallLedger:
                             f"precondition: attempt at its {self._ceiling}-call ceiling")
 
                 try:
-                    append(self._repo, event, expected_revision=len(events),
+                    # AS SHIPPED: expected_revision=None, for the same reason as the credit
+                    # ledger — a revision CAS compares the whole per-Problem stream, which
+                    # also carries audit appends, so admission would lose its retry budget
+                    # to events that have nothing to do with the ceiling. `_admits` is the
+                    # invariant and is recomputed inside every CAS attempt.
+                    append(self._repo, event, expected_revision=None,
                            precondition=_admits, config=self._config)
                     return route_id
                 except LaneRevisionConflict:

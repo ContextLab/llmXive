@@ -204,7 +204,9 @@ def test_a_transition_on_an_unknown_reservation_is_a_no_op(repo):
     led = _ledger(repo)
     led.release("never-reserved")
     led.mark_retained("never-reserved")
-    assert read(repo, "P1") == []
+    # No credit event at all — the stream still holds the ledger's own AttemptConfigured
+    # binding, which construction writes.
+    assert [e.event_type for e in read(repo, "P1")] == ["AttemptConfigured"]
 
 
 def test_release_versus_retain_race_exactly_one_transition_lands(repo):
@@ -270,6 +272,23 @@ def test_reconciled_credits_still_count(repo):
     led.reconcile({"r1"})
     assert counting_total(_reservations(repo)) == 7.0
     assert led.reserve(4.0, reservation_id="r2", call_id="c2") is False
+
+
+def test_a_second_ledger_with_a_different_budget_is_rejected(repo):
+    # The credit budget guards MONEY; it must not be re-openable by a worker that simply
+    # passes a bigger number. Refused at CONSTRUCTION, before a single reservation.
+    from llmxive.self_improvement.attempt_config import AttemptConfigMismatch
+
+    _ledger(repo, budget=50.0)  # binds
+    with pytest.raises(AttemptConfigMismatch, match="attempt_budget_credits"):
+        _ledger(repo, budget=500.0)
+
+
+def test_a_restarted_ledger_enforces_the_budget_already_spent(repo):
+    # A fresh ledger object must see the reservations the previous one made — the durable
+    # budget is the point, not the constructor argument.
+    _ledger(repo, budget=10.0).reserve(8.0, reservation_id="r1", call_id="c1")
+    assert _ledger(repo, budget=10.0).reserve(5.0, reservation_id="r2", call_id="c2") is False
 
 
 def test_another_attempts_ledger_sees_its_own_budget(repo):

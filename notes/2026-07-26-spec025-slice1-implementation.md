@@ -20,8 +20,12 @@ Plans (both maintainer-reviewed through **round 7**, all findings resolved):
 | 1A T3 — `lane_log.py` on the shared core | DONE | `aba549ffa6` (+ plan/notes `c1040ab7ae`) |
 | 1A T4 — `LaneCoordinator` projection + coordinator payload schemas | DONE | `0ec22fc977` |
 | 1A T5 — ownership-checked coordinator CAS | DONE | `173285d0c1` |
-| 1A T6 — `AttemptCreditLedger` reservation projection | next | — |
-| 1A T7–T14, 1B T1–T10 | not started | — |
+| 1A T6 — `AttemptCreditLedger` reservation projection | DONE | `bae0284ae1` |
+| 1A T7–T9 — reserve / release / mark_retained / reconcile | DONE | `a5862186b7` |
+| 1A T10–T12 — `EventStoreRouteAudit` + atomic `DispatchUnknown` | DONE | `37e5d8fe28` |
+| 1A T13–T14 — `AttemptConfig` + `LaneCallLedger` | DONE | (this commit) |
+| **Slice 1A COMPLETE** | — | — |
+| 1B T1–T10 | not started | — |
 
 ## Money-path acceptance bar (T1)
 
@@ -119,7 +123,28 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
 - Real tests, no mocks. Protocol test doubles implementing real logic are fine;
   `unittest.mock` is not the primary path.
 
+10. **Disable the guard, re-run the test** — the habit that caught the most. Applied to
+    every safety mechanism in T3–T14. It found that `reserve`'s two-clone race passed with
+    the budget precondition STUBBED OUT (`expected_revision=len(events)` was doing the
+    work), and that the in-process `Lock` is not load-bearing for either ledger — the
+    ref-CAS is. Docstrings now say which mechanism provides which guarantee.
+
+11. **`expected_revision` is wrong for the per-Attempt ledgers.** It compares the length of
+    the WHOLE per-Problem stream, which also carries the audit sink's unconditional
+    appends — so `reserve`/`claim` would lose their retry budget to events with no bearing
+    on money or the ceiling, then raise `LaneContention` on the money path. Both pass
+    `expected_revision=None` and let their precondition (recomputed inside every CAS
+    attempt) be the invariant. The coordinator KEEPS its revision CAS — the lane revision
+    is the thing it is actually guarding.
+
+12. **Constructing a ledger now WRITES.** `AttemptCreditLedger`/`LaneCallLedger` call
+    `bind_attempt_config` in `__init__`, so an `AttemptConfigured` event appears in the
+    stream before any reservation or claim. Tests that asserted an empty stream need to
+    assert "no credit event" instead.
+
 ## Next step
 
-1A Task 6: `AttemptCreditLedger` reservation projection (`credit_ledger.py`) — the
-transition matrix + `counting_total`. Task 6's full text is in the 1A plan.
+Slice 1A is complete (14/14 tasks). Before starting 1B: a maintainer review of the whole
+substrate is the natural gate — the last one (round 8) came after T1/T2 and found two
+fail-open gaps. 1B's plan is
+`docs/superpowers/plans/2026-07-25-025-slice1b-proposal-convergence.md` (10 tasks).
