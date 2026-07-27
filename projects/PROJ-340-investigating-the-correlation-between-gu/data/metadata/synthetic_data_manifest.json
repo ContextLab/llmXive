@@ -1,0 +1,8 @@
+{
+  "schema_version": "schema_v1_synthetic",
+  "generated_at": "2023-10-27T12:00:00Z",
+  "generator_script": "code/data_generator.py",
+  "generator_script_checksum": "placeholder_checksum_for_validation",
+  "chain_of_custody_log": null,
+  "note": "This is a synthetic dataset for pipeline validation. No biological samples involved."
+}

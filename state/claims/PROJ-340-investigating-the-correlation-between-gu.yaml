@@ -144,3 +144,351 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T17:57:16Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time constraint is 6 hours on CPU-only CI
+  claim_id: c_391074bf
+  context: 'Goal: Ingest raw data, validate variable presence, and ensure pipeline
+    runs within 6 hours on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier detection threshold is 1.5 times IQR
+  claim_id: c_26d6977f
+  context: 'Implement outlier detection logic in code/ingest.py (IQR method: >1.5x
+    IQR above 75th or <1.5x below 25th) and flag exclusion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Outlier detection uses the IQR method: >1.5x IQR above 75th or <1.5x
+    below 25th.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: FDR correction threshold is q less than or equal to 0.05
+  claim_id: c_fc5358b4
+  context: "Implement Benjamini-Hochberg FDR correction in code/analysis.py to adjust\
+    \ p-values (q \u2264 0.05)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_threshold_is_q_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "Benjamini-Hochberg FDR correction adjusts p-values to q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:28Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold is greater than 5
+  claim_id: c_5591c4c4
+  context: Implement VIF calculation in code/diagnostics.py for multivariate predictors
+    (flag VIF > 5).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_is_greater_than_5
+  kind: magnitude
+  raw_text: VIF calculation flags values greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:57Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stability metric threshold is CV less than 0.10
+  claim_id: c_c86012b2
+  context: 'PASS/FAIL: If CV < 0.10, mark ''STABLE''; else ''UNSTABLE''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_metric_threshold_is_CV_less_than_0.10
+  kind: magnitude
+  raw_text: Stability metric marks 'STABLE' if coefficient of variation (CV) < 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:51:21Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM streaming threshold is between 6GB and 7GB
+  claim_id: c_ca948a1f
+  context: If 6GB < estimated usage <= 7GB, return status 'STREAM'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_streaming_threshold_is_between_6GB_and_7GB
+  kind: entity_fact
+  raw_text: RAM pre-check estimates usage where 6GB < estimated usage <= 7GB returns
+    status 'STREAM'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:51:45Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM fail threshold is greater than 7GB
+  claim_id: c_12b2aee8
+  context: If estimated usage > 7GB, return status 'FAIL'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_fail_threshold_is_greater_than_7GB
+  kind: magnitude
+  raw_text: RAM pre-check returns status 'FAIL' if estimated usage > 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:07Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Large proxy dataset size is 999 subjects
+  claim_id: c_ca1ff77f
+  context: Create a script in code/generate_large_proxy.py that generates a verified
+    large proxy dataset (N=999)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A large proxy dataset with N=999 is used for stress testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:23Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Real data search covered GEO, SRA, EGA, and dbGaP repositories
+  claim_id: c_4bb17f0d
+  context: Perform a systematic search for single-source gut-sleep datasets in major
+    repositories (GEO, SRA, EGA, dbGaP).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_data_search_covered_GEO,_SRA,_EGA,_and_dbGaP_repositori
+  kind: entity_fact
+  raw_text: The search for real data covered repositories GEO, SRA, EGA, and dbGaP.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:43Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time on CPU-only CI is less than 6 hours
+  claim_id: c_a9f607c9
+  context: 'Independent Test: Run ingestion against a mock dataset missing ''SWS duration'';
+    verify system halts with specific error. Run dummy pipeline on CI; verify completion
+    < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_on_CPU-only_CI_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Run dummy pipeline on CI; verify completion < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:14Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if required variable load percentage is less than 100
+    percent
+  claim_id: c_38da378c
+  context: Implement load_data() in code/ingest.py to read CSV/TSV, READ the percentage
+    metric from data/results/variable_load_metrics.json (output of T012), and halt
+    execution with sys.exit(1) if the percentage is < 100% with specific error message
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_required_variable_load_percentage_is_less
+  kind: magnitude
+  raw_text: halt execution with sys.exit(1) if the percentage is < 100%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:39Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier detection uses IQR method with thresholds of 1.5 times the interquartile
+    range
+  claim_id: c_839fe197
+  context: 'Implement outlier detection logic in code/ingest.py (IQR method: >1.5x
+    IQR above 75th or <1.5x below 25th) and flag exclusion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IQR method: >1.5x IQR above 75th or <1.5x below 25th'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:39Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timing check asserts duration is less than 6 hours
+  claim_id: c_a1a8c076
+  context: Implement execution timing check in code/main.py to log start/end times,
+    assert < 6 hours, and generate timing evidence artifact
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_timing_check_asserts_duration_is_less_tha
+  kind: magnitude
+  raw_text: assert < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:57Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor calculation flags values greater than 5
+  claim_id: c_4acac369
+  context: Implement VIF calculation in code/diagnostics.py for multivariate predictors
+    (flag VIF > 5)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag VIF > 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T01:00:05Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stability metric marks results as stable if coefficient of variation
+    is less than 0.10
+  claim_id: c_00f6b3d4
+  context: 'PASS/FAIL: If CV < 0.10, mark ''STABLE''; else ''UNSTABLE'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_metric_marks_results_as_stable_if_coefficient_of_v
+  kind: magnitude
+  raw_text: If CV < 0.10, mark 'STABLE'; else 'UNSTABLE'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:07Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Dataset fetch implementation requires feasibility score greater than
+    or equal to 0.8
+  claim_id: c_1ce5d43d
+  context: IF T049a found a valid dataset with feasibility_score >= 0.8, implement
+    specific, verified data fetcher
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetch_implementation_requires_feasibility_score_grea
+  kind: magnitude
+  raw_text: feasibility_score >= 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:17Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM usage estimation formula uses number of subjects multiplied by number
+    of taxa
+  claim_id: c_b98ddf87
+  context: 'Formula: Estimate (GB) = (N_subjects * N_taxa) / (conversion_factor*),
+    where the conversion factor represents the appropriate unit scaling for memory
+    estimation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_estimation_formula_uses_number_of_subjects_multipl
+  kind: entity_fact
+  raw_text: Estimate (GB) = (N_subjects * N_taxa) / (conversion_factor*)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:24Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM check returns OK for usage up to 6GB, STREAM for 6GB to 7GB, and
+    FAIL for above 7GB
+  claim_id: c_8dac3be9
+  context: 'Logic: If estimated usage <= 6GB, return status ''OK''. If 6GB < estimated
+    usage <= 7GB, return status ''STREAM''. If estimated usage > 7GB, return status
+    ''FAIL'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_check_returns_OK_for_usage_up_to_6GB,_STREAM_for_6GB_to
+  kind: entity_fact
+  raw_text: If estimated usage <= 6GB, return status 'OK'. If 6GB < estimated usage
+    <= 7GB, return status 'STREAM'. If estimated usage > 7GB, return status 'FAIL'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:38Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Streaming execution test verifies memory usage stays below 7GB
+  claim_id: c_c71eb53e
+  context: 'Logic: Verify that memory usage stays < 7GB during execution and that
+    data/processed/filtered_data.parquet is generated via chunked accumulation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_execution_test_verifies_memory_usage_stays_below_7
+  kind: entity_fact
+  raw_text: memory usage stays < 7GB during execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:46Z'

@@ -1,29 +1,32 @@
 # Quickstart Guide
 
-## Prerequisites
-- Python 3.11+
-- pip
-
-## Setup
+## 1. Install Dependencies
 ```bash
-pip install pandas numpy scipy scikit-learn pyyaml
+pip install -r requirements.txt
 ```
 
-## Execution
-1. Generate Synthetic Data & Manifest (T006c, T006):
- ```bash
- python code/data_generator.py --output data/raw/synthetic_data.csv --output-manifest data/metadata/synthetic_data_manifest.json
- ```
+## 2. Generate Synthetic Data
+```bash
+python code/generate_synthetic_data.py --n-samples 100 --output data/raw/synthetic_data.csv --manifest data/metadata/synthetic_data_manifest.json
+```
 
-2. Generate Large Proxy (T070):
- ```bash
- python code/generate_large_proxy.py --output data/raw/large_proxy.csv
- ```
+## 3. Run Ingestion and Filtering (T012, T013, T014b)
+```bash
+python code/ingest.py --mode synthetic --input data/raw/synthetic_data.csv --output data/processed/filtered_data.parquet --config data/config/required_variables.yaml
+```
 
-3. Run Main Pipeline (Ingest -> Analyze -> Report):
- ```bash
- python code/main.py --input data/raw/synthetic_data.csv --output data/results/
- ```
+## 4. Run Full Analysis Pipeline
+```bash
+python code/main.py --input data/processed/filtered_data.parquet --output data/results/
+```
 
-## Verification
-Check `data/results/final_report.json` for the output.
+## 5. Verify Artifacts
+Ensure the following files exist:
+- `data/raw/synthetic_data.csv`
+- `data/metadata/synthetic_data_manifest.json`
+- `data/processed/filtered_data.parquet`
+- `data/results/variable_load_metrics.json`
+- `data/results/correlation_matrix.json`
+- `data/results/collinearity_report.json`
+- `data/results/sensitivity_analysis.json`
+- `data/results/timing_evidence.json`

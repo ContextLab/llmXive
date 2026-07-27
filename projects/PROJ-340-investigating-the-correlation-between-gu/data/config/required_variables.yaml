@@ -1,26 +1,40 @@
+# Required Predictor Variables (Gut Microbiome Taxa)
 predictors:
-  - Taxon_0
-  - Taxon_1
-  - Taxon_2
-  - Taxon_3
-  - Taxon_4
-  - Taxon_5
-  - Taxon_6
-  - Taxon_7
-  - Taxon_8
-  - Taxon_9
-  - Taxon_10
-  - Taxon_11
-  - Taxon_12
-  - Taxon_13
-  - Taxon_14
-  - Taxon_15
-  - Taxon_16
-  - Taxon_17
-  - Taxon_18
-  - Taxon_19
+  - Bacteroides
+  - Firmicutes
+  - Actinobacteria
+  - Proteobacteria
+  - Fusobacteria
+  - Verrucomicrobia
+  - Cyanobacteria
+  - Euryarchaeota
+  - Tenericutes
+  - Spirochaetes
+  - Bifidobacterium
+  - Lactobacillus
+  - Clostridium
+  - Escherichia
+  - Streptococcus
+  - Staphylococcus
+  - Enterococcus
+  - Salmonella
+  - Shigella
+  - Klebsiella
+
+# Required Outcome Variables (Sleep Architecture Metrics)
 outcomes:
-  - total_sleep_time
-  - sws_duration
-  - rem_duration
-  - sleep_efficiency
+  - Total Sleep Time (TST)
+  - Sleep Onset Latency (SOL)
+  - Wake After Sleep Onset (WASO)
+  - Sleep Efficiency (SE)
+  - N1 Duration
+  - N2 Duration
+  - N3 Duration (SWS)
+  - REM Duration
+  - N1 %
+  - N2 %
+  - N3 % (SWS %)
+  - REM %
+  - Number of Wake Episodes
+  - Longest Wake Episode Duration
+  - Sleep Fragmentation Index

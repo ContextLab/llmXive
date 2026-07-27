@@ -1,10 +1,3 @@
-T006d:
-  c: false
-  h: ebc106c0223209dfd71ee3ea7f493a30dc0227e513d7ba19b2a76e8c4af6baf0
-  r: "The required `synthetic_data_manifest_schema.yaml` file does not exist, and\
-    \ there is no evidence that the checksum of `code/data_generator.py` was recorded\
-    \ in any `state/projects/...yaml` file\u2019s `artifact_hashes` map. Consequently\
-    \ the task\u2019s specifications are not met."
 T013:
   c: false
   h: b0d79e79c5acacb7c8a7c73874a88f3bfbcb7f6dd72031609ad446805925a40e
@@ -21,12 +14,11 @@ T014b:
     \ deliverable\u2014filtering logic and the resulting Parquet dataset\u2014is missing."
 T016:
   c: false
-  h: 050430f364afa15675f30ff0783d60445548733d953d750f6d4a2a22ef6c6977
-  r: "The `code/main.py` snippet does not contain any logic that records start/end\
-    \ timestamps, checks the total runtime against a 6\u2011hour limit, or writes\
-    \ a JSON file to `data/results/timing_evidence.json`. Moreover, the required `data/results/timing_evidence.json`\
-    \ file is absent from the repository. Both the implementation and the evidence\
-    \ artifact are missing, so the task is not satisfied."
+  h: 24a7362cd9d05eed246c92b3154998f4349c9966960b2db251d4404175da8894
+  r: "The repository lacks the required `data/results/timing_evidence.json` file,\
+    \ and the provided excerpt of `code/main.py` shows no implementation of start/end\
+    \ time logging or an assertion that execution stays under six hours. Without these,\
+    \ the task\u2019s core requirement is unmet."
 T063a:
   c: false
   h: bc4eb05e62c239b3ba112b5c1ecc0044f56b2c589043c9df06dc81ac55270bb5
