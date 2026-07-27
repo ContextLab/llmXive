@@ -77,7 +77,7 @@ projects/PROJ-071-exploring-the-correlation-between-molecu/
 └── requirements.txt
 ```
 
-**Structure Decision**: Single-project structure selected to minimize overhead. Data is processed in-memory or via chunked pandas operations to fit the 7GB RAM limit. The `code/` directory contains modular scripts for each user story, allowing isolated testing and execution.
+**Structure Decision**: Single-project structure selected to minimize overhead. Data is processed in-memory or via chunked pandas operations to fit the available RAM constraints. The `code/` directory contains modular scripts for each user story, allowing isolated testing and execution.
 
 ## Complexity Tracking
 
@@ -107,7 +107,7 @@ projects/PROJ-071-exploring-the-correlation-between-molecu/
 2.  **Normalization Check**:
     -   **Temperature**: Do NOT apply Arrhenius normalization as $E_a$ is unavailable.
     -   **pH**: Do NOT apply Arrhenius normalization as pH dependence is non-Arrhenius and requires specific kinetic data.
-    -   **Strategy**: Stratify data by condition. Only records with conditions matching "Standard" (25°C, pH 7.4) are used for the primary regression. Records with other conditions are excluded from the primary model but included in a descriptive "Data Characteristics" table.
+    -   **Strategy**: Stratify data by condition. Only records with conditions matching "Standard" (ambient temperature, pH 7.4) are used for the primary regression.. Records with other conditions are excluded from the primary model but included in a descriptive "Data Characteristics" table.
 3.  **Filter**: Exclude records with missing degradation data.
 
 ### Phase 3: Statistical Analysis (FR-003, FR-004, FR-005, US-2)

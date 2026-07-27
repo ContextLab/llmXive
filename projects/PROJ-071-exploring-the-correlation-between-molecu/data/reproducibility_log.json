@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-27T18:15:04.112461",
+  "packages": {
+    "rdkit": "2026.3.4",
+    "pandas": "3.0.5",
+    "scikit-learn": "1.9.0",
+    "numpy": "2.4.6",
+    "matplotlib": "3.11.1",
+    "seaborn": "0.13.2",
+    "pyyaml": "6.0.3",
+    "requests": "2.34.2",
+    "datasets": "5.0.0"
+  },
+  "dataset_url": "Synthyra/FDA-Approved-Drugs",
+  "retrieval_date": "2026-07-27",
+  "file_hashes": {}
+}

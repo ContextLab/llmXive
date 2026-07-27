@@ -15,3 +15,4 @@ datasets
 # Sensitivity Analysis & Stats (T022a)
 scipy
 pytest
+pydantic  # auto-added: imported by run-book but missing from venv

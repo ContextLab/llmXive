@@ -34,7 +34,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from logging_config import setup_logging, get_logger, log_pipeline_start, log_pipeline_complete, log_pipeline_failure
-from ingest import main as run_ingest
+from ingest import main as run_ingest, DataInsufficiencyError
 from descriptors import main as run_descriptors
 from standardize import main as run_standardize
 from analysis import main as run_analysis
@@ -90,6 +90,24 @@ def run_pipeline():
         run_reproducibility_audit()
         logger.info("Stage 7: Complete.")
         
+    except DataInsufficiencyError as e:
+        # T013b: Graceful handling of data insufficiency
+        status = "insufficient_data"
+        error_msg = str(e)
+        logger.warning(f"Data Availability Gate Failed: {e}")
+        logger.info("Skipping US2/US3 tasks due to insufficient data.")
+        logger.info("Ensuring data_insufficiency_report.md is the final artifact.")
+        
+        # Ensure the report generation logic in 'report' handles this path
+        # by calling run_report which should detect the gate failure and write the report
+        try:
+            logger.info("Triggering report generation for insufficiency path...")
+            run_report()
+            logger.info("Insufficiency report generated.")
+        except Exception as report_err:
+            logger.error(f"Failed to generate insufficiency report: {report_err}", exc_info=True)
+            # We still want to exit 0 if the gate failed, but log the report failure
+    
     except Exception as e:
         status = "failed"
         error_msg = str(e)
@@ -142,12 +160,24 @@ def run_pipeline():
         else:
             logger.info("All required artifacts verified successfully.")
             return True
+    elif status == "insufficient_data":
+        # T013b: Graceful exit for insufficiency path
+        logger.info("Pipeline completed gracefully due to data insufficiency.")
+        # Verify the insufficiency report exists
+        report_path = PROJECT_ROOT / "data_insufficiency_report.md"
+        if report_path.exists() and report_path.stat().st_size > 0:
+            logger.info(f"Insufficiency report verified: {report_path}")
+            return True
+        else:
+            logger.error(f"Insufficiency report missing or empty: {report_path}")
+            return False
     else:
         return False
 
 def main():
     """Entry point."""
     success = run_pipeline()
+    # Exit 0 for success or graceful insufficiency handling, 1 for hard failure
     sys.exit(0 if success else 1)
 
 if __name__ == "__main__":

@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/ingest.py (rc=1); 4 declared deliverable(s) absent: data/gate_status.json; data/processed/analysis_results.json; data/processed/merged_drugs.csv",
+  "artifacts": [
+    "data/reproducibility_log.json"
+  ],
+  "failures": [
+    "python code/ingest.py -> rc=1\n    Drugs\n2026-07-27 18:15:02 - llmXive_pipeline.__main__ - ERROR - Failed to fetch dataset: 'train'\n\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code/ingest.py\", line 145, in main\n    df = fetch_fda_drugs()\n         ^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-071-exploring-the-correlation-between-molecu/code"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-27T18:15:05Z"
+}

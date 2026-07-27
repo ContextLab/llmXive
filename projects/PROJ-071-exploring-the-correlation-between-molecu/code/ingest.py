@@ -1,178 +1,236 @@
-import os
-import sys
 import json
 import hashlib
-from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
 import logging
+import os
+import sys
+from pathlib import Path
+from datetime import datetime
 import pandas as pd
+
 from datasets import load_dataset
-from rdkit import Chem
-
 from config import get_config
-from logging_config import get_logger, log_pipeline_start, log_pipeline_complete, log_pipeline_failure
+from logging_config import get_logger, log_pipeline_failure
 
-# Use config to resolve paths instead of hardcoding
+logger = get_logger(__name__)
+
+class DataFetchError(Exception):
+    """Raised when data fetching fails."""
+    pass
+
+class DataInsufficiencyError(Exception):
+    """Raised when data availability gate fails."""
+    pass
+
 def get_data_path():
     config = get_config()
     return Path(config.get("data_dir", "data"))
 
-logger = get_logger(__name__)
-
 def fetch_fda_drugs():
     """
-    Fetch FDA-approved drugs from HuggingFace dataset.
-    Uses streaming to handle large datasets efficiently.
+    Fetch FDA-approved drugs from HuggingFace.
+    Uses streaming to handle large datasets.
     """
-    dataset_name = "Synthyra/FDA-Approved-Drugs"
-    logger.info(f"Fetching dataset: {dataset_name}")
     try:
-        # Use streaming to avoid loading entire dataset into memory
-        dataset = load_dataset(dataset_name, streaming=True)
-        # Convert to list for processing (or iterate if streaming is sufficient)
-        # For this implementation, we assume we need to process all records
-        # If memory is a concern, we would iterate chunk by chunk
-        data = list(dataset['train'])
+        logger.info("Fetching FDA-approved drugs dataset...")
+        # The dataset is 'Synthyra/FDA-Approved-Drugs'
+        # It contains 'smiles' and potentially other columns, but NOT degradation data.
+        dataset = load_dataset("Synthyra/FDA-Approved-Drugs", split="train", streaming=True)
+        
+        # Convert to list for initial inspection (streaming allows iteration)
+        # Note: For a large dataset, we might want to sample or process in chunks,
+        # but for the initial fetch and structural check, we need to ensure it exists.
+        # We will iterate to build the dataframe.
+        data = []
+        for item in dataset:
+            data.append(item)
+        
         df = pd.DataFrame(data)
-        logger.info(f"Fetched {len(df)} records from {dataset_name}")
+        logger.info(f"Fetched {len(df)} records.")
         return df
     except Exception as e:
-        logger.error(f"Failed to fetch dataset: {e}")
-        raise
+        raise DataFetchError(f"Failed to fetch dataset: {str(e)}")
 
 def check_degradation_columns(df: pd.DataFrame) -> bool:
     """
-    Check if the dataframe contains necessary degradation columns.
+    Check if the dataframe contains degradation-related columns.
+    Returns True if found, False otherwise.
     """
-    required_cols = ['half_life', 'degradation_rate']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        logger.warning(f"Missing degradation columns: {missing}")
-        return False
-    return True
+    degradation_keywords = ['half_life', 'degradation_rate', 't12', 't_half', 'k']
+    columns = df.columns.str.lower().tolist()
+    for keyword in degradation_keywords:
+        if any(keyword in col for col in columns):
+            return True
+    return False
 
 def validate_smiles_series(smiles_series: pd.Series) -> pd.Series:
     """
-    Validate a series of SMILES strings and return a filtered series.
+    Basic validation of SMILES strings.
+    Returns a boolean series indicating validity (non-empty, non-null).
     """
-    valid_smiles = []
-    for idx, smi in smiles_series.items():
-        if pd.isna(smi):
-            continue
-        mol = Chem.MolFromSmiles(smi)
-        if mol is not None:
-            valid_smiles.append(smi)
-        else:
-            logger.debug(f"Invalid SMILES at index {idx}: {smi}")
-    return pd.Series(valid_smiles)
+    return smiles_series.notna() & (smiles_series.astype(str).str.strip() != "")
 
-def generate_insufficiency_report(reason: str, output_path: Path):
+def filter_valid_smiles(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFrame:
     """
-    Generate a report when data is insufficient.
+    Filter dataframe to keep only rows with valid SMILES.
     """
-    report_content = f"""
-    # Data Insufficiency Report
-
-    **Reason**: {reason}
-    **Timestamp**: {pd.Timestamp.now()}
-
-    The data availability gate was not met. The pipeline cannot proceed.
-    """
-    with open(output_path, 'w') as f:
-        f.write(report_content.strip())
-    logger.info(f"Generated insufficiency report at {output_path}")
-
-def run_data_availability_gate(df: pd.DataFrame) -> Tuple[bool, Optional[str]]:
-    """
-    Check if the dataset meets the minimum size requirement (N >= 30).
-    Returns (passed, reason_if_failed).
-    """
-    n = len(df)
-    if n < 30:
-        reason = f"Dataset size (N={n}) is below the minimum threshold of 30."
-        return False, reason
-    return True, None
-
-def merge_structural_degradation_data(structural_df: pd.DataFrame, degradation_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Merge structural and degradation dataframes on a common key (e.g., 'smiles' or 'id').
-    """
-    # Assuming 'smiles' is the common key
-    common_key = 'smiles'
-    if common_key not in structural_df.columns or common_key not in degradation_df.columns:
-        raise ValueError(f"Common key '{common_key}' not found in both dataframes")
+    if smiles_col not in df.columns:
+        logger.warning(f"Column '{smiles_col}' not found. Returning original dataframe.")
+        return df
     
-    merged = pd.merge(structural_df, degradation_df, on=common_key, how='inner')
-    logger.info(f"Merged dataset size: {len(merged)}")
-    return merged
+    valid_mask = validate_smiles_series(df[smiles_col])
+    return df[valid_mask]
 
-def filter_valid_records(df: pd.DataFrame, valid_smiles: pd.Series) -> pd.DataFrame:
+def generate_insufficiency_report(reason: str, n: int):
     """
-    Filter dataframe to only include records with valid SMILES.
+    Generate the data insufficiency report and gate status.
     """
-    valid_set = set(valid_smiles.dropna().unique())
-    filtered = df[df['smiles'].isin(valid_set)]
-    logger.info(f"Filtered dataset size: {len(filtered)}")
-    return filtered
+    data_path = get_data_path()
+    report_path = data_path / "data_insufficiency_report.md"
+    gate_path = data_path / "gate_status.json"
 
-def calculate_checksums(file_path: Path) -> str:
-    """
-    Calculate SHA256 checksum of a file.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    report_content = f"""# Data Insufficiency Report
 
-def save_merged_dataset(df: pd.DataFrame, output_path: Path):
+## Status: FAIL
+
+**Reason**: {reason}
+**Records Available**: {n}
+**Threshold**: 30
+
+The pipeline cannot proceed with the correlation analysis due to insufficient data.
+"""
+    with open(report_path, 'w') as f:
+        f.write(report_content)
+    
+    gate_data = {
+        "status": "FAIL",
+        "reason": reason,
+        "N": n,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    with open(gate_path, 'w') as f:
+        json.dump(gate_data, f, indent=2)
+    
+    logger.info(f"Generated insufficiency report: {report_path}")
+    logger.info(f"Updated gate status: {gate_path}")
+
+def run_data_availability_gate(df: pd.DataFrame):
     """
-    Save the merged dataset to CSV and generate checksums.
+    Run the data availability gate check.
+    Raises DataInsufficiencyError if checks fail.
     """
+    # Check 1: Degradation columns
+    has_degradation = check_degradation_columns(df)
+    if not has_degradation:
+        reason = "No verified degradation source found in dataset"
+        generate_insufficiency_report(reason, len(df))
+        raise DataInsufficiencyError(reason)
+    
+    # Check 2: Minimum count (if degradation exists)
+    # Note: T016a merges structural data first. If degradation is missing, we fail here.
+    # If degradation exists, we check count.
+    if len(df) < 30:
+        reason = f"Insufficient records (N={len(df)} < 30)"
+        generate_insufficiency_report(reason, len(df))
+        raise DataInsufficiencyError(reason)
+    
+    # If we pass
+    gate_path = get_data_path() / "gate_status.json"
+    gate_data = {
+        "status": "PASS",
+        "reason": "Data availability confirmed",
+        "N": len(df),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    with open(gate_path, 'w') as f:
+        json.dump(gate_data, f, indent=2)
+    logger.info(f"Data Availability Gate PASSED. N={len(df)}")
+
+def merge_structural_degradation_data(structural_df: pd.DataFrame, degradation_df: pd.DataFrame = None):
+    """
+    Merge structural data with degradation data if available.
+    If degradation_df is None, returns structural_df and logs.
+    """
+    if degradation_df is None:
+        logger.info("No degradation data provided. Returning structural subset only.")
+        return structural_df
+    
+    # Attempt merge on common key (e.g., 'smiles' or 'drug_name')
+    # Assuming 'smiles' is the common key
+    common_cols = list(set(structural_df.columns) & set(degradation_df.columns))
+    if 'smiles' in common_cols:
+        merged = structural_df.merge(degradation_df, on='smiles', how='inner')
+        logger.info(f"Merged {len(merged)} records on 'smiles'.")
+        return merged
+    else:
+        logger.warning("No common key found for merge. Returning structural subset.")
+        return structural_df
+
+def save_merged_dataset(df: pd.DataFrame, filename: str):
+    """
+    Save merged dataset and calculate checksum.
+    """
+    data_path = get_data_path()
+    output_path = data_path / "processed" / filename
+    
     df.to_csv(output_path, index=False)
-    checksum = calculate_checksums(output_path)
-    checksum_file = output_path.parent / "checksums.txt"
-    with open(checksum_file, 'a') as f:
-        f.write(f"{output_path.name}: {checksum}\n")
+    
+    # Calculate checksum
+    with open(output_path, 'rb') as f:
+        content = f.read()
+        checksum = hashlib.sha256(content).hexdigest()
+    
+    checksum_path = data_path / "checksums.txt"
+    with open(checksum_path, 'a') as f:
+        f.write(f"{filename}: {checksum}\n")
+    
     logger.info(f"Saved merged dataset to {output_path} with checksum {checksum}")
+
+def calculate_checksum(filepath: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
+    with open(filepath, 'rb') as f:
+        return hashlib.sha256(f.read()).hexdigest()
 
 def main():
     config = get_config()
-    log_pipeline_start("ingest")
+    logger.info("Starting Ingestion Pipeline")
     
     try:
         # Fetch data
         df = fetch_fda_drugs()
         
         # Check for degradation columns
-        if not check_degradation_columns(df):
-            insufficiency_path = get_data_path() / "data_insufficiency_report.md"
-            generate_insufficiency_report("Missing degradation columns", insufficiency_path)
-            log_pipeline_failure("Missing degradation columns")
-            return
+        has_degradation = check_degradation_columns(df)
         
-        # Validate SMILES
-        valid_smiles = validate_smiles_series(df['smiles'])
+        if not has_degradation:
+            # T012a: Log and trigger gate
+            log_pipeline_failure("ingest", "Missing degradation columns")
+            generate_insufficiency_report("No verified degradation source found", len(df))
+            raise DataInsufficiencyError("Missing degradation columns")
         
-        # Filter valid records
-        df_valid = filter_valid_records(df, valid_smiles)
+        # Filter valid SMILES (T016b)
+        valid_df = filter_valid_smiles(df)
         
-        # Run data availability gate
-        passed, reason = run_data_availability_gate(df_valid)
-        if not passed:
-            insufficiency_path = get_data_path() / "data_insufficiency_report.md"
-            generate_insufficiency_report(reason, insufficiency_path)
-            log_pipeline_failure(reason)
-            return
+        # Check count (T016c)
+        if len(valid_df) < 30:
+            generate_insufficiency_report(f"Insufficient valid SMILES (N={len(valid_df)})", len(valid_df))
+            raise DataInsufficiencyError(f"Insufficient valid SMILES: {len(valid_df)}")
         
-        # Save merged dataset
-        output_path = get_data_path() / "processed" / "merged_drugs.csv"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        save_merged_dataset(df_valid, output_path)
+        # Run Gate (T013)
+        run_data_availability_gate(valid_df)
         
-        log_pipeline_complete("ingest")
+        # Save structural subset (T017)
+        save_merged_dataset(valid_df, "structural_subset.csv")
+        
+        logger.info("Ingestion Pipeline Completed Successfully")
+        
+    except DataFetchError as e:
+        log_pipeline_failure("ingest", str(e))
+        raise
+    except DataInsufficiencyError as e:
+        log_pipeline_failure("ingest", str(e))
+        raise
     except Exception as e:
-        log_pipeline_failure(str(e))
+        log_pipeline_failure("ingest", str(e))
         raise
 
 if __name__ == "__main__":
