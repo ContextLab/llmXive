@@ -1,48 +1,62 @@
-# Ruff configuration for llmXive project
-# Linting rules and settings
+# Ruff configuration for llmXive Follow-up project
+# Enforces strict linting rules for code quality and consistency
 
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+# Enable specific rule sets
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
+    "I",  # isort (import sorting)
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
     "UP", # pyupgrade
-    "RUF", # Ruff-specific rules
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in data loading)
+    "N",  # pep8-naming
+    "SIM",# flake8-simplify
+    "ARG",# flake8-unused-arguments
 ]
 
-# Allow autofix for all enabled rules (if possible)
+# Ignore specific rules that are too strict for this project
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function calls in argument defaults (common in config)
+    "ARG001", # Unused function arguments (sometimes needed for interface compliance)
+]
+
+# Allow automatic fixes for certain issues
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few files/directories
+# Exclude generated files and virtual environments
 exclude = [
     ".git",
     "__pycache__",
-    ".tox",
+    ".mypy_cache",
+    ".ruff_cache",
     "venv",
     ".venv",
+    "data",
     "build",
     "dist",
-    "data",
 ]
 
-# Same as Black
+# Per-file ignores (if needed)
+per-file-ignores = {}
+
+# Maximum line length (should match black)
 line-length = 88
+
+# Target Python version
 target-version = "py311"
 
-[lint.per-file-ignores]
-# Ignore specific rules for test files if needed
-"tests/*" = ["S101"] # Allow assert in tests
-
 [lint.isort]
-known-first-party = ["code"]
+# Configuration for import sorting
+known-first-party = ["config", "utils", "data_loader", "drift_scoring", "taxonomy_builder", "validation", "annotator_interface", "checksums_generator", "main"]
 force-single-line = false
+force-sort-within-sections = false
 lines-after-imports = 2
+combine-as-imports = true
+
+[lint.flake8-unused-arguments]
+# Ignore unused arguments in certain cases (e.g., interface compliance)
+ignore-variadic-names = true

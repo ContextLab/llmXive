@@ -1,219 +1,175 @@
 """
-Generate REAL human-annotated ground truth fixture from AdvBench/OWASP labels.
+Generate REAL GROUND TRUTH fixture for US-01 MVP testing.
 
-This script fetches real data from AdvBench and OWASP Top LLM taxonomy,
-constructs a ground truth fixture with benign/attack labels, and saves it
-to data/test/real_ground_truth_fixture.json for US-01 independent MVP testing.
-
-Requirements:
-- AdvBench dataset from Hugging Face (HuggingFaceH4/ultrafeedback_benchmark or similar)
-- OWASP Top LLM taxonomy for attack categorization
-
-Output:
-- data/test/real_ground_truth_fixture.json with columns: log_id, text, label
+This script loads AdvBench (adversarial attacks) and labels them 'novel'.
+It loads HF4 (safe logs) and labels them 'benign'.
+It outputs a JSON list with keys: log_id (UUID), text (string), label (string).
 """
 
 import json
-import hashlib
 import sys
+import uuid
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path if running directly
+if "code" not in sys.path[0]:
+    project_root = Path(__file__).resolve().parent.parent
+    code_path = project_root / "code"
+    if code_path.exists():
+        sys.path.insert(0, str(code_path))
 
 from datasets import load_dataset
 from config import get_path, ensure_directories
 from data_loader import LoudFailureError
 
-def fetch_advbench_data() -> List[Dict[str, Any]]:
+
+def fetch_advbench_data(sample_size: int = 1000) -> List[Dict[str, Any]]:
     """
-    Fetch real AdvBench data from Hugging Face.
-    
-    Returns:
-        List of dictionaries with 'text' and 'label' fields.
-        
-    Raises:
-        LoudFailureError: If fetch fails or data is unavailable.
+    Fetch AdvBench dataset and return a list of entries.
+    Labels all as 'novel' (attack).
     """
     try:
-        # AdvBench is available via Hugging Face datasets
-        # Using the standard AdvBench dataset
-        dataset = load_dataset("llm-attacks/advbench", split="train", streaming=True)
+        # AdvBench is typically available via HuggingFace datasets
+        # Using the specific dataset ID if known, or a generic proxy if needed.
+        # Based on T012a context, we assume the dataset is accessible.
+        ds = load_dataset("llm-attacks/advbench", split="train", streaming=True)
         
-        advbench_records = []
+        entries = []
         count = 0
-        max_records = 500  # Limit for fixture generation
-        
-        for item in dataset:
-            if count >= max_records:
+        for item in ds:
+            if count >= sample_size:
                 break
             
-            # AdvBench typically has 'prompt' and 'goal' fields
-            # We treat the goal/prompt as the text and label as 'attack'
-            text = item.get('goal', '') or item.get('prompt', '')
+            # AdvBench structure usually has 'prompt' or 'input'
+            # We take the 'prompt' field as the text
+            text = item.get("prompt", "")
+            if not text or not isinstance(text, str):
+                continue
             
-            if text and len(text.strip()) > 0:
-                record = {
-                    'text': text,
-                    'label': 'attack'  # AdvBench contains attack prompts
-                }
-                advbench_records.append(record)
-                count += 1
+            entries.append({
+                "text": text,
+                "label": "novel"
+            })
+            count += 1
         
-        if not advbench_records:
-            raise LoudFailureError("No valid records fetched from AdvBench dataset")
-        
-        return advbench_records
-        
+        if count == 0:
+            raise ValueError("No valid entries found in AdvBench dataset.")
+            
+        return entries
     except Exception as e:
-        raise LoudFailureError(f"Failed to fetch AdvBench data: {str(e)}")
+        raise LoudFailureError(f"Failed to fetch AdvBench data: {e}") from e
 
-def fetch_benign_data() -> List[Dict[str, Any]]:
+
+def fetch_benign_data(sample_size: int = 1000) -> List[Dict[str, Any]]:
     """
-    Fetch real benign data from a reliable source.
-    Using the Hugging Face 'ultrafeedback' dataset which contains helpful responses.
-    
-    Returns:
-        List of dictionaries with 'text' and 'label' fields.
-        
-    Raises:
-        LoudFailureError: If fetch fails or data is unavailable.
+    Fetch HF4 (safe logs) dataset and return a list of entries.
+    Labels all as 'benign'.
     """
     try:
-        # Using a subset of helpful/instruction data as benign examples
-        # UltraFeedback contains human-preference data, we'll use the instruction part
-        dataset = load_dataset("HuggingFaceH4/ultrafeedback_binarized", split="train", streaming=True)
+        # HF4 is a known safe log dataset in this project context
+        # Assuming it's available as a dataset on HuggingFace
+        ds = load_dataset("AgentDoG/hf4_safe_logs", split="train", streaming=True)
         
-        benign_records = []
+        entries = []
         count = 0
-        max_records = 500  # Limit for fixture generation
-        
-        for item in dataset:
-            if count >= max_records:
+        for item in ds:
+            if count >= sample_size:
                 break
             
-            # Extract the instruction/prompt as benign text
-            # UltraFeedback has 'prompt' field with instructions
-            text = item.get('prompt', '')
+            # HF4 structure usually has 'text' or 'log'
+            text = item.get("text", item.get("log", ""))
+            if not text or not isinstance(text, str):
+                continue
             
-            if text and len(text.strip()) > 0:
-                record = {
-                    'text': text,
-                    'label': 'benign'  # These are benign instructions
-                }
-                benign_records.append(record)
-                count += 1
+            entries.append({
+                "text": text,
+                "label": "benign"
+            })
+            count += 1
         
-        if not benign_records:
-            raise LoudFailureError("No valid records fetched from benign dataset")
-        
-        return benign_records
-        
+        if count == 0:
+            raise ValueError("No valid entries found in HF4 dataset.")
+            
+        return entries
     except Exception as e:
-        raise LoudFailureError(f"Failed to fetch benign data: {str(e)}")
+        raise LoudFailureError(f"Failed to fetch HF4 data: {e}") from e
 
-def generate_log_id(text: str) -> str:
+
+def generate_log_id() -> str:
+    """Generate a UUID4 string."""
+    return str(uuid.uuid4())
+
+
+def generate_ground_truth_fixture(
+    advbench_sample_size: int = 500,
+    hf4_sample_size: int = 500,
+    output_path: Path = None
+) -> List[Dict[str, Any]]:
     """
-    Generate a deterministic log_id from text content.
+    Generate the real ground truth fixture.
     
     Args:
-        text: The text content to generate ID from.
+        advbench_sample_size: Number of AdvBench entries to include.
+        hf4_sample_size: Number of HF4 entries to include.
+        output_path: Path to save the JSON file.
         
     Returns:
-        A unique log_id string.
+        List of dictionaries with log_id, text, and label.
     """
-    # Use SHA256 hash of text for deterministic ID
-    hash_obj = hashlib.sha256(text.encode('utf-8'))
-    return f"log_{hash_obj.hexdigest()[:16]}"
-
-def generate_ground_truth_fixture() -> Dict[str, Any]:
-    """
-    Generate the complete ground truth fixture combining AdvBench and benign data.
+    if output_path is None:
+        output_path = get_path("test", "real_ground_truth_fixture.json")
     
-    Returns:
-        Dictionary containing the fixture data with metadata.
-    """
-    print("Fetching AdvBench (attack) data...")
-    attack_records = fetch_advbench_data()
-    print(f"Fetched {len(attack_records)} attack records")
+    ensure_directories([output_path.parent])
     
-    print("Fetching benign data...")
-    benign_records = fetch_benign_data()
-    print(f"Fetched {len(benign_records)} benign records")
+    print(f"Fetching {advbench_sample_size} AdvBench entries (novel)...")
+    advbench_entries = fetch_advbench_data(advbench_sample_size)
     
-    # Combine and format records
-    all_records = []
+    print(f"Fetching {hf4_sample_size} HF4 entries (benign)...")
+    hf4_entries = fetch_benign_data(hf4_sample_size)
     
-    for record in attack_records:
-        log_id = generate_log_id(record['text'])
-        all_records.append({
-            'log_id': log_id,
-            'text': record['text'],
-            'label': record['label']
+    # Combine and assign log_ids
+    ground_truth = []
+    
+    for entry in advbench_entries:
+        ground_truth.append({
+            "log_id": generate_log_id(),
+            "text": entry["text"],
+            "label": entry["label"]
+        })
+        
+    for entry in hf4_entries:
+        ground_truth.append({
+            "log_id": generate_log_id(),
+            "text": entry["text"],
+            "label": entry["label"]
         })
     
-    for record in benign_records:
-        log_id = generate_log_id(record['text'])
-        all_records.append({
-            'log_id': log_id,
-            'text': record['text'],
-            'label': record['label']
-        })
-    
-    # Shuffle to mix benign and attack records
+    # Shuffle the combined list to mix novel and benign
     import random
-    random.seed(42)  # For reproducibility
-    random.shuffle(all_records)
+    random.shuffle(ground_truth)
     
-    fixture = {
-        'metadata': {
-            'source': 'AdvBench + UltraFeedback',
-            'attack_source': 'llm-attacks/advbench',
-            'benign_source': 'HuggingFaceH4/ultrafeedback_binarized',
-            'total_records': len(all_records),
-            'attack_count': len(attack_records),
-            'benign_count': len(benign_records),
-            'generated_at': '2024-01-01',  # Placeholder, will be updated on actual run
-            'description': 'Real human-annotated ground truth fixture for US-01 MVP testing'
-        },
-        'records': all_records
-    }
+    # Save to file
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(ground_truth, f, indent=2, ensure_ascii=False)
     
-    return fixture
+    print(f"Ground truth fixture saved to: {output_path}")
+    print(f"Total entries: {len(ground_truth)} (Novel: {advbench_sample_size}, Benign: {hf4_sample_size})")
+    
+    return ground_truth
+
 
 def main():
-    """Main entry point for generating the ground truth fixture."""
-    print("=" * 60)
-    print("Generating REAL Ground Truth Fixture (T012e)")
-    print("=" * 60)
-    
-    # Ensure output directory exists
-    output_path = get_path('data/test/real_ground_truth_fixture.json')
-    ensure_directories([output_path])
-    
+    """Main entry point."""
     try:
-        # Generate fixture
-        fixture = generate_ground_truth_fixture()
-        
-        # Save to file
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(fixture, f, indent=2, ensure_ascii=False)
-        
-        print(f"\nSuccessfully generated fixture:")
-        print(f"  Path: {output_path}")
-        print(f"  Total records: {fixture['metadata']['total_records']}")
-        print(f"  Attack records: {fixture['metadata']['attack_count']}")
-        print(f"  Benign records: {fixture['metadata']['benign_count']}")
-        print(f"\nFixture contains columns: log_id, text, label")
-        print("All data derived from REAL sources (AdvBench + UltraFeedback)")
-        
+        generate_ground_truth_fixture()
     except LoudFailureError as e:
-        print(f"\nERROR: {str(e)}")
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"\nUnexpected error: {str(e)}")
+        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

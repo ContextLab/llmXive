@@ -4,75 +4,12 @@ T001:
   r: "No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`\
     \ actually exists, contains any files, or that its creation was verified. The\
     \ implementer\u2019s claim lacks the required artifact."
-T002:
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/`
-    actually exists or contains any files; the implementer did not supply a directory
-    listing, screenshots, or any other proof of creation and verification. The required
-    artifact is missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/raw/`\
-    \ actually exists (e.g., a directory listing, screenshot, or command output).\
-    \ The implementer must supply proof that the folder was created and is non\u2011\
-    empty."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/`
-    actually exists or contains any files; without a visible artifact we cannot confirm
-    the creation and verification step. The implementer must supply a directory listing
-    or proof (e.g., a screenshot, `ls` output, or a file inside the directory) showing
-    that the required path has been created.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/test/`
-    actually exists or contains any files; the claim is unsubstantiated. The implementer
-    must supply a directory listing or confirmation that the folder was created.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/`
-    or any contents within it was provided; without a visible directory and files,
-    the task cannot be considered completed.
-T010:
-  c: false
-  h: 37f8a056726f5010db1f2047ad620cc5b9b44bc9985354adb4b6161ded7a8cfd
-  r: The provided `pyproject.toml` exists and contains Black configuration, but the
-    required `.ruff.toml` file is missing, so the linting tool is not fully configured
-    as the task specifies. The implementer must add a proper `.ruff.toml` file to
-    complete the task.
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `config.py` file was presented in the evidence, nor any description of its
-    contents. Without the file existing (or being shown) we cannot confirm that it
-    manages random seeds, paths, and batch sizes as required. The implementer must
-    add the `config.py` at the specified location with the appropriate configuration
-    logic.
-T012a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data_loader.py` file containing `fetch_advbench` and `fetch_hf4`
-    implementations was provided, nor any code showing they use `datasets.load_dataset`
-    with streaming and avoid synthetic fallbacks. The required artifact is missing.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `checksums.json` file exists in the required\
-    \ `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` directory,\
-    \ nor any content showing raw data checksums. The implementer must add the non\u2011\
-    empty `checksums.json` file with appropriate checksum entries for the raw data."
-T016b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `taxonomy_builder.py` containing `tracemalloc` monitoring\
-    \ or a RAM\u2011limit check is provided; the claim lacks any code, diff, or test\
-    \ output demonstrating the <\u202F7\u202FGB enforcement. The required artifact\
-    \ is missing, so the task is not satisfied."
+  r: No `utils.py` file was found in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`,
+    nor any evidence of its contents (contract validation helpers, JSON/CSV schema
+    loading). The required artifact is missing, so the task is not satisfied.
 T018:
   c: false
   h: 0bcc00718215f2042393535a57903cf3a656d3c16cb414b0638b9c8748451444
@@ -81,3 +18,9 @@ T018:
     \ which is missing. Without this schema the test cannot perform the required validation,\
     \ so the task\u2019s requirement is not met. The missing `drift_result.schema.yaml`\
     \ must be added (with the correct fields) for the implementation to be complete."
+T028:
+  c: false
+  h: 30a52141b20216f592d275c9c9c8599387b1a43f4b4ee4edf2549acce3b976d8
+  r: "The required unit test file `tests/unit/test_kappa.py` does not exist in the\
+    \ repository, so no test code is provided to verify the Kappa statistic calculation.\
+    \ The task\u2019s primary artifact is missing."

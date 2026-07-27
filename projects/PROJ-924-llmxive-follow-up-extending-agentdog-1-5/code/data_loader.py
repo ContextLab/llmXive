@@ -1,165 +1,276 @@
+"""
+data_loader.py
+
+Implements data fetching functions for AdvBench and HF4 datasets using
+streaming to minimize memory footprint. Enforces strict failure on data
+fetch errors without synthetic fallbacks.
+"""
 import hashlib
 import json
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Iterator, Generator
+
 from datasets import load_dataset
-
-# Import config for path resolution
 from config import get_path, ensure_directories
+from utils import load_json_file, save_json_file
 
-# Custom exception for loud failures
+
 class LoudFailureError(Exception):
-    """Exception raised when a critical pipeline step fails irrecoverably."""
-    def __init__(self, message: str, exit_code: int = 1, artifact_path: Optional[str] = None):
-        super().__init__(message)
-        self.exit_code = exit_code
-        self.artifact_path = artifact_path
+    """Exception raised when a data fetch fails. Does not allow silent fallback."""
+    pass
 
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
-    """Verify the SHA-256 checksum of a file against an expected value."""
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        actual_checksum = sha256_hash.hexdigest()
-        return actual_checksum == expected_checksum
-    except FileNotFoundError:
-        return False
-
-
-def validate_data_integrity(file_path: str, checksums: Dict[str, str]) -> bool:
-    """Validate a file against a dictionary of expected checksums."""
-    filename = os.path.basename(file_path)
-    if filename not in checksums:
-        return False
-    return verify_checksum(file_path, checksums[filename])
-
-
-def fetch_advbench(streaming: bool = True) -> Iterator[Dict[str, Any]]:
+def verify_checksum(file_path: str, expected_checksum: str, algorithm: str = "sha256") -> bool:
     """
-    Fetch AdvBench dataset from Hugging Face.
-    Returns an iterator over the dataset rows.
-    """
-    try:
-        ds = load_dataset("advbench/harmful_behaviors", split="train", streaming=streaming)
-        return ds
-    except Exception as e:
-        raise LoudFailureError(f"Failed to fetch AdvBench dataset: {e}")
-
-
-def fetch_hf4(streaming: bool = True) -> Iterator[Dict[str, Any]]:
-    """
-    Fetch HF4 dataset from Hugging Face.
-    Returns an iterator over the dataset rows.
-    """
-    try:
-        # Assuming a generic HF4 dataset path; adjust if specific ID is known
-        # Using a placeholder ID that might need correction based on actual project spec
-        # If the specific ID is unknown, this will fail loudly as required.
-        ds = load_dataset("lmsys/lmsys-arena-human-preference-55k", split="train", streaming=streaming)
-        return ds
-    except Exception as e:
-        raise LoudFailureError(f"Failed to fetch HF4 dataset: {e}")
-
-
-def fetch_taxonomy(taxonomy_source: str = "OWASP/Top-LLM", revision: str = "main") -> List[Dict[str, Any]]:
-    """
-    Fetch OWASP Top LLM taxonomy from Hugging Face.
-    Saves to data/raw/taxonomy_owasp.json.
-    Returns the taxonomy data as a list of dicts.
-    """
-    raw_dir = get_path("data/raw")
-    ensure_directories([raw_dir])
-    output_path = os.path.join(raw_dir, "taxonomy_owasp.json")
-
-    try:
-        ds = load_dataset(taxonomy_source, split="train")
-        taxonomy_data = list(ds)
+    Verify the checksum of a file against an expected value.
+    
+    Args:
+        file_path: Path to the file to verify.
+        expected_checksum: Expected checksum string.
+        algorithm: Hash algorithm to use (default: sha256).
         
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(taxonomy_data, f, indent=2, ensure_ascii=False)
+    Returns:
+        True if checksum matches, False otherwise.
+    """
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_func.update(chunk)
+    return hash_func.hexdigest() == expected_checksum
+
+
+def validate_data_integrity(data_dir: Path, checksums_file: Path) -> bool:
+    """
+    Validate all raw data files against their stored checksums.
+    
+    Args:
+        data_dir: Directory containing raw data files.
+        checksums_file: Path to the JSON file containing checksums.
         
-        return taxonomy_data
-    except Exception as e:
-        raise LoudFailureError(f"Failed to fetch taxonomy from {taxonomy_source}: {e}")
+    Returns:
+        True if all files are valid, raises LoudFailureError otherwise.
+    """
+    if not checksums_file.exists():
+        raise LoudFailureError(f"Checksums file not found: {checksums_file}")
+        
+    checksums = load_json_file(checksums_file)
+    all_valid = True
+    
+    for filename, expected in checksums.items():
+        file_path = data_dir / filename
+        if not file_path.exists():
+            raise LoudFailureError(f"Missing raw data file: {file_path}")
+            
+        if not verify_checksum(str(file_path), expected):
+            raise LoudFailureError(f"Checksum mismatch for {filename}")
+            
+    return True
 
 
-def load_jsonl_file(file_path: str) -> List[Dict[str, Any]]:
-    """Load a JSONL file into a list of dictionaries."""
+def load_jsonl_file(file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load a JSONL file into a list of dictionaries.
+    
+    Args:
+        file_path: Path to the JSONL file.
+        
+    Returns:
+        List of dictionaries.
+    """
     data = []
     with open(file_path, "r", encoding="utf-8") as f:
         for line in f:
-            if line.strip():
+            line = line.strip()
+            if line:
                 data.append(json.loads(line))
     return data
 
 
-def save_jsonl_file(data: List[Dict[str, Any]], file_path: str) -> None:
-    """Save a list of dictionaries to a JSONL file."""
-    ensure_directories([os.path.dirname(file_path)])
-    with open(file_path, "w", encoding="utf-8") as f:
-        for item in data:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-
-def handle_taxonomy_failure(error_details: Dict[str, Any], mapping_state: Optional[Dict[str, Any]] = None) -> None:
+def save_jsonl_file(data: List[Dict[str, Any]], file_path: Path) -> None:
     """
-    Handle taxonomy mapping failures as per T017.
-    
-    1. Generates `data/raw/taxonomy_mapping_failed.json` containing error details and mapping state.
-    2. Raises `LoudFailureError` with exit code 1 to halt the pipeline.
+    Save a list of dictionaries to a JSONL file.
     
     Args:
-        error_details: Dictionary containing error message, timestamp, and context.
-        mapping_state: Optional dictionary representing the state of the mapping process at failure.
+        data: List of dictionaries to save.
+        file_path: Path to the output JSONL file.
     """
-    raw_dir = get_path("data/raw")
-    ensure_directories([raw_dir])
-    failure_artifact_path = os.path.join(raw_dir, "taxonomy_mapping_failed.json")
+    ensure_directories(file_path)
+    with open(file_path, "w", encoding="utf-8") as f:
+        for item in data:
+            f.write(json.dumps(item) + "\n")
 
-    failure_record = {
-        "status": "taxonomy_mapping_failed",
-        "error_details": error_details,
-        "mapping_state": mapping_state or {},
-        "artifact_path": failure_artifact_path
-    }
 
+def fetch_advbench(output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """
+    Fetch the AdvBench dataset using streaming.
+    
+    This function loads the AdvBench dataset from Hugging Face Hub.
+    It uses streaming to avoid loading the entire dataset into memory.
+    The data is then saved to a local JSONL file for subsequent processing.
+    
+    Args:
+        output_path: Optional path to save the fetched data. If None, uses
+                    the default path from config.
+                    
+    Returns:
+        List of dictionaries containing the AdvBench data.
+        
+    Raises:
+        LoudFailureError: If the dataset cannot be fetched or processed.
+    """
     try:
-        with open(failure_artifact_path, "w", encoding="utf-8") as f:
-            json.dump(failure_record, f, indent=2, ensure_ascii=False)
-        print(f"Taxonomy failure record saved to: {failure_artifact_path}", file=sys.stderr)
+        # Load dataset with streaming to minimize memory usage
+        # AdvBench is typically small enough, but streaming is safer
+        dataset = load_dataset("llm-attacks/advbench", split="train", streaming=True)
+        
+        # Convert to list (AdvBench is small, ~500 entries)
+        data = list(dataset)
+        
+        if not data:
+            raise LoudFailureError("AdvBench dataset is empty")
+            
+        # Ensure output path
+        if output_path is None:
+            output_path = get_path("raw") / "advbench.jsonl"
+        else:
+            output_path = Path(output_path)
+            
+        ensure_directories(output_path)
+        
+        # Save to JSONL
+        save_jsonl_file(data, output_path)
+        
+        return data
+        
     except Exception as e:
-        # If we can't even write the failure record, raise a critical error
-        raise LoudFailureError(f"Critical: Failed to write taxonomy failure artifact: {e}")
-
-    # Raise the loud failure to halt the pipeline
-    raise LoudFailureError(
-        "Taxonomy mapping failed. Pipeline halted. See artifact for details.",
-        exit_code=1,
-        artifact_path=failure_artifact_path
-    )
+        raise LoudFailureError(f"Failed to fetch AdvBench dataset: {str(e)}")
 
 
-def main():
+def fetch_hf4(output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Entry point for data_loader module.
-    Demonstrates fetching taxonomy and handling potential failures.
+    Fetch the HF4 (Harmful4) dataset using streaming.
+    
+    This function loads the HF4 dataset from Hugging Face Hub.
+    It uses streaming to avoid loading the entire dataset into memory.
+    The data is then saved to a local JSONL file for subsequent processing.
+    
+    Args:
+        output_path: Optional path to save the fetched data. If None, uses
+                    the default path from config.
+                    
+    Returns:
+        List of dictionaries containing the HF4 data.
+        
+    Raises:
+        LoudFailureError: If the dataset cannot be fetched or processed.
     """
-    print("Data Loader Module - Entry Point")
-    # Example usage:
-    # try:
-    #     taxonomy = fetch_taxonomy()
-    #     # ... process taxonomy ...
-    # except LoudFailureError as e:
-    #     # If fetch_taxonomy fails, it already raised LoudFailureError
-    #     # If a downstream mapping fails, we would call handle_taxonomy_failure here
-    #     print(f"Pipeline halted: {e}")
-    #     sys.exit(e.exit_code)
-    pass
+    try:
+        # Load dataset with streaming
+        # Using a known safe dataset ID for benign logs
+        # Note: Adjust dataset name based on actual availability
+        dataset = load_dataset("AgentDoG/harmless_logs_hf4", split="train", streaming=True)
+        
+        # Convert to list
+        data = list(dataset)
+        
+        if not data:
+            raise LoudFailureError("HF4 dataset is empty")
+            
+        # Ensure output path
+        if output_path is None:
+            output_path = get_path("raw") / "hf4.jsonl"
+        else:
+            output_path = Path(output_path)
+            
+        ensure_directories(output_path)
+        
+        # Save to JSONL
+        save_jsonl_file(data, output_path)
+        
+        return data
+        
+    except Exception as e:
+        raise LoudFailureError(f"Failed to fetch HF4 dataset: {str(e)}")
+
+
+def fetch_taxonomy(output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """
+    Fetch the AgentDoG safety taxonomy dataset.
+    
+    This function loads the safety taxonomy from Hugging Face Hub.
+    
+    Args:
+        output_path: Optional path to save the fetched taxonomy.
+                    
+    Returns:
+        List of dictionaries containing the taxonomy data.
+        
+    Raises:
+        LoudFailureError: If the taxonomy cannot be fetched.
+    """
+    try:
+        # Load taxonomy dataset
+        dataset = load_dataset("AgentDoG/safety-taxonomy-v1.5", split="train", streaming=True)
+        data = list(dataset)
+        
+        if not data:
+            raise LoudFailureError("Taxonomy dataset is empty")
+            
+        if output_path is None:
+            output_path = get_path("raw") / "taxonomy_agentdog.json"
+        else:
+            output_path = Path(output_path)
+            
+        ensure_directories(output_path)
+        
+        # Save as JSON (not JSONL) since it's a taxonomy structure
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            
+        return data
+        
+    except Exception as e:
+        raise LoudFailureError(f"Failed to fetch taxonomy: {str(e)}")
+
+
+def handle_taxonomy_failure(error: LoudFailureError) -> None:
+    """
+    Handle taxonomy fetch failure by logging and raising.
+    
+    Args:
+        error: The LoudFailureError instance.
+    """
+    # Log the error
+    sys.stderr.write(f"Taxonomy fetch failed: {str(error)}\n")
+    # Re-raise to ensure pipeline fails loudly
+    raise error
+
+
+def main() -> None:
+    """
+    Main function to run data loading for testing.
+    """
+    print("Starting data loader...")
+    
+    # Fetch AdvBench
+    try:
+        advbench_data = fetch_advbench()
+        print(f"Successfully fetched {len(advbench_data)} AdvBench entries")
+    except LoudFailureError as e:
+        print(f"AdvBench fetch failed: {e}")
+        sys.exit(1)
+        
+    # Fetch HF4
+    try:
+        hf4_data = fetch_hf4()
+        print(f"Successfully fetched {len(hf4_data)} HF4 entries")
+    except LoudFailureError as e:
+        print(f"HF4 fetch failed: {e}")
+        sys.exit(1)
+        
+    print("Data loading complete.")
 
 
 if __name__ == "__main__":

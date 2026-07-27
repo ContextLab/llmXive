@@ -4,10 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): No CSV output, code, or any other artifact was provided showing that empty/whitespace logs are assigned a drift_score of 2.0 and a review_flag of true. Without concrete files or code changes, the requirement cannot be verified as met.
-- `T006` (rejected 1x): No `utils.py` file was presented in the evidence, nor any code showing contract‑validation helpers or JSON/CSV schema‑loading functions in the required directory. Without the actual artifact, the claim cannot be verified as fulfilled. The implementer must add a non‑empty `utils.py` at `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` containing the specified helper utilities.
-- `T007` (rejected 1x): No `checksums.json` file was found in the required `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` directory, nor any evidence (e.g., file listing, content excerpt) that such a file was created and populated for raw data integrity tracking. The task therefore remains unfulfilled.
-- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/taxonomy_mapping_failed.json
+- `T010` (rejected 1x): The `pyproject.toml` file is present and contains a Black configuration, but the required `.ruff.toml` (or `ruff.toml`) file does not exist in the project directory, so the linting tool configuration is incomplete. The missing ruff configuration must be added to satisfy the task.
+- `T012e` (rejected 1x): declared artifact(s) missing/empty/invalid: data/test/real_ground_truth_fixture.json
+- `T011` (rejected 1x): No `config.py` file was presented in the evidence, nor any description of its contents. Without the file existing (or being shown) we cannot confirm that it manages random seeds, paths, and batch sizes as required. The implementer must add the `config.py` at the specified location with the appropriate configuration logic.
+- `T012a` (rejected 1x): No evidence of a `data_loader.py` file containing `fetch_advbench` and `fetch_hf4` implementations was provided, nor any code showing they use `datasets.load_dataset` with streaming and avoid synthetic fallbacks. The required artifact is missing.
+- `T015` (rejected 1x): No evidence was provided that a `checksums.json` file exists in the required `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` directory, nor any content showing raw data checksums. The implementer must add the non‑empty `checksums.json` file with appropriate checksum entries for the raw data.
+- `T016b` (rejected 1x): No evidence of a modified `taxonomy_builder.py` containing `tracemalloc` monitoring or a RAM‑limit check is provided; the claim lacks any code, diff, or test output demonstrating the < 7 GB enforcement. The required artifact is missing, so the task is not satisfied.
 
 ## Required change
 

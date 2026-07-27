@@ -3,10 +3,23 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up"
-version = "0.1.0"
-description = "llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection"
+name = "llmxive-drift-detection"
+version = "1.0.0"
+description = "Zero-shot drift detection system for LLM safety monitoring"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Team"}
+]
+keywords = ["drift-detection", "llm-safety", "anomaly-detection", "zero-shot"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "sentence-transformers",
     "scikit-learn",
@@ -18,55 +31,111 @@ dependencies = [
     "pytest",
     "transformers",
     "accelerate",
+    "ruff",
+    "black",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest-cov",
+    "pytest-xdist",
+    "pre-commit",
+    "mypy",
+]
+
+[project.scripts]
+run-pipeline = "main:main"
+build-taxonomy = "taxonomy_builder:main"
+score-drift = "drift_scoring:main"
+validate-data = "data_loader:main"
+generate-ground-truth = "generate_ground_truth_fixture:main"
+generate-test-fixture = "generate_test_fixture:main"
+checksum-generator = "checksums_generator:main"
+verify-structure = "verify_project_structure:main"
+annotator-interface = "annotator_interface:main"
+validation = "validation:main"
+
 [tool.black]
+# Black formatting configuration
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
+    | \.hg
+    | \.mypy_cache
+    | \.ruff_cache
+    | \.tox
+    | \.venv
+    | venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
 )/
 '''
-
-[tool.ruff]
-# Configuration is in .ruff.toml, but we include basic settings here for compatibility
-line-length = 88
-target-version = "py311"
-exclude = [
-    ".git",
-    "__pycache__",
-    ".tox",
-    "venv",
-    ".venv",
-    "build",
-    "dist",
-    "data",
-]
+# Ensure consistent formatting
+skip-string-normalization = false
+skip-magic-trailing-comma = false
 
 [tool.pytest.ini_options]
+# Pytest configuration
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --strict-markers"
+python_classes = ["Test*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--maxfail=1",
+]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
+    "mvp: marks tests as MVP critical",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
-exclude = ["tests*", "data*", "docs*", "specs*"]
+[tool.setuptools]
+packages = ["code"]
+package-dir = {"code" = "code"}
+
+[tool.setuptools.package-data]
+code = ["*.json", "*.yaml", "*.yml", "*.txt"]
+
+[tool.mypy]
+# MyPy type checking configuration
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+show_error_codes = true
+
+[tool.ruff]
+# Ruff configuration (also defined in .ruff.toml for IDE compatibility)
+line-length = 88
+target-version = "py311"
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "N", "SIM", "ARG"
+]
+ignore = [
+    "E501",
+    "B008",
+    "ARG001",
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "venv",
+    ".venv",
+    "data",
+    "build",
+    "dist",
+]
