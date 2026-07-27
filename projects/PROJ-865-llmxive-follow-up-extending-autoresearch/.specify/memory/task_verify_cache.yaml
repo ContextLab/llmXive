@@ -1,3 +1,11 @@
+T002b:
+  c: false
+  h: 33cd93ceb3f15244aa9e8c26a4d083a1dadb6e4a96edde45ce69f880e7dec64f
+  r: "The required artifact `data/artifacts/citation_validation_report.json` does\
+    \ not exist, and consequently the state file `state/projects/PROJ-865-llmxive-follow-up-extending-autoresearch.yaml`\
+    \ was never created or updated. Without the JSON report and the resulting state\
+    \ YAML, the task\u2019s core requirement\u2014recording the validation hash and\
+    \ timestamp\u2014has not been fulfilled."
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,15 +20,6 @@ T007:
     \ does it automatically run after each major phase. Moreover, the required state\
     \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
     \ is missing, so the hashes and timestamp cannot be recorded."
-T011b:
-  c: false
-  h: a04aab45846a9b4f7d097a7b19dea7604eaeb2e86cf27990f80b1ad00b822f9f
-  r: The repository lacks the required input `data/derived/parsed_traces.json`, the
-    generated `failure_cases.json` (and its train/val/test splits), and the schema
-    file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`. Moreover,
-    the provided `annotate_failures.py` is truncated and does not show the full implementation
-    of validation, splitting, and writing of the output files. These essential artifacts
-    are missing, so the task is not genuinely completed.
 T013:
   c: false
   h: 623df3e18f031fc0946a892abb84bed6678319b0912774c6493a0b9d9e151168
@@ -30,28 +29,20 @@ T013:
     \ back to regex, which the task forbids. Moreover, the required output file `data/derived/rules_library.json`\
     \ is missing. These missing/incorrect artifacts prevent the task from being considered\
     \ complete."
+T015b:
+  c: false
+  h: 65df646451a212313097390dff1d1db991dacbbf59164aa71e508c6acf80f7c1
+  r: "The required input `data/derived/rules_library.json`, the schema file `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`,\
+    \ and the expected output `data/artifacts/rule_validation_report.json` are all\
+    \ missing, and there is no evidence that the validator was executed or that it\
+    \ correctly exits with code\u202F1 when the schema is absent. The implementation\
+    \ cannot be verified as functional without these artifacts."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `rule_engine.py` file or code changes were provided, so there is no evidence\
     \ that logic handling \u201CUnstructured\u201D cases and defaulting to the baseline\
     \ retrieval method was implemented. The required artifact is missing."
-T019:
-  c: false
-  h: 116d5c983e715ba84d7473b97aef0b69653753090e07b2af83f7e1e91690dd18
-  r: "The required `data/derived/experiment_manifest.csv` file is absent, so the script\
-    \ cannot read the task list. Moreover, the provided `run_experiments.py` only\
-    \ defines data\u2011loading utilities and never invokes the rule engine on the\
-    \ manifest entries, so it does not fulfill the \u201Crun the rule engine on the\
-    \ tasks\u201D requirement."
-T019a:
-  c: false
-  h: b2bc59569d346410abfdafefc73878da6334c185de30752af5de5f5b04a4007c
-  r: The repository contains `code/03_execution/generate_manifest.py`, but the required
-    output file `data/derived/experiment_manifest.csv` is absent. Since the task explicitly
-    demands that the script create this manifest CSV, the missing artifact means the
-    requirement is not satisfied. The next implementer must ensure the script runs
-    and generates the CSV at the specified path.
 T020:
   c: false
   h: 588f2121acbb8cb22df8c6f629d407eb5d2ce4750cf5e35f75b46c54abddfc64
@@ -89,6 +80,13 @@ T036:
     also saves the fetched data to `data/raw/arc_bench.json` instead of processing
     it into `data/derived/parsed_traces.json`, and that target file is missing. Consequently
     the required behavior and output are not fulfilled.
+T043:
+  c: false
+  h: 1c4812f1050fbf8ef29565a858405c4878448421b621f26917429b870c99c7be
+  r: The provided `verify_quantization.py` is only a partial stub (truncated) that
+    never loads a model, checks INT4 quantization, or writes `data/artifacts/quantization_verification.json`.
+    The required JSON output file is missing, and the script lacks the logic to raise
+    an error on failure. The task is therefore not fully implemented.
 T044:
   c: false
   h: 03a328c801be7001dcdf83c2be923e86ab00ce336fdbe38525f0e1d15513f2eb
@@ -97,3 +95,12 @@ T044:
     \ mixed\u2011effects regression nor write the JSON report (the script is truncated\
     \ and lacks a final write step). The task\u2019s core deliverable is therefore\
     \ missing."
+T052:
+  c: false
+  h: e1432d2a369124aab237991516922b964ebc2307ecf0a3be0a303ecb77887603
+  r: "The provided `rule_engine.py` only contains utility functions (e.g., `parse_error_log`)\
+    \ and does not show any implementation of a secondary keyword\u2011based fallback,\
+    \ logging of the fallback chain, or integration with a results CSV. Moreover,\
+    \ the required `data/derived/results_rule_engine.csv` file is absent, so the new\
+    \ `fallback_chain` column cannot be verified. The task\u2019s core requirements\
+    \ are therefore unmet."

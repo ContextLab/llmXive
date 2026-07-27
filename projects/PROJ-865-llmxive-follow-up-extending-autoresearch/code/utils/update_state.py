@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 import yaml
 
@@ -54,46 +54,97 @@ def save_state(state_path: Path, state: Dict[str, Any]) -> None:
     with open(state_path, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
+def update_single_artifact_state(
+    state_path: Path, 
+    artifact_path: Path, 
+    task_id: str, 
+    current_time: Optional[str] = None
+) -> None:
+    """
+    Update the project state file with a single artifact's hash and metadata.
+    This is used for specific task validation recording (e.g., T002 -> T002b).
+    """
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    
+    file_hash = calculate_sha256(artifact_path)
+    relative_path = str(artifact_path.relative_to(state_path.parent.parent.parent))
+    
+    existing_state = load_existing_state(state_path)
+    
+    if current_time is None:
+        current_time = datetime.now(timezone.utc).isoformat()
+    
+    # Ensure structure exists
+    if "validation_records" not in existing_state:
+        existing_state["validation_records"] = {}
+    
+    existing_state["validation_records"][task_id] = {
+        "artifact_path": relative_path,
+        "hash": file_hash,
+        "recorded_at": current_time
+    }
+    
+    existing_state["project_id"] = "PROJ-865-llmxive-followup-extending-autoresearch"
+    existing_state["updated_at"] = current_time
+    
+    save_state(state_path, existing_state)
+
 def main():
     project_root = Path(__file__).resolve().parent.parent.parent
     state_file_path = project_root / "state" / "projects" / "PROJ-865-llmxive-followup-extending-autoresearch.yaml"
     
-    # Define directories to scan
-    scan_dirs = [
-        project_root / "data" / "derived",
-        project_root / "results"
-    ]
+    # Check for specific artifact for T002 validation
+    citation_validation_report = project_root / "data" / "artifacts" / "citation_validation_report.json"
     
-    # Define file extensions to include
-    extensions = [".json", ".csv", ".yaml", ".yml"]
-    
-    # Scan for artifacts
-    all_artifacts = []
-    for scan_dir in scan_dirs:
-        artifacts = scan_directory(scan_dir, extensions)
-        all_artifacts.extend(artifacts)
-    
-    # Sort artifacts by relative path for reproducibility
-    all_artifacts.sort(key=lambda x: x["relative_path"])
-    
-    # Load existing state to preserve metadata if needed
-    existing_state = load_existing_state(state_file_path)
-    
-    # Build new state
-    current_time = datetime.now(timezone.utc).isoformat()
-    new_state = {
-        "project_id": "PROJ-865-llmxive-followup-extending-autoresearch",
-        "updated_at": current_time,
-        "artifacts": all_artifacts,
-        "total_artifacts": len(all_artifacts)
-    }
-    
-    # Save state
-    save_state(state_file_path, new_state)
-    
-    print(f"State updated successfully at {state_file_path}")
-    print(f"Total artifacts scanned: {len(all_artifacts)}")
-    print(f"Timestamp: {current_time}")
+    if citation_validation_report.exists():
+        try:
+            update_single_artifact_state(
+                state_file_path, 
+                citation_validation_report, 
+                "T002"
+            )
+            print(f"Successfully recorded T002 validation state to {state_file_path}")
+            print(f"Artifact: {citation_validation_report}")
+            print(f"Hash: {calculate_sha256(citation_validation_report)}")
+        except Exception as e:
+            print(f"Error updating state: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print(f"Warning: Citation validation report not found at {citation_validation_report}", file=sys.stderr)
+        print("Skipping specific T002 record update. Running full scan instead.", file=sys.stderr)
+        
+        # Fallback: Run full scan if specific artifact is missing
+        scan_dirs = [
+            project_root / "data" / "derived",
+            project_root / "results",
+            project_root / "data" / "artifacts"
+        ]
+        
+        extensions = [".json", ".csv", ".yaml", ".yml"]
+        
+        all_artifacts = []
+        for scan_dir in scan_dirs:
+            artifacts = scan_directory(scan_dir, extensions)
+            all_artifacts.extend(artifacts)
+        
+        all_artifacts.sort(key=lambda x: x["relative_path"])
+        
+        existing_state = load_existing_state(state_file_path)
+        current_time = datetime.now(timezone.utc).isoformat()
+        
+        new_state = {
+            "project_id": "PROJ-865-llmxive-followup-extending-autoresearch",
+            "updated_at": current_time,
+            "artifacts": all_artifacts,
+            "total_artifacts": len(all_artifacts)
+        }
+        
+        save_state(state_file_path, new_state)
+        
+        print(f"State updated successfully at {state_file_path}")
+        print(f"Total artifacts scanned: {len(all_artifacts)}")
+        print(f"Timestamp: {current_time}")
 
 if __name__ == "__main__":
     main()

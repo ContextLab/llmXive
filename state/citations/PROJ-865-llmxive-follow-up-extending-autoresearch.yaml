@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
   verified_at: '2026-07-25T00:25:36.269226Z'
-- artifact_hash: a65908935377bdda4019bbb63e0b228032ec94b5b667b1b61eeef4062c016908
+- artifact_hash: 3b4f60767c0768078308edad7017a1c2a08d8b9065c24897ffc729b85d899317
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,15 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-27T06:30:34.292244Z'
-- artifact_hash: a65908935377bdda4019bbb63e0b228032ec94b5b667b1b61eeef4062c016908
-  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/claw-ai-lab/arc-bench/resolve/main/metadata.json`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/claw-ai-lab/arc-bench/resolve/main/metadata.json
-  verified_at: '2026-07-27T06:30:34.292244Z'
+  verified_at: '2026-07-27T20:25:16.738232Z'

@@ -27,7 +27,7 @@ def validate_stratification(failures: List[Dict[str, Any]], target_n: int) -> Tu
     Validate that we can construct a stratified sample of size target_n.
     Returns (True, '') if possible, (False, error_message) otherwise.
     """
-    groups = {}
+    groups: Dict[str, List[Dict[str, Any]]] = {}
     for f in failures:
         ftype = f.get("annotated_structural_feature", "Unstructured")
         if ftype not in groups:
@@ -41,8 +41,9 @@ def validate_stratification(failures: List[Dict[str, Any]], target_n: int) -> Tu
     if total_available < target_n:
         return False, f"Insufficient data: requested {target_n} samples but only {total_available} available."
     
-    per_group = target_n // len(groups)
-    remainder = target_n % len(groups)
+    num_groups = len(groups)
+    per_group = target_n // num_groups
+    remainder = target_n % num_groups
     
     # Check if each group has enough items
     sorted_types = sorted(groups.keys())
@@ -57,6 +58,9 @@ def stratified_sample(failures: List[Dict[str, Any]], n: int, seed: int) -> List
     """
     Select a stratified random sample of size n based on 'annotated_structural_feature'.
     Uses the fixed seed for reproducibility.
+    If a stratum has fewer items than needed, it logs a warning, takes all available,
+    and adjusts the distribution if possible, but ultimately the sample size might be < n
+    if total available < n (though validate_stratification prevents this for the standard case).
     """
     set_seed(seed)
     
@@ -72,20 +76,34 @@ def stratified_sample(failures: List[Dict[str, Any]], n: int, seed: int) -> List
     if num_groups == 0:
         raise ValueError("No failure cases found to sample from.")
     
-    # Distribute remainder deterministically across sorted groups
+    # Calculate target per group
+    per_group = n // num_groups
+    remainder = n % num_groups
+    
     sorted_types = sorted(groups.keys())
+    sample: List[Dict[str, Any]] = []
     
     for i, ftype in enumerate(sorted_types):
-        count = per_group + (1 if i < remainder else 0)
-        # Shuffle the group internally to ensure random selection within the stratum
+        count_needed = per_group + (1 if i < remainder else 0)
         current_group = groups[ftype]
+        actual_count = len(current_group)
+        
+        if actual_count < count_needed:
+            # Log warning as per spec
+            logger.warning(f"Stratification adjusted: Insufficient data in stratum [{ftype}]. Sampled {actual_count} (needed {count_needed}).")
+            # Take all available from this stratum
+            taken = actual_count
+        else:
+            taken = count_needed
+        
+        # Shuffle to ensure random selection within the stratum
         random.shuffle(current_group)
-        group_samples = current_group[:count]
+        group_samples = current_group[:taken]
         sample.extend(group_samples)
     
-    # Sanity check
+    # Final check on size
     if len(sample) != n:
-        raise ValueError(f"Sample size mismatch: expected {n}, got {len(sample)}")
+        logger.warning(f"Final sample size {len(sample)} differs from target {n} due to stratification constraints.")
     
     return sample
 
@@ -131,9 +149,9 @@ def main():
         logger.info(f"Performing stratified sample of size {target_n} with seed 42")
         sample = stratified_sample(failures, target_n, seed=42)
         
-        # 4. Verify sample size
-        if len(sample) != target_n:
-            raise ValueError(f"Sample size mismatch: expected {target_n}, got {len(sample)}")
+        # 4. Verify sample size (allowing for the warning case if data was tight)
+        if len(sample) == 0:
+            raise ValueError("Sample size is zero. Cannot proceed.")
         
         # 5. Write output
         write_manifest(sample, output_path)

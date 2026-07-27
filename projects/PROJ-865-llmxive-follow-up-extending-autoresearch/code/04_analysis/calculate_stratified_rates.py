@@ -71,15 +71,45 @@ def calculate_stratified_rates(results: List[Dict[str, Any]]) -> Dict[str, Dict[
     
     return output
 
+def verify_weighted_average(stratified_data: Dict[str, Dict[str, Any]], results: List[Dict[str, Any]]) -> bool:
+    """
+    Verify that the sum of rates weighted by sample size equals the overall success rate.
+    """
+    if not results:
+        return True
+    
+    total_count = len(results)
+    total_success = sum(1 for r in results if r['success'])
+    overall_rate = total_success / total_count if total_count > 0 else 0.0
+    
+    weighted_sum = 0.0
+    weighted_total = 0
+    
+    for ft, metrics in stratified_data.items():
+        count = metrics['count']
+        rate = metrics['success_rate']
+        weighted_sum += rate * count
+        weighted_total += count
+    
+    if weighted_total == 0:
+        return True
+        
+    calculated_overall = weighted_sum / weighted_total
+    
+    # Allow small floating point tolerance
+    return abs(calculated_overall - overall_rate) < 1e-6
+
 def write_stratified_rates_csv(data: Dict[str, Dict[str, Any]], output_path: Path) -> None:
     """
     Write the stratified rates to a CSV file.
-    Columns: failure_type, count, success_count, success_rate, avg_time_to_pivot
+    Columns: failure_type, rate (long format as per SC-002 requirement)
+    Also includes count for verification purposes.
     """
     if not output_path.parent.exists():
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ['failure_type', 'count', 'success_count', 'success_rate', 'avg_time_to_pivot']
+    # Per task description: "columns failure_type, rate (long format)"
+    fieldnames = ['failure_type', 'rate', 'count', 'success_count']
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -90,10 +120,9 @@ def write_stratified_rates_csv(data: Dict[str, Dict[str, Any]], output_path: Pat
             row = data[failure_type]
             writer.writerow({
                 'failure_type': failure_type,
+                'rate': f"{row['success_rate']:.4f}",
                 'count': row['count'],
-                'success_count': row['success_count'],
-                'success_rate': f"{row['success_rate']:.4f}",
-                'avg_time_to_pivot': f"{row['avg_time_to_pivot']:.4f}"
+                'success_count': row['success_count']
             })
 
 def save_stratified_rates_json(data: Dict[str, Dict[str, Any]], output_path: Path) -> None:
@@ -132,6 +161,13 @@ def main():
 
     print(f"Processing {len(results)} records...")
     stratified_metrics = calculate_stratified_rates(results)
+
+    # Verification step
+    is_valid = verify_weighted_average(stratified_metrics, results)
+    if not is_valid:
+        print("WARNING: Weighted average verification failed. Check data integrity.")
+    else:
+        print("Verification passed: Weighted sum of rates equals overall rate.")
 
     print(f"Writing CSV output to {csv_output_path}...")
     write_stratified_rates_csv(stratified_metrics, csv_output_path)

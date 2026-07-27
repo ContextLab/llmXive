@@ -32,3 +32,213 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T04:24:41Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pipeline raises error if sample size < 500
+  claim_id: c_219dcf2c
+  context: If streaming fails or memory limits are exceeded, the script MUST fall
+    back to itertools.islice to sample the first N rows. If the fallback sample size
+    is <500, the script MUST raise a RuntimeError.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The script MUST raise a RuntimeError with message ''Insufficient data:
+    Sample size < 500. Pipeline cannot proceed.'' and exit with code 1 if the fallback
+    sample size is <500.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:42:35Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if Cohen's Kappa < 0.6 or single annotator
+  claim_id: c_84e563a5
+  context: 'If Kappa < 0.6 (or if only one annotator is used), the script MUST exit
+    with code 1 and log ''Insufficient Human Validation: Kappa < 0.6 or single annotator.
+    Pipeline cannot proceed.'''
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The script MUST exit with code 1 if Kappa < 0.6 or if only one annotator
+    is used.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T19:42:35Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Fallback to regex if model coverage < 90%
+  claim_id: c_4d20b6a6
+  context: If the selected model produces <90% coverage on data/derived/failure_cases_val.json,
+    the script MUST fallback to regex-based heuristic distillation to satisfy the
+    coverage requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must fall back to regex-based heuristic distillation if the
+    selected model produces <90% coverage on the validation set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:42:35Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Flag low statistical power if power < 0.80
+  claim_id: c_3863caca
+  context: If power < 0.80, flag the result in the final report as 'Low Power' and
+    suggest a larger sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis must flag the result as 'Low Power' if
+    the estimated power is < 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:42:35Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Stratified sample distribution must match source within 5% tolerance
+  claim_id: c_176a4b78
+  context: Verify that the distribution of failure_type matches the source distribution
+    within a 5% tolerance (or adjusted tolerance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distribution of failure_type in the stratified sample must match the
+    source distribution within a 5% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:42:35Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline agent runs on 4 CPU and 16 GB RAM
+  claim_id: c_152e7464
+  context: Invoke instrument_baseline.py with the enforced Standard Resource constraints
+    (4 CPU, 16 GB RAM) on the external runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent is expected to run with 4 CPU cores and 16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:42:50Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline agent runs on 16 GB RAM
+  claim_id: c_f7a47abb
+  context: Invoke instrument_baseline.py with the enforced Standard Resource constraints
+    (4 CPU, 16 GB RAM) on the external runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent is expected to run with 16 GB of RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:09Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Total compute time must not exceed 21600 seconds
+  claim_id: c_2f1cde5b
+  context: Compare total_compute_time_seconds against the 6-hour (21600s) GitHub Actions
+    free-tier limit. If exceeded, log a failure status and exit with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total compute time must not exceed 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Interaction term significant in >95% of 100 bootstrap iterations
+  claim_id: c_b88f809e
+  context: Perform a sensitivity analysis on the mixed-effects model by bootstrapping
+    the dataset 100 times and verifying that the interaction term remains significant
+    in >95% of iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interaction term must remain significant in >95% of 100 bootstrap
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests thresholds 85%, 90%, 95%
+  claim_id: c_b82cf619
+  context: Re-run the distillation process with varying coverage thresholds (85%,
+    90%, 95%) and measure the impact on the final success rate of the rule engine.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for distillation thresholds will test 85%, 90%,
+    and 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests threshold 90%
+  claim_id: c_838ddc1b
+  context: Re-run the distillation process with varying coverage thresholds (85%,
+    90%, 95%) and measure the impact on the final success rate of the rule engine.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for distillation thresholds will test 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:23Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests threshold 95%
+  claim_id: c_49788ad3
+  context: Re-run the distillation process with varying coverage thresholds (85%,
+    90%, 95%) and measure the impact on the final success rate of the rule engine.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for distillation thresholds will test 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:43:23Z'

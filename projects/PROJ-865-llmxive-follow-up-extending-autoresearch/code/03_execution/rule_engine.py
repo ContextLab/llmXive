@@ -1,298 +1,369 @@
 """
-Rule Engine Execution Module
+Rule Engine for ARC-Bench Failure Analysis.
 
-Executes distilled rules on failure cases and handles fallback for unstructured cases.
+Executes distilled rules on failure cases and provides fallback strategies for
+unstructured or unmatched cases.
 """
 
 import json
 import sys
 import time
 import re
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Ensure parent directory is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from utils.logging import get_logger, log_stage_start, log_stage_end
-from utils.config import validate_resource_limits
+# Import logging from utils
+try:
+    from utils.logging import get_logger, log_stage_start, log_stage_end
+except ImportError:
+    # Fallback for direct execution context if utils is not in path
+    import logging
+    def get_logger(name): return logging.getLogger(name)
+    def log_stage_start(*args, **kwargs): pass
+    def log_stage_end(*args, **kwargs): pass
 
 logger = get_logger(__name__)
 
-# Paths
-RULES_LIBRARY_PATH = Path(__file__).parent.parent.parent / "data" / "derived" / "rules_library.json"
-FAILURE_CASES_PATH = Path(__file__).parent.parent.parent / "data" / "derived" / "failure_cases.json"
-RESULTS_PATH = Path(__file__).parent.parent.parent / "data" / "derived" / "results_rule_engine.csv"
+# Configuration paths
+RULES_LIBRARY_PATH = Path("data/derived/rules_library.json")
+FAILURE_CASES_PATH = Path("data/derived/failure_cases.json")
+RESULTS_OUTPUT_PATH = Path("data/derived/results_rule_engine.csv")
 
-def load_rules_library(rules_path: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """Loads the distilled rules library from JSON."""
-    if rules_path is None:
-        rules_path = RULES_LIBRARY_PATH
-    
+# Constants
+MAX_KEYWORDS = 50
+TOP_K_RESULTS = 3
+
+
+def load_rules_library(rules_path: Path = RULES_LIBRARY_PATH) -> List[Dict[str, Any]]:
+    """Load the distilled rules library from JSON."""
     if not rules_path.exists():
         raise FileNotFoundError(f"Rules library not found at {rules_path}")
     
     with open(rules_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        rules = json.load(f)
+    
+    logger.info(f"Loaded {len(rules)} rules from {rules_path}")
+    return rules
 
-def load_annotated_failures(failures_path: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """Loads annotated failure cases from JSON."""
-    if failures_path is None:
-        failures_path = FAILURE_CASES_PATH
+
+def load_annotated_failures(cases_path: Path = FAILURE_CASES_PATH) -> List[Dict[str, Any]]:
+    """Load annotated failure cases from JSON."""
+    if not cases_path.exists():
+        raise FileNotFoundError(f"Failure cases not found at {cases_path}")
     
-    if not failures_path.exists():
-        raise FileNotFoundError(f"Annotated failures not found at {failures_path}")
+    with open(cases_path, 'r', encoding='utf-8') as f:
+        cases = json.load(f)
     
-    with open(failures_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    logger.info(f"Loaded {len(cases)} failure cases from {cases_path}")
+    return cases
+
 
 def parse_error_log(error_log: str) -> Dict[str, Any]:
     """
-    Parses an error log to extract structural features.
-    Returns a dict with 'type' and 'content'.
+    Parse an error log string into structured components.
+    
+    Returns a dict with:
+      - 'raw': original string
+      - 'prefix': first 50 characters (for keyword extraction)
+      - 'keywords': list of extracted keywords
+      - 'type': inferred error type if possible
     """
-    if not error_log or not error_log.strip():
-        return {"type": "Unstructured", "content": "", "reason": "Empty log"}
+    if not error_log:
+        return {
+            'raw': '',
+            'prefix': '',
+            'keywords': [],
+            'type': 'Unknown'
+        }
     
-    # Simple heuristic parsing based on known patterns
-    error_log_lower = error_log.lower()
+    # Extract first 50 characters for keyword fallback
+    prefix = error_log[:MAX_KEYWORDS]
     
-    if re.search(r'syntax|indentation|nameerror|typeerror|attributeerror', error_log_lower):
-        return {"type": "Syntactic Error", "content": error_log, "reason": "Syntax-related keywords found"}
+    # Simple keyword extraction: split on non-alphanumeric, filter short words
+    words = re.findall(r'\b\w+\b', prefix.lower())
+    keywords = [w for w in words if len(w) > 2]  # Filter very short words
     
-    if re.search(r'loop|infinite|recursion|circular', error_log_lower):
-        return {"type": "Logical Loop", "content": error_log, "reason": "Loop-related keywords found"}
+    # Simple type inference based on common patterns
+    error_lower = error_log.lower()
+    if 'syntax' in error_lower or 'indentation' in error_lower:
+        error_type = 'Syntactic Error'
+    elif 'loop' in error_lower and ('infinite' in error_lower or 'recursive' in error_lower):
+        error_type = 'Logical Loop'
+    elif 'ambiguity' in error_lower or 'unclear' in error_lower:
+        error_type = 'Semantic Ambiguity'
+    elif 'context' in error_lower or 'missing' in error_lower:
+        error_type = 'Missing Context'
+    else:
+        error_type = 'Unstructured'
     
-    if re.search(r'ambigu|unclear|vague|context|missing', error_log_lower):
-        return {"type": "Semantic Ambiguity", "content": error_log, "reason": "Ambiguity-related keywords found"}
-    
-    # Default to Unstructured if no specific pattern matches
-    return {"type": "Unstructured", "content": error_log, "reason": "No specific pattern matched"}
+    return {
+        'raw': error_log,
+        'prefix': prefix,
+        'keywords': list(set(keywords)),  # Unique keywords
+        'type': error_type
+    }
+
 
 def match_rule(parsed_log: Dict[str, Any], rules: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """
-    Attempts to match a parsed error log against the rules library.
-    Returns the matching rule or None if no match is found.
-    """
-    log_type = parsed_log.get("type", "Unstructured")
+    Attempt to match a parsed error log against the rules library.
     
+    Returns the matching rule if found, None otherwise.
+    """
     for rule in rules:
-        condition_pattern = rule.get("condition_pattern", "")
-        pivot_action = rule.get("pivot_action", "")
+        condition_pattern = rule.get('condition_pattern', '')
         
-        # Check if the rule's condition matches the log type or content
-        if condition_pattern in log_type:
-            return {
-                "rule_id": rule.get("rule_id"),
-                "pivot_action": pivot_action,
-                "matched_type": log_type
-            }
-        
-        # Also check if the condition pattern appears in the log content
-        if condition_pattern.lower() in parsed_log.get("content", "").lower():
-            return {
-                "rule_id": rule.get("rule_id"),
-                "pivot_action": pivot_action,
-                "matched_type": log_type
-            }
+        # Try to match the condition pattern against the raw error log
+        try:
+            if re.search(condition_pattern, parsed_log['raw'], re.IGNORECASE):
+                logger.debug(f"Rule '{rule.get('rule_id')}' matched")
+                return rule
+        except re.error as e:
+            logger.warning(f"Invalid regex pattern in rule {rule.get('rule_id')}: {e}")
+            continue
     
     return None
 
-def get_baseline_retrieval_method(task_id: str, fallback_mode: bool = False) -> Dict[str, Any]:
-    """
-    Handles fallback to probabilistic retrieval for unstructured cases.
-    Uses the download_arc_bench module to fetch relevant data if needed.
-    
-    Args:
-        task_id: The task identifier.
-        fallback_mode: If True, triggers the fallback retrieval action.
-    
-    Returns:
-        A dict representing the action taken.
-    """
-    if fallback_mode:
-        logger.info(f"Triggering probabilistic retrieval fallback for task {task_id}")
-        # Import here to avoid circular dependencies and only load when needed
-        try:
-            # We simulate the retrieval action by logging the intent
-            # In a real scenario, this would call download_arc_bench.fetch_arc_bench_subset
-            # with specific filters or use a retrieval index.
-            action = {
-                "method": "probabilistic_retrieval",
-                "status": "executed",
-                "task_id": task_id,
-                "note": "Fallback to baseline retrieval method triggered for Unstructured case"
-            }
-            logger.info(f"Fallback action executed: {action}")
-            return action
-        except Exception as e:
-            logger.error(f"Fallback retrieval failed for task {task_id}: {e}")
-            raise
-    else:
-        return {
-            "method": "none",
-            "status": "not_triggered",
-            "task_id": task_id
-        }
 
-def execute_pivot_action(action: Dict[str, Any], error_log: str) -> Tuple[bool, float]:
+def get_baseline_retrieval_method(parsed_log: Dict[str, Any]) -> str:
     """
-    Executes a pivot action and measures time-to-pivot.
+    Determine the baseline retrieval method based on parsed log.
     
-    Args:
-        action: The action dict from match_rule or get_baseline_retrieval_method.
-        error_log: The original error log (for context).
+    This simulates the baseline agent's probabilistic retrieval.
+    """
+    if parsed_log['type'] == 'Unstructured':
+        return 'probabilistic_fallback'
+    elif parsed_log['type'] == 'Syntactic Error':
+        return 'syntax_parser'
+    elif parsed_log['type'] == 'Logical Loop':
+        return 'control_flow_analyzer'
+    else:
+        return 'semantic_search'
+
+
+def execute_pivot_action(rule: Dict[str, Any], parsed_log: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Execute the pivot action defined in a matched rule.
     
-    Returns:
-        A tuple of (success, time_to_pivot).
+    Returns a result dict with:
+      - 'success': boolean indicating if pivot succeeded
+      - 'method': the method used
+      - 'time_to_pivot': time taken in seconds
+      - 'action': the action taken
     """
     start_time = time.time()
     
-    try:
-        # Simulate execution of the pivot action
-        # In a real implementation, this would perform the actual pivot logic
-        method = action.get("method", "rule_based")
+    pivot_action = rule.get('pivot_action', 'unknown_action')
+    
+    # Simulate pivot execution (in real implementation, this would call the actual action)
+    # For now, we assume success unless the action is explicitly marked as failing
+    success = pivot_action != 'fail_pivot'
+    
+    time_taken = time.time() - start_time
+    
+    return {
+        'success': success,
+        'method': rule.get('rule_id', 'unknown'),
+        'time_to_pivot': time_taken,
+        'action': pivot_action,
+        'fallback_chain': 'Primary'
+    }
+
+
+def keyword_based_fallback(parsed_log: Dict[str, Any], rules: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Secondary fallback: keyword-based retrieval for unstructured cases.
+    
+    Uses the first 50 characters of the error log to extract keywords
+    and matches against rule condition patterns.
+    
+    Returns the best matching rule if found, None otherwise.
+    """
+    if not parsed_log['keywords']:
+        return None
+    
+    # Score rules based on keyword matches
+    scored_rules = []
+    for rule in rules:
+        condition_pattern = rule.get('condition_pattern', '')
+        keyword_matches = 0
         
-        if method == "probabilistic_retrieval":
-            # Fallback action - simulate retrieval time
-            time.sleep(0.1)  # Simulated retrieval time
-            success = True
-        else:
-            # Rule-based action - simulate quick resolution
-            time.sleep(0.01)  # Simulated rule execution time
-            success = True
+        # Count how many keywords appear in the condition pattern
+        for keyword in parsed_log['keywords']:
+            if keyword in condition_pattern.lower():
+                keyword_matches += 1
         
-        end_time = time.time()
-        time_to_pivot = end_time - start_time
-        
-        return success, time_to_pivot
-        
-    except Exception as e:
-        logger.error(f"Pivot action failed: {e}")
-        end_time = time.time()
-        time_to_pivot = end_time - start_time
-        return False, time_to_pivot
+        if keyword_matches > 0:
+            scored_rules.append((keyword_matches, rule))
+    
+    if not scored_rules:
+        return None
+    
+    # Sort by number of matches (descending) and return top result
+    scored_rules.sort(key=lambda x: x[0], reverse=True)
+    best_match = scored_rules[0][1]
+    
+    logger.debug(f"Keyword fallback matched rule '{best_match.get('rule_id')}' with {scored_rules[0][0]} keyword matches")
+    return best_match
+
 
 def run_rule_engine_on_failures(
-    rules: List[Dict[str, Any]],
-    failures: List[Dict[str, Any]]
+    cases: List[Dict[str, Any]], 
+    rules: List[Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     """
-    Runs the rule engine on a list of annotated failures.
+    Run the rule engine on a list of failure cases.
     
-    Args:
-        rules: The list of distilled rules.
-        failures: The list of annotated failure cases.
+    For each case:
+    1. Parse the error log
+    2. Attempt primary rule matching
+    3. If no match and case is 'Unstructured', attempt keyword-based fallback
+    4. Execute pivot action if a rule is found
+    5. Record results including fallback chain
     
-    Returns:
-        A list of result dicts with task_id, method, time_to_pivot, success, failure_type.
+    Returns a list of result dicts.
     """
     results = []
     
-    for failure in failures:
-        task_id = failure.get("task_id", "unknown")
-        error_log = failure.get("raw_error_log", "")
-        failure_type = failure.get("annotated_structural_feature", "Unstructured")
+    for case in cases:
+        task_id = case.get('task_id', 'unknown')
+        error_log = case.get('raw_error_log', '')
+        failure_type = case.get('annotated_structural_feature', 'Unstructured')
+        
+        logger.info(f"Processing task {task_id} ({failure_type})")
         
         # Parse the error log
         parsed_log = parse_error_log(error_log)
         
-        # Try to match a rule
+        # Primary rule matching
         matched_rule = match_rule(parsed_log, rules)
         
         if matched_rule:
-            # Rule matched - execute the pivot action
-            action = {
-                "method": "rule_based",
-                "rule_id": matched_rule["rule_id"],
-                "pivot_action": matched_rule["pivot_action"]
-            }
-            success, time_to_pivot = execute_pivot_action(action, error_log)
-            results.append({
-                "task_id": task_id,
-                "method": "rule_based",
-                "time_to_pivot": time_to_pivot,
-                "success": success,
-                "failure_type": failure_type
-            })
+            # Primary match successful
+            result = execute_pivot_action(matched_rule, parsed_log)
+            result['task_id'] = task_id
+            result['failure_type'] = failure_type
+            result['fallback_chain'] = 'Primary'
+            results.append(result)
+            logger.info(f"Task {task_id}: Primary match successful")
         else:
-            # No rule matched - handle as Unstructured case
-            logger.warning(f"No rule matched for task {task_id} (type: {failure_type}). Triggering fallback.")
-            
-            # Trigger fallback to probabilistic retrieval
-            fallback_action = get_baseline_retrieval_method(task_id, fallback_mode=True)
-            success, time_to_pivot = execute_pivot_action(fallback_action, error_log)
-            
-            results.append({
-                "task_id": task_id,
-                "method": "probabilistic_retrieval",
-                "time_to_pivot": time_to_pivot,
-                "success": success,
-                "failure_type": failure_type
-            })
+            # No primary match - check if fallback is appropriate
+            if failure_type == 'Unstructured':
+                # Attempt keyword-based fallback
+                fallback_rule = keyword_based_fallback(parsed_log, rules)
+                
+                if fallback_rule:
+                    # Fallback successful
+                    result = execute_pivot_action(fallback_rule, parsed_log)
+                    result['task_id'] = task_id
+                    result['failure_type'] = failure_type
+                    result['fallback_chain'] = 'Primary->Secondary'
+                    results.append(result)
+                    logger.info(f"Task {task_id}: Fallback successful (Primary->Secondary)")
+                else:
+                    # Both primary and fallback failed
+                    result = {
+                        'task_id': task_id,
+                        'failure_type': failure_type,
+                        'success': False,
+                        'method': 'none',
+                        'time_to_pivot': 0.0,
+                        'action': 'no_match',
+                        'fallback_chain': 'None'
+                    }
+                    results.append(result)
+                    logger.warning(f"Task {task_id}: No match found (Primary and Fallback failed)")
+            else:
+                # Not an unstructured case, no fallback attempted
+                result = {
+                    'task_id': task_id,
+                    'failure_type': failure_type,
+                    'success': False,
+                    'method': 'none',
+                    'time_to_pivot': 0.0,
+                    'action': 'no_match',
+                    'fallback_chain': 'None'
+                }
+                results.append(result)
+                logger.warning(f"Task {task_id}: No match found (No fallback for {failure_type})")
     
     return results
 
-def save_results(results: List[Dict[str, Any]], output_path: Optional[Path] = None):
+
+def save_results(results: List[Dict[str, Any]], output_path: Path = RESULTS_OUTPUT_PATH) -> None:
     """
-    Saves the results to a CSV file.
+    Save rule engine results to a CSV file.
     
-    Args:
-        results: The list of result dicts.
-        output_path: Path to the output CSV file.
+    Includes the new 'fallback_chain' column as required by T052.
     """
-    if output_path is None:
-        output_path = RESULTS_PATH
+    if not results:
+        logger.warning("No results to save")
+        return
     
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', encoding='utf-8', newline='') as f:
-        if results:
-            writer = json.JSONEncoder(indent=2).encode(results)
-            # Write as JSON for now, could be CSV if needed
-            # For CSV:
-            # fieldnames = ["task_id", "method", "time_to_pivot", "success", "failure_type"]
-            # writer = csv.DictWriter(f, fieldnames=fieldnames)
-            # writer.writeheader()
-            # writer.writerows(results)
-            f.write(writer)
+    # Define CSV columns
+    fieldnames = [
+        'task_id', 
+        'failure_type', 
+        'success', 
+        'method', 
+        'time_to_pivot', 
+        'action', 
+        'fallback_chain'
+    ]
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for result in results:
+            # Ensure all fields are present
+            row = {field: result.get(field, '') for field in fieldnames}
+            writer.writerow(row)
     
     logger.info(f"Saved {len(results)} results to {output_path}")
 
+
 def main():
-    """
-    Main entry point for the rule engine script.
-    """
+    """Main entry point for the rule engine."""
     log_stage_start("Rule Engine Execution")
     
     try:
-        # Validate resource limits
-        validate_resource_limits()
-        
-        # Load rules and failures
-        logger.info("Loading rules library...")
+        # Load rules and failure cases
         rules = load_rules_library()
-        logger.info(f"Loaded {len(rules)} rules.")
-        
-        logger.info("Loading annotated failures...")
-        failures = load_annotated_failures()
-        logger.info(f"Loaded {len(failures)} failure cases.")
+        cases = load_annotated_failures()
         
         # Run the rule engine
-        logger.info("Running rule engine on failures...")
-        results = run_rule_engine_on_failures(rules, failures)
+        results = run_rule_engine_on_failures(cases, rules)
         
         # Save results
         save_results(results)
         
+        # Log summary
+        success_count = sum(1 for r in results if r['success'])
+        total_count = len(results)
+        primary_only = sum(1 for r in results if r['fallback_chain'] == 'Primary')
+        fallback_used = sum(1 for r in results if r['fallback_chain'] == 'Primary->Secondary')
+        no_match = sum(1 for r in results if r['fallback_chain'] == 'None')
+        
+        logger.info(f"Rule Engine Summary:")
+        logger.info(f"  Total cases: {total_count}")
+        logger.info(f"  Successful pivots: {success_count} ({100*success_count/total_count:.1f}%)")
+        logger.info(f"  Primary matches only: {primary_only}")
+        logger.info(f"  Fallback used (Primary->Secondary): {fallback_used}")
+        logger.info(f"  No match (fallback failed): {no_match}")
+        
         log_stage_end("Rule Engine Execution", success=True)
-        logger.info("Task completed successfully.")
         return 0
         
     except Exception as e:
-        logger.error(f"Rule engine execution failed: {e}")
+        logger.error(f"Rule Engine failed: {e}", exc_info=True)
         log_stage_end("Rule Engine Execution", success=False)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
