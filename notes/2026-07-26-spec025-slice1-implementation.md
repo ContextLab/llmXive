@@ -17,8 +17,9 @@ Plans (both maintainer-reviewed through **round 7**, all findings resolved):
 | 1A T1 — extract `git_event_log.py`, rewire `ledger_transport` | DONE | `7a179b49c8` (+ plan fix `a20e005857`) |
 | 1A T2 — lane `Event` + validation + `TYPE_VALIDATORS` | DONE | `a270b6927e` |
 | T1/T2 round-8 review: two fail-open gaps closed | DONE | `abdb8d1536` (+ plan `6e805708de`) |
-| 1A T3 — `lane_log.py` on the shared core | next | — |
-| 1A T4–T14, 1B T1–T10 | not started | — |
+| 1A T3 — `lane_log.py` on the shared core | DONE | (this commit) |
+| 1A T4 — `LaneCoordinator` projection | next | — |
+| 1A T5–T14, 1B T1–T10 | not started | — |
 
 ## Money-path acceptance bar (T1)
 
@@ -71,6 +72,17 @@ python -m pytest tests/integration/test_credit_ledger_transport.py \
    would order the projection as position 1), and tz-aware timestamps (FR-011 is an
    instant, not a date).
 
+6. **`_finalize` stamps ALL FOUR revision anchors** (T3), not just the target scope's two.
+   The plan's version left the other scope as the caller passed it, so a coordinator event
+   built by the plan's own `_ev` helper (which pre-fills `expected_problem_revision`)
+   failed validation with "lane-stream event must NOT set the problem revision scope". The
+   store is the sole authority for these fields, so it writes the target scope and clears
+   the other. Verified load-bearing by reverting it (1 test fails).
+
+7. **`config=LaneLogConfig()` as a signature default is ruff B008.** Resolved the way the
+   sibling `ledger_transport._log_ref` already does it: `config: LaneLogConfig | None =
+   None`, resolved inside `_log_ref`. Plan signatures updated to match.
+
 ## Known-failing, NOT caused by this work
 
 `tests/unit/test_dataset_sources.py::test_openml_*` (2) fail in this sandbox: they are
@@ -91,7 +103,5 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
 
 ## Next step
 
-1A Task 3: `src/llmxive/self_improvement/lane_log.py` — `LANE_REF`,
-`LaneLogConfig(remote, expected_anchor)`, `bootstrap_lane_log` (with the
-`_after_probe` seam), `read`/`append` (seq-ordered, continuity-checked),
-`LaneRevisionConflict`, `LaneContention`. Task 3's full text is in the 1A plan.
+1A Task 4: `LaneCoordinator` projection — the first CONSUMER of `lane_log.read`, so it
+inherits the fail-closed reads for free. Task 4's full text is in the 1A plan.

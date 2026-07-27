@@ -686,8 +686,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T2): lane Event re
   - `LANE_REF = "refs/llmxive/self-improvement"`; `@dataclass LaneLogConfig(remote, expected_anchor)` (parallel to `LedgerConfig`, F4); `bootstrap_lane_log(repo, *, config, _after_probe=None) -> str` (F3 — one-time genesis, fail-closed-until-bootstrapped, idempotent, concurrent-safe, anchor-pinning; `_after_probe` is Task 1's test-only race seam, F10); internal `_log_ref(problem_id, config) -> LogRef` with `event_dir = f"self-improvement/events/{problem_id}"` (per-Problem subtree → per-stream `seq`; all streams share the ONE ref so lane mutations serialize globally, giving the coordinator its singleton and each Problem its own revision line).
   - `class LaneRevisionConflict(RuntimeError)` — the caller's `expected_revision`/precondition lost; recompute (FR-008).
   - `class LaneContention(RuntimeError)` — a caller's bounded CAS retry loop never converged. Defined here (not per-ledger) so `AttemptCreditLedger` (Task 7), `LaneCallLedger` (Task 14), and the coordinator all raise the SAME type.
-  - `read(repo, problem_id, *, config=LaneLogConfig()) -> list[Event]` — `read_log` mapped to `Event`s, **ordered by `seq`** (never timestamps). A gap/dup/fork in the sequence raises `GitLogError` (corruption is fail-closed, distinct from a `LaneRevisionConflict`).
-  - `append(repo, event: Event, *, expected_revision: int | None, precondition: Callable[[list[Event]], tuple[bool, str]] | None = None, config=LaneLogConfig(), _after_parent=None) -> AppendResult` — wraps `append_to_log` with the lane `LogRef`, `validate=validate_lane_event`, `finalize=_finalize` (stamps `seq` + `expected/resulting_*_revision`), `identity_exclude=_IDENTITY_EXCLUDE`, and a `predicate` that (per CAS attempt, against the freshly-read, seq-sorted stream) FIRST validates sequence continuity (F7 — a corrupt stream fails closed before any revision/precondition check), then, if `expected_revision is not None`, `len(events) == expected_revision`, then `precondition(events)`. A predicate `False` surfaces as `GitLogDenied` → `LaneRevisionConflict`; `expected_revision=None` is an unconditional append (for audit events). The event carries the single FR-011 `timestamp` (no `ts`). Returns the `AppendResult` with the authoritative `seq`.
+  - `read(repo, problem_id, *, config: LaneLogConfig | None = None) -> list[Event]` — **`sync_and_verify` FIRST** (round-8 F3: `read_log` is LOCAL, so a public read that skipped it would project a populated lane as EMPTY on any checkout that has not fetched the ref — and empty reads as "no claim, no reservation, no spend"; the sync also fails closed on an unbootstrapped remote and on a tip that does not descend from the pinned anchor), then `read_log` mapped to `Event`s, **ordered by `seq`** (never timestamps). A gap/dup/fork in the sequence raises `GitLogError` (corruption is fail-closed, distinct from a `LaneRevisionConflict`). `config=None` resolves to the local-only default inside `_log_ref`, exactly as `ledger_transport._log_ref` does — no public signature carries a constructor call as its default (ruff B008).
+  - `append(repo, event: Event, *, expected_revision: int | None, precondition: Callable[[list[Event]], tuple[bool, str]] | None = None, config: LaneLogConfig | None = None, _after_parent=None) -> AppendResult` — wraps `append_to_log` with the lane `LogRef`, `validate=validate_lane_event`, `finalize=_finalize` (stamps `seq` + **all four** revision anchors — the target scope from the verified parent and the OTHER scope back to `None`, because the store is their sole authority and a value a caller pre-filled on the wrong scope would otherwise survive into history and fail validation), `identity_exclude=_IDENTITY_EXCLUDE`, and a `predicate` that (per CAS attempt, against the freshly-read, seq-sorted stream) FIRST validates sequence continuity (F7 — a corrupt stream fails closed before any revision/precondition check), then, if `expected_revision is not None`, `len(events) == expected_revision`, then `precondition(events)`. A predicate `False` surfaces as `GitLogDenied` → `LaneRevisionConflict`; `expected_revision=None` is an unconditional append (for audit events). The event carries the single FR-011 `timestamp` (no `ts`). Returns the `AppendResult` with the authoritative `seq`.
 
 - [ ] **Step 1: Write the failing test** (including the cross-process guarantee)
 
@@ -868,6 +868,7 @@ from pathlib import Path
 
 from llmxive.git_event_log import (
     AppendResult, GitLogDenied, GitLogError, LogRef, append_to_log, bootstrap_log, read_log,
+    sync_and_verify,
 )
 from llmxive.self_improvement.events import (
     COORDINATOR_STREAM, SEQ_FIELD, Event, event_from_json, event_to_json, validate_lane_event,
@@ -903,8 +904,11 @@ class LaneContention(RuntimeError):
     lane CAS user raises it (`AttemptCreditLedger`, `LaneCallLedger`, the coordinator) —
     a per-module copy would give the same condition several unrelated types."""
 
-def _log_ref(problem_id: str, config: LaneLogConfig) -> LogRef:
-    # ONE ref; per-Problem (and coordinator) subtree → per-stream seq line.
+def _log_ref(problem_id: str, config: LaneLogConfig | None = None) -> LogRef:
+    # ONE ref; per-Problem (and coordinator) subtree → per-stream seq line. `None`
+    # resolves to the local-only default HERE, as `ledger_transport._log_ref` does, so no
+    # public signature carries a constructor call as its default.
+    config = config or LaneLogConfig()
     return LogRef(ref=LANE_REF, event_dir=f"self-improvement/events/{problem_id}",
                   remote=config.remote, expected_anchor=config.expected_anchor)
 
@@ -943,20 +947,44 @@ def _check_continuity(raw_sorted: list[dict], problem_id: str) -> None:
         # never retry (a GitLogError propagates out of the CAS loop; NOT a conflict).
         raise GitLogError(f"corrupt sequence in stream {problem_id!r}: {seqs}")
 
-def read(repo: Path, problem_id: str, *, config: LaneLogConfig = LaneLogConfig()) -> list[Event]:
-    raw = read_log(repo, log=_log_ref(problem_id, config), validate=validate_lane_event)
-    raw_sorted = _sorted_by_seq(raw)
+def _to_event(raw: dict) -> Event:
+    """One stored record → an ``Event`` through the canonical form. The re-serialization
+    is not just symmetry: a hand-corrupted blob carrying bare ``NaN`` parses in Python and
+    would flow into a projection as a number every comparison answers False about.
+    Corruption found on a read raises ``GitLogError`` — the same fail-closed type as a
+    broken sequence, not a ``ValueError`` a caller could read as a schema complaint."""
+    try:
+        return event_from_json(_to_json(raw))
+    except ValueError as exc:
+        raise GitLogError(f"corrupt lane event {raw.get('event_id')!r}: {exc}") from exc
+
+def read(repo: Path, problem_id: str, *, config: LaneLogConfig | None = None) -> list[Event]:
+    """Synchronizes FIRST (round-8 F3): `read_log` is LOCAL by design, so a public read
+    that skipped this would project an empty log on any checkout that has not fetched the
+    ref — and empty means "no claim, no reservation, no spend" to every projection.
+    `sync_and_verify` also fails closed on an unbootstrapped remote and on a tip that does
+    not descend from the pinned anchor; local-only configs make it a no-op."""
+    log = _log_ref(problem_id, config)
+    sync_and_verify(repo, log=log)
+    raw_sorted = _sorted_by_seq(read_log(repo, log=log, validate=validate_lane_event))
     _check_continuity(raw_sorted, problem_id)
-    return [event_from_json(_to_json(r)) for r in raw_sorted]
+    return [_to_event(r) for r in raw_sorted]
 
 def _finalize(built: dict, seq: int) -> dict:
+    """ALL FOUR anchors are written, not only this stream's scope: the store is their sole
+    authority (FR-011 requires expected==seq and resulting==seq+1 against the VERIFIED
+    parent), so an anchor a caller pre-filled — on either scope — is overwritten rather
+    than trusted. Leaving the other scope alone would let a caller's leftover value
+    survive into history and fail validation on a stream it does not belong to."""
     scope = "lane" if built["problem_id"] == COORDINATOR_STREAM else "problem"
+    other = "problem" if scope == "lane" else "lane"
     return {**built, SEQ_FIELD: seq,
-            f"expected_{scope}_revision": seq, f"resulting_{scope}_revision": seq + 1}
+            f"expected_{scope}_revision": seq, f"resulting_{scope}_revision": seq + 1,
+            f"expected_{other}_revision": None, f"resulting_{other}_revision": None}
 
 def append(repo: Path, event: Event, *, expected_revision: int | None,
            precondition: Callable[[list[Event]], tuple[bool, str]] | None = None,
-           config: LaneLogConfig = LaneLogConfig(),
+           config: LaneLogConfig | None = None,
            _after_parent: Callable[[], None] | None = None) -> AppendResult:
     """CAS-append one lane event. ``expected_revision=None`` = an UNCONDITIONAL append
     (audit events carry no revision precondition — just the ref-CAS + idempotency). Raises
@@ -971,7 +999,7 @@ def append(repo: Path, event: Event, *, expected_revision: int | None,
         if expected_revision is not None and len(ordered) != expected_revision:
             return (False, f"stale revision: expected {expected_revision}, actual {len(ordered)}")
         if precondition is not None:
-            return precondition([event_from_json(_to_json(r)) for r in ordered])
+            return precondition([_to_event(r) for r in ordered])
         return (True, "")
 
     try:
@@ -985,7 +1013,7 @@ def append(repo: Path, event: Event, *, expected_revision: int | None,
     # a GitLogError from _check_continuity (corruption) propagates unchanged — fail closed.
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_lane_log.py -q` → PASS (8 passed), including BOTH barrier-driven races: the two-clone append CAS and the concurrent bootstrap push (F10).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_lane_log.py -q` → PASS (**16 passed**), including BOTH barrier-driven races (the two-clone append CAS and the concurrent bootstrap push, F10) and, beyond the block above: the **round-8 F3 proof** that the public `read()` synchronizes (an ordinary second clone's raw `read_log` sees `[]` while `read()` returns the event) and fails closed on an unbootstrapped remote; per-stream `seq` lines + revision scopes across `prob-1`/`prob-2`/coordinator; lane-level idempotency (a replay differing only in store-owned fields is `created=False` at the original `seq`, while a different body under the same `event_id` raises); and a **plumbing-built gapped sequence** proving corruption fails closed on read AND that `append` checks continuity BEFORE the revision (with `expected_revision` deliberately set to the record count, which a later check would have accepted).
 
 - [ ] **Step 5: Commit**
 
