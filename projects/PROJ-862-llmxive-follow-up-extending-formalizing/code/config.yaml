@@ -1,0 +1,36 @@
+# Configuration for llmXive Noise Injection Pipeline
+# T036: Optimized for vectorized perturbation sweep
+
+data:
+  name: "bigbench_lite"
+  subset: "reasoning"
+  cache_dir: "data/raw"
+  streaming: true
+  batch_size: 32
+
+model:
+  name: "google-bert/bert-base-uncased"
+  device: "cpu"
+  hidden_size: 768
+  max_length: 512
+
+noise:
+  sigma_min: 0.1
+  sigma_max: 2.0
+  step: 0.1
+  batch_size: 512 # Increased for vectorized performance
+
+pipeline:
+  run_baseline: true
+  run_sweep: true
+  run_analysis: true
+  save_intermediate: true
+
+output:
+  base_dir: "data/processed"
+  paths: "data/processed"
+  save_intermediate: true
+
+memory:
+  limit_gb: 7.0
+  log_interval: 1000

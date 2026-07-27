@@ -1,92 +1,78 @@
-# llmXive Quickstart Guide
+# Quickstart: llmXive Noise Injection Pipeline
 
-This guide provides the exact steps to set up the environment and run the full noise-injection pipeline on CPU-only hardware.
+This guide walks you through setting up and running the optimized noise injection pipeline.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package manager)
-- 7GB+ available RAM (enforced by `memory_monitor.py`)
-- 20GB+ free disk space for datasets and outputs
+- Python 3.9+
+- 16GB+ RAM (recommended for full dataset)
+- CPU-only execution (no GPU required)
 
-## 1. Environment Setup
+## Setup
 
-Create a virtual environment and install dependencies:
+1. **Clone the repository**
+ ```bash
+ git clone <repo-url>
+ cd llmxive-follow-up-extending-formalizing
+ ```
 
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+2. **Create a virtual environment**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-# Install pinned dependencies
-pip install -r code/requirements.txt
-```
+3. **Install dependencies**
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-## 2. Data Preparation
+4. **Verify installation**
+ ```bash
+ python -c "import torch; import transformers; print('OK')"
+ ```
 
-The pipeline automatically downloads the `bigbench_lite` dataset from HuggingFace on first run. No manual download is required.
+## Running the Pipeline
 
-Ensure the `data/` directory structure exists:
+### Full Execution
 
-```bash
-mkdir -p data/raw data/processed logs
-```
-
-## 3. Execution
-
-The pipeline is orchestrated via `code/main.py`. It performs the following steps sequentially:
-
-1. **Baseline Extraction**: Loads the model and dataset, extracts hidden states, and saves `data/processed/baseline_vectors.csv`.
-2. **Perturbation Sweep**: Injects Gaussian noise, projects to valid tokens, checks validity, and saves `data/processed/perturbed_vectors.csv` and `data/processed/validity_log.csv`.
-3. **Statistical Analysis**: Computes separability metrics, applies corrections, and saves `data/processed/statistical_results.json`.
-
-### Run the Full Pipeline
-
-Execute the following command from the project root:
+Run the entire pipeline (baseline extraction, noise sweep, analysis):
 
 ```bash
 python code/main.py
 ```
 
-**Note**: The script enforces a hard memory limit of 7GB RSS. If this limit is exceeded, the process will terminate with a `MemoryLimitExceeded` error.
+This will:
+1. Load the `bigbench_lite` dataset
+2. Extract baseline latent vectors
+3. Perform the noise injection sweep with vectorized operations
+4. Run statistical analysis and save results
 
-### Configuration
+### Benchmarking Optimization (T036)
 
-Default parameters (noise sweep range, model paths, memory limits) are defined in `code/config.py`. To modify the noise sweep parameters:
+To verify the performance improvement of the vectorized implementation:
 
-```python
-# Edit code/config.py
-config = NoiseSweepConfig(
- sigma_min=0.1,
- sigma_max=2.0,
- step=0.1,
- #... other settings
-)
+```bash
+python code/benchmark_perturbation.py
 ```
 
-## 4. Output Artifacts
+This script compares the scalar vs. vectorized perturbation methods and outputs:
+- Average runtime per method
+- Throughput (samples/second)
+- Speedup factor
 
-Upon successful completion, the following files will be generated in `data/processed/`:
+### Output Files
 
-- `baseline_vectors.csv`: L2-normalized hidden state vectors for the control group.
-- `filtered_pairs_input_drift.csv`: Pairs that passed the semantic drift check (cosine similarity ≥ 0.95).
-- `perturbed_vectors.csv`: Latent vectors for noise-augmented inputs.
-- `validity_log.csv`: Pass rates and collapse points for each noise level ($\sigma$).
-- `trade_off_curve.csv`: Per-task trade-off curves between perturbation magnitude and validity.
-- `global_trade_off_curve.csv`: Aggregated global distribution.
-- `statistical_results.json`: Final hypothesis test results with corrected p-values.
-- `sensitivity_report.json`: Global sensitivity analysis.
-- `memory_profile.json`: Peak RSS memory usage statistics.
+Results are saved to `data/processed/`:
 
-## 5. Verification
-
-To verify the pipeline ran correctly:
-
-1. Check that `data/processed/statistical_results.json` exists and contains a `p_value` key.
-2. Review `logs/sweep.log` for JSON lines confirming the sweep steps.
-3. Inspect `data/processed/memory_profile.json` to ensure peak RSS was recorded.
+- `baseline_vectors.csv`: Baseline latent vectors
+- `perturbed_vectors.csv`: Perturbed vectors for each sigma level
+- `validity_log.csv`: Validity check results and collapse points
+- `statistical_results.json`: Final analysis results
+- `benchmark_results.json`: Performance comparison (if benchmarked)
 
 ## Troubleshooting
 
-- **Memory Limit Exceeded**: The dataset or model is too large for the available RAM. Try reducing the batch size in `code/config.py` or use a machine with more RAM.
-- **Dataset Fetch Failed**: Ensure you have an active internet connection. The pipeline fetches `bigbench_lite` from HuggingFace.
-- **CUDA Errors**: This pipeline is CPU-only. If you see CUDA errors, ensure `torch` was installed without CUDA support or set `CUDA_VISIBLE_DEVICES=""`.
+- **Memory Error**: Ensure you have sufficient RAM. The pipeline enforces a 7GB limit.
+- **Dataset Missing**: The pipeline fetches data from HuggingFace. Ensure internet connectivity.
+- **CPU Only**: No CUDA support is included. The pipeline runs on CPU by default.

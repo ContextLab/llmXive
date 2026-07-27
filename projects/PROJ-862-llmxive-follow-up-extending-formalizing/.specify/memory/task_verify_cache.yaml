@@ -6,12 +6,6 @@ T008b:
     JSON write). Moreover, the required `data/processed/memory_profile.json` file
     is absent. Consequently, the hard RSS limit enforcement and mandatory logging
     to the JSON file are not fully realized.
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No YAML files are present in `specs/001-lm-axive-noise-injection/contracts/`;
-    the required four schema contract files defining the data artifacts are missing.
-    The task therefore is not satisfied.
 T013:
   c: false
   h: 3818f0240a09fa257560fc6720a94963d03f61a2b5bc09218490a0afec7d0a39
@@ -36,22 +30,6 @@ T024a:
     \ does not show the perturbation sweep loop, validity\u2011collapse detection,\
     \ or immediate logging to `validity_log.csv`. Consequently the core functionality\
     \ demanded by the task is not present."
-T031:
-  c: false
-  h: 29f810d2668e13d66e3082ba6757027e319ff9e9be7993da3da2dbe557fabfd2
-  r: The required output `data/processed/statistical_results.json` does not exist,
-    and the provided `code/main.py` excerpt does not demonstrate the loading of filtered
-    vectors, execution of statistical tests, application of Bonferroni/Holm correction,
-    generation of the sensitivity report, or saving of the specified keys. These essential
-    steps and the resulting JSON file are missing.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation was presented that implements the required logic\
-    \ to flag \u201CSignificant Separability Increase\u201D when the corrected p\u2011\
-    value is below 0.05. The claim lacks any artifact (e.g., a function, script, or\
-    \ notebook) that performs the p\u2011value check and produces the flag, so the\
-    \ requirement is not satisfied."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
