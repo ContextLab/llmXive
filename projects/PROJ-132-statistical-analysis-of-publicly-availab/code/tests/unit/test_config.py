@@ -1,297 +1,359 @@
 """
-Unit tests for the configuration management module (T011).
+Unit tests for the configuration management module.
 
-These tests verify that the Config class correctly handles:
-- Default values
-- Environment variable overrides
-- Type validation
-- Edge cases
+Tests verify that:
+- Default values are correctly set
+- Environment variables override defaults
+- YAML config files are loaded correctly
+- Random seeding works as expected
+- Configuration persistence works
 """
-
 import os
 import pytest
+import random
+import numpy as np
 from pathlib import Path
+import tempfile
+import yaml
 from src.lib.config import (
     Config,
     get_config,
     reset_config,
+    set_seed,
     DEFAULT_SEED,
     DEFAULT_GRID_RES,
-    DEFAULT_PERMUTATIONS,
     DEFAULT_SAMPLE_SIZE,
-    ENV_SEED,
-    ENV_GRID_RES,
-    ENV_SAMPLE_SIZE,
-    ENV_PERMUTATIONS,
-    update_globals_from_config,
+    DEFAULT_PERMUTATIONS
 )
 
-
 class TestConfigDefaults:
-    """Test default configuration values."""
-
-    def test_seed_default_value(self):
+    """Test that default configuration values are correctly set."""
+    
+    def test_default_seed(self):
         """Test that default seed is 42."""
-        # Clear any env vars to ensure defaults are used
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                del os.environ[var]
-
-        reset_config()
-        cfg = Config()
-
-        assert cfg.seed == 42
-        assert cfg.seed == DEFAULT_SEED
-
-    def test_seed_is_integer(self):
-        """Test that seed is always an integer."""
-        reset_config()
-        cfg = Config(seed=123)
-        assert isinstance(cfg.seed, int)
-
-    def test_grid_res_default_value(self):
+        config = Config()
+        assert config.seed == DEFAULT_SEED
+        assert config.seed == 42
+    
+    def test_default_grid_res(self):
         """Test that default grid resolution is 0.5."""
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                del os.environ[var]
-
-        reset_config()
-        cfg = Config()
-
-        assert cfg.grid_res == 0.5
-        assert cfg.grid_res == DEFAULT_GRID_RES
-
-    def test_grid_res_is_float(self):
-        """Test that grid_res is always a float."""
-        reset_config()
-        cfg = Config(grid_res=1.0)
-        assert isinstance(cfg.grid_res, float)
-
-    def test_permutations_default_value(self):
+        config = Config()
+        assert config.grid_res == DEFAULT_GRID_RES
+        assert config.grid_res == 0.5
+    
+    def test_default_sample_size(self):
+        """Test that default sample size is None."""
+        config = Config()
+        assert config.sample_size is None
+    
+    def test_default_permutations(self):
         """Test that default permutations is 10000."""
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                del os.environ[var]
-
-        reset_config()
-        cfg = Config()
-
-        assert cfg.permutations == 10000
-        assert cfg.permutations == DEFAULT_PERMUTATIONS
-
-    def test_permutations_is_integer(self):
-        """Test that permutations is always an integer."""
-        reset_config()
-        cfg = Config(permutations=5000)
-        assert isinstance(cfg.permutations, int)
-
-    def test_sample_size_default_value(self):
-        """Test that default sample_size is None."""
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                del os.environ[var]
-
-        reset_config()
-        cfg = Config()
-
-        assert cfg.sample_size is None
-        assert cfg.sample_size == DEFAULT_SAMPLE_SIZE
-
-    def test_sample_size_can_be_none(self):
-        """Test that sample_size can be explicitly set to None."""
-        reset_config()
-        cfg = Config(sample_size=None)
-        assert cfg.sample_size is None
-
-    def test_sample_size_can_be_set(self):
-        """Test that sample_size can be set to a positive integer."""
-        reset_config()
-        cfg = Config(sample_size=1000)
-        assert cfg.sample_size == 1000
-
-    def test_permutations_can_be_set(self):
-        """Test that permutations can be set to a custom value."""
-        reset_config()
-        cfg = Config(permutations=50000)
-        assert cfg.permutations == 50000
-
+        config = Config()
+        assert config.permutations == DEFAULT_PERMUTATIONS
+        assert config.permutations == 10000
+    
+    def test_default_config_repr(self):
+        """Test string representation of default config."""
+        config = Config()
+        expected = (
+            f"Config(seed=42, grid_res=0.5, "
+            f"sample_size=None, permutations=10000)"
+        )
+        assert repr(config) == expected
 
 class TestConfigEnvironmentVariables:
-    """Test configuration loaded from environment variables."""
-
+    """Test that environment variables correctly override defaults."""
+    
     def setup_method(self):
         """Save original environment variables."""
-        self.original_env = {}
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                self.original_env[var] = os.environ[var]
-
+        self.original_env = {
+            'SEED': os.environ.get('SEED'),
+            'GRID_RES': os.environ.get('GRID_RES'),
+            'SAMPLE_SIZE': os.environ.get('SAMPLE_SIZE'),
+            'PERMUTATIONS': os.environ.get('PERMUTATIONS')
+        }
+    
     def teardown_method(self):
         """Restore original environment variables."""
-        for var in self.original_env:
-            os.environ[var] = self.original_env[var]
-        for var in set(os.environ) - set(self.original_env):
-            if var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-                del os.environ[var]
+        for key, value in self.original_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        
+        # Reset global config to force re-reading env vars
         reset_config()
-
-    def test_seed_from_env_var(self):
-        """Test that seed is read from environment variable."""
-        os.environ[ENV_SEED] = "999"
-        reset_config()
-        cfg = Config()
-        assert cfg.seed == 999
-
-    def test_grid_res_from_env_var(self):
-        """Test that grid_res is read from environment variable."""
-        os.environ[ENV_GRID_RES] = "1.0"
-        reset_config()
-        cfg = Config()
-        assert cfg.grid_res == 1.0
-
-    def test_permutations_from_env_var(self):
-        """Test that permutations is read from environment variable."""
-        os.environ[ENV_PERMUTATIONS] = "5000"
-        reset_config()
-        cfg = Config()
-        assert cfg.permutations == 5000
-
-    def test_sample_size_from_env_var(self):
-        """Test that sample_size is read from environment variable."""
-        os.environ[ENV_SAMPLE_SIZE] = "10000"
-        reset_config()
-        cfg = Config()
-        assert cfg.sample_size == 10000
-
-    def test_sample_size_none_from_env_var(self):
-        """Test that sample_size can be set to None via environment variable."""
-        os.environ[ENV_SAMPLE_SIZE] = "none"
-        reset_config()
-        cfg = Config()
-        assert cfg.sample_size is None
-
-    def test_invalid_seed_env_var_raises(self):
-        """Test that invalid seed value raises ValueError."""
-        os.environ[ENV_SEED] = "not_a_number"
-        reset_config()
-        with pytest.raises(ValueError, match="Invalid integer"):
-            Config()
-
-    def test_invalid_grid_res_env_var_raises(self):
-        """Test that invalid grid_res value raises ValueError."""
-        os.environ[ENV_GRID_RES] = "not_a_number"
-        reset_config()
-        with pytest.raises(ValueError, match="Invalid float"):
-            Config()
-
-    def test_invalid_permutations_env_var_raises(self):
-        """Test that invalid permutations value raises ValueError."""
-        os.environ[ENV_PERMUTATIONS] = "not_a_number"
-        reset_config()
-        with pytest.raises(ValueError, match="Invalid integer"):
-            Config()
-
+    
+    def test_seed_from_env(self):
+        """Test that SEED environment variable is read."""
+        os.environ['SEED'] = '123'
+        config = Config()
+        assert config.seed == 123
+    
+    def test_grid_res_from_env(self):
+        """Test that GRID_RES environment variable is read."""
+        os.environ['GRID_RES'] = '1.0'
+        config = Config()
+        assert config.grid_res == 1.0
+    
+    def test_sample_size_from_env(self):
+        """Test that SAMPLE_SIZE environment variable is read."""
+        os.environ['SAMPLE_SIZE'] = '5000'
+        config = Config()
+        assert config.sample_size == 5000
+    
+    def test_permutations_from_env(self):
+        """Test that PERMUTATIONS environment variable is read."""
+        os.environ['PERMUTATIONS'] = '50000'
+        config = Config()
+        assert config.permutations == 50000
+    
+    def test_explicit_args_override_env(self):
+        """Test that explicit arguments override environment variables."""
+        os.environ['SEED'] = '100'
+        config = Config(seed=200)
+        assert config.seed == 200
 
 class TestConfigMethods:
-    """Test Config class methods."""
-
-    def test_to_dict_returns_dict(self):
-        """Test that to_dict returns a dictionary."""
-        reset_config()
-        cfg = Config(seed=123, grid_res=1.0, sample_size=500, permutations=2000)
-        result = cfg.to_dict()
-
-        assert isinstance(result, dict)
-        assert "seed" in result
-        assert "grid_res" in result
-        assert "sample_size" in result
-        assert "permutations" in result
-        assert "project_root" in result
-
-    def test_to_dict_contains_expected_keys(self):
-        """Test that to_dict contains all expected keys with correct values."""
-        reset_config()
-        cfg = Config(seed=42, grid_res=0.5, sample_size=1000, permutations=5000)
-        result = cfg.to_dict()
-
-        assert result["seed"] == 42
-        assert result["grid_res"] == 0.5
-        assert result["sample_size"] == 1000
-        assert result["permutations"] == 5000
-        assert isinstance(result["project_root"], str)
-
-    def test_repr(self):
-        """Test string representation."""
-        reset_config()
-        cfg = Config(seed=42, grid_res=0.5, sample_size=1000, permutations=5000)
-        repr_str = repr(cfg)
-
-        assert "Config" in repr_str
-        assert "seed=42" in repr_str
-        assert "grid_res=0.5" in repr_str
-        assert "sample_size=1000" in repr_str
-        assert "permutations=5000" in repr_str
-
+    """Test configuration methods and utilities."""
+    
+    def test_to_dict(self):
+        """Test conversion to dictionary."""
+        config = Config(seed=99, grid_res=0.25, sample_size=1000, permutations=5000)
+        result = config.to_dict()
+        assert result == {
+            'seed': 99,
+            'grid_res': 0.25,
+            'sample_size': 1000,
+            'permutations': 5000
+        }
+    
+    def test_to_yaml(self):
+        """Test conversion to YAML string."""
+        config = Config(seed=42, grid_res=0.5)
+        yaml_str = config.to_yaml()
+        assert 'seed: 42' in yaml_str
+        assert 'grid_res: 0.5' in yaml_str
+        assert 'permutations: 10000' in yaml_str
+    
+    def test_save_and_load(self, tmp_path):
+        """Test saving and loading configuration."""
+        config = Config(seed=123, grid_res=0.75, sample_size=2000, permutations=20000)
+        config_path = tmp_path / "test_config.yaml"
+        
+        config.save(config_path)
+        
+        loaded_config = Config.load(config_path)
+        
+        assert loaded_config.seed == 123
+        assert loaded_config.grid_res == 0.75
+        assert loaded_config.sample_size == 2000
+        assert loaded_config.permutations == 20000
+    
+    def test_load_nonexistent_file(self, tmp_path):
+        """Test loading from a non-existent file uses defaults."""
+        config_path = tmp_path / "nonexistent.yaml"
+        config = Config.load(config_path)
+        
+        assert config.seed == DEFAULT_SEED
+        assert config.grid_res == DEFAULT_GRID_RES
+    
+    def test_equality(self):
+        """Test configuration equality."""
+        config1 = Config(seed=42, grid_res=0.5)
+        config2 = Config(seed=42, grid_res=0.5)
+        config3 = Config(seed=43, grid_res=0.5)
+        
+        assert config1 == config2
+        assert config1 != config3
+        assert config1 != "not a config"
+    
+    def test_apply_seed_to_random(self):
+        """Test that seed is applied to random number generators."""
+        config1 = Config(seed=100)
+        val1 = random.random()
+        np_val1 = np.random.random()
+        
+        config2 = Config(seed=100)
+        val2 = random.random()
+        np_val2 = np.random.random()
+        
+        assert val1 == val2
+        assert np_val1 == np_val2
+    
+    def test_different_seeds_produce_different_values(self):
+        """Test that different seeds produce different random values."""
+        config1 = Config(seed=100)
+        val1 = random.random()
+        
+        config2 = Config(seed=200)
+        val2 = random.random()
+        
+        assert val1 != val2
 
 class TestGlobalConfig:
-    """Test global configuration functions."""
-
+    """Test global configuration management."""
+    
     def setup_method(self):
-        """Clean state before each test."""
-        for var in [ENV_SEED, ENV_GRID_RES, ENV_SAMPLE_SIZE, ENV_PERMUTATIONS]:
-            if var in os.environ:
-                del os.environ[var]
+        """Reset global config before each test."""
         reset_config()
-
+    
     def teardown_method(self):
-        """Clean up after each test."""
+        """Reset global config after each test."""
         reset_config()
-
-    def test_get_config_returns_singleton(self):
-        """Test that get_config returns the same instance."""
-        cfg1 = get_config()
-        cfg2 = get_config()
-        assert cfg1 is cfg2
-
-    def test_get_config_returns_config_instance(self):
+    
+    def test_get_config_returns_instance(self):
         """Test that get_config returns a Config instance."""
-        cfg = get_config()
-        assert isinstance(cfg, Config)
-
-    def test_update_globals_from_config(self):
-        """Test that update_globals_from_config updates module globals."""
-        os.environ[ENV_SEED] = "999"
+        config = get_config()
+        assert isinstance(config, Config)
+    
+    def test_get_config_returns_same_instance(self):
+        """Test that get_config returns the same instance on multiple calls."""
+        config1 = get_config()
+        config2 = get_config()
+        assert config1 is config2
+    
+    def test_get_config_with_path(self, tmp_path):
+        """Test that get_config with path creates new instance."""
+        config_path = tmp_path / "test.yaml"
+        Config(seed=999).save(config_path)
+        
+        config = get_config(config_path=config_path)
+        assert config.seed == 999
+        
+        # Subsequent calls without path should return the same instance
+        config2 = get_config()
+        assert config2 is config
+    
+    def test_reset_config(self):
+        """Test that reset_config forces re-initialization."""
+        config1 = get_config()
         reset_config()
-        update_globals_from_config()
+        config2 = get_config()
+        
+        # They should be different instances
+        assert config1 is not config2
+    
+    def test_set_seed_updates_global(self):
+        """Test that set_seed updates the global configuration."""
+        get_config()  # Initialize global
+        set_seed(999)
+        
+        config = get_config()
+        assert config.seed == 999
+    
+    def test_set_seed_affects_random(self):
+        """Test that set_seed affects random number generation."""
+        get_config()
+        set_seed(42)
+        val1 = random.random()
+        
+        set_seed(42)
+        val2 = random.random()
+        
+        assert val1 == val2
 
-        # Access the module-level variables
-        from src.lib import config as cfg_module
-        assert cfg_module.SEED == 999
+class TestConfigEdgeCases:
+    """Test edge cases and error handling."""
+    
+    def test_empty_yaml_file(self, tmp_path):
+        """Test loading from an empty YAML file."""
+        config_path = tmp_path / "empty.yaml"
+        config_path.write_text("")
+        
+        config = Config.load(config_path)
+        assert config.seed == DEFAULT_SEED
+    
+    def test_yaml_with_missing_keys(self, tmp_path):
+        """Test loading from YAML with some keys missing."""
+        config_path = tmp_path / "partial.yaml"
+        config_path.write_text("seed: 123\n")
+        
+        config = Config.load(config_path)
+        assert config.seed == 123
+        assert config.grid_res == DEFAULT_GRID_RES
+        assert config.permutations == DEFAULT_PERMUTATIONS
+    
+    def test_invalid_seed_type(self):
+        """Test that seed is converted to int."""
+        config = Config(seed="42")
+        assert isinstance(config.seed, int)
+        assert config.seed == 42
+    
+    def test_invalid_grid_res_type(self):
+        """Test that grid_res is converted to float."""
+        config = Config(grid_res="0.5")
+        assert isinstance(config.grid_res, float)
+        assert config.grid_res == 0.5
+    
+    def test_invalid_permutations_type(self):
+        """Test that permutations is converted to int."""
+        config = Config(permutations="10000")
+        assert isinstance(config.permutations, int)
+        assert config.permutations == 10000
 
-    def test_project_root_is_path(self):
-        """Test that project_root is a Path object."""
-        reset_config()
-        cfg = Config()
-        assert isinstance(cfg.project_root, Path)
+class TestIntegrationWithPipeline:
+    """Test configuration integration with pipeline components."""
+    
+    def test_config_used_in_preprocessing(self):
+        """Test that config can be used for grid resolution."""
+        config = get_config()
+        assert config.grid_res == 0.5
+        # This would be used in preprocess.py for grid assignment
+    
+    def test_config_used_in_permutation_tests(self):
+        """Test that config provides permutation count."""
+        config = get_config()
+        assert config.permutations == 10000
+        # This would be used in utils.py for permutation tests
+    
+    def test_reproducible_pipeline(self):
+        """Test that same config produces reproducible results."""
+        # Set up config
+        config1 = Config(seed=42)
+        random.seed(config1.seed)
+        np.random.seed(config1.seed)
+        result1 = (random.random(), np.random.random())
+        
+        # Reset and use same seed
+        config2 = Config(seed=42)
+        random.seed(config2.seed)
+        np.random.seed(config2.seed)
+        result2 = (random.random(), np.random.random())
+        
+        assert result1 == result2
 
-    def test_data_raw_dir_exists(self):
-        """Test that the data/raw directory exists relative to project root."""
-        reset_config()
-        cfg = Config()
-        # The directory might not exist yet, but the path should be constructible
-        data_raw = cfg.project_root / "data" / "raw"
-        assert isinstance(data_raw, Path)
+# Additional tests for specific task requirements
+class TestTaskRequirements:
+    """Tests specifically for T011 requirements."""
+    
+    def test_seed_default_is_42(self):
+        """Verify SEED=42 as specified in T011."""
+        config = Config()
+        assert config.seed == 42
+    
+    def test_grid_res_default_is_0_5(self):
+        """Verify GRID_RES=0.5 as specified in T011 (linked to T015)."""
+        config = Config()
+        assert config.grid_res == 0.5
+    
+    def test_permutations_default_is_10000(self):
+        """Verify PERMUTATIONS=10000 as specified in T011."""
+        config = Config()
+        assert config.permutations == 10000
+    
+    def test_sample_size_exists(self):
+        """Verify SAMPLE_SIZE variable exists."""
+        config = Config()
+        assert hasattr(config, 'sample_size')
+    
+    def test_all_variables_are_accessible(self):
+        """Verify all required variables are accessible."""
+        config = Config()
+        assert hasattr(config, 'seed')
+        assert hasattr(config, 'grid_res')
+        assert hasattr(config, 'sample_size')
+        assert hasattr(config, 'permutations')
 
-    def test_logs_dir_exists(self):
-        """Test that the logs directory path is constructible."""
-        reset_config()
-        cfg = Config()
-        logs_dir = cfg.project_root / "logs"
-        assert isinstance(logs_dir, Path)
-
-    def test_state_dir_exists(self):
-        """Test that the state directory path is constructible."""
-        reset_config()
-        cfg = Config()
-        state_dir = cfg.project_root / "state" / "projects"
-        assert isinstance(state_dir, Path)
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

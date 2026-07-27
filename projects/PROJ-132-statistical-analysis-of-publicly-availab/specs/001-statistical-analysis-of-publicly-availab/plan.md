@@ -67,7 +67,7 @@ phenology_metric ~
 ### Model Outputs (FR‑006, FR‑007)
 
 - Coefficient estimates, p‑values, q‑values, AIC, R², convergence flag, and GP metadata are written to `data/processed/model_results.parquet`.  
-- Convergence rate is calculated (SC‑003) and reported.  
+- Convergence rate is calculated and reported.  
 - Moran’s I of residuals is computed **only for diagnostics** (not for conditional GP selection) and stored in the output.
 
 ## Phase 4 – Route Shift & Uncertainty (FR‑006, FR‑007)

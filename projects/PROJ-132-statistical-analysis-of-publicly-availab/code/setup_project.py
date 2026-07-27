@@ -4,7 +4,7 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the project directory structure as specified in T001.
+    Create the project directory structure as defined in the implementation plan.
     
     Directories created:
     - src/data, src/models, src/analysis
@@ -12,7 +12,7 @@ def create_directories():
     - tests/contract, tests/unit, tests/integration
     - docs
     """
-    base_dir = Path(__file__).parent.parent
+    base_dir = Path(__file__).resolve().parent.parent
     
     directories = [
         "src/data",
@@ -27,23 +27,18 @@ def create_directories():
         "docs"
     ]
     
-    created = []
-    for d in directories:
-        full_path = base_dir / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
+    created_count = 0
+    for dir_name in directories:
+        dir_path = base_dir / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {dir_path}")
     
-    if created:
-        print(f"Created {len(created)} directories:")
-        for d in created:
-            print(f"  - {d}")
-    else:
-        print("All directories already exist.")
-    
-    return created
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return True
 
 if __name__ == "__main__":
     create_directories()

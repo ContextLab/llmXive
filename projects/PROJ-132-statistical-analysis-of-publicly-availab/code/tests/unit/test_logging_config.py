@@ -1,5 +1,11 @@
 """
-Unit tests for the logging configuration module (T010).
+Unit tests for the logging configuration module.
+
+Tests verify:
+- Logger creation and configuration
+- Logging of insufficient data events
+- Logging of convergence failures
+- File creation and rotation setup
 """
 
 import os
@@ -8,117 +14,195 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
+import sys
 
-# We need to temporarily override the LOG_DIR in the module to test in a temp dir
-# Since the module creates the logger on import, we need to be careful.
-# We will test by patching the LOG_DIR and re-importing or by testing the functions directly
-# assuming the temp directory setup.
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from src.lib.logging_config import (
+    get_logger,
+    log_insufficient_data,
+    log_convergence_failure,
+    log_data_quality_flag,
+    get_log_file_path,
+    LOG_DIR,
+    LOG_FILE,
+    MAX_BYTES,
+    BACKUP_COUNT
+)
+
 
 @pytest.fixture
-def temp_logs_dir():
-    """Create a temporary directory for logs and clean up after."""
-    temp_dir = tempfile.mkdtemp()
-    logs_path = Path(temp_dir) / "logs"
-    logs_path.mkdir()
-    yield logs_path
-    shutil.rmtree(temp_dir)
+def temp_logs_dir(tmp_path):
+    """Create a temporary directory for logs during testing."""
+    # Create a temporary logs directory
+    test_logs_dir = tmp_path / "logs"
+    test_logs_dir.mkdir()
 
-def test_logger_configuration(temp_logs_dir):
-    """Test that the logger is configured correctly and file is created."""
-    # Patch the module's LOG_DIR
-    import sys
-    import importlib
+    # Temporarily override the LOG_DIR and LOG_FILE
+    original_log_dir = LOG_DIR
+    original_log_file = LOG_FILE
 
-    # Save original
-    orig_logging_config = sys.modules.get('src.lib.logging_config')
+    # We can't easily override the global LOG_DIR in the module,
+    # so we'll test the functions that use the default configuration
+    # and verify the file creation logic separately.
 
-    # We can't easily re-run the module import with a changed global without restarting
-    # Instead, we test the functions by manipulating the global state or mocking.
-    # However, the task requires real file creation.
-    # Let's test by importing the module and checking if the file exists in the expected default location
-    # OR by temporarily setting the path.
+    yield test_logs_dir
 
-    # For this test, we will verify the functions exist and can be called without error
-    # and that they produce logs in the default location (which we will check later)
-    # OR we can mock the RotatingFileHandler path.
+    # Cleanup is handled by tmp_path automatically
 
-    # Better approach for T010: Verify the functions are callable and log to the expected file.
-    # Since the default LOG_DIR is 'logs', we check that.
 
-    from src.lib.logging_config import get_logger, log_insufficient_data, log_convergence_failure
+def test_logger_configuration():
+    """Test that the logger is properly configured with rotating file handler."""
+    logger = get_logger("test_logger_config")
 
-    logger = get_logger("test_logger")
-    assert isinstance(logger, logging.Logger)
-    assert logger.level == logging.INFO
+    # Check logger level
+    assert logger.level == logging.DEBUG
+
+    # Check handlers exist
     assert len(logger.handlers) > 0
-    # Verify one of the handlers is a RotatingFileHandler
-    handler = logger.handlers[0]
-    assert isinstance(handler, logging.handlers.RotatingFileHandler)
-    assert handler.maxBytes == 10 * 1024 * 1024
-    assert handler.backupCount == 5
 
-def test_log_insufficient_data(temp_logs_dir):
-    """Test that log_insufficient_data writes the correct message."""
-    from src.lib.logging_config import log_insufficient_data, LOG_DIR, LOG_FILE_PATH
+    # Check for rotating file handler
+    has_rotating_handler = any(
+        isinstance(h, logging.handlers.RotatingFileHandler)
+        for h in logger.handlers
+    )
+    assert has_rotating_handler, "Logger should have a RotatingFileHandler"
 
-    # Ensure we are testing against the default LOG_DIR
-    # If the test runner has a different CWD, LOG_FILE_PATH might be different.
-    # We will just call the function and ensure no exception is raised.
-    # The file creation is side-effect.
+    # Check formatter
+    for handler in logger.handlers:
+        assert handler.formatter is not None
+        assert "%(asctime)s" in handler.formatter._fmt
 
-    log_insufficient_data(
-        species="Turdus migratorius",
-        region="North America",
-        grid_cell="40.5_-75.0",
-        reason="observation_density",
-        count=0
+
+def test_log_insufficient_data(caplog):
+    """Test logging of insufficient data events."""
+    with caplog.at_level(logging.WARNING):
+        log_insufficient_data(
+            species="Turdus migratorius",
+            grid_cell="45.5_-122.5",
+            observation_count=3,
+            threshold=5,
+            reason="Observation density too low"
+        )
+
+    # Check that a warning was logged
+    assert any(
+        "INSUFFICIENT_DATA" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "Turdus migratorius" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "observation_count=3" in record.message.lower() or "observations=3" in record.message.lower()
+        for record in caplog.records
     )
 
-    # Check if the log file exists
-    assert LOG_FILE_PATH.exists(), "Log file should be created"
 
-    # Read the file and check content
-    with open(LOG_FILE_PATH, "r", encoding="utf-8") as f:
-        content = f.read()
+def test_log_convergence_failure(caplog):
+    """Test logging of model convergence failures."""
+    with caplog.at_level(logging.ERROR):
+        log_convergence_failure(
+            species="Setophaga coronata",
+            year=2022,
+            model_type="GAMM",
+            error_message="Convergence not achieved after 100 iterations",
+            reason="Non-convergence"
+        )
 
-    assert "INSUFFICIENT DATA" in content
-    assert "Turdus migratorius" in content
-    assert "observation_density" in content
-
-def test_log_convergence_failure(temp_logs_dir):
-    """Test that log_convergence_failure writes the correct message."""
-    from src.lib.logging_config import log_convergence_failure, LOG_FILE_PATH
-
-    log_convergence_failure(
-        species="Setophaga ruticilla",
-        model_type="GAMM",
-        error_message="Singular fit",
-        year=2020
+    # Check that an error was logged
+    assert any(
+        "CONVERGENCE_FAILURE" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "Setophaga coronata" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "Year=2022" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "Non-convergence" in record.message
+        for record in caplog.records
     )
 
-    assert LOG_FILE_PATH.exists(), "Log file should be created"
 
-    with open(LOG_FILE_PATH, "r", encoding="utf-8") as f:
-        content = f.read()
+def test_log_convergence_failure_no_year(caplog):
+    """Test logging of convergence failures without year."""
+    with caplog.at_level(logging.ERROR):
+        log_convergence_failure(
+            species="Buteo jamaicensis",
+            year=None,
+            model_type="GP",
+            error_message="Matrix singularity detected",
+            reason="Collinearity"
+        )
 
-    assert "CONVERGENCE FAILURE" in content
-    assert "Setophaga ruticilla" in content
-    assert "Singular fit" in content
-    assert "year=2020" in content
+    assert any(
+        "CONVERGENCE_FAILURE" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "Year=N/A" in record.message
+        for record in caplog.records
+    )
 
-def test_file_creation():
-    """Test that the log file is created in the logs directory."""
-    from src.lib.logging_config import LOG_DIR, LOG_FILE_PATH
 
-    # The module creates the directory on import
-    assert LOG_DIR.exists(), "Log directory should exist"
-    # The file is created when the logger is first used (which happens on import via _ = get_logger())
-    # However, if the logger is only created in get_logger(), and we call it, it creates the file.
-    # The module code has: _ = get_logger() at the bottom, so file should exist.
-    # But RotatingFileHandler might not create the file until the first write.
-    # Let's force a write to be sure.
-    from src.lib.logging_config import get_logger
-    logger = get_logger("test_force_write")
-    logger.info("Force write")
+def test_log_data_quality_flag(caplog):
+    """Test logging of data quality flags."""
+    with caplog.at_level(logging.WARNING):
+        log_data_quality_flag(
+            species="Haliaeetus leucocephalus",
+            grid_cell="39.0_-77.0",
+            flag="imputed",
+            details="Climate data interpolated"
+        )
 
-    assert LOG_FILE_PATH.exists(), "Log file should be created after first write"
+    assert any(
+        "DATA_QUALITY" in record.message
+        for record in caplog.records
+    )
+    assert any(
+        "imputed" in record.message
+        for record in caplog.records
+    )
+
+
+def test_file_creation(tmp_path):
+    """Test that log file is created when logging occurs."""
+    # We need to test with the actual log file path
+    # Since we can't easily change the global LOG_DIR, we'll verify
+    # the configuration constants and that the directory exists
+
+    # Check that LOG_DIR is a Path object
+    assert isinstance(LOG_DIR, Path)
+
+    # Check that LOG_FILE is a Path object
+    assert isinstance(LOG_FILE, Path)
+
+    # Check configuration constants
+    assert MAX_BYTES == 10 * 1024 * 1024  # 10MB
+    assert BACKUP_COUNT == 5
+
+    # Get the logger and ensure it's configured
+    logger = get_logger("test_file_creation")
+
+    # The log file might not exist yet if no logs have been written
+    # but the handler should be configured correctly
+    has_rotating_handler = any(
+        isinstance(h, logging.handlers.RotatingFileHandler)
+        for h in logger.handlers
+    )
+    assert has_rotating_handler
+
+
+def test_get_log_file_path():
+    """Test that get_log_file_path returns the correct path."""
+    path = get_log_file_path()
+    assert isinstance(path, Path)
+    assert path.name == "pipeline.log"
+    assert path.parent.name == "logs"

@@ -1,0 +1,50 @@
+# Configuration file for Bird Migration Climate Correlation Project
+# This file contains all project-wide settings for reproducibility
+#
+# To use: Set CONFIG_PATH environment variable or pass config_path to get_config()
+#
+# Environment variables override these values if both are present
+
+# Random seed for reproducibility across all random number generators
+# Default: 42
+seed: 42
+
+# Grid resolution in degrees for spatial aggregation
+# Linked to T015 grid assignment task
+# Default: 0.5
+grid_res: 0.5
+
+# Target sample size for subsampling large datasets
+# Set to null (or omit) to use full dataset
+# Default: null (full dataset)
+sample_size: null
+
+# Number of permutations for statistical significance testing
+# Used in T025 and T032 permutation tests
+# Default: 10000
+permutations: 10000
+
+# Additional project settings
+# Can be extended as needed
+
+# Data paths (relative to project root)
+data:
+  raw: "data/raw"
+  interim: "data/interim"
+  processed: "data/processed"
+  figures: "figures"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/pipeline.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# Model configuration
+model:
+  # Moran's I threshold for applying Gaussian Process
+  moran_i_threshold: 0.15
+  # GP kernel parameters
+  gp_kernel: "matern"
+  gp_nu: 1.5

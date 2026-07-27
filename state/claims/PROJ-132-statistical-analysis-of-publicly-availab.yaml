@@ -1,0 +1,128 @@
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Spatial interpolation uses scipy.interpolate.griddata with 1 degree radius
+    neighbor search
+  claim_id: c_d668446c
+  context: "Logic: Use scipy.interpolate.griddata with a 1\xB0 radius neighbor search\
+    \ in degrees (lat/lon)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use scipy.interpolate.griddata with a 1\xB0 radius neighbor search in\
+    \ degrees (lat/lon)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:30:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation test default count is 10000
+  claim_id: c_e1ba37e1
+  context: 'Variables: Define SEED=42, GRID_RES=0.5 (linked to T015 grid assignment),
+    SAMPLE_SIZE, PERMUTATIONS=10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATIONS=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:31:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime reduced from 5.5 hours to under 4 hours
+  claim_id: c_2d742853
+  context: 'Constraint: Must reduce estimated runtime from 5.5h to < 4h.'
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must reduce estimated runtime from 5.5h to less than 4h.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T07:31:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Grid cells with fewer than 5 observations are marked insufficient and
+    filtered
+  claim_id: c_0c4fe214
+  context: 'Logic: If count < 5, set data_quality="insufficient" and filter out rows
+    before modeling.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Grid_cells_with_fewer_than_5_observations_are_marked_insuffi
+  kind: magnitude
+  raw_text: If count < 5, set data_quality='insufficient' and filter out rows before
+    modeling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:31:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Gaussian Process random effect with Matern kernel nu=1.5 applied if Moran
+    I exceeds 0.15
+  claim_id: c_7a1f9861
+  context: "IF Moran's I > 0.15: Re-fit with a Gaussian Process (GP) random effect\
+    \ using a Mat\xE9rn kernel (nu=1.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-fit with a Gaussian Process (GP) random effect using a Mat\xE9rn kernel\
+    \ (nu=1.5) IF Moran's I > 0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:32:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation tests use joblib with 1 job and batch size 100
+  claim_id: c_4eded6a8
+  context: 'Optimization: Use joblib parallelization with n_jobs=1 and batch_size=100
+    to ensure full shuffles complete within the 4h CI budget...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use joblib parallelization with n_jobs=1 and batch_size=100 to ensure
+    full shuffles complete within the 4h CI budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:32:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "Fr\xE9chet mean implemented via iterative gradient descent on 2-sphere"
+  claim_id: c_b2e66760
+  context: "Algorithm: Implement Fr\xE9chet mean via iterative gradient descent: 1.\
+    \ Initialize mean as centroid. 2. Compute gradients of squared geodesic distance\
+    \ on S\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Fr\xE9chet mean via iterative gradient descent on the 2-sphere\
+    \ (S^2)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T07:33:24Z'
