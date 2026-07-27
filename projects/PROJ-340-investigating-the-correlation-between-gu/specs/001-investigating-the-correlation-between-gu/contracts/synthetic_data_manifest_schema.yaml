@@ -1,75 +1,141 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Synthetic Data Manifest Schema
-description: |
-  Defines the schema for data lineage tracking to satisfy Constitution Principle I (Reproducibility).
-  Supports two versions:
-    - schema_v1_synthetic: For pipeline validation studies (synthetic data). Chain of custody is optional (nullable).
-    - schema_v2_real: For real biological data. Chain of custody log is REQUIRED.
-type: object
-required:
-  - schema_version
-  - generated_at
-  - generator_script_checksum
-properties:
-  schema_version:
-    type: string
-    enum:
-      - schema_v1_synthetic
-      - schema_v2_real
-    description: Identifies the schema version to enforce specific validation rules.
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of generation.
-  generator_script_checksum:
-    type: string
-    pattern: '^[a-f0-9]{64}$'
-    description: SHA-256 checksum of the exact script used to generate the data (e.g., code/data_generator.py).
-  dataset_type:
-    type: string
-    enum:
-      - synthetic
-      - real
-    description: Explicit classification of the data source.
-  chain_of_custody_log:
-    type:
-      - "null"
-      - array
-    items:
-      type: object
-      required:
-        - timestamp
-        - actor
-        - action
-        - details
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-        actor:
-          type: string
-          description: User or system identifier performing the action.
-        action:
-          type: string
-          description: Action taken (e.g., 'downloaded', 'preprocessed', 'filtered').
-        details:
-          type: string
-          description: Specific details of the action.
-    description: |
-      Log of data handling steps.
-      - For schema_v1_synthetic: This field MUST be null.
-      - For schema_v2_real: This field MUST be a non-empty array.
-  parameters_used:
-    type: object
-    description: Key hyperparameters or random seeds used during generation/fetching.
-  notes:
-    type: string
-    description: Optional human-readable notes about the dataset.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Data Manifest Schema"
+description: >
+  Schema for validating the synthetic data manifest used in Pipeline Validation Studies.
+  Explicitly defines two versions:
+  - schema_v1_synthetic: For synthetic data (chain_of_custody_log is nullable/optional).
+  - schema_v2_real: For real data (chain_of_custody_log is REQUIRED).
+  This schema enforces Constitution Principle I (Reproducibility) by requiring
+  deterministic generation metadata and checksums.
 
-# Conditional validation logic description (enforced by code in data_generator.py):
-# IF schema_version == 'schema_v1_synthetic':
-#   - chain_of_custody_log MUST be null
-#   - dataset_type MUST be 'synthetic'
-# IF schema_version == 'schema_v2_real':
-#   - chain_of_custody_log MUST NOT be null and MUST have at least one entry
-#   - dataset_type MUST be 'real'
+oneOf:
+  - $ref: "#/$defs/schema_v1_synthetic"
+  - $ref: "#/$defs/schema_v2_real"
+
+definitions:
+  common_metadata:
+    type: object
+    properties:
+      project_id:
+        type: string
+        description: "Unique project identifier (e.g., PROJ-340...)"
+      schema_version:
+        type: string
+        description: "Version of this manifest schema (e.g., 1.0)"
+      generated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of generation"
+      generator_script:
+        type: string
+        description: "Relative path to the script that generated this data"
+      generator_checksum:
+        type: string
+        description: "SHA-256 checksum of the generator script (for reproducibility)"
+      random_seed:
+        type: integer
+        description: "The deterministic seed used for generation"
+      notes:
+        type: string
+        description: "Optional context or notes about the generation"
+    required:
+      - project_id
+      - schema_version
+      - generated_at
+      - generator_script
+      - generator_checksum
+      - random_seed
+
+  schema_v1_synthetic:
+    title: "Synthetic Data Manifest (v1)"
+    description: "Manifest for synthetic data. Chain of custody is not applicable (null)."
+    allOf:
+      - $ref: "#/$defs/common_metadata"
+      - type: object
+        properties:
+          schema_type:
+            type: string
+            const: "schema_v1_synthetic"
+          chain_of_custody_log:
+            type: "null"
+            description: "Must be null for synthetic data as per Constitution Principle VI exception."
+          data_artifacts:
+            type: array
+            description: "List of generated data files and their checksums"
+            items:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: "Relative path to the generated file"
+                checksum:
+                  type: string
+                  description: "SHA-256 checksum of the file content"
+                size_bytes:
+                  type: integer
+                  description: "File size in bytes"
+              required:
+                - path
+                - checksum
+                - size_bytes
+        required:
+          - schema_type
+          - chain_of_custody_log
+          - data_artifacts
+
+  schema_v2_real:
+    title: "Real Data Manifest (v2)"
+    description: "Manifest for real data. Chain of custody is REQUIRED."
+    allOf:
+      - $ref: "#/$defs/common_metadata"
+      - type: object
+        properties:
+          schema_type:
+            type: string
+            const: "schema_v2_real"
+          chain_of_custody_log:
+            type: object
+            description: "Required provenance log for real biological samples."
+            properties:
+              source_repository:
+                type: string
+                description: "e.g., NCBI GEO, SRA, EGA"
+              source_id:
+                type: string
+                description: "Accession number or ID"
+              retrieval_date:
+                type: string
+                format: date-time
+              processing_steps:
+                type: array
+                description: "List of steps taken to harmonize/clean data"
+                items:
+                  type: string
+              ethics_approval_id:
+                type: string
+                description: "IRB or ethics board approval reference if applicable"
+            required:
+              - source_repository
+              - source_id
+              - retrieval_date
+              - processing_steps
+          data_artifacts:
+            type: array
+            description: "List of real data files and their checksums"
+            items:
+              type: object
+              properties:
+                path:
+                  type: string
+                checksum:
+                  type: string
+                size_bytes:
+                  type: integer
+              required:
+                - path
+                - checksum
+                - size_bytes
+        required:
+          - schema_type
+          - chain_of_custody_log
+          - data_artifacts

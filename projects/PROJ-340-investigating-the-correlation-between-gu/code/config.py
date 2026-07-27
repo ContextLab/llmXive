@@ -7,26 +7,32 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 class Config:
-    def __init__(self, base_dir: Path):
-        self.base_dir = base_dir
-        self.data_dir = base_dir / "data"
-        self.code_dir = base_dir / "code"
-        
-    def get_required_variables_path(self) -> Path:
-        return self.data_dir / "config" / "required_variables.yaml"
-        
-    def get_output_schema_path(self) -> Path:
-        return self.base_dir / "specs" / "001-gut-microbiome-sleep-architecture" / "contracts" / "output.schema.yaml"
+    def __init__(self, data: Dict[str, Any]):
+        self.data = data
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.data.get(key, default)
+
+def load_config(config_path: str = "data/config/project_config.yaml") -> Config:
+    """Loads project configuration."""
+    path = Path(config_path)
+    if path.exists():
+        import yaml
+        with open(path, 'r') as f:
+            data = yaml.safe_load(f)
+        return Config(data)
+    else:
+        # Default config
+        return Config({
+            "required_variables": {
+                "predictors": [f"Taxon_{i}" for i in range(1, 21)],
+                "outcomes": ["SWS_duration", "REM_duration", "Sleep_Efficiency", "Wake_after_sleep_onset"]
+            }
+        })
 
 def get_config() -> Config:
-    base = Path(__file__).parent.parent
-    return Config(base)
+    """Returns the global config instance."""
+    return load_config()
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    if config_path is None:
-        config_path = get_config().get_required_variables_path()
-    if not config_path.exists():
-        return {}
-    # Basic loader for YAML-like or JSON config if needed
-    # For now, returning empty dict as specific loader is in ingest
-    return {}
+def main():
+    pass

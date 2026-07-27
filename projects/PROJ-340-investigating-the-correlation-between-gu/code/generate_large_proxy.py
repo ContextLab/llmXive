@@ -7,96 +7,76 @@ import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 
-def set_seeds(seed: int = 42) -> None:
-    """Set random seeds for reproducibility."""
+def set_seeds(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
 
-def load_required_variables(config_path: str = "data/config/required_variables.yaml") -> Dict[str, List[str]]:
-    """Load required variables from config."""
-    import yaml
-    if not os.path.exists(config_path):
-        # Fallback for testing
-        return {'predictors': [f"taxon_{i}" for i in range(10)], 'outcomes': ["sleep_duration", "efficiency"]}
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    return {
-        'predictors': config.get('predictors', []),
-        'outcomes': config.get('outcomes', [])
-    }
+def load_required_variables(config_path: str = "data/config/required_variables.yaml") -> dict:
+    """Loads required variables from config."""
+    path = Path(config_path)
+    if path.exists():
+        import yaml
+        with open(path, 'r') as f:
+            return yaml.safe_load(f)
+    else:
+        return {
+            "predictors": [f"Taxon_{i}" for i in range(1, 21)],
+            "outcomes": ["SWS_duration", "REM_duration", "Sleep_Efficiency", "Wake_after_sleep_onset"]
+        }
 
-def generate_large_proxy(
-    n_subjects: int = 999,
-    taxa_list: Optional[List[str]] = None,
-    outcome_list: Optional[List[str]] = None,
-    output_path: str = "data/raw/large_proxy.csv"
-) -> Dict[str, Any]:
+def generate_large_proxy(n_subjects: int = 999, seed: int = 42) -> pd.DataFrame:
     """
-    Generate a verified large proxy dataset (N=999) using the real data schema.
-    Explicitly marked as a 'Large Proxy' for stress testing, distinct from T006.
-    
-    Args:
-        n_subjects: Number of subjects (max 999 per Assumption-001)
-        taxa_list: List of taxa names
-        outcome_list: List of outcome names
-        output_path: Path to write the CSV
-        
-    Returns:
-        Metadata dict
+    Generates a verified large proxy dataset (N=999) using the real data schema.
+    Distinct from T006 (Unit Test Generator). Explicitly marked as 'Large Proxy'.
     """
     set_seeds()
     
-    if taxa_list is None:
-        taxa_list = [f"taxon_{i}" for i in range(10)]
-    if outcome_list is None:
-        outcome_list = ["sleep_duration", "efficiency"]
-        
-    data = {'subject_id': range(1, n_subjects + 1)}
+    config = load_required_variables()
+    n_taxa = len(config.get("predictors", []))
+    taxa_names = [f"Taxon_{i}" for i in range(1, n_taxa + 1)]
     
-    # Generate predictors
-    for taxon in taxa_list:
-        counts = np.random.negative_binomial(n=2, p=0.5, size=n_subjects) * 20
-        zero_mask = np.random.random(n_subjects) < 0.35
-        counts[zero_mask] = 0
+    # Generate counts
+    data = {}
+    for taxon in taxa_names:
+        mu = np.random.uniform(10, 100)
+        theta = np.random.uniform(0.5, 2.0)
+        zero_prob = np.random.uniform(0.3, 0.6)
+        counts = np.random.negative_binomial(theta, 1/(1+mu/theta), n_subjects)
+        zeros = np.random.random(n_subjects) < zero_prob
+        counts[zeros] = 0
         data[taxon] = counts.astype(int)
-        
-    # Generate outcomes
-    for outcome in outcome_list:
-        data[outcome] = np.random.normal(10, 2, n_subjects)
-        
-    df = pd.DataFrame(data)
     
-    # Write to disk
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
+    counts_df = pd.DataFrame(data)
+    counts_df.insert(0, "subject_id", [f"SUBJ_{i:04d}" for i in range(n_subjects)])
     
-    return {
-        "n_subjects": n_subjects,
-        "type": "Large Proxy (Stress Test)",
-        "output_path": output_path,
-        "note": "Synthetic values, real schema. For stress testing only."
+    # Generate sleep metrics
+    sleep_data = {
+        "subject_id": [f"SUBJ_{i:04d}" for i in range(n_subjects)],
+        "SWS_duration": np.random.normal(90, 20, n_subjects).clip(0, 180),
+        "REM_duration": np.random.normal(100, 25, n_subjects).clip(0, 150),
+        "Sleep_Efficiency": np.random.normal(85, 8, n_subjects).clip(40, 100),
+        "Wake_after_sleep_onset": np.random.normal(30, 15, n_subjects).clip(0, 120)
     }
+    sleep_df = pd.DataFrame(sleep_data)
+    
+    merged = pd.merge(counts_df, sleep_df, on="subject_id")
+    return merged
 
 def main():
-    """Entry point for generating large proxy."""
     parser = argparse.ArgumentParser(description="Generate large proxy dataset for stress testing.")
-    parser.add_argument("--n", type=int, default=999, help="Number of subjects")
-    parser.add_argument("--output", type=str, default="data/raw/large_proxy.csv", help="Output path")
+    parser.add_argument("--n", type=int, default=999, help="Number of subjects (max 999 per Assumption-001)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/raw/large_proxy.csv", help="Output CSV path")
+    
     args = parser.parse_args()
     
-    required_vars = load_required_variables()
+    df = generate_large_proxy(n_subjects=args.n, seed=args.seed)
     
-    result = generate_large_proxy(
-        n_subjects=args.n,
-        taxa_list=required_vars['predictors'],
-        outcome_list=required_vars['outcomes'],
-        output_path=args.output
-    )
-    
-    print(f"Large proxy generated: {args.output}")
-    print(json.dumps(result, indent=2))
+    output_file = Path(args.output)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    print(f"Generated large proxy data: {args.output} (N={args.n})")
 
 if __name__ == "__main__":
     main()

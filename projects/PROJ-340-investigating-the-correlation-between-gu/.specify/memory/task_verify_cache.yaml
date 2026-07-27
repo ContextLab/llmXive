@@ -1,3 +1,21 @@
+T006e:
+  c: false
+  h: f56d23466fe0c01f436561c2798457dd9b394508a500cbf37663ca24f70fea5d
+  r: The repository lacks the required `synthetic_data_manifest_schema.yaml` file,
+    so neither validator can actually validate against the schema. Moreover, while
+    `code/constitution_checker.py` contains a `validate_checksum_recording` function,
+    the accompanying `update_state_with_checksum` implementation is truncated and
+    never shown to be invoked, meaning the checksum **recording** step is not demonstrably
+    present. The task therefore remains unfinished.
+T012:
+  c: false
+  h: 0aa265bb6f42312ffe884fbded9f2a2750d1c3d3582a8613889921249f0c0e28
+  r: The `validate_variables()` function in `code/ingest.py` is truncated and does
+    not show the required logic (reading `required_variables.yaml`, checking a DataFrame,
+    computing the percentage, listing missing variables, and writing `data/results/variable_load_metrics.json`
+    before any exit). Additionally, the referenced `dataset.schema.yaml` is missing,
+    which the task expects to exist. The implementation must be completed and the
+    schema file added.
 T013:
   c: false
   h: b0d79e79c5acacb7c8a7c73874a88f3bfbcb7f6dd72031609ad446805925a40e
@@ -5,20 +23,29 @@ T013:
     \ logic to read `data/results/variable_load_metrics.json` or exit on a percentage\u202F\
     <\u202F100\u202F%. Additionally, the required `data/results/variable_load_metrics.json`\
     \ file is absent. Both the implementation and the dependent artifact are missing."
-T014b:
+T014c:
   c: false
-  h: d9eda7a76e54b7953b604401586b34f359aa1ee32a991c04b3727416a6d6bbbc
-  r: "The `code/ingest.py` file is truncated and does not show any implementation\
-    \ that removes flagged outliers or writes a Parquet file, and the required output\
-    \ file `data/processed/filtered_data.parquet` is absent. The task\u2019s core\
-    \ deliverable\u2014filtering logic and the resulting Parquet dataset\u2014is missing."
+  h: f5289838c5bfa7b03b138f87321860c4fad3df670c3caccd092f7207d139a759
+  r: The required file `data/processed/filtered_data.parquet` does not exist, so no
+    checksum could be computed, and the YAML file does not contain a checksum entry
+    for that path (only a hash for `code/data_generator.py`). Consequently the task
+    of registering the checksum is not fulfilled.
 T016:
   c: false
-  h: 24a7362cd9d05eed246c92b3154998f4349c9966960b2db251d4404175da8894
+  h: 101aaee9de2e294f9c59ce996e54a8e8dad52f430f97c43154b22cdf814691e0
   r: "The repository lacks the required `data/results/timing_evidence.json` file,\
     \ and the provided excerpt of `code/main.py` shows no implementation of start/end\
-    \ time logging or an assertion that execution stays under six hours. Without these,\
-    \ the task\u2019s core requirement is unmet."
+    \ time logging, the <\u202F6\u2011hour assertion, or code that writes a JSON timing\
+    \ log. Consequently the core requirement of generating the timing evidence artifact\
+    \ is not satisfied."
+T021:
+  c: false
+  h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
+  r: "The `select_correlation_method` implementation is truncated (ends mid\u2011\
+    line) and does not fully encode the required decision tree, nor does it handle\
+    \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
+    \ is missing, so the function cannot satisfy the requirement to read it and apply\
+    \ the fallback logic when T022a fails. The task therefore remains unfinished."
 T063a:
   c: false
   h: bc4eb05e62c239b3ba112b5c1ecc0044f56b2c589043c9df06dc81ac55270bb5

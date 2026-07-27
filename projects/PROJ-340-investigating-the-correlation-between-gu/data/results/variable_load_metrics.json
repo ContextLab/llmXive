@@ -1,7 +1,5 @@
 {
-  "status": "PASS",
-  "total_required": 20,
-  "found_count": 20,
+  "percentage_loaded": 100.0,
   "missing_variables": [],
-  "percentage_loaded": 100.0
+  "total_required": 24
 }
