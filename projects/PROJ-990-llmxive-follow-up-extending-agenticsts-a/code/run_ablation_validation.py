@@ -1,12 +1,3 @@
-"""
-Task T008b: Execute ablation study on the Validation set.
-
-Input: data/processed/validation_set.csv (from T014a)
-Output: data/processed/ablation_labels_validation.json
-
-This script loads the validation set trajectories and runs the ablation study
-using the reusable engine function from code/ablation.py.
-"""
 import os
 import sys
 import json
@@ -14,86 +5,62 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+from ablation import load_trajectories, simulate_ablation_engine, generate_ablation_config, run_ablation_study
 
-from ablation import run_ablation_study, generate_ablation_config, load_trajectories
-from config import load_config_from_file
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger('T008b_AblationValidation')
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('llmXive.ablation_validation')
 
 def main():
-    """Execute ablation study on the validation set."""
-    logger.info("Starting T008b: Ablation study on Validation set")
+    """
+    Main entry point for T008b: Generate Ground Truth Labels (Validation).
     
-    # Load configuration
-    config = load_config_from_file()
-    processed_dir = Path(config['paths']['processed'])
+    Logic:
+    1. Verify `data/processed/validation_set.csv` exists and is non-empty.
+    2. Execute `code/ablation.py` (run_ablation_study) on the 'validation' set.
+    3. Output: `data/processed/ablation_labels_validation.json`.
+    """
+    logger.info("Starting T008b: Generate Ground Truth Labels (Validation).")
     
-    # Define input and output paths
-    input_file = processed_dir / "validation_set.csv"
-    output_file = processed_dir / "ablation_labels_validation.json"
+    # 1. Verify input exists and is non-empty
+    config_path = Path('config.json')
+    if not config_path.exists():
+        # Fallback to default if config missing, though T004 should have created it
+        processed_dir = Path('data/processed')
+    else:
+        from config import load_config_from_file
+        config = load_config_from_file('config.json')
+        processed_dir = Path(config['data']['processed'])
     
-    # Validate input exists
+    input_file = processed_dir / 'validation_set.csv'
+    
     if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        logger.error("T014a (splitter) must be run first to generate validation_set.csv")
-        sys.exit(1)
+        raise FileNotFoundError(
+            f"CRITICAL: Input file {input_file} does not exist. "
+            "T014a (Splitter) must complete successfully before T008b can run."
+        )
     
-    logger.info(f"Loading validation set from: {input_file}")
-    df = pd.read_csv(input_file)
+    try:
+        df = pd.read_csv(input_file)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read {input_file}: {e}")
     
     if df.empty:
-        logger.error("Validation set is empty. Cannot run ablation study.")
-        sys.exit(1)
+        raise ValueError(
+            f"CRITICAL: Input file {input_file} is empty. "
+            "The validation set must contain at least 20 trajectories (FR-006)."
+        )
     
-    logger.info(f"Loaded {len(df)} trajectories for ablation study")
+    logger.info(f"Input validation passed. Found {len(df)} trajectories in {input_file}.")
     
-    # Extract unique trajectory IDs
-    trajectory_ids = df['trajectory_id'].unique().tolist()
-    logger.info(f"Found {len(trajectory_ids)} unique trajectories")
-    
-    # Generate ablation configuration
-    ablation_config = generate_ablation_config(
-        dataset_name="validation",
-          trajectory_ids=trajectory_ids,
-          config=config
-    )
-    
-    # Load trajectories (this reads from raw data based on IDs)
-    # Note: load_trajectories expects to find raw data files
-    logger.info("Loading trajectory data for ablation...")
+    # 2. Execute ablation study on the 'validation' set
+    # The run_ablation_study function expects the dataset_name (without '_set')
+    # and constructs the path internally.
     try:
-        trajectories = load_trajectories(trajectory_ids, config)
-        if not trajectories:
-            logger.error("No trajectory data found for the specified IDs.")
-            logger.error("Ensure data/raw/ contains valid trajectory files.")
-            sys.exit(1)
+        run_ablation_study('validation')
+        logger.info("T008b completed successfully.")
     except Exception as e:
-        logger.error(f"Failed to load trajectories: {e}")
-        sys.exit(1)
-    
-    # Run the ablation study
-    logger.info("Running ablation study (this may take a while)...")
-    ablation_results = run_ablation_study(
-        trajectories=trajectories,
-        config=ablation_config
-    )
-    
-    # Write output
-    logger.info(f"Writing results to: {output_file}")
-    with open(output_file, 'w') as f:
-        json.dump(ablation_results, f, indent=2)
-    
-    logger.info(f"Ablation study complete. Generated {len(ablation_results)} labels.")
-    logger.info("T008b completed successfully.")
-    
-    return 0
+        logger.error(f"Ablation study failed: {e}")
+        raise
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

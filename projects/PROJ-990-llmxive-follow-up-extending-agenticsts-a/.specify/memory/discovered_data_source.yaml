@@ -1,18 +1,16 @@
 status: none
-intent: download AgenticSTS trajectory dataset with per turn metrics and memory utility
+intent: AgenticSTS trajectory dataset with per-turn metrics and memory layer utility
   python package dataset
 required_fields:
-- game_id
 - turn_id
 - health_ratio
 - enemy_threat_level
 - deck_size
 - move_entropy
-- memory_layer_id
 - ground_truth_memory_layer_utility
-- memory_layer_token_count
 - selected_memory_layers
-- prompt_token_budget
-cache_key: 240598bcd9e9c2985d7b323c8caaf316afb407a1901b1f825f913704f2cbb6e8
-searched_at: '2026-07-22T18:34:39.601051+00:00'
+- token_budget
+- decision_action
+cache_key: dced12a6a8f5ec91a6c80d0584946b0dabdaf507c0f81d2e58cdf946ce843c26
+searched_at: '2026-07-27T11:29:27.645379+00:00'
 retry_count: 1

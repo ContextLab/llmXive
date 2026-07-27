@@ -1,34 +1,3 @@
-T005:
-  c: false
-  h: 31c7021babaac00013cd15b1081032035b2675037cdbfe2b0dc23635b592f775
-  r: 'The repository lacks the required `data/processed/metrics_with_moves.csv` and
-    the `edge_case_warnings.log` file, so the script cannot be exercised. Moreover,
-    `code/entropy.py` does not detect NaN/Inf results, does not return `float(''inf'')`
-    as a sentinel, and never writes the exact warning text `"Warning: NaN/Inf entropy
-    detected at trajectory {id}, turn {turn}"` to the log. These missing pieces must
-    be added for the task to be considered complete.'
-T006:
-  c: false
-  h: 1d296f52b76707356c15373f8d8b60c7ee61558c5e63af047d7aba45f0763199
-  r: "The required output file `data/processed/metrics_with_moves.csv` does not exist,\
-    \ and the provided `code/parser.py` is incomplete (truncated and lacking logic\
-    \ to compute move entropy and write the specified CSV). Consequently the task\u2019\
-    s core requirement is unmet."
-T014a:
-  c: false
-  h: 4448ebab375abeac5abba24a20b58fabb24d2fd5f348c2d4237fc09bf2a28812
-  r: "The repository contains a partially\u2011written `code/splitter.py` that ends\
-    \ abruptly and never writes the required CSV files or `validation_set_ids.json`.\
-    \ The expected output files (`train_set.csv`, `ablation_train_set.csv`, `validation_set.csv`,\
-    \ `test_set.csv`, `validation_set_ids.json`) are absent from `data/processed/`.\
-    \ Consequently the split is not performed nor saved, violating the task requirements."
-T017:
-  c: false
-  h: 6a5877bb5e84a9a8907d0fb980944d3652974557b1dc9170bfb5c9be4fe952e3
-  r: The required output file `data/processed/simulation_logs_dynamic.json` is missing,
-    so the dynamic simulation was not executed and no logs (including the required
-    mode flag) were produced. The implementer must generate this JSON file with the
-    simulation results.
 T019:
   c: false
   h: 033c31af7351e253a1f1bd8e48dbd27e2572a8aea33f27ed9391c74f264bc8d4
