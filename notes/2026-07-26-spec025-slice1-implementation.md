@@ -17,9 +17,11 @@ Plans (both maintainer-reviewed through **round 7**, all findings resolved):
 | 1A T1 — extract `git_event_log.py`, rewire `ledger_transport` | DONE | `7a179b49c8` (+ plan fix `a20e005857`) |
 | 1A T2 — lane `Event` + validation + `TYPE_VALIDATORS` | DONE | `a270b6927e` |
 | T1/T2 round-8 review: two fail-open gaps closed | DONE | `abdb8d1536` (+ plan `6e805708de`) |
-| 1A T3 — `lane_log.py` on the shared core | DONE | (this commit) |
-| 1A T4 — `LaneCoordinator` projection | next | — |
-| 1A T5–T14, 1B T1–T10 | not started | — |
+| 1A T3 — `lane_log.py` on the shared core | DONE | `aba549ffa6` (+ plan/notes `c1040ab7ae`) |
+| 1A T4 — `LaneCoordinator` projection + coordinator payload schemas | DONE | `0ec22fc977` |
+| 1A T5 — ownership-checked coordinator CAS | DONE | `173285d0c1` |
+| 1A T6 — `AttemptCreditLedger` reservation projection | next | — |
+| 1A T7–T14, 1B T1–T10 | not started | — |
 
 ## Money-path acceptance bar (T1)
 
@@ -83,6 +85,22 @@ python -m pytest tests/integration/test_credit_ledger_transport.py \
    sibling `ledger_transport._log_ref` already does it: `config: LaneLogConfig | None =
    None`, resolved inside `_log_ref`. Plan signatures updated to match.
 
+8. **Coordinator payload schemas live in `TYPE_VALIDATORS`, not the projection** (T4).
+   `ClaimAcquired`/`ClaimReleased` carry the OWNERSHIP record the fold reads and
+   `cas_release` compares, so a missing/empty id is refused at the write boundary rather
+   than surfacing as a KeyError once durable. The payload `attempt_id` cross-checks the
+   envelope's (so `cas_claim`/`cas_release` MUST set `Event.attempt_id`); the payload
+   `problem_id` does NOT (envelope = `COORDINATOR_STREAM`, payload = the CLAIMED Problem).
+
+9. **Delayed duplicate release = idempotent no-op** (T5) — MAINTAINER-DECIDED 2026-07-26.
+   The plan contradicted itself: its precondition (`landed OR owns`) admits the case while
+   the next sentence and its test expected `LaneRevisionConflict`. Both are safe (neither
+   clears the newer claim); the no-op wins because the release IS already durable, so
+   raising would manufacture a failure for a legitimate retry. A genuine NON-owner (record
+   never landed, someone else active) still conflicts. Idempotency keys are
+   `(op, problem_id, attempt_id)`, which is sound only because Attempt ids are single-use
+   ("a crashed Attempt is a failed Attempt") — do not reuse an attempt_id after a release.
+
 ## Known-failing, NOT caused by this work
 
 `tests/unit/test_dataset_sources.py::test_openml_*` (2) fail in this sandbox: they are
@@ -103,5 +121,5 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
 
 ## Next step
 
-1A Task 4: `LaneCoordinator` projection — the first CONSUMER of `lane_log.read`, so it
-inherits the fail-closed reads for free. Task 4's full text is in the 1A plan.
+1A Task 6: `AttemptCreditLedger` reservation projection (`credit_ledger.py`) — the
+transition matrix + `counting_total`. Task 6's full text is in the 1A plan.

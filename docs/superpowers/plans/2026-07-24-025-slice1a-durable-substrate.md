@@ -1166,7 +1166,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1A T4): LaneCoordinat
 - Consumes: `project_coordinator` (Task 4); `append`, `read`, `LaneRevisionConflict` (Task 3); `Event`, `COORDINATOR_STREAM`, `derive_event_id` (Task 2).
 - Produces:
   - `cas_claim(repo, *, problem_id, attempt_id, actor, timestamp, config=LaneLogConfig()) -> LaneCoordinator` — reads the coordinator stream; builds a `ClaimAcquired` event (idempotency key `("claim", problem_id, attempt_id)`, `expected_lane_revision = current.lane_revision`); appends with a precondition that admits the claim iff **the claim already landed (idempotent) OR the lane is idle** (`active_problem_id is None`). Raises `LaneRevisionConflict` when the lane is occupied by a different Problem or the revision moved. Returns the new projection.
-  - `cas_release(repo, *, problem_id, attempt_id, actor, timestamp, config=LaneLogConfig()) -> LaneCoordinator` — appends `ClaimReleased` (idempotency key `("release", problem_id, attempt_id)`) with an **ownership precondition** (F6): admit iff **this exact release already landed (idempotent) OR the current active pair equals `(problem_id, attempt_id)`**. A delayed release from an old `(P1,A1)` MUST NOT clear a newer `(P2,A2)` claim → it fails the precondition → `LaneRevisionConflict`.
+  - `cas_release(repo, *, problem_id, attempt_id, actor, timestamp, config: LaneLogConfig | None = None) -> LaneCoordinator` — appends `ClaimReleased` (idempotency key `("release", problem_id, attempt_id)`) with an **ownership precondition** (F6): admit iff **this exact release already landed (idempotent) OR the current active pair equals `(problem_id, attempt_id)`**. A release from a NON-OWNER — one whose own record never landed, while another Attempt holds the lane — fails the precondition → `LaneRevisionConflict`. Ownership is the PAIR, so an earlier Attempt on the same Problem is still a non-owner.
+    **Maintainer-decided 2026-07-26** (an earlier revision of this line contradicted itself): a delayed DUPLICATE release, whose own record is already durable, is an **idempotent no-op** — it neither appends a second record nor raises, and the returned projection shows whoever holds the lane now, possibly another Attempt. It is reporting a fact, not requesting a change, and both readings satisfy the safety requirement (neither clears the newer claim); this one does not manufacture a failure for a legitimate retry of work that already succeeded.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1202,14 +1203,23 @@ def test_claim_is_idempotent_on_reinvocation(repo):
     b = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)  # re-invoked
     assert a == b and b.lane_revision == 1  # no duplicate event, same projection
 
-def test_release_requires_ownership_stale_release_cannot_clear_newer_claim(repo):
-    # F6 regression: P1/A1 claims, releases (lane idle), P2/A2 claims; a DELAYED
-    # duplicate release from P1/A1 must NOT clear P2/A2's active claim.
+def test_a_release_from_a_non_owner_cannot_clear_the_active_claim(repo):
+    # F6 regression: a caller that believes it holds the lane must not evict the Attempt
+    # that actually does. This release's own record never landed, so it is a non-owner.
+    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    with pytest.raises(LaneRevisionConflict, match="owner mismatch"):
+        cas_release(repo, problem_id="PX", attempt_id="AX", actor="d", timestamp=TS)
+    assert project_coordinator(read(repo, COORDINATOR_STREAM)).active_problem_id == "P1"
+
+def test_a_delayed_duplicate_release_does_not_disturb_a_newer_claim(repo):
+    # The maintainer-decided case: P1/A1's release is ALREADY durable, so a delayed retry
+    # is an idempotent no-op — no second record, no raise, and P2/A2 keeps the lane.
     cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
     cas_claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
-    with pytest.raises(LaneRevisionConflict):
-        cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)  # stale, wrong owner
+    late = cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    assert (late.active_problem_id, late.active_attempt_id) == ("P2", "A2")
+    assert late.lane_revision == 3  # no fourth record
     # sanity: the correct owner can release
     c = cas_release(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
     assert c.active_problem_id is None
@@ -1274,7 +1284,7 @@ def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, tim
     return project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
 ```
 
-- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_coordinator_cas.py -q` → PASS (4 passed, incl. the stale-release regression).
+- [ ] **Step 4: Run test to verify it passes** — `pytest tests/integration/test_self_improvement_coordinator_cas.py -q` → PASS (**8 passed**), incl. the non-owner regression, the delayed-duplicate case, the right-Problem-wrong-Attempt refusal, a rejected CAS leaving NO record, the lane cycling through three Attempts, and a check that the claim record carries its Attempt on the ENVELOPE (the T4 validators cross-check it) with the store-stamped anchors `seq=0, expected=0, resulting=1`.
 
 - [ ] **Step 5: Commit**
 
