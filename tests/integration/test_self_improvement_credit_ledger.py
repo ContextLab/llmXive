@@ -263,6 +263,31 @@ def test_reconcile_is_idempotent(repo):
     assert len([e for e in read(repo, "P1") if e.event_type == "AttemptCreditReconciled"]) == 1
 
 
+def test_only_the_caller_that_transitioned_reports_the_id_as_moved(repo):
+    # The returned ids mean "this call transitioned them", not "these are now reconciled" —
+    # otherwise two concurrent reconciles both claim the same work.
+    led = _ledger(repo)
+    led.reserve(3.0, reservation_id="r1", call_id="c1")
+    led.mark_retained("r1")
+    barrier = threading.Barrier(2, timeout=30)
+    results, lock = [], threading.Lock()
+
+    def _go():
+        barrier.wait()
+        moved = led.reconcile({"r1"})
+        with lock:
+            results.append(tuple(moved))
+
+    ts = [threading.Thread(target=_go) for _ in range(2)]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(timeout=60)
+
+    assert sorted(results) == [(), ("r1",)], f"both callers claimed the transition: {results}"
+    assert len([e for e in read(repo, "P1") if e.event_type == "AttemptCreditReconciled"]) == 1
+
+
 def test_reconciled_credits_still_count(repo):
     # Reconciled means BILLED, so the money is gone — the only state that gives credits
     # back is `released`.

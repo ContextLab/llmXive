@@ -23,8 +23,10 @@ from llmxive.model_selection.attempt_hooks import (
 )
 from llmxive.model_selection.types import ModelRef, SnapshotProvenance
 from llmxive.self_improvement.audit_sink import (
+    RECONCILE_SAFETY_FACTOR,
     EventStoreRouteAudit,
     dangling_dispatches,
+    reconcile_timeout_s,
     reconcile_unknown,
 )
 from llmxive.self_improvement.credit_ledger import (
@@ -288,6 +290,215 @@ def test_reconciliation_leaves_a_second_open_reservation_alone(repo):
                       clock=lambda: LATER, now=LATER, timeout_s=60.0)
     res = project_reservations(read(repo, "P1"), "A1")
     assert res["res-1"].state == STATE_RETAINED and res["res-2"].state == STATE_OPEN
+
+
+# ---- terminal disposition is exclusive ----
+
+
+def _terminals(repo, config=None):
+    return sorted(e.event_type for e in read(repo, "P1", config=config)
+                  if e.event_type in ("DispatchCompleted", "DispatchUnknown"))
+
+
+def test_a_completion_after_an_unknown_is_refused(repo):
+    # The reverse race. Recording a completion over a dispatch already marked unknown would
+    # leave two contradictory final dispositions for one dispatch.
+    sink = _sink(repo)
+    sink.record(_started())
+    sink.record(DispatchUnknown(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                                reservation_id="res-1"))
+    with pytest.raises(RouteAuditError):
+        emit_audit(sink, DispatchCompleted(route_id="r-1", candidate_index=0,
+                                           candidate=CANDIDATE, reservation_id="res-1"))
+    assert _terminals(repo) == ["DispatchUnknown"]
+
+
+def test_an_unknown_after_a_completion_is_refused(repo):
+    sink = _sink(repo)
+    sink.record(_started())
+    sink.record(DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                                  reservation_id="res-1"))
+    with pytest.raises(RouteAuditError):
+        emit_audit(sink, DispatchUnknown(route_id="r-1", candidate_index=0,
+                                         candidate=CANDIDATE, reservation_id="res-1"))
+    assert _terminals(repo) == ["DispatchCompleted"]
+
+
+def test_a_terminal_outcome_blocks_a_later_unknown(repo):
+    sink = _sink(repo)
+    sink.record(_started())
+    sink.record(CandidateOutcome(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                                 outcome="advance", reason="fell through"))
+    with pytest.raises(RouteAuditError):
+        emit_audit(sink, DispatchUnknown(route_id="r-1", candidate_index=0,
+                                         candidate=CANDIDATE, reservation_id="res-1"))
+
+
+def test_a_byte_identical_terminal_replay_is_still_idempotent(repo):
+    # The precondition must not refuse a record its OWN committed copy already satisfies.
+    sink = _sink(repo)
+    sink.record(_started())
+    done = DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                             reservation_id="res-1")
+    sink.record(done)
+    _sink(repo, clock=lambda: LATER).record(done)  # replay from a later clock
+    assert _terminals(repo) == ["DispatchCompleted"]
+
+
+def test_a_terminal_record_does_not_block_a_different_candidate(repo):
+    sink = _sink(repo)
+    sink.record(_started(index=0))
+    sink.record(_started(index=1))
+    sink.record(DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                                  reservation_id="res-1"))
+    sink.record(DispatchUnknown(route_id="r-1", candidate_index=1, candidate=CANDIDATE,
+                                reservation_id="res-1"))
+    assert _terminals(repo) == ["DispatchCompleted", "DispatchUnknown"]
+
+
+def test_completion_and_reconciliation_racing_from_one_parent_yield_one_disposition(tmp_path):
+    # THE race: both workers sync to the same parent, then one records a completion while
+    # the other reconciles the same dispatch as unknown. Exactly one may become
+    # authoritative — a dispatch cannot be both completed and unknown.
+    bare = tmp_path / "remote.git"
+    subprocess.run(["git", "init", "--bare", "-q", str(bare)], check=True)
+    clones = []
+    for name in ("c1", "c2"):
+        dst = tmp_path / name
+        subprocess.run(["git", "clone", "-q", str(bare), str(dst)], check=True)
+        _git(dst, "config", "user.email", "t@t")
+        _git(dst, "config", "user.name", "t")
+        clones.append(dst)
+    anchor = bootstrap_lane_log(clones[0], config=LaneLogConfig(remote="origin"))
+    cfg = LaneLogConfig(remote="origin", expected_anchor=anchor)
+    _sink(clones[0], config=cfg).record(_started())
+
+    barrier = threading.Barrier(2, timeout=30)
+    outcomes, lock = [], threading.Lock()
+
+    def _complete():
+        barrier.wait()
+        try:
+            _sink(clones[0], clock=lambda: LATER, config=cfg).record(
+                DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                                  reservation_id="res-1"))
+            with lock:
+                outcomes.append("completed")
+        except Exception:
+            with lock:
+                outcomes.append("completion-refused")
+
+    def _reconcile():
+        barrier.wait()
+        moved = reconcile_unknown(clones[1], problem_id="P1", attempt_id="A1", actor="exec",
+                                  clock=lambda: LATER, now=LATER, timeout_s=60.0, config=cfg)
+        with lock:
+            outcomes.append("marked-unknown" if moved else "reconcile-skipped")
+
+    ts = [threading.Thread(target=_complete), threading.Thread(target=_reconcile)]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(timeout=60)
+
+    terminals = _terminals(clones[0], cfg)
+    assert len(terminals) == 1, f"contradictory terminal history {terminals} from {outcomes}"
+    # and the loser reported losing rather than claiming success
+    assert ("completed" in outcomes) != ("marked-unknown" in outcomes), outcomes
+
+
+# ---- resolution is scoped to the requested Attempt ----
+
+
+def test_another_attempts_completion_does_not_resolve_this_attempts_dispatch(repo):
+    # Route ids are caller-supplied at this layer, so an identically keyed dispatch under
+    # A2 must not suppress reconciliation of A1's dangling one.
+    _record_started(repo, attempt="A1")
+    _sink(repo, attempt="A2").record(
+        DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                          reservation_id="res-1"))
+    dangling = dangling_dispatches(read(repo, "P1"), attempt_id="A1", now=LATER, timeout_s=60.0)
+    assert [d["route_id"] for d in dangling] == ["r-1"]
+
+
+def test_this_attempts_completion_does_not_resolve_another_attempts_dispatch(repo):
+    _record_started(repo, attempt="A2")
+    _sink(repo, attempt="A1").record(
+        DispatchCompleted(route_id="r-1", candidate_index=0, candidate=CANDIDATE,
+                          reservation_id="res-1"))
+    dangling = dangling_dispatches(read(repo, "P1"), attempt_id="A2", now=LATER, timeout_s=60.0)
+    assert [d["route_id"] for d in dangling] == ["r-1"]
+
+
+def test_two_attempts_can_record_the_same_route_key(repo):
+    # The slice-0 event_id is `route_id:candidate_index:kind` with no Attempt in it, so the
+    # lane id has to add one. Without that, A2's record derives A1's lane id with a
+    # different payload and dies on the append-only guard — the Attempt-scoped contract
+    # would be unenforceable at the storage layer, not merely unenforced in the queries.
+    _sink(repo, attempt="A1").record(_started(reservation="res-a1"))
+    _sink(repo, attempt="A2").record(_started(reservation="res-a2"))
+    started = [e for e in read(repo, "P1") if e.event_type == "DispatchStarted"]
+    assert sorted(e.attempt_id for e in started) == ["A1", "A2"]
+
+
+def test_claim_dispatch_is_scoped_to_its_attempt(repo):
+    # A different Attempt IS a different dispatch, so it gets its own claim; a replay within
+    # one Attempt still refuses.
+    assert _sink(repo, attempt="A1").claim_dispatch(_started()) is True
+    assert _sink(repo, attempt="A2").claim_dispatch(_started()) is True
+    assert _sink(repo, attempt="A1").claim_dispatch(_started()) is False
+
+
+def test_an_identically_keyed_dispatch_in_another_attempt_can_also_be_marked(repo):
+    # Two Attempts, same caller-supplied route key: each owns its own terminal disposition,
+    # so marking one must not block the other.
+    _record_started(repo, attempt="A1")
+    _record_started(repo, attempt="A2")
+    args = dict(problem_id="P1", actor="exec", clock=lambda: LATER, now=LATER, timeout_s=60.0)
+    assert reconcile_unknown(repo, attempt_id="A1", **args) == ["r-1"]
+    assert reconcile_unknown(repo, attempt_id="A2", **args) == ["r-1"]
+    assert _terminals(repo) == ["DispatchUnknown", "DispatchUnknown"]
+
+
+# ---- the timeout must be able to bound something ----
+
+
+@pytest.mark.parametrize("bad", [0, -1.0, float("nan"), float("inf"), True, "60"])
+def test_a_timeout_that_cannot_bound_anything_is_refused(repo, bad):
+    # Zero or negative marks a still-running dispatch unknown the instant it starts — the
+    # opposite of the conservative guarantee the API promises.
+    _record_started(repo)
+    with pytest.raises(ValueError, match="timeout_s"):
+        dangling_dispatches(read(repo, "P1"), attempt_id="A1", now=LATER, timeout_s=bad)
+    with pytest.raises(ValueError, match="timeout_s"):
+        reconcile_unknown(repo, problem_id="P1", attempt_id="A1", actor="exec",
+                          clock=lambda: LATER, now=LATER, timeout_s=bad)
+
+
+def test_the_derived_timeout_covers_the_whole_retry_envelope():
+    # deadline * (retries + 1) * margin — the derivation is the reviewed one, so a caller
+    # cannot arrive at a plausible-looking number by another route.
+    assert reconcile_timeout_s(deadline_s=30.0, retries=3) == 30.0 * 4 * RECONCILE_SAFETY_FACTOR
+    assert reconcile_timeout_s(deadline_s=30.0, retries=0) == 30.0 * 1 * RECONCILE_SAFETY_FACTOR
+    # strictly longer than the worst case it must not preempt
+    assert reconcile_timeout_s(deadline_s=30.0, retries=3) > 30.0 * 4
+
+
+def test_an_unbounded_call_cannot_yield_a_conservative_timeout():
+    # deadline_s=None is route_chat's DEFAULT, so this is the common case, not a corner:
+    # with no worst case there is no timeout that proves the dispatch could not still be
+    # running, and inventing one would only look conservative.
+    with pytest.raises(ValueError, match="unbounded"):
+        reconcile_timeout_s(deadline_s=None, retries=3)
+
+
+@pytest.mark.parametrize("deadline, retries", [
+    (0.0, 3), (-1.0, 3), (float("inf"), 3), (float("nan"), 3), (True, 3),
+    (30.0, -1), (30.0, True), (30.0, 1.5),
+])
+def test_a_malformed_envelope_is_refused(deadline, retries):
+    with pytest.raises(ValueError):
+        reconcile_timeout_s(deadline_s=deadline, retries=retries)
 
 
 def test_a_naive_now_is_refused(repo):

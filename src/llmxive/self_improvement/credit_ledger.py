@@ -228,11 +228,14 @@ class AttemptCreditLedger:
 
     # -- transitions -----------------------------------------------------------
 
-    def _cas_append(self, event_type: str, idem: tuple[str, ...], payload: dict) -> None:
-        """Append one state transition, or no-op if the reservation is no longer in a legal
-        source state. The legal sources are read from :data:`_TRANSITIONS` — the SAME table
-        the projection folds, so the CAS can never admit an edge the projection would then
-        reject."""
+    def _cas_append(self, event_type: str, idem: tuple[str, ...], payload: dict) -> bool:
+        """Append one state transition; ``True`` iff THIS call committed it.
+
+        ``False`` covers both no-op cases — the reservation is no longer in a legal source
+        state, or an identical transition was already committed — so a caller can report
+        what it actually did rather than what merely ended up true. The legal sources are
+        read from :data:`_TRANSITIONS`, the SAME table the projection folds, so the CAS can
+        never admit an edge the projection would then reject."""
         rid = str(payload["reservation_id"])
         legal_sources = _TRANSITIONS[event_type]
         event_id = self._event_id(idem)
@@ -244,7 +247,7 @@ class AttemptCreditLedger:
                 # A concurrent LEGAL transition won (a release lost to a retain, say). The
                 # method contract is idempotent, so this is a no-op — not a retry, and not
                 # an error.
-                return
+                return False
             event = self._event(event_type, event_id, payload)
 
             def _may_transition(evs: list[Event], _rid=rid) -> tuple[bool, str]:
@@ -257,9 +260,8 @@ class AttemptCreditLedger:
                 return (ok, "" if ok else f"illegal transition from {r.state!r}")
 
             try:
-                append(self._repo, event, expected_revision=None, precondition=_may_transition,
-                       config=self._config)
-                return
+                return append(self._repo, event, expected_revision=None,
+                              precondition=_may_transition, config=self._config).created
             except LaneRevisionConflict:
                 continue  # revision moved; the top-of-loop re-check decides no-op vs retry
         raise LaneContention(f"{event_type} CAS did not converge for {rid!r}")
@@ -287,16 +289,22 @@ class AttemptCreditLedger:
     # -- reconcile -------------------------------------------------------------
 
     def reconcile(self, reconciled_ledger_ids: set[str]) -> list[str]:
-        """Move every ``retained`` reservation whose id settled upstream to ``reconciled``,
-        returning the ids moved. Idempotent: an already-reconciled id is not re-moved, and
-        a retained id absent from the settled set is left alone."""
+        """Move every ``retained`` reservation whose id settled upstream to ``reconciled``.
+
+        The returned ids are the ones THIS call transitioned — not merely the ones that are
+        now reconciled. Two concurrent identical reconciles therefore do not both claim the
+        same id: the loser's append is an idempotent no-op and it reports nothing, so a
+        consumer counting these as work performed counts each transition once.
+
+        Idempotent: an already-reconciled id is not re-moved, and a retained id absent from
+        the settled set is left alone."""
         with self._lock:
             res = project_reservations(self._read(), self._attempt_id)
             moved: list[str] = []
             for rid, r in res.items():
-                if r.state == STATE_RETAINED and rid in reconciled_ledger_ids:
-                    self._cas_append("AttemptCreditReconciled", ("reconcile", rid),
-                                     {"reservation_id": rid})
+                if (r.state == STATE_RETAINED and rid in reconciled_ledger_ids
+                        and self._cas_append("AttemptCreditReconciled", ("reconcile", rid),
+                                             {"reservation_id": rid})):
                     moved.append(rid)
             return moved
 

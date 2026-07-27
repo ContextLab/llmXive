@@ -142,9 +142,40 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     stream before any reservation or claim. Tests that asserted an empty stream need to
     assert "no credit event" instead.
 
+13. **Terminal audit dispositions are mutually exclusive** (round-9 blocker). `record` +
+    `reconcile_unknown` both appended unconditionally, so a completion landing between
+    reconciliation's read and its append left TWO contradictory terminal records for one
+    dispatch (and the reverse order did the same). Terminal records now carry a CAS
+    precondition keyed `(attempt, route, candidate)`; `record` raises on a loss (route-fatal
+    via `emit_audit`), `reconcile_unknown` skips (a real completion winning is correct). One
+    `_terminal_key` serves the dangling scan AND the precondition so they cannot drift.
+
+14. **Attempt scoping had to hold in the STORAGE key, not just the query** (round-9). The
+    review found the resolution scan unscoped; fixing it surfaced the deeper half: the lane
+    `event_id` hashed `"audit\0" + slice0_id`, and the slice-0 id is
+    `route_id:candidate_index:kind` with NO attempt — so two Attempts sharing a
+    caller-supplied route key derived the same lane id and the second died on the
+    append-only guard. The attempt is now in the hash. Caught by writing the cross-Attempt
+    test the review asked for.
+
+15. **`reconcile_timeout_s` is the only sanctioned way to get a timeout.** A free-form
+    number cannot establish "never before it could have finished". `deadline_s=None` —
+    `route_chat`'s DEFAULT — raises rather than inventing a floor that merely looks
+    conservative.
+
+16. **`_cas_append` returns `created`,** so `reconcile`'s returned ids mean "this call
+    transitioned them", not "these are now reconciled". Two concurrent identical reconciles
+    no longer both claim the same work.
+
 ## Next step
 
-Slice 1A is complete (14/14 tasks). Before starting 1B: a maintainer review of the whole
-substrate is the natural gate — the last one (round 8) came after T1/T2 and found two
-fail-open gaps. 1B's plan is
+Slice 1A is complete (14/14 tasks) and round-9 reviewed: one blocker (terminal-disposition
+race) + two correctness gaps (Attempt scoping, timeout validation) fixed, plus the deeper
+storage-key scoping bug those fixes exposed. 1B's plan is
 `docs/superpowers/plans/2026-07-25-025-slice1b-proposal-convergence.md` (10 tasks).
+
+**Do not re-commit `notes/2026-07-15-issue-1139-audit-T+7min.md`.** It is unrelated user
+work that was untracked at session start; `8097c5b183` swept it in and `git rm --cached`
+put it back to untracked (contents never inspected or altered). It is still in that
+commit's history — if the branch is squashed or rebased at PR time, confirm it does not
+reappear in the tree.
