@@ -89,3 +89,11 @@ T036:
     also saves the fetched data to `data/raw/arc_bench.json` instead of processing
     it into `data/derived/parsed_traces.json`, and that target file is missing. Consequently
     the required behavior and output are not fulfilled.
+T044:
+  c: false
+  h: 03a328c801be7001dcdf83c2be923e86ab00ce336fdbe38525f0e1d15513f2eb
+  r: "The required output file `data/derived/power_analysis_report.json` is absent,\
+    \ and the provided `power_analysis.py` does not clearly compute power for the\
+    \ mixed\u2011effects regression nor write the JSON report (the script is truncated\
+    \ and lacks a final write step). The task\u2019s core deliverable is therefore\
+    \ missing."

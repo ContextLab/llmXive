@@ -89,13 +89,13 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 - **SC-002**: The "Success Rate of First Pivot" for the distilled engine is measured against the baseline agent's success rate, stratified by failure type to test the structural dichotomy hypothesis (See US-2).
 - **SC-003**: The statistical significance of the interaction term (Failure Type * Method) in the mixed-effects logistic regression is measured against a standard alpha threshold, where significance is determined if the p-value < 0.05, to determine if failure structure dictates method viability (See US-3).
 - **SC-004**: The proportion of failed pivots attributed to "Coverage Gap" vs. "Distillation Error" is measured against the total number of failures to determine the primary source of rule-engine limitations, using the ground-truth resolution as the arbiter (See US-3).
-- **SC-005**: The total compute time and peak memory usage of the entire experiment (data processing, distillation, execution, analysis) are measured against the GitHub Actions free-tier limits (several hours, multiple cores, 7 GB RAM) (See US-2).
+- **SC-005**: The total compute time and peak memory usage of the entire experiment (data processing, distillation, execution, analysis) are measured against the GitHub Actions free-tier limits (several hours, multiple cores, limited RAM) (See US-2).
 
 ## Assumptions
 
 - The ARC-Bench dataset (25-topic subset) is accessible via the official repository linked in the *Claw AI Lab* paper and contains sufficient failure-resolution pairs for the analysis.
 - The "full-mode" baseline agent can be executed on standard resources (a multi-core CPU and sufficient memory) without exceeding hardware limits.
-- The small language model used for distillation (e.g., Llama-INT) will run within the constrained RAM limit on a 2-core CPU runner.; if it exceeds this, the dataset will be sampled further to ensure feasibility.
+- The small language model used for distillation (e.g., Llama-INT) will run within the constrained RAM limit on a CPU runner.; if it exceeds this, the dataset will be sampled further to ensure feasibility.
 - The structural features (syntactic vs. semantic) are mutually exclusive and can be reliably annotated with high inter-rater agreement using the defined taxonomy.
 - The "Time-to-Pivot" metric is measurable within the CI environment without requiring external network latency or GPU acceleration.
 - The mixed-effects logistic regression model can be fitted using standard Python libraries (e.g., `statsmodels` or `lme` equivalent) within a feasible time limit for the given sample size.
