@@ -1,68 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: SWEExploreDatasetSchema
-description: >
-  Schema for the curated SWE-Explore dataset artifacts.
-  Defines the structure for hard_subset.jsonl and synthetic_issues.jsonl.
+title: SWE-Explore Dataset Schema
+description: Schema for the raw and curated SWE-Explore benchmark dataset artifacts.
 type: object
 required:
   - issue_id
-  - repo
+  - repo_name
   - base_commit
   - instance_id
   - problem_statement
-  - ground_truth_lines
-  - coverage_score
-  - source_type
+  - test_patch
+  - patch
+  - repo_link
+  - created_at
+  - version
 properties:
   issue_id:
     type: string
-    description: Unique identifier for the issue (e.g., "swe-bench/123" or "synthetic/001")
-  repo:
+    description: Unique identifier for the issue instance.
+  repo_name:
     type: string
-    description: Repository name (e.g., "swe-bench/eval")
+    description: Name of the repository (e.g., 'sphinx-doc/sphinx').
   base_commit:
     type: string
-    description: Git commit hash for the base code
+    description: SHA of the base commit.
   instance_id:
     type: string
-    description: Original instance ID from the benchmark
+    description: Alternative or specific instance identifier.
   problem_statement:
     type: string
-    description: The natural language problem description
+    description: The text of the issue or problem to solve.
+  test_patch:
+    type: string
+    description: The patch containing the test cases added for this issue.
+  patch:
+    type: string
+    description: The ground truth solution patch.
+  repo_link:
+    type: string
+    description: URL to the repository.
+  created_at:
+    type: string
+    format: date-time
+    description: Timestamp of issue creation.
+  version:
+    type: string
+    description: Dataset version string.
+  # Derived/Computed fields (optional in raw, present in curated)
   ground_truth_lines:
     type: array
     items:
       type: integer
-    description: List of line numbers (1-based) that constitute the ground truth solution
-  coverage_score:
+    description: Line numbers of the ground truth solution (derived).
+  initial_coverage:
     type: number
+    format: float
     minimum: 0.0
     maximum: 1.0
-    description: Initial coverage score used to determine 'hard' status
-  source_type:
-    type: string
-    enum:
-      - original
-      - synthetic
-    description: Whether this instance is from the original benchmark or synthetically generated
-  mutation_metadata:
+    description: Initial retrieval coverage score (used for hard instance selection).
+  complexity_score:
+    type: number
+    format: float
+    description: Cyclomatic complexity score (diagnostic only).
+  is_hard:
+    type: boolean
+    description: Flag indicating if the instance is in the hard subset.
+  metadata:
     type: object
-    description: >
-      Metadata for synthetic issues. Only present if source_type is 'synthetic'.
-      Contains hash of original code and mutation parameters.
-    properties:
-      original_code_hash:
-        type: string
-      mutation_type:
-        type: string
-        enum:
-          - variable_rename
-          - comment_removal
-          - control_flow_reorder
-          - api_signature_change
-      mutation_params:
-        type: object
-    required:
-      - original_code_hash
-      - mutation_type
-additionalProperties: false
+    description: Additional metadata fields.

@@ -1,91 +1,89 @@
+"""
+Setup script for linting and formatting tools (T001b).
+This script ensures the necessary configuration files exist
+and can be used to install dev dependencies if needed.
+"""
 import os
 import sys
 from pathlib import Path
 import subprocess
 
-def ensure_requirements() -> None:
-    """Ensure linting and formatting tools are installed."""
-    tools = ["ruff", "black", "flake8"]
-    for tool in tools:
+def ensure_requirements():
+    """Check if dev requirements are installed."""
+    try:
+        import ruff
+        import black
+        import flake8
+        print("✓ Linting dependencies (ruff, black, flake8) are installed.")
+        return True
+    except ImportError:
+        print("⚠ Linting dependencies not found. Installing...")
         try:
-            subprocess.run([sys.executable, "-m", "pip", "install", tool], check=True)
-            print(f"Installed: {tool}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", ".[dev]"])
+            print("✓ Dependencies installed successfully.")
+            return True
         except subprocess.CalledProcessError:
-            print(f"Failed to install: {tool}")
+            print("✗ Failed to install dependencies. Please install manually: pip install -e '.[dev]'")
+            return False
 
-def create_ruff_config() -> None:
-    """Create ruff configuration file."""
-    base_dir = Path(__file__).resolve().parent.parent
-    config_path = base_dir / "pyproject.toml"
-    
-    content = """[tool.ruff]
-line-length = 88
-target-version = "py39"
+def create_ruff_config():
+    """Ensure .ruff.toml exists."""
+    ruff_config = Path("code/.ruff.toml")
+    if not ruff_config.exists():
+        print("⚠ .ruff.toml not found. Creating default...")
+        ruff_config.write_text("""
+[lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008", "C408"]
 
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.per-file-ignores]
+[lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/*" = ["S101"]
-"""
-    
-    if not config_path.exists():
-        config_path.write_text(content)
-        print(f"Created: {config_path.relative_to(base_dir)}")
+""")
     else:
-        print(f"Exists: {config_path.relative_to(base_dir)}")
+        print("✓ .ruff.toml exists.")
 
-def create_black_config() -> None:
-    """Create black configuration file."""
-    base_dir = Path(__file__).resolve().parent.parent
-    config_path = base_dir / "pyproject.toml"
-    
-    # Append to existing if needed, but for simplicity we assume pyproject.toml handles both
-    # If separate config needed:
-    black_config = base_dir / ".black.toml"
+def create_black_config():
+    """Ensure .black.toml exists."""
+    black_config = Path("code/.black.toml")
     if not black_config.exists():
-        black_config.write_text("[tool.black]\nline-length = 88\ntarget-version = ['py39']\n")
-        print(f"Created: {black_config.relative_to(base_dir)}")
+        print("⚠ .black.toml not found. Creating default...")
+        black_config.write_text("""
+[tool.black]
+line-length = 88
+target-version = ['py310']
+""")
     else:
-        print(f"Exists: {black_config.relative_to(base_dir)}")
+        print("✓ .black.toml exists.")
 
-def create_flake8_config() -> None:
-    """Create flake8 configuration file."""
-    base_dir = Path(__file__).resolve().parent.parent
-    config_path = base_dir / ".flake8"
-    
-    content = """[flake8]
+def create_flake8_config():
+    """Ensure .flake8 exists (legacy compatibility)."""
+    flake8_config = Path("code/.flake8")
+    if not flake8_config.exists():
+        print("⚠ .flake8 not found. Creating default...")
+        flake8_config.write_text("""
+[flake8]
 max-line-length = 88
-exclude = .git,__pycache__,build,dist,.eggs
-ignore = E501,B008,C901
-"""
-    
-    if not config_path.exists():
-        config_path.write_text(content)
-        print(f"Created: {config_path.relative_to(base_dir)}")
+ignore = E501, W503
+exclude = .git,__pycache__,build,dist
+""")
     else:
-        print(f"Exists: {config_path.relative_to(base_dir)}")
+        print("✓ .flake8 exists.")
 
-def main() -> None:
-    """Entry point for linting setup."""
-    ensure_requirements()
+def main():
+    """Main entry point for T001b setup."""
+    print("Running T001b: Configure Linting and Formatting...")
+    
+    if not ensure_requirements():
+        print("⚠ Cannot proceed without dependencies.")
+        return 1
+
     create_ruff_config()
     create_black_config()
     create_flake8_config()
-    print("\nLinting and formatting tools configured.")
+
+    print("✓ T001b configuration complete.")
+    print("  Run 'ruff check code/' and 'black --check code/' to verify.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

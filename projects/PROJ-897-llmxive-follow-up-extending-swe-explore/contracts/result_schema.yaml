@@ -1,114 +1,118 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: ComparativeResultSchema
-description: >
-  Schema for comparative analysis results.
-  Contains aggregated metrics and statistical test outcomes.
+title: Analysis Result Schema
+description: Schema for the final aggregated metrics and statistical test results.
 type: object
 required:
-  - experiment_id
-  - timestamp
-  - sample_size
-  - paired_metrics
+  - analysis_timestamp
+  - total_issues
+  - coverage_metrics
+  - ranking_metrics
   - statistical_tests
 properties:
-  experiment_id:
-    type: string
-    description: Unique identifier for the experiment run
-  timestamp:
+  analysis_timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of result generation
-  sample_size:
+    description: Timestamp of the analysis run.
+  total_issues:
     type: integer
-    description: Number of issues included in the comparison
-  paired_metrics:
+    description: Total number of issues analyzed.
+  coverage_metrics:
     type: object
-    description: >
-      Raw paired data for each issue_id.
-      Keys are issue_ids, values contain metrics for both agents.
-    additionalProperties:
-      type: object
-      required:
-        - baseline_coverage
-        - iterative_coverage
-        - baseline_ranking
-        - iterative_ranking
-      properties:
-        baseline_coverage:
-          type: number
-        iterative_coverage:
-          type: number
-        baseline_ranking:
-          type: integer
-        iterative_ranking:
-          type: integer
+    required:
+      - mean_baseline
+      - mean_iterative
+      - difference
+      - wilcoxon_p_value
+      - wilcoxon_effect_size
+      - bonferroni_adjusted_p_value
+    properties:
+      mean_baseline:
+        type: number
+      mean_iterative:
+        type: number
+      difference:
+        type: number
+      wilcoxon_p_value:
+        type: number
+      wilcoxon_effect_size:
+        type: number
+      bonferroni_adjusted_p_value:
+        type: number
+      significant_at_005:
+        type: boolean
+  ranking_metrics:
+    type: object
+    required:
+      - mean_baseline
+      - mean_iterative
+      - difference
+      - test_type
+      - p_value
+      - effect_size
+      - bonferroni_adjusted_p_value
+    properties:
+      mean_baseline:
+        type: number
+      mean_iterative:
+        type: number
+      difference:
+        type: number
+      test_type:
+        type: string
+        enum:
+          - wilcoxon
+          - permutation
+        description: Type of statistical test used (due to ties/censoring).
+      p_value:
+        type: number
+      effect_size:
+        type: number
+      bonferroni_adjusted_p_value:
+        type: number
+      significant_at_005:
+        type: boolean
   statistical_tests:
     type: object
-    description: Results of statistical hypothesis tests
     required:
-      - coverage_wilcoxon
-      - ranking_wilcoxon
+      - routing_decision
+      - tie_proportion
+      - censoring_proportion
     properties:
-      coverage_wilcoxon:
+      routing_decision:
+        type: string
+        enum:
+          - WILCOXON
+          - PERMUTATION
+        description: Which test path was taken.
+      tie_proportion:
+        type: number
+      censoring_proportion:
+        type: number
+      permutation_details:
         type: object
-        description: Wilcoxon signed-rank test for coverage
-        required:
-          - statistic
-          - pvalue
-          - significant
-          - correction_applied
-        properties:
-          statistic:
-            type: number
-          pvalue:
-            type: number
-          significant:
-            type: boolean
-            description: True if p < alpha_threshold
-          correction_applied:
-            type: string
-            enum:
-              - bonferroni
-              - none
-              - continuity
-          alpha_threshold:
-            type: number
-          associational_statement:
-            type: string
-            description: The result framed as an associational difference
-      ranking_wilcoxon:
-        type: object
-        description: Wilcoxon signed-rank test for ranking
-        required:
-          - statistic
-          - pvalue
-          - significant
-          - correction_applied
-        properties:
-          statistic:
-            type: number
-          pvalue:
-            type: number
-          significant:
-            type: boolean
-          correction_applied:
-            type: string
-            enum:
-              - bonferroni
-              - none
-              - continuity
-          alpha_threshold:
-            type: number
-          associational_statement:
-            type: string
+        nullable: true
+        description: Details if permutation test was used.
+  sweep_results:
+    type: array
+    items:
+      type: object
+      properties:
+        turn_limit:
+          type: integer
+        mean_coverage:
+          type: number
+        stability_flag:
+          type: boolean
+    description: Results from the turn-limit sweep.
+  validation_status:
+    type: object
+    properties:
+      report_language_check:
+        type: string
+        enum:
+          - PASSED
+          - FAILED
+        description: Result of causal language validation.
   metadata:
     type: object
-    description: Additional context about the run
-    properties:
-      config_summary:
-        type: object
-      hard_instance_percentile:
-        type: number
-      turn_limit:
-        type: integer
-additionalProperties: false
+    description: Hashes and configuration summary.

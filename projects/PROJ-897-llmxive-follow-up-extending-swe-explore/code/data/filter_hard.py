@@ -1,8 +1,6 @@
 """
-T012: Filter Hard Subset (Spec Alignment).
-Selects bottom HARD_INSTANCE_PERCENTILE of initial_coverage scores.
-Handles missing data by skipping.
-Computes Cyclomatic Complexity as metadata (diagnostic only).
+Filter hard instances based on initial coverage scores.
+Implements Spec FR-001: Selection by coverage, not complexity.
 """
 import json
 import sys
@@ -10,118 +8,132 @@ import ast
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import get_path, get_config_summary
+from config import get_path, get_config_summary, HARD_INSTANCE_PERCENTILE, COVERAGE_COLUMN_NAME, DATA_CURATED, DATA_RAW
 
-def compute_complexity(code: str) -> int:
+def compute_complexity(source_code: str) -> int:
     """
-    Computes a basic Cyclomatic Complexity metric.
-    Counts decision points: if, elif, for, while, except, and, or.
+    Compute cyclomatic complexity of Python source code.
+    Uses a simple AST-based counting of decision points.
     """
-    if not code:
-        return 0
     try:
-        tree = ast.parse(code)
+        tree = ast.parse(source_code)
     except SyntaxError:
-        return 0 # Skip invalid code
+        return 0
     
-    complexity = 1 # Base
+    complexity = 1  # Base complexity
+    
     for node in ast.walk(tree):
-        if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
+        if isinstance(node, (
+            ast.If, ast.While, ast.For, ast.ExceptHandler,
+            ast.With, ast.Assert, ast.comprehension
+        )):
             complexity += 1
         elif isinstance(node, ast.BoolOp):
             complexity += len(node.values) - 1
-        elif isinstance(node, ast.comprehension):
-            complexity += 1
-            if node.ifs:
-                complexity += len(node.ifs)
+    
     return complexity
 
-def filter_hard_instances(input_path: str, output_path: Optional[str] = None) -> str:
+def filter_hard_instances(
+    input_file: Path,
+    output_file: Optional[Path] = None,
+    percentile: Optional[float] = None
+) -> Path:
     """
-    Filters the dataset to keep only 'hard' instances based on initial_coverage.
-    """
-    if output_path is None:
-        output_path = get_path("curated", "hard_subset.jsonl")
+    Filter the dataset to keep only the 'hard' instances.
     
-    input_file = Path(input_path)
-    output_file = Path(output_path)
+    Hard instances are defined as those in the bottom `percentile`
+    of `initial_coverage` scores (low coverage = hard).
+    
+    Args:
+        input_file: Path to input JSONL file with coverage scores.
+        output_file: Path to output JSONL file. Defaults to data/curated/hard_subset.jsonl.
+        percentile: Percentile threshold (0.0 to 1.0). Defaults to config.HARD_INSTANCE_PERCENTILE.
+        
+    Returns:
+        Path to output file.
+        
+    Raises:
+        ValueError: If coverage column is missing or data is invalid.
+    """
+    if output_file is None:
+        output_file = DATA_CURATED / "hard_subset.jsonl"
+    
+    if percentile is None:
+        percentile = HARD_INSTANCE_PERCENTILE
+    
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    # First pass: collect all records and coverage scores
+    records = []
+    coverage_scores = []
     
-    # Load all items to sort (memory safe enough for typical benchmark sizes ~300-600 items)
-    # If larger, we would need a streaming selection algorithm (e.g., Quickselect),
-    # but for SWE-bench, loading is fine.
-    items = []
+    print(f"Reading input file: {input_file}")
     with open(input_file, 'r', encoding='utf-8') as f:
         for line in f:
-            if line.strip():
-                items.append(json.loads(line))
+            line = line.strip()
+            if not line:
+                continue
+            
+            try:
+                record = json.loads(line)
+                coverage = record.get(COVERAGE_COLUMN_NAME)
+                
+                if coverage is None:
+                    print(f"Warning: Skipping record {record.get('instance_id', 'unknown')} - missing {COVERAGE_COLUMN_NAME}")
+                    continue
+                
+                record['metadata'] = record.get('metadata', {})
+                record['metadata']['complexity_score'] = compute_complexity(
+                    record.get('source_code', '')
+                )
+                
+                records.append(record)
+                coverage_scores.append(coverage)
+            except json.JSONDecodeError:
+                continue
     
-    # Filter out items with missing initial_coverage
-    valid_items = []
-    skipped = 0
-    for item in items:
-        score = item.get('initial_coverage')
-        if score is None:
-            skipped += 1
-            continue
-        valid_items.append(item)
+    if not records:
+        raise ValueError("No valid records found in input file.")
     
-    if skipped > 0:
-        print(f"Warning: Skipped {skipped} items due to missing 'initial_coverage'.")
+    # Calculate threshold
+    sorted_scores = sorted(coverage_scores)
+    threshold_idx = int(len(sorted_scores) * percentile)
+    if threshold_idx == 0:
+        threshold_idx = 1  # Ensure at least one record
     
-    if not valid_items:
-        raise ValueError("No valid items with 'initial_coverage' found.")
+    threshold = sorted_scores[threshold_idx - 1]
     
-    # Sort by initial_coverage ascending (lower is harder)
-    valid_items.sort(key=lambda x: x['initial_coverage'])
+    print(f"Coverage threshold for hard instances (bottom {percentile*100:.1f}%): {threshold}")
     
-    # Select bottom percentile
-    percentile = get_config_summary().get('HARD_INSTANCE_PERCENTILE', 0.20)
-    count = max(1, int(len(valid_items) * percentile))
-    hard_items = valid_items[:count]
+    # Second pass: filter records
+    hard_records = [r for r in records if r.get(COVERAGE_COLUMN_NAME, float('inf')) <= threshold]
     
-    # Compute complexity for diagnostic
-    print(f"Selecting {len(hard_items)} hard instances (top {percentile*100}% lowest coverage).")
-    
-    for item in hard_items:
-        code = item.get('problem_statement', '') # Or repo code if available
-        # Note: SWE-bench items usually have 'repo' and 'base_commit', but not full code in the JSONL.
-        # We assume 'problem_statement' or a placeholder for complexity if code isn't embedded.
-        # If the dataset doesn't have full code, we might estimate or skip.
-        # For this task, we compute on problem_statement text length as a proxy if code is missing,
-        # or try to fetch if 'repo' is available (complex).
-        # Let's assume we compute on 'problem_statement' for now as a simple metric.
-        complexity = compute_complexity(item.get('problem_statement', ''))
-        if 'metadata' not in item:
-            item['metadata'] = {}
-        item['metadata']['complexity_score'] = complexity
-        item['metadata']['selection_reason'] = "initial_coverage"
+    print(f"Selected {len(hard_records)} hard instances out of {len(records)} total.")
     
     # Write output
     with open(output_file, 'w', encoding='utf-8') as f:
-        for item in hard_items:
-            f.write(json.dumps(item) + "\n")
+        for record in hard_records:
+            f.write(json.dumps(record, ensure_ascii=False) + '\n')
     
-    print(f"Wrote {len(hard_items)} hard instances to {output_file}")
-    return str(output_file)
+    print(f"Hard subset saved to: {output_file}")
+    return output_file
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser(description="Filter Hard Instances")
-    parser.add_argument("--input", type=str, help="Input JSONL path")
-    parser.add_argument("--output", type=str, help="Output JSONL path")
-    args = parser.parse_args()
+    """Entry point for the filter hard script."""
+    print("Starting hard instance filtering...")
     
-    input_path = args.input or get_path("raw", "swe_explore_with_gt.jsonl")
-    output_path = args.output or get_path("curated", "hard_subset.jsonl")
+    input_file = DATA_RAW / "swe_explore_with_gt.jsonl"
+    if not input_file.exists():
+        print(f"ERROR: Input file not found: {input_file}")
+        print("Please run derive_gt.py first.")
+        sys.exit(1)
     
     try:
-        filter_hard_instances(input_path, output_path)
+        output_path = filter_hard_instances(input_file)
+        print(f"Filtering complete.")
     except Exception as e:
         print(f"ERROR: {e}")
         sys.exit(1)

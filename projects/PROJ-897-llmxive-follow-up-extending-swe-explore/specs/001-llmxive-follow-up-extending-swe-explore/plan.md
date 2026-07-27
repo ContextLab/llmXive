@@ -142,7 +142,7 @@ projects/PROJ-897-llmxive-follow-up-extending-swe-explore/
     - Run **multiple parallel** retrieval queries per issue (matching the iterative agent's total search budget).
     - Record retrieved context and coverage metrics.
 2.  **Iterative Agent**:
-    - **Loop Limit**: Max 3 turns (FR-003).
+    - **Loop Limit**: Max a limited number of turns. (FR-003).
     - **Turn Logic**:
         - Turn 1: Query -> Retrieve -> Static Analysis (Pylint/Ast).
         - Turn 2: If error detected, reformulate query with error message -> Retrieve -> Static Analysis.
