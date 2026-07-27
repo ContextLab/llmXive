@@ -1,109 +1,208 @@
-"""
-Quality Control module for RNA-seq data.
-
-Implements checks for sample coverage, replicates, and metadata completeness.
-"""
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 import sys
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import json
+import logging
+from datetime import datetime
 
 from src.utils.logger import get_logger
+from src.utils.config import get_data_path
 
-logger = get_logger("qc")
+logger = get_logger(__name__)
 
-def check_sample_coverage(
-    tpm_df: pd.DataFrame,
-    threshold: float = 1000.0
-) -> pd.DataFrame:
+def check_replicates(df: pd.DataFrame, min_replicates: int = 2) -> pd.DataFrame:
     """
-    Checks the total TPM coverage for each sample.
+    Filter studies/samples to ensure at least `min_replicates` biological replicates.
     
     Args:
-        tpm_df: DataFrame of TPM values.
-        threshold: Minimum total TPM required per sample.
+        df: DataFrame with columns including 'species', 'treatment', 'replicates' (or similar)
+        min_replicates: Minimum number of replicates required (default 2)
         
     Returns:
-        DataFrame with coverage statistics.
+        DataFrame filtered to valid studies, with an 'included' column indicating status.
     """
-    coverage = tpm_df.sum(axis=0)
-    stats = pd.DataFrame({
-        "total_tpm": coverage,
-        "num_genes_detected": (tpm_df > 0).sum(axis=0),
-        "mean_tpm": tpm_df.mean(axis=0),
-        "median_tpm": tpm_df.median(axis=0)
-    })
+    if 'replicates' not in df.columns:
+        # If replicate count is not pre-calculated, we assume each row is a sample
+        # and group by study identifiers to count them.
+        # Assuming 'accession_id' or similar unique study ID exists.
+        study_id_col = 'accession_id' if 'accession_id' in df.columns else df.columns[0]
+        counts = df.groupby(study_id_col).size().reset_index(name='sample_count')
+        valid_studies = counts[counts['sample_count'] >= min_replicates][study_id_col].tolist()
+        df['included'] = df[study_id_col].isin(valid_studies)
+    else:
+        # If 'replicates' column exists (e.g., from metadata verification)
+        df['included'] = df['replicates'] >= min_replicates
     
-    stats["is_low_coverage"] = stats["total_tpm"] < threshold
-    
-    logger.info(f"Sample coverage check completed. {stats['is_low_coverage'].sum()} low coverage samples.")
-    return stats
+    return df[df['included']]
 
-def flag_low_coverage_samples(
-    coverage_stats: pd.DataFrame
-) -> List[str]:
+def check_metadata_completeness(df: pd.DataFrame, required_fields: List[str] = None) -> pd.DataFrame:
     """
-    Returns a list of sample names that are flagged as low coverage.
+    Filter studies where required metadata fields (e.g., 'tissue') are present and non-null.
     
     Args:
-        coverage_stats: DataFrame from check_sample_coverage.
+        df: DataFrame with metadata columns
+        required_fields: List of column names that must be non-null (default: ['tissue'])
         
     Returns:
-        List of sample names.
+        DataFrame filtered to complete metadata.
     """
-    return coverage_stats[coverage_stats["is_low_coverage"]].index.tolist()
+    if required_fields is None:
+        required_fields = ['tissue']
+    
+    valid_mask = pd.Series([True] * len(df), index=df.index)
+    
+    for field in required_fields:
+        if field in df.columns:
+            valid_mask &= df[field].notna() & (df[field] != '')
+        else:
+            logger.warning(f"Required field '{field}' not found in DataFrame. Skipping check.")
+    
+    return df[valid_mask]
 
-def check_replicates(
-    metadata_df: pd.DataFrame,
-    group_column: str,
-    min_replicates: int = 2
-) -> Tuple[bool, List[str]]:
+def run_qc_pipeline(
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    min_replicates: int = 2,
+    required_metadata: List[str] = None
+) -> Dict:
     """
-    Checks if each group has at least min_replicates.
+    Run the full QC pipeline: check replicates and metadata completeness.
+    Excludes studies failing criteria and logs reasons.
     
     Args:
-        metadata_df: DataFrame containing sample metadata.
-        group_column: Column name for grouping (e.g., 'tissue', 'treatment').
-        min_replicates: Minimum number of replicates required.
+        input_path: Path to the input TPM matrix or metadata JSON/CSV.
+                    If None, attempts to load from data/processed/metadata_verification_report.json
+        output_path: Path to write the post-QC species list JSON.
+        min_replicates: Minimum replicates required.
+        required_metadata: List of metadata fields that must be present.
         
     Returns:
-        Tuple of (is_valid, list of groups with insufficient replicates).
+        Dictionary containing the results summary and the list of excluded items.
     """
-    group_counts = metadata_df[group_column].value_counts()
-    insufficient_groups = group_counts[group_counts < min_replicates].index.tolist()
+    if input_path is None:
+        data_dir = get_data_path()
+        input_path = Path(data_dir) / "processed" / "metadata_verification_report.json"
     
-    is_valid = len(insufficient_groups) == 0
+    if not Path(input_path).exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                                "Run T011a (verify_metadata) first.")
     
-    if not is_valid:
-        logger.warning(f"Groups with insufficient replicates: {insufficient_groups}")
+    logger.info(f"Loading metadata from {input_path}")
     
-    return is_valid, insufficient_groups
+    # Load data - handle both JSON and CSV if necessary
+    try:
+        with open(input_path, 'r') as f:
+            data = json.load(f)
+        # Expecting a list of study records or a dict with a 'studies' key
+        if isinstance(data, dict) and 'studies' in data:
+            records = data['studies']
+        elif isinstance(data, list):
+            records = data
+        else:
+            # Fallback: assume single record wrapped
+            records = [data]
+        
+        df = pd.DataFrame(records)
+    except json.JSONDecodeError:
+        # Try CSV fallback
+        df = pd.read_csv(input_path)
+    
+    # 1. Check Replicates
+    df_valid_rep = check_replicates(df, min_replicates=min_replicates)
+    excluded_rep = df[~df.index.isin(df_valid_rep.index)]
+    
+    # 2. Check Metadata Completeness
+    df_valid_meta = check_metadata_completeness(df_valid_rep, required_metadata=required_metadata)
+    excluded_meta = df_valid_rep[~df_valid_rep.index.isin(df_valid_meta.index)]
+    
+    # Combine exclusions
+    all_excluded = pd.concat([excluded_rep, excluded_meta])
+    
+    # Prepare output list
+    exclusion_list = []
+    for _, row in all_excluded.iterrows():
+        reason = []
+        # Determine reason based on which check failed
+        if row.name in excluded_rep.index:
+            if 'replicates' in row:
+                reason.append(f"Insufficient replicates: {row['replicates']} < {min_replicates}")
+            else:
+                reason.append(f"Insufficient replicates (count < {min_replicates})")
+        
+        if row.name in excluded_meta.index:
+            for field in (required_metadata or ['tissue']):
+                if field in row and (pd.isna(row[field]) or row[field] == ''):
+                    reason.append(f"Missing metadata: {field}")
+        
+        exclusion_list.append({
+            "species": row.get('species', 'Unknown'),
+            "accession_id": row.get('accession_id', 'Unknown'),
+            "exclusion_reason": "; ".join(reason)
+        })
+    
+    # Prepare species list (unique species from valid studies)
+    valid_studies = df_valid_meta.copy()
+    # Ensure 'species' column exists
+    if 'species' not in valid_studies.columns:
+        valid_studies['species'] = valid_studies.get('accession_id', 'Unknown')
+    
+    unique_species = valid_studies['species'].unique().tolist()
+    
+    result = {
+        "timestamp": datetime.now().isoformat(),
+        "total_studies_input": len(df),
+        "studies_excluded": len(exclusion_list),
+        "studies_remaining": len(valid_studies),
+        "exclusions": exclusion_list,
+        "species_list": unique_species
+    }
+    
+    # Write output
+    if output_path is None:
+        data_dir = get_data_path()
+        output_path = Path(data_dir) / "processed" / "post_qc_species_list.json"
+    
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"QC Pipeline Complete. Excluded {len(exclusion_list)} studies. "
+                f"Output written to {output_path}")
+    logger.info(f"Species list: {unique_species}")
+    
+    return result
 
-def check_metadata_completeness(
-    metadata_df: pd.DataFrame,
-    required_columns: List[str]
-) -> Tuple[bool, List[str]]:
-    """
-    Checks if all required metadata columns are present and non-empty.
+def main():
+    """CLI entry point for QC pipeline."""
+    import argparse
     
-    Args:
-        metadata_df: Metadata DataFrame.
-        required_columns: List of required column names.
-        
-    Returns:
-        Tuple of (is_valid, list of missing/empty columns).
-    """
-    missing_columns = []
-    for col in required_columns:
-        if col not in metadata_df.columns:
-            missing_columns.append(f"Missing column: {col}")
-        elif metadata_df[col].isna().all():
-            missing_columns.append(f"Empty column: {col}")
+    parser = argparse.ArgumentParser(description="Run QC on metadata and generate species list.")
+    parser.add_argument("--input", type=str, help="Input metadata JSON/CSV path")
+    parser.add_argument("--output", type=str, help="Output JSON path for species list")
+    parser.add_argument("--min-replicates", type=int, default=2, help="Minimum replicates required")
+    parser.add_argument("--metadata-fields", type=str, nargs="+", default=["tissue"], 
+                        help="Required metadata fields")
     
-    return len(missing_columns) == 0, missing_columns
+    args = parser.parse_args()
+    
+    input_path = Path(args.input) if args.input else None
+    output_path = Path(args.output) if args.output else None
+    
+    try:
+        run_qc_pipeline(
+            input_path=input_path,
+            output_path=output_path,
+            min_replicates=args.min_replicates,
+            required_metadata=args.metadata_fields
+        )
+        print("QC Pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"QC Pipeline failed: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

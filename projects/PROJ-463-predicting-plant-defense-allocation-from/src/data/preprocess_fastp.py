@@ -1,131 +1,89 @@
 """
-Preprocessing wrapper for fastp to trim and filter FASTQ files.
+Wrapper for fastp to preprocess FASTQ files.
 
-This module implements Task T012a:
-- Runs fastp on downloaded FASTQ files from data/raw/
-- Outputs trimmed FASTQ to data/processed/trimmed/
-- Uses CPU-optimized, streaming modes
-- Validates fastp installation before execution
+This script trims and filters FASTQ files using fastp.
+It skips execution if running in synthetic mode (flagged by data/synthetic/.mode_active).
 """
-
 import os
 import sys
-import json
 import subprocess
+import json
 import argparse
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path if not already present
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.utils.config import get_data_path
 from src.utils.logger import get_logger
-from src.utils.provenance import (
-    get_provenance_tracker,
-    record_provenance,
-    ArtifactType,
-    ProvenanceRecord
-)
-from src.utils.schemas import ManifestEntry, DataManifest
+from src.utils.schemas import ManifestEntry, ProvenanceInfo, DataManifest
+from src.utils.config import get_data_path
 
 logger = get_logger(__name__)
 
-def check_fastp_available() -> Tuple[bool, Optional[str]]:
-    """
-    Check if fastp is installed and available in PATH.
-    
-    Returns:
-        Tuple of (is_available, version_string or None)
-    """
+
+def check_fastp_available() -> bool:
+    """Check if fastp is installed and available in PATH."""
     try:
         result = subprocess.run(
             ["fastp", "--version"],
             capture_output=True,
             text=True,
-            timeout=10
+            check=True
         )
-        if result.returncode == 0:
-            version = result.stdout.strip()
-            logger.info(f"fastp is available: {version}")
-            return True, version
-        else:
-            logger.error(f"fastp returned error code: {result.returncode}")
-            return False, None
-    except FileNotFoundError:
-        logger.error("fastp not found in PATH. Please install fastp first (see T003b-fastp)")
-        return False, None
-    except subprocess.TimeoutExpired:
-        logger.error("fastp version check timed out")
-        return False, None
+        logger.info(f"fastp version: {result.stdout.strip()}")
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        logger.error(f"fastp not found or failed to run: {e}")
+        return False
+
+
+def is_synthetic_mode() -> bool:
+    """Check if the pipeline is running in synthetic mode."""
+    data_path = get_data_path()
+    mode_flag = Path(data_path) / "synthetic" / ".mode_active"
+    return mode_flag.exists()
+
 
 def run_fastp(
-    input_fastq: Path,
-    output_fastq: Path,
-    output_json: Path,
-    threads: int = 4,
-    compression_level: int = 6,
-    cut_front: bool = True,
-    cut_tail: bool = True,
-    cut_window_size: int = 4,
-    cut_min_len: int = 50,
-    detect_adapter: bool = True,
-    adapter_sequence: Optional[str] = None
+    input_r1: str,
+    input_r2: str,
+    output_r1: str,
+    output_r2: str,
+    json_report: str,
+    threads: int = 4
 ) -> bool:
     """
-    Run fastp on a single FASTQ file.
+    Run fastp on paired-end FASTQ files.
     
     Args:
-        input_fastq: Path to input FASTQ file (can be .gz)
-        output_fastq: Path for output trimmed FASTQ file
-        output_json: Path for fastp JSON report
-        threads: Number of CPU threads to use
-        compression_level: gzip compression level (1-9)
-        cut_front: Cut bases from the front of reads
-        cut_tail: Cut bases from the tail of reads
-        cut_window_size: Window size for sliding window trimming
-        cut_min_len: Minimum read length to keep
-        detect_adapter: Auto-detect adapter sequences
-        adapter_sequence: Optional specific adapter sequence
+        input_r1: Path to input R1 FASTQ file (gzipped)
+        input_r2: Path to input R2 FASTQ file (gzipped)
+        output_r1: Path to output R1 FASTQ file (gzipped)
+        output_r2: Path to output R2 FASTQ file (gzipped)
+        json_report: Path to output JSON report
+        threads: Number of threads to use
         
     Returns:
         True if successful, False otherwise
     """
-    # Ensure output directory exists
-    output_fastq.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directories exist
+    Path(output_r1).parent.mkdir(parents=True, exist_ok=True)
+    Path(output_r2).parent.mkdir(parents=True, exist_ok=True)
+    Path(json_report).parent.mkdir(parents=True, exist_ok=True)
     
-    # Build fastp command with CPU-optimized, streaming parameters
     cmd = [
         "fastp",
-        "-i", str(input_fastq),
-        "-o", str(output_fastq),
-        "-j", str(output_json),
-        "-w", str(threads),  # threads
-        "--thread_limit", str(threads),
-        "--compression", str(compression_level),
-        "--cut_front" if cut_front else "",
-        "--cut_tail" if cut_tail else "",
-        "--cut_window_size", str(cut_window_size),
-        "--cut_min_len", str(cut_min_len),
-        "--detect_adapter_for_pe" if detect_adapter else "",
-        "--length_required", str(cut_min_len),
-        "--disable_trim_poly_g",  # Disable poly-G trimming for non-Illumina data
-        "--overrepresentation_analysis",
-        "--qualified_quality_phred", "20",
-        "--unqualified_percent_limit", "40",
-        "--n_base_limit", "5",
-        "--low_complexity_filter",
-        "--json", str(output_json),
-        "--html", str(output_json).replace(".json", ".html")
+        "-i", input_r1,
+        "-I", input_r2,
+        "-o", output_r1,
+        "-O", output_r2,
+        "--thread", str(threads),
+        "--json", json_report,
+        "--html", json_report.replace(".json", ".html")
     ]
-    
-    # Remove empty strings from command
-    cmd = [arg for arg in cmd if arg]
-    
-    # Add adapter sequence if provided
-    if adapter_sequence:
-        cmd.extend(["--adapter_sequence", adapter_sequence])
     
     logger.info(f"Running fastp command: {' '.join(cmd)}")
     
@@ -134,222 +92,145 @@ def run_fastp(
             cmd,
             capture_output=True,
             text=True,
-            timeout=3600  # 1 hour timeout per file
+            check=True
         )
-        
-        if result.returncode != 0:
-            logger.error(f"fastp failed with return code {result.returncode}")
-            logger.error(f"stdout: {result.stdout}")
-            logger.error(f"stderr: {result.stderr}")
-            return False
-        
-        # Verify output file was created
-        if not output_fastq.exists():
-            logger.error(f"Output file {output_fastq} was not created")
-            return False
-        
-        logger.info(f"fastp completed successfully for {input_fastq.name}")
-        logger.info(f"Output written to {output_fastq}")
-        
+        logger.info("fastp completed successfully")
+        logger.debug(f"fastp stdout: {result.stdout}")
+        if result.stderr:
+            logger.debug(f"fastp stderr: {result.stderr}")
         return True
-        
-    except subprocess.TimeoutExpired:
-        logger.error(f"fastp timed out for {input_fastq}")
-        return False
-    except Exception as e:
-        logger.error(f"Error running fastp: {str(e)}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"fastp failed with return code {e.returncode}")
+        logger.error(f"stdout: {e.stdout}")
+        logger.error(f"stderr: {e.stderr}")
         return False
 
+
 def process_fastq_file(
-    input_path: Path,
-    output_dir: Path,
+    accession_id: str,
+    data_dir: Path,
     threads: int = 4
-) -> Optional[Dict]:
+) -> Optional[Dict[str, Any]]:
     """
-    Process a single FASTQ file through fastp.
+    Process a single FASTQ pair for a given accession ID.
     
     Args:
-        input_path: Path to input FASTQ file
-        output_dir: Directory for output files
-        threads: Number of threads to use
+        accession_id: The study accession ID
+        data_dir: Base data directory
+        threads: Number of threads for fastp
         
     Returns:
-        Dict with processing results or None if failed
+        Dictionary with output paths and report path, or None if failed/skipped
     """
-    # Extract accession ID from filename
-    accession_id = input_path.stem
-    if accession_id.endswith('_R1'):
-        accession_id = accession_id[:-3]
-    elif accession_id.endswith('_R2'):
-        accession_id = accession_id[:-3]
+    raw_dir = data_dir / "raw"
+    processed_trimmed_dir = data_dir / "processed" / "trimmed"
+    
+    # Check for input files
+    input_r1 = raw_dir / f"{accession_id}_R1.fastq.gz"
+    input_r2 = raw_dir / f"{accession_id}_R2.fastq.gz"
+    
+    if not input_r1.exists():
+        logger.warning(f"Input R1 file not found: {input_r1}")
+        return None
+    if not input_r2.exists():
+        logger.warning(f"Input R2 file not found: {input_r2}")
+        return None
     
     # Define output paths
-    output_fastq = output_dir / f"{accession_id}_R1_trimmed.fastq.gz"
-    output_json = output_dir / f"{accession_id}_fastp_report.json"
+    output_r1 = processed_trimmed_dir / f"{accession_id}_R1_trimmed.fastq.gz"
+    output_r2 = processed_trimmed_dir / f"{accession_id}_R2_trimmed.fastq.gz"
+    json_report = str(processed_trimmed_dir / f"{accession_id}_fastp_report.json")
     
-    logger.info(f"Processing {input_path.name} -> {output_fastq.name}")
-    
+    # Run fastp
     success = run_fastp(
-        input_fastq=input_path,
-        output_fastq=output_fastq,
-        output_json=output_json,
-        threads=threads
+        str(input_r1),
+        str(input_r2),
+        str(output_r1),
+        str(output_r2),
+        json_report,
+        threads
     )
     
     if not success:
-        logger.error(f"Failed to process {input_path.name}")
+        logger.error(f"Failed to process {accession_id}")
         return None
     
-    # Calculate checksum of output
-    import hashlib
-    sha256_hash = hashlib.sha256()
-    with open(output_fastq, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    checksum = sha256_hash.hexdigest()
+    # Verify outputs exist
+    if not output_r1.exists() or not output_r2.exists():
+        logger.error(f"Output files not created for {accession_id}")
+        return None
     
-    # Parse fastp JSON report for metrics
-    metrics = {}
-    try:
-        with open(output_json, 'r') as f:
-            report = json.load(f)
-            metrics = {
-                "total_reads_before": report.get("summary", {}).get("before_filtering", {}).get("total_reads", 0),
-                "total_reads_after": report.get("summary", {}).get("after_filtering", {}).get("total_reads", 0),
-                "read1_filtered": report.get("summary", {}).get("after_filtering", {}).get("read1_filtered", 0),
-                "quality_filtered": report.get("summary", {}).get("after_filtering", {}).get("quality_filtered", 0),
-                "adapter_filtered": report.get("summary", {}).get("after_filtering", {}).get("adapter_filtered", 0),
-            }
-    except Exception as e:
-        logger.warning(f"Could not parse fastp report: {e}")
+    logger.info(f"Successfully processed {accession_id}: {output_r1.name}, {output_r2.name}")
     
     return {
         "accession_id": accession_id,
-        "input_file": str(input_path),
-        "output_file": str(output_fastq),
-        "report_file": str(output_json),
-        "checksum": checksum,
-        "metrics": metrics,
-        "timestamp": datetime.utcnow().isoformat()
+        "output_r1": str(output_r1),
+        "output_r2": str(output_r2),
+        "report": json_report
     }
 
+
 def main():
-    """
-    Main entry point for fastp preprocessing.
-    
-    Usage:
-        python -m src.data.preprocess_fastp --input data/raw/GSM1234567_1.fastq.gz --output-dir data/processed/trimmed
-        python -m src.data.preprocess_fastp --input-dir data/raw/ --output-dir data/processed/trimmed
-    """
-    parser = argparse.ArgumentParser(description="Preprocess FASTQ files with fastp")
-    parser.add_argument(
-        "--input", "-i",
-        type=Path,
-        help="Path to single input FASTQ file"
+    """Main entry point for the fastp preprocessing script."""
+    parser = argparse.ArgumentParser(
+        description="Preprocess FASTQ files using fastp"
     )
     parser.add_argument(
-        "--input-dir", "-d",
-        type=Path,
-        help="Directory containing input FASTQ files"
+        "--accession-id",
+        type=str,
+        help="Specific accession ID to process (optional, if not provided processes all)"
     )
     parser.add_argument(
-        "--output-dir", "-o",
-        type=Path,
-        default=None,
-        help="Output directory for trimmed FASTQ files (default: data/processed/trimmed)"
-    )
-    parser.add_argument(
-        "--threads", "-t",
+        "--threads",
         type=int,
         default=4,
-        help="Number of CPU threads (default: 4)"
+        help="Number of threads to use for fastp (default: 4)"
     )
-    parser.add_argument(
-        "--mode",
-        type=str,
-        choices=["real", "synthetic"],
-        default="real",
-        help="Processing mode (default: real)"
-    )
-    
     args = parser.parse_args()
     
-    # Check fastp availability
-    is_available, version = check_fastp_available()
-    if not is_available:
-        logger.error("fastp is not available. Please install it first.")
+    # Check for synthetic mode
+    if is_synthetic_mode():
+        logger.info("Synthetic mode detected. Skipping fastp preprocessing.")
+        return
+    
+    # Check if fastp is available
+    if not check_fastp_available():
+        logger.error("fastp is not available. Please install it (see T003b-fastp).")
         sys.exit(1)
     
-    # Determine output directory
-    if args.output_dir is None:
-        data_path = get_data_path()
-        args.output_dir = data_path / "processed" / "trimmed"
+    data_path = get_data_path()
+    data_dir = Path(data_path)
     
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Collect input files
-    input_files: List[Path] = []
-    if args.input:
-        if not args.input.exists():
-            logger.error(f"Input file not found: {args.input}")
-            sys.exit(1)
-        input_files.append(args.input)
-    elif args.input_dir:
-        if not args.input_dir.exists():
-            logger.error(f"Input directory not found: {args.input_dir}")
-            sys.exit(1)
-        # Find all FASTQ files (including .gz)
-        input_files = list(args.input_dir.glob("*.fastq.gz")) + list(args.input_dir.glob("*.fq.gz"))
-        if not input_files:
-            logger.warning(f"No FASTQ files found in {args.input_dir}")
-            sys.exit(0)
+    # Determine which accession IDs to process
+    accession_ids = []
+    if args.accession_id:
+        accession_ids = [args.accession_id]
     else:
-        logger.error("Either --input or --input-dir must be specified")
-        sys.exit(1)
+        # Scan data/raw for FASTQ files
+        raw_dir = data_dir / "raw"
+        if raw_dir.exists():
+            for f in raw_dir.glob("*_R1.fastq.gz"):
+                accession_id = f.stem.replace("_R1", "")
+                accession_ids.append(accession_id)
     
-    logger.info(f"Processing {len(input_files)} FASTQ file(s) with {args.threads} threads")
+    if not accession_ids:
+        logger.warning("No FASTQ files found to process in data/raw/")
+        return
     
-    # Process each file
+    logger.info(f"Processing {len(accession_ids)} study/studies")
+    
     results = []
-    for input_file in input_files:
-        result = process_fastq_file(
-            input_path=input_file,
-            output_dir=args.output_dir,
-            threads=args.threads
-        )
+    for accession_id in accession_ids:
+        result = process_fastq_file(accession_id, data_dir, args.threads)
         if result:
             results.append(result)
     
-    # Write manifest of processed files
-    manifest_path = args.output_dir.parent / "trimmed_manifest.json"
-    manifest = {
-        "created_at": datetime.utcnow().isoformat(),
-        "tool": "fastp",
-        "tool_version": version,
-        "mode": args.mode,
-        "threads": args.threads,
-        "processed_files": results
-    }
+    logger.info(f"Completed preprocessing. Successfully processed: {len(results)}/{len(accession_ids)}")
     
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Processed {len(results)} files. Manifest written to {manifest_path}")
-    
-    # Record provenance
-    if results:
-        tracker = get_provenance_tracker()
-        for result in results:
-            record_provenance(
-                tracker=tracker,
-                artifact_type=ArtifactType.TRIMMED_FASTQ,
-                artifact_id=result["accession_id"],
-                source_ids=[result["input_file"]],
-                output_path=result["output_file"],
-                metadata=result
-            )
-    
-    logger.info("Preprocessing complete")
+    if len(results) < len(accession_ids):
+        logger.warning("Some studies failed to process.")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

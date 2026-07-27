@@ -1,13 +1,8 @@
 """
-Metadata verification for downloaded FASTQ files.
+Metadata verification module for RNA-seq studies.
 
-Verifies that downloaded files match FR-001 requirements:
-- Tissue type is present
-- Herbivore type is present
-- Replicates count meets minimum threshold
-- Metadata is fetched from NCBI E-utilities or parsed from SRA manifest
-
-Output: data/processed/metadata_verification_report.json
+Verifies downloaded FASTQ files and associated metadata against FR-001 requirements
+(tissue, herbivore type, replicates) BEFORE preprocessing.
 """
 import os
 import sys
@@ -17,355 +12,447 @@ import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 import requests
-from urllib.parse import urlencode
+from datetime import datetime
+import logging
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from src.utils.config import get_data_path, get_config
+# Import from project utils
 from src.utils.logger import get_logger
-from src.utils.schemas import RNASeqStudy
+from src.utils.config import get_data_path
+from src.utils.schemas import RNASeqStudy, DefenseAllocationIndex, HerbivoreResponseVector
 
+# Configure logger
 logger = get_logger(__name__)
 
+# Constants
+MIN_REPLICATES = 2
+REQUIRED_METADATA_FIELDS = ['tissue', 'treatment', 'replicates']
+NCBI_EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
 
-def fetch_sra_metadata(accession_id: str, retries: int = 3, delay: float = 1.0) -> Optional[Dict[str, Any]]:
+def fetch_sra_metadata(accession_id: str, retries: int = 3) -> Optional[Dict[str, Any]]:
     """
     Fetch metadata for an SRA accession from NCBI E-utilities.
     
     Args:
-        accession_id: SRA accession ID (e.g., SRX123456)
-        retries: Number of retry attempts
-        delay: Delay between retries in seconds
+        accession_id: SRA accession ID (e.g., SRR123456)
+        retries: Number of retry attempts on failure
         
     Returns:
-        Metadata dictionary or None if fetch fails
+        Dictionary containing metadata or None if fetch fails
     """
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
-    params = {
-        "db": "sra",
-        "id": accession_id,
-        "retmode": "json"
-    }
+    url = f"{NCBI_EUTILS_BASE}?db=sra&id={accession_id}&retmode=json"
     
     for attempt in range(retries):
         try:
-            logger.info(f"Fetching metadata for {accession_id} (attempt {attempt + 1}/{retries})")
-            response = requests.get(base_url, params=params, timeout=30)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             data = response.json()
             
-            if "result" in data and accession_id in data["result"]:
-                return data["result"][accession_id]
+            if 'result' in data and accession_id in data['result']:
+                return data['result'][accession_id]
+            elif 'error' in data:
+                logger.warning(f"NCBI returned error for {accession_id}: {data['error']}")
+                return None
             else:
-                logger.warning(f"No result found for {accession_id} in response")
+                logger.warning(f"Unexpected response format for {accession_id}")
                 return None
                 
         except requests.exceptions.RequestException as e:
-            logger.warning(f"Request failed for {accession_id}: {e}")
+            logger.warning(f"Attempt {attempt + 1}/{retries} failed for {accession_id}: {e}")
             if attempt < retries - 1:
-                time.sleep(delay)
+                time.sleep(2 ** attempt)  # Exponential backoff
             else:
                 logger.error(f"Failed to fetch metadata for {accession_id} after {retries} attempts")
                 return None
                 
     return None
 
+def fetch_geo_metadata(accession_id: str, retries: int = 3) -> Optional[Dict[str, Any]]:
+    """
+    Fetch metadata for a GEO accession from NCBI E-utilities.
+    
+    Args:
+        accession_id: GEO accession ID (e.g., GSE12345)
+        retries: Number of retry attempts on failure
+        
+    Returns:
+        Dictionary containing metadata or None if fetch fails
+    """
+    url = f"{NCBI_EUTILS_BASE}?db=gds&id={accession_id}&retmode=json"
+    
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'result' in data and accession_id in data['result']:
+                return data['result'][accession_id]
+            elif 'error' in data:
+                logger.warning(f"NCBI returned error for {accession_id}: {data['error']}")
+                return None
+            else:
+                logger.warning(f"Unexpected response format for {accession_id}")
+                return None
+                
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"Attempt {attempt + 1}/{retries} failed for {accession_id}: {e}")
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                logger.error(f"Failed to fetch metadata for {accession_id} after {retries} attempts")
+                return None
+                
+    return None
 
 def extract_required_metadata(sra_metadata: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Extract required metadata fields from SRA metadata.
-    
-    Required fields per FR-001:
-    - tissue
-    - herbivore_type
-    - replicates
+    Extract required metadata fields from SRA metadata response.
     
     Args:
-        sra_metadata: Raw metadata from NCBI
+        sra_metadata: Raw metadata dictionary from NCBI
         
     Returns:
-        Dictionary with extracted fields
+        Dictionary with extracted tissue, treatment, replicates, and other relevant fields
     """
     extracted = {
-        "tissue": None,
-        "herbivore_type": None,
-        "replicates": 1,  # Default to 1 if not specified
-        "sample_title": sra_metadata.get("sample_title", "Unknown"),
-        "experiment_title": sra_metadata.get("experiment_title", "Unknown"),
-        "organism": sra_metadata.get("organism", "Unknown"),
-        "library_strategy": sra_metadata.get("library_strategy", "Unknown"),
-        "library_source": sra_metadata.get("library_source", "Unknown"),
-        "library_selection": sra_metadata.get("library_selection", "Unknown"),
+        'accession_id': sra_metadata.get('accession'),
+        'tissue': None,
+        'treatment': None,
+        'replicates': 0,
+        'species': None,
+        'experiment_title': sra_metadata.get('title'),
+        'experiment_description': sra_metadata.get('description'),
+        'sample_attributes': {}
     }
     
-    # Extract tissue from sample attributes if available
-    attributes = sra_metadata.get("attributes", [])
-    if isinstance(attributes, list):
-        for attr in attributes:
-            if isinstance(attr, dict):
-                tag = attr.get("tag", "").lower()
-                value = attr.get("value", "")
-                
-                # Look for tissue-related tags
-                if "tissue" in tag or "organ" in tag:
-                    extracted["tissue"] = value
-                elif "herbivore" in tag or "insect" in tag or "pest" in tag:
-                    extracted["herbivore_type"] = value
-            elif isinstance(attr, str):
-                # Handle string attributes
-                if "tissue" in attr.lower():
-                    parts = attr.split(":")
-                    if len(parts) > 1:
-                        extracted["tissue"] = parts[1].strip()
-                elif "herbivore" in attr.lower():
-                    parts = attr.split(":")
-                    if len(parts) > 1:
-                        extracted["herbivore_type"] = parts[1].strip()
+    # Extract sample attributes
+    sample_attrs = sra_metadata.get('sample_attributes', [])
+    for attr in sample_attrs:
+        tag = attr.get('tag', '').lower()
+        value = attr.get('value', '')
+        
+        if 'tissue' in tag or 'organ' in tag:
+            extracted['tissue'] = value
+        elif 'treatment' in tag or 'condition' in tag or 'herbivore' in tag:
+            extracted['treatment'] = value
+        elif 'species' in tag or 'organism' in tag:
+            extracted['species'] = value
+        elif 'replicate' in tag:
+            try:
+                extracted['replicates'] = int(value)
+            except (ValueError, TypeError):
+                pass
     
-    # If tissue not found in attributes, try to infer from sample title
-    if extracted["tissue"] is None:
-        title = extracted["sample_title"].lower()
-        common_tissues = ["leaf", "root", "stem", "flower", "seed", "root", "shoot", "cotyledon"]
-        for tissue in common_tissues:
-            if tissue in title:
-                extracted["tissue"] = tissue
-                break
-    
-    # If herbivore type not found, try to infer from title
-    if extracted["herbivore_type"] is None:
-        title = extracted["sample_title"].lower()
-        common_herbivores = ["aphid", "caterpillar", "beetle", "moth", "fly", "weevil", "thrips", "spider mite"]
-        for herbivore in common_herbivores:
-            if herbivore in title:
-                extracted["herbivore_type"] = herbivore
-                break
-    
-    # Check for replicate information
-    # This is typically inferred from the number of runs associated with a sample
-    runs = sra_metadata.get("runs", [])
-    if runs:
-        extracted["replicates"] = len(runs)
+    # If replicates not explicitly stated, count experiments
+    if extracted['replicates'] == 0:
+        experiments = sra_metadata.get('experiments', [])
+        extracted['replicates'] = len(experiments)
     
     return extracted
 
-
-def verify_metadata_requirements(extracted_metadata: Dict[str, Any], 
-                                 min_replicates: int = 2) -> Tuple[bool, List[str]]:
+def verify_metadata_requirements(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
     Verify that metadata meets FR-001 requirements.
     
-    Requirements:
-    - Tissue must be specified
-    - Herbivore type must be specified
-    - At least min_replicates replicates must be present
-    
     Args:
-        extracted_metadata: Extracted metadata dictionary
-        min_replicates: Minimum number of replicates required
+        metadata: Extracted metadata dictionary
         
     Returns:
         Tuple of (is_valid, list_of_exclusion_reasons)
     """
-    reasons = []
+    exclusion_reasons = []
     
-    if not extracted_metadata.get("tissue"):
-        reasons.append("Missing tissue information")
-        
-    if not extracted_metadata.get("herbivore_type"):
-        reasons.append("Missing herbivore type information")
-        
-    if extracted_metadata.get("replicates", 0) < min_replicates:
-        reasons.append(f"Insufficient replicates: {extracted_metadata.get('replicates', 0)} < {min_replicates}")
+    # Check for tissue metadata
+    if not metadata.get('tissue'):
+        exclusion_reasons.append("Missing tissue metadata")
     
-    return len(reasons) == 0, reasons
+    # Check for treatment/herbivore type metadata
+    if not metadata.get('treatment'):
+        exclusion_reasons.append("Missing treatment/herbivore type metadata")
+    
+    # Check for minimum replicates
+    if metadata.get('replicates', 0) < MIN_REPLICATES:
+        exclusion_reasons.append(f"Insufficient replicates: {metadata.get('replicates', 0)} < {MIN_REPLICATES}")
+    
+    # Check for species metadata (important for downstream analysis)
+    if not metadata.get('species'):
+        exclusion_reasons.append("Missing species metadata")
+    
+    is_valid = len(exclusion_reasons) == 0
+    return is_valid, exclusion_reasons
 
-
-def verify_fastq_metadata(manifest_path: Path, 
-                          output_path: Path,
-                          mode: str = "real",
-                          min_replicates: int = 2) -> Dict[str, Any]:
+def verify_fastq_metadata(fastq_files: List[Path], manifest_path: Path) -> Dict[str, Any]:
     """
-    Main verification function that processes a manifest of downloaded FASTQ files.
+    Verify metadata for FASTQ files against FR-001 requirements.
     
     Args:
-        manifest_path: Path to the download manifest JSON
-        output_path: Path for the verification report output
-        mode: "real" or "synthetic" mode
-        min_replicates: Minimum replicates required per study
+        fastq_files: List of FASTQ file paths
+        manifest_path: Path to the data manifest JSON
         
     Returns:
         Verification report dictionary
     """
-    logger.info(f"Starting metadata verification in {mode} mode")
-    
-    # Load manifest
-    if not manifest_path.exists():
-        logger.error(f"Manifest not found: {manifest_path}")
-        return {
-            "status": "error",
-            "error": f"Manifest not found: {manifest_path}",
-            "verified_studies": [],
-            "excluded_studies": []
-        }
-    
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
-    
-    verified_studies = []
-    excluded_studies = []
-    
-    if mode == "synthetic":
-        # For synthetic mode, verify against schema
-        logger.info("Verifying synthetic metadata against schema")
-        synthetic_entries = manifest.get("entries", [])
-        
-        for entry in synthetic_entries:
-            accession_id = entry.get("accession_id", "UNKNOWN")
-            
-            # Synthetic data should have valid metadata by design
-            # Just verify the schema structure
-            required_fields = ["file_name", "checksum", "source_type", "provenance"]
-            missing_fields = [f for f in required_fields if f not in entry]
-            
-            if missing_fields:
-                excluded_studies.append({
-                    "accession_id": accession_id,
-                    "reason": f"Missing synthetic metadata fields: {missing_fields}",
-                    "metadata": None
-                })
-            else:
-                # Verify provenance structure
-                provenance = entry.get("provenance", {})
-                if not provenance.get("accession_id"):
-                    excluded_studies.append({
-                        "accession_id": accession_id,
-                        "reason": "Missing accession_id in provenance",
-                        "metadata": None
-                    })
-                else:
-                    verified_studies.append({
-                        "accession_id": accession_id,
-                        "reason": None,
-                        "metadata": {
-                            "tissue": "synthetic_leaf",
-                            "herbivore_type": "synthetic_herbivore",
-                            "replicates": 3,
-                            "sample_title": f"Synthetic Study {accession_id}"
-                        }
-                    })
-    
-    else:
-        # Real mode: fetch metadata from NCBI
-        entries = manifest.get("entries", [])
-        
-        # Group entries by study accession
-        studies = {}
-        for entry in entries:
-            accession_id = entry.get("accession_id")
-            if accession_id:
-                if accession_id not in studies:
-                    studies[accession_id] = []
-                studies[accession_id].append(entry)
-        
-        # Verify each study
-        for accession_id, study_entries in studies.items():
-            logger.info(f"Verifying study: {accession_id}")
-            
-            # Fetch metadata
-            metadata = fetch_sra_metadata(accession_id)
-            
-            if metadata is None:
-                excluded_studies.append({
-                    "accession_id": accession_id,
-                    "reason": "Failed to fetch metadata from NCBI",
-                    "metadata": None
-                })
-                continue
-            
-            # Extract required fields
-            extracted = extract_required_metadata(metadata)
-            
-            # Verify requirements
-            is_valid, reasons = verify_metadata_requirements(extracted, min_replicates)
-            
-            if is_valid:
-                verified_studies.append({
-                    "accession_id": accession_id,
-                    "reason": None,
-                    "metadata": extracted
-                })
-            else:
-                excluded_studies.append({
-                    "accession_id": accession_id,
-                    "reason": "; ".join(reasons),
-                    "metadata": extracted
-                })
-    
-    # Create report
     report = {
-        "verification_timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "mode": mode,
-        "min_replicates": min_replicates,
-        "total_studies": len(studies) if mode == "real" else len(synthetic_entries),
-        "verified_count": len(verified_studies),
-        "excluded_count": len(excluded_studies),
-        "verified_studies": verified_studies,
-        "excluded_studies": excluded_studies
+        'verification_timestamp': datetime.now().isoformat(),
+        'total_studies': 0,
+        'valid_studies': 0,
+        'excluded_studies': 0,
+        'study_results': [],
+        'summary': {
+            'exclusion_reasons': {},
+            'species_distribution': {},
+            'tissue_distribution': {}
+        }
     }
     
-    # Write report
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    # Load manifest if exists
+    manifest_data = {}
+    if manifest_path.exists():
+        try:
+            with open(manifest_path, 'r') as f:
+                manifest_data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse manifest: {e}")
     
-    logger.info(f"Verification complete: {len(verified_studies)} verified, {len(excluded_studies)} excluded")
-    logger.info(f"Report written to: {output_path}")
+    # Process each FASTQ file
+    for fastq_file in fastq_files:
+        study_result = {
+            'fastq_file': str(fastq_file),
+            'accession_id': None,
+            'is_valid': False,
+            'metadata': {},
+            'exclusion_reasons': []
+        }
+        
+        # Extract accession ID from filename
+        accession_id = fastq_file.stem
+        if accession_id.startswith('SRR') or accession_id.startswith('GSM') or accession_id.startswith('GSE'):
+            study_result['accession_id'] = accession_id
+        else:
+            # Try to find in manifest
+            for entry in manifest_data.get('entries', []):
+                if entry.get('file_name') == fastq_file.name:
+                    study_result['accession_id'] = entry.get('accession_id')
+                    break
+        
+        if not study_result['accession_id']:
+            study_result['exclusion_reasons'].append("Could not determine accession ID")
+            study_result['is_valid'] = False
+        else:
+            # Fetch metadata from NCBI
+            metadata = fetch_sra_metadata(study_result['accession_id'])
+            
+            if not metadata:
+                study_result['exclusion_reasons'].append("Failed to fetch metadata from NCBI")
+            else:
+                # Extract required fields
+                extracted_metadata = extract_required_metadata(metadata)
+                study_result['metadata'] = extracted_metadata
+                
+                # Verify requirements
+                is_valid, exclusion_reasons = verify_metadata_requirements(extracted_metadata)
+                study_result['is_valid'] = is_valid
+                study_result['exclusion_reasons'] = exclusion_reasons
+                
+                # Update summary statistics
+                if is_valid:
+                    report['valid_studies'] += 1
+                    
+                    # Track species distribution
+                    species = extracted_metadata.get('species', 'Unknown')
+                    report['summary']['species_distribution'][species] = report['summary']['species_distribution'].get(species, 0) + 1
+                    
+                    # Track tissue distribution
+                    tissue = extracted_metadata.get('tissue', 'Unknown')
+                    report['summary']['tissue_distribution'][tissue] = report['summary']['tissue_distribution'].get(tissue, 0) + 1
+                else:
+                    report['excluded_studies'] += 1
+                    for reason in exclusion_reasons:
+                        report['summary']['exclusion_reasons'][reason] = report['summary']['exclusion_reasons'].get(reason, 0) + 1
+        
+        report['study_results'].append(study_result)
+        report['total_studies'] += 1
     
     return report
 
+def verify_synthetic_metadata(synthetic_manifest_path: Path) -> Dict[str, Any]:
+    """
+    Verify synthetic metadata against schema.
+    
+    Args:
+        synthetic_manifest_path: Path to synthetic manifest JSON
+        
+    Returns:
+        Verification report dictionary
+    """
+    report = {
+        'verification_timestamp': datetime.now().isoformat(),
+        'mode': 'synthetic',
+        'total_studies': 0,
+        'valid_studies': 0,
+        'excluded_studies': 0,
+        'study_results': [],
+        'summary': {
+            'exclusion_reasons': {},
+            'species_distribution': {},
+            'tissue_distribution': {}
+        }
+    }
+    
+    if not synthetic_manifest_path.exists():
+        logger.error(f"Synthetic manifest not found: {synthetic_manifest_path}")
+        report['exclusion_reasons']['missing_manifest'] = 1
+        return report
+    
+    try:
+        with open(synthetic_manifest_path, 'r') as f:
+            manifest_data = json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse synthetic manifest: {e}")
+        report['exclusion_reasons']['invalid_manifest'] = 1
+        return report
+    
+    # Verify synthetic entries
+    entries = manifest_data.get('entries', [])
+    if not entries:
+        # Check if it's a single entry format
+        if manifest_data.get('source_type') == 'synthetic':
+            entries = [manifest_data]
+    
+    for entry in entries:
+        study_result = {
+            'accession_id': entry.get('accession_id'),
+            'is_valid': True,
+            'metadata': {},
+            'exclusion_reasons': []
+        }
+        
+        # Validate schema fields
+        required_fields = ['accession_id', 'species', 'tissue', 'treatment', 'replicates']
+        missing_fields = [field for field in required_fields if not entry.get(field)]
+        
+        if missing_fields:
+            study_result['is_valid'] = False
+            study_result['exclusion_reasons'].append(f"Missing required fields: {', '.join(missing_fields)}")
+            report['excluded_studies'] += 1
+            for field in missing_fields:
+                reason = f"Missing {field}"
+                report['summary']['exclusion_reasons'][reason] = report['summary']['exclusion_reasons'].get(reason, 0) + 1
+        else:
+            # Check replicates
+            if entry.get('replicates', 0) < MIN_REPLICATES:
+                study_result['is_valid'] = False
+                study_result['exclusion_reasons'].append(f"Insufficient replicates: {entry.get('replicates')} < {MIN_REPLICATES}")
+                report['excluded_studies'] += 1
+                reason = f"Insufficient replicates"
+                report['summary']['exclusion_reasons'][reason] = report['summary']['exclusion_reasons'].get(reason, 0) + 1
+            else:
+                report['valid_studies'] += 1
+                study_result['metadata'] = {
+                    'species': entry.get('species'),
+                    'tissue': entry.get('tissue'),
+                    'treatment': entry.get('treatment'),
+                    'replicates': entry.get('replicates')
+                }
+                
+                # Update distributions
+                species = entry.get('species', 'Unknown')
+                report['summary']['species_distribution'][species] = report['summary']['species_distribution'].get(species, 0) + 1
+                
+                tissue = entry.get('tissue', 'Unknown')
+                report['summary']['tissue_distribution'][tissue] = report['summary']['tissue_distribution'].get(tissue, 0) + 1
+        
+        report['study_results'].append(study_result)
+        report['total_studies'] += 1
+    
+    return report
 
-def main():
-    """CLI entry point for metadata verification."""
+def main(mode: str = 'real', fastq_dir: Optional[str] = None, manifest_path: Optional[str] = None) -> int:
+    """
+    Main function to run metadata verification.
+    
+    Args:
+        mode: 'real' or 'synthetic'
+        fastq_dir: Directory containing FASTQ files (for real mode)
+        manifest_path: Path to manifest file
+        
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    data_path = get_data_path()
+    
+    if mode == 'synthetic':
+        logger.info("Running metadata verification in synthetic mode")
+        synthetic_manifest_path = Path(data_path) / 'synthetic' / 'synthetic_manifest.json'
+        if manifest_path:
+            synthetic_manifest_path = Path(manifest_path)
+        
+        report = verify_synthetic_metadata(synthetic_manifest_path)
+    else:
+        logger.info("Running metadata verification in real mode")
+        
+        # Determine FASTQ directory
+        if fastq_dir:
+            raw_dir = Path(fastq_dir)
+        else:
+            raw_dir = Path(data_path) / 'raw'
+        
+        # Find FASTQ files
+        fastq_files = list(raw_dir.glob('*.fastq.gz')) + list(raw_dir.glob('*.fq.gz'))
+        
+        if not fastq_files:
+            logger.warning("No FASTQ files found in raw directory")
+            # Try processed directory as fallback
+            processed_dir = Path(data_path) / 'processed'
+            fastq_files = list(processed_dir.glob('*.fastq.gz')) + list(processed_dir.glob('*.fq.gz'))
+        
+        if not fastq_files:
+            logger.error("No FASTQ files found in any expected directory")
+            return 1
+        
+        # Determine manifest path
+        if manifest_path:
+            manifest_file = Path(manifest_path)
+        else:
+            manifest_file = Path(data_path) / 'manifests' / 'real_data_manifest.json'
+            if not manifest_file.exists():
+                manifest_file = Path(data_path) / 'manifests' / 'synthetic_manifest.json'
+        
+        report = verify_fastq_metadata(fastq_files, manifest_file)
+    
+    # Write report
+    output_dir = Path(data_path) / 'processed'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = output_dir / 'metadata_verification_report.json'
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2, default=str)
+    
+    logger.info(f"Metadata verification report written to {output_path}")
+    
+    # Print summary
+    logger.info(f"Total studies: {report['total_studies']}")
+    logger.info(f"Valid studies: {report['valid_studies']}")
+    logger.info(f"Excluded studies: {report['excluded_studies']}")
+    
+    if report['excluded_studies'] > 0:
+        logger.warning(f"Exclusion reasons: {json.dumps(report['summary']['exclusion_reasons'], indent=2)}")
+    
+    return 0 if report['valid_studies'] > 0 else 1
+
+if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description="Verify metadata of downloaded FASTQ files")
-    parser.add_argument("--manifest", type=str, 
-                      default=str(get_data_path() / "manifests" / "download_manifest.json"),
-                      help="Path to download manifest JSON")
-    parser.add_argument("--output", type=str,
-                      default=str(get_data_path() / "processed" / "metadata_verification_report.json"),
-                      help="Path for verification report output")
-    parser.add_argument("--mode", type=str, choices=["real", "synthetic"], default="real",
-                      help="Mode: real (fetch from NCBI) or synthetic (schema validation)")
-    parser.add_argument("--min-replicates", type=int, default=2,
-                      help="Minimum number of replicates required")
+    parser = argparse.ArgumentParser(description='Verify metadata for RNA-seq studies')
+    parser.add_argument('--mode', choices=['real', 'synthetic'], default='real',
+                      help='Mode of operation: real or synthetic')
+    parser.add_argument('--fastq-dir', type=str, help='Directory containing FASTQ files')
+    parser.add_argument('--manifest-path', type=str, help='Path to manifest file')
     
     args = parser.parse_args()
     
-    manifest_path = Path(args.manifest)
-    output_path = Path(args.output)
-    
-    if not manifest_path.exists():
-        logger.error(f"Manifest file not found: {manifest_path}")
-        sys.exit(1)
-    
-    report = verify_fastq_metadata(
-        manifest_path=manifest_path,
-        output_path=output_path,
+    sys.exit(main(
         mode=args.mode,
-        min_replicates=args.min_replicates
-    )
-    
-    # Exit with error if all studies were excluded
-    if report["excluded_count"] == report["total_studies"] and report["total_studies"] > 0:
-        logger.error("All studies were excluded. Check metadata requirements or data sources.")
-        sys.exit(1)
-    
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
+        fastq_dir=args.fastq_dir,
+        manifest_path=args.manifest_path
+    ))

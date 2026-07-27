@@ -12,6 +12,14 @@ T003b:
     any logs or commands showing they were run and that the binaries are now in the
     system PATH. The required artifacts (script files and execution evidence) are
     missing.
+T012a:
+  c: true
+  h: ad04fa7bb0894eef1cf2f3334e42ed196f160d90b91e82ba9c9b963681ec23d4
+  r: "The repository contains a non\u2011empty `src/data/preprocess_fastp.py` implementing\
+    \ a fastp wrapper, checking for fastp availability, handling the synthetic\u2011\
+    mode flag, constructing the required fastp command (including `--thread 4` and\
+    \ `--json`), and creating output directories so trimmed FASTQ files can be saved\
+    \ to the specified location. No required artifact is missing."
 T015:
   c: false
   h: 6754b7f5a9722f5f3e59c9ff6cd324c6f8899a5b02a46df373715e63e43db7c8
@@ -20,3 +28,10 @@ T015:
     \ `data/manifests/synthetic_manifest.json`. Moreover, the manifest file is absent\
     \ from the filesystem. The task\u2019s core requirement\u2014a manifest with the\
     \ specified schema and checksums\u2014is not satisfied."
+T039:
+  c: false
+  h: 3871823dd8b683bb16ea190e9643fe3393612b1ecba37eb82345bc061d6b5f96
+  r: "The provided `src/analysis/defense_index.py` is truncated (ends abruptly inside\
+    \ a loop) and does not contain the full logic to compute and write the DAI values.\
+    \ Moreover, the required output file `data/processed/defense_allocation_index.csv`\
+    \ is absent. The task\u2019s core requirements are therefore not satisfied."

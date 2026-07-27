@@ -2145,26 +2145,6 @@
   status: not_enough_info
   updated_at: '2026-07-25T20:04:31Z'
 - artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
-  attempts: 15
-  canonical: batch correction reduces coefficient of variation by at least 20% for
-    housekeeping genes
-  claim_id: c_9b417faa
-  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
-    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
-    \ flagged."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
-  kind: magnitude
-  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T20:05:46Z'
-- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
   attempts: 1
   canonical: false discovery rate threshold of 0.05
   claim_id: c_61debbce
@@ -2682,26 +2662,6 @@
   status: verified
   updated_at: '2026-07-26T21:05:16Z'
 - artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
-  attempts: 10
-  canonical: batch correction reduces coefficient of variation by at least 20 percent
-    for housekeeping genes
-  claim_id: c_e74350b1
-  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
-    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
-    \ flagged."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
-  kind: magnitude
-  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T21:05:19Z'
-- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
   attempts: 1
   canonical: pathway aggregation reduces herbivore response vector features to 50
     or fewer
@@ -2765,3 +2725,739 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T21:07:10Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 16
+  canonical: batch correction reduces coefficient of variation by at least 20% for
+    housekeeping genes
+  claim_id: c_9b417faa
+  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
+    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
+    \ flagged."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
+  kind: magnitude
+  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:10:19Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: power analysis halts execution if sample size is less than 15
+  claim_id: c_1668ba11
+  context: 'Independent Test: Verify LOSO CV execution, power analysis halts if N<15,
+    permutation tests run, and metrics are reported.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_execution_if_sample_size_is_less_than_1
+  kind: magnitude
+  raw_text: Power analysis halts if N<15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:10:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic TPM count matrix generated with 50 species and a large set
+    of genes
+  claim_id: c_52f55141
+  context: 'Dimensions: Create a matrix of 50 species x a large set of genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a matrix of 50 species x a large set of genes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:11:10Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic TPM values generated using log-normal distribution with shape
+    1.5 and scale 10
+  claim_id: c_0e39caac
+  context: 'Distribution: Generate TPM values using a log-normal distribution (lognorm(s=1.5,
+    scale=10)) to mimic real expression data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate TPM values using a log-normal distribution (lognorm(s=1.5, scale=10))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:11:26Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic data generation uses fixed integer seed 42
+  claim_id: c_7747b03f
+  context: 'Manifest: Write data/manifests/synthetic_manifest.json with schema: ...
+    parameters: { seed: 42, distribution: log-normal }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed integer seed 42 for reproducibility
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:11:44Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: fastp execution uses CPU-optimized streaming modes
+  claim_id: c_5f76f2f9
+  context: 'Execution: Use CPU-optimized, streaming modes to produce trimmed FASTQ.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fastp_execution_uses_CPU-optimized_streaming_modes
+  kind: entity_fact
+  raw_text: Use CPU-optimized, streaming modes to produce trimmed FASTQ
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:12:00Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: fastp execution uses 4 threads
+  claim_id: c_51ea87b7
+  context: 'Exact Commands: fastp -i input_R1.fastq.gz -I input_R2.fastq.gz -o output_R1_trimmed.fastq.gz
+    -O output_R2_trimmed.fastq.gz --thread 4 --json fastp_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4 threads for fastp execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:12:44Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: featureCounts execution uses 4 threads
+  claim_id: c_b0825d27
+  context: 'Exact Commands: featureCounts -T 4 -p -a annotation.gtf -o output.counts
+    input.bam.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4 threads for featureCounts quantification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:21Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: studies with fewer than 2 biological replicates are excluded
+  claim_id: c_101115dd
+  context: 'Implement QC logic to exclude studies with <2 biological replicates or
+    missing tissue metadata... Exact Threshold: < 2 replicates.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Studies_with_fewer_than_2_biological_replicates_are_excluded
+  kind: magnitude
+  raw_text: Exclude studies with <2 biological replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:29Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: differentially expressed genes identified with FDR less than 0.05 and
+    absolute log2 fold change greater than 1
+  claim_id: c_7151d0ce
+  context: Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1) in tests/unit/test_de_analysis.py.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Differentially_expressed_genes_identified_with_FDR_less_than
+  kind: magnitude
+  raw_text: DESeq2 identifies DE genes with FDR < 0.05 and |log2FC| > 1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:36Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: pipeline halts if missing fraction of trait data exceeds 30 percent
+  claim_id: c_46e86c95
+  context: 'Halt Condition: If missing_fraction > 0.30, raise SystemExit and trigger
+    human_input_needed.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Halt if missing fraction of trait data is > 0.30
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T20:13:37Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: phylogenetic null model shuffling repeated 10000 times
+  claim_id: c_2f109122
+  context: "Repeat N=10,000 times. Compare observed R\xB2 to the upper tail of this\
+    \ null distribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat phylogenetic null model shuffling N=10,000 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:39Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: permutation test runs 10000 iterations or until convergence
+  claim_id: c_27cb1080
+  context: Implement permutation test (permutation test (N=10,000 or until convergence))
+    for Spearman correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation test (N=10,000 or until convergence)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:41Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis runs for top-ranked, top 100, and top 200 differentially
+    expressed genes
+  claim_id: c_a60cb497
+  context: 'Specific Levels: Run analysis for top-ranked, top 100, and top 200 DE
+    genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run analysis for top-ranked, top 100, and top 200 DE genes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:46Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: trait-synthesis genes including CYP79D16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, and CYP71A1 through CYP71A32 are excluded
+  claim_id: c_ebf84668
+  context: 'Logic: Exclude trait-synthesis genes (e.g., CYPD16, CYP79D15, CYP79D17,
+    CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1-32).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude trait-synthesis genes (e.g., CYPD16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1-32)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:49Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic data generation uses Python version 3.11
+  claim_id: c_49da89e5
+  context: 'Manifest: Write data/manifests/synthetic_manifest.json with schema: ...
+    tool_versions: { python: 3.11, numpy: ... }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11 for synthetic data generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:13:54Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: fixed list of housekeeping genes includes ACT2, ACT7, GAPDH, UBQ10, EF1a,
+    TUB6, TUB1, PP2A, SAND, and various CYP genes
+  claim_id: c_23b381be
+  context: 'Exact List: ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16,
+    CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2,
+    CYP71A3, CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11,
+    CYP71A12, CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19,
+    CYP71A20, CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27,
+    CYP71A28, CYP71A29, CYP71A30, CYP71A31, CYP71A32.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_list_of_housekeeping_genes_includes_ACT2,_ACT7,_GAPDH,
+  kind: entity_fact
+  raw_text: Housekeeping genes include ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1,
+    PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2,
+    CYP96A3, CYP71A1 through CYP71A32
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:14:00Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: TPM values generated using log-normal distribution with s=1.5 and scale=10
+  claim_id: c_ccf5e099
+  context: 'Distribution: Generate TPM values using a log-normal distribution (lognorm(s=1.5,
+    scale=10)) to mimic real expression data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate TPM values using a log-normal distribution (lognorm(s=1.5, scale=10))
+    to mimic real expression data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:18:32Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic matrix created with 50 species
+  claim_id: c_f3a33241
+  context: 'Dimensions: Create a matrix of 50 species x a large set of genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a matrix of 50 species x a large set of genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:18:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction reduces coefficient of variation by at least 20% for
+    housekeeping genes
+  claim_id: c_472443ff
+  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
+    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
+    \ flagged."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
+  kind: magnitude
+  raw_text: "Batch correction reduces CV \u226520% for housekeeping genes."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:18:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses seed 42
+  claim_id: c_6c26dfb9
+  context: 'parameters: { ''seed'': 42, ''distribution'': ''log-normal'' }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed 42 for synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:19:07Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses Python 3.11
+  claim_id: c_a1809fda
+  context: 'tool_versions: { ''python'': ''3.11'', ''numpy'': ''...'' }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python version 3.11 for synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:19:32Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Fastp execution uses 4 threads
+  claim_id: c_055b0fdb
+  context: 'Exact Commands: fastp -i input_R1.fastq.gz -I input_R2.fastq.gz -o output_R1_trimmed.fastq.gz
+    -O output_R2_trimmed.fastq.gz --thread 4 --json fastp_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run fastp with 4 threads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:19:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 2
+  canonical: HISAT2 execution uses 4 threads
+  claim_id: c_a8974907
+  context: 'Exact Commands: hisat2 -p 4 -x genome_index -1 input_R1_trimmed.fastq.gz
+    -2 input_R2_trimmed.fastq.gz -S output.bam.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4 threads for HISAT2 alignment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:19:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: FeatureCounts execution uses 4 threads
+  claim_id: c_3808bdc3
+  context: 'Exact Commands: featureCounts -T 4 -p -a annotation.gtf -o output.counts
+    input.bam.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run featureCounts with 4 threads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:20:06Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Studies with fewer than 2 biological replicates are excluded
+  claim_id: c_e5ebace8
+  context: 'Exact Threshold: < 2 replicates.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Studies_with_fewer_than_2_biological_replicates_are_excluded
+  kind: magnitude
+  raw_text: Exclude studies with fewer than 2 biological replicates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:20:42Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pathway aggregation reduces features to 50 or fewer
+  claim_id: c_f4d9b6b2
+  context: "Independent Test: Verify DESeq2 identifies DE genes correctly, response\
+    \ vectors are consistent across folds, and pathway aggregation reduces features\
+    \ to \u226450."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pathway aggregation reduces features to 50 or fewer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:20:46Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: DE genes selected with FDR < 0.05 and |log2FC| > 1
+  claim_id: c_827b0c0e
+  context: Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1) in tests/unit/test_de_analysis.py.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 1'
+    relation: log2FC
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/DE_genes_selected_with_FDR_%3C_0.05_and_log2FC_%3E_1
+    source_value: https://en.wikipedia.org/wiki/DE_genes_selected_with_FDR_<_0.05_and_log2FC_>_1
+    subject: DE genes selected with FDR < 0.05 and
+  kind: relational
+  raw_text: Select DE genes with FDR < 0.05 and |log2FC| > 1.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:20:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if missing trait data fraction exceeds 0.30
+  claim_id: c_d853ce3b
+  context: 'Halt Condition: If missing_fraction > 0.30, raise SystemExit and trigger
+    human_input_needed.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Halt if missing fraction of trait data exceeds 0.30.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T20:20:52Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 10,000 iterations
+  claim_id: c_9d1a4544
+  context: Implement permutation test (permutation test (N=10,000 or until convergence))
+    for Spearman correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation test with N=10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:20:56Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs for top-ranked, top 100, and top 200 DE genes
+  claim_id: c_bb515757
+  context: 'Specific Levels: Run analysis for top-ranked, top 100, and top 200 DE
+    genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis for top-ranked, top 100, and top 200 DE genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:21:02Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs for top 200 DE genes
+  claim_id: c_fc87cf48
+  context: 'Specific Levels: Run analysis for top-ranked, top 100, and top 200 DE
+    genes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity analysis for top 200 DE genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:21:07Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Null model fitting repeated 10,000 times
+  claim_id: c_241b50b7
+  context: Repeat N=10,000 times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat null model fitting 10,000 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:21:14Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 0
+  canonical: pipeline halts if missing trait data fraction exceeds 30 percent
+  claim_id: c_07040580
+  context: 'Halt Condition: If missing_fraction > 0.30, raise SystemExit and trigger
+    human_input_needed.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: missing_fraction > 0.30
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T20:34:36Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 11
+  canonical: batch correction reduces coefficient of variation by at least 20 percent
+    for housekeeping genes
+  claim_id: c_e74350b1
+  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
+    \ reduces CV \u226520% for housekeeping genes, and low\u2011coverage samples are\
+    \ flagged."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_coefficient_of_variation_by_at_leas
+  kind: magnitude
+  raw_text: "batch correction reduces CV \u226520% for housekeeping genes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:34:41Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 2
+  canonical: pathway aggregation reduces herbivore-response vectors to 50 or fewer
+    pathway-level features
+  claim_id: c_1ee07d0d
+  context: "Independent Test: Verify DESeq2 identifies DE genes correctly, response\
+    \ vectors are consistent across folds, and pathway aggregation reduces features\
+    \ to \u226450."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pathway aggregation reduces features to \u226450"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:34:41Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: differential expression gene selection uses FDR less than 0.05 and absolute
+    log2 fold change greater than 1
+  claim_id: c_6cf896b0
+  context: Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1) in tests/unit/test_de_analysis.py.
+  evidence:
+    entailment_evidence: Differential expression gene selection uses FDR less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Differential_expression_gene_selection_uses_FDR_less_than_0.
+  kind: magnitude
+  raw_text: FDR < 0.05 and |log2FC| > 1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T20:35:04Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: power analysis halts if available sample size is less than 15
+  claim_id: c_bbe6de7b
+  context: 'Halt: If available N < calculated required N, raise a SystemExit exception
+    and report ''Insufficient statistical power for reliable prediction (calculated
+    N=X, available N=Y)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_available_sample_size_is_less_than_1
+  kind: magnitude
+  raw_text: available N < 15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:35:51Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: studies with fewer than 2 biological replicates are excluded
+  claim_id: c_6f7c5036
+  context: Implement QC logic to exclude studies with <2 biological replicates or
+    missing tissue metadata
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Studies_with_fewer_than_2_biological_replicates_are_excluded
+  kind: magnitude
+  raw_text: < 2 biological replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:36:05Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic TPM values generated using log-normal distribution with shape
+    1.5 and scale 10
+  claim_id: c_abe678e8
+  context: Generate TPM values using a log-normal distribution (lognorm(s=1.5, scale=10))
+    to mimic real expression data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: lognorm(s=1.5, scale=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:36:16Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic TPM matrix dimensions are 50 species by a large set of genes
+  claim_id: c_d7b01348
+  context: Create a matrix of 50 species x a large set of genes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50 species
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:36:39Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis includes top 200 differentially expressed genes
+  claim_id: c_3c838a68
+  context: Run analysis for top-ranked, top , and top 200 DE genes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top 200 DE genes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T20:37:03Z'
