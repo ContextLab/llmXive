@@ -1,10 +1,21 @@
+"""
+Data Processing Module for Quantifying Topological Defect Influence.
+
+This module handles:
+1. Loading pristine structures and defect datasets.
+2. Extracting reference values (sigma_0, E_0, sigma_f_0).
+3. Normalizing targets (relative changes).
+4. Handling missing references and logging exclusions.
+5. One-hot encoding categorical features.
+6. Writing processed features, targets, and state logs.
+"""
 import os
 import csv
 import json
 import logging
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,19 +23,13 @@ logger = logging.getLogger(__name__)
 
 def get_project_root() -> Path:
     """Returns the project root directory."""
-    current = Path(__file__).resolve()
-    while current.name != 'PROJ-209-quantifying-the-influence-of-topological':
-        current = current.parent
-        if current == current.parent:
-            raise FileNotFoundError("Project root not found.")
-    return current
+    return Path(__file__).resolve().parent.parent
 
 def ensure_output_directories() -> None:
-    """Ensures all required output directories exist."""
+    """Ensures required output directories exist."""
     dirs = [
         get_project_root() / "data" / "processed",
-        get_project_root() / "data" / "state",
-        get_project_root() / "data" / "raw"
+        get_project_root() / "data" / "state"
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
@@ -33,418 +38,427 @@ def get_git_hash() -> str:
     """Attempts to get the current git commit hash."""
     try:
         import subprocess
-        result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True, check=True)
-        return result.stdout.strip()
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
     except Exception:
         return "unknown"
 
 def compute_sha256(file_path: Path) -> str:
-    """Computes SHA-256 hash of a file."""
+    """Computes SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_json_file(file_path: Path) -> Dict[str, Any]:
-    """Loads a JSON file."""
-    with open(file_path, 'r') as f:
+def load_json_file(file_path: Path) -> Dict:
+    """Loads a JSON file and returns its content as a dictionary."""
+    if not file_path.exists():
+        logger.warning(f"JSON file not found: {file_path}")
+        return {}
+    with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_json_file(file_path: Path, data: Dict[str, Any]) -> None:
+def save_json_file(file_path: Path, data: Dict) -> None:
     """Saves a dictionary to a JSON file."""
-    with open(file_path, 'w') as f:
-        json.dump(data, f, indent=2)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, default=str)
 
-def load_csv_to_dicts(file_path: Path) -> List[Dict[str, str]]:
-    """Loads a CSV file into a list of dictionaries."""
+def load_csv_to_dicts(file_path: Path) -> List[Dict[str, Any]]:
+    """Loads a CSV file and returns a list of dictionaries."""
     if not file_path.exists():
+        logger.warning(f"CSV file not found: {file_path}")
         return []
-    with open(file_path, 'r', newline='') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
 def save_to_csv(file_path: Path, data: List[Dict[str, Any]], fieldnames: Optional[List[str]] = None) -> None:
     """Saves a list of dictionaries to a CSV file."""
     if not data:
-        # Write empty file with headers if provided, or just empty
-        with open(file_path, 'w', newline='') as f:
+        # Write empty file with headers if fieldnames provided, else empty file
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
             if fieldnames:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-            return
+            else:
+                pass # Empty file
+        return
 
-    if fieldnames is None:
+    if not fieldnames:
         fieldnames = list(data[0].keys())
 
-    with open(file_path, 'w', newline='') as f:
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
+def parse_float_safe(value: Any, default: float = 0.0) -> float:
+    """Safely parses a value to float."""
+    if value is None or value == '':
+        return default
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
 def load_pristine_structures() -> List[Dict[str, Any]]:
     """Loads pristine structures from data/raw/pristine_structures.csv."""
-    root = get_project_root()
-    file_path = root / "data" / "raw" / "pristine_structures.csv"
+    project_root = get_project_root()
+    file_path = project_root / "data" / "raw" / "pristine_structures.csv"
     return load_csv_to_dicts(file_path)
 
 def load_defect_dataset() -> List[Dict[str, Any]]:
-    """Loads the defect dataset. Tries real first, then synthetic if real missing."""
-    root = get_project_root()
-    real_path = root / "data" / "raw" / "defect_dataset_2022.csv"
-    synth_train_path = root / "data" / "raw" / "synthetic_train.csv"
+    """Loads the defect dataset (real or synthetic) based on state."""
+    project_root = get_project_root()
+    state_file = project_root / "data" / "state" / "data_source.json"
+    state = load_json_file(state_file)
     
-    # Check real data
-    if real_path.exists():
-        logger.info("Loading real defect dataset.")
-        return load_csv_to_dicts(real_path)
+    source_type = state.get("source_type", "real")
+    holdout_filename = state.get("holdout_filename", "")
     
-    # Check synthetic data
-    if synth_train_path.exists():
-        logger.info("Real dataset missing. Loading synthetic training data.")
-        return load_csv_to_dicts(synth_train_path)
+    # Determine which file to load
+    if source_type == "real":
+        file_path = project_root / "data" / "raw" / "defect_dataset_2022.csv"
+    else:
+        # For synthetic, we usually use the train set for processing, 
+        # unless specified otherwise. The task implies processing the main dataset.
+        # If the state says synthetic, the main dataset is synthetic_train.csv
+        file_path = project_root / "data" / "raw" / "synthetic_train.csv"
     
-    raise FileNotFoundError("Neither real nor synthetic defect datasets found.")
-
-def parse_float_safe(val: str) -> Optional[float]:
-    """Safely parses a string to float, returning None on failure."""
-    if val is None or val == '':
-        return None
-    try:
-        return float(val)
-    except (ValueError, TypeError):
-        return None
+    return load_csv_to_dicts(file_path)
 
 def extract_pristine_references(pristine_data: List[Dict[str, Any]]) -> Dict[str, float]:
     """
     Extracts scalar reference values (sigma_0, E_0, sigma_f_0) from pristine structures.
-    Assumes the CSV has columns: 'material', 'conductivity', 'youngs_modulus', 'fracture_strength'.
-    Averages them if multiple entries exist for the same material type, or takes the first valid.
+    Returns a dict mapping material_id to references, or aggregates if needed.
+    For this task, we assume we need global averages or specific material references.
+    Based on the task description: "Extract scalar reference values... from pristine_structures.csv".
+    We will compute global averages for graphene and MoS2 if multiple exist, 
+    or specific values if keyed by material.
+    Let's assume the CSV has columns: material_id, sigma_0, E_0, sigma_f_0.
     """
-    if not pristine_data:
-        logger.warning("No pristine structures found to extract references.")
-        return {'sigma_0': 1.0, 'E_0': 1.0, 'sigma_f_0': 1.0} # Default to 1.0 to avoid div by zero if missing
-
-    # We assume the pristine structures are for the base materials (e.g., Graphene, MoS2)
-    # and we need a single reference set. The task implies extracting scalar references.
-    # Let's aggregate by taking the mean of available valid values across all pristine entries.
-    sum_sigma = 0.0
-    sum_E = 0.0
-    sum_sigma_f = 0.0
-    count = 0
-
+    sigma_0_vals = []
+    E_0_vals = []
+    sigma_f_0_vals = []
+    
     for row in pristine_data:
-        s = parse_float_safe(row.get('conductivity'))
-        e = parse_float_safe(row.get('youngs_modulus'))
-        sf = parse_float_safe(row.get('fracture_strength'))
-
-        if s is not None and e is not None and sf is not None:
-            sum_sigma += s
-            sum_E += e
-            sum_sigma_f += sf
-            count += 1
-
-    if count == 0:
-        logger.error("No valid reference values found in pristine structures.")
-        # Return defaults or raise? Task says exclude if missing, but we need a reference to normalize against.
-        # If no reference, we cannot normalize. We'll return 1.0 to avoid crash, but log heavily.
-        return {'sigma_0': 1.0, 'E_0': 1.0, 'sigma_f_0': 1.0}
-
+        sigma_0_vals.append(parse_float_safe(row.get('sigma_0'), None))
+        E_0_vals.append(parse_float_safe(row.get('E_0'), None))
+        sigma_f_0_vals.append(parse_float_safe(row.get('sigma_f_0'), None))
+    
+    # Filter out None
+    sigma_0_vals = [x for x in sigma_0_vals if x is not None]
+    E_0_vals = [x for x in E_0_vals if x is not None]
+    sigma_f_0_vals = [x for x in sigma_f_0_vals if x is not None]
+    
+    if not sigma_0_vals or not E_0_vals or not sigma_f_0_vals:
+        logger.error("Missing reference values in pristine structures.")
+        return {"sigma_0": 0.0, "E_0": 0.0, "sigma_f_0": 0.0}
+    
     return {
-        'sigma_0': sum_sigma / count,
-        'E_0': sum_E / count,
-        'sigma_f_0': sum_sigma_f / count
+        "sigma_0": sum(sigma_0_vals) / len(sigma_0_vals),
+        "E_0": sum(E_0_vals) / len(E_0_vals),
+        "sigma_f_0": sum(sigma_f_0_vals) / len(sigma_f_0_vals)
     }
 
-def normalize_targets(defect_data: List[Dict[str, Any]], references: Dict[str, float]) -> Tuple[List[Dict[str, Any]], List[str]]:
+def normalize_targets(defect_data: List[Dict[str, Any]], refs: Dict[str, float]) -> Tuple[List[Dict[str, Any]], List[str]]:
     """
-    Computes relative changes (Δσ/σ₀, ΔE/E₀, Δσ_f/σ_f₀).
+    Computes relative changes (Delta/Ref) for conductivity, Young's modulus, fracture strength.
     Returns normalized data and list of excluded IDs.
     """
-    sigma_0 = references['sigma_0']
-    E_0 = references['E_0']
-    sigma_f_0 = references['sigma_f_0']
-
-    normalized_rows = []
+    normalized = []
     excluded_ids = []
-
+    
+    sigma_0 = refs.get("sigma_0", 0.0)
+    E_0 = refs.get("E_0", 0.0)
+    sigma_f_0 = refs.get("sigma_f_0", 0.0)
+    
     for row in defect_data:
-        row_id = row.get('id', row.get('defect_id', 'unknown'))
-        
-        # Parse target values
-        sigma = parse_float_safe(row.get('conductivity'))
-        E = parse_float_safe(row.get('youngs_modulus'))
-        sigma_f = parse_float_safe(row.get('fracture_strength'))
-
-        # Check for missing values in the defect entry itself
-        if sigma is None or E is None or sigma_f is None:
+        row_id = row.get("id", row.get("entry_id", "unknown"))
+        try:
+            # Extract raw values
+            sigma = parse_float_safe(row.get("conductivity"))
+            E = parse_float_safe(row.get("youngs_modulus")) # Assuming column name
+            sigma_f = parse_float_safe(row.get("fracture_strength")) # Assuming column name
+            
+            # Check for missing raw values or zero references
+            if sigma_0 == 0 or E_0 == 0 or sigma_f_0 == 0:
+                excluded_ids.append(row_id)
+                continue
+            
+            if sigma is None or E is None or sigma_f is None:
+                excluded_ids.append(row_id)
+                continue
+            
+            # Normalize
+            d_sigma = (sigma - sigma_0) / sigma_0
+            d_E = (E - E_0) / E_0
+            d_sigma_f = (sigma_f - sigma_f_0) / sigma_f_0
+            
+            new_row = row.copy()
+            new_row["delta_conductivity"] = d_sigma
+            new_row["delta_youngs_modulus"] = d_E
+            new_row["delta_fracture_strength"] = d_sigma_f
+            normalized.append(new_row)
+            
+        except Exception as e:
+            logger.warning(f"Error processing row {row_id}: {e}")
             excluded_ids.append(row_id)
-            logger.warning(f"Excluding entry {row_id}: Missing target values.")
-            continue
-
-        # Check for missing references (should be caught earlier, but double check)
-        if sigma_0 == 0 or E_0 == 0 or sigma_f_0 == 0:
-            excluded_ids.append(row_id)
-            logger.warning(f"Excluding entry {row_id}: Reference value is zero.")
-            continue
-
-        # Compute relative changes
-        delta_sigma = (sigma - sigma_0) / sigma_0
-        delta_E = (E - E_0) / E_0
-        delta_sigma_f = (sigma_f - sigma_f_0) / sigma_f_0
-
-        new_row = dict(row)
-        new_row['delta_conductivity'] = delta_sigma
-        new_row['delta_youngs_modulus'] = delta_E
-        new_row['delta_fracture_strength'] = delta_sigma_f
-        
-        # Remove original columns to avoid confusion in features/targets if needed, 
-        # but task asks for features.csv and targets.csv separately.
-        # We will keep them for now and split later.
-        normalized_rows.append(new_row)
-
-    return normalized_rows, excluded_ids
+            
+    return normalized, excluded_ids
 
 def one_hot_encode_defect_type(data: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
     """
     One-hot encodes the 'defect_type' column.
-    Returns updated data and list of new feature names.
+    Returns encoded data and list of new feature names.
     """
     if not data:
-        return data, []
-
-    # Identify unique types
+        return [], []
+    
+    # Collect all unique defect types
     types = set()
     for row in data:
-        t = row.get('defect_type')
-        if t:
-            types.add(t)
+        t = row.get("defect_type", "unknown")
+        types.add(t)
     
-    sorted_types = sorted(list(types))
-    feature_names = [f'defect_type_{t}' for t in sorted_types]
-
-    new_data = []
+    type_list = sorted(list(types))
+    new_features = [f"defect_type_{t}" for t in type_list]
+    
+    encoded_data = []
     for row in data:
-        new_row = dict(row)
-        t = row.get('defect_type', '')
-        for feat in feature_names:
-            # Extract type from feature name
-            type_name = feat.replace('defect_type_', '')
-            new_row[feat] = 1.0 if t == type_name else 0.0
-        new_data.append(new_row)
-    
-    return new_data, feature_names
+        new_row = row.copy()
+        t = row.get("defect_type", "unknown")
+        for feat in new_features:
+            new_row[feat] = 1 if feat.endswith(f"_{t}") else 0
+        encoded_data.append(new_row)
+        
+    return encoded_data, new_features
 
-def compute_vif(features_df: 'pd.DataFrame') -> Dict[str, float]:
+def compute_vif(features: List[List[float]]) -> List[float]:
     """
-    Computes Variance Inflation Factor for each feature.
-    Requires pandas.
+    Computes Variance Inflation Factor for a list of feature columns.
+    Simple implementation for small datasets.
     """
-    try:
-        import pandas as pd
-        import numpy as np
-        from statsmodels.stats.outliers_influence import variance_inflation_factor
-    except ImportError:
-        logger.error("pandas or statsmodels not installed. Cannot compute VIF.")
-        return {}
-
-    # Add intercept for VIF calculation
-    X = features_df.copy()
-    X['intercept'] = 1.0
+    import numpy as np
+    if not features or len(features) == 0:
+        return []
     
-    vif_data = {}
-    for col in features_df.columns:
+    X = np.array(features).T # Shape: (n_samples, n_features)
+    n_features = X.shape[1]
+    vifs = []
+    
+    for i in range(n_features):
+        y = X[:, i]
+        X_other = np.delete(X, i, axis=1)
+        
+        # Fit linear model y ~ X_other
         try:
-            vif = variance_inflation_factor(X.values, list(X.columns).index(col))
-            vif_data[col] = vif
-        except Exception as e:
-            vif_data[col] = float('inf')
-            logger.warning(f"VIF calculation failed for {col}: {e}")
-    
-    return vif_data
+            # Add intercept
+            X_other_with_intercept = np.column_stack((np.ones(X_other.shape[0]), X_other))
+            coeffs, residuals, rank, s = np.linalg.lstsq(X_other_with_intercept, y, rcond=None)
+            
+            if len(residuals) > 0:
+                ss_res = residuals[0]
+            else:
+                # If perfect fit or singular
+                y_pred = X_other_with_intercept @ coeffs
+                ss_res = np.sum((y - y_pred)**2)
+            
+            ss_tot = np.sum((y - np.mean(y))**2)
+            
+            if ss_tot == 0:
+                r2 = 0
+            else:
+                r2 = 1 - (ss_res / ss_tot)
+            
+            if r2 >= 1.0:
+                vifs.append(float('inf'))
+            else:
+                vifs.append(1.0 / (1.0 - r2))
+        except Exception:
+            vifs.append(float('inf'))
+            
+    return vifs
 
-def handle_collinearity(data: List[Dict[str, Any]], vif_threshold: float = 5.0, max_iterations: int = 10) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def handle_collinearity(data: List[Dict[str, Any]], feature_cols: List[str]) -> Tuple[List[Dict[str, Any]], List[str], Dict]:
     """
-    Handles collinearity by iteratively removing features with high VIF.
-    Returns cleaned data and a log of the process.
+    Handles collinearity by removing features with high VIF.
+    Returns cleaned data, remaining feature names, and log.
     """
-    import pandas as pd
-    
-    # Determine feature columns (exclude targets and metadata)
-    target_cols = ['delta_conductivity', 'delta_youngs_modulus', 'delta_fracture_strength']
-    meta_cols = ['id', 'defect_id', 'defect_type', 'material', 'defect_density']
-    
-    # Start with all numeric columns that are not targets
-    # We assume the data is already normalized and one-hot encoded if needed.
-    # For VIF, we need a numeric dataframe.
+    import numpy as np
     
     log = {
-        'iterations': [],
-        'status': 'SUCCESS',
-        'final_features': []
+        "iterations": 0,
+        "removed_features": [],
+        "final_vifs": {},
+        "status": "SUCCESS"
     }
-
-    current_data = data
     
-    for i in range(max_iterations):
-        df = pd.DataFrame(current_data)
+    current_features = list(feature_cols)
+    max_iterations = 10
+    iteration = 0
+    
+    while iteration < max_iterations:
+        iteration += 1
+        log["iterations"] = iteration
         
-        # Identify numeric feature columns (excluding targets and metadata)
-        feature_cols = [c for c in df.columns if c not in target_cols + meta_cols and df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
+        # Extract feature matrix
+        matrix = []
+        for row in data:
+            row_vals = []
+            for f in current_features:
+                val = parse_float_safe(row.get(f), 0.0)
+                row_vals.append(val)
+            matrix.append(row_vals)
         
-        if not feature_cols:
+        if not matrix:
             break
-
-        vif_results = compute_vif(df[feature_cols])
-        max_vif = 0.0
-        max_vif_col = None
+            
+        vifs = compute_vif(matrix)
         
-        for col, v in vif_results.items():
-            if v > max_vif:
-                max_vif = v
-                max_vif_col = col
-
-        log['iterations'].append({
-            'iteration': i,
-            'max_vif': max_vif,
-            'excluded_feature': max_vif_col if max_vif > vif_threshold else None
-        })
-
-        if max_vif <= vif_threshold:
-            log['status'] = 'SUCCESS'
-            log['final_features'] = feature_cols
+        # Check if all VIFs <= 5
+        max_vif = max(vifs) if vifs else 0
+        if max_vif <= 5:
+            log["status"] = "SUCCESS"
             break
         
-        if max_vif_col:
-            # Remove the column from all rows
-            current_data = [{k: v for k, v in row.items() if k != max_vif_col} for row in current_data]
-        else:
-            # No column to remove but VIF > threshold? Break to avoid infinite loop
-            log['status'] = 'VIF_FAILURE'
-            log['final_features'] = feature_cols
+        # Find feature with highest VIF
+        max_vif_idx = vifs.index(max_vif)
+        removed_feature = current_features[max_vif_idx]
+        
+        log["removed_features"].append(removed_feature)
+        current_features.pop(max_vif_idx)
+        
+        if not current_features:
+            log["status"] = "VIF_FAILURE"
             break
     
-    if log['status'] == 'SUCCESS' and max_vif > vif_threshold:
-        # Should not happen if loop breaks correctly, but safety
-        log['status'] = 'VIF_FAILURE'
+    log["final_vifs"] = {f: v for f, v in zip(current_features, vifs)}
+    
+    return data, current_features, log
 
-    return current_data, log
-
-def process_data() -> Tuple[Path, Path, Path]:
+def process_data() -> None:
     """
-    Main processing logic for T018.
+    Main processing pipeline for T018.
     1. Load pristine structures.
-    2. Load defect dataset.
-    3. Extract references.
+    2. Extract references.
+    3. Load defect dataset.
     4. Normalize targets.
-    5. One-hot encode defect types (if needed for features).
-    6. Handle collinearity (optional step, but good practice).
-    7. Split into features.csv and targets.csv.
-    8. Log exclusions.
+    5. Exclude missing references and log.
+    6. One-hot encode.
+    7. Save features, targets, and normalization log.
     """
-    root = get_project_root()
     ensure_output_directories()
-
-    # 1. Load Data
+    project_root = get_project_root()
+    
+    # 1. Load Pristine Structures
     pristine_data = load_pristine_structures()
-    defect_data = load_defect_dataset()
-
+    if not pristine_data:
+        logger.error("No pristine structures found. Cannot normalize.")
+        # Write empty outputs as required
+        save_to_csv(project_root / "data" / "processed" / "features.csv", [], [])
+        save_to_csv(project_root / "data" / "processed" / "targets.csv", [], [])
+        save_json_file(project_root / "data" / "state" / "normalization_log.json", {"excluded_ids": [], "count": 0})
+        return
+        
     # 2. Extract References
-    references = extract_pristine_references(pristine_data)
+    refs = extract_pristine_references(pristine_data)
+    logger.info(f"Extracted references: {refs}")
     
-    # 3. Normalize
-    normalized_data, excluded_ids = normalize_targets(defect_data, references)
-
-    # 4. One-Hot Encode (for features)
-    # We do this before splitting to ensure features are ready
-    encoded_data, one_hot_features = one_hot_encode_defect_type(normalized_data)
-
-    # 5. Handle Collinearity (Optional but recommended for robust features)
-    # Note: T020 handles the rigorous feature selection loop. 
-    # T018 just prepares the data. We might do a basic check or just pass through.
-    # The task description for T018 focuses on normalization and exclusion.
-    # We will skip the heavy VIF loop here to avoid duplicating T020 logic,
-    # but we ensure the data is clean.
+    # 3. Load Defect Dataset
+    defect_data = load_defect_dataset()
+    if not defect_data:
+        logger.warning("Defect dataset is empty.")
+        save_to_csv(project_root / "data" / "processed" / "features.csv", [], [])
+        save_to_csv(project_root / "data" / "processed" / "targets.csv", [], [])
+        save_json_file(project_root / "data" / "state" / "normalization_log.json", {"excluded_ids": [], "count": 0})
+        return
     
-    # 6. Prepare Outputs
-    # Features: All columns except targets and metadata
+    # 4. Normalize Targets
+    normalized_data, excluded_ids = normalize_targets(defect_data, refs)
+    
+    # 5. Log Exclusions
+    exclusion_log = {
+        "excluded_ids": excluded_ids,
+        "count": len(excluded_ids)
+    }
+    save_json_file(project_root / "data" / "state" / "normalization_log.json", exclusion_log)
+    logger.info(f"Excluded {len(excluded_ids)} entries due to missing references.")
+    
+    if not normalized_data:
+        logger.warning("No data left after normalization.")
+        save_to_csv(project_root / "data" / "processed" / "features.csv", [], [])
+        save_to_csv(project_root / "data" / "processed" / "targets.csv", [], [])
+        return
+        
+    # 6. One-Hot Encode
+    encoded_data, new_features = one_hot_encode_defect_type(normalized_data)
+    
+    # 7. Prepare Features and Targets
+    # Features: defect_type (encoded), defect_density, etc.
     # Targets: delta_conductivity, delta_youngs_modulus, delta_fracture_strength
     
-    target_cols = ['delta_conductivity', 'delta_youngs_modulus', 'delta_fracture_strength']
-    meta_cols = ['id', 'defect_id', 'defect_type', 'material', 'defect_density']
+    target_cols = ["delta_conductivity", "delta_youngs_modulus", "delta_fracture_strength"]
+    # Assuming defect_density and encoded defect types are features
+    # We need to identify other feature columns dynamically or from config
+    # For now, let's assume all numeric columns except targets and ID are features
     
-    features_rows = []
-    targets_rows = []
     feature_cols = []
-    target_cols_final = []
-
-    if encoded_data:
-        # Determine columns
-        all_cols = list(encoded_data[0].keys())
-        feature_cols = [c for c in all_cols if c not in target_cols + meta_cols]
-        target_cols_final = target_cols
-
-        for row in encoded_data:
-            features_rows.append({k: row[k] for k in feature_cols})
-            targets_rows.append({k: row[k] for k in target_cols_final})
-
-    # 7. Save Files
-    features_path = root / "data" / "processed" / "features.csv"
-    targets_path = root / "data" / "processed" / "targets.csv"
-    log_path = root / "data" / "state" / "normalization_log.json"
-
-    save_to_csv(features_path, features_rows, feature_cols)
-    save_to_csv(targets_path, targets_rows, target_cols_final)
-
-    # 8. Log Exclusions
-    log_data = {
-        'excluded_ids': excluded_ids,
-        'count': len(excluded_ids),
-        'references_used': references,
-        'total_input_rows': len(defect_data),
-        'total_output_rows': len(normalized_data)
-    }
-    save_json_file(log_path, log_data)
-
-    logger.info(f"Processing complete. Features: {features_path}, Targets: {targets_path}")
-    logger.info(f"Excluded {len(excluded_ids)} rows.")
-
-    return features_path, targets_path, log_path
+    for col in encoded_data[0].keys():
+        if col.startswith("defect_type_"):
+            feature_cols.append(col)
+        elif col == "defect_density":
+            feature_cols.append(col)
+        elif col not in target_cols and col not in ["id", "entry_id", "conductivity", "youngs_modulus", "fracture_strength"]:
+            # Check if numeric
+            val = parse_float_safe(encoded_data[0].get(col))
+            if val != 0.0 or col in ["defect_density"]: # Heuristic
+                feature_cols.append(col)
+    
+    # Extract Features
+    features_list = []
+    for row in encoded_data:
+        feat_row = {k: row[k] for k in feature_cols}
+        features_list.append(feat_row)
+        
+    # Extract Targets
+    targets_list = []
+    for row in encoded_data:
+        tgt_row = {k: row[k] for k in target_cols}
+        # Add ID for traceability
+        tgt_row["id"] = row.get("id", row.get("entry_id"))
+        targets_list.append(tgt_row)
+    
+    # 8. Save Outputs
+    save_to_csv(project_root / "data" / "processed" / "features.csv", features_list)
+    save_to_csv(project_root / "data" / "processed" / "targets.csv", targets_list)
+    
+    logger.info("Data processing complete.")
 
 def update_state_with_checksums() -> None:
-    """Updates state file with checksums of processed files."""
-    root = get_project_root()
-    features_path = root / "data" / "processed" / "features.csv"
-    targets_path = root / "data" / "processed" / "targets.csv"
-    state_path = root / "data" / "state" / "processing_state.json"
-
-    state = {
-        'git_hash': get_git_hash(),
-        'files': {}
-    }
-
+    """Updates state files with checksums of processed data."""
+    project_root = get_project_root()
+    features_path = project_root / "data" / "processed" / "features.csv"
+    targets_path = project_root / "data" / "processed" / "targets.csv"
+    
+    state = {}
     if features_path.exists():
-        state['files']['features.csv'] = compute_sha256(features_path)
+        state["features_sha256"] = compute_sha256(features_path)
     if targets_path.exists():
-        state['files']['targets.csv'] = compute_sha256(targets_path)
-
-    save_json_file(state_path, state)
-    logger.info(f"Updated state with checksums: {state_path}")
+        state["targets_sha256"] = compute_sha256(targets_path)
+        
+    if state:
+        # Append to existing state or create new
+        current_state = load_json_file(project_root / "data" / "state" / "data_source.json")
+        current_state.update(state)
+        save_json_file(project_root / "data" / "state" / "data_source.json", current_state)
 
 def main():
-    """Main entry point for the script."""
-    try:
-        process_data()
-        update_state_with_checksums()
-        logger.info("T018 Data Processing completed successfully.")
-    except Exception as e:
-        logger.error(f"Error during T018 execution: {e}")
-        # Ensure we still write empty/error logs to prevent downstream deadlocks
-        root = get_project_root()
-        ensure_output_directories()
-        save_to_csv(root / "data" / "processed" / "features.csv", [], [])
-        save_to_csv(root / "data" / "processed" / "targets.csv", [], [])
-        save_json_file(root / "data" / "state" / "normalization_log.json", {'error': str(e), 'excluded_ids': [], 'count': 0})
+    """Entry point for the script."""
+    logger.info("Starting data processing (T018)...")
+    process_data()
+    update_state_with_checksums()
+    logger.info("Data processing finished.")
 
 if __name__ == "__main__":
     main()

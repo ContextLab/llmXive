@@ -4,242 +4,245 @@ import time
 import json
 import hashlib
 import subprocess
-from pathlib import Path
+import logging
 from typing import List, Dict, Any, Optional
 
-# ---------------------------------------------------------------------------
-# Utility Functions (Shared across steps)
-# ---------------------------------------------------------------------------
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def get_project_root() -> Path:
-    """Returns the root directory of the project."""
-    current = Path(__file__).resolve()
-    # Assuming code/01_data_acquisition.py is at code/
-    return current.parent.parent
+# --- Helper Functions (Existing API Surface) ---
+
+def get_project_root() -> str:
+    """Returns the absolute path to the project root."""
+    # Assuming the script is run from the project root or code/ directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up one level if in code/
+    if os.path.basename(current_dir) == 'code':
+        return os.path.dirname(current_dir)
+    return current_dir
 
 def ensure_output_directories():
-    """Creates necessary output directories if they don't exist."""
+    """Ensures that required output directories exist."""
     root = get_project_root()
     dirs = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "state",
-        root / "data" / "validation",
-        root / "code",
-        root / "tests",
-        root / "notebooks"
+        os.path.join(root, 'data', 'raw'),
+        os.path.join(root, 'data', 'state'),
+        os.path.join(root, 'data', 'processed'),
+        os.path.join(root, 'figures')
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        os.makedirs(d, exist_ok=True)
 
-def get_git_hash() -> str:
+def get_git_hash() -> Optional[str]:
     """Attempts to get the current git commit hash."""
     try:
         return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
     except Exception:
-        return "unknown"
+        return None
 
-def compute_sha256(file_path: str) -> str:
+def compute_sha256(filepath: str) -> str:
     """Computes the SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_json_file(path: Path) -> Dict[str, Any]:
-    """Loads a JSON file, returning empty dict if not found."""
-    if not path.exists():
-        return {}
-    with open(path, 'r') as f:
+def load_json_file(filepath: str) -> Dict[str, Any]:
+    """Loads a JSON file and returns its contents as a dictionary."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"JSON file not found: {filepath}")
+    with open(filepath, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_json_file(path: Path, data: Dict[str, Any]):
+def save_json_file(filepath: str, data: Dict[str, Any]):
     """Saves a dictionary to a JSON file."""
-    with open(path, 'w') as f:
-        json.dump(data, f, indent=2)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, default=str)
 
-def load_csv_to_dicts(path: Path) -> List[Dict[str, str]]:
+def load_csv_to_dicts(filepath: str) -> List[Dict[str, Any]]:
     """Loads a CSV file into a list of dictionaries."""
-    if not path.exists():
-        return []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"CSV file not found: {filepath}")
+    with open(filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
-def save_to_csv(data: List[Dict[str, Any]], path: Path, fieldnames: Optional[List[str]] = None):
+def save_to_csv(filepath: str, data: List[Dict[str, Any]]):
     """Saves a list of dictionaries to a CSV file."""
     if not data:
-        # Write empty file with headers if possible, or just empty
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            if fieldnames:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-            else:
-                f.write("")
+        # Write empty file with headers if we know them, or just empty
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            pass
         return
 
-    if fieldnames is None:
-        fieldnames = list(data[0].keys())
-
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+    fieldnames = data[0].keys()
+    with open(filepath, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
 def parse_float_safe(value: Any) -> Optional[float]:
-    """Safely parses a value to float, returning None on failure."""
-    if value is None or value == '':
+    """Safely parses a value to float, returning None if invalid."""
+    if value is None:
         return None
     try:
         return float(value)
     except (ValueError, TypeError):
         return None
 
-def validate_schema(data: List[Dict[str, Any]], required_fields: List[str]) -> List[Dict[str, Any]]:
-    """Validates that all required fields exist and are non-null in the data."""
-    valid_data = []
-    for row in data:
-        if all(field in row and row[field] is not None and row[field] != '' for field in required_fields):
-            valid_data.append(row)
-    return valid_data
+def validate_schema(row: Dict[str, Any], required_fields: List[str]) -> bool:
+    """Checks if a row contains all required fields with non-empty values."""
+    for field in required_fields:
+        if field not in row or row[field] is None or row[field] == '':
+            return False
+    return True
 
-# ---------------------------------------------------------------------------
-# Step 7: Synthetic Data Validation (T016b)
-# ---------------------------------------------------------------------------
+# --- Task Specific Logic: T016b Synthetic Data Validation ---
 
-def run_synthetic_validation():
+def run_synthetic_validation_step():
     """
-    Step 7: Synthetic Data Validation.
-    Dependency: T013, T012 (synthetic flag).
-    Condition: Only if data_source is synthetic.
-    Action: Validate physical bounds, exclude violations, log exclusions.
+    Implements Step 7 of User Story 1: Synthetic Data Validation.
+    
+    Dependencies:
+      - data/state/data_source.json (from T015)
+      - data/raw/synthetic_train.csv (from T013)
+      - data/raw/synthetic_holdout.csv (from T015)
+    
+    Logic:
+      1. Read data_source.json. If source_type is not 'synthetic', skip or log.
+      2. Load synthetic_train.csv.
+      3. Validate physical bounds:
+         - conductivity > 0
+         - defect_density in [low, 0.1] (assuming low is a small positive number or 0)
+         - other fields if necessary (e.g., fracture_energy > 0)
+      4. Exclude entries violating bounds.
+      5. Save cleaned synthetic_train.csv.
+      6. Save synthetic_exclusions.json with details.
     """
     root = get_project_root()
     ensure_output_directories()
 
-    data_source_path = root / "data" / "state" / "data_source.json"
-    data_source = load_json_file(data_source_path)
+    data_source_path = os.path.join(root, 'data', 'state', 'data_source.json')
+    train_path = os.path.join(root, 'data', 'raw', 'synthetic_train.csv')
+    holdout_path = os.path.join(root, 'data', 'raw', 'synthetic_holdout.csv')
+    exclusions_path = os.path.join(root, 'data', 'state', 'synthetic_exclusions.json')
 
-    source_type = data_source.get("source_type", "unknown")
-    
-    # Check if we are in synthetic mode
-    if source_type != "synthetic":
-        # If not synthetic, this step is not applicable, but we must still produce outputs
-        # to satisfy the "Guaranteed Output" requirement (empty logs if not applicable)
-        exclusion_log_path = root / "data" / "state" / "synthetic_exclusions.json"
-        save_json_file(exclusion_log_path, {"status": "skipped", "reason": "source_not_synthetic", "excluded_count": 0})
-        
-        # Ensure cleaned files exist (empty if not applicable)
-        train_path = root / "data" / "raw" / "synthetic_train.csv"
-        holdout_path = root / "data" / "raw" / "synthetic_holdout.csv"
-        
-        # If files don't exist, create empty ones
-        if not train_path.exists():
-            save_to_csv([], train_path)
-        if not holdout_path.exists():
-            save_to_csv([], holdout_path)
-            
+    # 1. Check data source
+    try:
+        data_source = load_json_file(data_source_path)
+    except FileNotFoundError:
+        logger.error(f"Cannot find {data_source_path}. Aborting T016b.")
+        # Write empty exclusion log as per "Guaranteed Output"
+        save_json_file(exclusions_path, {"status": "error", "reason": "data_source.json not found", "excluded_count": 0})
+        # Ensure output file exists even if empty
+        if not os.path.exists(train_path):
+            save_to_csv(train_path, [])
         return
 
-    # Define physical bounds based on task description and physics
-    # Conductivity > 0
-    # Defect density > 0 (implied by physics, though task said "∈ [, ]" which is ambiguous, assuming > 0)
-    # Fracture energy > 0
-    # Young's Modulus > 0
+    source_type = data_source.get('source_type', '')
     
-    bounds = {
-        "conductivity": {"min": 0.0, "max": None},
-        "defect_density": {"min": 0.0, "max": None},
-        "fracture_energy": {"min": 0.0, "max": None},
-        "youngs_modulus": {"min": 0.0, "max": None}
-    }
+    if source_type != 'synthetic':
+        logger.info(f"Source type is '{source_type}'. Synthetic validation (T016b) is not applicable. Skipping.")
+        # Still write empty exclusion log and ensure train file exists if it doesn't
+        save_json_file(exclusions_path, {"status": "skipped", "reason": "source_type_not_synthetic", "excluded_count": 0})
+        if not os.path.exists(train_path):
+            save_to_csv(train_path, [])
+        return
 
+    logger.info("Starting Synthetic Data Validation (T016b)...")
+
+    # 2. Load synthetic_train.csv
+    try:
+        raw_data = load_csv_to_dicts(train_path)
+    except FileNotFoundError:
+        logger.error(f"Cannot find {train_path}. Creating empty output.")
+        save_json_file(exclusions_path, {"status": "error", "reason": "synthetic_train.csv not found", "excluded_count": 0})
+        save_to_csv(train_path, [])
+        return
+
+    logger.info(f"Loaded {len(raw_data)} rows from {train_path}")
+
+    valid_rows = []
+    excluded_rows = []
+    exclusion_reasons = []
+
+    # 3. Validate physical bounds
+    # Define bounds based on task description:
+    # - conductivity > 0
+    # - defect_density in [low, 0.1] -> assuming low >= 0, so [0, 0.1]
+    # - fracture_energy > 0 (implied by physics)
+    
+    for idx, row in enumerate(raw_data):
+        is_valid = True
+        reasons = []
+
+        # Check conductivity
+        conductivity = parse_float_safe(row.get('conductivity'))
+        if conductivity is None or conductivity <= 0:
+            is_valid = False
+            reasons.append(f"conductivity invalid (got: {row.get('conductivity')})")
+
+        # Check defect_density
+        density = parse_float_safe(row.get('defect_density'))
+        if density is None:
+            is_valid = False
+            reasons.append("defect_density is NaN")
+        else:
+            # Assuming bounds are [0, 0.1] based on "defect density ∈ [low, 0.1]"
+            if density < 0 or density > 0.1:
+                is_valid = False
+                reasons.append(f"defect_density out of bounds [0, 0.1] (got: {density})")
+
+        # Check fracture_energy (if present)
+        fracture = parse_float_safe(row.get('fracture_energy'))
+        if fracture is not None and fracture <= 0:
+            is_valid = False
+            reasons.append(f"fracture_energy <= 0 (got: {fracture})")
+        
+        # Check defect_type if present (should not be empty)
+        if 'defect_type' in row and (not row['defect_type'] or row['defect_type'] == ''):
+             is_valid = False
+             reasons.append("defect_type is empty")
+
+        if is_valid:
+            valid_rows.append(row)
+        else:
+            excluded_rows.append({
+                'row_index': idx,
+                'original_data': row,
+                'reasons': reasons
+            })
+            exclusion_reasons.extend(reasons)
+
+    # 4. Save cleaned data
+    save_to_csv(train_path, valid_rows)
+    logger.info(f"Saved {len(valid_rows)} valid rows to {train_path}")
+
+    # 5. Save exclusion log
     exclusion_log = {
         "status": "completed",
-        "total_rows_checked": 0,
-        "excluded_count": 0,
-        "excluded_rows": []
+        "total_rows_processed": len(raw_data),
+        "valid_rows_count": len(valid_rows),
+        "excluded_rows_count": len(excluded_rows),
+        "exclusions": excluded_rows,
+        "summary_reasons": list(set(exclusion_reasons))
     }
+    save_json_file(exclusions_path, exclusion_log)
+    logger.info(f"Saved exclusion log to {exclusions_path}")
 
-    def validate_row(row: Dict[str, str], row_idx: int) -> bool:
-        """Validates a single row against physical bounds."""
-        for field, limits in bounds.items():
-            val = parse_float_safe(row.get(field))
-            if val is None:
-                # Missing value is a violation for physical bounds check
-                exclusion_log["excluded_rows"].append({
-                    "row_index": row_idx,
-                    "field": field,
-                    "reason": f"missing_or_invalid_{field}"
-                })
-                return False
-            
-            if limits["min"] is not None and val <= limits["min"]:
-                exclusion_log["excluded_rows"].append({
-                    "row_index": row_idx,
-                    "field": field,
-                    "value": val,
-                    "reason": f"below_min_{field}"
-                })
-                return False
-            
-            if limits["max"] is not None and val >= limits["max"]:
-                exclusion_log["excluded_rows"].append({
-                    "row_index": row_idx,
-                    "field": field,
-                    "value": val,
-                    "reason": f"above_max_{field}"
-                })
-                return False
-        return True
+    logger.info("Synthetic Data Validation (T016b) completed successfully.")
 
-    # Process Train Set
-    train_path = root / "data" / "raw" / "synthetic_train.csv"
-    if train_path.exists():
-        train_data = load_csv_to_dicts(train_path)
-        exclusion_log["total_rows_checked"] += len(train_data)
-        valid_train_data = []
-        for idx, row in enumerate(train_data):
-            if validate_row(row, idx):
-                valid_train_data.append(row)
-            else:
-                exclusion_log["excluded_count"] += 1
-        
-        # Save cleaned train data
-        save_to_csv(valid_train_data, train_path)
-    else:
-        # If file doesn't exist, create empty one
-        save_to_csv([], train_path)
-
-    # Process Hold-out Set
-    holdout_path = root / "data" / "raw" / "synthetic_holdout.csv"
-    if holdout_path.exists():
-        holdout_data = load_csv_to_dicts(holdout_path)
-        # Note: Task description specifically asks to log exclusions to synthetic_exclusions.json
-        # and write cleaned synthetic_train.csv. It implies we validate both but output log for both.
-        # We will also clean holdout for consistency, though task emphasizes train output.
-        valid_holdout_data = []
-        for idx, row in enumerate(holdout_data):
-            if validate_row(row, idx + exclusion_log["total_rows_checked"]): # Unique index
-                valid_holdout_data.append(row)
-            else:
-                exclusion_log["excluded_count"] += 1
-        
-        save_to_csv(valid_holdout_data, holdout_path)
-    else:
-        save_to_csv([], holdout_path)
-
-    # Write exclusion log
-    exclusion_log_path = root / "data" / "state" / "synthetic_exclusions.json"
-    save_json_file(exclusion_log_path, exclusion_log)
-
-    print(f"Synthetic Validation Complete: {exclusion_log['excluded_count']} rows excluded.")
+# --- Main Entry Point ---
 
 def main():
-    """Main entry point for the data acquisition script."""
+    """Main entry point for the script."""
     ensure_output_directories()
-    run_synthetic_validation()
+    run_synthetic_validation_step()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

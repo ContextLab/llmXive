@@ -1286,3 +1286,649 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T04:40:22Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project REST API for at least 50 pristine graphene and
+    MoS2 structures
+  claim_id: c_22abb6d0
+  context: "T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine\
+    \ Structure API Query. Query Materials Project REST API for \u226550 pristine\
+    \ graphene and MoS\u2082 structures."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_Materials_Project_REST_API_for_at_least_50_pristine_gr
+  kind: magnitude
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:05:37Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project REST API for 50 or more pristine graphene and
+    MoS2 structures
+  claim_id: c_ad3be3fd
+  context: "T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine\
+    \ Structure API Query. Query Materials Project REST API for \u226550 pristine\
+    \ graphene and MoS\u2082 structures."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:07:06Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate 1000 rows of synthetic data
+  claim_id: c_9dd7b03b
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation. Parameters: N_TARGET=1000, N_MIN=100. Logic: Generate rows until
+    N_TARGET is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate rows until N_TARGET is reached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:07:06Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate 100 rows of synthetic data as minimum
+  claim_id: c_62de18eb
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation. Parameters: N_TARGET=1000, N_MIN=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 100 rows as a minimum.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:10:59Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for synthetic data generation
+  claim_id: c_ace4766f
+  context: 'T013 [S] [US1] Implement code/01_data_acquisition.py: Step 4 - Synthetic
+    Data Generation. Condition: Read data/state/generation_status.json. If status:
+    pending_synthetic, generate data/raw/synthetic_train.csv using seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:11:06Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for permutation shuffling
+  claim_id: c_f5ae630f
+  context: 'T023 [S] [US2] Implement code/04_inference.py: Permutation Testing & p-value
+    Generation. Seed: Use seed=42 for permutation shuffling to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for permutation shuffling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:11:10Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for train-test split
+  claim_id: c_99609b45
+  context: 'T021 [S] [US2] Implement code/03_modeling.py: Step 3 - Model Training.
+    Execute: Train Random Forest regressors (conductivity, Young''s modulus, fracture
+    strength) with a standard train-test split (seed=42) using the final feature set
+    from T020.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for the standard train-test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:11:16Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for splitting real data
+  claim_id: c_ed4cbcee
+  context: 'T015 [S] [US1] Implement code/01_data_acquisition.py: Step 5 - Hold-Out
+    Set Generation. If Real Data: Split data/raw/defect_dataset_2022.csv into train
+    and hold-out using seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for splitting real data into train and hold-out sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:11:22Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR control at q less than or equal to 0.05
+  claim_id: c_b99644a8
+  context: "T024 [S] [US2] Implement code/04_inference.py: FDR Correction. Action:\
+    \ Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values across all\
+    \ hypothesis tests."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_control_at_q_less_than_or_equal
+  kind: magnitude
+  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:11:27Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Default number of permutations is 1000
+  claim_id: c_f94cf8de
+  context: 'T023 [S] [US2] Implement code/04_inference.py: Permutation Testing & p-value
+    Generation. Action: Generate p-values via N_PERMUTATIONS (read from config.py,
+    default 1000) permutations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default N_PERMUTATIONS is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:13:47Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Loop while Variance Inflation Factor is greater than 5 and iteration
+    is less than 10
+  claim_id: c_85f97d52
+  context: 'T020 [S] [US2] Implement code/03_modeling.py: Step 2 - Feature Selection
+    & Collinearity Control. Loop: While VIF > 5 AND iteration < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Loop_while_Variance_Inflation_Factor_is_greater_than_5_and_i
+  kind: magnitude
+  raw_text: Loop while VIF > 5 AND iteration < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:24Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Flag collinearity if Variance Inflation Factor is greater than 5
+  claim_id: c_aaed5af4
+  context: 'T029 [P] [US3] Implement code/05_validation.py: Permutation Importance
+    Stability. Compute stability metrics for top influential descriptors; report ranked
+    list; flag collinearity if VIF > 5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_collinearity_if_Variance_Inflation_Factor_is_greater_th
+  kind: magnitude
+  raw_text: Flag collinearity if VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:30Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Fallback to sparse thresholds if dataset has less than 10 samples per
+    bin
+  claim_id: c_f70a3927
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Step 2: If dataset is too small (<10 samples per bin) or deciles are not feasible,
+    fallback to sparse thresholds.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_sparse_thresholds_if_dataset_has_less_than_10_sa
+  kind: magnitude
+  raw_text: Fallback to sparse thresholds if dataset is too small (<10 samples per
+    bin).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:36Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Ensure notebook runs within 6 hour runtime limit
+  claim_id: c_39556ba7
+  context: "T033 [US3] Implement notebooks/01_full_workflow.ipynb: Ensure notebook\
+    \ runs within 6-hour runtime limit on GitHub Actions free-tier (CPU, \u22647 GB\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:41Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Ensure notebook runs with 7 GB RAM limit
+  claim_id: c_2c9bac45
+  context: "T033 [US3] Implement notebooks/01_full_workflow.ipynb: Ensure notebook\
+    \ runs within 6-hour runtime limit on GitHub Actions free-tier (CPU, \u22647 GB\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure notebook runs on systems with \u22647 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:42Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Validate runtime constraints of 6 hours and memory usage of 7 GB in CI
+    script
+  claim_id: c_e2e3a60e
+  context: "T034 [US3] Implement scripts/run_ci_validation.sh: CI script to execute\
+    \ the full workflow and validate runtime constraints (\u22646h) and memory usage\
+    \ (\u22647GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate runtime constraints (\u22646h) and memory usage (\u22647GB)\
+    \ in CI script."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:42Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use maximum of 3 retries for API calls
+  claim_id: c_ab91ba4a
+  context: 'T010a [S] [US1] Implement code/01_data_acquisition.py: Step 1a - Pristine
+    Structure API Query. Logic: Implement exponential backoff with a configurable
+    retry limit (max 3) for API calls.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use max 3 retries for API calls with exponential backoff.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:46Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Invoke mock DFTB+ fallback with 300 seconds limit
+  claim_id: c_0867d787
+  context: "T011b [S] [US1] Implement code/01_data_acquisition.py: Step 2b - Mock\
+    \ DFTB+ Fallback. Logic: For entries with missing fracture_energy, invoke a mock\
+    \ DFTB+ fallback (best effort, \u2264300 seconds)."
+  evidence:
+    candidates:
+    - - ''
+      - 300.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Invoke_mock_DFTB+_fallback_with_300_seconds_limit
+  kind: magnitude
+  raw_text: "Invoke mock DFTB+ fallback with best effort, \u2264300 seconds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T02:15:51Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Return values within physical bounds up to 10.0 J per m2
+  claim_id: c_33aaa499
+  context: "T011b [S] [US1] Implement code/01_data_acquisition.py: Step 2b - Mock\
+    \ DFTB+ Fallback. Constraint: The fallback MUST use a physics-constrained generator\
+    \ (not random) and must return values within physical bounds ([, 10.0] J/m\xB2\
+    )."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Return values within physical bounds [, 10.0] J/m\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:15:58Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 2
+  canonical: Use 80/20 random split for model training
+  claim_id: c_13ce08c6
+  context: "Independent Test for User Story 2: Can be fully tested by training the\
+    \ random forest models on a random split (80/20, seed=42), evaluating on the test\
+    \ split, and reporting R\xB2 and MAPE for all three target properties."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 80/20 random split for model training.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:16:04Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Check if synthesis method or grain size has 3 or more distinct values
+  claim_id: c_0c367f20
+  context: 'T022a [S] [US2] Implement code/03_modeling.py: Step 4a - Stratification
+    Logic. Logic: Check if ''synthesis_method'' or ''grain_size'' is present and has
+    >= 3 distinct values with sufficient sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if 'synthesis_method' or 'grain_size' has >= 3 distinct values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:16:09Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Attempt to calculate deciles of defect density
+  claim_id: c_8bb3fdaa
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Action: Sweep decision cutoffs: Step 1: Attempt to calculate deciles of defect
+    density.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Attempt_to_calculate_deciles_of_defect_density
+  kind: entity_fact
+  raw_text: Attempt to calculate deciles of defect density.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:16:16Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use 10th, 50th, 90th percentile as sparse thresholds
+  claim_id: c_7042a1bb
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Step 2: If dataset is too small (<10 samples per bin) or deciles are not feasible,
+    fallback to sparse thresholds (e.g., {10th, 50th, 90th percentile} or {low, medium,
+    high}).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_10th,_50th,_90th_percentile_as_sparse_thresholds
+  kind: entity_fact
+  raw_text: Use 10th, 50th, 90th percentile as sparse thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:16:22Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use 50th percentile as sparse threshold
+  claim_id: c_455958d0
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Step 2: If dataset is too small (<10 samples per bin) or deciles are not feasible,
+    fallback to sparse thresholds (e.g., {10th, 50th, 90th percentile} or {low, medium,
+    high}).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_50th_percentile_as_sparse_threshold
+  kind: entity_fact
+  raw_text: Use 50th percentile as sparse threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:19:30Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use 90th percentile as sparse threshold
+  claim_id: c_3f767ba1
+  context: 'T027 [S] [US2/US3] Implement code/04_inference.py: Sensitivity Analysis.
+    Step 2: If dataset is too small (<10 samples per bin) or deciles are not feasible,
+    fallback to sparse thresholds (e.g., {10th, 50th, 90th percentile} or {low, medium,
+    high}).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_90th_percentile_as_sparse_threshold
+  kind: entity_fact
+  raw_text: Use 90th percentile as sparse threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:19:38Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Query Materials Project REST API for at least 50 pristine graphene and
+    MoS2 structures
+  claim_id: c_1f41f0d5
+  context: "Step 1a - Pristine Structure API Query. Query Materials Project REST API\
+    \ for \u226550 pristine graphene and MoS\u2082 structures."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_Materials_Project_REST_API_for_at_least_50_pristine_gr
+  kind: magnitude
+  raw_text: "Query Materials Project REST API for \u226550 pristine graphene and MoS\u2082\
+    \ structures."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:23:06Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Use seed 42 for permutation shuffling
+  claim_id: c_d264f875
+  context: 'Seed: Use seed=42 for permutation shuffling to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for permutation shuffling to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:24:54Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate p-values via 1000 permutations by default
+  claim_id: c_640a2d82
+  context: 'Action: Generate p-values via N_PERMUTATIONS (read from config.py, default
+    1000) permutations (shuffling target values) for every feature for every target
+    property.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate p-values via N_PERMUTATIONS (read from config.py, default 1000)
+    permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:24:56Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR control at q less than or equal to 0.05
+  claim_id: c_67af5afa
+  context: "Action: Apply Benjamini-Hochberg FDR control at q \u2264 0.05 to p-values\
+    \ across all hypothesis tests."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_control_at_q_less_than_or_equal
+  kind: magnitude
+  raw_text: "Apply Benjamini-Hochberg FDR control at q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:24:58Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Generate synthetic hold-out set using different analytical model family
+  claim_id: c_c3eb40a2
+  context: 'If Synthetic Data: Generate a distinct synthetic hold-out set. Physics
+    Engine: Use a different analytical model family (e.g., switch from Continuum Elasticity
+    to a Lattice Model approximation) with different coefficients and noise sigma.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_hold-out_set_using_different_analytical_m
+  kind: entity_fact
+  raw_text: Generate a distinct synthetic hold-out set using a different analytical
+    model family.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:25:08Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Train Random Forest regressors with train-test split seed 42
+  claim_id: c_284f0bd6
+  context: 'Execute: Train Random Forest regressors (conductivity, Young''s modulus,
+    fracture strength) with a standard train-test split (seed=42) using the final
+    feature set from T020.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest regressors with a standard train-test split (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:25:10Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Flag collinearity if VIF greater than 5
+  claim_id: c_a487edc2
+  context: Compute stability metrics for top influential descriptors; report ranked
+    list; flag collinearity if VIF > 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_collinearity_if_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Compute stability metrics for top influential descriptors; flag collinearity
+    if VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:25:16Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Ensure notebook runs within 6-hour runtime limit with 7 GB RAM
+  claim_id: c_74f3f8e2
+  context: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure notebook runs within 6-hour runtime limit on GitHub Actions free-tier\
+    \ (CPU, \u22647 GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:25:17Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Validate defect density within range 0 to 0.1
+  claim_id: c_6ef6302b
+  context: "Validate for physical bounds (e.g., conductivity > 0, defect density \u2208\
+    \ [low, 0.1])."
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "Validate for physical bounds (e.g., defect density \u2208 [low, 0.1])."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T02:25:17Z'
+- artifact_path: projects/PROJ-209-quantifying-the-influence-of-topological/specs/001-quantifying-the-influence-of-topological/tasks.md
+  attempts: 1
+  canonical: Fallback to sparse thresholds if less than 10 samples per bin
+  claim_id: c_ae367e96
+  context: If dataset is too small (<10 samples per bin) or deciles are not feasible,
+    fallback to sparse thresholds (e.g., {10th, 50th, 90th percentile} or {low, medium,
+    high}).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_sparse_thresholds_if_less_than_10_samples_per_bi
+  kind: magnitude
+  raw_text: Fallback to sparse thresholds (e.g., {10th, 50th, 90th percentile}) if
+    dataset is too small (<10 samples per bin).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T02:25:19Z'
