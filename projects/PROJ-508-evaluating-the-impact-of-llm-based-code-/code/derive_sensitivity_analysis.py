@@ -1,57 +1,60 @@
-"""
-Task T041: Generate sensitivity analysis results by sweeping iteration_count thresholds.
-
-This script loads the analysis results from T040, performs a sensitivity sweep
-over low integer values of `iteration_count`, and saves the results to
-`data/derived/sensitivity_analysis.json`.
-
-It relies on the `run_sensitivity_analysis` function exported from `code/analyze.py`.
-"""
 import json
 import logging
 from pathlib import Path
+import sys
+import os
 
-# Import the core analysis logic from the existing analyze module
-# The API surface confirms run_sensitivity_analysis is available here.
-from analyze import run_sensitivity_analysis
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__" and __package__ is None:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from analyze import run_sensitivity_analysis
+else:
+    from analyze import run_sensitivity_analysis
+
+from utils.config import get_config
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / "data" / "derived" / "analysis_results.json"
-    output_path = project_root / "data" / "derived" / "sensitivity_analysis.json"
-
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T040 (Generate analysis_results.json) is completed first.")
-        return 1
-
-    logger.info(f"Loading analysis results from {input_path}")
-    with open(input_path, 'r', encoding='utf-8') as f:
-        analysis_data = json.load(f)
-
-    logger.info("Running sensitivity analysis sweep on iteration_count thresholds...")
-    # The analyze module's run_sensitivity_analysis handles the logic of:
-    # 1. Loading the master dataset (internally or via passed context)
-    # 2. Iterating over a range of low integer thresholds for iteration_count
-    # 3. Re-running the core model logic for each threshold
-    # 4. Collecting effect estimates and statistics
-    sensitivity_results = run_sensitivity_analysis(analysis_data)
-
-    if not sensitivity_results:
-        logger.warning("Sensitivity analysis returned empty results.")
-
-    logger.info(f"Writing sensitivity analysis results to {output_path}")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(sensitivity_results, f, indent=2)
-
-    logger.info("Sensitivity analysis complete.")
-    return 0
+    """
+    Generate data/derived/sensitivity_analysis.json with threshold sweep results.
+    
+    This task implements T041: Sensitivity Analysis for User Story 2.
+    It sweeps the iteration_count threshold over a range of low integer values
+    and records effect estimates to assess robustness of the LLM adoption impact.
+    """
+    config = get_config()
+    output_path = config.get("sensitivity_analysis_output", "data/derived/sensitivity_analysis.json")
+    
+    logger.info(f"Starting sensitivity analysis pipeline. Output: {output_path}")
+    
+    try:
+        # Run the sensitivity analysis using the function from analyze.py
+        # This function is expected to perform the threshold sweep and return results
+        results = run_sensitivity_analysis()
+        
+        if results is None:
+            logger.error("run_sensitivity_analysis returned None. No data generated.")
+            raise RuntimeError("Sensitivity analysis failed to produce results.")
+        
+        # Ensure output directory exists
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write results to JSON
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        logger.info(f"Sensitivity analysis results written to {output_file}")
+        print(f"SUCCESS: Generated {output_file}")
+        
+    except Exception as e:
+        logger.error(f"Error during sensitivity analysis: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

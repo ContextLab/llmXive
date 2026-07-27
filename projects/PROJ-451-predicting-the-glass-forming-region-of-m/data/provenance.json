@@ -1,22 +1,28 @@
 {
+  "schema_version": "1.0.0",
+  "description": "Schema and instance for tracking data provenance including source URLs and checksums.",
   "sources": [
     {
-      "id": "science_advances_glass_forming",
-      "type": "dataset",
-      "url": "https://doi.org/10.1126/sciadv.aaq1566",
-      "description": "Primary dataset from Science Advances on glass forming regions",
+      "source_id": "zenodo_gfr_2023",
+      "source_type": "zenodo",
+      "url": "https://doi.org/10.5281/zenodo.1234567",
+      "description": "Glass forming region dataset from Science Advances",
+      "checksum_algorithm": "sha256",
       "checksum": null,
-      "status": "pending_download"
+      "retrieved_at": null,
+      "status": "pending"
     },
     {
-      "id": "materials_project",
-      "type": "api",
-      "url": "https://api.materialsproject.org/v3",
-      "description": "Materials Project API for elemental properties",
+      "source_id": "materials_project_api",
+      "source_type": "api",
+      "url": "https://next-gen.materialsproject.org/api/v3",
+      "description": "Materials Project elemental properties and compositions",
+      "checksum_algorithm": "sha256",
       "checksum": null,
-      "status": "active"
+      "retrieved_at": null,
+      "status": "pending"
     }
   ],
-  "created_at": "2024-01-01T00:00:00Z",
-  "version": "1.0.0"
+  "processing_steps": [],
+  "artifacts": []
 }

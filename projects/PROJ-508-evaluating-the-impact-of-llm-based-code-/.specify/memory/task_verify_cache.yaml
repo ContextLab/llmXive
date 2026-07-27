@@ -1,26 +1,3 @@
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`
-    actually exists or contains any files; the artifact list is empty. The required
-    directory must be created and visible in the repository for the task to be considered
-    complete.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
-    \ for Black, a `.ruff.toml` or `ruff` section, or a pre\u2011commit hook setup)\
-    \ are present in the provided evidence, so the requirement to configure ruff and\
-    \ Black is not demonstrated. The implementer must add the appropriate configuration\
-    \ artifacts."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for a pytest configuration file (e.g.,\u202Fpytest.ini,\u202Fpyproject.toml\u202F\
-    with a\u202F[tool.pytest]\u202Fsection, or\u202Ftox.ini) and for a\u202Ftests/\u202F\
-    directory containing at least an\u202F__init__.py\u202Fand a sample test file,\
-    \ but no such artifacts were presented in the evidence. Without these files the\
-    \ task\u2019s requirement is not satisfied."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +19,45 @@ T027:
     \ (unique languages\u202F+\u202Fdependency count from manifests) is present in\
     \ the provided artifacts. The required implementation is missing, so the task\
     \ is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or model artifact implementing a GLMM with random
+    intercepts for repositories was supplied; the only information is the task description
+    itself. Consequently, the required implementation evidence is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the specification text; there is no code, notebook,\
+    \ script, or results demonstrating that a Zero\u2011Inflated Negative Binomial\
+    \ or Hurdle model was actually built, fitted, or evaluated for the zero\u2011\
+    inflated outcomes. Consequently the required artifact (implementation of the ZINB/Hurdle\
+    \ modeling step) is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation implementing the calculation of project size\
+    \ (LOC), team size, domain complexity, or the `diff_complexity_score` (FR\u2011\
+    008) is present. The required artifacts that would demonstrate control\u2011variable\
+    \ adjustment are missing, so the task is not satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation was provided that computes Variance\
+    \ Inflation Factors and flags variables with VIF\u202F>\u202F5.0, so we cannot\
+    \ confirm the required VIF check has been implemented. The necessary artifact\
+    \ (e.g., a function/module performing the VIF calculation and generating flags)\
+    \ is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, module, or documentation was provided that demonstrates the\
+    \ Bonferroni correction being applied to p\u2011values, nor any test results showing\
+    \ corrected significance values. The required artifact implementing FR\u2011004\
+    \ is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or output file showing a sweep of the `iteration_count`
+    threshold and the resulting effect estimates is present. The required artifact
+    that demonstrates the sensitivity analysis is missing.

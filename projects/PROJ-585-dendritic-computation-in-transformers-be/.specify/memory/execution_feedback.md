@@ -18,43 +18,34 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/utils/download_data.py -> rc=1
-    44:22,955 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/glue/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
-2026-07-15 22:44:22,975 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/nyu-mll/glue/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
-2026-07-15 22:44:22,981 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/nyu-mll/glue/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/README.md "HTTP/1.1 200 OK"
-2026-07-15 22:44:23,002 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/glue/resolve/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/glue.py "HTTP/1.1 307 Temporary Redirect"
-2026-07-15 22:44:23,023 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/nyu-mll/glue/resolve/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/glue.py "HTTP/1.1 404 Not Found"
-2026-07-15 22:44:23,061 - INFO - HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/glue/glue.py "HTTP/1.1 200 OK"
-2026-07-15 22:44:23,096 - ERROR - Failed to download or process dataset: Invalid HF URI 'hf://datasets/glue@bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/.huggingface.yaml'. Repository id must be 'namespace/name', got 'glue'.
+    cated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-07-27 18:54:13,069 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/nyu-mll/glue/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/README.md "HTTP/1.1 200 OK"
+2026-07-27 18:54:13,077 - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/datasets/nyu-mll/glue/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/README.md "HTTP/1.1 200 OK"
+2026-07-27 18:54:13,094 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/glue/resolve/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/glue.py "HTTP/1.1 307 Temporary Redirect"
+2026-07-27 18:54:13,118 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/nyu-mll/glue/resolve/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/glue.py "HTTP/1.1 404 Not Found"
+2026-07-27 18:54:13,193 - INFO - HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/glue/glue.py "HTTP/1.1 200 OK"
+2026-07-27 18:54:13,234 - ERROR - Failed to download or process dataset: Invalid HF URI 'hf://datasets/glue@bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/.huggingface.yaml'. Repository id must be 'namespace/name', got 'glue'.
 - python code/experiments/train.py --config config.yaml -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 26, in <module>
-    from models.transformer_base import TransformerBaseline
-ModuleNotFoundError: No module named 'models'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 31, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 34, in <module>
     from models.transformer_base import TransformerBaseline
 ModuleNotFoundError: No module named 'models'
 - python code/experiments/probe.py --input-dir data/experiments/ -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 26, in <module>
-    from models.transformer_base import TransformerBaseline
-ModuleNotFoundError: No module named 'models'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/probe.py", line 32, in <module>
     from experiments.train import load_sst2_data
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 31, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 34, in <module>
     from models.transformer_base import TransformerBaseline
 ModuleNotFoundError: No module named 'models'
-- python code/experiments/analyze.py -> rc=2
-    usage: analyze.py [-h] --input-dir INPUT_DIR [--output-dir OUTPUT_DIR]
-                  [--config CONFIG] [--use-wilcoxon] [--use-t-test]
-analyze.py: error: the following arguments are required: --input-dir
+- python code/experiments/analyze.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/analyze.py", line 16, in <module>
+    from experiments.probe import set_seed, load_checkpoint, extract_layer_features, train_linear_probe, main as probe_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/probe.py", line 32, in <module>
+    from experiments.train import load_sst2_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py", line 34, in <module>
+    from models.transformer_base import TransformerBaseline
+ModuleNotFoundError: No module named 'models'
 - python code/tests/test_architecture_match.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/tests/test_architecture_match.py", line 26, in <module>

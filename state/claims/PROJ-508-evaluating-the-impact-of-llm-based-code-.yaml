@@ -1760,3 +1760,101 @@
   source_type: external
   status: refuted
   updated_at: '2026-07-21T04:28:38Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Check commit messages for at least 5% Copilot or LLM frequency
+  claim_id: c_b3ae2d4b
+  context: "T022 [US1] Implement llm_adoption_flag logic in code/ingest.py: ... Check\
+    \ commit messages for \u22655% 'Copilot'/'LLM' frequency"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_commit_messages_for_at_least_5%25_Copilot_or_LLM_frequen
+  kind: magnitude
+  raw_text: "Check commit messages for \u22655% 'Copilot'/'LLM' frequency"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:09:32Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Exclude repositories with fewer than 10 PRs in the last 12 months
+  claim_id: c_c95cd589
+  context: T025 [US1] Implement logic to exclude repositories with <10 PRs in last
+    12 months (SC-001)
+  evidence:
+    candidates:
+    - - PRs in the last
+      - 12.0
+    - - Exclude repositories with fewer than
+      - 10.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Exclude_repositories_with_fewer_than_10_PRs_in_the_last_12_m
+  kind: magnitude
+  raw_text: Implement logic to exclude repositories with <10 PRs in last 12 months
+  resolved_value: Exclude repositories with fewer than 10 PRs in the last 12 months
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T19:09:34Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Flag if Variance Inflation Factor is greater than 5.0
+  claim_id: c_2e8d6352
+  context: T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_Variance_Inflation_Factor_is_greater_than_5.0
+  kind: magnitude
+  raw_text: Flag if Variance Inflation Factor (VIF) >5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:09:48Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 1
+  canonical: Flag AI Noise if diff complexity score is greater than 0.3 and commit
+    message contains fix hotfix or patch
+  claim_id: c_6beab29a
+  context: 'T049 [US2] ... Flag Logic: Flag ''AI Noise'' if diff_complexity_score
+    > 0.3 AND commit message contains ''fix'', ''hotfix'', or ''patch''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_AI_Noise_if_diff_complexity_score_is_greater_than_0.3_a
+  kind: magnitude
+  raw_text: Flag 'AI Noise' if diff_complexity_score > 0.3 AND commit message contains
+    'fix', 'hotfix', or 'patch'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:10:02Z'
+- artifact_path: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code/tasks.md
+  attempts: 2
+  canonical: Ensure runtime is less than 6 hours on 2 CPU cores
+  claim_id: c_3bc7e04f
+  context: T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
+  evidence:
+    candidates:
+    - - Log in Ensure runtime is less than
+      - 6.0
+    - - Ensure runtime is less than 6 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Ensure_runtime_is_less_than_6_hours_on_2_CPU_cores
+  kind: magnitude
+  raw_text: Ensure runtime < 6h on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T19:10:36Z'

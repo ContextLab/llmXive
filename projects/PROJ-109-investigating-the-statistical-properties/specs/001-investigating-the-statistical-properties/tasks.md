@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis data/raw data/processed results tests/unit tests/integration docs`
-- [ ] T002 Initialize Python 3.11 project with dependencies: Install pip, setuptools, wheel; then install pandas, numpy, scipy; then run `pip freeze` to generate `requirements.txt` with exact versions (pin to exact versions, generate via `pip freeze`)
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+- [X] T002 Initialize Python 3.11 project with dependencies: Install pip, setuptools, wheel; then install pandas, numpy, scipy; then run `pip freeze` to generate `requirements.txt` with exact versions (pin to exact versions, generate via `pip freeze`)
+- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
 
 ---
 
@@ -72,7 +72,7 @@
 
 **Goal**: Download and filter public cosmological simulation catalogs (IllustrisTNG TNG100-1 and Millennium) to produce a validated halo dataset ready for structural analysis. If real data is unavailable, generate synthetic data with controlled deviations.
 
-**Independent Test**: Can be fully tested by successfully downloading both catalogs (including particle data) or generating synthetic data, filtering for halos with ≥300 particles, and producing a consolidated dataset file that contains all required columns (mass, position, velocity, particle counts).
+**Independent Test**: Can be fully tested by successfully downloading both catalogs (including particle data) or generating synthetic data, {{claim:c_30951b39}} (0906.5166, https://arxiv.org/abs/0906.5166), and producing a consolidated dataset file that contains all required columns (mass, position, velocity, particle counts).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -82,16 +82,16 @@
 - [ ] T009B [P] [US1] Unit test `test_stream_halos_chunk_size` in `tests/unit/test_streaming.py`
 - [ ] T010A [P] [US1] Unit test `test_synthetic_data_deviation_injection` in `tests/unit/test_synthetic.py`
 - [ ] T010B [P] [US1] Unit test `test_synthetic_schema_validation` in `tests/unit/test_synthetic.py`
-- [ ] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
+- [X] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium catalogs via API; check API status; trigger synthetic fallback ONLY on failure (FR-001)
-- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles and log filtered count (FR-002)
-- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k, compression=snappy)
-- [~] T015 [US1] Add validation against `code/contracts/halo.schema.yaml` after filtering in `code/data/preprocess.py`
+- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles [UNRESOLVED-CLAIM: c_379a7fb4 — status=not_enough_info] and log filtered count (FR-002)
+- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k, compression=snappy) [UNRESOLVED-CLAIM: c_88b4208b — status=not_enough_info]
+- [ ] T015 [US1] Add validation against `code/contracts/halo.schema.yaml` after filtering in `code/data/preprocess.py`
 - [X] T016 [US1] Add logging for data gap detection in `code/data/download.py` (message: 'DATA_GAP: Real data unavailable, switching to synthetic'; trigger: HTTP 403/Timeout)
-- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase 1, Complexity Tracking; process on synthetic/filtered particle stream after filtering; document how the 5 Mpc radius calculation remains statistically valid on a subsample (FR-003)
+- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase 1, Complexity Tracking; process on synthetic/filtered particle stream after filtering; document how the 5 Mpc radius calculation remains statistically valid on a subsample [UNRESOLVED-CLAIM: c_b5dc7e75 — status=not_enough_info] (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,7 +112,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement shape parameter s=c/a calculation from inertia tensor of particle positions in `code/data/compute_metrics.py` (FR-004)
+- [ ] T022 [P] [US2] Implement shape parameter s=c/a calculation from inertia tensor of particle positions [UNRESOLVED-CLAIM: c_5bc34982 — status=not_enough_info] in `code/data/compute_metrics.py` (FR-004)
 - [ ] T023 [US2] {{claim:c_dbac5b85}} in `code/data/compute_metrics.py` using Subsampled Plummer-Softened Potential (N=500 particles) via T007C; this is the ONLY valid implementation due to memory constraints (See Plan Phase 1, Complexity Tracking); document deviation from 'direct summation' in code comments and log in Data Gap Report (FR-005)
 - [ ] T023B [US2] Document deviation from 'direct summation' to 'Subsampled Plummer-Softened Potential' and validate that the subsampled approach satisfies the scientific intent of FR-005 in `docs/data_gap_report.md`
 - [ ] T024 [US2] Implement NFW profile fitting via scipy.optimize.curve_fit with convergence logging and exclusion logic in `code/data/compute_metrics.py` (FR-006)
@@ -143,11 +143,11 @@
 
 - [ ] T031 [US3] Implement mass binning spanning multiple orders of magnitude in solar mass units and environment binning (Δ < 200 vs ≥ 200) in `code/analysis/stats.py` (FR-007)
 - [ ] T032 [P] [US3] Implement two-sample KS tests between low/high environmental bins for shape, spin, and concentration in `code/analysis/stats.py` (FR-008)
-- [ ] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across ≥9 KS tests [UNRESOLVED-CLAIM: c_decadb70 — status=not_enough_info] in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`
+- [ ] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across ≥9 KS tests [UNRESOLVED-CLAIM: c_211943c0 — status=not_enough_info] in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`
 - [ ] T034 [P] [US3] Implement Spearman's ρ correlation between halo mass and each structural metric in `code/analysis/stats.py` (FR-010)
 - [ ] T035 [P] [US3] {{claim:c_0940b987}} (astro-ph/0402210, https://arxiv.org/abs/astro-ph/0402210) in `code/analysis/stats.py` (FR-011); include fallback behavior if citation validation fails: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1) and log the fallback event
 - [ ] T035B [US3] Implement the actual Bullock comparison logic (deviation statistics calculation) in `code/analysis/stats.py` (FR-011)
-- [ ] T036 [US3] Implement Bullock et al. (2001) analytic fit using the standard form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value.; validate these hardcoded parameters against the spec's intent; if the spec's citation year is ambiguous, use these default values and log the resolution; do NOT attempt to fetch external sources (FR-011)
+- [ ] T036 [US3] Implement Bullock et al. (2001) analytic fit using the standard form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value [UNRESOLVED-CLAIM: c_caedc5de — status=not_enough_info].; validate these hardcoded parameters against the spec's intent; if the spec's citation year is ambiguous, use these default values and log the resolution; do NOT attempt to fetch external sources (FR-011)
 - [ ] T037 [US3] Implement visualization generation (scatter plots, KDE curves, heatmaps) using matplotlib/seaborn in `code/analysis/visualize.py` (FR-012)
 - [ ] T038 [US3] Save all results (p-values, effect sizes, convergence rates) to `results/statistics.json`
 - [ ] T039 [US3] Save visualizations as PNG/PDF in `results/figures/`
@@ -166,7 +166,7 @@
 - [ ] T042A [P] Unit test `test_halo_300_particles_boundary` in `tests/unit/test_edge_cases.py`
 - [ ] T042B [P] Unit test `test_nfw_fit_failure_handling` in `tests/unit/test_edge_cases.py`
 - [ ] T042C [P] Unit test `test_empty_bin_handling` in `tests/unit/test_edge_cases.py`
-- [ ] T043 [US3] Run quickstart.md validation and verify pipeline execution within 6 hours on GitHub Actions free-tier runner (command: `python code/main.py --run-all`; output: `results/timing.json`)
+- [ ] T043 [US3] Run quickstart.md validation and verify pipeline execution within 6 hours on GitHub Actions free-tier runner [UNRESOLVED-CLAIM: c_d8e96d28 — status=not_enough_info] (command: `python code/main.py --run-all`; output: `results/timing.json`)
 
 ---
 

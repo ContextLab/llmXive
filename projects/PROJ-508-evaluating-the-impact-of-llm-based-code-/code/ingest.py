@@ -6,153 +6,178 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-from utils.github_client import GitHubClient
 from utils.config import get_config
+from utils.github_client import GitHubClient
+from utils.metrics import (
+    calculate_iteration_count,
+    calculate_avg_comment_length,
+    calculate_review_thread_depth,
+    calculate_revert_frequency,
+    calculate_diff_complexity_score,
+    is_ai_noise_flag,
+    calculate_domain_complexity,
+    process_review_metrics
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_repo_list(config: Dict[str, Any]) -> List[str]:
-    """
-    Load the list of repositories to analyze from the config.
-    """
-    repo_list_path = Path(config.get("repo_list_path"))
-    if not repo_list_path.exists():
-        # Fallback to a default list if file missing (for testing)
-        return config.get("default_repo_list", [])
-    
-    with open(repo_list_path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+def load_repo_list(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Load the list of repositories to analyze from a configuration file or list."""
+    repo_list_path = config.get('repo_list_path', 'data/raw/repo_list.json')
+    if os.path.exists(repo_list_path):
+        with open(repo_list_path, 'r') as f:
+            return json.load(f)
+    else:
+        # Fallback to a default list if file not found (for testing purposes)
+        logger.warning(f"Repo list file not found at {repo_list_path}. Using default list.")
+        return [
+            {"owner": "microsoft", "name": "vscode"},
+            {"owner": "facebook", "name": "react"},
+            {"owner": "pytorch", "name": "pytorch"}
+        ]
 
-def fetch_repository_details(
-    gh_client: GitHubClient, repo_name: str
-) -> Optional[Dict[str, Any]]:
-    """
-    Fetch detailed information for a single repository including PRs, commits,
-    and configuration files.
-    """
-    try:
-        owner, name = repo_name.split("/")
-        repo_info = gh_client.get_repo(owner, name)
-        
-        if not repo_info:
-            logger.warning(f"Repository {repo_name} not found or private.")
-            return None
-        
-        # Fetch PRs
-        prs = gh_client.get_pull_requests(owner, name, state="closed", per_page=100)
-        pr_data = []
-        for pr in prs:
-            pr_data.append({
-                "number": pr["number"],
-                "state": pr["state"],
-                "created_at": pr["created_at"],
-                "merged_at": pr["merged_at"],
-                "comments": pr.get("comments", 0),
-                "review_comments": pr.get("review_comments", 0),
-                "commits": pr.get("commits", 0),
-                "additions": pr.get("additions", 0),
-                "deletions": pr.get("deletions", 0),
-            })
-        
-        # Fetch recent commits
-        commits = gh_client.get_commits(owner, name, per_page=50)
-        commit_data = []
-        for commit in commits:
-            commit_data.append({
-                "sha": commit["sha"],
-                "message": commit["commit"]["message"],
-                "additions": commit.get("stats", {}).get("additions", 0),
-                "deletions": commit.get("stats", {}).get("deletions", 0),
-                "total": commit.get("stats", {}).get("total", 0),
-            })
-        
-        # Fetch config files for LLM adoption detection
-        config_files = gh_client.get_contents(owner, name, path="")
-        config_data = {}
-        languages = gh_client.get_languages(owner, name)
-        
-        for file in config_files:
-            if file["name"] in [".cursorrules", "copilot.yml", "copilot.json", "config.json"]:
-                try:
-                    content = gh_client.get_file_content(owner, name, file["path"])
-                    config_data[file["name"]] = content
-                except Exception:
-                    pass
-        
-        return {
-            "repo_id": repo_info["id"],
-            "repo_name": repo_name,
-            "default_branch": repo_info.get("default_branch"),
-            "pr_data": pr_data,
-            "commit_data": commit_data,
-            "config_data": config_data,
-            "languages": list(languages.keys()),
-            "dependencies": [], # Placeholder for dependency manifest parsing
-        }
-        
-    except Exception as e:
-        logger.error(f"Error fetching details for {repo_name}: {e}")
-        return None
-
-def calculate_llm_adoption_flag(repo_details: Dict[str, Any]) -> int:
-    """
-    Determine if the repository uses LLM-based code completion based on:
-    - Presence of .cursorrules or copilot config files
-    - Mentions in README/CONTRIBUTING
-    - Frequency of "Copilot" in commit messages
-    """
-    config_data = repo_details.get("config_data", {})
-    commit_data = repo_details.get("commit_data", [])
-    
-    # Check config files
-    if ".cursorrules" in config_data:
-        return 1
-    
-    # Check commit message frequency
-    copilot_count = 0
-    total_commits = len(commit_data)
-    if total_commits > 0:
-        for commit in commit_data:
-            msg = commit.get("message", "").lower()
-            if "copilot" in msg or "llm" in msg:
-                copilot_count += 1
-        
-        if copilot_count / total_commits >= 0.05:
-            return 1
-    
-    return 0
-
-def run_ingestion():
-    config = get_config()
-    base_path = Path(config.get("project_root", "."))
-    
-    # Ensure output directory exists
-    output_dir = base_path / "data" / "derived"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    repo_list = load_repo_list(config)
-    logger.info(f"Found {len(repo_list)} repositories to process.")
-    
-    gh_client = GitHubClient(token=config.get("github_token"))
-    
+def fetch_repository_details(client: GitHubClient, repo_list: List[Dict[str, Any]], config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Fetch detailed metadata for each repository in the list."""
     results = []
-    for i, repo_name in enumerate(repo_list):
-        logger.info(f"Processing [{i+1}/{len(repo_list)}]: {repo_name}")
-        details = fetch_repository_details(gh_client, repo_name)
-        
-        if details:
-            details["llm_adoption_flag"] = calculate_llm_adoption_flag(details)
-            results.append(details)
-        
-        # Respect rate limits
-        time.sleep(1)
-    
-    output_file = output_dir / "ingestion_results.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Ingestion complete. Results saved to {output_file}")
+    for repo in repo_list:
+        owner = repo.get('owner')
+        name = repo.get('name')
+        if not owner or not name:
+            logger.warning(f"Skipping invalid repo entry: {repo}")
+            continue
 
-if __name__ == "__main__":
+        try:
+            details = client.get_repo_details(owner, name)
+            if details:
+                details['owner'] = owner
+                details['name'] = name
+                results.append(details)
+            else:
+                logger.warning(f"Failed to fetch details for {owner}/{name}")
+        except Exception as e:
+            logger.error(f"Error fetching details for {owner}/{name}: {e}")
+    return results
+
+def calculate_llm_adoption_flag(repo_details: Dict[str, Any], config: Dict[str, Any]) -> bool:
+    """
+    Determine if a repository is using LLM-based code completion.
+    Checks for:
+    - .cursorrules or copilot config files
+    - README.md/CONTRIBUTING.md mentions of "Copilot"/"LLM"
+    - Commit message frequency >= 5% containing "Copilot"/"LLM"
+    """
+    # Check for config files
+    config_files = repo_details.get('config_files', [])
+    has_cursorrules = any('.cursorrules' in f for f in config_files)
+    has_copilot_config = any('copilot' in f.lower() for f in config_files)
+    
+    if has_cursorrules or has_copilot_config:
+        return True
+
+    # Check README/CONTRIBUTING content
+    readme_content = repo_details.get('readme_content', '').lower()
+    contributing_content = repo_details.get('contributing_content', '').lower()
+    if 'copilot' in readme_content or 'llm' in readme_content:
+        return True
+    if 'copilot' in contributing_content or 'llm' in contributing_content:
+        return True
+
+    # Check commit message frequency
+    commits = repo_details.get('commits', [])
+    if not commits:
+        return False
+    
+    copilot_count = sum(1 for c in commits if 'copilot' in c.get('message', '').lower() or 'llm' in c.get('message', '').lower())
+    frequency = copilot_count / len(commits)
+    
+    return frequency >= 0.05
+
+def filter_min_pull_requests(repo_details: List[Dict[str, Any]], min_prs: int = 10, window_months: int = 12) -> List[Dict[str, Any]]:
+    """
+    Filter repositories to include only those with at least `min_prs` pull requests
+    in the last `window_months` months.
+    
+    This implements SC-001: "The analysis must exclude repositories with fewer
+    than 10 pull requests in the past 12 months."
+    """
+    import datetime
+    cutoff_date = datetime.datetime.now() - datetime.timedelta(days=window_months * 30)
+    filtered = []
+    
+    for repo in repo_details:
+        prs = repo.get('pull_requests', [])
+        recent_prs = [
+            pr for pr in prs
+            if pr.get('created_at') and datetime.datetime.fromisoformat(pr['created_at'].replace('Z', '+00:00')) > cutoff_date
+        ]
+        
+        if len(recent_prs) >= min_prs:
+            repo['recent_pr_count'] = len(recent_prs)
+            filtered.append(repo)
+        else:
+            logger.info(f"Filtering out {repo.get('owner')}/{repo.get('name')}: only {len(recent_prs)} PRs in last {window_months} months (threshold: {min_prs})")
+    
+    return filtered
+
+def run_ingestion(config_path: str = 'config.yaml') -> None:
+    """Main ingestion pipeline: load repos, fetch details, filter, calculate metrics, write CSV."""
+    config = get_config(config_path)
+    
+    # Load repo list
+    repo_list = load_repo_list(config)
+    logger.info(f"Loaded {len(repo_list)} repositories from list")
+    
+    # Initialize GitHub client
+    client = GitHubClient(token=config.get('github_token'))
+    
+    # Fetch details
+    repo_details = fetch_repository_details(client, repo_list, config)
+    logger.info(f"Fetched details for {len(repo_details)} repositories")
+    
+    # Apply SC-001 filter: minimum pull requests
+    filtered_repos = filter_min_pull_requests(repo_details, min_prs=10, window_months=12)
+    logger.info(f"After filtering for min PRs: {len(filtered_repos)} repositories")
+    
+    # Calculate metrics and prepare output
+    output_rows = []
+    for repo in filtered_repos:
+        llm_flag = calculate_llm_adoption_flag(repo, config)
+        
+        # Calculate metrics
+        iterations = calculate_iteration_count(repo.get('pull_requests', []))
+        avg_comment = calculate_avg_comment_length(repo.get('pull_requests', []))
+        review_depth = calculate_review_thread_depth(repo.get('pull_requests', []))
+        revert_freq = calculate_revert_frequency(repo.get('commits', []))
+        domain_complexity = calculate_domain_complexity(repo.get('languages', []), repo.get('dependencies', []))
+        
+        # Process review metrics
+        processed_metrics = process_review_metrics(repo.get('pull_requests', []))
+        
+        row = {
+            'owner': repo.get('owner'),
+            'name': repo.get('name'),
+            'llm_adoption_flag': llm_flag,
+            'iteration_count': iterations,
+            'avg_comment_length': avg_comment,
+            'review_thread_depth': review_depth,
+            'revert_frequency': revert_freq,
+            'domain_complexity': domain_complexity,
+            'recent_pr_count': repo.get('recent_pr_count', 0),
+            **processed_metrics
+        }
+        output_rows.append(row)
+    
+    # Write output
+    output_path = config.get('output_path', 'data/derived/master_dataset.csv')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=output_rows[0].keys() if output_rows else [])
+        writer.writeheader()
+        writer.writerows(output_rows)
+    
+    logger.info(f"Wrote {len(output_rows)} rows to {output_path}")
+
+if __name__ == '__main__':
     run_ingestion()

@@ -33,7 +33,18 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXX
   verified_at: '2026-07-03T01:11:23.707498Z'
-- artifact_hash: 1fbc621711654426e2e53e322077c54a90c55d8be4d8a79a2c582159133643f3
+- artifact_hash: aff8b55caeb67616f47e3fd2febd2b201090c4723d287d4c1425afb4978583fd
+  artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/docs/environment_config.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Materials Project
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-27T18:57:54.261635Z'
+- artifact_hash: 32fd4a9038d1c5c15677f77628791afe224a920651d03c1dfe67ad371dc9a8d3
   artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,6 +52,6 @@
   fetched_title: Science Advances - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q19881044
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q19881044
-  verified_at: '2026-07-04T01:25:53.980179Z'
+  verified_at: '2026-07-27T19:04:44.209577Z'

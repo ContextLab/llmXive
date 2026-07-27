@@ -118,7 +118,7 @@
  - **Logic**: Count TOTAL push events between PR open and merge (NO exclusions).
  - **Rationale**: Per updated `spec.md` FR-002 (Task T007).
 - [ ] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
-- [ ] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
+- [ ] T025 [US1] {{claim:c_c95cd589}} (SC-001)
 - [X] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
 - [ ] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
 - [X] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
@@ -143,14 +143,14 @@
 ### Implementation for User Story 2
 
 - [X] T033 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
-- [~] T034 [US2] Implement Mixed-Effects Models (GLMM) with random intercepts for repositories **[FR-003-UPDATED]**:
+- [ ] T034 [US2] Implement Mixed-Effects Models (GLMM) with random intercepts for repositories **[FR-003-UPDATED]**:
  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
-- [~] T035 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[FR-003-UPDATED]**:
+- [ ] T035 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[FR-003-UPDATED]**:
  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
-- [~] T036 [US2] Implement control variable adjustment: Project size (LOC), Team size (contributors), Domain complexity, and `diff_complexity_score` (FR-008)
-- [~] T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
-- [~] T038 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
-- [~] T039 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over a range of low integer values. and record effect estimates
+- [ ] T036 [US2] Implement control variable adjustment: Project size (LOC), Team size (contributors), Domain complexity, and `diff_complexity_score` (FR-008)
+- [ ] T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+- [ ] T038 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
+- [ ] T039 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over a range of low integer values. and record effect estimates
 - [ ] T040 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
 - [ ] T041 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
 

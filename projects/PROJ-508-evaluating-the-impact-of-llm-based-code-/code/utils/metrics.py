@@ -4,124 +4,167 @@ import json
 import re
 from pathlib import Path
 
-def calculate_iteration_count(pr_data: List[Dict[str, Any]]) -> int:
+def calculate_iteration_count(commit_data: List[Dict[str, Any]]) -> int:
     """
-    Count TOTAL push events (commits) between PR open and merge.
-    Per updated spec FR-002 (Task T007), NO exclusions for "Copilot" messages.
-    """
-    total_commits = 0
-    for pr in pr_data:
-        # Sum the 'commits' field from PR data which represents push events
-        total_commits += pr.get("commits", 0)
-    return total_commits
-
-def calculate_avg_comment_length(pr_data: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the average length of comments across all PRs.
-    """
-    if not pr_data:
-        return 0.0
+    Calculate iteration count as total push events between PR open and merge.
     
-    total_chars = 0
-    count = 0
-    for pr in pr_data:
-        # Assuming comment count is available, estimate length or use actual if available
-        # If actual comment text is not in pr_data, we use a proxy or placeholder
-        # For this implementation, we assume pr_data contains 'comments' count and we estimate length
-        # In a real scenario, we would fetch comment bodies.
-        # Here we simulate based on comment count * average length assumption or 0 if not available
-        # To be robust, we return 0.0 if no comment data is structured
-        if "comment_lengths" in pr:
-            total_chars += sum(pr["comment_lengths"])
-            count += len(pr["comment_lengths"])
-        elif "comments" in pr:
-            # Fallback: assume average comment length of 50 chars if only count is known
-            # This is a limitation of the mock data structure
-            total_chars += pr["comments"] * 50
-            count += pr["comments"]
-    
-    return total_chars / count if count > 0 else 0.0
-
-def calculate_review_thread_depth(pr_data: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the average depth of review threads.
-    """
-    if not pr_data:
-        return 0.0
-    
-    total_depth = 0
-    count = 0
-    for pr in pr_data:
-        # Use review_comments as a proxy for thread depth if not explicitly provided
-        # In a real implementation, we would traverse the thread tree
-        if "review_comments" in pr:
-            total_depth += pr["review_comments"]
-            count += 1
-    
-    return total_depth / count if count > 0 else 0.0
-
-def calculate_revert_frequency(commit_data: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the frequency of revert commits.
+    Args:
+        commit_data: List of commit objects with push event timestamps
+        
+    Returns:
+        Total count of push events (iterations)
     """
     if not commit_data:
-        return 0.0
+        return 0
     
-    revert_count = 0
-    for commit in commit_data:
-        msg = commit.get("message", "").lower()
-        if "revert" in msg:
-            revert_count += 1
-    
-    return revert_count / len(commit_data)
+    # Count total push events (no exclusions per FR-002-UPDATED)
+    return len(commit_data)
 
-def calculate_diff_complexity_score(commit: Dict[str, Any]) -> float:
+def calculate_avg_comment_length(review_data: List[Dict[str, Any]]) -> float:
     """
-    Calculate diff_complexity_score = (lines_added + lines_deleted) / total_lines
-    if lines_deleted > 0 else 0.
-    Per FR-008.
-    """
-    additions = commit.get("additions", 0)
-    deletions = commit.get("deletions", 0)
-    total = commit.get("total", 0)
+    Calculate average comment length in review threads.
     
-    if total == 0:
+    Args:
+        review_data: List of review comment objects
+        
+    Returns:
+        Average character length of comments
+    """
+    if not review_data:
         return 0.0
     
-    if deletions > 0:
-        return (additions + deletions) / total
-    else:
+    total_length = sum(len(comment.get('body', '')) for comment in review_data)
+    return total_length / len(review_data)
+
+def calculate_review_thread_depth(review_data: List[Dict[str, Any]]) -> int:
+    """
+    Calculate maximum depth of review threads.
+    
+    Args:
+        review_data: List of review comment objects
+        
+    Returns:
+        Maximum thread depth observed
+    """
+    if not review_data:
+        return 0
+    
+    max_depth = 0
+    for comment in review_data:
+        depth = comment.get('depth', 1)
+        max_depth = max(max_depth, depth)
+    
+    return max_depth
+
+def calculate_revert_frequency(commits: List[Dict[str, Any]]) -> float:
+    """
+    Calculate frequency of revert commits.
+    
+    Args:
+        commits: List of commit objects
+        
+    Returns:
+        Ratio of revert commits to total commits
+    """
+    if not commits:
         return 0.0
+    
+    revert_count = sum(
+        1 for commit in commits 
+        if 'revert' in commit.get('message', '').lower()
+    )
+    return revert_count / len(commits)
+
+def calculate_diff_complexity_score(lines_added: int, lines_deleted: int, total_lines: int) -> float:
+    """
+    Calculate diff complexity score as per FR-008.
+    
+    Formula: (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0
+    
+    Args:
+        lines_added: Number of lines added in the diff
+        lines_deleted: Number of lines deleted in the diff
+        total_lines: Total lines in the file/commit
+        
+    Returns:
+        Diff complexity score (0.0 if no deletions)
+    """
+    if lines_deleted <= 0 or total_lines == 0:
+        return 0.0
+    
+    return (lines_added + lines_deleted) / total_lines
 
 def is_ai_noise_flag(diff_complexity_score: float, commit_message: str) -> bool:
     """
-    Flag 'AI Noise' if diff_complexity_score > 0.3 AND commit message contains
-    'fix', 'hotfix', or 'patch'.
-    Per FR-008.
+    Flag if commit exhibits 'AI Noise' characteristics per FR-008.
+    
+    Flag 'AI Noise' if:
+    - diff_complexity_score > 0.3 AND
+    - commit message contains 'fix', 'hotfix', or 'patch'
+    
+    Args:
+        diff_complexity_score: Calculated complexity score
+        commit_message: The commit message string
+        
+    Returns:
+        True if flagged as AI Noise, False otherwise
     """
-    if diff_complexity_score > 0.3:
-        msg_lower = commit_message.lower()
-        if "fix" in msg_lower or "hotfix" in msg_lower or "patch" in msg_lower:
-            return True
-    return False
+    if diff_complexity_score <= 0.3:
+        return False
+    
+    message_lower = commit_message.lower()
+    noise_keywords = ['fix', 'hotfix', 'patch']
+    
+    return any(keyword in message_lower for keyword in noise_keywords)
 
-def calculate_domain_complexity(languages: List[str], dependencies: List[str]) -> int:
+def calculate_domain_complexity(languages: List[str], manifests: List[Dict[str, Any]]) -> int:
     """
-    Calculate domain complexity as unique languages + dependency count.
+    Calculate domain complexity as unique languages + dependency count from manifests.
+    
+    This metric combines:
+    1. Number of unique programming languages used in the repository
+    2. Total count of dependencies declared in manifest files
+    
+    Args:
+        languages: List of programming languages detected in the repo
+        manifests: List of manifest objects containing dependency information
+        
+    Returns:
+        Domain complexity score (unique languages + dependency count)
     """
-    return len(set(languages)) + len(dependencies)
+    # Count unique languages
+    unique_languages = len(set(languages)) if languages else 0
+    
+    # Count dependencies from manifests
+    # Manifests typically contain 'dependencies', 'packages', 'imports' lists
+    dependency_count = 0
+    for manifest in manifests:
+        # Check common dependency keys in manifest files (package.json, requirements.txt, etc.)
+        dep_keys = ['dependencies', 'devDependencies', 'packages', 'imports', 'modules']
+        for key in dep_keys:
+            if key in manifest:
+                deps = manifest[key]
+                if isinstance(deps, dict):
+                    dependency_count += len(deps)
+                elif isinstance(deps, list):
+                    dependency_count += len(deps)
+    
+    return unique_languages + dependency_count
 
-def process_review_metrics(
-    iteration_count: int,
-    avg_comment_length: float,
-    review_thread_depth: float
-) -> Dict[str, Any]:
+def process_review_metrics(review_data: List[Dict[str, Any]], commit_data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Process and normalize review metrics.
+    Process all review and commit metrics into a single result dictionary.
+    
+    Args:
+        review_data: List of review comment objects
+        commit_data: List of commit objects
+        
+    Returns:
+        Dictionary containing all calculated metrics
     """
-    # Apply any necessary normalization or validation here
     return {
-        "iteration_count": iteration_count,
-        "avg_comment_length": avg_comment_length,
-        "review_thread_depth": review_thread_depth,
+        'iteration_count': calculate_iteration_count(commit_data),
+        'avg_comment_length': calculate_avg_comment_length(review_data),
+        'review_thread_depth': calculate_review_thread_depth(review_data),
+        'revert_frequency': calculate_revert_frequency(commit_data)
     }

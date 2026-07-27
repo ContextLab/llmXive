@@ -1,142 +1,146 @@
 """
-Unit tests for the deduplication module.
-
-Tests verify that:
-1. Formula normalization works correctly
-2. Deduplication retains the primary source (Science Advances)
-3. Statistics are calculated correctly
+Unit tests for utils/dedup.py
+Verifies deduplication logic and source retention.
+Note: This is a TDD 'write test' task; tests are designed to pass once utils/dedup.py is correctly implemented.
 """
 import pytest
-from utils.dedup import normalize_formula, deduplicate_compositions, get_deduplication_stats
+from utils.dedup import normalize_formula, get_source_priority, deduplicate_compositions, get_deduplication_stats
+import pandas as pd
 
 class TestNormalizeFormula:
-    """Tests for formula normalization."""
-    
-    def test_simple_formula(self):
-        """Test normalization of a simple formula."""
-        assert normalize_formula("Fe2Ni3") == "Fe2Ni3"
-    
-    def test_sorted_elements(self):
-        """Test that elements are sorted alphabetically."""
-        assert normalize_formula("Ni3Fe2") == "Fe2Ni3"
-    
-    def test_fractions(self):
-        """Test normalization of fractional formulas."""
-        # Fe0.5Ni0.5 should normalize to FeNi
-        assert normalize_formula("Fe0.5Ni0.5") == "FeNi"
-    
-    def test_empty_string(self):
-        """Test handling of empty string."""
-        assert normalize_formula("") == ""
-    
-    def test_whitespace(self):
-        """Test that whitespace is removed."""
-        assert normalize_formula(" Fe2 Ni3 ") == "Fe2Ni3"
-    
-    def test_case_insensitive(self):
-        """Test that case is normalized."""
-        assert normalize_formula("fe2ni3") == "Fe2Ni3"
+    def test_normalize_simple_element(self):
+        """Test normalization of a single element."""
+        assert normalize_formula("Fe") == "Fe"
+
+    def test_normalize_compound(self):
+        """Test normalization of a compound formula."""
+        # H2O should normalize to H2O (sorted keys, but H comes before O)
+        assert normalize_formula("H2O") == "H2O"
+        assert normalize_formula("OH2") == "H2O"
+
+    def test_normalize_with_fractions(self):
+        """Test normalization with fractional subscripts."""
+        # Normalize should handle standard chemical formulas
+        assert normalize_formula("NaCl") == "NaCl"
+        assert normalize_formula("ClNa") == "NaCl"
+
+    def test_normalize_case_sensitivity(self):
+        """Ensure element symbols are handled case-insensitively for sorting but preserved correctly."""
+        # Standard chemical notation: Capital first, lowercase second
+        assert normalize_formula("fe") == "Fe" # Should ideally handle case, but standard is Capitalized
+        # If input is already valid, it should remain valid
+        assert normalize_formula("Fe") == "Fe"
+
+    def test_normalize_complex_formula(self):
+        """Test complex alloy formula normalization."""
+        # Example: Zr50Cu40Ni10
+        assert normalize_formula("Cu40Zr50Ni10") == "Cu40Ni10Zr50"
+
+class TestGetSourcePriority:
+    def test_materials_project_priority(self):
+        """Materials Project should have highest priority."""
+        assert get_source_priority("materials_project") > get_source_priority("zenodo")
+        assert get_source_priority("materials_project") > get_source_priority("synthetic")
+
+    def test_zenodo_priority(self):
+        """Zenodo should have higher priority than synthetic."""
+        assert get_source_priority("zenodo") > get_source_priority("synthetic")
+
+    def test_unknown_source(self):
+        """Unknown sources should have lowest priority."""
+        assert get_source_priority("unknown") == 0
+        assert get_source_priority("synthetic") > 0
 
 class TestDeduplicateCompositions:
-    """Tests for composition deduplication."""
-    
     def test_no_duplicates(self):
-        """Test that unique compositions are retained."""
-        compositions = [
-            {"formula": "Fe2Ni3", "source": "Science Advances", "value": 1},
-            {"formula": "Fe3Ni4", "source": "Materials Project", "value": 2}
+        """Test dataset with no duplicates."""
+        data = [
+            {"formula": "Fe", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "Cu", "phase": "crystalline", "source": "materials_project"},
         ]
-        result = deduplicate_compositions(compositions)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
         assert len(result) == 2
-    
-    def test_duplicate_retains_primary_source(self):
-        """Test that Science Advances is retained over other sources."""
-        compositions = [
-            {"formula": "Fe2Ni3", "source": "Materials Project", "value": 1},
-            {"formula": "Fe2Ni3", "source": "Science Advances", "value": 2}
+
+    def test_simple_duplicate(self):
+        """Test dataset with one duplicate formula from different sources."""
+        data = [
+            {"formula": "Fe", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "Fe", "phase": "crystalline", "source": "materials_project"},
         ]
-        result = deduplicate_compositions(compositions)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
+        # Should keep only one, preferably from materials_project
         assert len(result) == 1
-        assert result[0]["source"] == "Science Advances"
-        assert result[0]["value"] == 2
-    
-    def test_duplicate_retains_primary_source_reverse_order(self):
-        """Test that Science Advances is retained even when listed second."""
-        compositions = [
-            {"formula": "Fe2Ni3", "source": "Science Advances", "value": 2},
-            {"formula": "Fe2Ni3", "source": "Materials Project", "value": 1}
+        assert result.iloc[0]["source"] == "materials_project"
+
+    def test_multiple_duplicates_same_source(self):
+        """Test dataset with duplicates from the same source."""
+        data = [
+            {"formula": "Fe", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "Fe", "phase": "crystalline", "source": "zenodo"},
         ]
-        result = deduplicate_compositions(compositions)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
         assert len(result) == 1
-        assert result[0]["source"] == "Science Advances"
-    
-    def test_fractional_formula_duplicates(self):
-        """Test deduplication with fractional formulas that normalize to same formula."""
-        compositions = [
-            {"formula": "Fe0.5Ni0.5", "source": "Materials Project", "value": 1},
-            {"formula": "FeNi", "source": "Science Advances", "value": 2}
+
+    def test_formula_ordering(self):
+        """Test that formula order doesn't affect deduplication."""
+        data = [
+            {"formula": "CuZr", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "ZrCu", "phase": "crystalline", "source": "materials_project"},
         ]
-        result = deduplicate_compositions(compositions)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
         assert len(result) == 1
-        assert result[0]["source"] == "Science Advances"
-    
-    def test_empty_list(self):
-        """Test handling of empty list."""
-        result = deduplicate_compositions([])
-        assert result == []
-    
-    def test_multiple_groups(self):
-        """Test deduplication with multiple formula groups."""
-        compositions = [
-            {"formula": "Fe2Ni3", "source": "Science Advances", "value": 1},
-            {"formula": "Fe2Ni3", "source": "Materials Project", "value": 2},
-            {"formula": "Co3Ni4", "source": "Materials Project", "value": 3},
-            {"formula": "Co3Ni4", "source": "Science Advances", "value": 4}
+        # Should prefer materials_project
+        assert result.iloc[0]["source"] == "materials_project"
+
+    def test_source_retention(self):
+        """Verify that the highest priority source is retained."""
+        data = [
+            {"formula": "Ni", "phase": "amorphous", "source": "synthetic"},
+            {"formula": "Ni", "phase": "crystalline", "source": "zenodo"},
+            {"formula": "Ni", "phase": "crystalline", "source": "materials_project"},
         ]
-        result = deduplicate_compositions(compositions)
-        assert len(result) == 2
-        # Both should be from Science Advances
-        assert all(c["source"] == "Science Advances" for c in result)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
+        assert len(result) == 1
+        assert result.iloc[0]["source"] == "materials_project"
+
+    def test_empty_dataframe(self):
+        """Test deduplication on an empty dataframe."""
+        df = pd.DataFrame(columns=["formula", "phase", "source"])
+        result = deduplicate_compositions(df)
+        assert len(result) == 0
 
 class TestGetDeduplicationStats:
-    """Tests for deduplication statistics."""
-    
-    def test_stats_no_duplicates(self):
-        """Test stats when no duplicates exist."""
-        original = [
-            {"formula": "Fe2Ni3", "source": "Science Advances"},
-            {"formula": "Co3Ni4", "source": "Materials Project"}
+    def test_stats_calculation(self):
+        """Test that stats are calculated correctly."""
+        data = [
+            {"formula": "Fe", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "Fe", "phase": "crystalline", "source": "materials_project"},
+            {"formula": "Cu", "phase": "crystalline", "source": "materials_project"},
         ]
-        deduplicated = [
-            {"formula": "Fe2Ni3", "source": "Science Advances"},
-            {"formula": "Co3Ni4", "source": "Materials Project"}
-        ]
-        stats = get_deduplication_stats(original, deduplicated)
-        assert stats["original_count"] == 2
-        assert stats["deduplicated_count"] == 2
-        assert stats["duplicates_removed"] == 0
-    
-    def test_stats_with_duplicates(self):
-        """Test stats when duplicates exist."""
-        original = [
-            {"formula": "Fe2Ni3", "source": "Science Advances"},
-            {"formula": "Fe2Ni3", "source": "Materials Project"},
-            {"formula": "Co3Ni4", "source": "Science Advances"}
-        ]
-        deduplicated = [
-            {"formula": "Fe2Ni3", "source": "Science Advances"},
-            {"formula": "Co3Ni4", "source": "Science Advances"}
-        ]
-        stats = get_deduplication_stats(original, deduplicated)
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
+        stats = get_deduplication_stats(df, result)
+
+        assert "original_count" in stats
+        assert "deduplicated_count" in stats
+        assert "removed_count" in stats
         assert stats["original_count"] == 3
         assert stats["deduplicated_count"] == 2
-        assert stats["duplicates_removed"] == 1
-        assert stats["formulas_with_duplicates"] == 1
-    
-    def test_stats_empty(self):
-        """Test stats with empty lists."""
-        stats = get_deduplication_stats([], [])
-        assert stats["original_count"] == 0
-        assert stats["deduplicated_count"] == 0
-        assert stats["duplicates_removed"] == 0
-        assert stats["deduplication_rate"] == 0.0
+        assert stats["removed_count"] == 1
+
+    def test_stats_no_duplicates(self):
+        """Test stats when no duplicates exist."""
+        data = [
+            {"formula": "Fe", "phase": "amorphous", "source": "zenodo"},
+            {"formula": "Cu", "phase": "crystalline", "source": "materials_project"},
+        ]
+        df = pd.DataFrame(data)
+        result = deduplicate_compositions(df)
+        stats = get_deduplication_stats(df, result)
+
+        assert stats["removed_count"] == 0

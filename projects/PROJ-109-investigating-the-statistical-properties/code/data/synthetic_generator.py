@@ -111,7 +111,9 @@ def save_to_hdf5(data: dict, output_path: str) -> None:
         output_path: Path to output HDF5 file
     """
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     logger.info(f"Saving synthetic halo data to {output_path}")
 

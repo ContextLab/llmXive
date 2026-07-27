@@ -1,8 +1,10 @@
 status: none
-intent: download GLUE SST-2 dataset via huggingface datasets python package dataset
+intent: download SST-2 GLUE benchmark dataset via HuggingFace datasets python package
+  dataset
 required_fields:
 - sentence
 - label
-cache_key: 27625ffc6ec2484422d22042de7d810ad288f0759de53c3b6bef7fa3e60f1bc4
-searched_at: '2026-07-15T22:45:23.683845+00:00'
+- idx
+cache_key: 4c007d3d252a5495ed727de5e544591da4e5ca9e47fc6d238f6b785ca19581a2
+searched_at: '2026-07-27T18:55:21.004986+00:00'
 retry_count: 1
