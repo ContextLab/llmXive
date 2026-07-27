@@ -4,247 +4,211 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Set
 
-# Configure logging for this module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from config_loader import get_project_root, get_config, ensure_directory
+
 logger = logging.getLogger(__name__)
 
 def find_ica_logs(processed_dir: Path) -> List[Path]:
     """
-    Scan the processed directory for ICA log files generated during preprocessing.
-    We expect logs to be named like 'sub-XX_ica_rejection.log' or similar patterns.
-    
-    Args:
-        processed_dir: Path to the data/processed directory.
-        
-    Returns:
-        List of paths to found ICA log files.
+    Find all ICA log files in the processed directory.
+    Expected pattern: ica_log_<subject_id>.txt or similar.
     """
-    if not processed_dir.exists():
-        logger.warning(f"Processed directory does not exist: {processed_dir}")
-        return []
+    log_files = list(processed_dir.glob("ica_log_*.txt"))
+    if not log_files:
+        # Fallback to generic log if naming convention differs
+        generic_logs = list(processed_dir.glob("ica*.log"))
+        log_files.extend(generic_logs)
     
-    # Pattern to match log files related to ICA rejection
-    # We look for files containing 'ica' and 'log' in the name
-    pattern = processed_dir.glob("*ica*log")
-    logs = [p for p in pattern if p.suffix == '.log']
-    
-    # Also check for generic rejection logs if specific ICA ones aren't found
-    if not logs:
-        pattern = processed_dir.glob("*rejection*.log")
-        logs = [p for p in pattern if p.suffix == '.log']
-        
-    logger.info(f"Found {len(logs)} ICA/rejection log files.")
-    return logs
+    logger.info(f"Found {len(log_files)} ICA log files: {[f.name for f in log_files]}")
+    return log_files
 
-def parse_ica_log(log_path: Path) -> Tuple[int, int, str]:
+def parse_ica_log(log_path: Path) -> Dict[str, float]:
     """
-    Parse an ICA log file to extract total trials and rejected trials.
+    Parse a single ICA log file to extract rejection statistics.
     
-    Expected log format (based on MNE-Python standard outputs or custom logs):
-    - "Total epochs: X"
-    - "Rejected epochs: Y"
-    - Or specific lines indicating rejection counts.
+    Expected log format (per task T020 description):
+    - Lines indicating total epochs processed
+    - Lines indicating rejected epochs/components
+    - Pattern: "Total epochs: X", "Rejected epochs: Y", "Components removed: Z"
     
-    Args:
-        log_path: Path to the log file.
-        
     Returns:
-        Tuple of (total_trials, rejected_trials, participant_id).
-        If parsing fails, returns (0, 0, "unknown").
+        Dict with keys: 'total_epochs', 'rejected_epochs', 'components_removed'
     """
-    total_trials = 0
-    rejected_trials = 0
-    participant_id = "unknown"
-    
-    # Extract participant ID from filename (e.g., sub-01_ica_rejection.log -> sub-01)
-    stem = log_path.stem
-    match = re.match(r"(sub-\d+)", stem)
-    if match:
-        participant_id = match.group(1)
+    stats = {
+        'total_epochs': 0,
+        'rejected_epochs': 0,
+        'components_removed': 0
+    }
     
     try:
-        with open(log_path, 'r', encoding='utf-8') as f:
+        with open(log_path, 'r') as f:
             content = f.read()
-            
-        # Try to find "Total epochs" or "Total trials"
-        total_match = re.search(r"(?:Total\s+(?:epochs|trials))[:\s]+(\d+)", content, re.IGNORECASE)
-        if total_match:
-            total_trials = int(total_match.group(1))
-        
-        # Try to find "Rejected epochs" or "Rejected trials"
-        reject_match = re.search(r"(?:Rejected\s+(?:epochs|trials))[:\s]+(\d+)", content, re.IGNORECASE)
-        if reject_match:
-            rejected_trials = int(reject_match.group(1))
-            
-        # Fallback: Look for "Dropped" or "Excluded" if standard keys aren't found
-        if total_trials == 0:
-            total_match = re.search(r"Dropped:\s+(\d+)", content)
-            if total_match:
-                # Sometimes logs only list dropped, we might need context to know total
-                # Assuming if only dropped is listed, we might need to infer or skip
-                pass 
-        
-        # Specific MNE pattern: "Rejected [n] epochs"
-        if rejected_trials == 0:
-            reject_match = re.search(r"Rejected\s+(\d+)\s+epochs", content)
-            if reject_match:
-                rejected_trials = int(reject_match.group(1))
-                
-        # If we found valid numbers, return them
-        if total_trials > 0 or rejected_trials > 0:
-            logger.info(f"Parsed {participant_id}: Total={total_trials}, Rejected={rejected_trials}")
-            return total_trials, rejected_trials, participant_id
-        
     except Exception as e:
-        logger.error(f"Failed to parse log {log_path}: {e}")
-        
-    return total_trials, rejected_trials, participant_id
-
-def analyze_rejection_rates(logs: List[Path]) -> Dict[str, Dict[str, int]]:
-    """
-    Analyze rejection rates for all participants based on their ICA logs.
+        logger.error(f"Failed to read log file {log_path}: {e}")
+        return stats
     
-    Args:
-        logs: List of paths to ICA log files.
-        
+    # Regex patterns to extract numbers
+    total_match = re.search(r'Total epochs[:\s]+(\d+)', content)
+    rejected_match = re.search(r'Rejected epochs[:\s]+(\d+)', content)
+    components_match = re.search(r'Components removed[:\s]+(\d+)', content)
+    
+    if total_match:
+        stats['total_epochs'] = int(total_match.group(1))
+    if rejected_match:
+        stats['rejected_epochs'] = int(rejected_match.group(1))
+    if components_match:
+        stats['components_removed'] = int(components_match.group(1))
+    
+    # If no specific format found, try to infer from generic "rejected" mentions
+    if stats['total_epochs'] == 0 and stats['rejected_epochs'] == 0:
+        # Try alternative parsing for different log formats
+        lines = content.split('\n')
+        for line in lines:
+            if 'epoch' in line.lower() and 'total' in line.lower():
+                try:
+                    num = int(re.search(r'\d+', line).group())
+                    stats['total_epochs'] = num
+                except:
+                    pass
+            if 'epoch' in line.lower() and 'reject' in line.lower():
+                try:
+                    num = int(re.search(r'\d+', line).group())
+                    stats['rejected_epochs'] = num
+                except:
+                    pass
+    
+    return stats
+
+def analyze_rejection_rates(log_files: List[Path]) -> Dict[str, Dict[str, float]]:
+    """
+    Analyze rejection rates across all participants.
+    
     Returns:
-        Dictionary mapping participant_id to {'total': int, 'rejected': int, 'rate': float}.
+        Dict mapping subject_id -> {
+            'total_epochs': int,
+            'rejected_epochs': int,
+            'rejection_rate': float (0.0 to 1.0),
+            'components_removed': int
+        }
     """
     results = {}
     
-    for log_path in logs:
-        total, rejected, pid = parse_ica_log(log_path)
+    for log_path in log_files:
+        # Extract subject ID from filename (e.g., ica_log_sub-01.txt -> sub-01)
+        filename = log_path.name
+        match = re.search(r'(sub-\d+|sub[0-9]+)', filename)
+        subject_id = match.group(1) if match else filename.replace('.txt', '').replace('ica_log_', '')
         
-        if total > 0:
-            rate = rejected / total
-            results[pid] = {
-                'total': total,
-                'rejected': rejected,
-                'rate': rate
-            }
-            logger.info(f"Participant {pid}: Rejection rate {rate:.2%} ({rejected}/{total})")
-        elif rejected > 0:
-            # Edge case: log only mentions rejected but not total?
-            # We cannot calculate rate without total, so we log a warning
-            logger.warning(f"Participant {pid}: Found rejected count ({rejected}) but no total count. Cannot calculate rate.")
-            results[pid] = {
-                'total': 0,
-                'rejected': rejected,
-                'rate': 1.0 # Assume worst case if total is unknown but rejected exists? Or skip?
-            }
+        stats = parse_ica_log(log_path)
+        
+        if stats['total_epochs'] > 0:
+            rejection_rate = stats['rejected_epochs'] / stats['total_epochs']
         else:
-            logger.warning(f"Participant {pid}: Could not parse valid trial counts from log.")
-            
+            rejection_rate = 0.0
+        
+        results[subject_id] = {
+            'total_epochs': stats['total_epochs'],
+            'rejected_epochs': stats['rejected_epochs'],
+            'rejection_rate': rejection_rate,
+            'components_removed': stats['components_removed']
+        }
+        
+        logger.info(f"Subject {subject_id}: {stats['rejected_epochs']}/{stats['total_epochs']} epochs rejected ({rejection_rate:.2%})")
+    
     return results
 
-def identify_excluded_participants(rejection_data: Dict[str, Dict[str, int]], threshold: float = 0.50) -> Set[str]:
+def identify_excluded_participants(rejection_data: Dict[str, Dict[str, float]], threshold: float = 0.5) -> Set[str]:
     """
-    Identify participants whose rejection rate exceeds the threshold (default 50%).
+    Identify participants with rejection rates exceeding the threshold.
     
     Args:
-        rejection_data: Dictionary from analyze_rejection_rates.
-        threshold: Maximum allowed rejection rate (e.g., 0.50 for 50%).
-        
+        rejection_data: Output from analyze_rejection_rates
+        threshold: Maximum allowed rejection rate (default 0.5 = 50%)
+    
     Returns:
-        Set of participant IDs to be excluded.
+        Set of subject IDs to exclude
     """
     excluded = set()
     
-    for pid, data in rejection_data.items():
-        if data['total'] == 0:
-            # If we have no data, we might exclude to be safe, or skip. 
-            # Per SC-001, we exclude >50%. If data is missing, we can't verify.
-            # Let's assume missing data means we can't include them safely.
-            logger.warning(f"Participant {pid} has no valid trial data. Excluding.")
-            excluded.add(pid)
-            continue
-            
-        if data['rate'] > threshold:
-            excluded.add(pid)
-            logger.warning(f"Participant {pid} exceeds rejection threshold ({data['rate']:.2%} > {threshold}). Excluded.")
+    for subject_id, stats in rejection_data.items():
+        if stats['rejection_rate'] > threshold:
+            excluded.add(subject_id)
+            logger.warning(f"Excluding {subject_id}: rejection rate {stats['rejection_rate']:.2%} > {threshold:.2%}")
         else:
-            logger.info(f"Participant {pid} within rejection threshold ({data['rate']:.2%} <= {threshold}).")
-            
+            logger.info(f"Including {subject_id}: rejection rate {stats['rejection_rate']:.2%} <= {threshold:.2%}")
+    
     return excluded
 
-def write_exclusion_log(excluded_ids: Set[str], output_path: Path) -> None:
+def write_exclusion_log(excluded_participants: Set[str], output_path: Path) -> None:
     """
-    Write the list of excluded participant IDs to a log file.
+    Write the list of excluded participants to a log file.
     
     Args:
-        excluded_ids: Set of participant IDs to exclude.
-        output_path: Path to the output log file.
+        excluded_participants: Set of subject IDs to exclude
+        output_path: Path to the output log file
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory(output_path.parent)
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("# Excluded Participants\n")
-        f.write(f"# Reason: Rejection rate > 50% (SC-001)\n")
-        f.write(f"# Total excluded: {len(excluded_ids)}\n\n")
+    with open(output_path, 'w') as f:
+        f.write("# Excluded Participants Log\n")
+        f.write("# Criteria: Rejection rate > 50% (SC-001)\n")
+        f.write(f"# Total excluded: {len(excluded_participants)}\n")
+        f.write("#" + "=" * 50 + "\n")
         
-        for pid in sorted(excluded_ids):
-            f.write(f"{pid}\n")
-            
-    logger.info(f"Wrote {len(excluded_ids)} excluded participants to {output_path}")
+        if excluded_participants:
+            for subject_id in sorted(excluded_participants):
+                f.write(f"{subject_id}\n")
+        else:
+            f.write("# No participants excluded\n")
+    
+    logger.info(f"Exclusion log written to {output_path}")
 
-def run_rejection_analysis(processed_dir: Path, output_file: str = "rejected_participants.log") -> Dict[str, List[str]]:
+def run_rejection_analysis(processed_dir: Optional[Path] = None, output_file: Optional[str] = None) -> Dict[str, any]:
     """
-    Main entry point to run the full rejection analysis pipeline.
-    
-    1. Find all ICA logs in processed_dir.
-    2. Parse logs to get rejection rates.
-    3. Identify participants exceeding 50% rejection.
-    4. Write exclusion log.
+    Main entry point for rejection analysis pipeline.
     
     Args:
-        processed_dir: Path to data/processed.
-        output_file: Name of the output log file.
-        
+        processed_dir: Directory containing ICA logs (default: data/processed)
+        output_file: Output log file name (default: rejected_participants.log)
+    
     Returns:
-        Dictionary with summary stats: {'excluded': [ids], 'included': [ids], 'total_analyzed': count}
+        Dict with analysis results
     """
-    logger.info(f"Starting rejection analysis in {processed_dir}")
-    
-    # 1. Find logs
-    logs = find_ica_logs(processed_dir)
-    if not logs:
-        logger.error("No ICA log files found. Cannot perform analysis.")
-        # Write an empty log to indicate failure/no data
-        write_exclusion_log(set(), processed_dir / output_file)
-        return {'excluded': [], 'included': [], 'total_analyzed': 0}
-    
-    # 2. Analyze rates
-    rejection_data = analyze_rejection_rates(logs)
-    
-    # 3. Identify exclusions
-    excluded_ids = identify_excluded_participants(rejection_data, threshold=0.50)
-    
-    # 4. Write log
+    project_root = get_project_root()
+    processed_dir = processed_dir or project_root / "data" / "processed"
+    output_file = output_file or "rejected_participants.log"
     output_path = processed_dir / output_file
-    write_exclusion_log(excluded_ids, output_path)
     
-    # Prepare summary
-    all_ids = set(rejection_data.keys())
-    included_ids = all_ids - excluded_ids
+    if not processed_dir.exists():
+        logger.error(f"Processed directory does not exist: {processed_dir}")
+        return {'error': 'processed_dir_not_found', 'path': str(processed_dir)}
+    
+    # Find and analyze logs
+    log_files = find_ica_logs(processed_dir)
+    if not log_files:
+        logger.warning("No ICA log files found. Creating empty exclusion log.")
+        write_exclusion_log(set(), output_path)
+        return {'excluded_participants': [], 'total_analyzed': 0}
+    
+    # Analyze rejection rates
+    rejection_data = analyze_rejection_rates(log_files)
+    
+    # Identify excluded participants
+    excluded = identify_excluded_participants(rejection_data, threshold=0.5)
+    
+    # Write exclusion log
+    write_exclusion_log(excluded, output_path)
     
     return {
-        'excluded': sorted(list(excluded_ids)),
-        'included': sorted(list(included_ids)),
-        'total_analyzed': len(all_ids)
+        'excluded_participants': list(excluded),
+        'total_analyzed': len(rejection_data),
+        'rejection_data': rejection_data,
+        'output_path': str(output_path)
     }
 
 if __name__ == "__main__":
-    # Example execution if run directly
-    import sys
-    base_dir = Path(__file__).parent.parent
-    processed_dir = base_dir / "data" / "processed"
-    
-    if not processed_dir.exists():
-        print(f"Error: Processed directory not found at {processed_dir}")
-        sys.exit(1)
-        
-    result = run_rejection_analysis(processed_dir)
-    print(f"Analysis complete. Excluded: {result['excluded']}, Included: {result['included']}")
+    logging.basicConfig(level=logging.INFO)
+    result = run_rejection_analysis()
+    print(f"Analysis complete. Excluded {len(result['excluded_participants'])} participants.")
+    if result.get('error'):
+        print(f"Error: {result['error']}")

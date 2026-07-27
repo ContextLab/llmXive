@@ -1,62 +1,75 @@
-"""
-T013 – Record baseline metrics (p‑value, 95 % CI, Cohen's d / R²) to
-``data/processed/baseline_metrics.json`` with at least three decimal
-precision.
-"""
-
+import json
 import logging
 import os
 import sys
 from pathlib import Path
 
-from utils import setup_logging, pin_random_seed
+from utils import setup_logging, pin_random_seed, get_config
 from analysis import run_baseline_analysis
+from data_loader import load_datasets_from_raw
+
+logger = setup_logging(log_level="INFO")
 
 def main() -> None:
     """
-    Entry point used by the quickstart run‑book.
+    Record baseline metrics for every dataset found in ``data/raw``.
 
-    1. Initialise deterministic behaviour.
-    2. Initialise logging (accepts flexible signatures).
-    3. Run the baseline analysis over all raw CSV files.
-    4. Persist the resulting JSON to the declared location.
+    The script:
+    1. Ensures reproducibility via ``pin_random_seed``.
+    2. Loads all raw CSV datasets.
+    3. Runs ``run_baseline_analysis`` on each.
+    4. Writes a consolidated JSON file ``data/processed/baseline_metrics.json``
+       with at least three‑decimal precision for every numeric value.
+
+    The output format is:
+    {
+        "dataset_name.csv": {
+            "t_test": {"p_value": ..., "ci": [..., ...], "cohens_d": ...},
+            "linear_regression": {
+                "p_value": ...,
+                "ci": {"predictor1": [..., ...], ...},
+                "r_squared": ...
+            }
+        },
+        ...
+    }
     """
-    # 1. Deterministic execution
-    pin_random_seed(42)
+    # 1. Reproducibility
+    config = get_config()
+    seed = int(config.get("RANDOM_SEED", 42))
+    pin_random_seed(seed)
 
-    # 2. Logging – the helper is tolerant to positional or keyword args
-    logger = setup_logging(log_level="INFO")
-    logger.info("Starting baseline metrics recording (T013)")
-
-    # 3. Run analysis – use the default raw directory and explicit output path
-    raw_dir = Path("data/raw")
-    output_path = Path("data/processed/baseline_metrics.json")
-
-    # Ensure the raw directory exists; if not, we raise a clear error
-    if not raw_dir.is_dir():
-        logger.error("Raw data directory %s does not exist. Aborting.", raw_dir)
+    # 2. Load raw datasets
+    raw_path = Path(config.get("RAW_DATA_PATH", "data/raw"))
+    if not raw_path.exists():
+        logger.error("Raw data directory %s does not exist.", raw_path)
         sys.exit(1)
 
-    # The analysis function is deliberately flexible; we provide both args
-    # to guarantee the correct overload is exercised.
-    run_baseline_analysis(str(raw_dir), str(output_path))
-
-    # 4. Verify that the file now contains data
-    if not output_path.is_file():
-        logger.error("Baseline metrics file was not created at %s", output_path)
+    # ``load_datasets_from_raw`` is expected to return a dict {filename: DataFrame}
+    datasets = load_datasets_from_raw(str(raw_path))
+    if not datasets:
+        logger.error("No datasets found in %s.", raw_path)
         sys.exit(1)
 
-    # Load and report a tiny summary for the user
-    try:
-        import json
+    # 3. Run baseline analysis for each dataset
+    all_metrics = {}
+    for name, df in datasets.items():
+        logger.info("Processing dataset %s", name)
+        try:
+            metrics = run_baseline_analysis(dataframe=df)
+            # Round all numeric values to at least 3 decimal places (already rounded in analysis)
+            all_metrics[name] = metrics
+        except Exception as e:
+            logger.exception("Failed to analyze %s: %s", name, e)
 
-        with output_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-        dataset_count = len(data)
-        logger.info("Baseline metrics recorded for %d dataset(s).", dataset_count)
-    except Exception as exc:
-        logger.exception("Failed to read the generated baseline metrics: %s", exc)
-        sys.exit(1)
+    # 4. Write consolidated results
+    output_path = Path(config.get("PROCESSED_DATA_PATH", "data/processed"))
+    output_path.mkdir(parents=True, exist_ok=True)
+    output_file = output_path / "baseline_metrics.json"
+    with open(output_file, "w") as f:
+        json.dump(all_metrics, f, indent=2)
+
+    logger.info("Baseline metrics recorded in %s", output_file)
 
 if __name__ == "__main__":
     main()

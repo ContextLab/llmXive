@@ -8,3 +8,5 @@ seaborn
 requests
 datasets
 pytest
+pyarrow
+scipy

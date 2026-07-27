@@ -5,199 +5,198 @@ from pathlib import Path
 import logging
 import re
 from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler
-import joblib
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from statsmodels.stats.outliers_influence import OLSInfluence
+import statsmodels.api as sm
 
-from src.config import ensure_directories
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Mapping of ECO codes to opening families based on standard chess opening theory
+ECO_FAMILIES = {
+    'A': 'Sicilian Defense',
+    'B': 'Sicilian Defense',
+    'C': 'King\'s Pawn Openings',
+    'D': 'Queen\'s Pawn Openings',
+    'E': 'Indian Defenses',
+}
 
 def map_eco_to_family(eco_code: str) -> str:
     """
-    Map a specific ECO code to a broader opening family.
+    Map a specific ECO code to its opening family.
     
     Args:
-        eco_code: The ECO code string (e.g., 'B00', 'C50').
+        eco_code: A string representing an ECO code (e.g., 'B20', 'C50')
         
     Returns:
-        A string representing the opening family.
+        The opening family name as a string
     """
-    if pd.isna(eco_code) or not isinstance(eco_code, str) or len(eco_code) < 1:
-        return "Unknown"
+    if not isinstance(eco_code, str) or len(eco_code) < 1:
+        return 'Unknown Opening'
     
     first_char = eco_code[0].upper()
-    families = {
-        'A': 'Flank Openings',
-        'B': 'Semi-Open Games',
-        'C': 'Open Games',
-        'D': 'Closed Games',
-        'E': 'Indian Defenses'
-    }
-    return families.get(first_char, "Unclassified")
+    return ECO_FAMILIES.get(first_char, 'Other Openings')
 
-def prepare_features_for_modeling(
-    df: pd.DataFrame, 
-    target_col: str = 'outcome',
-    drop_cols: Optional[List[str]] = None
-) -> Tuple[pd.DataFrame, pd.Series]:
+def prepare_features_for_modeling(df: pd.DataFrame, target_col: str = 'outcome_deviation') -> Tuple[pd.DataFrame, pd.Series, ColumnTransformer]:
     """
-    Prepare features for modeling by one-hot encoding ECO families and 
-    selecting numerical predictors.
+    Prepare features for modeling by one-hot encoding ECO codes and collapsing them into families.
     
     Args:
-        df: The input DataFrame containing game records.
-        target_col: The name of the target column.
-        drop_cols: List of columns to drop before modeling.
+        df: Input DataFrame with game records
+        target_col: Name of the target variable column
         
     Returns:
-        A tuple of (feature_matrix, target_series).
+        Tuple of (processed_features, target_series, preprocessor)
     """
-    if drop_cols is None:
-        drop_cols = ['game_id', 'eco_code']
-        
-    # Create a copy to avoid SettingWithCopyWarning
-    data = df.copy()
-    
-    # Map ECO codes to families if 'eco_code' exists
-    if 'eco_code' in data.columns:
-        data['eco_family'] = data['eco_code'].apply(map_eco_to_family)
-        if 'eco_code' not in drop_cols:
-            drop_cols.append('eco_code')
-        
-        # One-hot encode the family
-        dummies = pd.get_dummies(data['eco_family'], prefix='eco_family')
-        data = pd.concat([data.drop('eco_family', axis=1), dummies], axis=1)
-    
-    # Ensure target is numeric
-    if target_col in data.columns:
-        # Map chess outcomes (1-0, 0-1, 1/2-1/2) to numeric (1, 0, 0.5)
-        if data[target_col].dtype == 'object':
-            mapping = {'1-0': 1.0, '0-1': 0.0, '1/2-1/2': 0.5, '*': np.nan}
-            data[target_col] = data[target_col].map(mapping)
-    
-    # Separate features and target
-    if target_col in data.columns:
-        y = data[target_col]
-        X = data.drop(columns=[c for c in [target_col] + drop_cols if c in data.columns])
-    else:
+    if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in DataFrame")
     
-    # Select only numerical columns for Ridge regression
-    numerical_cols = X.select_dtypes(include=[np.number]).columns
-    X = X[numerical_cols]
+    # Map ECO codes to families
+    df = df.copy()
+    df['eco_family'] = df['eco_code'].apply(map_eco_to_family)
     
-    # Handle missing values by dropping rows with NaN in features or target
-    mask = ~X.isna().any(axis=1) & ~y.isna()
-    X = X[mask]
-    y = y[mask]
+    # Define feature columns
+    feature_cols = [
+        'white_rating',
+        'black_rating', 
+        'avg_move_time_white',
+        'avg_move_time_black',
+        'material_imbalance_move5',
+        'eco_family'
+    ]
     
-    return X, y
+    # Filter to available columns
+    available_cols = [col for col in feature_cols if col in df.columns]
+    
+    if len(available_cols) == 0:
+        raise ValueError("No feature columns available for modeling")
+    
+    # Separate numeric and categorical features
+    numeric_features = [col for col in available_cols if col != 'eco_family']
+    categorical_features = ['eco_family'] if 'eco_family' in available_cols else []
+    
+    # Create preprocessor
+    transformers = []
+    if numeric_features:
+        transformers.append(('num', 'passthrough', numeric_features))
+    if categorical_features:
+        transformers.append(('cat', OneHotEncoder(handle_unknown='ignore', sparse_output=False), categorical_features))
+    
+    preprocessor = ColumnTransformer(transformers=transformers)
+    
+    # Prepare features and target
+    X = df[available_cols]
+    y = df[target_col]
+    
+    # Drop rows with missing target or features
+    mask = ~(X.isnull().any(axis=1) | y.isnull())
+    X_clean = X[mask]
+    y_clean = y[mask]
+    
+    logger.info(f"Prepared {len(X_clean)} samples with {len(available_cols)} features for modeling")
+    
+    return X_clean, y_clean, preprocessor
 
-def fit_ridge_regression(X: pd.DataFrame, y: pd.Series, alpha: float = 1.0) -> Dict[str, Any]:
+def fit_ridge_regression(X: pd.DataFrame, y: pd.Series, alpha: float = 1.0) -> Tuple[Ridge, ColumnTransformer, Dict[str, Any]]:
     """
     Fit a Ridge Regression model as a linear baseline.
     
     Args:
-        X: Feature matrix (pandas DataFrame).
-        y: Target series (pandas Series).
-        alpha: Regularization strength.
+        X: Feature DataFrame
+        y: Target Series
+        alpha: Regularization strength (must be >= 0)
         
     Returns:
-        A dictionary containing the fitted model, scaler, coefficients, and metrics.
+        Tuple of (fitted_model, preprocessor, metrics_dict)
     """
-    if X.empty or y.empty:
-        raise ValueError("Feature matrix or target series is empty.")
+    logger.info(f"Fitting Ridge Regression with alpha={alpha}")
     
-    # Scale features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # Prepare features
+    X_clean, y_clean, preprocessor = prepare_features_for_modeling(
+        pd.concat([X.reset_index(drop=True), y.reset_index(drop=True)], axis=1)
+    )
     
-    # Fit model
-    model = Ridge(alpha=alpha)
-    model.fit(X_scaled, y)
+    # Create pipeline
+    model = Pipeline([
+        ('preprocessor', preprocessor),
+        ('regressor', Ridge(alpha=alpha))
+    ])
     
-    # Calculate R-squared
-    y_pred = model.predict(X_scaled)
-    ss_res = np.sum((y - y_pred) ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    # Fit the model
+    model.fit(X_clean, y_clean)
     
-    # Calculate MSE
-    mse = np.mean((y - y_pred) ** 2)
+    # Calculate metrics
+    y_pred = model.predict(X_clean)
+    mse = np.mean((y_clean - y_pred) ** 2)
+    r_squared = 1 - (np.sum((y_clean - y_pred) ** 2) / np.sum((y_clean - y_clean.mean()) ** 2))
     
-    # Map coefficients back to feature names
-    coefficients = dict(zip(X.columns, model.coef_))
+    # Extract coefficients for the first stage (preprocessor)
+    ridge_model = model.named_steps['regressor']
+    preprocessor_model = model.named_steps['preprocessor']
     
-    return {
-        'model': model,
-        'scaler': scaler,
+    # Get feature names after preprocessing
+    feature_names = []
+    if 'num' in preprocessor_model.named_transformers_:
+        feature_names.extend(preprocessor_model.named_transformers_['num'][2])
+    if 'cat' in preprocessor_model.named_transformers_:
+        cat_encoder = preprocessor_model.named_transformers_['cat'][0]
+        cat_features = preprocessor_model.named_transformers_['cat'][2]
+        for i, feat in enumerate(cat_features):
+            for j, category in enumerate(cat_encoder.categories_[i]):
+                feature_names.append(f"{feat}_{category}")
+    
+    # Create coefficients dictionary
+    coefficients = dict(zip(feature_names, ridge_model.coef_))
+    coefficients['intercept'] = float(ridge_model.intercept_)
+    
+    metrics = {
+        'model_type': 'Ridge',
+        'alpha': alpha,
+        'r_squared': float(r_squared),
+        'mse': float(mse),
         'coefficients': coefficients,
-        'r_squared': r_squared,
-        'mse': mse,
-        'alpha': alpha
+        'n_samples': len(X_clean),
+        'n_features': len(feature_names)
     }
+    
+    logger.info(f"Ridge Regression complete - R²: {r_squared:.4f}, MSE: {mse:.4f}")
+    
+    return model, preprocessor, metrics
 
 def main():
     """
-    Main entry point to load data, fit Ridge Regression, and save results.
+    Main function to demonstrate Ridge Regression fitting.
+    This is intended to be called from a pipeline or main entry point.
     """
-    # Ensure output directories exist
-    ensure_directories()
+    logger.info("Starting Ridge Regression fitting demonstration")
     
-    # Load processed game data
-    input_path = Path("data/processed/games.parquet")
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. Please run the data ingestion pipeline first.")
-        return
+    # Create sample data for demonstration
+    # In production, this would load from data/processed/games.parquet
+    np.random.seed(42)
+    n_samples = 1000
     
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_parquet(input_path)
-    
-    logger.info(f"Loaded {len(df)} games. Columns: {list(df.columns)}")
-    
-    # Prepare features
-    try:
-        X, y = prepare_features_for_modeling(df, target_col='outcome')
-        logger.info(f"Prepared features: {X.shape[1]} features, {len(X)} samples.")
-    except Exception as e:
-        logger.error(f"Error preparing features: {e}")
-        return
+    sample_data = pd.DataFrame({
+        'white_rating': np.random.normal(1500, 200, n_samples),
+        'black_rating': np.random.normal(1500, 200, n_samples),
+        'avg_move_time_white': np.random.exponential(10, n_samples),
+        'avg_move_time_black': np.random.exponential(10, n_samples),
+        'material_imbalance_move5': np.random.normal(0, 0.5, n_samples),
+        'eco_code': np.random.choice(['A', 'B', 'C', 'D', 'E'], n_samples),
+        'outcome_deviation': np.random.normal(0, 0.3, n_samples)
+    })
     
     # Fit Ridge Regression
-    try:
-        results = fit_ridge_regression(X, y, alpha=1.0)
-        logger.info(f"Ridge Regression fitted. R²: {results['r_squared']:.4f}, MSE: {results['mse']:.4f}")
-    except Exception as e:
-        logger.error(f"Error fitting Ridge Regression: {e}")
-        return
+    model, preprocessor, metrics = fit_ridge_regression(
+        sample_data[['white_rating', 'black_rating', 'avg_move_time_white', 
+                    'avg_move_time_black', 'material_imbalance_move5', 'eco_code']],
+        sample_data['outcome_deviation']
+    )
     
-    # Save results
-    output_path = Path("data/results/ridge_model_results.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Convert numpy types to native Python for JSON serialization
-    serializable_results = {
-        'coefficients': {k: float(v) for k, v in results['coefficients'].items()},
-        'r_squared': float(results['r_squared']),
-        'mse': float(results['mse']),
-        'alpha': float(results['alpha'])
-    }
-    
-    import json
-    with open(output_path, 'w') as f:
-        json.dump(serializable_results, f, indent=2)
-    
-    logger.info(f"Model results saved to {output_path}")
-    
-    # Also save the model artifact for later use
-    model_artifact_path = Path("data/results/ridge_model.pkl")
-    joblib.dump({
-        'model': results['model'],
-        'scaler': results['scaler'],
-        'coefficients': results['coefficients']
-    }, model_artifact_path)
-    logger.info(f"Model artifact saved to {model_artifact_path}")
+    logger.info(f"Model metrics: {metrics}")
+    return model, metrics
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

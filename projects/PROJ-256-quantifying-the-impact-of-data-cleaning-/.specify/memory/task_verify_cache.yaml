@@ -1,0 +1,22 @@
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output implementing the dataset\u2011size binning sensitivity\
+    \ analysis is provided, nor any evidence that warnings are logged when a bin contains\
+    \ fewer than one dataset. The required artifact (implementation that depends on\
+    \ baseline metrics and logs CONSTRAINT_VIOLATION warnings) is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, script, notebook, or result file that implements the outlier\u2011\
+    threshold sweep, computes false\u2011positive rates, or calculates inconsistency\
+    \ rates as required. Consequently, the essential artifact demonstrating the required\
+    \ calculations is missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No comparison report artifact was supplied; there is no file, data structure,\
+    \ or documented output containing the required fields (baseline_metrics, cleaned_metrics,\
+    \ absolute_diff, relative_diff, sensitivity_analysis). Consequently the task\u2019\
+    s deliverable is missing."

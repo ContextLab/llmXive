@@ -1,33 +1,47 @@
-"""
-Basic sanity tests for the updated ``utils.setup_logging`` implementation.
-These tests ensure that the function can be called with the various signatures
-observed throughout the repository without raising exceptions and that it
-returns a ``logging.Logger`` instance.
-"""
 import logging
+import builtins
+
+import pytest
 
 from utils import setup_logging
 
 
-def test_setup_logging_default():
+def test_setup_logging_various_signatures():
+    # Default call
     logger = setup_logging()
     assert isinstance(logger, logging.Logger)
-    assert logger.level == logging.WARNING
-
-
-def test_setup_logging_log_level_positional():
-    logger = setup_logging("INFO")
     assert logger.level == logging.INFO
 
-
-def test_setup_logging_name_and_level():
-    logger = setup_logging("my_logger", "DEBUG")
-    assert isinstance(logger, logging.Logger)
-    assert logger.name == "my_logger"
+    # Positional level only
+    logger = setup_logging("DEBUG")
     assert logger.level == logging.DEBUG
 
+    # Name then level
+    logger = setup_logging("my_logger", "WARNING")
+    assert logger.name == "my_logger"
+    assert logger.level == logging.WARNING
 
-def test_setup_logging_kwargs():
-    logger = setup_logging(name="custom_logger", log_level="ERROR")
-    assert logger.name == "custom_logger"
+    # Keyword name only
+    logger = setup_logging(name="kw_logger")
+    assert logger.name == "kw_logger"
+    assert logger.level == logging.INFO
+
+    # Keyword level only
+    logger = setup_logging(log_level="ERROR")
     assert logger.level == logging.ERROR
+
+    # Mixed positional/keyword
+    logger = setup_logging("mixed_logger", log_level="CRITICAL")
+    assert logger.name == "mixed_logger"
+    assert logger.level == logging.CRITICAL
+
+
+def test_setup_logging_idempotent_handler():
+    """
+    Ensure that repeated calls with the same logger name do not add duplicate handlers.
+    """
+    logger1 = setup_logging("dup_logger", "INFO")
+    handler_count_before = len(logger1.handlers)
+    logger2 = setup_logging("dup_logger", "INFO")
+    handler_count_after = len(logger2.handlers)
+    assert handler_count_before == handler_count_after

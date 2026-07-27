@@ -9,136 +9,186 @@ import pandas as pd
 import scipy.stats
 import statsmodels.api as sm
 
-from .data_loader import load_datasets_from_raw  # type: ignore
-
 logger = logging.getLogger(__name__)
 
-def _validate_p_value(p: float) -> bool:
-    """Return True if p‑value is a proper probability (0,1)."""
-    return 0.0 < p < 1.0
 
-def _compute_ci(series: pd.Series, confidence: float = 0.95) -> Tuple[float, float]:
-    """Return two‑sided confidence interval for the mean of a series."""
-    if series.empty:
-        raise ValueError("Series is empty, cannot compute CI.")
-    mean = series.mean()
-    sem = scipy.stats.sem(series, ddof=1)
-    df = len(series) - 1
-    interval = scipy.stats.t.interval(confidence, df, loc=mean, scale=sem)
-    return interval
+def _infer_outcome_and_predictors(
+    df: pd.DataFrame, outcome: Optional[str] = None, predictors: Optional[List[str]] = None
+) -> Tuple[str, List[str]]:
+    """
+    Helper to infer ``outcome`` and ``predictors`` if they are not supplied.
 
-def _run_t_test(outcome: pd.Series, predictor: pd.Series) -> Dict[str, Any]:
-    """Perform independent two‑sample t‑test assuming equal variance."""
-    # Drop NaNs to avoid errors
-    outcome_clean = outcome.dropna()
-    predictor_clean = predictor.dropna()
-    # If predictor is binary, treat as group labels
-    if predictor_clean.nunique() == 2:
-        groups = [
-            outcome_clean[predictor_clean == val] for val in predictor_clean.unique()
+    - If ``outcome`` is ``None``, the first column that is binary (contains only 0/1)
+      is selected.  If no binary column exists, the last column is used.
+    - If ``predictors`` is ``None``, all numeric columns except the outcome are used.
+    """
+    if outcome is None:
+        # Look for a binary column.
+        for col in df.columns:
+            if set(df[col].dropna().unique()).issubset({0, 1}):
+                outcome = col
+                break
+        else:
+            outcome = df.columns[-1]  # fallback to last column
+
+    if predictors is None:
+        predictors = [
+            c for c in df.select_dtypes(include=[np.number]).columns if c != outcome
         ]
-        t_stat, p_val = scipy.stats.ttest_ind(*groups, equal_var=True)
-    else:
-        # fallback to correlation test
-        t_stat, p_val = scipy.stats.pearsonr(predictor_clean, outcome_clean)
-    ci = _compute_ci(outcome_clean)
-    return {"p_value": p_val, "ci": list(ci), "t_stat": float(t_stat)}
 
-def _run_linear_regression(df: pd.DataFrame, outcome_col: str, predictor_cols: List[str]) -> Dict[str, Any]:
-    """Fit OLS regression and return overall p‑value and R²."""
-    X = df[predictor_cols].apply(pd.to_numeric, errors="coerce")
-    y = pd.to_numeric(df[outcome_col], errors="coerce")
-    X = sm.add_constant(X)  # intercept
-    model = sm.OLS(y, X, missing="drop")
-    results = model.fit()
-    # Overall F‑test p‑value for the model
-    p_val = results.f_pvalue
-    r2 = results.rsquared
-    return {"p_value": float(p_val), "r2": float(r2), "summary": results.summary().as_text()}
-
-def _infer_columns(df: pd.DataFrame) -> Tuple[str, List[str]]:
-    """Heuristic to pick outcome and predictor columns."""
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if len(numeric_cols) < 2:
-        raise ValueError("Not enough numeric columns for analysis.")
-    # Choose the column with highest variance as outcome (simple heuristic)
-    variances = df[numeric_cols].var()
-    outcome = variances.idxmax()
-    predictors = [c for c in numeric_cols if c != outcome]
     return outcome, predictors
+
+
+def _run_t_test(df: pd.DataFrame, outcome: str, predictor: str) -> Dict[str, Any]:
+    """
+    Perform an independent two‑sample t‑test on ``outcome`` split by the median of
+    ``predictor``.
+    """
+    median_val = df[predictor].median()
+    group_a = df.loc[df[predictor] <= median_val, outcome].dropna()
+    group_b = df.loc[df[predictor] > median_val, outcome].dropna()
+
+    # Guard against empty groups.
+    if len(group_a) < 2 or len(group_b) < 2:
+        logger.warning(
+            f"Insufficient data for t‑test on predictor '{predictor}'. Returning NaNs."
+        )
+        return {"p_value": np.nan, "ci": [np.nan, np.nan]}
+
+    t_stat, p_value = scipy.stats.ttest_ind(group_a, group_b, equal_var=False)
+    # 95% confidence interval for the difference in means.
+    diff = group_a.mean() - group_b.mean()
+    se = np.sqrt(group_a.var(ddof=1) / len(group_a) + group_b.var(ddof=1) / len(group_b))
+    ci_low = diff - 1.96 * se
+    ci_high = diff + 1.96 * se
+    return {"p_value": float(p_value), "ci": [float(ci_low), float(ci_high)]}
+
+
+def _run_linear_regression(
+    df: pd.DataFrame, outcome: str, predictors: List[str]
+) -> Dict[str, Any]:
+    """
+    Fit an OLS regression ``outcome ~ predictors`` and return R² and coefficient map.
+    """
+    X = df[predictors].copy()
+    X = sm.add_constant(X, has_constant="add")
+    y = df[outcome]
+
+    # Drop rows with missing values.
+    data = pd.concat([X, y], axis=1).dropna()
+    if data.empty:
+        logger.warning("No data left after dropping NA for regression. Returning NaNs.")
+        return {"r_squared": np.nan, "coefficients": {}}
+
+    X_clean = data[X.columns]
+    y_clean = data[outcome]
+
+    model = sm.OLS(y_clean, X_clean).fit()
+    coeffs = {str(k): float(v) for k, v in model.params.items()}
+    return {"r_squared": float(model.rsquared), "coefficients": coeffs}
+
+
+def _analyze_dataframe(
+    df: pd.DataFrame,
+    outcome: Optional[str] = None,
+    predictors: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Compute t‑test (using the first numeric predictor) and linear regression metrics
+    for a single DataFrame.
+    """
+    outcome, predictors = _infer_outcome_and_predictors(df, outcome, predictors)
+
+    # Use the first predictor for the t‑test (as a simple, deterministic choice).
+    t_test_res = _run_t_test(df, outcome, predictors[0] if predictors else outcome)
+    linreg_res = _run_linear_regression(df, outcome, predictors)
+
+    return {"t_test": t_test_res, "linear_regression": linreg_res}
+
 
 def run_baseline_analysis(
     *args,
+    raw_dir: Optional[Union[str, os.PathLike]] = None,
     dataframe: Optional[pd.DataFrame] = None,
     outcome: Optional[str] = None,
     predictors: Optional[List[str]] = None,
-    raw_dir: Optional[str] = None,
-    output_file: Optional[str] = None,
-    extra_kwargs: Optional[Dict[str, Any]] = None,
+    output_file: Optional[Union[str, os.PathLike]] = None,
+    extra_kwargs_dict: Optional[Dict[str, Any]] = None,
     **kwargs,
-) -> Union[Dict[str, Any], None]:
+) -> Dict[str, Any]:
     """
-    Flexible entry point used throughout the repository.
+    Flexible entry point used throughout the project.
 
-    Supported usage patterns:
-    1. run_baseline_analysis(dataframe=df) -> returns metrics dict.
-    2. run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'])
-    3. run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json')
-    4. run_baseline_analysis('data/raw', 'data/processed/baseline_metrics.json')
-    5. run_baseline_analysis(raw_dir, output_file, extra_kwargs_dict)
+    Supported invocation patterns (all are accepted):
+
+    1. ``run_baseline_analysis()`` – analyses all CSVs under the default raw directory
+       (``data/raw``) and writes the aggregated JSON to ``data/processed/baseline_metrics.json``.
+
+    2. ``run_baseline_analysis(dataframe=df)`` – analyses a single DataFrame and
+       returns the metrics dictionary (no file written unless ``output_file`` is supplied).
+
+    3. ``run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json')``
+       – explicit paths.
+
+    4. ``run_baseline_analysis('data/raw', 'data/processed/baseline_metrics.json')``
+       – positional shortcut for ``raw_dir`` and ``output_file``.
+
+    5. ``run_baseline_analysis(raw_dir, output_file, extra_kwargs_dict)`` – legacy signature.
+
+    All additional keyword arguments are ignored but accepted for forward‑compatibility.
     """
-    # Merge positional args for the common (raw_dir, output_file) pattern
-    if not dataframe and len(args) >= 2:
-        raw_dir = raw_dir or args[0]
-        output_file = output_file or args[1]
+    # Normalise positional arguments.
+    if args:
+        if len(args) >= 1 and raw_dir is None:
+            raw_dir = args[0]
+        if len(args) >= 2 and output_file is None:
+            output_file = args[1]
+        if len(args) >= 3 and extra_kwargs_dict is None:
+            extra_kwargs_dict = args[2]
+
+    # Merge any explicit dict supplied via ``extra_kwargs_dict``.
+    if extra_kwargs_dict:
+        # Allow callers to pass any of the named parameters inside the dict.
+        raw_dir = extra_kwargs_dict.get("raw_dir", raw_dir)
+        dataframe = extra_kwargs_dict.get("dataframe", dataframe)
+        outcome = extra_kwargs_dict.get("outcome", outcome)
+        predictors = extra_kwargs_dict.get("predictors", predictors)
+        output_file = extra_kwargs_dict.get("output_file", output_file)
+
+    # Default locations if not provided.
+    if raw_dir is None:
+        raw_dir = Path("data") / "raw"
+    if output_file is None:
+        output_file = Path("data") / "processed" / "baseline_metrics.json"
+
+    raw_dir = Path(raw_dir)
+    output_file = Path(output_file)
+
+    results: Dict[str, Any] = {}
 
     if dataframe is not None:
-        # Single‑dataset mode
-        df = dataframe.copy()
-        if outcome is None or predictors is None:
-            outcome, predictors = _infer_columns(df)
-        # Compute t‑test between outcome and each predictor; keep first result for simplicity
-        t_test_res = _run_t_test(df[outcome], df[predictors[0]])
-        lr_res = _run_linear_regression(df, outcome, predictors)
-        metrics = {
-            "t_test": t_test_res,
-            "linear_regression": lr_res,
-        }
-        # Validate values
-        if not _validate_p_value(t_test_res["p_value"]):
-            logger.warning("T‑test produced out‑of‑range p‑value: %s", t_test_res["p_value"])
-        if not _validate_p_value(lr_res["p_value"]):
-            logger.warning("Linear regression produced out‑of‑range p‑value: %s", lr_res["p_value"])
-        return metrics
-
-    # Directory‑batch mode
-    if raw_dir is None:
-        raise ValueError("Either a dataframe or raw_dir must be supplied.")
-    raw_path = Path(raw_dir)
-    if not raw_path.is_dir():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
-
-    all_metrics = {}
-    for csv_file in raw_path.glob("*.csv"):
-        try:
-            df = pd.read_csv(csv_file)
-            outcome, predictors = _infer_columns(df)
-            t_test_res = _run_t_test(df[outcome], df[predictors[0]])
-            lr_res = _run_linear_regression(df, outcome, predictors)
-            all_metrics[csv_file.name] = {
-                "t_test": t_test_res,
-                "linear_regression": lr_res,
-            }
-        except Exception as e:
-            logger.error("Failed to process %s: %s", csv_file.name, e)
-            continue
-
-    if output_file:
-        out_path = Path(output_file)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        with out_path.open("w") as f:
-            json.dump(all_metrics, f, indent=2)
-        logger.info("Baseline analysis written to %s", out_path)
-        return None
+        # Single DataFrame analysis.
+        logger.info("Running baseline analysis on provided DataFrame.")
+        results = _analyze_dataframe(dataframe, outcome, predictors)
     else:
-        return all_metrics
+        # Directory‑wide analysis – iterate over CSV files.
+        logger.info(f"Running baseline analysis on all CSVs in {raw_dir}.")
+        if not raw_dir.is_dir():
+            raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+
+        csv_files = list(raw_dir.glob("*.csv"))
+        if not csv_files:
+            raise FileNotFoundError(f"No CSV files found in {raw_dir}")
+
+        for csv_path in csv_files:
+            df = pd.read_csv(csv_path)
+            logger.debug(f"Analyzing {csv_path.name}")
+            results[csv_path.name] = _analyze_dataframe(df, outcome, predictors)
+
+    # Write results if an output path is supplied.
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Baseline analysis results written to {output_file}")
+
+    return results

@@ -1690,3 +1690,75 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T00:08:59Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bonferroni controls family-wise error rate
+  claim_id: c_c2ecb5a3
+  context: Task T028 logs a warning that Bonferroni was implemented to satisfy FR-007's
+    request for FWER control.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Family-wise error rate
+        url: https://en.wikipedia.org/wiki/Family-wise_error_rate
+        value: Bonferroni
+      quote: In statistics, the false discovery rate (FDR) is a method of conceptualizing
+        the rate of type I errors in null hypothesis testing when conducting multiple
+        comparisons. FDR-controlling procedures are designed to control the FDR, which
+        is the expected proportion of "discoveries" (rejected null hypotheses) that
+        are false (incorrect rejections of the null). Equivalently, the FDR is the
+        expected ratio of the number of false positive classifications (false discoveries)
+        to the total number of positive classifications (rejections of the null).
+        The total number of rejections of the null include both the number of false
+        positives (FP) and true positives (TP). Simply put, FDR = FP / (FP + TP).
+        FDR-controlling procedures provide less stringent control of Type I errors
+        compared to family-wise error rate (FWER) controlling procedures (such as
+        the Bonferroni correction), which control the probability of at least one
+        Type I error. Thus, FDR-controlling procedures have greater power, at the
+        cost of increased numbers of Type I errors.
+      source_id: False discovery rate
+      url: https://en.wikipedia.org/wiki/False_discovery_rate
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: Bonferroni controls FWER.
+  resolved_value: Bonferroni correction
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T10:51:10Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg controls false discovery rate
+  claim_id: c_3369b064
+  context: Task T028 notes that Benjamini-Hochberg controls FDR, contrasting it with
+    the FWER control requirement.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Yosef Hochberg
+        url: https://en.wikipedia.org/wiki/Yosef_Hochberg
+        value: "Benjamini\u2013Hochberg (BH) procedure"
+      quote: "Yoav Benjamini (Hebrew: \u05D9\u05D5\u05D0\u05D1 \u05D1\u05E0\u05D9\u05DE\
+        \u05D9\u05E0\u05D9; born 5 January 1949) is an Israeli statistician best known\
+        \ for the development (with Yosef Hochberg) of the false discovery rate (FDR)\
+        \ criterion and the Benjamini\u2013Hochberg (BH) and Benjamini\u2013Yekutieli\
+        \ (BY) procedures for controlling the FDR. He is currently The Nathan and\
+        \ Lily Silver Professor of Applied Statistics at Tel Aviv University."
+      source_id: Yoav Benjamini
+      url: https://en.wikipedia.org/wiki/Yoav_Benjamini
+      value: "Benjamini\u2013Hochberg"
+    filled: true
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg controls FDR.
+  resolved_value: "Benjamini\u2013Hochberg"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T10:51:30Z'

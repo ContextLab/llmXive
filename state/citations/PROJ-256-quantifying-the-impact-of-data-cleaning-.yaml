@@ -75,7 +75,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
   verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: bcb807718a182a4df3ea3b19af18b06da89ed6f403f4e6e462d3fe419e209800
+- artifact_hash: 45851b7dbd91486159c8402232ea602c21077854ce0eb945a8aaea90711bb87b
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -83,10 +83,10 @@
   fetched_title: Integration - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q15753935
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q15753935
-  verified_at: '2026-07-15T00:09:31.042653Z'
-- artifact_hash: bcb807718a182a4df3ea3b19af18b06da89ed6f403f4e6e462d3fe419e209800
+  verified_at: '2026-07-27T10:51:53.491715Z'
+- artifact_hash: 45851b7dbd91486159c8402232ea602c21077854ce0eb945a8aaea90711bb87b
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -94,6 +94,17 @@
   fetched_title: Bonferroni correction - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q385989
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-07-15T00:09:31.042653Z'
+  verified_at: '2026-07-27T10:51:53.491715Z'
+- artifact_hash: 45851b7dbd91486159c8402232ea602c21077854ce0eb945a8aaea90711bb87b
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Yoav Benjamini - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Yoav_Benjamini
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Yoav_Benjamini
+  verified_at: '2026-07-27T10:51:53.491715Z'

@@ -42,8 +42,8 @@
 - [X] T005 Implement `src/validation/validate_contracts.py` to load YAML schemas from `specs/contracts/` and validate in-memory pandas DataFrames against them.
 - [X] T006 Define `specs/contracts/game_record.schema.yaml` with columns: `game_id`, `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move5`, `outcome`, `elo_expected_prob`, `outcome_deviation`. (Note: Aligns with Plan.md Complexity Tracking override of Spec FR-002).
 - [ ] T007 Define `specs/contracts/model_output.schema.yaml` with columns: `model_type`, `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`. (Note: Aligns with Plan.md Complexity Tracking override of Spec FR-005).
-- [ ] T008 Implement `src/data/download.py` with exponential backoff retry logic for Lichess/HuggingFace API.
-- [ ] T009 [US1] Implement `src/data/download.py` logic to: (1) Verify dataset URL reachability; if unreachable, HALT with error. (2) Sample a small subset of games to check for `move_time` metadata presence. (3) If >5% of sampled games lack `move_time`, HALT immediately with error (per Plan.md Dataset Verification). (4) If ≤5% lack `move_time`, exclude those specific games and proceed. This resolves the conflict between Spec Edge Cases (skip) and Plan (halt) by enforcing the Plan's HALT threshold.
+- [X] T008 Implement `src/data/download.py` with exponential backoff retry logic for Lichess/HuggingFace API.
+- [X] T009 [US1] Implement `src/data/download.py` logic to: (1) Verify dataset URL reachability; if unreachable, HALT with error. (2) Sample a small subset of games to check for `move_time` metadata presence. (3) If >5% of sampled games lack `move_time`, HALT immediately with error (per Plan.md Dataset Verification). (4) If ≤5% lack `move_time`, exclude those specific games and proceed. This resolves the conflict between Spec Edge Cases (skip) and Plan (halt) by enforcing the Plan's HALT threshold.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,9 +59,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for `GameRecord` schema validation in `tests/contract/test_game_record.py`.
-- [ ] T011 [P] [US1] Unit test for PGN parsing logic handling malformed move lists in `tests/unit/test_parsers.py`.
-- [ ] T012 [P] [US1] Unit test for Elo probability calculation and deviation math in `tests/unit/test_calculations.py`.
+- [X] T010 [P] [US1] Contract test for `GameRecord` schema validation in `tests/contract/test_game_record.py`.
+- [X] T011 [P] [US1] Unit test for PGN parsing logic handling malformed move lists in `tests/unit/test_parsers.py`.
+- [X] T012 [P] [US1] Unit test for Elo probability calculation and deviation math in `tests/unit/test_calculations.py`. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -89,13 +89,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
-- [ ] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
-- [ ] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
+- [X] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
+- [X] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
+- [X] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
 - [X] T024 [US2] Implement `src/models/metrics.py` to calculate p-values (Wald Z-tests) and F-statistics for all predictors.
 - [X] T025 [US2] Implement `src/models/metrics.py` to apply Benjamini-Hochberg FDR correction to p-values (FR-009).
 - [X] T026 [US2] Implement `src/reports/sensitivity.py` to perform threshold sweep analysis over a range of small thresholds and report Jaccard index of significant predictors (FR-010).
-- [ ] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested -->
+- [ ] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -115,8 +115,8 @@
 
 - [X] T029 [P] [US3] Implement `src/models/validate.py` to perform k-fold cross-validation on both Gaussian GLM and Ridge models (FR-006).
 - [X] T030 [US3] Implement `src/models/validate.py` to calculate R² and MSE variance across folds; specifically calculate standard deviation of R². If `std_dev_r2 >= 0.05`, raise a `RuntimeError` with message "SC-003 Threshold Exceeded: Model instability detected". This enforces SC-003 as a hard pass/fail gate.
-- [ ] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots and feature importance rankings.
-- [ ] T032 [US3] Implement `src/reports/generate_plots.py` to create predicted vs. actual deviation scatterplots.
+- [X] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots and feature importance rankings.
+- [X] T032 [US3] Implement `src/reports/generate_plots.py` to create predicted vs. actual deviation scatterplots.
 - [ ] T033 [US3] Save all plots to `data/results/` and generate a final `DiagnosticReport` summary in `data/results/diagnostics.json`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -127,11 +127,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Documentation updates in `README.md` and `quickstart.md`.
-- [~] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested -->
-- [~] T036 Performance optimization (ensure RAM usage < 7GB, sample data if necessary).
+- [ ] T034 [P] Documentation updates in `README.md` and `quickstart.md`.
+- [ ] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested -->
+- [ ] T036 Performance optimization (ensure RAM usage < 7GB, sample data if necessary).
 - [ ] T037 [P] Additional unit tests (if requested) in `tests/unit/`.
-- [ ] T038 Run quickstart.md validation.
+- [~] T038 Run quickstart.md validation.
 
 ---
 

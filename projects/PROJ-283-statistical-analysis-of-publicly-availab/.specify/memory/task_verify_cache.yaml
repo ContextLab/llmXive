@@ -1,0 +1,41 @@
+T007:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/contracts/model_output.schema.yaml` does not exist (the
+    only mentioned `schema.yaml` is missing), so the schema with the specified columns
+    was never provided. The task needs the creation of that YAML file containing the
+    listed fields.
+T018:
+  c: false
+  h: 7a7f96d1e181d36ef2945bdee723263e51f5ba4c98c7080fea3cf26fab779447
+  r: "The provided `src/main.py` imports the validation utilities but never actually\
+    \ calls them, and the script ends before saving a validated dataset to `data/processed/games.parquet`.\
+    \ Moreover, the expected `games.parquet` file is absent from the repository. The\
+    \ task\u2019s requirement\u2014to run schema validation on the generated dataset\
+    \ and then write the validated data to the specified Parquet file\u2014is therefore\
+    \ not fulfilled."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` or `quickstart.md` files are present in the provided evidence;
+    the only artifacts shown relate to statistical analysis specifications, not documentation
+    changes. The required documentation updates are missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, commit diff, or refactoring report was provided; the only evidence is
+    the original feature specification, which does not demonstrate any cleanup or
+    refactoring work. The required artifact (cleaned/refactored code) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that RAM usage was measured and kept below 7\u202FGB is\
+    \ present, nor any code or documentation indicating that data sampling was implemented\
+    \ to achieve this limit. Without performance benchmarks or sampling logic, the\
+    \ task\u2019s requirement is not satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` directory or any unit test files were provided as evidence,
+    so the required additional unit tests are missing. The task cannot be considered
+    complete without actual test artifacts in the specified location.
