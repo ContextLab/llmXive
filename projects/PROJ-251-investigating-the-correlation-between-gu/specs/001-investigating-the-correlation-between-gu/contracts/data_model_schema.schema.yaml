@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessedSubjectData"
+description: "Schema for the intermediate file 'cleared_with_diversity.csv'."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier."
+  shannon_diversity:
+    type: "number"
+    description: "Calculated Shannon diversity index."
+  titer_pre_log:
+    type: "number"
+    description: "Log-transformed baseline antibody titer."
+  titer_post_log:
+    type: "number"
+    description: "Log-transformed post-vaccination antibody titer."
+  responder_status:
+    type: "integer"
+    description: "Binary label: 0 (Low Responder), 1 (High Responder)."
+  taxa_clr_columns:
+    type: "array"
+    items:
+      type: "number"
+    description: "Array of CLR-transformed taxon abundances (dynamic columns)."
+required:
+  - subject_id
+  - shannon_diversity
+  - titer_pre_log
+  - titer_post_log
+  - responder_status
+additionalProperties: true
+description_note: "Note: The 'taxa_clr_columns' represents dynamic columns for each taxon (e.g., taxon_1_clr, taxon_2_clr) which are validated by the code logic."

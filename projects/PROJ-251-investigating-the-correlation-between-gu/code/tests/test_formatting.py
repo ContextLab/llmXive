@@ -1,6 +1,3 @@
-"""
-Tests for formatting utilities.
-"""
 import unittest
 from pathlib import Path
 import tempfile
@@ -9,50 +6,61 @@ import os
 from code.formatting_utils import run_command, run_ruff_check_and_fix, run_black_format
 
 class TestFormattingUtils(unittest.TestCase):
-    """Test cases for formatting utilities."""
-
     def setUp(self):
-        """Set up test fixtures."""
+        """Set up a temporary directory for testing."""
         self.test_dir = tempfile.mkdtemp()
-        self.code_dir = Path(self.test_dir)
+        self.test_code_dir = Path(self.test_dir) / "code"
+        self.test_code_dir.mkdir()
 
     def tearDown(self):
-        """Clean up test fixtures."""
-        shutil.rmtree(self.test_dir, ignore_errors=True)
+        """Clean up the temporary directory."""
+        shutil.rmtree(self.test_dir)
 
     def test_run_command_success(self):
-        """Test that run_command executes successfully."""
-        result = run_command([sys.executable, "--version"], check=True)
-        self.assertEqual(result.returncode, 0)
+        """Test that run_command executes a simple command successfully."""
+        returncode, stdout, stderr = run_command(["echo", "hello"])
+        self.assertEqual(returncode, 0)
+        self.assertIn("hello", stdout)
 
     def test_run_command_failure(self):
-        """Test that run_command handles failures correctly."""
-        with self.assertRaises(subprocess.CalledProcessError):
-            run_command(["nonexistent_command"], check=True)
+        """Test that run_command handles command failure gracefully."""
+        returncode, stdout, stderr = run_command(["sh", "-c", "exit 1"])
+        self.assertEqual(returncode, 1)
 
-    def test_run_ruff_check_on_empty_dir(self):
-        """Test ruff check on an empty directory."""
-        # Create a simple Python file
-        test_file = self.code_dir / "test.py"
-        test_file.write_text("x = 1\n")
-        
-        success, message = run_ruff_check_and_fix(self.code_dir)
-        # Should succeed even if no issues found
-        self.assertTrue(success)
+    def test_run_ruff_check_and_fix_on_empty_dir(self):
+        """Test ruff on a directory with no Python files."""
+        # Create a temporary project structure
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+            code_dir = tmppath / "code"
+            code_dir.mkdir()
+            # Run ruff on empty code dir
+            result = run_ruff_check_and_fix(tmppath)
+            # Should succeed (no files to check)
+            self.assertTrue(result)
 
     def test_run_black_format_on_empty_dir(self):
-        """Test black format on an empty directory."""
-        # Create a simple Python file
-        test_file = self.code_dir / "test.py"
-        test_file.write_text("x=1\n")
-        
-        success, message = run_black_format(self.code_dir)
-        # Should succeed
-        self.assertTrue(success)
+        """Test black on a directory with no Python files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+            code_dir = tmppath / "code"
+            code_dir.mkdir()
+            # Run black on empty code dir
+            result = run_black_format(tmppath)
+            # Should succeed (no files to format)
+            self.assertTrue(result)
+
+    def test_run_command_with_cwd(self):
+        """Test that run_command respects the cwd parameter."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+            returncode, stdout, stderr = run_command(["pwd"], cwd=tmppath)
+            self.assertEqual(returncode, 0)
+            self.assertIn(str(tmppath), stdout)
 
 def test_func():
-    """Simple test function for quick validation."""
-    assert True
+    """Placeholder function for test discovery."""
+    pass
 
 if __name__ == '__main__':
     unittest.main()

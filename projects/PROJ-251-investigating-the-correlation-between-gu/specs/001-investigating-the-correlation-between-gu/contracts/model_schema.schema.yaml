@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for the output of the nested cross-validation Random Forest model."
+type: "object"
+properties:
+  fold_id:
+    type: "integer"
+    description: "The index of the outer cross-validation fold (0-4)."
+  accuracy:
+    type: "number"
+    description: "Classification accuracy for this fold."
+  precision:
+    type: "number"
+    description: "Precision score for the positive class."
+  recall:
+    type: "number"
+    description: "Recall score for the positive class."
+  f1_score:
+    type: "number"
+    description: "F1 score for the positive class."
+  selected_features:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of taxon IDs selected for this fold's inner loop."
+required:
+  - fold_id
+  - accuracy
+  - precision
+  - recall
+  - f1_score
+  - selected_features
+additionalProperties: false

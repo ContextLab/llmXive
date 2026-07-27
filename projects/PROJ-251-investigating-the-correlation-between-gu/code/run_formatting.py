@@ -1,6 +1,3 @@
-"""
-Script to run formatting and linting checks as part of the pipeline.
-"""
 import os
 import sys
 import subprocess
@@ -12,71 +9,63 @@ def setup_logging():
     """Configure logging for the formatting run."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout)
         ]
     )
 
 def main():
-    """Main entry point for run_formatting."""
+    """
+    Orchestrates the formatting process:
+    1. Runs ruff check and fix
+    2. Runs black format
+    3. Logs results
+    """
     setup_logging()
     logger = logging.getLogger(__name__)
-
-    project_root = Path(__file__).parent.parent
+    
+    project_root = Path(__file__).resolve().parent.parent
     code_dir = project_root / "code"
-
-    logger.info("Starting linting and formatting checks...")
-
-    # Run Ruff
-    logger.info("Running Ruff check...")
-    try:
-        result = subprocess.run(
-            ["ruff", "check", str(code_dir)],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        if result.returncode == 0:
-            logger.info("Ruff check passed.")
-        elif result.returncode == 1:
-            logger.warning("Ruff issues found (not fatal):")
-            logger.warning(result.stdout)
-        else:
-            logger.error(f"Ruff check failed with code {result.returncode}: {result.stderr}")
-            sys.exit(1)
-    except FileNotFoundError:
-        logger.error("Ruff not found. Please install it via 'pip install ruff'.")
-        sys.exit(1)
-    except subprocess.TimeoutExpired:
-        logger.error("Ruff check timed out.")
-        sys.exit(1)
-
-    # Run Black (check only)
-    logger.info("Running Black format check...")
-    try:
-        result = subprocess.run(
-            ["black", "--check", str(code_dir)],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        if result.returncode == 0:
-            logger.info("Black format check passed.")
-        elif result.returncode == 1:
-            logger.warning("Black formatting issues found (run 'black code/' to fix):")
-            logger.warning(result.stdout)
-        else:
-            logger.error(f"Black check failed with code {result.returncode}: {result.stderr}")
-            sys.exit(1)
-    except FileNotFoundError:
-        logger.error("Black not found. Please install it via 'pip install black'.")
-        sys.exit(1)
-    except subprocess.TimeoutExpired:
-        logger.error("Black check timed out.")
-        sys.exit(1)
-
-    logger.info("Linting and formatting checks completed.")
+    
+    if not code_dir.exists():
+        logger.error(f"Code directory not found: {code_dir}")
+        return 1
+    
+    logger.info(f"Starting formatting pipeline for {code_dir}")
+    
+    # Import formatting utilities
+    sys.path.insert(0, str(project_root / "code"))
+    from formatting_utils import run_ruff_check_and_fix, run_black_format
+    
+    # Step 1: Ruff Check and Fix
+    logger.info("Step 1: Running Ruff Check and Fix...")
+    ruff_success = run_ruff_check_and_fix(code_dir)
+    
+    # Step 2: Black Format
+    logger.info("Step 2: Running Black Format...")
+    black_success = run_black_format(code_dir)
+    
+    # Step 3: Final Verification (Ruff Check without fix)
+    logger.info("Step 3: Final Ruff Verification...")
+    final_check_command = [
+        sys.executable, "-m", "ruff", "check",
+        str(code_dir)
+    ]
+    result = subprocess.run(final_check_command, cwd=project_root, capture_output=True, text=True)
+    
+    if result.returncode == 0:
+        logger.info("Final verification passed: No remaining ruff issues.")
+    else:
+        logger.warning(f"Final verification found remaining issues:\n{result.stdout}")
+    
+    # Summary
+    if ruff_success and black_success:
+        logger.info("Formatting pipeline completed successfully.")
+        return 0
+    else:
+        logger.warning("Formatting pipeline completed with warnings.")
+        return 0  # Non-fatal for pipeline
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,12 @@
+status: none
+intent: download SRP053178 16S rRNA OTU serology dataset from NCBI SRA python package
+  dataset
+required_fields:
+- subject_id
+- timepoint
+- otu_id
+- taxa_abundance
+- antibody_titer
+cache_key: e324287bc9b25cd5b2a76ac33a0309f22176bcc1e5350673f81950d9b03c9c23
+searched_at: '2026-07-27T15:54:58.857109+00:00'
+retry_count: 1

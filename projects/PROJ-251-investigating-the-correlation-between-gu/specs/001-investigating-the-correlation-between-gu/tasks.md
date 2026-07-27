@@ -47,11 +47,13 @@
  - *Verification*: Run `ls -R` and verify all directories exist.
  - *Note*: Paths are relative to the repository root.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format, sra-tools, qiime2, dada2)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
- - *Logic*: Create `pyproject.toml` with black/ruff config and `.ruff.toml` with specific rules.
- - *Verification*: Run `ruff check --version` and `black --version` to confirm installation. Run `ruff check code/` to confirm no errors (initially).
- - *Output*: `pyproject.toml`, `.ruff.toml`.
-- [ ] T001a [P] Create the `contracts/` directory and generate `dataset.schema.yaml`.
+
+- [ ] T039 [P] Run ruff check and black format on all files in code/ and fix all reported issues.
+ - *Logic*: Run `ruff check code/` and `black code/`.
+ - *Verification*: Generate `data/results/lint_report.txt` containing the exit code (0) and a summary of files fixed. If exit code != 0, the task fails.
+ - *Output*: `data/results/lint_report.txt`.
+
+- [X] T001a [P] Create the `contracts/` directory and generate `dataset.schema.yaml`.
  - *Logic*: Write the following YAML content to `contracts/dataset.schema.yaml`:
  ```yaml
  type: object
@@ -82,12 +84,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create configuration module `code/utils/config.py` with paths, seeds, and thresholds
-- [ ] T005 [P] Implement schema validators `code/utils/validators.py` for dataset, correlation, and model metrics
-- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture exclusion counts and errors
-- [ ] T007 Create base data loading helpers in `code/utils/data_loader.py`
-- [ ] T008a [P] Create `.env` template file with placeholders for `SRA_TOKEN` (if needed) and `DATA_SOURCE_URL`.
- - *Logic*: Write a file `.env` with content: `SRA_TOKEN=YOUR_TOKEN_HERE\nDATA_SOURCE_URL=.
+- [X] T004 Create configuration module `code/utils/config.py` with paths, seeds, and thresholds. **Include `SRA_ACCESSION` variable** to be populated during research phase.
+- [X] T005 [P] Implement schema validators `code/utils/validators.py` for dataset, correlation, and model metrics
+- [X] T006 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture exclusion counts and errors
+- [X] T007 Create base data loading helpers in `code/utils/data_loader.py`
+- [X] T008a [P] Create `.env` template file with placeholders for `SRA_TOKEN` (if needed) and `DATA_SOURCE_URL`.
+ - *Logic*: Write a file `.env` with content: `SRA_TOKEN=YOUR_TOKEN_HERE\nDATA_SOURCE_URL=https://example.com`.
  - *Verification*: Run `grep -q SRA_TOKEN.env` to confirm file exists and contains placeholder.
  - *Output*: `.env`
 - [ ] T008b Implement `.env` loading in `code/utils/config.py` using `python-dotenv`.
@@ -112,8 +114,8 @@
 
 ### Strategy A: Primary Data Fetch (NCBI SRA)
 
-- [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series.
- - *Method*: If the fetch fails (404 or timeout), raise `DataUnavailableError`.
+- [X] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series.
+ - *Method*: Use `config.SRA_ACCESSION` to determine the specific accession. If the fetch fails (404 or timeout), raise `DataUnavailableError`.
  - *Control Flow*: In `code/main.py`, wrap T011a in a try-except block: `try: strategy_a() except DataUnavailableError: strategy_b()`.
  - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.
 
@@ -121,7 +123,7 @@
 
 > **Conditional Execution Flow**: The tasks T011b, T011c, T011d are ONLY executed if T011a raises `DataUnavailableError`. If T011a succeeds, skip this entire block.
 
-- [ ] T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files from NCBI SRA for the designated study accession **SRP053178**.
+- [X] T011b [US1] **Execute Strategy B - Download**: Download raw FASTQ files from NCBI SRA for the accession defined in `config.SRA_ACCESSION`.
  - *Trigger*: ONLY if T011a fails.
  - *Method*:
  1. Iterate over ALL returned run IDs and download each associated FASTQ file using `prefetch` or `fasterq-dump`.
@@ -165,19 +167,44 @@
  - *Output*: `data/processed/filtered.csv` (or `data/processed/filtered_sampled.csv` if sampled).
  - *Dependency*: T011a (success) OR T011d (if fallback).
 
-- [ ] T015 [US1] **Sample Size Validation Gate (Full Dataset)**: Implement sample size validation in `code/01_ingest.py`.
- - *Input*: `data/processed/filtered.csv` (output of T012) OR `data/processed/filtered_sampled.csv` (output of T012 if it ran).
- - *Depends on*: T012 (sequential).
+- [X] T013-EXPLICIT [US1] **Mandatory Merge of OTU and Serology**: Unconditionally merge the filtered OTU table and serology metadata into a single unified dataset.
+ - *Input*: `data/raw/otutable.csv`, `data/raw/serology.csv` (or `data/processed/filtered.csv` if T012 already merged them, otherwise merge raw files).
+ - *Logic*:
+ 1. Ensure both `data/raw/otutable.csv` and `data/raw/serology.csv` exist.
+ 2. Perform an inner join on `subject_id` to create a single DataFrame containing all taxa columns and all serology columns.
+ 3. Write the result to `data/processed/merged_complete.csv`.
+ 4. **Verification**: Assert that `merged_complete.csv` contains at least one column from the OTU table and at least one column from the serology table.
+ - *Output*: `data/processed/merged_complete.csv`.
+ - *Dependency*: T012 (Filtering) must complete first to ensure data quality.
+
+- [X] T015 [US1] **Sample Size Validation Gate (Full Dataset)**: Implement sample size validation in `code/01_ingest.py`.
+ - *Input*: `data/processed/merged_complete.csv` (output of T013-EXPLICIT).
  - *Logic*:
  1. Count subjects (N) in the input file.
  2. Log N to `data/results/N_count.json`.
  3. **CRITICAL**: If N < 50, raise `InsufficientSampleSizeError` immediately with message "Insufficient sample size (N < 50) in final dataset." and halt execution.
- 4. If N >= 50, proceed to T016.
+ 4. If N >= 50, proceed to T014b.
  - *Output*: `data/results/N_count.json` (if N >= 50) or error (if N < 50).
 
-- [ ] T016 [US1] **Write Filtered Dataset**: Write the final filtered dataset to `data/processed/filtered_data.csv`.
- - *Input*: `data/processed/filtered.csv` (from T012) OR `data/processed/filtered_sampled.csv` (from T012 if it ran).
- - *Logic*: Check if `data/processed/filtered_sampled.csv` exists. If yes, use it. If no, use `data/processed/filtered.csv`. Write the selected file to `data/processed/filtered_data.csv`.
+- [ ] T014b [US1] **Dynamic Sampling (Memory Optimization)**: Implement memory-aware sampling in `code/01_ingest.py` ONLY IF the dataset exceeds available RAM.
+ - *Trigger*: Execute AFTER T015 (only if N >= 50).
+ - *Logic*:
+ 1. Import `psutil`.
+ 2. Check file size of `data/processed/merged_complete.csv`.
+ 3. **Step 1: Check Memory**: If `psutil.virtual_memory().available` < 6GB:
+ a. **First, attempt streaming** (see T054 logic) to process the full dataset without loading it all into memory. Streaming feasibility is defined as: `pandas.read_csv` supports `chunksize` and file size > 5GB.
+ b. If streaming is not feasible (e.g., `chunksize` not supported or file size < 5GB but memory is critically low), calculate `max_rows` using the formula: `max_rows = floor(5.5GB / 50KB)` (where 50KB is the estimated bytes per row).
+ c. If `max_rows < 50`, raise `InsufficientSampleSizeError` with message "Memory constraints force sample size < 50." and halt immediately.
+ d. Perform simple random sampling using `pandas.DataFrame.sample` with `random_state=42` and `frac` adjusted to fit memory.
+ e. Log the final sample size retained.
+ f. Output: `data/processed/filtered_sampled.csv`.
+ 4. If N >= 50 and memory is sufficient: Output remains `data/processed/merged_complete.csv`.
+ - *Output*: `data/processed/filtered_sampled.csv` (if sampled) or `data/processed/merged_complete.csv` (if not sampled).
+ - *Note*: This task ensures we do not violate the N >= 50 constraint by sampling too aggressively, and prioritizes streaming over sampling.
+
+- [X] T016 [US1] **Write Filtered Dataset**: Write the final filtered dataset to `data/processed/filtered_data.csv`.
+ - *Input*: `data/processed/merged_complete.csv` (from T013-EXPLICIT) OR `data/processed/filtered_sampled.csv` (from T014b if it ran).
+ - *Logic*: Check if `data/processed/filtered_sampled.csv` exists. If yes, use it. If no, use `data/processed/merged_complete.csv`. Write the selected file to `data/processed/filtered_data.csv`.
  - *Output*: `data/processed/filtered_data.csv`.
 
 - [ ] T017 [US1] **Validation Gate**: Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
@@ -217,18 +244,21 @@
  - *Verification*: Verify file exists and contains N rows with CLR-transformed columns.
  - *Mandatory Logging (T050 Integrated)*: Log the exact pseudocount value used to `data/results/pseudocount_sensitivity.json` immediately after transformation. This log is a mandatory artifact for Constitution Principle I verification.
 
-- [ ] T021 [US2] **Log-Transform Titers & LOD Handling**: Implement log-transformation of raw antibody titers in `code/02_preprocess.py`.
- - *Input*: `data/processed/filtered_data.csv` (or `cleared_with_diversity.csv` if titers are merged there).
+- [X] T021 [US2] **Log-Transform Titers & LOD Handling**: Implement log-transformation of raw antibody titers in `code/02_preprocess.py`.
+ - *Input*: `data/processed/merged_complete.csv` (from T013-EXPLICIT).
  - *Logic*:
  1. **LOD Handling**: For any titer value < Limit of Detection (LOD), impute as `0.5 * LOD`. Log the count of imputed values and the strategy used.
  2. Apply `np.log(titer_post + 1)` (or similar base) to `titer_post` column.
  3. Add `log_titer` column to the dataset.
+ 4. Merge with CLR-transformed data if necessary.
  - *Output*: Save to `data/processed/cleared_with_diversity.csv` (merged with T020c output).
- - *Dependency*: Must run before T022.
+ - *Dependency*: Must run after T013-EXPLICIT (Merge) and before T020c.
 
-- [ ] T020c [US2] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/cleared_default.csv`.
- - *Input*: `data/processed/cleared_default.csv` (CLR-transformed data).
- - *Output*: `data/processed/cleared_with_diversity.csv` (Append Shannon index column).
+- [X] T020c [US2] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/cleared_default.csv`.
+ - *Input*: `data/processed/cleared_default.csv` (CLR-transformed data) and `data/processed/merged_complete.csv` (for titers if not merged).
+ - *Logic*: Calculate Shannon index for each subject. Merge with `log_titer` if not already present.
+ - *Output*: `data/processed/cleared_with_diversity.csv` (Append Shannon index column and `log_titer`).
+ - *Dependency*: T020a, T021.
 
 - [ ] T022 [US2] Implement Spearman rank correlation test in `code/03_correlation.py`.
  - *Input*: `data/processed/cleared_with_diversity.csv` (contains CLR taxa and `log_titer`).
@@ -245,25 +275,25 @@
 
 - [ ] T020b [US2] Run CLR transformation with varying pseudocounts and calculate Jaccard Index for pseudocount sensitivity analysis.
  - *Trigger*: Execute AFTER T022-T024.
- - *Logic*: For each pseudocount in a range of log steps (multiple values):
+ - *Depends on*: T021 (Log-Transform Titers) and T019a (Normalized) and T013-EXPLICIT (Merge).
+ - *Logic*: For each pseudocount in a range of **1e-4 to 1e-1 in 5 log-spaced steps**:
  1. Re-load `filtered_normalized.csv`.
  2. Apply CLR with current pseudocount.
- 3. **Re-apply T021 logic** (log-transform titers) to ensure titers are log-transformed for this run.
- 4. **Re-apply T022 logic** (Spearman correlation) on the current run's data.
- 5. **Re-apply T023 logic (Benjamini-Hochberg correction) independently** to the raw p-values of the *current* pseudocount run. **CRITICAL: Do not reuse BH-corrected values from other runs.**
- 6. **Write intermediate correlation results** to `data/processed/corr_pseudocount_X.csv` (where X is the pseudocount value) to ensure reproducibility.
- 7. Identify the set of significant taxa (adj-p < 0.05) for the current run.
- 8. Calculate Jaccard Index (intersection over union) between the *sets of significant taxa* from different pseudocount runs.
- 9. **Runtime Check**: If estimated cumulative time > 5.5 hours, skip remaining runs and log a warning.
+ 3. **Re-apply T021 logic** (log-transform titers) to ensure titers are log-transformed for this run. **Note**: Load raw titers from `data/raw/serology.csv` and re-apply LOD handling to ensure independence from T021's output.
+ 4. Run correlation (T022 logic) and BH correction (T023 logic) internally.
+ 5. **Write intermediate correlation results** to `data/processed/corr_pseudocount_X.csv` (where X is the pseudocount value) to ensure reproducibility.
+ 6. Identify the set of significant taxa (adj-p < 0.05).
+ 7. Calculate Jaccard Index (intersection over union) between the *sets of significant taxa* from different pseudocount runs.
+ 8. **Runtime Check**: Perform a pilot run of the *first* pseudocount step. Measure its wall-clock time. Calculate `estimated_total_time = time_pilot * 5`. If `estimated_total_time > 5.5 hours`, skip remaining runs and log a warning.
  - *Output*: `data/results/pseudocount_sensitivity.json`.
 
 - [ ] T025 [US2] Count taxa with adj-p < 0.05 and compare against the expected range.
  - *Logic*:
  1. Count significant taxa.
- 2. **Verify BH Method**: Check that adjusted p-values are monotonically increasing when sorted by raw p-value. If not, raise `StatisticalRigorError`.
+ 2. **Verify BH Method**: Check that adjusted p-values are monotonically increasing when sorted by raw p-value. **AND** Verify the calculation matches the BH formula by comparing the output of `statsmodels.stats.multitest.multipletests` against a known reference or by checking the specific rank-based formula implementation. If not, raise `StatisticalRigorError`.
  3. **Threshold Verification**: Verify that all reported significant taxa strictly meet `adj_pvalue < 0.05`. If any fail, raise `StatisticalRigorError`.
  4. Log the count and the *expected range description* from the spec ("low single-digit to high single-digit").
- 5. If count < 1 or count > 20, set `within_expected_range` to `False (Wikidata Q105812849, https://www.wikidata.org/wiki/Q105812849)` in the output JSON and log a warning. Do NOT halt execution, but flag for review.
+ 5. If count < 1 or count > 20, **raise `HypothesisFailureError`** with message "Significant taxa count (N) is outside expected range (1-20). Hypothesis or data quality may be invalid." and flag for immediate review. **HALT EXECUTION**.
  - *Output*: `data/results/significant_taxa_count.json` with `count`, `expected_range_description`, `within_expected_range`, and `method_verified` (boolean).
 
 - [ ] T013b [US2] Implement LOD Handling Sensitivity Analysis.
@@ -313,9 +343,9 @@
 - [ ] T032 [US3] Implement an inner cross-validation loop for feature selection and hyperparameter tuning in `code/04_modeling.py`.
  - *Logic*: Feature selection MUST occur within each training fold.
  - *Method*: On the **training split only**:
- 1. Calculate Spearman correlation between taxa and labels.
- 2. **Apply Benjamini-Hochberg correction** to the raw p-values.
- 3. Select the **top taxa** by absolute correlation coefficient (or those with adj-p < 0.1).
+ 1. Calculate Spearman correlation between taxa and labels using the reusable function from `code/03_correlation.py`.
+ 2. **Apply Benjamini-Hochberg correction to the correlation p-values** for the training split.
+ 3. **Select the top 10 taxa** based on a combination of absolute Spearman coefficient and adjusted p-value (e.g., sort by coefficient, then filter by adj-p < 0.2, or select top 10 by coefficient if fewer than 10 pass). **Justification**: If raw coefficients are used without BH, document this as a trade-off for power in small N, but prefer BH.
  4. **Constraint**: **DO NOT** use global correlation results from T022. Correlation must be recalculated from scratch on the training split data for each fold to prevent data leakage.
  - *Mandatory Output (T051 Integrated)*: Log the list of selected features for *each* outer fold to `data/results/feature_selection_log.csv` with columns `[fold_id, selected_features]`. This artifact is required to verify FR-007 and is a mandatory output of this task, not optional.
  - *Fail-safe*: If feature selection results in zero features for a fold, skip that fold or log a warning and proceed (do not crash).
@@ -323,7 +353,7 @@
 - [ ] T033 [US3] Implement Random Forest classifier training in `code/04_modeling.py` (CPU-only, default precision).
  - *Hyperparameters*: `n_estimators=100`, `max_depth=None`.
 
-- [ ] T034b [US3] Implement permutation baseline testing: Generate null distribution of accuracy scores by permuting microbiome rows relative to serology labels with `random_seed=42`. Perform **dynamic number of permutations** (min(upper_bound, floor(6h / estimated_time_per_perm))).
+- [X] T034b [US3] Implement permutation baseline testing: Generate null distribution of accuracy scores by permuting microbiome rows relative to serology labels with `random_seed=42`. Perform **dynamic number of permutations** (min(upper_bound, floor(time_budget / estimated_time_per_perm))).
  - *Trigger*: Parallel with T034a.
  - *Logic*:
  1. Permute microbiome rows relative to serology labels.
@@ -337,19 +367,20 @@
  - *Logic*: Run the full nested CV (T031-T033) on the unpermuted data.
  - *Output*: `data/results/observed_metrics.json` containing the mean accuracy and standard deviation.
 
-- [ ] T034d [US3] Implement Threshold Sweep and Robustness Check.
- - *Depends on*: T030d (Responder Labels), T020c (Cleared Data), T034a (for reference).
- - *Logic*: Loop through responder thresholds across a **representative range (x to 1.2x of default threshold in 5 equal steps)**. For EACH threshold:
- 1. Define the range: from a value below the default to a value above the default, divided into equal steps.
+- [X] T034d [US3] Implement Threshold Sweep and Robustness Check.
+ - *Depends on*: T030d (Responder Labels), T020c (Cleared Data).
+ - *Logic*: Loop through responder thresholds across a **representative range (slightly below to slightly above the default threshold in 5 equal steps)**. The 'default threshold' is defined by `config.SEROCONVERSION_THRESHOLD` (default 4.0) if the active mode is seroconversion, or `config.HAI_THRESHOLD` (default 40) if the active mode is absolute titer. For EACH threshold:
+ 1. Define the range: from 0.9x to 1.1x of the **active** default threshold, divided into equal steps.
  2. For EACH threshold:
  a. Generate a NEW set of responder labels based on the current threshold.
- b. **Re-run the full inner CV loop (T032 logic)** to perform feature selection and hyperparameter tuning on the new labels.
- c. Train the Random Forest classifier using the features selected in step (b).
- d. Evaluate the model on the held-out test sets (from the outer CV splits defined in T034a) to get a new accuracy metric.
- e. **Generate a NEW null distribution** for this specific threshold by permuting the new labels relative to the microbiome data (re-implementing T034b logic for this specific threshold). **CRITICAL: Do not reuse the null distribution from T034b.**
- f. Compare the new accuracy against this **threshold-specific** null distribution.
+ b. **Re-run the outer fold splits (T031 logic)** to ensure independence from the original splits.
+ c. **Re-run the inner CV loop (T032 logic)** to perform feature selection and hyperparameter tuning on the new labels. **Crucial**: This MUST re-execute the full nested loop (outer split -> inner feature selection -> train) for the new labels.
+ d. Train the Random Forest classifier using the features selected in step (c).
+ e. **Re-generate the null distribution (T034b logic)** for the current threshold to ensure a valid baseline.
+ f. Evaluate the model on the held-out test sets (from the new outer CV splits) to get a new accuracy metric.
+ g. Compare this new accuracy against the new null distribution.
  - *Output*: `data/results/sensitivity_analysis.csv` with threshold, accuracy, and p-value per step.
- - *Dependency*: Independent of T034b (uses its output only as a reference for the default threshold). **Re-runs T032 and T034b logic** per threshold.
+ - *Dependency*: Independent of T034b (re-runs it per threshold). **Re-runs T031, T032, and T034b logic** per threshold.
 
 - [ ] T036a [US3] Calculate and log confusion matrix, precision, recall, F1-score for high/low responders.
  - *Input*: Model predictions from T034a.
@@ -389,20 +420,19 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 Run ruff check and black format on all files in code/ and fix all reported issues
-- [ ] T040a [P] [US1] Unit test for zero-variance taxa exclusion in `code/tests/test_preprocess.py`: Add function `test_zero_variance_taxa_exclusion`.
-- [ ] T040b [P] [US1] Unit test for LOD handling in `code/tests/test_ingest.py`: Add function `test_lod_exclusion_logic`.
-- [ ] T040c [P] [US2] Unit test for CLR pseudocount edge cases in `code/tests/test_correlation.py`: Add function `test_clr_pseudocount_handles_extreme_zeros`.
-- [ ] T041 Run quickstart.md validation
-- [ ] T042 [P] Implement runtime monitoring in `code/main.py`.
+- [X] T040a [P] [US1] Unit test for zero-variance taxa exclusion in `code/tests/test_preprocess.py`: Add function `test_zero_variance_taxa_exclusion`.
+- [X] T040b [P] [US1] Unit test for LOD handling in `code/tests/test_ingest.py`: Add function `test_lod_exclusion_logic`.
+- [X] T040c [P] [US2] Unit test for CLR pseudocount edge cases in `code/tests/test_correlation.py`: Add function `test_clr_pseudocount_handles_extreme_zeros`.
+- [X] T041 Run quickstart.md validation
+- [X] T042 Implement runtime monitoring in `code/main.py`.
  - *Logic*: Integrate into `code/main.py` orchestration script. Use `time` module to measure total runtime at the end of execution. Log to `data/results/resource_usage.json` with key `total_runtime_seconds`. Assert < 6h (21600s). If violated, raise `RuntimeError`.
  - *Depends on*: Completion of Phase 3, 4, 5.
  - *Note*: This task now enforces a hard limit.
-- [ ] T043 [P] Implement memory & runtime verification.
+- [X] T043 Implement memory & runtime verification.
  - *Logic*: Integrate into `code/main.py` orchestration script. Use `psutil.Process().memory_info().rss` to measure peak memory at the end of execution. Log to `data/results/resource_usage.json` with key `peak_memory_mb`. Assert < 7GB (7340 MB). If violated, raise `RuntimeError`.
  - *Depends on*: Completion of Phase 3, 4, 5.
  - *Note*: Sequential after T042 to avoid race condition on `resource_usage.json`.
-- [ ] T045 [P] Generate Final Report.
+- [X] T045 Generate Final Report.
  - *Input*: All result JSONs/CSVs from previous phases.
  - *Output*: `data/results/final_report.md` aggregating N count, correlation results, model metrics, and success criterion checks.
  - *Dependency*: T037, T035, T042, T043.
@@ -413,7 +443,7 @@
 
 **Purpose**: Address specific unresolved claims and data availability gaps identified during analysis.
 
-- [ ] T052 [US3] **Verify Null Distribution Robustness**: Enhance `code/04_modeling.py` to validate the null distribution generation.
+- [X] T052 [US3] **Verify Null Distribution Robustness**: Enhance `code/04_modeling.py` to validate the null distribution generation.
  - *Rationale*: Ensuring the statistical baseline is valid and the null distribution has sufficient variance.
  - *Logic*:
  1. Add a check in T034b to ensure the null distribution has non-zero variance and a sufficient number of samples (e.g., > 100 permutations).
@@ -433,35 +463,44 @@
  4. Ensure no synthetic data is generated; if the full dataset cannot be processed within the available time window even with streaming, log a warning and proceed with a documented, reproducible sample rather than halting or faking data.
  - *Output*: Updated `code/02_preprocess.py` with streaming logic and a log entry detailing the processing strategy used (full stream vs. sampled).
 
-- [ ] T055 [US1] **Enforce Strict Data Fetching without Synthetic Fallback**: Update `code/01_ingest.py` to remove any `try/except` blocks that fallback to synthetic data generation if the real fetch fails.
- - *Rationale*: Preventing fabrication by ensuring failed real fetches raise errors rather than substituting fake data.
+- [X] T055 [US1] **Enforce Strict Real Data Fetch with No Synthetic Fallback**: Refactor `code/01_ingest.py` to ensure no synthetic data is ever generated if real data fetch fails.
+ - *Rationale*: The specification explicitly forbids synthetic fallbacks to prevent fabrication. A failed real fetch must raise an error immediately.
  - *Logic*:
- 1. Audit `code/01_ingest.py` for any `generate_synthetic_*`, `mock_*`, or random data generation logic triggered on fetch failure.
- 2. Remove all such fallback logic.
- 3. Ensure that if `Strategy A` (pre-processed fetch) and `Strategy B` (raw FASTQ processing) both fail, the script raises `DataUnavailableError` immediately without generating any synthetic data.
- 4. Update tests to verify that synthetic data is never generated.
- - *Output*: Updated `code/01_ingest.py` and `code/tests/test_ingest.py`.
+ 1. Search `code/01_ingest.py` for `try/except` blocks catching `DataUnavailableError` (regex: `except DataUnavailableError:`).
+ 2. Remove any code within these blocks that returns synthetic/mock data.
+ 3. Ensure that if Strategy A (NCBI SRA fetch) and Strategy B (Raw FASTQ processing) both fail, the script raises `DataUnavailableError` and halts execution immediately.
+ 4. Add a comment in `code/01_ingest.py` explicitly stating: "NO SYNTHETIC FALLBACK: Real data fetch failure is a hard stop."
+ - *Output*: Updated `code/01_ingest.py` with removed synthetic fallback logic and added verification comments.
 
-- [ ] T056 [US2] **Add Explicit Streaming/Sampling Documentation to Tasks**: Update `code/02_preprocess.py` to explicitly document the streaming/sampling rule used if the dataset is processed in chunks.
- - *Rationale*: Ensuring transparency in data handling as per the "Large real datasets" rule.
+- [X] T056 [US2] **Document Sampling Strategy and Limitations**: If sampling is used (T014b), document the exact sampling rule and its limitations in `data/results/sampling_report.md`.
+ - *Rationale*: Transparency regarding data sampling is required to maintain scientific rigor and reproducibility.
  - *Logic*:
- 1. If chunked processing is used, log the exact chunk size, the number of chunks, and the total rows processed to `data/results/streaming_log.json`.
- 2. If a sample is taken (due to time constraints), log the sampling method (e.g., `itertools.islice` first N rows, or random seed), the sample size, and the justification (e.g., "Full dataset processing would exceed 6h time limit").
- 3. Ensure this log is included in the final report.
- - *Output*: `data/results/streaming_log.json` and updated `code/02_preprocess.py`.
+ 1. If T014b (Dynamic Sampling) is executed, generate a report `data/results/sampling_report.md`.
+ 2. The report must include:
+ - The original dataset size (N).
+ - The sampled dataset size (N_sampled).
+ - The sampling method (e.g., simple random sampling with `random_state=42`).
+ - The reason for sampling (e.g., "Memory constraints: available RAM < 6GB").
+ - The estimated impact on statistical power (qualitative description).
+ 3. Log the path to this report in `data/results/resource_usage.json`.
+ - *Output*: `data/results/sampling_report.md` (if sampling occurred) and updated `resource_usage.json`.
 
-- [ ] T057 [US3] **Verify Feature Selection Isolation in Nested CV**: Add a specific test to `code/tests/test_modeling.py` to verify that feature selection is strictly isolated within each outer fold.
- - *Rationale*: Ensuring no data leakage in the nested cross-validation process.
+- [X] T057 [US3] **Verify Feature Selection Isolation in Nested CV**: Add a specific test to ensure feature selection is strictly isolated within each fold.
+ - *Rationale*: Data leakage in feature selection is a common source of overfitting and invalid results.
  - *Logic*:
- 1. Create a test case where the feature selection logic is intentionally "leaked" (e.g., using global correlation results).
- 2. Verify that the test fails, confirming the isolation logic is enforced.
- 3. Run the test on the actual implementation to ensure it passes.
+ 1. In `code/tests/test_modeling.py`, add a test function `test_feature_selection_isolation`.
+ 2. The test should:
+ - Create a mock dataset with a known strong correlation between a specific taxon and the label.
+ - Run the nested CV pipeline (T032-T033).
+ - Verify that the strong correlation is only detected in the training folds where the taxon is actually present in the training split.
+ - Verify that the test folds do not influence the feature selection in the training folds.
+ 3. If the test fails, raise `StatisticalRigorError`.
  - *Output*: Updated `code/tests/test_modeling.py` with `test_feature_selection_isolation`.
 
-- [ ] T058 [US1] **Validate Data Source URL Reachability**: Add a pre-flight check in `code/01_ingest.py` to verify the reachability of the NCBI SRA accession URL before attempting download.
- - *Rationale*: Preventing wasted compute time on unreachable URLs.
+- [X] T058 [US3] **Verify Threshold Sweep Implementation**: Ensure the threshold sweep (T034d) correctly re-runs the inner CV loop for each threshold.
+ - *Rationale*: Re-using features from a previous threshold sweep can introduce bias and invalidate the robustness check.
  - *Logic*:
- 1. Before attempting Strategy A or B, send a `HEAD` request to the target URL.
- 2. If the URL is unreachable (timeout, 404, etc.), log the error and raise `DataUnavailableError` immediately.
- 3. Do not proceed with download attempts if the URL is invalid.
- - *Output*: Updated `code/01_ingest.py` with pre-flight check logic.
+ 1. Review `code/04_modeling.py` to ensure T034d re-calls the feature selection logic (T032) for each threshold.
+ 2. Add a log entry in `data/results/sensitivity_analysis.csv` indicating whether feature selection was re-run for each threshold.
+ 3. If the log indicates that feature selection was NOT re-run for any threshold, raise `StatisticalRigorError`.
+ - *Output*: Updated `code/04_modeling.py` and `data/results/sensitivity_analysis.csv` with verification logs.
