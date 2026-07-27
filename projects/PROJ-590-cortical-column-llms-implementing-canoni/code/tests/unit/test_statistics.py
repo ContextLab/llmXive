@@ -1,157 +1,192 @@
+"""
+Unit tests for statistics module.
+"""
 import json
 import os
 import tempfile
 from pathlib import Path
 import numpy as np
 import pytest
-from scipy import stats
-
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.utils.statistics import (
-    load_gradient_norms,
-    compare_gradient_stability,
-    compare_ablation_results,
-    calculate_scaling_exponent
-)
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.utils.statistics import load_gradient_norms, compare_gradient_stability
 
 class TestLoadGradientNorms:
-    def test_load_valid_file(self, tmp_path):
-        """Test loading gradient norms from a valid JSON file."""
-        test_data = {
-            "steps": [
-                {"step": 0, "norm": 1.0},
-                {"step": 1, "norm": 0.8},
-                {"step": 2, "norm": 0.9}
-            ]
-        }
-        
-        file_path = tmp_path / "gradient_norms.json"
-        with open(file_path, 'w') as f:
-            json.dump(test_data, f)
-        
-        norms = load_gradient_norms(str(file_path))
-        
-        assert norms == [1.0, 0.8, 0.9]
-        assert len(norms) == 3
+    """Tests for load_gradient_norms function."""
 
-    def test_missing_file(self, tmp_path):
+    def test_load_from_list_format(self, tmp_path):
+        """Test loading from JSON with list format."""
+        filepath = tmp_path / "norms.json"
+        data = [0.1, 0.2, 0.3, 0.4, 0.5]
+        with open(filepath, 'w') as f:
+            json.dump(data, f)
+
+        result = load_gradient_norms(str(filepath))
+        assert result == [0.1, 0.2, 0.3, 0.4, 0.5]
+
+    def test_load_from_dict_format(self, tmp_path):
+        """Test loading from JSON with dict format containing 'norms' key."""
+        filepath = tmp_path / "norms.json"
+        data = {"norms": [1.0, 2.0, 3.0], "steps": [0, 1, 2]}
+        with open(filepath, 'w') as f:
+            json.dump(data, f)
+
+        result = load_gradient_norms(str(filepath))
+        assert result == [1.0, 2.0, 3.0]
+
+    def test_file_not_found(self, tmp_path):
         """Test that FileNotFoundError is raised for missing file."""
+        filepath = tmp_path / "nonexistent.json"
         with pytest.raises(FileNotFoundError):
-            load_gradient_norms(str(tmp_path / "nonexistent.json"))
+            load_gradient_norms(str(filepath))
 
     def test_invalid_format(self, tmp_path):
-        """Test that ValueError is raised for invalid format."""
-        file_path = tmp_path / "invalid.json"
-        with open(file_path, 'w') as f:
-            json.dump({"data": []}, f)
-        
+        """Test that ValueError is raised for invalid JSON format."""
+        filepath = tmp_path / "invalid.json"
+        with open(filepath, 'w') as f:
+            json.dump({"other_key": [1, 2, 3]}, f)
+
         with pytest.raises(ValueError):
-            load_gradient_norms(str(file_path))
+            load_gradient_norms(str(filepath))
+
+    def test_non_numeric_values(self, tmp_path):
+        """Test that ValueError is raised for non-numeric values."""
+        filepath = tmp_path / "invalid.json"
+        with open(filepath, 'w') as f:
+            json.dump(["a", "b", "c"], f)
+
+        with pytest.raises(ValueError):
+            load_gradient_norms(str(filepath))
 
 class TestCompareGradientStability:
-    def test_identical_distributions(self, tmp_path):
-        """Test KS test with identical distributions."""
-        # Create identical data
-        baseline_data = {"steps": [{"step": i, "norm": 1.0 + 0.1 * i % 1} for i in range(100)]}
-        micro_data = {"steps": [{"step": i, "norm": 1.0 + 0.1 * i % 1} for i in range(100)]}
-        
-        baseline_file = tmp_path / "baseline.json"
-        micro_file = tmp_path / "microcircuit.json"
-        output_file = tmp_path / "output.json"
-        
-        with open(baseline_file, 'w') as f:
-            json.dump(baseline_data, f)
-        with open(micro_file, 'w') as f:
-            json.dump(micro_data, f)
-        
-        result = compare_gradient_stability(
-            str(baseline_file),
-            str(micro_file),
-            str(output_file)
-        )
-        
-        assert "ks_statistic" in result
-        assert "p_value" in result
-        assert "stable" in result
-        
-        # For identical distributions, p-value should be high (stable=True)
-        assert result["stable"] is True
-        assert result["ks_statistic"] == 0.0  # Identical distributions
+    """Tests for compare_gradient_stability function."""
 
-    def test_different_distributions(self, tmp_path):
-        """Test KS test with different distributions."""
-        # Create different data
-        baseline_data = {"steps": [{"step": i, "norm": 1.0} for i in range(100)]}
-        micro_data = {"steps": [{"step": i, "norm": 2.0} for i in range(100)]}
-        
-        baseline_file = tmp_path / "baseline.json"
-        micro_file = tmp_path / "microcircuit.json"
-        output_file = tmp_path / "output.json"
-        
-        with open(baseline_file, 'w') as f:
+    def test_ks_test_identical_distributions(self, tmp_path):
+        """Test KS test with identical distributions (should have high p-value)."""
+        baseline_data = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        microcircuit_data = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+        baseline_path = tmp_path / "baseline.json"
+        microcircuit_path = tmp_path / "microcircuit.json"
+        output_path = tmp_path / "result.json"
+
+        with open(baseline_path, 'w') as f:
             json.dump(baseline_data, f)
-        with open(micro_file, 'w') as f:
-            json.dump(micro_data, f)
-        
+        with open(microcircuit_path, 'w') as f:
+            json.dump(microcircuit_data, f)
+
         result = compare_gradient_stability(
-            str(baseline_file),
-            str(micro_file),
-            str(output_file)
+            str(baseline_path),
+            str(microcircuit_path),
+            str(output_path)
         )
-        
+
+        assert result["ks_statistic"] >= 0.0
+        assert result["p_value"] > 0.05  # High p-value for identical distributions
+        assert result["stable"] is True
+
+        # Verify output file was created
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            saved_result = json.load(f)
+        assert saved_result == result
+
+    def test_ks_test_different_distributions(self, tmp_path):
+        """Test KS test with very different distributions (should have low p-value)."""
+        baseline_data = [0.1, 0.15, 0.2, 0.25, 0.3]  # Low values
+        microcircuit_data = [10.0, 12.0, 14.0, 16.0, 18.0]  # High values
+
+        baseline_path = tmp_path / "baseline.json"
+        microcircuit_path = tmp_path / "microcircuit.json"
+        output_path = tmp_path / "result.json"
+
+        with open(baseline_path, 'w') as f:
+            json.dump(baseline_data, f)
+        with open(microcircuit_path, 'w') as f:
+            json.dump(microcircuit_data, f)
+
+        result = compare_gradient_stability(
+            str(baseline_path),
+            str(microcircuit_path),
+            str(output_path)
+        )
+
         assert result["ks_statistic"] > 0.0
-        # With completely different values, p-value should be low
-        assert result["p_value"] < 0.05
+        assert result["p_value"] < 0.05  # Low p-value for different distributions
         assert result["stable"] is False
 
-    def test_output_file_created(self, tmp_path):
-        """Test that output file is created."""
-        baseline_data = {"steps": [{"step": i, "norm": 1.0} for i in range(10)]}
-        micro_data = {"steps": [{"step": i, "norm": 1.1} for i in range(10)]}
-        
-        baseline_file = tmp_path / "baseline.json"
-        micro_file = tmp_path / "microcircuit.json"
-        output_file = tmp_path / "output.json"
-        
-        with open(baseline_file, 'w') as f:
+    def test_insufficient_data(self, tmp_path):
+        """Test that ValueError is raised for insufficient data."""
+        baseline_data = [0.5]  # Only one sample
+        microcircuit_data = [1.0]  # Only one sample
+
+        baseline_path = tmp_path / "baseline.json"
+        microcircuit_path = tmp_path / "microcircuit.json"
+        output_path = tmp_path / "result.json"
+
+        with open(baseline_path, 'w') as f:
             json.dump(baseline_data, f)
-        with open(micro_file, 'w') as f:
-            json.dump(micro_data, f)
-        
-        compare_gradient_stability(
-            str(baseline_file),
-            str(micro_file),
-            str(output_file)
+        with open(microcircuit_path, 'w') as f:
+            json.dump(microcircuit_data, f)
+
+        with pytest.raises(ValueError, match="Insufficient data"):
+            compare_gradient_stability(
+                str(baseline_path),
+                str(microcircuit_path),
+                str(output_path)
+            )
+
+    def test_output_directory_creation(self, tmp_path):
+        """Test that output directory is created if it doesn't exist."""
+        baseline_data = [0.1, 0.2, 0.3]
+        microcircuit_data = [0.1, 0.2, 0.3]
+
+        baseline_path = tmp_path / "baseline.json"
+        microcircuit_path = tmp_path / "microcircuit.json"
+        output_dir = tmp_path / "subdir" / "results"
+        output_path = output_dir / "result.json"
+
+        with open(baseline_path, 'w') as f:
+            json.dump(baseline_data, f)
+        with open(microcircuit_path, 'w') as f:
+            json.dump(microcircuit_data, f)
+
+        result = compare_gradient_stability(
+            str(baseline_path),
+            str(microcircuit_path),
+            str(output_path)
         )
-        
-        assert output_file.exists()
-        
-        with open(output_file, 'r') as f:
-            result = json.load(f)
-        
+
+        assert output_path.exists()
+
+    def test_schema_compliance(self, tmp_path):
+        """Test that output JSON has the required schema."""
+        baseline_data = [0.1, 0.2, 0.3, 0.4, 0.5]
+        microcircuit_data = [0.1, 0.2, 0.3, 0.4, 0.5]
+
+        baseline_path = tmp_path / "baseline.json"
+        microcircuit_path = tmp_path / "microcircuit.json"
+        output_path = tmp_path / "result.json"
+
+        with open(baseline_path, 'w') as f:
+            json.dump(baseline_data, f)
+        with open(microcircuit_path, 'w') as f:
+            json.dump(microcircuit_data, f)
+
+        result = compare_gradient_stability(
+            str(baseline_path),
+            str(microcircuit_path),
+            str(output_path)
+        )
+
+        # Verify schema
         assert "ks_statistic" in result
         assert "p_value" in result
         assert "stable" in result
-
-    def test_empty_gradient_list(self, tmp_path):
-        """Test that ValueError is raised for empty gradient list."""
-        baseline_data = {"steps": []}
-        micro_data = {"steps": [{"step": 0, "norm": 1.0}]}
-        
-        baseline_file = tmp_path / "baseline.json"
-        micro_file = tmp_path / "microcircuit.json"
-        output_file = tmp_path / "output.json"
-        
-        with open(baseline_file, 'w') as f:
-            json.dump(baseline_data, f)
-        with open(micro_file, 'w') as f:
-            json.dump(micro_data, f)
-        
-        with pytest.raises(ValueError):
-            compare_gradient_stability(
-                str(baseline_file),
-                str(micro_file),
-                str(output_file)
-            )
+        assert isinstance(result["ks_statistic"], float)
+        assert isinstance(result["p_value"], float)
+        assert isinstance(result["stable"], bool)

@@ -1,294 +1,319 @@
-"""
-Scaling experiments for cortical column LLMs.
-
-Varies column count (1x, 2x, 4x) to measure scaling laws.
-Base configuration: hidden_dim=64, neurons_per_layer=128.
-"""
-
 import json
 import logging
 import os
 import sys
+import time
 from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 
-from src.models.hybrid_network import create_hybrid_network, HybridNetwork
-from src.models.microcircuit import MicrocircuitColumn
-from src.training.trainer import run_training, TrainingConfig
-from src.data.benchmarks import generate_synthetic_dataset
-from src.training.homeostasis import HomeostasisConfig, log_gradient_norms
+from src.models.microcircuit import MicrocircuitColumn, create_microcircuit_column
+from src.models.hybrid_network import HybridNetwork, create_hybrid_network
+from src.data.benchmarks import generate_training_data, generate_test_data
+from src.training.trainer import TrainingConfig, run_training, calculate_mae
+from src.training.homeostasis import HomeostasisConfig, HomeostaticScaler
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Base configuration constants
-BASE_HIDDEN_DIM = 64
-BASE_NEURONS_PER_LAYER = 128
-BASE_COLUMNS = 1
-
 @dataclass
 class ScalingConfig:
-    """Configuration for a scaling variant."""
-    multiplier: float
-    column_count: int
+    """Configuration for a specific scaling variant (1x, 2x, 4x)."""
+    variant_name: str
+    scale_factor: float
     hidden_dim: int
     neurons_per_layer: int
-    num_layers: int = 4
-    dropout: float = 0.1
-    learning_rate: float = 1e-4
-    batch_size: int = 32
-    num_epochs: int = 10
+    num_columns: int
+    num_layers: int
     seed: int = 42
-    experiment_name: str = field(default="")
-    
-    def __post_init__(self):
-        if not self.experiment_name:
-            self.experiment_name = f"scaling_{self.multiplier}x"
 
-@dataclass
-class ScalingResult:
-    """Result from a scaling experiment."""
-    multiplier: float
-    column_count: int
-    total_parameters: int
-    train_mae: float
-    test_mae: float
-    training_time_seconds: float
-    peak_memory_mb: float
-    config: Dict[str, Any] = field(default_factory=dict)
-    
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-def create_scaling_configs() -> List[ScalingConfig]:
-    """
-    Create scaling configurations for 1x, 2x, 4x column counts.
-    
-    Base: hidden_dim=64, neurons_per_layer=128, columns=1
-    2x: hidden_dim=128, neurons_per_layer=256, columns=2
-    4x: hidden_dim=256, neurons_per_layer=512, columns=4
-    """
-    configs = []
-    
-    # 1x configuration (base)
-    config_1x = ScalingConfig(
-        multiplier=1.0,
-        column_count=1,
-        hidden_dim=BASE_HIDDEN_DIM,
-        neurons_per_layer=BASE_NEURONS_PER_LAYER
-    )
-    configs.append(config_1x)
-    
-    # 2x configuration
-    config_2x = ScalingConfig(
-        multiplier=2.0,
-        column_count=2,
-        hidden_dim=int(BASE_HIDDEN_DIM * 2),
-        neurons_per_layer=int(BASE_NEURONS_PER_LAYER * 2)
-    )
-    configs.append(config_2x)
-    
-    # 4x configuration
-    config_4x = ScalingConfig(
-        multiplier=4.0,
-        column_count=4,
-        hidden_dim=int(BASE_HIDDEN_DIM * 4),
-        neurons_per_layer=int(BASE_NEURONS_PER_LAYER * 4)
-    )
-    configs.append(config_4x)
-    
-    logger.info(f"Created {len(configs)} scaling configurations")
-    for cfg in configs:
-        logger.info(f"  {cfg.experiment_name}: columns={cfg.column_count}, "
-                   f"hidden_dim={cfg.hidden_dim}, neurons={cfg.neurons_per_layer}")
-    
-    return configs
+@dataclass
+class ScalingResult:
+    """Results from training a specific scaling variant."""
+    variant_name: str
+    scale_factor: float
+    num_parameters: int
+    train_mae: float
+    test_mae: float
+    training_time_seconds: float
+    config: Dict[str, Any]
 
-def save_configs(configs: List[ScalingConfig], output_path: str) -> None:
-    """Save scaling configurations to JSON file."""
-    data = [asdict(cfg) for cfg in configs]
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Saved {len(configs)} configs to {output_path}")
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+def create_scaling_configs(base_hidden_dim: int = 64, base_neurons: int = 128) -> List[ScalingConfig]:
+    """
+    Generate deterministic scaling configurations for 1x, 2x, and 4x variants.
+    
+    Base 1x: hidden_dim=64, neurons_per_layer=128
+    2x: hidden_dim=128, neurons_per_layer=256
+    4x: hidden_dim=256, neurons_per_layer=512
+    """
+    variants = []
+    scales = [1.0, 2.0, 4.0]
+    names = ["1x", "2x", "4x"]
+    
+    for i, scale in enumerate(scales):
+        variants.append(
+            ScalingConfig(
+                variant_name=names[i],
+                scale_factor=scale,
+                hidden_dim=int(base_hidden_dim * scale),
+                neurons_per_layer=int(base_neurons * scale),
+                num_columns=4,  # Fixed number of columns for this study
+                num_layers=3,   # Fixed depth
+                seed=42
+            )
+        )
+    
+    return variants
 
 def create_model_from_config(config: ScalingConfig) -> HybridNetwork:
-    """
-    Create a HybridNetwork model based on scaling configuration.
+    """Create a HybridNetwork model based on scaling configuration."""
+    logger.info(f"Creating model for {config.variant_name}: "
+               f"hidden={config.hidden_dim}, neurons={config.neurons_per_layer}, "
+               f"columns={config.num_columns}")
     
-    Uses MicrocircuitColumn modules with the specified dimensions.
-    """
-    # Create the model with scaled parameters
-    model = create_hybrid_network(
-        num_columns=config.column_count,
+    # Create the microcircuit column with scaled parameters
+    column = create_microcircuit_column(
+        input_dim=config.hidden_dim,
         hidden_dim=config.hidden_dim,
         neurons_per_layer=config.neurons_per_layer,
-        num_layers=config.num_layers,
-        dropout=config.dropout
+        num_layers=config.num_layers
     )
     
-    logger.info(f"Created model with {sum(p.numel() for p in model.parameters()):,} parameters")
+    # Wrap in hybrid network
+    model = create_hybrid_network(
+        input_dim=config.hidden_dim,
+        output_dim=config.hidden_dim,  # Auto-regressive prediction
+        microcircuit_column=column,
+        num_columns=config.num_columns
+    )
+    
     return model
 
-def train_scaling_variant(config: ScalingConfig) -> ScalingResult:
+def train_scaling_variant(
+    config: ScalingConfig,
+    train_epochs: int = 10,
+    batch_size: int = 32,
+    learning_rate: float = 1e-3,
+    use_homeostasis: bool = True
+) -> ScalingResult:
     """
     Train a single scaling variant and return results.
     
-    Args:
-        config: Scaling configuration for this variant
-    
-    Returns:
-        ScalingResult with training metrics
+    This function:
+    1. Generates synthetic training/test data (Lorenz/Polynomials)
+    2. Creates the scaled model
+    3. Trains for a fixed number of epochs
+    4. Measures MAE on train and test sets
+    5. Returns structured results
     """
-    logger.info(f"Starting training for {config.experiment_name}")
+    logger.info(f"Starting training for {config.variant_name}")
     
-    # Set random seed
+    # Set seed for reproducibility
     torch.manual_seed(config.seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(config.seed)
     
-    # Generate synthetic datasets
-    logger.info("Generating synthetic datasets...")
-    train_data = generate_synthetic_dataset(
-        task='lorenz',
-        num_samples=1000,
+    # Generate data
+    logger.info("Generating training data (Lorenz attractor)...")
+    train_X, train_y = generate_training_data(
+        num_samples=5000,
         seed=config.seed,
-        noise_level=0.1
+        noise_level=0.01
     )
-    test_data = generate_synthetic_dataset(
-        task='lorenz',
-        num_samples=500,
-        seed=config.seed + 1,
-        noise_level=0.1
+    
+    logger.info("Generating test data (Polynomial surfaces)...")
+    test_X, test_y = generate_test_data(
+        num_samples=1000,
+        seed=config.seed + 1000,
+        noise_level=0.01
     )
+    
+    # Convert to tensors and datasets
+    train_dataset = TensorDataset(train_X, train_y)
+    test_dataset = TensorDataset(test_X, test_y)
+    
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
     
     # Create model
     model = create_model_from_config(config)
+    num_params = sum(p.numel() for p in model.parameters())
+    logger.info(f"Model has {num_params:,} parameters")
     
-    # Configure training
-    training_config = TrainingConfig(
-        learning_rate=config.learning_rate,
-        batch_size=config.batch_size,
-        num_epochs=config.num_epochs,
-        weight_decay=1e-4,
-        gradient_clip=1.0,
-        log_interval=10,
-        save_dir='data/results'
-    )
+    # Setup training
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     
-    # Homeostasis config (optional, can be disabled for ablation)
+    # Homeostasis scaler if enabled
     homeostasis_config = HomeostasisConfig(
         target_ei_ratio=4.0,
         decay_rate=0.01,
-        enabled=True
+        log_interval=1
+    ) if use_homeostasis else None
+    
+    scaler = HomeostaticScaler(model, homeostasis_config) if homeostasis_config else None
+    
+    # Training loop
+    start_time = time.time()
+    
+    for epoch in range(train_epochs):
+        model.train()
+        epoch_loss = 0.0
+        
+        for batch_X, batch_y in train_loader:
+            optimizer.zero_grad()
+            outputs = model(batch_X)
+            loss = criterion(outputs, batch_y)
+            loss.backward()
+            
+            # Gradient clipping
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            
+            optimizer.step()
+            
+            # Apply homeostatic scaling if enabled
+            if scaler:
+                scaler.step(optimizer)
+            
+            epoch_loss += loss.item()
+        
+        avg_loss = epoch_loss / len(train_loader)
+        
+        # Evaluate every 2 epochs
+        if (epoch + 1) % 2 == 0 or epoch == train_epochs - 1:
+            model.eval()
+            with torch.no_grad():
+                test_outputs = model(test_X)
+                test_mae = calculate_mae(test_outputs, test_y)
+            
+            logger.info(f"Epoch {epoch+1}/{train_epochs} - Loss: {avg_loss:.4f}, "
+                       f"Test MAE: {test_mae:.4f}")
+    
+    training_time = time.time() - start_time
+    
+    # Final evaluation
+    model.eval()
+    with torch.no_grad():
+        train_outputs = model(train_X)
+        train_mae = calculate_mae(train_outputs, train_y)
+        
+        test_outputs = model(test_X)
+        final_test_mae = calculate_mae(test_outputs, test_y)
+    
+    logger.info(f"Training complete for {config.variant_name}. "
+               f"Train MAE: {train_mae:.4f}, Test MAE: {final_test_mae:.4f}, "
+               f"Time: {training_time:.2f}s")
+    
+    return ScalingResult(
+        variant_name=config.variant_name,
+        scale_factor=config.scale_factor,
+        num_parameters=num_params,
+        train_mae=train_mae,
+        test_mae=final_test_mae,
+        training_time_seconds=training_time,
+        config=config.to_dict()
     )
-    
-    # Train the model
-    logger.info(f"Training {config.experiment_name}...")
-    result = run_training(
-        model=model,
-        train_data=train_data,
-        test_data=test_data,
-        config=training_config,
-        homeostasis_config=homeostasis_config,
-        device='cpu'
-    )
-    
-    # Create result object
-    scaling_result = ScalingResult(
-        multiplier=config.multiplier,
-        column_count=config.column_count,
-        total_parameters=sum(p.numel() for p in model.parameters()),
-        train_mae=result.train_mae,
-        test_mae=result.test_mae,
-        training_time_seconds=result.training_time_seconds,
-        peak_memory_mb=result.peak_memory_mb,
-        config=asdict(config)
-    )
-    
-    logger.info(f"Completed {config.experiment_name}: "
-               f"train_mae={result.train_mae:.4f}, "
-               f"test_mae={result.test_mae:.4f}, "
-               f"params={scaling_result.total_parameters:,}")
-    
-    return scaling_result
 
-def run_scaling_study(output_dir: str = 'data/results') -> List[ScalingResult]:
+def run_scaling_study(
+    output_path: str = "data/results/scaling_results.json",
+    base_hidden_dim: int = 64,
+    base_neurons: int = 128,
+    train_epochs: int = 10,
+    batch_size: int = 32,
+    learning_rate: float = 1e-3
+) -> List[ScalingResult]:
     """
-    Run the full scaling study across all variants.
+    Run the full scaling study across 1x, 2x, and 4x variants.
     
     Args:
-        output_dir: Directory to save results
+        output_path: Path to save results JSON
+        base_hidden_dim: Base hidden dimension (1x)
+        base_neurons: Base neurons per layer (1x)
+        train_epochs: Number of training epochs per variant
+        batch_size: Batch size for training
+        learning_rate: Learning rate for optimizer
     
     Returns:
-        List of ScalingResult objects
+        List of ScalingResult objects for each variant
     """
-    os.makedirs(output_dir, exist_ok=True)
+    logger.info("Starting scaling study")
     
-    # Create configurations
-    configs = create_scaling_configs()
+    # Generate configurations
+    configs = create_scaling_configs(base_hidden_dim, base_neurons)
     
-    # Save configurations
-    config_path = os.path.join(output_dir, 'scaling_configs.json')
-    save_configs(configs, config_path)
-    
-    # Train each variant
     results = []
     for config in configs:
         try:
-            result = train_scaling_variant(config)
+            result = train_scaling_variant(
+                config=config,
+                train_epochs=train_epochs,
+                batch_size=batch_size,
+                learning_rate=learning_rate
+            )
             results.append(result)
         except Exception as e:
-            logger.error(f"Failed to train {config.experiment_name}: {e}")
+            logger.error(f"Failed to train {config.variant_name}: {e}")
             raise
     
     # Save results
-    results_path = os.path.join(output_dir, 'scaling_results.json')
-    results_data = [r.to_dict() for r in results]
-    with open(results_path, 'w') as f:
-        json.dump(results_data, f, indent=2)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    results_dict = [r.to_dict() for r in results]
     
-    logger.info(f"Saved scaling results to {results_path}")
+    with open(output_path, 'w') as f:
+        json.dump(results_dict, f, indent=2)
+    
+    logger.info(f"Scaling study complete. Results saved to {output_path}")
     return results
 
 def main():
-    """Main entry point for scaling experiments."""
+    """Main entry point for running the scaling study."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Run scaling experiments')
-    parser.add_argument('--output-dir', type=str, default='data/results',
-                      help='Output directory for results')
-    parser.add_argument('--config-only', action='store_true',
-                      help='Only generate configs, do not train')
+    parser = argparse.ArgumentParser(description="Run scaling study for cortical column LLMs")
+    parser.add_argument("--output", type=str, default="data/results/scaling_results.json",
+                      help="Output path for results JSON")
+    parser.add_argument("--epochs", type=int, default=10,
+                      help="Number of training epochs per variant")
+    parser.add_argument("--batch-size", type=int, default=32,
+                      help="Batch size for training")
+    parser.add_argument("--lr", type=float, default=1e-3,
+                      help="Learning rate")
+    parser.add_argument("--base-hidden", type=int, default=64,
+                      help="Base hidden dimension (1x)")
+    parser.add_argument("--base-neurons", type=int, default=128,
+                      help="Base neurons per layer (1x)")
+    
     args = parser.parse_args()
     
-    logger.info("Starting scaling experiments")
-    
-    if args.config_only:
-        configs = create_scaling_configs()
-        save_configs(configs, os.path.join(args.output_dir, 'scaling_configs.json'))
-        logger.info("Generated configs only")
-        return
-    
-    results = run_scaling_study(args.output_dir)
+    results = run_scaling_study(
+        output_path=args.output,
+        base_hidden_dim=args.base_hidden,
+        base_neurons=args.base_neurons,
+        train_epochs=args.epochs,
+        batch_size=args.batch_size,
+        learning_rate=args.lr
+    )
     
     # Print summary
-    print("\n" + "="*60)
-    print("SCALING STUDY RESULTS")
-    print("="*60)
-    print(f"{'Multiplier':<12} {'Columns':<10} {'Params':<15} {'Train MAE':<12} {'Test MAE':<12}")
-    print("-"*60)
+    print("\n=== Scaling Study Summary ===")
     for r in results:
-        print(f"{r.multiplier:<12.1f}x {r.column_count:<10} {r.total_parameters:<15,} "
-              f"{r.train_mae:<12.4f} {r.test_mae:<12.4f}")
-    print("="*60)
+        print(f"{r.variant_name}: "
+             f"params={r.num_parameters:,}, "
+             f"train_mae={r.train_mae:.4f}, "
+             f"test_mae={r.test_mae:.4f}, "
+             f"time={r.training_time_seconds:.2f}s")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,22 +1,33 @@
-# Data directory - exclude all results, logs, and configs
-data/
-
-# Python cache and compiled files
+# Python bytecode and cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# State files (except templates)
-state/*.yaml
-!state/*.template.yaml
+# Data directory - exclude from version control (large files)
+data/
 
 # Virtual environments
 venv/
-.venv/
+ENV/
 env/
-.env/
+.venv/
 
 # IDE and editor files
 .idea/
@@ -24,25 +35,25 @@ env/
 *.swp
 *.swo
 *~
-
-# OS files
 .DS_Store
-Thumbs.db
 
-# Logs
+# Logs (handled by data/logs exclusion)
 *.log
-logs/
 
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Coverage and testing
+# Test coverage
 .coverage
 htmlcov/
 .pytest_cache/
 
-# Jupyter notebooks
-.ipynb_checkpoints/
+# State directory MUST be tracked (Constitution Principle V)
+# Explicitly ensuring state/*.yaml is NOT excluded
+# The line below is a comment for clarity; the pattern 'data/' above handles the rest.
+# We do NOT list state/ here to ensure it is tracked.
+
+# Temporary files
+*.tmp
+.tmp/
+
+# OS specific
+Thumbs.db
+.DS_Store

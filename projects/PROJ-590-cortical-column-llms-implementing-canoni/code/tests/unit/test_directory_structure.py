@@ -1,19 +1,12 @@
-"""
-Unit test to verify that the required directory structure exists.
-This test ensures T001a has been successfully executed.
-"""
 import os
 import pytest
 import sys
+from pathlib import Path
 
-# Determine project root relative to this test file
-# test file is at code/tests/unit/test_directory_structure.py
-# project root is code/../
-test_file_dir = os.path.dirname(os.path.abspath(__file__))
-unit_dir = os.path.dirname(test_file_dir)
-tests_dir = os.path.dirname(unit_dir)
-code_dir = os.path.dirname(tests_dir)
-project_root = os.path.dirname(code_dir)
+# Add the project root to the path to allow imports if needed,
+# though this test primarily checks file system state.
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 REQUIRED_DIRS = [
     "src/models",
@@ -31,19 +24,40 @@ REQUIRED_DIRS = [
 ]
 
 def test_project_directories_exist():
-    """Assert that all required directories defined in T001a exist."""
-    missing_dirs = []
-    for rel_dir in REQUIRED_DIRS:
-        full_path = os.path.join(project_root, rel_dir)
-        if not os.path.isdir(full_path):
-            missing_dirs.append(rel_dir)
-
-    assert len(missing_dirs) == 0, (
-        f"The following required directories are missing: {missing_dirs}. "
-        "Please run scripts/setup_directories.py to initialize the project structure."
-    )
+    """
+    Verifies that all required directories from plan.md exist.
+    This test satisfies the requirement for T001a to provide concrete evidence
+    of the directory tree.
+    """
+    missing = []
+    for d in REQUIRED_DIRS:
+        path = project_root / d
+        if not path.exists() or not path.is_dir():
+            missing.append(d)
+    
+    assert not missing, f"Missing required directories: {missing}"
 
 def test_project_root_is_valid():
-    """Assert that we can identify the project root correctly."""
-    assert os.path.exists(os.path.join(project_root, "code"))
-    assert os.path.exists(os.path.join(project_root, "data"))
+    """
+    Verifies that the project root contains the expected top-level structure
+    and specifically that the 'state' directory contains the required template.
+    """
+    state_dir = project_root / "state"
+    assert state_dir.exists(), "State directory missing"
+    
+    template_file = state_dir / "project_state.yaml"
+    assert template_file.exists(), "State template file (project_state.yaml) missing in state/"
+    
+    # Verify content of the template
+    import yaml
+    with open(template_file, 'r') as f:
+        content = yaml.safe_load(f)
+    
+    required_keys = {"hashes", "artifacts", "updated_at"}
+    assert set(content.keys()) == required_keys, \
+        f"State template missing required keys. Found: {set(content.keys())}, Expected: {required_keys}"
+    
+    # Verify types
+    assert isinstance(content["hashes"], dict), "hashes must be a dict"
+    assert isinstance(content["artifacts"], list), "artifacts must be a list"
+    assert isinstance(content["updated_at"], str), "updated_at must be a string"

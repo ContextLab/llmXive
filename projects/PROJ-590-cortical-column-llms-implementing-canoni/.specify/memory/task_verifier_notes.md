@@ -2,17 +2,12 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No directory tree or listing of the required folders (`src/models`, `src/data`, `src/training`, `src/experiments`, `src/utils`, `tests/unit`, `tests/integration`, `scripts`, `data/results`, `data/logs`, `data/configs`, `state`) is provided; without concrete evidence the task is not satisfied. The implementer must create the directories and show a file‑system listing or similar proof.
-- **T001b** — No `__init__.py` files are shown in any `src/` or `tests/` directories, and no `.gitignore` file with the required exclusion patterns is present in the provided evidence. The implementer must add the missing `__init__.py` files and create a `.gitignore` that excludes `data/`, `__pycache__/`, `*.pyc`, and `state/*.yaml` (except the template).
-- **T003a** — declared artifact(s) missing/empty/invalid: ruff.toml
-- **T008a** — declared artifact(s) missing/empty/invalid: src/training/homeostasis.py
-- **T008b** — declared artifact(s) missing/empty/invalid: src/training/homeostasis.py, data/logs/gradient_norms.json
-- **T019a** — declared artifact(s) missing/empty/invalid: src/training/homeostasis.py
+- **T008c** — declared artifact(s) missing/empty/invalid: src/training/homeostasis.py
+- **T012b** — The integration test file exists, but it writes logs to a temporary directory and only asserts the temporary `gradient_norms.json` was created. The required repository file `data/logs/gradient_norms.json` is missing, so the task of populating that path is not satisfied.
+- **T012c** — The repository contains a `tests/integration/test_microcircuit_training.py` file, but its contents are truncated (e.g., the training configuration ends abruptly at `log_interv`) and there is no evidence that it actually runs the model with `log_gradient_norms` enabled. Moreover, the required output file `data/logs/gradient_norms_microcircuit.json` is missing. The integration test does not demonstrably produce the gradient‑norms JSON needed for SC‑002 verification.
+- **T015** — declared artifact(s) missing/empty/invalid: src/experiments/baseline_runner.py
+- **T016** — The provided `tests/integration/test_baseline_validation.py` is truncated and does not show the required assertions (e.g., checking that `baseline_metrics.json` exists, contains the keys `train_mae`, `test_mae`, `degradation_pct`, and that degradation is computed correctly with zero‑division handling). Moreover, the expected `data/results/baseline_metrics.json` file is absent. The implementer must supply the full test implementation with the specified checks and ensure the test creates/validates the JSON file.
 - **T020** — declared artifact(s) missing/empty/invalid: src/models/hybrid_network.py
-- **T032** — declared artifact(s) missing/empty/invalid: src/utils/statistics.py, data/results/gradient_stability.json
 - **T026a** — declared artifact(s) missing/empty/invalid: src/experiments/ablation.py, data/configs/ablation_configs.json
 - **T026b** — declared artifact(s) missing/empty/invalid: src/experiments/ablation.py, data/results/ablation_results.json
 - **T027** — declared artifact(s) missing/empty/invalid: src/experiments/scaling.py
-- **T028** — declared artifact(s) missing/empty/invalid: src/utils/statistics.py
-- **T029** — declared artifact(s) missing/empty/invalid: src/utils/report_generator.py, data/results/cost_curve.json, data/results/cost_curve.png
-- **T031** — declared artifact(s) missing/empty/invalid: src/utils/statistics.py, data/results/ablation_results.json, data/results/ablation_stats.json

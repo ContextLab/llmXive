@@ -1,8 +1,14 @@
+"""
+Unit tests to verify the project directory structure exists as required.
+"""
 import os
 import pytest
 import sys
+from pathlib import Path
 
-# Define the required directories as per plan.md and T001a
+# Determine project root (parent of code/tests)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
 REQUIRED_DIRS = [
     "src/models",
     "src/data",
@@ -19,26 +25,34 @@ REQUIRED_DIRS = [
 ]
 
 def test_project_directories_exist():
-    """
-    Verifies that all required directories from T001a exist on the filesystem.
-    This test fails if any directory is missing, ensuring the directory tree
-    was actually created.
-    """
+    """Verify all required directories exist in the project root."""
     missing = []
-    for d in REQUIRED_DIRS:
-        if not os.path.isdir(d):
-            missing.append(d)
+    for dir_path in REQUIRED_DIRS:
+        full_path = PROJECT_ROOT / dir_path
+        if not full_path.exists():
+            missing.append(dir_path)
+        elif not full_path.is_dir():
+            missing.append(f"{dir_path} (is not a directory)")
+    
+    assert not missing, f"Missing required directories: {missing}"
 
-    if missing:
-        pytest.fail(f"Missing required directories: {missing}")
+def test_state_directory_contains_template():
+    """Verify the state directory contains the required template file."""
+    state_dir = PROJECT_ROOT / "state"
+    template_file = state_dir / "project_state.yaml"
+    
+    assert state_dir.exists(), "state directory does not exist"
+    assert template_file.exists(), f"State template file {template_file} does not exist"
+    
+    # Verify content has required keys
+    content = template_file.read_text()
+    assert "hashes" in content, "State template missing 'hashes' key"
+    assert "artifacts" in content, "State template missing 'artifacts' key"
+    assert "updated_at" in content, "State template missing 'updated_at' key"
 
 def test_project_root_is_valid():
-    """
-    Basic sanity check that the project root is not empty and contains
-    the expected top-level structure (src, tests, etc.).
-    """
-    assert os.path.isdir("src"), "Project root must contain 'src' directory"
-    assert os.path.isdir("tests"), "Project root must contain 'tests' directory"
-    assert os.path.isdir("scripts"), "Project root must contain 'scripts' directory"
-    assert os.path.isdir("data"), "Project root must contain 'data' directory"
-    assert os.path.isdir("state"), "Project root must contain 'state' directory"
+    """Verify the project root is correctly identified."""
+    assert PROJECT_ROOT.exists(), "Project root path does not exist"
+    # Check for typical markers of a Python project
+    assert (PROJECT_ROOT / "pyproject.toml").exists() or (PROJECT_ROOT / "setup.py").exists(), \
+        "Project root does not contain pyproject.toml or setup.py"

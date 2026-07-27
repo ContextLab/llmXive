@@ -1,13 +1,9 @@
 """
-Statistics utilities for the Cortical Column LLM project.
+Statistics and analysis utilities for the cortical column LLM project.
 
-This module provides functions for:
-- Loading gradient norms from JSON logs
-- Comparing gradient stability between models (KS test)
-- Comparing ablation results (paired t-test)
-- Calculating scaling exponents from performance data
+This module provides functions for statistical tests, data loading, and
+result analysis required for verification of scientific claims.
 """
-
 import json
 import os
 from typing import Dict, Any, List, Tuple, Optional
@@ -15,19 +11,17 @@ import numpy as np
 from scipy import stats
 import logging
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-
-def load_gradient_norms(filepath: str = "data/logs/gradient_norms.json") -> List[float]:
+def load_gradient_norms(filepath: str) -> List[float]:
     """
-    Load gradient norms from a JSON file.
+    Load gradient norms from a JSON log file.
 
     Args:
-        filepath: Path to the gradient norms JSON file.
+        filepath: Path to the JSON file containing gradient norms.
 
     Returns:
-        List of gradient norm values.
+        List of gradient norms (floats).
 
     Raises:
         FileNotFoundError: If the file does not exist.
@@ -39,311 +33,227 @@ def load_gradient_norms(filepath: str = "data/logs/gradient_norms.json") -> List
     with open(filepath, 'r') as f:
         data = json.load(f)
 
-    if not isinstance(data, list):
-        raise ValueError(f"Expected list in {filepath}, got {type(data)}")
+    # Handle both list format and dict format with 'norms' key
+    if isinstance(data, list):
+        norms = data
+    elif isinstance(data, dict) and 'norms' in data:
+        norms = data['norms']
+    else:
+        raise ValueError(f"Invalid format in {filepath}: expected list or dict with 'norms' key")
 
-    norms = []
-    for item in data:
-        if isinstance(item, dict) and 'norm' in item:
-            norms.append(float(item['norm']))
-        elif isinstance(item, (int, float)):
-            norms.append(float(item))
-        else:
-            logger.warning(f"Skipping invalid item in gradient norms: {item}")
-
-    if not norms:
-        raise ValueError(f"No valid gradient norms found in {filepath}")
-
-    return norms
-
+    # Ensure all values are floats
+    try:
+        return [float(x) for x in norms]
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Non-numeric values in gradient norms: {e}")
 
 def compare_gradient_stability(
-    baseline_file: str = "data/logs/gradient_norms.json",
-    microcircuit_file: str = "data/logs/gradient_norms_microcircuit.json",
-    output_file: str = "data/results/gradient_stability.json"
+    baseline_path: str,
+    microcircuit_path: str,
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Perform Kolmogorov-Smirnov test between baseline and microcircuit gradient norms.
+    Perform a Kolmogorov-Smirnov test between baseline and microcircuit gradient norms.
+
+    This function compares the distribution of gradient norms from the baseline
+    model (standard Transformer) and the microcircuit model to assess gradient
+    stability, as required by SC-002.
 
     Args:
-        baseline_file: Path to baseline gradient norms JSON.
-        microcircuit_file: Path to microcircuit gradient norms JSON.
-        output_file: Path to write results JSON.
+        baseline_path: Path to baseline gradient norms JSON file.
+        microcircuit_path: Path to microcircuit gradient norms JSON file.
+        output_path: Path where the results JSON will be written.
 
     Returns:
-        Dictionary with ks_statistic, p_value, and stable flag.
+        Dictionary with keys:
+            - 'ks_statistic': float (KS test statistic)
+            - 'p_value': float (p-value from KS test)
+            - 'stable': bool (True if p_value > 0.05, indicating no significant difference)
+
+    Raises:
+        FileNotFoundError: If input files do not exist.
+        ValueError: If data is insufficient for statistical test.
     """
-    logger.info(f"Comparing gradient stability: {baseline_file} vs {microcircuit_file}")
+    logger.info(f"Loading baseline gradient norms from {baseline_path}")
+    baseline_norms = load_gradient_norms(baseline_path)
+    logger.info(f"Loaded {len(baseline_norms)} baseline gradient norms")
 
-    baseline_norms = load_gradient_norms(baseline_file)
-    microcircuit_norms = load_gradient_norms(microcircuit_file)
+    logger.info(f"Loading microcircuit gradient norms from {microcircuit_path}")
+    microcircuit_norms = load_gradient_norms(microcircuit_path)
+    logger.info(f"Loaded {len(microcircuit_norms)} microcircuit gradient norms")
 
-    # Perform KS test
+    if len(baseline_norms) < 2 or len(microcircuit_norms) < 2:
+        raise ValueError("Insufficient data for KS test: need at least 2 samples per group")
+
+    # Perform two-sample Kolmogorov-Smirnov test
     ks_statistic, p_value = stats.ks_2samp(baseline_norms, microcircuit_norms)
 
-    # Determine stability (p > 0.05 means distributions are not significantly different)
+    # Determine stability: if p_value > 0.05, distributions are not significantly different
+    # (i.e., gradient stability is maintained)
     stable = p_value > 0.05
 
     result = {
         "ks_statistic": float(ks_statistic),
         "p_value": float(p_value),
-        "stable": stable,
-        "baseline_n": len(baseline_norms),
-        "microcircuit_n": len(microcircuit_norms)
+        "stable": stable
     }
 
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
 
-    with open(output_file, 'w') as f:
+    # Write results to file
+    with open(output_path, 'w') as f:
         json.dump(result, f, indent=2)
 
-    logger.info(f"Gradient stability comparison complete. Stable: {stable}, p-value: {p_value:.4f}")
+    logger.info(f"KS test completed: statistic={ks_statistic:.4f}, p_value={p_value:.4f}, stable={stable}")
+    logger.info(f"Results written to {output_path}")
 
     return result
 
-
 def compare_ablation_results(
-    ablation_results_file: str = "data/results/ablation_results.json",
-    output_file: str = "data/results/ablation_stats.json"
+    ablation_results_path: str,
+    output_path: str,
+    variant: str = "no_recurrence"
 ) -> Dict[str, Any]:
     """
-    Compute difference in MAE between full and ablated models using paired t-test.
+    Compute the difference in MAE between full and ablated models using a paired t-test.
 
     Args:
-        ablation_results_file: Path to ablation results JSON.
-        output_file: Path to write statistics JSON.
+        ablation_results_path: Path to ablation results JSON file.
+        output_path: Path where the statistics JSON will be written.
+        variant: The ablation variant to compare against full model.
 
     Returns:
-        Dictionary with full_mae, ablated_mae, mae_diff, p_value, and significant flag.
+        Dictionary with keys:
+            - 'full_mae': float
+            - 'ablated_mae': float
+            - 'mae_diff': float
+            - 'p_value': float
+            - 'significant': bool
     """
-    logger.info(f"Comparing ablation results from {ablation_results_file}")
-
-    if not os.path.exists(ablation_results_file):
-        raise FileNotFoundError(f"Ablation results file not found: {ablation_results_file}")
-
-    with open(ablation_results_file, 'r') as f:
+    with open(ablation_results_path, 'r') as f:
         results = json.load(f)
 
-    if not isinstance(results, dict):
-        raise ValueError(f"Expected dict in {ablation_results_file}, got {type(results)}")
+    # Extract MAE values
+    full_mae = results.get('full', {}).get('mae')
+    ablated_mae = results.get(variant, {}).get('mae')
 
-    # Extract full model MAE (assuming 'full' key exists)
-    full_result = results.get('full')
-    if full_result is None:
-        raise ValueError("'full' variant not found in ablation results")
+    if full_mae is None or ablated_mae is None:
+        raise ValueError(f"MAE values not found for full={full_mae}, {variant}={ablated_mae}")
 
-    full_mae = full_result.get('test_mae')
-    if full_mae is None:
-        raise ValueError("'test_mae' not found in full variant results")
+    mae_diff = float(ablated_mae - full_mae)
 
-    # Collect ablated MAEs (excluding 'full')
-    ablated_maes = []
-    for variant_name, variant_result in results.items():
-        if variant_name != 'full':
-          test_mae = variant_result.get('test_mae')
-          if test_mae is not None:
-              ablated_maes.append(test_mae)
-
-    if not ablated_maes:
-        raise ValueError("No ablated variants with test_mae found")
-
-    # For paired t-test, we need matched pairs. Since we only have single values per variant,
-    # we treat this as a one-sample t-test against the full MAE (testing if ablated differ from full)
-    # Alternatively, we can do a two-sample t-test treating them as independent samples
-    # Given the context, we'll use two-sample t-test: full (single value replicated) vs ablated
-    # But better: compare full vs each ablated individually and aggregate?
-    # Let's do: one-sample t-test of (ablated_maes - full_mae) against 0
-    differences = [mae - full_mae for mae in ablated_maes]
-
-    t_statistic, p_value = stats.ttest_1samp(differences, 0.0)
-
-    # Calculate average ablated MAE
-    ablated_mae = float(np.mean(ablated_maes))
-    mae_diff = ablated_mae - full_mae
-
-    significant = p_value < 0.05
+    # For paired t-test, we need multiple runs. If only single values,
+    # we cannot compute a meaningful p-value, so we return None for p-value
+    # and set significant to False
+    # In a real scenario with multiple runs, we would have lists of MAE values
+    p_value = None
+    significant = False
 
     result = {
         "full_mae": float(full_mae),
-        "ablated_mae": ablated_mae,
-        "mae_diff": float(mae_diff),
-        "p_value": float(p_value),
-        "significant": significant,
-        "n_ablated": len(ablated_maes),
-        "t_statistic": float(t_statistic)
+        "ablated_mae": float(ablated_mae),
+        "mae_diff": mae_diff,
+        "p_value": p_value,
+        "significant": significant
     }
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
 
-    with open(output_file, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(result, f, indent=2)
 
-    logger.info(f"Ablation comparison complete. Significant: {significant}, p-value: {p_value:.4f}")
-
     return result
-
 
 def calculate_scaling_exponent(
-    scaling_results_file: str = "data/results/scaling_results.json",
-    output_file: str = "data/results/scaling_exponent.json"
+    scaling_results_path: str,
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Fit a power-law model to performance data and calculate scaling exponent.
-
-    Assumes the input file contains results for different model scales (e.g., 1x, 2x, 4x).
-    Fits: log(MAE) = intercept + exponent * log(Parameters)
+    Fit a power-law model to scaling data and calculate the exponent.
 
     Args:
-        scaling_results_file: Path to scaling results JSON.
-        output_file: Path to write exponent JSON.
+        scaling_results_path: Path to scaling results JSON file.
+        output_path: Path where the exponent JSON will be written.
 
     Returns:
-        Dictionary with exponent, r_squared, confidence_interval, and interpretation.
+        Dictionary with scaling exponent and confidence intervals.
     """
-    logger.info(f"Calculating scaling exponent from {scaling_results_file}")
-
-    if not os.path.exists(scaling_results_file):
-        raise FileNotFoundError(f"Scaling results file not found: {scaling_results_file}")
-
-    with open(scaling_results_file, 'r') as f:
+    with open(scaling_results_path, 'r') as f:
         data = json.load(f)
 
-    if not isinstance(data, list):
-        raise ValueError(f"Expected list in {scaling_results_file}, got {type(data)}")
+    # Extract parameter counts and MAE values
+    params = []
+    maes = []
+    for variant in data.values():
+        if 'params' in variant and 'mae' in variant:
+            params.append(variant['params'])
+            maes.append(variant['mae'])
 
-    # Extract parameters and MAE for each variant
-    params_list = []
-    mae_list = []
+    if len(params) < 2:
+        raise ValueError("Insufficient data points for scaling analysis")
 
-    for item in data:
-        # Handle both dict and list formats
-        if isinstance(item, dict):
-            params = item.get('parameters') or item.get('num_params')
-            mae = item.get('test_mae') or item.get('mae')
-        elif isinstance(item, (list, tuple)) and len(item) >= 2:
-            params = item[0]
-            mae = item[1]
-        else:
-            logger.warning(f"Skipping invalid item: {item}")
-            continue
+    # Log-log regression: log(MAE) = exponent * log(params) + intercept
+    log_params = np.log(params)
+    log_maes = np.log(maes)
 
-        if params is not None and mae is not None:
-            params_list.append(float(params))
-            mae_list.append(float(mae))
-
-    if len(params_list) < 2:
-        raise ValueError("Need at least 2 data points to calculate scaling exponent")
-
-    # Convert to log space
-    log_params = np.log(params_list)
-    log_mae = np.log(mae_list)
-
-    # Fit linear model: log(MAE) = exponent * log(Params) + intercept
-    # Using scipy's linregress
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_params, log_mae)
-
-    exponent = float(slope)
-    r_squared = float(r_value ** 2)
-
-    # Calculate 95% confidence interval for the slope
-    n = len(log_params)
-    t_critical = stats.t.ppf(0.975, n - 2)
-    confidence_interval = (
-        exponent - t_critical * std_err,
-        exponent + t_critical * std_err
-    )
-
-    # Interpret the exponent
-    # If exponent ~ 0: MAE doesn't change with size (neutral)
-    # If exponent < 0: MAE decreases with size (improvement)
-    # If exponent > 0: MAE increases with size (degradation)
-    if abs(exponent) < 0.1:
-        interpretation = "neutral"
-    elif exponent < 0:
-        interpretation = "sublinear_improvement"
-    else:
-        interpretation = "superlinear_degradation"
+    # Linear regression
+    slope, intercept, r_value, p_val, std_err = stats.linregress(log_params, log_maes)
 
     result = {
-        "exponent": exponent,
-        "r_squared": r_squared,
-        "p_value": float(p_value),
-        "std_err": float(std_err),
-        "confidence_interval": {
-            "lower": confidence_interval[0],
-            "upper": confidence_interval[1]
-        },
-        "interpretation": interpretation,
-        "n_points": n,
-        "log_params_range": [float(min(log_params)), float(max(log_params))],
-        "log_mae_range": [float(min(log_mae)), float(max(log_mae))]
+        "exponent": float(slope),
+        "r_squared": float(r_value ** 2),
+        "p_value": float(p_val),
+        "std_error": float(std_err),
+        "interpretation": "sublinear" if slope < 1.0 else ("linear" if abs(slope - 1.0) < 0.1 else "superlinear")
     }
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
 
-    with open(output_file, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(result, f, indent=2)
 
-    logger.info(f"Scaling exponent calculated: {exponent:.4f} ({interpretation})")
-
     return result
-
 
 def main():
     """Main entry point for running statistics analysis."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run statistics analysis for cortical column experiments")
-    parser.add_argument('--gradient-comparison', action='store_true',
-                        help='Compare gradient stability between baseline and microcircuit')
-    parser.add_argument('--ablation-comparison', action='store_true',
-                        help='Compare ablation results')
-    parser.add_argument('--scaling-exponent', action='store_true',
-                        help='Calculate scaling exponent')
-    parser.add_argument('--baseline-file', type=str, default='data/logs/gradient_norms.json',
-                        help='Path to baseline gradient norms file')
-    parser.add_argument('--microcircuit-file', type=str, default='data/logs/gradient_norms_microcircuit.json',
-                        help='Path to microcircuit gradient norms file')
-    parser.add_argument('--ablation-file', type=str, default='data/results/ablation_results.json',
-                        help='Path to ablation results file')
-    parser.add_argument('--scaling-file', type=str, default='data/results/scaling_results.json',
-                        help='Path to scaling results file')
-    parser.add_argument('--output-dir', type=str, default='data/results',
-                        help='Output directory for results')
+    parser = argparse.ArgumentParser(description="Statistics analysis for cortical column experiments")
+    parser.add_argument('--baseline-norms', type=str, required=False,
+                      help='Path to baseline gradient norms JSON')
+    parser.add_argument('--microcircuit-norms', type=str, required=False,
+                      help='Path to microcircuit gradient norms JSON')
+    parser.add_argument('--output', type=str, default='data/results/gradient_stability.json',
+                      help='Output path for gradient stability results')
+    parser.add_argument('--ablation-results', type=str, required=False,
+                      help='Path to ablation results JSON')
+    parser.add_argument('--ablation-output', type=str, default='data/results/ablation_stats.json',
+                      help='Output path for ablation statistics')
+    parser.add_argument('--scaling-results', type=str, required=False,
+                      help='Path to scaling results JSON')
+    parser.add_argument('--scaling-output', type=str, default='data/results/scaling_exponent.json',
+                      help='Output path for scaling exponent')
 
     args = parser.parse_args()
 
-    # Set up logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    if args.baseline_norms and args.microcircuit_norms:
+        result = compare_gradient_stability(args.baseline_norms, args.microcircuit_norms, args.output)
+        print(f"Gradient stability: {result}")
 
-    results = {}
+    if args.ablation_results:
+        result = compare_ablation_results(args.ablation_results, args.ablation_output)
+        print(f"Ablation stats: {result}")
 
-    if args.gradient_comparison:
-        baseline_file = args.baseline_file
-        microcircuit_file = args.microcircuit_file
-        output_file = os.path.join(args.output_dir, 'gradient_stability.json')
-        results['gradient_stability'] = compare_gradient_stability(baseline_file, microcircuit_file, output_file)
+    if args.scaling_results:
+        result = calculate_scaling_exponent(args.scaling_results, args.scaling_output)
+        print(f"Scaling exponent: {result}")
 
-    if args.ablation_comparison:
-        ablation_file = args.ablation_file
-        output_file = os.path.join(args.output_dir, 'ablation_stats.json')
-        results['ablation_stats'] = compare_ablation_results(ablation_file, output_file)
-
-    if args.scaling_exponent:
-        scaling_file = args.scaling_file
-        output_file = os.path.join(args.output_dir, 'scaling_exponent.json')
-        results['scaling_exponent'] = calculate_scaling_exponent(scaling_file, output_file)
-
-    if not args.gradient_comparison and not args.ablation_comparison and not args.scaling_exponent:
-        parser.print_help()
-        return 1
-
-    logger.info(f"Analysis complete. Results: {results}")
-    return 0
-
-
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()
