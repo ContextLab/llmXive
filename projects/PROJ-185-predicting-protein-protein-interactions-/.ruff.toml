@@ -1,10 +1,5 @@
-# RUFF configuration
+[tool.ruff]
 line-length = 88
-target-version = "py311"
-exclude = [
-    "data",
-    "results",
-    "docs",
-    ".github",
-    "tests",
-]
+select = ["E", "F", "W", "C90"]
+ignore = []
+exclude = ["__pycache__", "build", "dist", ".git", ".venv"]

@@ -1,35 +1,21 @@
-[project]
-name = "proj185"
-version = "0.1.0"
-description = "Predict Protein‑Protein Interactions from Co‑expression Networks"
-authors = [{name = "Your Name", email = "you@example.com"}]
-dependencies = [
-    "numpy",
-    "pandas",
-    "networkx",
-    "goatools",
-    "scikit-learn",
-    "tqdm",
-    "requests",
-]
-
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-# RUFF linting configuration
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-exclude = [
-    "data",
-    "results",
-    "docs",
-    ".github",
-    "tests",
-]
-
-# BLACK formatting configuration (optional, defaults are fine)
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py38"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

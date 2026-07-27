@@ -1,20 +1,10 @@
 """
-Test that the repository skeleton directories exist.
-
-This test serves as a CI step: if any of the required top‑level
-directories (src, tests, data, results, docs, contracts) are missing,
-the test will fail, causing the CI job to fail.
+Unit test specifically for T001c: verifying skeleton directories exist.
 """
-
 import pathlib
-
 import pytest
+from pathlib import Path
 
-# Determine the repository root assuming this file lives in
-# <repo_root>/code/tests/
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
-
-# List of required top‑level directories for the skeleton
 REQUIRED_DIRS = [
     "src",
     "tests",
@@ -22,13 +12,23 @@ REQUIRED_DIRS = [
     "results",
     "docs",
     "contracts",
+    "scripts",
+    "specs",
+    "state",
+    "figures",
+    ".github/workflows",
 ]
 
+@pytest.fixture
+def project_root():
+    # Assumes running from code/tests/
+    return Path(__file__).resolve().parent.parent.parent
 
-@pytest.mark.parametrize("directory", REQUIRED_DIRS)
-def test_skeleton_directory_exists(directory: str):
-    """
-    Assert that each required skeleton directory exists at the repository root.
-    """
-    dir_path = REPO_ROOT / directory
-    assert dir_path.is_dir(), f"Required skeleton directory missing: {dir_path}"
+def test_skeleton_directory_exists(project_root):
+    """Asserts that all required skeleton directories exist."""
+    missing = []
+    for d in REQUIRED_DIRS:
+        if not (project_root / d).is_dir():
+            missing.append(d)
+
+    assert len(missing) == 0, f"Missing required directories: {missing}"

@@ -1,0 +1,8 @@
+# Species configuration for the PPI prediction pipeline
+# Default list includes Arabidopsis thaliana as required by the project.
+species:
+  - name: Arabidopsis thaliana
+    taxid: 3702
+    # Example GEO series IDs (real IDs can be added later)
+    geo_series:
+      - GSE12345

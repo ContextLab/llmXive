@@ -1,21 +1,13 @@
-import subprocess
-import pytest
+"""
+test_renv_status_unit.py
 
+A minimal unit‑test that directly checks the exit code of the ``renv``
+status command.
+"""
+
+import subprocess
 
 def test_renv_status_exit_code():
-    """
-    Verify that the R environment managed by renv is in a healthy state.
-
-    This test runs ``Rscript -e "renv::status()"`` and asserts that the
-    command exits with a zero return code. Any non‑zero exit indicates a
-    problem with the renv setup (missing lockfile, unsatisfied packages,
-    etc.) and should cause the test to fail.
-    """
-    result = subprocess.run(
-        ["Rscript", "-e", "renv::status()"],
-        capture_output=True,
-        text=True,
-    )
-    assert (
-        result.returncode == 0
-    ), f"renv::status() failed (exit code {result.returncode}). stderr: {result.stderr}"
+    """The ``renv::status()`` command should exit with status 0."""
+    completed = subprocess.run(["Rscript", "-e", "renv::status()"])
+    assert completed.returncode == 0

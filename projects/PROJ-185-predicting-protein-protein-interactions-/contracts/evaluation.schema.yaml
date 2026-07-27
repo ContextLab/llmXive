@@ -1,29 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Evaluation Metrics
+title: EvaluationMetrics
+description: |
+  JSON schema describing the contents of the `results/evaluation_metrics.json`
+  file produced by the evaluation stage of the PPI prediction pipeline.
+  The file contains per‑species performance metrics comparing the predicted
+  interactome against the STRING high‑confidence reference set.
 type: object
-description: Mapping from species identifier to metric results produced by the evaluation step.
-patternProperties:
-  "^[a-zA-Z0-9_]+$":
-    type: object
-    description: Metrics for a single species.
-    properties:
-      auroc:
-        type: number
-        description: Area Under the ROC curve.
-      auprc:
-        type: number
-        description: Area Under the Precision‑Recall curve.
-      baseline_auroc:
-        type: number
-        description: AUROC for the degree‑preserving random baseline.
-      baseline_auprc:
-        type: number
-        description: AUPRC for the baseline.
-      precision_at_1000:
-        type: number
-        description: Precision among the top 1 000 predicted edges.
-    required:
-      - auroc
-      - auprc
-    additionalProperties: false
+required:
+  - species
+  - auroc
+  - auprc
 additionalProperties: false
+properties:
+  species:
+    type: string
+    description: |
+      Identifier of the species for which the evaluation was performed
+      (e.g., "arabidopsis_thaliana").
+  auroc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Area Under the Receiver‑Operating‑Characteristic curve.
+  auprc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Area Under the Precision‑Recall curve.
+  baseline_auroc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: AUROC obtained from the degree‑preserving random baseline.
+  baseline_auprc:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: AUPRC obtained from the degree‑preserving random baseline.
+  baseline_p:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Empirical p‑value for the baseline comparison.
+  precision_at_1000:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Precision of the top‑1000 predicted edges.
+  recall_at_1000:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Recall of the top‑1000 predicted edges.
+  f1_at_1000:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: F1‑score for the top‑1000 predicted edges.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp indicating when the evaluation was generated.

@@ -1,0 +1,30 @@
+name: Citation Validation
+
+# Run on pushes and pull‑requests to ensure all citations are valid.
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  validate-citations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run reference validator
+        run: |
+          chmod +x scripts/run_reference_validator.sh
+          scripts/run_reference_validator.sh

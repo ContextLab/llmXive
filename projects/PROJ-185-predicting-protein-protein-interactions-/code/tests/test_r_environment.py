@@ -1,60 +1,85 @@
 """
-Unit tests for the R environment initialization.
+test_r_environment.py
+
+Unit‑tests for the R environment initialisation utilities defined in
+``init_r_environment.py``.  The tests exercise:
+
+* ``run_command`` – success and failure handling.
+* ``initialize_renv`` – creation of a ``renv.lock`` file.
+* Basic verification that the generated lockfile is valid JSON.
 """
-import os
+
 import subprocess
-import sys
+import json
 from pathlib import Path
-from unittest import mock
+
 import pytest
 
-from init_r_environment import initialize_renv, run_command
+# The functions under test live in the sibling module.
+from init_r_environment import run_command, initialize_renv, install_bioc_packages
 
+# ----------------------------------------------------------------------
+# run_command tests
+# ----------------------------------------------------------------------
 def test_run_command_success():
-    """Test that run_command executes a simple command successfully."""
-    result = run_command(["echo", "hello"], check=True)
+    """A simple command that succeeds should return a CompletedProcess."""
+    result = run_command(["echo", "hello"])
     assert result.returncode == 0
-    assert "hello" in result.stdout
+    # ``echo`` adds a trailing newline.
+    assert result.stdout.strip() == "hello"
 
 def test_run_command_failure():
-    """Test that run_command raises on failure."""
+    """A failing command must raise ``CalledProcessError``."""
     with pytest.raises(subprocess.CalledProcessError):
-        run_command(["sh", "-c", "exit 1"], check=True)
+        run_command(["false"])
 
-@pytest.mark.skipif(not shutil.which("R"), reason="R is not installed")
-def test_initialize_renv_integration(tmp_path):
+# ----------------------------------------------------------------------
+# renv initialisation tests
+# ----------------------------------------------------------------------
+def test_initialize_renv_integration(tmp_path, monkeypatch):
     """
-    Integration test for initialize_renv.
-    Note: This test is skipped if R is not installed.
-    In CI, R should be installed.
+    Initialise ``renv`` in a temporary directory and verify that a
+    ``renv.lock`` file appears.
     """
-    import shutil
-    # Mock the subprocess calls to avoid actual installation during unit tests
-    # unless we want to test the full flow (which is slow).
-    # Here we verify the logic of the function structure.
-    
-    # We will mock the subprocess calls to simulate success
-    mock_result = mock.Mock()
-    mock_result.returncode = 0
-    mock_result.stdout = "R version 4.x.x\n"
-    mock_result.stderr = ""
+    # Switch to a temporary clean directory so the real repository is not
+    # polluted.
+    monkeypatch.chdir(tmp_path)
 
-    with mock.patch('init_r_environment.subprocess.run', return_value=mock_result):
-        # Create a dummy renv.lock to simulate success
-        lockfile = tmp_path / "renv.lock"
-        lockfile.write_text("{}")
-        
-        # We need to patch the existence check too or create the dir
-        renv_dir = tmp_path / "renv"
-        renv_dir.mkdir()
+    initialize_renv()
 
-        # Since we can't easily mock the whole flow without side effects,
-        # we test that the function raises if R is missing (covered by skipif above)
-        # and that it calls the right commands.
-        pass
+    lock_file = tmp_path / "renv.lock"
+    assert lock_file.is_file(), "renv.lock was not created"
 
-def test_lockfile_verification():
-    """Test that initialize_renv checks for renv.lock."""
-    # This is a logic check. The function raises if renv.lock is missing.
-    # We can't easily test the failure path without mocking subprocess extensively.
-    pass
+def test_lockfile_verification(tmp_path, monkeypatch):
+    """
+    After ``initialize_renv`` the lockfile should be valid JSON.
+    """
+    monkeypatch.chdir(tmp_path)
+    initialize_renv()
+
+    lock_path = tmp_path / "renv.lock"
+    with lock_path.open() as fp:
+        data = json.load(fp)
+
+    # ``renv`` uses a top‑level ``Packages`` key (capitalised) in the
+    # lockfile format.
+    assert "Packages" in data or "packages" in data
+
+# ----------------------------------------------------------------------
+# Bioconductor installation test (lightweight – only checks that the
+# command runs without error).  The actual package versions are verified
+# in ``tests/test_renv_lock.py``.
+# ----------------------------------------------------------------------
+def test_install_bioc_packages(tmp_path, monkeypatch):
+    """
+    Run the Bioconductor installation in an isolated directory.
+    The test only asserts that the command completes; detailed package
+    verification is performed elsewhere.
+    """
+    monkeypatch.chdir(tmp_path)
+    # ``initialize_renv`` creates the lockfile required before installing
+    # packages.
+    initialize_renv()
+    install_bioc_packages()
+    # Verify that the lockfile still exists after package installation.
+    assert (tmp_path / "renv.lock").is_file()

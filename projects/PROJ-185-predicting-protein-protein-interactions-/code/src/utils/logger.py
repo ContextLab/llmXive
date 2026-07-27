@@ -1,125 +1,150 @@
-"""
-Logger utilities for the pipeline.
-
-This module provides:
-- JSONFormatter: a logging.Formatter that outputs log records as JSON lines
-  with the required fields ``timestamp``, ``level``, ``message`` and
-  ``schema_version``.
-- get_logger: returns a configured ``logging.Logger`` instance that writes
-  to ``pipeline.log`` in the current working directory.
-- log_cli_invocation: helper to log the CLI command line invocation.
-- log_error: helper to log an error message with ``ERROR`` level.
-"""
-
 import json
 import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-__all__ = [
-    "JSONFormatter",
-    "get_logger",
-    "log_cli_invocation",
-    "log_error",
-]
+try:
+    # Python 3.8+
+    from importlib import metadata as importlib_metadata
+except ImportError:  # pragma: no cover
+    import importlib_metadata  # type: ignore
 
-
+# ----------------------------------------------------------------------
+# JSON formatter for log records – emits a single line JSON object.
+# ----------------------------------------------------------------------
 class JSONFormatter(logging.Formatter):
     """
-    Formatter that serialises a log record to a JSON line.
-
-    The JSON object contains the following mandatory fields:
-
-    - ``timestamp``: ISO‑8601 UTC timestamp of the log event.
-    - ``level``: Logging level name (e.g. ``INFO``, ``ERROR``).
-    - ``message``: The log message (after ``%``‑style formatting).
-    - ``schema_version``: Version of the log schema (currently ``1``).
+    Convert a logging record to a JSON string.  The formatter expects that
+    ``record.msg`` is a dictionary that already contains the fields that
+    should be emitted (timestamp, level, message, etc.).  If a non‑dict
+    message is supplied it will be wrapped in a ``message`` field.
     """
-
-    def __init__(self, *, schema_version: int = 1):
-        super().__init__()
-        self.schema_version = schema_version
 
     def format(self, record: logging.LogRecord) -> str:
-        # Build the JSON payload.
-        payload: Dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "schema_version": self.schema_version,
-        }
-        # Ensure deterministic key order for easier testing / diffing.
-        return json.dumps(payload, sort_keys=True)
+        # Ensure the message is a dict; otherwise coerce.
+        if isinstance(record.msg, dict):
+            payload = record.msg
+        else:
+            payload = {
+                "message": record.getMessage(),
+            }
+
+        # Add standard fields if they are missing.
+        payload.setdefault("timestamp", datetime.now(timezone.utc).isoformat())
+        payload.setdefault("level", record.levelname)
+        payload.setdefault("schema_version", 1)
+
+        return json.dumps(payload, ensure_ascii=False)
+
+# ----------------------------------------------------------------------
+# Logger factory – creates (or returns) a singleton logger that writes to
+# ``pipeline.log`` in the project root directory.
+# ----------------------------------------------------------------------
+_LOGGER: logging.Logger | None = None
 
 
-_LOGGER_NAME = "pipeline_logger"
-_LOG_FILE_NAME = "pipeline.log"
-_LOGGER: Optional[logging.Logger] = None
-
-
-def _create_logger() -> logging.Logger:
+def _get_log_path() -> Path:
     """
-    Initialise the singleton logger.
-
-    The logger writes JSON‑Line records to ``pipeline.log`` in the current
-    working directory.  It is configured with a single ``FileHandler`` using
-    :class:`JSONFormatter`.  Propagation to the root logger is disabled to
-    avoid duplicate output.
+    Resolve the absolute path to ``pipeline.log`` located in the project
+    root (three directories up from this file).
     """
-    logger = logging.getLogger(_LOGGER_NAME)
+    # logger.py lives in <project_root>/code/src/utils/logger.py
+    project_root = Path(__file__).resolve().parents[3]
+    return project_root / "pipeline.log"
+
+
+def get_logger(name: str = "pipeline") -> logging.Logger:
+    """
+    Return a configured logger that writes JSON lines to ``pipeline.log``.
+    The logger is created only once (singleton) to avoid duplicate
+    handlers when imported multiple times.
+    """
+    global _LOGGER
+    if _LOGGER is not None:
+        return _LOGGER
+
+    logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     logger.propagate = False
 
-    # Ensure we do not add duplicate handlers if this function is called
-    # multiple times (e.g. during test reloads).
-    if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
-        log_path = Path.cwd() / _LOG_FILE_NAME
-        file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
-        file_handler.setFormatter(JSONFormatter())
-        logger.addHandler(file_handler)
+    log_path = _get_log_path()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
+    handler.setFormatter(JSONFormatter())
+    logger.addHandler(handler)
+
+    _LOGGER = logger
     return logger
 
-
-def get_logger() -> logging.Logger:
+# ----------------------------------------------------------------------
+# Helper to collect software version information.
+# ----------------------------------------------------------------------
+def _collect_versions() -> Dict[str, str]:
     """
-    Return the pipeline logger instance.
-
-    The logger is created on first call and cached for subsequent calls.
+    Return a mapping of selected package names to their installed versions.
+    If a package cannot be imported or its version cannot be discovered,
+    the value will be ``"unknown"``.
     """
-    global _LOGGER
-    if _LOGGER is None:
-        _LOGGER = _create_logger()
-    return _LOGGER
+    packages = [
+        "python",
+        "numpy",
+        "pandas",
+        "networkx",
+        "scikit-learn",
+        "tqdm",
+        "requests",
+        "goatools",
+    ]
+    versions: Dict[str, str] = {}
+    for pkg in packages:
+        if pkg == "python":
+            versions["python"] = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+            continue
+        try:
+            versions[pkg] = importlib_metadata.version(pkg)  # type: ignore[arg-type]
+        except Exception:  # pragma: no cover
+            versions[pkg] = "unknown"
+    return versions
 
-
-def log_cli_invocation(argv: Optional[list] = None) -> None:
+# ----------------------------------------------------------------------
+# Public logging helpers.
+# ----------------------------------------------------------------------
+def log_cli_invocation(args: Any) -> None:
     """
-    Log the command‑line invocation of the pipeline.
+    Log a single entry describing the CLI invocation.
 
     Parameters
     ----------
-    argv : list, optional
-        ``sys.argv``‑style argument list.  If omitted, ``sys.argv`` is used.
+    args : argparse.Namespace
+        The parsed arguments from ``src.cli.run_pipeline``.  The namespace
+        is expected to contain a ``seed`` attribute (int) that represents
+        the global random seed used by the pipeline.
     """
-    if argv is None:
-        argv = sys.argv
-    command_str = " ".join(argv)
-    get_logger().info(f"CLI invocation: {command_str}")
+    logger = get_logger()
+    entry: Dict[str, Any] = {
+        "message": "CLI invocation",
+        "command": " ".join(sys.argv),
+        "versions": _collect_versions(),
+    }
 
+    # ``seed`` may be optional – include only when present.
+    seed = getattr(args, "seed", None)
+    if seed is not None:
+        entry["seed"] = seed
 
-def log_error(message: str, exc_info: bool = True) -> None:
+    logger.info(entry)
+
+def log_error(message: str, exc_info: Any = None) -> None:
     """
-    Log an error message at ``ERROR`` level.
-
-    Parameters
-    ----------
-    message : str
-        Human‑readable error description.
-    exc_info : bool, default True
-        Include exception traceback information if an exception is being
-        handled.
+    Log an error message to the pipeline log.  ``exc_info`` can be the
+    exception tuple returned by ``sys.exc_info()`` to capture a traceback.
     """
-    get_logger().error(message, exc_info=exc_info)
+    logger = get_logger()
+    entry: Dict[str, Any] = {
+        "message": message,
+        "error": True,
+    }
+    logger.error(entry, exc_info=exc_info)

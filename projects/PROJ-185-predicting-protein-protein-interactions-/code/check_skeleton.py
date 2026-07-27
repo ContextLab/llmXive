@@ -1,17 +1,11 @@
-"""
-check_skeleton.py
+"""Utility to verify that the repository skeleton directories exist.
 
-This script is used in CI to verify that the repository skeleton directories
-required by the project exist. If any of the required directories are missing,
-the script exits with a non‑zero status code, causing the CI step to fail.
-
-Required skeleton directories (relative to the repository root):
-  - src
-  - tests
-  - data
-  - results
-  - docs
-  - contracts
+The function ``missing_directories`` returns a list of any expected
+top‑level directories that are absent.  The ``main`` function exits with
+status code ``0`` when everything is present and ``1`` otherwise,
+printing a helpful message.  This script is intended for CI usage (e.g.,
+as a step that fails the build if the skeleton is incomplete) and is also
+exercised by the unit tests in ``tests/test_skeleton_directories.py``.
 """
 
 import sys
@@ -19,44 +13,73 @@ from pathlib import Path
 from typing import List
 
 
-# List of directories that must exist at the repository root
-REQUIRED_DIRECTORIES: List[Path] = [
-    Path("src"),
-    Path("tests"),
-    Path("data"),
-    Path("results"),
-    Path("docs"),
-    Path("contracts"),
+# The same list used by ``create_skeleton`` – keeping them in sync avoids
+# accidental mismatches.
+EXPECTED_DIRS = [
+    "src",
+    "tests",
+    "data",
+    "results",
+    "docs",
+    "contracts",
 ]
 
 
-def missing_directories() -> List[Path]:
+def _project_root() -> Path:
     """
-    Return a list of required directories that are missing.
+    Resolve the repository root directory.
 
-    The check is performed relative to the current working directory,
-    which in CI is the repository root.
+    This file lives in ``code/``; the root is its parent directory.
     """
-    return [d for d in REQUIRED_DIRECTORIES if not d.is_dir()]
+    return Path(__file__).resolve().parent.parent
 
 
-def main() -> None:
+def missing_directories(root: Path = None) -> List[Path]:
     """
-    Entry point for the script.
+    Return a list of expected skeleton directories that are missing.
 
-    Prints a concise report to stdout/stderr and exits with:
-      - 0 if all required directories are present
-      - 1 if any required directory is missing
+    Parameters
+    ----------
+    root : Path, optional
+        The directory to treat as the repository root.  If omitted, the
+        function determines the root relative to this file.
+
+    Returns
+    -------
+    List[Path]
+        Paths (relative to ``root``) of directories that do not exist.
     """
-    missing = missing_directories()
+    if root is None:
+        root = _project_root()
+    missing = []
+    for rel in EXPECTED_DIRS:
+        if not (root / rel).is_dir():
+            missing.append(root / rel)
+    return missing
+
+
+def main(argv: list = None) -> None:
+    """
+    CLI entry point used by CI scripts.
+
+    Exits with ``0`` if all skeleton directories are present, otherwise
+    prints the missing paths and exits with ``1``.
+    """
+    if argv is None:
+        argv = sys.argv[1:]  # noqa: F841  (reserved for future flags)
+
+    root = _project_root()
+    missing = missing_directories(root)
+
     if missing:
-        # Report each missing directory on its own line for easy parsing
-        for d in missing:
-            print(f"Missing required directory: {d}", file=sys.stderr)
-        # Use a distinct exit code to signal the failure in CI
+        print("Missing required repository directories:", file=sys.stderr)
+        for p in missing:
+            print(f"  - {p}", file=sys.stderr)
         sys.exit(1)
     else:
-        print("All required skeleton directories are present.")
+        # Successful verification – print nothing (or a brief confirmation
+        # for interactive runs).
+        print("All repository skeleton directories are present.")
         sys.exit(0)
 
 

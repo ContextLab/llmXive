@@ -1,23 +1,36 @@
-T004:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only a high\u2011level feature specification for a PPI pipeline\
-    \ and contains no linting/formatting configuration files (e.g., `pyproject.toml`\
-    \ with Black settings, `.ruff.toml` or `ruff.toml`, `styler` config, or CI integration).\
-    \ Consequently, the required artifacts for task T004 are missing."
-T004c:
-  c: false
-  h: e8f921e107dec3ab2d27b0aeeceeef2ebc2efc2a79ad8c7d6205ada683c3f4ed
-  r: The repository contains a `[tool.ruff]` section in `pyproject.toml`, but the
-    required `.ruff.toml` file is missing, and there is no evidence of a CI lint job
-    that runs `ruff check.` and fails on violations. Both artifacts are needed to
-    satisfy the task.
-T005c:
+  r: No evidence of the required repository skeleton directories (`src/`, `tests/`,
+    `data/`, `results/`, `docs/`, `contracts/`) is present; the provided material
+    only contains a feature specification and no filesystem artifacts. The task therefore
+    remains unfinished.
+T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CI workflow file (e.g., `.github/workflows/*.yml`) was presented, and there
-    is no evidence that any such file contains a `validate` job. The required artifact
-    is missing, so the task is not satisfied.
+  r: "No CI configuration, script, or workflow file was presented that checks for\
+    \ the presence of required skeleton directories and causes the CI job to fail\
+    \ if any are missing. The implementer supplied no artifact matching the task\u2019\
+    s requirement, so the claim of completion is unsupported."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `renv.lock` file, R initialization script, or any evidence of the listed Bioconductor
+    packages being installed is present. The required artifact (the environment lockfile
+    and installation steps) is missing, so the task is not satisfied.
+T003c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `renv.lock` file, nor any unit\u2011test code or test results were provided;\
+    \ without these artifacts we cannot verify that a test checks the lockfile\u2019\
+    s existence and that it records package versions. The required test and lockfile\
+    \ are missing."
+T003d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test file or script is present in the provided evidence; there\
+    \ is no code that runs `Rscript -e \"renv::status()\"` and checks for a non\u2011\
+    zero exit status. The required test artifact is missing, so the task is not satisfied."
 T005d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,11 +41,10 @@ T005d:
     \ a CI step exists or works. The required CI validation artifact is missing."
 T009c:
   c: false
-  h: 6f32ae3967f58f2c9bf58c00394ed70acd910b13f983f375c7118ca26e720faa
-  r: "The required files `species.yaml`, `parameters.yaml`, and the schema `contracts/config.schema.yaml`\
-    \ (or `schema.yaml`) are missing from the repository, so no validation can be\
-    \ performed. Without these artifacts the CI step cannot be executed, meaning the\
-    \ task\u2019s core requirement is not met."
+  h: 0036871db05825cd6c1a0a47446f4e4f350c739d2add0aa0ba2a3993e8b8ea8d
+  r: Both required files `species.yaml` and `parameters.yaml` are reported as missing,
+    so the unit test that verifies their presence cannot pass. The artifact needed
+    to satisfy the task does not exist.
 T009d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,13 +53,36 @@ T009d:
     \ log showing a step that enforces the overall pipeline to finish within\u202F\
     6\u202Fhours. Consequently, the required artifact (a CI step that checks and limits\
     \ total runtime using the benchmark script) is missing."
-T012:
+T010c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no code, file, or snippet showing a CLI argument validator\
-    \ in `run_pipeline.py`, nor any test or documentation confirming that `--threshold`\
-    \ is enforced to be \u2265\u202F0.75. Without the actual artifact, the requirement\
-    \ is not satisfied."
+  r: "The claim provides no unit\u2011test code, test output, or proof that any YAML/JSON\
+    \ schema files were parsed and validated; no files or logs are presented to demonstrate\
+    \ syntactic checking. Consequently, the required artifact (a test confirming all\
+    \ schema files are valid) is missing."
+T011c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the high\u2011level feature specification and user stories;\
+    \ there is no evidence of a verification script, nor any CI configuration or logs\
+    \ showing that the script is executed after each `make` target as required by\
+    \ FR\u2011017. The necessary artifact (e.g., a script, GitHub Actions step, or\
+    \ Makefile modification invoking the verification step) is missing."
+T012c:
+  c: false
+  h: b50d9b5e868e45b5ddd24b89409e868d6d4515a92bb812c3767c176559167d58
+  r: The required artifact `tests/unit/test_cli_threshold.py` does not exist in the
+    repository, so the unit test for the CLI validator cannot be verified. The task
+    remains unfinished until the file is added with appropriate test code.
+T012d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes a PPI prediction pipeline and its evaluation;\
+    \ there is no code, configuration, test, or documentation showing that a `--seed`\
+    \ argument is now passed to the correlation, baseline, negative\u2011sampling,\
+    \ or sensitivity modules. Consequently, the requirement of global seed propagation\
+    \ is not demonstrated. The implementer must supply the updated scripts/CLI definitions\
+    \ and/or tests confirming the seed is forwarded to all stochastic components."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -61,35 +96,12 @@ T042:
   r: "No unit or integration test code, test data, or test results were provided to\
     \ demonstrate that the edge\u2011list size is verified; the claim is only a placeholder\
     \ token with no accompanying artifact. The required test artifact is missing."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, log files, or test output were provided to demonstrate that\
-    \ the downloader now checks sample counts, skips series with fewer than\u202F\
-    30 samples, and writes a warning to `pipeline.log`. Without such artifacts, the\
-    \ requirement cannot be verified as satisfied."
 T064:
   c: false
   h: 45824f22fd38ac8a8fe3afd1d81f886b57180cb7d4d29840f92eeb355c6d62ce
   r: "The required `src/pipeline/download.py` file does not exist, and `state/artifact_hashes.yaml`\
     \ is empty (`{}`) with no recorded SHA\u2011256 hashes. Both the downloader implementation\
     \ and the hash recording are missing."
-T069:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no concrete artifact such as a test file, test runner output,\
-    \ or log demonstrating a unit test that checks the pipeline\u2019s skip behavior\
-    \ for GEO series with fewer than 30 samples. Without any code, test results, or\
-    \ evidence of proper logging and graceful continuation, the requirement is not\
-    \ satisfied. The next implementer must add the unit test implementation and include\
-    \ its execution evidence."
-T098:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, configuration, or example `pipeline.log` showing the added\
-    \ command\u2011line, version, and seed information were provided; thus the required\
-    \ logger extension cannot be verified. The implementer must supply the modified\
-    \ logger implementation and a sample log entry demonstrating the new fields."
 T099:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

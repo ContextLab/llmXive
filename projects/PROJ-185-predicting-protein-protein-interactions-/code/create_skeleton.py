@@ -1,29 +1,26 @@
 """Create the repository skeleton required for the project.
 
-This script ensures that the top‑level directories required by the
-specification exist:
+This script ensures that the top‑level directories expected by the
+pipeline exist:
 
-- src
-- tests
-- data
-- results
-- docs
-- contracts
+- src/
+- tests/
+- data/
+- results/
+- docs/
+- contracts/
 
-For ``src`` and ``tests`` an ``__init__.py`` file is added so that they are
-recognised as Python packages. Minimal placeholder files are added to
-``docs`` and ``contracts`` to make the directories non‑empty (helpful for
-version‑control tools and for the repository‑skeleton verification tests).
-
-The script is idempotent – running it repeatedly will not modify existing
-files or raise errors.
+It is idempotent – existing directories are left untouched.
+The script is used by the unit test ``tests/test_skeleton.py`` and can be
+executed directly via ``python code/create_skeleton.py``.
 """
 
 import sys
 from pathlib import Path
 
-# List of top‑level directories that must exist.
-REQUIRED_DIRS = [
+
+# List of directories that constitute the repository skeleton.
+SKELETON_DIRS = [
     "src",
     "tests",
     "data",
@@ -33,47 +30,50 @@ REQUIRED_DIRS = [
 ]
 
 
-def _ensure_dir(path: Path) -> None:
-    """Create *path* (including parents) if it does not exist."""
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def _touch_file(path: Path, content: str = "") -> None:
-    """Create *path* if it does not exist and optionally write *content*."""
-    if not path.exists():
-        path.write_text(content)
-
-
-def main() -> int:
+def _project_root() -> Path:
     """
-    Entry point for the skeleton‑creation script.
+    Resolve the project root directory.
 
-    Returns
-    -------
-    int
-        Exit code – ``0`` for success, non‑zero for unexpected errors.
+    ``create_skeleton.py`` lives in ``code/``; the repository root is the
+    parent of that directory.
     """
-    try:
-        project_root = Path(__file__).resolve().parents[1]  # ``code/`` → project root
-        for dirname in REQUIRED_DIRS:
-            dir_path = project_root / dirname
-            _ensure_dir(dir_path)
+    return Path(__file__).resolve().parent.parent
 
-            # Add minimal placeholder files where appropriate.
-            if dirname == "src":
-                _touch_file(dir_path / "__init__.py")
-            elif dirname == "tests":
-                _touch_file(dir_path / "__init__.py")
-            elif dirname == "docs":
-                _touch_file(dir_path / "README.md", "# Documentation\n")
-            elif dirname == "contracts":
-                _touch_file(dir_path / "placeholder.schema.yaml", "# Placeholder schema\n")
-    except Exception as exc:  # pragma: no cover – any failure should be visible.
-        print(f"Error creating repository skeleton: {exc}", file=sys.stderr)
-        return 1
 
-    return 0
+def _create_directories(root: Path) -> None:
+    """
+    Create each directory in ``SKELETON_DIRS`` under ``root``.
+
+    ``parents=True`` ensures that intermediate directories are created if
+    they do not already exist, and ``exist_ok=True`` makes the operation
+    safe to run multiple times.
+    """
+    for rel_dir in SKELETON_DIRS:
+        dir_path = root / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+
+def main(argv: list = None) -> None:
+    """
+    Entry point for the script.
+
+    Parameters
+    ----------
+    argv : list, optional
+        Command‑line arguments (unused).  The signature matches the style
+        used by other scripts in the repository and allows the function to
+        be called directly from tests.
+    """
+    if argv is None:
+        argv = sys.argv[1:]  # noqa: F841  (kept for future extensions)
+
+    root = _project_root()
+    _create_directories(root)
+
+    # Provide a minimal user‑facing message – useful when the script is run
+    # manually.
+    print(f"Repository skeleton created under {root}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

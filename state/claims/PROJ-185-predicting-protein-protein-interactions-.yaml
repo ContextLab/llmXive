@@ -1566,3 +1566,282 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T16:00:12Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: pilot benchmark precision 0.60 and recall 0.40 against STRING
+  claim_id: c_522eef0e
+  context: "Phase 5 \u2013 Pilot Benchmark & Construct\u2011Validity (US\u20111 Extension):\
+    \ Perform pilot benchmark on a held\u2011out Arabidopsis GEO series... compute\
+    \ precision \u2265 0.60 and recall \u2265 0.40 against STRING high\u2011confidence\
+    \ interactions"
+  evidence:
+    asserted: '0.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "computes precision \u2265 0.60 and recall \u2265 0.40 against STRING\
+    \ high\u2011confidence interactions"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T16:32:21Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: STRING high-confidence set combined score 700
+  claim_id: c_d85e1b2b
+  context: "Phase 3 \u2013 User Story 2 \u2013 Quantitative Evaluation Against STRING\
+    \ (US\u20112): Implement STRING downloader... downloads high\u2011confidence set\
+    \ (combined score \u2265 700)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "downloads high\u2011confidence set (combined score \u2265 700)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:32:21Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: AUROC 0.70 and AUPRC 0.65 metric thresholds
+  claim_id: c_9af2d62f
+  context: "Phase 3 \u2013 User Story 2 \u2013 Quantitative Evaluation Against STRING\
+    \ (US\u20112): CI step that parses results/evaluation_metrics.json and asserts\
+    \ AUROC \u2265 0.70 and AUPRC \u2265 0.65"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "asserts AUROC \u2265 0.70 and AUPRC \u2265 0.65"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:32:22Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: gene filtering retains top 5000 variance genes
+  claim_id: c_e1c99b48
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): Implement gene\u2011filtering... retain at most the N genes with\
+    \ highest variance... Unit test verifying N=5,000 default is enforced if config\
+    \ missing"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gene_filtering_retains_top_5000_variance_genes
+  kind: magnitude
+  raw_text: retains at most the N genes with highest variance, where N defaults to
+    a substantial number of top-variance genes... N=5,000 default is enforced if config
+    missing
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:33:08Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: gene filtering CPM less than 1 in 80 percent samples
+  claim_id: c_1dcd70be
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): Implement gene\u2011filtering (CPM < 1 in > 80 % samples)"
+  evidence:
+    candidates:
+    - - Gene filtering CPM less than 1 in
+      - 80.0
+    - - Look for Gene filtering CPM less than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Gene_filtering_CPM_less_than_1_in_80_percent_samples
+  kind: magnitude
+  raw_text: CPM < 1 in > 80 % samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-27T16:33:43Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: correlation matrix generation block size 1000 genes
+  claim_id: c_b40af35b
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): Implement Pearson correlation matrix generation... block size=1000\
+    \ genes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: blocks size=1000 genes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:06Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: edge list minimum count 10000
+  claim_id: c_25107a11
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): Verify edge\u2011list size: unit/integration test that asserts\
+    \ edge count \u2265 10 000"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "asserts edge count \u2265 10 000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:06Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: pipeline abort if retained samples less than 50
+  claim_id: c_5de67e10
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): Abort pipeline if total retained samples after series\u2011level\
+    \ filtering < 50"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_abort_if_retained_samples_less_than_50
+  kind: magnitude
+  raw_text: "Abort pipeline if total retained samples after series\u2011level filtering\
+    \ < 50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:23Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: batch correction warning if residual variance greater than 5 percent
+  claim_id: c_698d58a5
+  context: "Phase 2 \u2013 User Story 1 \u2013 Data Acquisition & Pre\u2011processing\
+    \ (US\u20111): After batch correction, compute residual batch variance; log warning\
+    \ if > 5%"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_warning_if_residual_variance_greater_than_5
+  kind: magnitude
+  raw_text: log warning if residual batch variance > 5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:42Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: CLI threshold minimum 0.75
+  claim_id: c_a224604b
+  context: "Phase 1 \u2013 Foundational (Blocking Prerequisites): Implement CLI argument\
+    \ validator... that enforces --threshold \u2265 0.75"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforces --threshold \u2265 0.75"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:42Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: citation validation title token overlap 0.7
+  claim_id: c_545527fe
+  context: "Phase 1 \u2013 Foundational (Blocking Prerequisites): Extend citation\
+    \ validation to enforce title\u2011token overlap \u2265 0.7"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "title\u2011token overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:42Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: pipeline runtime warning if greater than 6 hours
+  claim_id: c_a5fd8050
+  context: "Phase 8 \u2013 Additional Supporting Tasks: Run performance benchmark\
+    \ script... record results... warn if >6h"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_warning_if_greater_than_6_hours
+  kind: magnitude
+  raw_text: warn if runtime exceeds 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:34:55Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: GOATOOLS ontology dated 2023-12-01
+  claim_id: c_5c78bdde
+  context: "Phase 4 \u2013 User Story 3 \u2013 Functional Enrichment of Predicted\
+    \ Interactome (US\u20113): Implement GO enrichment script using GOATOOLS (ontology\
+    \ dated --01)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ontology dated --01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:35:10Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: STRING high-confidence interactions defined by combined score >= 700
+  claim_id: c_498caeed
+  context: "Implement STRING downloader `src/pipeline/download_string.py` (fixed URL,\
+    \ checksum verification) \u2013 downloads high\u2011confidence set (combined score\u202F\
+    \u2265\u202F700) and explicitly filters out the co\u2011expression evidence channel"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "STRING high\u2011confidence interactions are defined as combined score\u202F\
+    \u2265\u202F700"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:44:27Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "STRING high\u2011confidence set combined score >= 700"
+  claim_id: c_051b943a
+  context: "T021 Implement STRING downloader src/pipeline/download_string.py \u2013\
+    \ downloads high\u2011confidence set (combined score\u202F\u2265\u202F700) and\
+    \ explicitly filters out the co\u2011expression evidence channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "downloads high\u2011confidence set (combined score\u202F\u2265\u202F\
+    700) and explicitly filters out the co\u2011expression evidence channel"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T16:46:29Z'

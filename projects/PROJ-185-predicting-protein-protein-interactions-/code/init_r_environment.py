@@ -1,27 +1,26 @@
 """
 init_r_environment.py
----------------------
 
-This script initializes an R environment for the project using the
-``renv`` package and installs the required Bioconductor packages.
-It is deliberately simple and relies on ``Rscript`` being available in
-the system ``PATH``.  The public API consists of three callables that are
-used by the test suite:
+This module provides utilities to bootstrap an R environment for the
+project using **renv** and to install the required Bioconductor packages.
+It is used by the unit‑tests in `tests/test_r_environment.py` and by the
+CI pipeline.
 
-* ``run_command`` – thin wrapper around ``subprocess.run`` that raises
-  an exception on failure and returns the completed process.
-* ``initialize_renv`` – performs the actual ``renv`` bootstrap,
-  installs the required packages, and snapshots the environment to
-  produce a ``renv.lock`` file at the repository root.
-* ``main`` – entry‑point used by ``python -m init_r_environment`` or the
-  CI; it simply calls ``initialize_renv``.
+The implementation follows the public API defined in the project's
+specification:
 
-The implementation is fully deterministic: the same set of package
-versions is recorded every time the script runs (assuming the CRAN/Bioconductor
-repositories have not changed).  The generated ``renv.lock`` file is a
-valid JSON document and contains a ``Packages`` mapping where each of the
-required packages appears with a ``Version`` field – this satisfies the
-expectations of ``tests/test_renv_lock.py``.
+* ``run_command`` – thin wrapper around ``subprocess.run`` that raises on
+  failure.
+* ``initialize_renv`` – creates a fresh ``renv`` environment and writes a
+  ``renv.lock`` file.
+* ``install_bioc_packages`` – installs the list of required Bioconductor
+  packages inside the ``renv`` project.
+* ``main`` – orchestrates the full initialization when the script is run
+  directly.
+
+All commands are executed via ``Rscript``; the functions raise a
+``subprocess.CalledProcessError`` on failure so that the test suite can
+verify error handling.
 """
 
 import subprocess
@@ -33,164 +32,122 @@ from typing import List
 # ----------------------------------------------------------------------
 def run_command(command: List[str]) -> subprocess.CompletedProcess:
     """
-    Execute a command via ``subprocess.run`` with ``check=True`` so that
-    any non‑zero exit status raises a ``CalledProcessError``.  The
-    function captures stdout/stderr and returns the completed process
-    object for potential introspection by callers or tests.
+    Execute a command using ``subprocess.run`` with ``check=True`` so that
+    failures raise ``CalledProcessError``.
 
     Parameters
     ----------
-    command:
-        List of command‑line arguments, e.g. ``["Rscript", "-e", "..."]``.
+    command: List[str]
+        The command and its arguments, e.g. ``["Rscript", "-e", "..."]``.
 
     Returns
     -------
     subprocess.CompletedProcess
-        The result of the executed command.
+        The completed process object (stdout, stderr, returncode).
     """
-    # ``capture_output=True`` and ``text=True`` give us convenient string
-    # output for debugging while still raising on failure.
-    return subprocess.run(
+    # ``text=True`` provides ``stdout``/``stderr`` as strings.
+    result = subprocess.run(
         command,
         check=True,
         capture_output=True,
         text=True,
     )
+    return result
 
 # ----------------------------------------------------------------------
-# Core functionality
+# renv initialization
 # ----------------------------------------------------------------------
 def initialize_renv() -> None:
     """
-    Initialise ``renv`` in the repository root and install the required
-    Bioconductor packages:
-
-    - DESeq2
-    - org.At.tair.db
-    - biomaRt
-    - sva
-    - GEOquery
+    Initialise a *renv* project in the current working directory.
 
     The function performs the following steps:
 
-    1. Ensure the ``renv`` package is available, installing it from CRAN
-       if necessary.
-    2. Initialise a *bare* ``renv`` project – this creates the
-       ``renv`` infrastructure without pulling in the default R packages.
-    3. Install the Bioconductor packages via ``BiocManager::install``.
-    4. Snapshot the environment, which writes ``renv.lock`` to the
-       repository root.
-
-    Any failure in the subprocess calls propagates as an exception,
-    causing the script (and the CI) to fail loudly – this satisfies the
-    “no silent fallback” requirement.
+    1. Ensures the ``renv`` package is installed (via CRAN).
+    2. Calls ``renv::init(bare = TRUE)`` which creates a minimal ``renv``
+       environment and writes a ``renv.lock`` file.
     """
-    repo_root = Path(__file__).resolve().parent.parent  # project root
-    # Step 1 – install renv if missing
-    run_command(
-        [
-            "Rscript",
-            "-e",
-            (
-                "if (!requireNamespace('renv', quietly = TRUE)) "
-                "install.packages('renv', repos = 'https://cloud.r-project.org')"
-            ),
-        ]
-    )
-
-    # Step 2 – initialise renv (bare = TRUE avoids pulling in the default R packages)
-    run_command(
-        [
-            "Rscript",
-            "-e",
-            "renv::init(bare = TRUE)",
-        ],
-        # Ensure we run the command from the repository root so that
-        # the ``renv`` folder and ``renv.lock`` are created there.
-            # ``cwd`` is not a named argument of ``run_command``; we need
-            # to invoke ``subprocess.run`` directly for the working directory.
-        )
-    # The above call uses ``run_command`` which does not expose ``cwd``.
-    # To keep the public helper simple we re‑implement the snapshot step
-    # with an explicit ``cwd`` argument.
-    subprocess.run(
-        [
-            "Rscript",
-            "-e",
-            "renv::snapshot()",
-        ],
-        check=True,
-        cwd=str(repo_root),
-        capture_output=True,
-        text=True,
-    )
-
-    # Step 3 – install required Bioconductor packages.
-    # ``BiocManager`` is part of the Bioconductor bootstrap; install it
-    # first if it is not already present.
-    run_command(
-        [
-            "Rscript",
-            "-e",
-            (
-                "if (!requireNamespace('BiocManager', quietly = TRUE)) "
-                "install.packages('BiocManager', repos = 'https://cloud.r-project.org')"
-            ),
-        ]
-    )
-    # Install the list of packages without prompting.
-    bioc_packages = [
-        "DESeq2",
-        "org.At.tair.db",
-        "biomaRt",
-        "sva",
-        "GEOquery",
+    # Install renv if missing
+    install_renv_cmd = [
+        "Rscript",
+        "-e",
+        (
+            "if (!requireNamespace('renv', quietly = TRUE)) "
+            "install.packages('renv', repos = 'https://cloud.r-project.org')"
+        ),
     ]
-    install_expr = (
-        "BiocManager::install(c("
-        + ", ".join(f"'{pkg}'" for pkg in bioc_packages)
-        + "), ask = FALSE, update = FALSE)"
-    )
-    run_command(
-        [
-            "Rscript",
-            "-e",
-            install_expr,
-        ]
-    )
+    run_command(install_renv_cmd)
 
-    # Step 4 – final snapshot to ensure ``renv.lock`` reflects the installed
-    # versions.  This is run from the repository root to guarantee the lock
-    # file ends up at the correct location.
-    subprocess.run(
-        [
-            "Rscript",
-            "-e",
-            "renv::snapshot()",
-        ],
-        check=True,
-        cwd=str(repo_root),
-        capture_output=True,
-        text=True,
-    )
+    # Initialise renv (bare = TRUE creates the lockfile without installing any packages yet)
+    init_cmd = [
+        "Rscript",
+        "-e",
+        "renv::init(bare = TRUE)",
+    ]
+    run_command(init_cmd)
 
-    # Verify that the lock file now exists; raise a clear error if it does
-    # not – this gives the CI a deterministic failure point.
-    lock_path = repo_root / "renv.lock"
+    # Verify that the lockfile was created
+    lock_path = Path("renv.lock")
     if not lock_path.is_file():
-        raise FileNotFoundError(f"renv.lock was not created at expected location: {lock_path}")
+        raise FileNotFoundError("renv.lock was not created by renv::init()")
 
 # ----------------------------------------------------------------------
-# CLI entry point
+# Bioconductor package installation
+# ----------------------------------------------------------------------
+REQUIRED_BIOC_PACKAGES = [
+    "DESeq2",
+    "org.At.tair.db",
+    "biomaRt",
+    "sva",
+    "GEOquery",
+]
+
+def install_bioc_packages() -> None:
+    """
+    Install the required Bioconductor packages inside the *renv* project.
+
+    The function ensures that the ``BiocManager`` package is available and
+    then calls ``BiocManager::install()`` with ``ask = FALSE`` to avoid
+    interactive prompts.
+    """
+    # Install BiocManager if missing
+    install_biocmanager_cmd = [
+        "Rscript",
+        "-e",
+        (
+            "if (!requireNamespace('BiocManager', quietly = TRUE)) "
+            "install.packages('BiocManager', repos = 'https://cloud.r-project.org')"
+        ),
+    ]
+    run_command(install_biocmanager_cmd)
+
+    # Install the required Bioconductor packages
+    packages_str = ", ".join(f'"{pkg}"' for pkg in REQUIRED_BIOC_PACKAGES)
+    install_cmd = [
+        "Rscript",
+        "-e",
+        (
+            f"BiocManager::install(c({packages_str}), ask = FALSE, update = FALSE, "
+            "checkBuilt = FALSE, force = FALSE)"
+        ),
+    ]
+    run_command(install_cmd)
+
+# ----------------------------------------------------------------------
+# Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Command‑line entry point.  It simply calls :func:`initialize_renv`.
-    The function returns ``None``; any error bubbles up as an exception,
-    which the CI interprets as a failure.
+    Initialise the R environment and install the Bioconductor dependencies.
+    This function is used by the CI step and can also be invoked manually:
+
+    ``python code/init_r_environment.py``
     """
+    print("Initializing renv environment...")
     initialize_renv()
+    print("Installing required Bioconductor packages...")
+    install_bioc_packages()
+    print("R environment ready. renv.lock created at:", Path("renv.lock").resolve())
 
 if __name__ == "__main__":
-    # When the module is executed directly, run the ``main`` function.
     main()

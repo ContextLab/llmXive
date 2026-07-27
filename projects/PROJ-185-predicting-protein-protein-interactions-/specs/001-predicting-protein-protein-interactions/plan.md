@@ -74,7 +74,7 @@ Develop a reproducible, CI‑compatible pipeline that (1) downloads publicly ava
 | Role | Source | Access Method | Notes |
 |------|--------|---------------|-------|
 | **RNA‑seq counts** | NCBI GEO (public) | `datasets.load_dataset("geo", data_dir="data/raw", split="train", streaming=False)` via `geo-downloader` CLI | Series list supplied in `species.yaml`. Series with < 30 samples are omitted (FR‑043). |
-| **STRING protein‑protein interactions** | STRING (v11.5) | Direct download from verified HuggingFace parquet: ` | Only edges with combined score ≥ 700 *and* without evidence channels `coexpression`, `transcriptomics`, `gene_expression` are retained (FR‑006). |
+| **STRING protein‑protein interactions** | STRING (v) | Direct download from verified HuggingFace parquet: ` | Only edges with combined score ≥ 700 *and* without evidence channels `coexpression`, `transcriptomics`, `gene_expression` are retained (FR‑006). |
 | **GO ontology** | GO (released via GOATOOLS at runtime) | Automatic download by GOATOOLS (`goatools.obo_parser.GODag`) | No external URL needed; GOATOOLS caches the OBO file. |
 
 *No other external datasets are required.* All downloads are fully scriptable on a fresh GitHub Actions runner.
@@ -83,7 +83,7 @@ Develop a reproducible, CI‑compatible pipeline that (1) downloads publicly ava
 
 | Decision | Rationale | Compute Placement |
 |----------|-----------|-------------------|
-| **Normalization** | Default VST (DESeq2) preserves variance for count data; TPM option supported for compositional data (FR‑002). | CPU (R via `rpy2` runs on 2 cores). |
+| **Normalization** | Default VST (DESeq2) preserves variance for count data; TPM option supported for compositional data (FR‑002). | CPU (R via `rpy2` runs on multiple cores). |
 | **Correlation** | Pearson for VST, Spearman for TPM (FR‑004). Block‑wise streaming to keep RAM < 6 GB. | CPU – pure NumPy/SciPy. |
 | **Threshold** | Default 0.80; CLI enforces lower bound 0.75 (FR‑012, T012). | CPU – enforced in `run_pipeline.py`. |
 | **Batch‑effect correction** | ComBat (limma) when > 1 GEO series; fallback to SVA if metadata missing (FR‑014). **Batch‑Effect QC**: after correction, PCA is performed, variance explained by batch is computed, and if residual batch variance > 5 % the pipeline aborts (new diagnostic). | CPU – R implementation via `rpy2`. |

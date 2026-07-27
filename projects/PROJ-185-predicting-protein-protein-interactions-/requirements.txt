@@ -5,5 +5,4 @@ goatools
 scikit-learn
 tqdm
 requests
-ruff
-black
+PyYAML

@@ -1,4 +1,3 @@
-# Python dependencies
 numpy
 pandas
 networkx
@@ -6,8 +5,4 @@ goatools
 scikit-learn
 tqdm
 requests
-pytest
-pyyaml
-rpy2>=3.5.0
-# R dependencies are managed via renv, listed here for documentation only:
-# DESeq2, org.At.tair.db, biomaRt, sva, GEOquery
+PyYAML

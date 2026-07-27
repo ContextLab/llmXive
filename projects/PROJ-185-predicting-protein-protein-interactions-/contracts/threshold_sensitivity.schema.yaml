@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Threshold Sensitivity Output Schema
+description: |
+  JSON Schema describing the structure of the TSV file produced by the
+  sensitivity analysis (src/pipeline/sensitivity.py). Each row corresponds to
+  a specific correlation threshold and reports the evaluation metrics
+  computed at that threshold.
+type: array
+items:
+  type: object
+  properties:
+    threshold:
+      type: number
+      description: Correlation threshold used for edge extraction.
+    auroc:
+      type: number
+      description: Area Under the Receiver Operating Characteristic curve.
+    auprc:
+      type: number
+      description: Area Under the Precision‑Recall curve.
+  required:
+    - threshold
+    - auroc
+    - auprc
+  additionalProperties: false

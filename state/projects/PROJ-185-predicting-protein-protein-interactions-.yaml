@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-185-predicting-protein-protein-interactions-
-last_run_id: b4682184-8f7f-4bfb-aa9e-b56d5eb62a1d
+last_run_id: 0ed514df-bc97-47b6-8ac6-9f266f8529bf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions
 title: Predicting Protein-Protein Interactions from Co-expression Networks in Public
   Plant Databases
-updated_at: '2026-07-26T16:09:57.866633Z'
+updated_at: '2026-07-27T16:58:00.893152Z'
