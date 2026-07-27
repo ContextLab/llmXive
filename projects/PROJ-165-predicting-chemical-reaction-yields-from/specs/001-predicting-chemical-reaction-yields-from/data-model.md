@@ -1,81 +1,65 @@
-# Data Model: Predicting Molecular Stability from Spectroscopic Data
+# Data Model: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
-## Entity Definitions
+## 1. Entity Definitions
 
 ### ReactionSample
-Represents a single chemical reaction instance after preprocessing.
-- `reaction_smiles`: str (Canonical SMILES of the reaction)
-- `yield_percent`: float (0.0 to 100.0, or **normalized DFT total energy proxy**)
-- `ir_spectrum`: list[float] (Resampled array, length = num_bins_IR)
-- `nmr_spectrum`: list[float] (Resampled array, length = num_bins_NMR, or null if missing)
-- `rfp`: list[int] (ECFP4 fingerprint vector, length = 2048)
-- `scaffold_id`: str (Hash of the Bemis-Murcko scaffold)
-- `solvent_id`: int (Encoded categorical ID)
-- `catalyst_id`: int (Encoded categorical ID)
-- `temperature_k`: float (Absolute temperature)
-- `source_dataset`: str (e.g., "DFT")
+Represents a single chemical reaction instance.
+- `id`: `str` (UUID)
+- `reaction_smiles`: `str` (Canonical SMILES)
+- `yield_percent`: `float` (0.0 - 100.0)
+- `ir_spectrum`: `List[float]` (Resampled to 400-4000 cm⁻¹, length=3601)
+- `nmr_spectrum`: `List[float]` (Resampled to 0-10 ppm, length=1001)
+- `rfp`: `List[int]` (ECFP4 fingerprint, length=2048)
+- `reaction_template_id`: `str` (Hash of reaction center)
+- `solvent_id`: `int` (Encoded category)
+- `catalyst_id`: `int` (Encoded category)
+- `temperature_k`: `float`
+- `source`: `str` (e.g., "USPTO", "DFT_Simulated")
 
 ### SpectralGrid
-Defines the standardized domain for spectral data.
-- `type`: str ("IR", "Raman", "NMR")
-- `min_value`: float (e.g., 400.0 for IR)
-- `max_value`: float (e.g., 4000.0 for IR)
-- `num_bins`: int (e.g., 1000)
+Defines the standardized domain.
+- `type`: `str` ("IR", "NMR")
+- `min_value`: `float`
+- `max_value`: `float`
+- `num_bins`: `int`
 
 ### ModelCheckpoint
-Represents a saved state of the trained model.
-- `epoch`: int
-- `validation_rmse`: float
-- `weights_path`: str (Relative path to .pt file)
-- `config_hash`: str (SHA-256 of the training config)
+- `epoch`: `int`
+- `validation_rmse`: `float`
+- `weights_path`: `str`
+- `config_hash`: `str`
 
-### EvaluationResult
-Stores the output of the evaluation phase.
-- `model_name`: str (e.g., "attention", "fingerprint_baseline")
-- `rmse`: float
-- `mae`: float
-- `r2`: float
-- `p_value`: float (from paired t-test vs best baseline)
-- `attention_map`: list[float] (Averaged attention weights over spectral axis)
+## 2. Data Flow Diagram
 
-### AnalysisTrace
-Links every statistic/figure to its source data and code.
-- `statistic_id`: str (Unique ID for the statistic)
-- `data_row_ids`: list[str] (List of row IDs from the processed dataset)
-- `code_block_hash`: str (SHA-256 hash of the specific code block/script that generated the result)
-- `artifact_path`: str (Path to the generated figure or metric file)
-- `description`: str (Human-readable description of the statistic)
-
-## Data Flow
-
-1.  **Ingestion**: Raw data (DFT) is downloaded and stored in `data/raw/`.
+1.  **Ingestion**: Raw files (Parquet/CSV) -> `data/raw/` (Checksummed).
 2.  **Preprocessing**:
-    - SMILES are parsed to extract scaffolds.
-    - Spectra are resampled to `SpectralGrid`.
-    - Conditions are one-hot or integer encoded.
-    - Data is split into Train/Val/Test based on `scaffold_id` (zero overlap).
+    - Extract SMILES, Yield, Conditions.
+    - Generate/Load Spectra.
+    - Resample & Normalize.
+    - Extract Templates -> Split (Train/Val/Test).
     - Output: `data/processed/train.parquet`, `val.parquet`, `test.parquet`.
 3.  **Training**:
-    - Model loads `train.parquet`.
-    - Trains for max 10 epochs.
-    - Saves `ModelCheckpoint` to `data/artifacts/`.
+    - Load `train.parquet` -> `torch.utils.data.DataLoader`.
+    - Model Forward -> Loss (MSE) -> Backward -> Update.
+    - Log metrics -> `data/artifacts/training_log.json`.
 4.  **Evaluation**:
-    - Model and baselines are evaluated on `test.parquet`.
-    - Attention maps are generated.
-    - **AnalysisTrace** entries are created for every metric and figure.
-    - Output: `data/artifacts/metrics.json`, `data/artifacts/attention_heatmap.png`, `data/artifacts/trace_log.json`.
+    - Load `test.parquet` + Model -> Predictions.
+    - Compute Metrics (RMSE, MAE, R²).
+    - Run Permutation Test.
+    - Generate Heatmaps.
+    - Output: `data/artifacts/evaluation_report.json`, `figures/`.
 
-## Constraints & Validation
+## 3. Schema Constraints
 
-- **Yield Range**: `yield_percent` must be between 0.0 and 100.0. If a proxy (DFT Energy) is used, the range must be normalized to this scale.
-- **Spectral Length**: All `ir_spectrum` and `nmr_spectrum` arrays must have length equal to `num_bins` defined in `SpectralGrid`.
-- **Scaffold Uniqueness**: The set of `scaffold_id` in `train` must be disjoint from `test` and `val`.
-- **Missing Data**: If `nmr_spectrum` is missing, it is replaced with a zero vector and a mask flag is set (if the model supports masking).
-- **SSoT Linkage**: Every statistic reported in the paper must have a corresponding `AnalysisTrace` entry. The `code_block_hash` must match the hash of the specific script/function used to generate the result.
+- **Yield**: Must be in range [0, 100].
+- **Spectra**: Must have fixed length (grid size).
+- **Templates**: Must be unique per sample; no overlap across splits.
+- **Missing Data**: Samples with missing spectra or yield are dropped (or masked if masking logic implemented).
 
-## Linkage Mechanism (Principle IV)
+## 4. File Formats
 
-To satisfy Principle IV (Single Source of Truth):
-1.  The `src/utils/trace_logger.py` module is used to generate `AnalysisTrace` entries.
-2.  Every time a statistic is calculated (e.g., RMSE), the logger records the `data_row_ids` and the `code_block_hash` of the function that calculated it.
-3.  The `trace_log.json` file serves as the master index linking all figures and statistics to their source.
+- **Raw Data**: Parquet (USPTO), CSV (NMR).
+- **Processed Data**: Parquet (compressed).
+- **Logs/Reports**: JSON.
+- **Models**: `.pt` (PyTorch).
+- **Config**: YAML.

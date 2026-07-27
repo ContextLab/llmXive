@@ -9,17 +9,17 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-**User Journey**: A researcher uploads or selects a dataset of chemical reactions containing SMILES strings, spectroscopic data (IR, Raman, NMR), and reaction conditions (solvent, catalyst, temperature). The system ingests this data, encodes the conditions, resamples all spectra to a standardized wavenumber/chemical shift grid, normalizes intensities, and generates a clean, split-ready dataset with a 70/15/15 train/validation/test partition ensuring no reaction template leakage between sets. The pipeline must also validate against an independent experimental dataset if available.
+**User Journey**: A researcher uploads or selects a dataset of chemical reactions containing SMILES strings, spectroscopic data (IR, Raman, NMR), and reaction conditions (solvent, catalyst, temperature). The system ingests this data, encodes the conditions, resamples all spectra to a standardized wavenumber/chemical shift grid, normalizes intensities, and generates a clean, split-ready dataset with a 70/15/15 train/validation/test partition ensuring no reaction template leakage between sets. The pipeline must also validate against an independent experimental dataset if available, or generate a Simulated Validation Report if only simulated data is present.
 
-**Why this priority**: Without a robust, leakage-free data pipeline that accounts for reaction conditions and validates against independent data, no model training or validation is possible. This is the foundational step that enables all subsequent analysis and determines the validity of the research question.
+**Why this priority**: Without a robust, leakage-free data pipeline that accounts for reaction conditions and validates against independent data (or documents the limitation for simulated data), no model training or validation is possible. This is the foundational step that enables all subsequent analysis and determines the validity of the research question.
 
-**Independent Test**: The pipeline can be executed on a subset of the USPTO or ZINC data, producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits, and verifying that reaction conditions are encoded as features.
+**Independent Test**: The pipeline can be executed on a subset of the USPTO or ZINC data, producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits (verified via MD5 hash of template IDs), verifying that reaction conditions are encoded as features (assert feature names in log contain condition vectors), and verifying that the leakage report is generated.
 
 **Acceptance Scenarios**:
 
 1. **Given** a raw dataset containing reaction SMILES, raw spectral arrays, and reaction conditions, **When** the preprocessing script is executed, **Then** the output files contain resampled spectra on a common grid (e.g., 400–4000 cm⁻¹), normalized intensities, and encoded condition vectors.
 2. **Given** the training and test splits, **When** the reaction template substructures are extracted and compared, **Then** the intersection of templates between the training set and test set is exactly zero.
-3. **Given** an independent experimental validation dataset (e.g., from a separate publication), **When** the pipeline processes it, **Then** the system generates a separate evaluation report comparing predictions against this independent ground truth to verify lack of circular validation.
+3. **Given** an independent experimental validation dataset (e.g., from a separate publication), **When** the pipeline processes it, **Then** the system generates a separate evaluation report comparing predictions against this independent ground truth to verify lack of circular validation. If no independent dataset exists, the system MUST generate a Simulated Validation Report using a hold-out set of simulated data.
 
 ---
 
@@ -50,7 +50,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the test set predictions from the attention model and the baseline models, **When** the evaluation script runs, **Then** it outputs a table comparing RMSE and R², and reports a p-value from a paired t-test on absolute errors.
-2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top [deferred] of spectral weights, and a sensitivity analysis is reported over {5%, 10%, 15%} thresholds.
+2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top [deferred] percentile of spectral weights, and a sensitivity analysis is reported over {5%, 10%, 15%} thresholds.
 3. **Given** a permutation test where *yield* labels are shuffled, **When** the model is re-evaluated, **Then** the performance drops to near-random levels (e.g., R² < 0.05), confirming the model learned signal rather than noise.
 
 ---
@@ -66,16 +66,22 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (typical IR/Raman ranges, 0–10 ppm for NMR), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
-- **FR-002**: System MUST split the dataset into training ([deferred]), validation ([deferred]), and test ([deferred]) sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits (See US-1).
+- **FR-002**: System MUST split the dataset into training ([deferred]), validation ([deferred]), and test ([deferred]) sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits. This constraint applies to the source reaction SMILES and must prevent leakage of the simulation logic if simulated data is used (See US-1).
 - **FR-003**: System MUST implement a multi-head self-attention neural network that accepts concatenated spectral tensors, ECFP4 fingerprint vectors, and reaction condition embeddings as input (See US-2).
 - **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of 1e-3 and batch size of 32, running for a maximum of 10 epochs with early stopping on validation RMSE (See US-2).
 - **FR-005**: System MUST compute and report RMSE, MAE, and R² metrics for the attention model, a fingerprint-only baseline, a spectrum-only baseline, and a condition-only baseline on the test set (See US-3).
 - **FR-006**: System MUST perform a paired t-test on the absolute errors of the attention model versus the best baseline to determine statistical significance (See US-3).
 - **FR-007**: System MUST generate attention weight visualizations mapping the spectral axis to highlight regions with the highest predictive contribution (See US-3).
-- **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled to verify the model is not learning spurious correlations or structural priors alone (See US-3).
-- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over a range of thresholds to ensure robustness of identified regions. (See US-3).
-- **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (if available) to prevent circular validation and confirm generalizability (See US-1).
+- **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled to verify the model is not learning spurious correlations or structural priors alone. If simulated data is used, the test must verify that the model does not overfit to the simulation noise (See US-3).
+- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over the set {[deferred], [deferred], [deferred]} to ensure robustness of identified regions (See US-3).
+- **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (if available) to prevent circular validation and confirm generalizability. If no independent experimental dataset exists, the system MUST generate a Simulated Validation Report using a hold-out set of simulated data and document the limitation (See US-1).
 - **FR-011**: System MUST explicitly encode reaction conditions (solvent, catalyst, temperature) as input features to prevent confounding by reaction environment when splitting by template (See US-1).
+- **FR-010a**: System MUST generate an evaluation report comparing predictions against independent ground truth (or simulated hold-out data) as a distinct artifact (See US-1).
+- **FR-012**: System MUST retrieve reference functional group frequencies from the NIST Chemistry WebBook to validate attention peaks against literature values (See SC-003).
+- **FR-013**: System MUST compute and report the Pearson correlation coefficient between attention-weighted spectral features and yield residuals (See US-3).
+- **FR-014**: System MUST use MD5 hashing of canonical SMILES and reaction template IDs to deterministically verify zero overlap between splits (See FR-002).
+- **FR-015**: System MUST perform a Simulated Data Integrity Check to verify that simulated spectra are not deterministic functions of the fingerprint input alone, flagging any high collinearity (See Scope).
+- **FR-016**: System MUST compute the Variance Inflation Factor (VIF) between spectral and fingerprint inputs and flag if VIF > 5 to detect lack of independent variance (See Scientific Soundness).
 
 ### Key Entities
 
@@ -91,9 +97,10 @@
 
 - **SC-001**: The predictive performance (RMSE) of the attention model is measured against the fingerprint-only baseline and the flattened-spectrum baseline to quantify the independent signal of spectral data (See FR-005).
 - **SC-002**: The statistical significance of the performance improvement is measured against a null hypothesis of no difference using a paired t-test on per-sample errors (See FR-006).
-- **SC-003**: The interpretability of the model is measured by the correlation between attention-weighted spectral features and yield residuals (after controlling for fingerprints), requiring a statistically significant correlation (p < 0.05) and that ≥80% of the top 5 attention peaks fall within ±50 cm⁻¹ of literature values for known functional group frequencies (See FR-007).
+- **SC-003**: The interpretability of the model is measured by the correlation between attention-weighted spectral features and yield residuals (after controlling for fingerprints), requiring a statistically significant correlation (p < 0.05) and that ≥80% of the top 5 attention peaks fall within ±50 cm⁻¹ of literature values from the NIST Chemistry WebBook for known functional group frequencies (See FR-007, FR-012).
+- **SC-003b**: If simulated data is used, the interpretability of the model is measured by the alignment of attention peaks with the simulation logic, requiring ≥95% of the top 5 attention peaks to fall within ±50 cm⁻¹ of the spectral bins used to inject functional group signals in the simulation (See FR-007, FR-015).
 - **SC-004**: The robustness of the model against overfitting is measured by the performance drop in the permutation test where yield labels are shuffled, requiring R² < 0.05 (See FR-008).
-- **SC-005**: The computational feasibility is measured by the total execution time on a CPU-only runner, ensuring it completes within a predefined time limit. (See US-2).
+- **SC-005**: The computational feasibility is measured by the total execution time on a CPU-only runner, ensuring it completes within 6 hours (See US-2).
 
 ## Assumptions
 
@@ -101,6 +108,8 @@
 - **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
 - **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments or simulation methods) for model ingestion.
 - **Reaction Yield Definition**: It is assumed that the "yield" values in the source datasets are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
-- **Template Leakage Prevention**: It is assumed that splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, effectively prevents data leakage and ensures the model generalizes to new reaction types.
-- **Threshold Justification**: The attention visualization threshold is set to the top 10% of weights by default, with a sensitivity analysis performed over {[deferred], [deferred], [deferred]} to ensure robustness.
+- **Template Leakage Prevention**: It is assumed that splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, effectively prevents data leakage and ensures the model generalizes to new reaction types. This applies to the source SMILES regardless of whether spectra are experimental or simulated.
+- **Threshold Justification**: The attention visualization threshold is set to a high percentile of weights by default, with a sensitivity analysis performed over a range of high-percentile thresholds (e.g., 90th, 95th, 99th) to ensure robustness.
 - **Multiplicity Correction**: Since the evaluation involves multiple comparisons (attention model vs. multiple baselines), a Bonferroni correction will be applied to the p-values derived from the t-tests to control the family-wise error rate.
+- **Hypothesis Duality**: If experimental data is unavailable and the project pivots to simulated data, the research question is explicitly redefined to "Can a model learn to map simulated spectra to yield?" acknowledging that the claim of "independent predictive signal" cannot be validated with simulated data.
+- **Data Source Validity**: If simulated data is used, the system MUST verify via FR-015 and FR-016 that the simulation does not introduce circular dependencies or perfect collinearity between inputs, and any such findings must be reported as limitations.

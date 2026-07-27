@@ -1,0 +1,18 @@
+status: none
+intent: download USPTO, ZINC, and DFT reaction spectral datasets python package dataset
+required_fields:
+- reaction_smiles
+- ir_spectrum
+- raman_spectrum
+- nmr_spectrum
+- solvent
+- catalyst
+- temperature
+- resampled_ir_grid
+- resampled_raman_grid
+- resampled_nmr_grid
+- normalized_intensity
+- condition_vector
+cache_key: 9135180962c8d943532b9585c7246752adc824195d49c71bb465c43904c54d5b
+searched_at: '2026-07-27T19:21:10.996185+00:00'
+retry_count: 1

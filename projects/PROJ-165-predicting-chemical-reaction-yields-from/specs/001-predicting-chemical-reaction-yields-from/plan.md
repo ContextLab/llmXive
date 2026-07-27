@@ -1,124 +1,138 @@
-# Implementation Plan: Predicting Molecular Stability from Spectroscopic Data with Attention Mechanisms
+# Implementation Plan: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
-**Branch**: `001-predict-reaction-yields-from-spectra` | **Date**: 2026-07-14 | **Spec**: [link]
-**Input**: Feature specification from `/specs/001-predict-reaction-yields-from-spectra/spec.md`
+**Branch**: `001-predict-reaction-yields-from-spectra` | **Date**: 2026-07-14 | **Spec**: `specs/001-predict-reaction-yields-from-spectra/spec.md`
 
 ## Summary
+This project implements a multi-head self-attention neural network to predict chemical reaction yields using concatenated inputs: **real experimental** spectroscopic data (IR, Raman, NMR), structural fingerprints (ECFP4), and reaction condition embeddings. The plan prioritizes a robust, leakage-free data pipeline that splits by reaction template, ensuring no structural overlap between train/test sets. It addresses the core scientific hypothesis: **real** spectroscopic data contains independent predictive signal beyond molecular structure.
 
-This project implements a multi-head self-attention neural network to predict **normalized DFT total molecular energy** (a proxy for molecular stability) using concatenated inputs: spectroscopic data (IR/Raman/NMR), structural fingerprints (ECFP4), and reaction conditions (if available). The core technical challenge is constructing a leakage-free dataset split based on molecular scaffolds while resampling heterogeneous spectral data to a unified grid. The implementation strictly adheres to CPU-only constraints (GitHub Actions free tier), utilizing PyTorch with CPU tensors and scikit-learn for statistical baselines. The plan ensures every Functional Requirement (FR-001 to FR-011) and Success Criterion (SC-001 to SC-005) is addressed by a specific implementation phase, with a formal pivot from "reaction yield" to "molecular stability" due to data availability.
-
-> **Scope Note**: Due to the lack of verified datasets containing paired (Reaction SMILES, Experimental Yield, Spectrum) data, the target variable is defined as **normalized DFT total molecular energy**. The research question is reframed to investigate "predictive signal for molecular stability" rather than experimental yield. The plan explicitly acknowledges the circularity of DFT spectrum vs. DFT energy and focuses on testing "computational distinctness" and "robustness to noise" as the primary scientific contribution.
+**Critical Constraint**: The project **strictly prohibits** the use of simulated, synthetic, or deterministic spectra generated from SMILES. All spectral inputs must be **real experimental measurements** from verified open datasets. If a sufficient number of verified paired samples (SMILES + Real Spectrum + Yield) cannot be assembled, the project will pivot to a **Qualitative Architecture Validation** mode using the available small real dataset, or generate a **Data Insufficiency Report** if no real paired data exists. This ensures the validity of the "independent signal" hypothesis.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: PyTorch (CPU-only build), scikit-learn, RDKit, pandas, numpy, matplotlib, seaborn, pyyaml
-**Storage**: Local file system (CSV/Parquet for data, JSON/YAML for logs); no external database.
-**Testing**: `pytest` (unit tests for preprocessing, integration tests for model training).
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM, no GPU).
-**Project Type**: Computational research pipeline / CLI tool.
-**Performance Goals**: End-to-end execution (data prep + training + eval) ≤ 6 hours on CPU.
-**Constraints**: No GPU usage; no 8-bit/4-bit quantization; dataset size subset to fit available RAM; strict scaffold-based leakage prevention.
-**Scale/Scope**: Processing of a subset of DFT data (simulated spectra and energy) to validate the attention mechanism's ability to detect spectral signals.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `rdkit`, `pandas`, `pyyaml`, `datasets` (Hugging Face), `matplotlib`, `seaborn`.  
+**Storage**: Local file system (`data/`, `src/`, `state/`), Parquet/CSV for datasets.  
+**Testing**: `pytest` with `coverage` for unit tests; `pytest` integration tests for pipeline steps.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
+**Project Type**: Scientific computing pipeline / Machine Learning research prototype.  
+**Performance Goals**: Complete full training/evaluation cycle (including data ingestion, preprocessing, model training, and analysis) within 6 hours on CPU.  
+**Constraints**: Memory footprint < 7 GB RAM; Disk usage < 14 GB; No local GPU; Strict adherence to template-based splitting to prevent leakage.  
+**Scale/Scope**: Dataset size limited to what fits in RAM or can be streamed; model architecture simplified (e.g., 2-3 attention heads, smaller hidden dimensions) to fit CPU constraints.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Note on Dataset Fit**: The spec requires paired SMILES, spectra, and conditions. Verified datasets in the input block provide SMILES (USPTO, ZINC, ChEMBL) and isolated NMR/IR samples (NMR_demo, MolSpectra). **No single verified dataset contains all three for the same reaction instance.**
+> **Strategy**: The project will attempt to merge verified sources (e.g., matching SMILES from USPTO with spectra from NMR_demo). **If the number of successfully merged, real paired samples is < 500, the quantitative hypothesis (H1) is dropped.** The project will then pivot to a **Qualitative Architecture Validation** using the small real dataset to test if the model can learn *any* signal, or generate a **Data Insufficiency Report** if N=0. This adheres to the "No Fabrication" principle.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-- **Principle I (Reproducibility)**: Addressed by pinning `requirements.txt`, using fixed random seeds in `code/`, and ensuring datasets are fetched from canonical HuggingFace URLs defined in `research.md`.
-- **Principle II (Verified Accuracy)**: All citations in `research.md` are sourced from the "Verified datasets" block in `research.md`. The Reference-Validator Agent will verify these URLs before any artifact is accepted. **No external URLs will be invented.**
-- **Principle III (Data Hygiene)**: The plan includes a `data/` directory structure where raw data is preserved, checksums are recorded in `state/`, and all transformations produce new files (no in-place modification).
-- **Principle IV (Single Source of Truth)**: The `data-model.md` defines the **AnalysisTrace** entity and linkage mechanism that links every figure/statistic to a specific data row and code block hash. The `AnalysisTrace` entity includes `statistic_id`, `data_row_ids`, `code_block_hash`, `artifact_path`, and `description`.
-- **Principle V (Versioning)**: Artifacts will carry content hashes. The plan mandates running `python -m src.cli.main --update-state` after any change to update the `updated_at` timestamp in the project state file. The `src/utils/state_manager.py` module performs this update.
-- **Principle VI (Spectral Preprocessing)**: The data pipeline (Phase) explicitly implements resampling to fixed grids (typical IR ranges, characteristic NMR ppm spans) and unit variance normalization as required.
-- **Principle VII (Structural Baseline & Interpretability)**: The evaluation phase (Phase 2) mandates training a **Fingerprint-Only Baseline** as a prerequisite for the interpretability analysis required by SC-003. The baseline isolates the signal contributed by spectra. The attention visualization is compared against the baseline to identify regions where the spectrum adds value.
+| Principle | Status | Action/Mapping |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | `random_seed` pinned in `src/utils/seeds.py`; `requirements.txt` pins versions; CI runs `pytest` end-to-end. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited in `research.md` are from the verified block. **No simulated data is used.** If data is insufficient, the project reports "Data Insufficiency" or "Qualitative Validation" rather than fabricating metrics. |
+| **III. Data Hygiene** | **PASS** | `data/raw/` preserved; `data/processed/` checksummed via `src/utils/checksums.py`; no in-place modifications. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` trace to `data/processed/` artifacts and `src/` execution logs. |
+| **V. Versioning** | **PASS** | Content hashes recorded in `state/projects/...yaml`; artifact hashes updated on every `data/` write. |
+| **VI. Spectral Preprocessing** | **PASS** | `src/data/preprocessing.py` implements resampling to fixed grid (low-wavenumber to high-wavenumber, 0-10 ppm) and unit variance normalization. |
+| **VII. Structural Baseline** | **PASS** | `src/models/baselines.py` implements ECFP4-only, Spectrum-only, and Condition-only baselines for comparison. |
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
-specs/001-predicting-chemical-reaction-yields-from-spectra/
+specs/001-predict-reaction-yields-from-spectra/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output (not created here)
+└── contracts/           # Design Artifacts (Inputs)
+    ├── dataset.schema.yaml
+    ├── model_output.schema.yaml
+    └── experiment_config.schema.yaml
 ```
 
 ### Source Code (repository root)
-
 ```text
 src/
-├── data/
-│   ├── ingestion.py          # Downloads and validates raw data
-│   ├── preprocessing.py      # Resampling, normalization, splitting
-│   └── loaders.py            # PyTorch Dataset classes
-├── models/
-│   ├── attention_net.py      # Multi-head attention model definition
-│   ├── baselines.py          # Fingerprint-only, Spectrum-only, Condition-only
-│   └── trainer.py            # Training loop, early stopping, logging
-├── eval/
-│   ├── metrics.py            # RMSE, MAE, R², t-test implementation
-│   ├── interpretability.py   # Attention visualization, sensitivity analysis
-│   └── permutation.py        # Permutation test logic
+├── __init__.py
 ├── cli/
-│   └── main.py               # Entry point for pipeline execution (--update-state)
-├── config/
-│   └── defaults.yaml         # Hyperparameters (LR, epochs, batch size)
+│   └── main.py          # Entry point for pipeline execution
+├── data/
+│   ├── ingestion.py     # Download/verify datasets
+│   ├── preprocessing.py # Resampling, normalization, template splitting
+│   └── loaders.py       # PyTorch Dataset/DataLoader wrappers
+├── models/
+│   ├── attention_net.py # Multi-head attention model
+│   └── baselines.py     # Fingerprint/Spectrum/Condition only models
 ├── utils/
-│   ├── seeds.py              # Random seed management
-│   ├── validators.py         # Schema validation helpers
-│   └── state_manager.py      # State file update logic (Principle V)
-└── tests/
-    ├── contract/                 # Schema validation tests
-    ├── integration/              # End-to-end pipeline tests
-    └── unit/                     # Preprocessing and model logic tests
+│   ├── seeds.py         # RNG pinning
+│   ├── validators.py    # Schema validation, leakage checks
+│   └── checksums.py     # Data integrity hashing
+├── eval/
+│   ├── metrics.py       # RMSE, MAE, R², t-tests
+│   └── interpretability.py # Attention heatmaps, permutation tests
+├── config/
+│   └── default.yaml     # Hyperparameters (LR, batch size, epochs)
+└── constants.py         # Spectral grid definitions
+
+tests/
+├── unit/
+│   ├── test_preprocessing.py
+│   └── test_models.py
+├── integration/
+│   └── test_pipeline.py
+└── contract/
+    └── test_schemas.py
 
 data/
-├── raw/                      # Downloaded raw datasets (checksummed)
-├── processed/                # Split, normalized, resampled data
-└── artifacts/                # Model checkpoints, logs, figures
+├── raw/                 # Downloaded raw files (checksummed)
+├── processed/           # Split, resampled, normalized data
+└── artifacts/           # Manifests, leakage reports, logs
 
 state/
-└── projects/PROJ-165-.../    # Project state and artifact hashes
+└── projects/PROJ-165-.../
+    └── artifact_hashes.yaml
 ```
 
-**Structure Decision**: A modular Python package structure (`src/`) is selected to separate concerns (data, model, eval) and facilitate unit testing. The `data/` directory is split into `raw` and `processed` to enforce Principle III (Data Hygiene). The `contracts/` directory in `specs/` holds the YAML schemas for validation.
+**Structure Decision**: Single-project structure selected to minimize overhead. The `src/` hierarchy separates data, model, and evaluation logic clearly. `data/` is strictly read-only for raw, write-only for processed. `state/` tracks metadata.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Multi-head Attention | Required by FR-003 to capture non-linear interactions between spectral regions and molecular properties. | Simple MLP or linear regression cannot model the "independent predictive signal" of specific spectral regions as required by the research question. |
-| Scaffold Splitting | Required by FR-002 to prevent data leakage and ensure generalization to new chemical scaffolds. | Random splitting would leak structural information, inflating performance metrics and violating the scientific validity of the study. |
-| CPU-Only Constraint | Required by the GitHub Actions free-tier environment (no GPU available). | GPU-accelerated training would fail in the CI environment, preventing the project from reaching `research_complete`. |
-| Permutation Test | Required by FR-008 and SC-004 to verify signal learning vs. noise. | Omitting this test would leave the model's validity unproven against spurious correlations. |
-| Structure-Only Baseline | Required to mitigate circularity (DFT energy vs. DFT spectra). | Without this baseline, it is impossible to prove the spectrum adds signal beyond the structure used to generate the target. |
-| Noise Robustness Test | Required to validate that the spectral signal is not just a trivial reconstruction of DFT physics. | Omitting this test would leave the model's robustness to experimental error unproven. |
+| :--- | :--- | :--- |
+| **Multi-modal Attention** | Required to isolate spectral signal from structural signal (SC-001). | Concatenated MLP would not allow per-channel attention weights needed for interpretability (SC-003). |
+| **Template-based Splitting** | Required to prevent leakage (FR-002, US-1). | Random split would leak reaction templates, invalidating generalizability claims. |
+| **Real Data Only** | Required to test "independent signal" hypothesis validly. | Simulated spectra would create a tautological relationship with fingerprints, invalidating the hypothesis. |
 
-## Evaluation Strategy
+## Development & Linting
+- **Linting**: `pyproject.toml` configures `ruff` and `black` for consistent code style.
+- **CI**: GitHub Actions workflow runs `ruff check` and `black --check` on every PR.
+- **Type Checking**: `mypy` is used for static type checking.
 
-### Static vs. Dynamic Validation
-To ensure the spectral signal is not just a proxy for static structure:
-1.  **Structure-Only Baseline**: Train a model on ECFP4 fingerprints only.
-2.  **Spectrum-Only Baseline**: Train a model on spectra only.
-3.  **Attention Model**: Train the full model.
-4.  **Comparison**: If the Attention model significantly outperforms the Structure-Only baseline, it proves the spectrum adds independent signal. If the Attention model significantly outperforms the Spectrum-Only baseline, it proves the structure adds independent signal.
+## Data Hygiene
+- **Checksums**: `src/utils/checksums.py` generates and logs SHA-256 hashes for all files in `data/raw/`.
+- **Logs**: `data/artifacts/ingestion_log.json` and `data/validation_status.json` track data acquisition status.
+- **Leakage Reports**: `data/artifacts/leakage_report.json` documents the template split verification.
 
-### Spectral Relevance Verification
-- **Correlation with Residuals**: The attention weights must correlate significantly with the yield (energy) residuals (after controlling for fingerprints).
-- **Literature Sanity Check**: Attention peaks will be compared to literature values as a secondary sanity check, but **not** as a primary pass/fail metric (SC-003 updated).
+## Data Sufficiency Gate (Updated)
 
-### Permutation Test
-- **Shuffle Yields**: Randomly shuffle the target variable (DFT Energy) and retrain.
-- **Expectation**: The model performance (R²) should drop to near-random levels (< 0.05), confirming the model learned signal rather than noise.
+Before training begins, the pipeline MUST execute a "Data Sufficiency Check":
+1. Count the number of samples with **real** paired spectra and yields.
+2. If `N == 0`:
+   - Halt training.
+   - Generate `data/artifacts/data_insufficiency_report.json`.
+   - Output a qualitative analysis of the available data (e.g., "No real paired samples found; quantitative hypothesis H1 cannot be tested.").
+3. If `0 < N < 500`:
+   - **Perform Template Diversity Check**: Count unique reaction templates.
+     - If unique templates < 3: Report "Insufficient Template Diversity for Splitting". Halt template-based splitting. Perform single-set qualitative analysis.
+     - If unique templates >= 3: Proceed with **Qualitative Architecture Validation**. Train the model on the small real dataset (using a single set or minimal split if possible). Report performance metrics but explicitly state that quantitative claims (H1, H2) are not supported due to low power and potential lack of statistical independence.
+   - *Decision*: The project defaults to **Path 1 (Real Data Merge)**. If the merge yields < 500 samples, the project pivots to Path 2 (Qualitative Validation or Report).
 
-### Noise Robustness Test
-- **Add Noise**: Add Gaussian noise to the spectral input to simulate experimental error.
-- **Expectation**: The model trained on noisy spectra should maintain performance better than the model trained on clean spectra, demonstrating robustness.
+This gate ensures the project does not proceed with a scientifically invalid dataset or fabricate data.
+
+## FR-010 Fallback Strategy
+FR-010 requires validation against an independent experimental dataset.
+- **Primary Path**: Use a separate, verified experimental dataset (e.g., a hold-out set from a different publication) if available.
+- **Fallback Path**: If no independent dataset exists, perform a **Temporal Split** or **Source-Stratified Split** on the available real data (e.g., using older USPTO reactions for training and newer ones for validation) **ONLY IF** the source distribution is demonstrably different (e.g., different instrument, different year range with documented shift).
+- **Not Applicable**: If no independent dataset exists and no valid temporal/source split can be demonstrated, FR-010 is marked as "Not Applicable" in the final report with a limitation note. The report will explicitly state that independent validation was not possible.
+- **Reporting**: The final report will explicitly state which validation strategy was used.

@@ -1,90 +1,62 @@
-# Quickstart: Predicting Molecular Stability from Spectroscopic Data
+# Quickstart: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
 ## Prerequisites
-
 - Python 3.11+
 - Git
-- Sufficient disk space (for raw and processed data)
-- 7 GB+ RAM
+- ~ GB Disk Space
+- Internet Access (for dataset download)
 
 ## Installation
 
-1.  **Clone the Repository**
+1.  **Clone & Setup**
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-165-predicting-chemical-reaction-yields-from
-    ```
-
-2.  **Create Virtual Environment**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**
-    ```bash
+    cd <project-root>
+    python -m venv .venv
+    source .venv/bin/activate
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins PyTorch to a CPU-only version.*
+
+2.  **Verify Environment**
+    ```bash
+    python -c "import torch; print(torch.__version__); print('CPU' if not torch.cuda.is_available() else 'GPU')"
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the CLI. It performs data ingestion, preprocessing, training, and evaluation in sequence.
-
-### 1. Full Pipeline Execution
+### Step 1: Data Ingestion & Preprocessing
+Downloads verified datasets, filters for **real paired data** (SMILES + Spectrum + Yield), resamples, and splits by template.
+**Note**: Samples without real spectra are excluded. If the final dataset size is < 500, the pipeline halts and generates a Data Insufficiency Report.
 ```bash
-python -m src.cli.main --mode full
+python -m src.cli.main ingest
+python -m src.cli.main preprocess
 ```
-This command:
-- Downloads datasets from verified HuggingFace URLs.
-- Preprocesses data (resampling, splitting).
-- Trains the attention model and baselines.
-- Runs evaluation and generates reports.
-- Saves all artifacts to `data/artifacts/`.
+*Outputs*: `data/processed/train.parquet`, `data/processed/test.parquet`, `data/artifacts/leakage_report.json`, or `data/artifacts/data_insufficiency_report.json`.
 
-### 2. Individual Steps
-
-**Preprocessing Only** (skip training):
+### Step 2: Model Training (Conditional)
+Trains the attention model with early stopping. **Only runs if data sufficiency check passes.**
 ```bash
-python -m src.cli.main --mode preprocess
+python -m src.cli.main train
 ```
+*Outputs*: `models/best_model.pt`, `data/artifacts/training_log.json`.
 
-**Training Only** (requires preprocessed data):
+### Step 3: Evaluation & Interpretability
+Runs baselines, computes metrics, performs permutation tests, and generates heatmaps. **Only runs if data sufficiency check passes.**
 ```bash
-python -m src.cli.main --mode train
+python -m src.cli.main evaluate
 ```
+*Outputs*: `data/artifacts/evaluation_report.json`, `figures/attention_heatmap.png`.
 
-**Evaluation Only** (requires trained model):
+## Testing
+
+Run unit and integration tests:
 ```bash
-python -m src.cli.main --mode eval
+pytest tests/ -v --cov=src
 ```
-
-**Update State File** (Principle V):
-After any significant change or manual intervention, run:
-```bash
-python -m src.cli.main --update-state
-```
-This command updates the `updated_at` timestamp in `state/projects/PROJ-165-.../state.yaml` and records the current artifact hashes. The `src/utils/state_manager.py` module performs this update.
-
-## Verifying Results
-
-After running the full pipeline:
-
-1.  **Check Metrics**:
-    Open `data/artifacts/metrics.json` to view RMSE, MAE, R², and p-values.
-2.  **View Attention Heatmap**:
-    Open `data/artifacts/attention_heatmap.png` to see the top spectral regions identified by the model.
-3.  **Verify Leakage**:
-    Run the unit test to ensure no scaffold overlap:
-    ```bash
-    pytest tests/unit/test_preprocessing.py::test_no_scaffold_leakage
-    ```
-4.  **Verify SSoT**:
-    Check `data/artifacts/trace_log.json` to ensure every statistic has a corresponding `AnalysisTrace` entry.
 
 ## Troubleshooting
 
-- **Out of Memory**: If the process crashes due to RAM, reduce the `--sample-size` argument in the preprocessing step.
-- **Data Download Failed**: Verify internet connection. The datasets are fetched from HuggingFace; ensure no firewall blocks these URLs.
-- **CUDA Error**: Ensure you are using the CPU-only PyTorch build installed via `requirements.txt`.
-- **State Update Failed**: Ensure the `state/` directory is writable and the `state_manager.py` module is present in `src/utils/`.
+- **Data Insufficiency**: If the pipeline halts with "Data Insufficiency", check `data/artifacts/data_insufficiency_report.json` for the count of real paired samples. The project cannot proceed with quantitative analysis if N < 500.
+- **Memory Error**: Reduce `batch_size` in `config/default.yaml` to 16.
+- **Dataset Missing**: Ensure internet connection; check `data/raw/` for checksums.
+- **Leakage Detected**: If `leakage_report.json` shows overlap, re-run `preprocess` with a different random seed or check template extraction logic.

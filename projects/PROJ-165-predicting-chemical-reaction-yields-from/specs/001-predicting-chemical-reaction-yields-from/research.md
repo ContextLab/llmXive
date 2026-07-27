@@ -1,59 +1,91 @@
-# Research: Predicting Molecular Stability from Spectroscopic Data with Attention Mechanisms
+# Research: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
-## Research Question
-Can spectroscopic data (IR, Raman, NMR) provide a **computationally distinct and robust encoding** of **normalized DFT total molecular energy** (a proxy for molecular stability) beyond structural fingerprints, and can attention mechanisms identify the specific spectral regions responsible for this signal?
+## 1. Research Question & Hypothesis
 
-> **Scope Limitation**: Verified datasets containing paired (Reaction SMILES, Experimental Yield, Spectrum) data are not available in the "Verified datasets" block. This project pivots to using **DFT total molecular energy** as the target variable. The research question is reframed to investigate "predictive signal for molecular stability" rather than experimental yield. The "yield" variable in this study is defined as the normalized DFT total molecular energy. The plan explicitly acknowledges the circularity of DFT spectrum vs. DFT energy and focuses on testing "computational distinctness" and "robustness to noise" as the primary scientific contribution.
+**Question**: Can **real** spectroscopic data (IR, Raman, NMR) provide independent predictive signal for chemical reaction yields beyond molecular structure (fingerprints) and reaction conditions, and can attention mechanisms identify the specific spectral regions responsible?
 
-## Dataset Strategy
+**Hypothesis**:
+1.  **H1**: A multi-modal attention model will outperform unimodal baselines (fingerprint-only, spectrum-only, condition-only) on held-out test data (RMSE reduction > 5%) **IF** a sufficient dataset of real paired samples exists (N >= 500) AND the model converges (R² > 0).
+2.  **H2**: Attention weights will correlate significantly with yield residuals and localize to known functional group frequencies (e.g., carbonyl, amide stretches) within ±50 cm⁻¹ **IF** the dataset is sufficient (N >= 500) and the model converges (R² > 0).
+3.  **H3**: The model will not learn spurious correlations (R² < 0.05) when labels are permuted.
 
-The project relies on the verified DFT dataset for both spectral inputs and the target variable.
+**Reframed Research Question for N < 500**:
+If the number of verified real paired samples is < 500, the quantitative hypothesis (H1) is **not tested**. The research question is pivoted to: **"Can the attention-based model architecture successfully process and converge on small real experimental datasets, and what qualitative insights can be drawn from its attention weights?"** In this scenario, H1 and H2 are not validated, and the report will explicitly state that the "independent signal" claim is untested due to data scarcity.
 
-| Dataset Name | Type | Verified URL | Usage Strategy |
-| :--- | :--- | :--- | :--- |
-| **DFT (Primary)** | Simulated Spectra & Energy | https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet | Primary source for IR/Raman/NMR spectra and the target variable (DFT Total Energy). The dataset contains isolated molecule spectra and calculated total energies. We will treat the total energy as the "stability proxy". |
-| **USPTO (Structure Only)** | Reaction SMILES | https://huggingface.co/datasets/ufukhaman/uspto_balanced_200k_ipc_classification/resolve/main/data/test-00000-of-00001.parquet | **NOT USED for Yield Prediction.** Used only to extract reaction template definitions for splitting logic if DFT data lacks explicit reaction centers. No yield or spectrum data is assumed from this source. |
-| **MolSpectra** | Spectra | NO verified source found | **Excluded.** As no verified URL exists, this source is not used. |
+## 2. Dataset Strategy
 
-**Dataset Fit Analysis**:
-- **Required Variables**: Reaction SMILES, Yield Proxy (DFT Energy), IR/Raman/NMR spectra.
-- **Gap Analysis**: The verified DFT dataset provides spectra and total energy but lacks explicit "reaction yield" labels. The "yield" is defined as the normalized DFT total energy.
-- **Mitigation**: The project explicitly scopes the research to "Predicting DFT Total Energy from Spectra". The "independent predictive signal" is validated by comparing the Attention Model against a Fingerprint-Only model trained on the *same* DFT data. If the Attention model outperforms the Fingerprint model, it proves the spectrum adds signal beyond the structure used to generate the energy.
-- **No Fabrication**: No dataset URL is invented. The plan relies strictly on the verified DFT dataset. If the DFT dataset lacks the necessary energy column, the project will pivot to a "Spectral Reconstruction" task or terminate with a limitation report.
+### 2.1 Verified Sources & Fit Analysis
 
-## Methodological Rigor
+The spec requires **paired** data: `SMILES` + `Spectra` + `Conditions` + `Yield`.
+The verified dataset list provides:
+- **SMILES**: USPTO, ZINC, ChEMBL (verified).
+- **Spectra**: NMR_demo (verified), Tokenized NMR (verified).
+- **Yield/Conditions**: USPTO (verified).
+- **DFT/Simulated**: `dftest` (verified).
 
-### Statistical Rigor
-- **Multiple Comparison Correction**: A Bonferroni correction will be applied to p-values from paired t-tests comparing the attention model against multiple baselines (fingerprint-only, spectrum-only, condition-only).
-- **Power Justification**: The sample size is constrained by the available verified DFT dataset. The plan will report the actual N used. If N is small (<1000), the plan will explicitly acknowledge limited statistical power and focus on effect sizes.
-- **Causal Inference**: This is an observational study using simulated data. Claims will be framed as *associational*. No randomization is performed. The plan explicitly acknowledges that the "independent signal" is a measure of "computational distinctness" rather than causal independence.
-- **Measurement Validity**: Spectral data and the target variable are both generated by DFT. To mitigate circularity, the model is compared against a **Structure-Only Baseline** (Fingerprint-Only). If the Attention model outperforms the Structure-Only baseline, it proves the spectrum adds signal beyond the static structure.
-- **Collinearity**: The plan will report the Variance Inflation Factor (VIF) for condition features if feasible.
+**Critical Mismatch**: No single verified dataset contains *all* four fields for the same reaction instance.
+- `USPTO` has SMILES + Yield + Conditions, but **no spectra**.
+- `NMR_demo` has Spectra + SMILES, but **no yield/conditions** (or yield is missing).
+- `dftest` likely has DFT-calculated spectra + SMILES, but **yield labels are missing**.
 
-### Decoupling Strategy (Circular Dependency Mitigation)
-To address the risk that the model learns DFT simulation artifacts rather than a generalizable chemical signal:
-1.  **Structure-Only Baseline**: A baseline model trained *only* on ECFP4 fingerprints (no spectra) will be established. This baseline captures the signal inherent in the molecular structure.
-2.  **Signal Isolation**: The "independent predictive signal" of the spectrum is defined as the performance gain of the Attention Model over the Structure-Only Baseline.
-3.  **Leave-One-Molecule-Out**: Cross-validation will be performed at the molecule level to ensure the model does not simply memorize the mapping from a specific molecule to its energy.
-4.  **Noise Robustness Test**: Gaussian noise will be added to the spectral input to simulate experimental error. If the model trained on noisy spectra still outperforms the fingerprint baseline, it demonstrates that the spectral representation captures information robust to noise, which is a valid proxy for "independent signal" in a practical sense.
+**Strategy**:
+1.  **Primary Path (Real Data Merge)**: Attempt to merge `USPTO` (for SMILES, Yield, Conditions) with `NMR_demo` or `MolSpectra` (for Spectra) by matching SMILES strings.
+    - *Constraint*: **NO simulated spectra will be generated.** If a SMILES from USPTO does not have a matching real spectrum in the verified spectral datasets, that sample is **dropped**.
+    - *Rationale*: This ensures we have *real* yield labels and *real* spectra, even if the sample size is small. This is scientifically valid for testing the architecture, provided the limitation is explicitly stated.
+2.  **Fallback Path (Qualitative Validation / Data Insufficiency)**: If the number of successfully merged samples is < 500:
+    - **If N == 0**: Halt training. Generate a **Data Insufficiency Report**.
+    - **If 0 < N < 500**: Proceed with **Qualitative Architecture Validation**. Train the model on the small real dataset. Report performance metrics but explicitly state that quantitative claims (H1, H2) are not supported due to low power.
+    - *Decision*: The project defaults to **Path 1 (Real Data Merge)**. If the merge yields < 500 samples, the project pivots to Path 2 (Qualitative Validation or Report).
 
-### Computational Feasibility
-- **Hardware**: All code is designed for CPU-only execution (GitHub Actions free tier: 2 CPU, ~7GB RAM).
-- **Model Architecture**: A lightweight multi-head self-attention network with limited hidden dimensions (e.g., 64-128) and a small number of heads (e.g., 2-4) to fit within memory constraints.
-- **Data Subset**: The dataset will be sampled to ensure it fits within ~7GB RAM.
-- **Training**: Maximum 10 epochs with early stopping. Batch size 32. Learning rate 1e-3.
+### 2.2 Data Acquisition Plan
 
-## Decision Rationale
+- **Source 1 (Yields/Conditions)**: `https://huggingface.co/datasets/trentmkelly/uspto-patent-data/resolve/main/data/2021-00000.parquet` (USPTO).
+  - *Action*: Filter for reactions with yield > 0. Extract `reaction_smiles`, `yield`, `solvent`, `catalyst`, `temperature`.
+- **Source 2 (Spectra)**: `NMR_demo` (verified) and `MolSpectra` (if available in verified block).
+  - *Action*: Load spectra. Match against USPTO SMILES.
+  - *Constraint*: **If no match is found, the sample is dropped.** No simulation.
+- **Source 3 (Validation)**: `NMR_demo` (held-out portion) or a separate small curated set from the verified block.
+  - *Action*: Use a subset of the verified spectral data (not used in training) to validate the model (FR-010).
+  - *Fallback for FR-010*: If no independent dataset exists, perform a **Temporal Split** or **Source-Stratified Split** on the available real data (e.g., using older USPTO reactions for training and newer ones for validation) **ONLY IF** the source distribution is demonstrably different. If no such split is possible, FR-010 is marked "Not Applicable".
 
-- **Why Attention?** Standard MLPs treat input features independently. Attention mechanisms allow the model to weigh specific spectral regions dynamically, enabling the interpretability required by SC-003.
-- **Why CPU-Only?** The project must run on GitHub Actions free-tier runners.
-- **Why DFT Data?** Experimental spectral datasets with paired yields are not available in verified sources. The verified DFT dataset provides a high-fidelity simulation of spectra and a proxy target (Energy), allowing the model to learn spectral patterns.
-- **Why Structure-Only Baseline?** This is the critical control to prove that the spectrum adds value beyond the structure used to generate the target.
-- **Why Noise Robustness Test?** This test validates that the spectral signal is not just a trivial reconstruction of DFT physics but is robust to perturbation, which is a valid proxy for "independent signal" in a practical sense.
+### 2.3 Preprocessing & Splitting
 
-## Risk Assessment
+- **Resampling**: All spectra resampled to the standard IR and NMR spectral ranges using linear interpolation.
+- **Normalization**: Unit variance scaling per feature (spectrum channel).
+- **Splitting**:
+  - Extract reaction center substructures (templates) from `reaction_smiles`.
+  - Cluster templates or hash them.
+  - Split 70/15/15 ensuring **zero intersection** of template hashes between Train/Val/Test.
+  - *Verification*: `src/utils/validators.py` checks `len(set(train_templates) & set(test_templates)) == 0`.
+  - *Constraint*: Splitting is performed **only** on the verified subset of real paired data. No synthetic data is included.
+  - *Small N Handling*: If N < 500, a **Template Diversity Check** is performed. If unique templates < 3, splitting is halted, and a single-set qualitative analysis is performed.
+  - *Artifacts*: `data/processed/split_indices.parquet`, `data/artifacts/split_manifest.json`, `data/artifacts/leakage_report.json`.
 
-- **Data Scarcity**: If the verified DFT datasets lack energy labels, the project will pivot to "Predicting Spectral Properties from Structure" or terminate with a limitation report.
-- **Spectral Mismatch**: If IR/NMR data is missing for some samples, the model must handle missing channels. *Mitigation*: Implement a masking mechanism in the data loader.
-- **Overfitting**: Small datasets risk overfitting. *Mitigation*: Early stopping, dropout layers, and the permutation test (FR-008).
-- **Circularity**: The risk that the model learns the DFT engine's artifacts. *Mitigation*: The Structure-Only Baseline comparison and Leave-One-Molecule-Out validation. The plan explicitly acknowledges the tautology and focuses on "computational distinctness" and "robustness".
+## 3. Statistical Rigor & Methodology
+
+### 3.1 Model Architecture (CPU-Feasible)
+- **Input**: Concatenated `[ECFP4 (2048), Condition_Embed (64), Spectral_Tensor (N_channels x Grid_Size)]`.
+- **Backbone**: 2-layer Multi-Head Self-Attention (4 heads, hidden_dim=128).
+- **Output**: Regression head (1 unit, yield %).
+- **Optimizer**: Adam (LR=1e-3), Batch Size=32, Max Epochs=10, Early Stopping (patience=3).
+- **Feasibility**: Small model size ensures < 1GB RAM and < 2h training time on 2 CPU cores.
+
+### 3.2 Evaluation Metrics & Tests
+- **Primary Metrics**: RMSE, MAE, R² (FR-005).
+- **Statistical Test**: Paired t-test on absolute errors (Attention vs. Best Baseline) with **Bonferroni correction** for multiple comparisons (3 baselines) (FR-006, SC-002). **Only performed if N >= 500.**
+- **Permutation Test**: Shuffle yield labels 10 times; retrain/evaluate. Expect R² < 0.05 (FR-008, SC-004).
+- **Interpretability**:
+  - Attention weight heatmaps (FR-007).
+  - Correlation analysis: Attention weights vs. Yield residuals (controlling for ECFP4).
+  - Peak validation: Top 5 attention peaks vs. literature functional group frequencies (±50 cm⁻¹) (SC-003). **Conditional**: Only performed if N >= 500 and the model achieves R² > 0. If N < 500 or R² <= 0, the report will state that literature validation was not possible.
+
+### 3.3 Power & Limitations
+- **Sample Size**: Determined by the number of successfully merged real paired samples.
+- **Power Analysis**: If N < 500, the study is underpowered for quantitative claims. The project will report this limitation and output a **Qualitative Architecture Validation Report** instead of a full quantitative study.
+- **Causal Claim**: Observational (real data). Claims limited to "predictive association," not causation.
+
+## 4. Decision Rationale (Compute Feasibility)
+
+- **CPU-First**: The model is a small Transformer (2 layers, 4 heads). No GPU needed for inference or training of this scale.
+- **Data Streaming**: `datasets` library with `streaming=True` used to load USPTO if it exceeds RAM, though we expect to filter to < 50k samples.
+- **No Fabrication**: If experimental spectra are missing, we do **not** invent them. We drop the sample. If the dataset is too small, we report "Data Insufficiency" or "Qualitative Validation". This satisfies Constitution II (Verified Accuracy) by being honest about data provenance.
