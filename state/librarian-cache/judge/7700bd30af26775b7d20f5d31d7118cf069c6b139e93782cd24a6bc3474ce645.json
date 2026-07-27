@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1408.1302",
+  "judged_at": "2026-07-27T07:43:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing a low-cost solar-powered water purification system energy",
+  "rationale": "The paper describes a water purification system for a high-energy physics experiment (neutrino detection) focused on optical clarity, which is entirely off-domain from the user's question regarding a low-cost, solar-powered system for general water purification. It shares only the homonym keywords \"water\" and \"purification system\" but addresses a distinct construct with no connection to solar energy, cost constraints, or the intended application domain.",
+  "relevant": false
+}

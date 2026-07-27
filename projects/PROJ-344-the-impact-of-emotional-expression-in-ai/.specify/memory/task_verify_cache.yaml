@@ -1,0 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for the required directory tree under `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/`
+    (e.g., `data/raw`, `data/processed`, `data/features`, `code`, `tests/contract`,
+    `tests/unit`, `tests/integration`, `outputs`, `state`) but no such folders or
+    any listing of them were provided. The artifact confirming the project structure
+    is missing.
+T010:
+  c: false
+  h: 5e84facff9fc9b97bbd744148793ca298fd065cf49a3ce2424a3b9aed2963afb
+  r: The required `contracts/dataset_schema.yaml` file is absent, so the test cannot
+    load a real schema. Moreover, the provided `tests/contract/test_dataset_schema.py`
+    is truncated (ends with an unfinished `assert SCH` line) and does not contain
+    a complete validation test. Both the schema artifact and a functional test are
+    missing.
+T015:
+  c: false
+  h: 4fd0ce0719756842cc9fd0b9ad84dea1507fd2cf2d767c40237b1b26d771a07e
+  r: "The `code/compute_metrics.py` file is cut off mid\u2011implementation (e.g.,\
+    \ `lags = np.aran` is incomplete and the metric logic is not fully realized),\
+    \ and the required input file `data/processed/features.csv` is absent. Both the\
+    \ metric implementation and its data source are missing, so the task is not genuinely\
+    \ completed."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, documentation, or output files were provided that demonstrate the addition\
+    \ of logic to label all results as \u201Cassociational only\u201D (non\u2011causal).\
+    \ Without any artifact showing this framing, the requirement is not satisfied.\
+    \ The implementer must supply the modified analysis/reporting scripts or example\
+    \ output where the results are explicitly described as associational."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No extraction or regression scripts, no output files (CSV, regression table,\
+    \ or figures) were provided, and there is no evidence of p\u2011values or pseudo\u202F\
+    R\u2011squared values being generated. Consequently the required artifact for\
+    \ User Story\u202F2 is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, regression output, or unified analysis report were provided;
+    the claim lacks any tangible artifact demonstrating integration of regression
+    results with consistency scores. The required deliverables (e.g., a report combining
+    US1 consistency scores and regression findings, accompanying CSVs or figures)
+    are missing.

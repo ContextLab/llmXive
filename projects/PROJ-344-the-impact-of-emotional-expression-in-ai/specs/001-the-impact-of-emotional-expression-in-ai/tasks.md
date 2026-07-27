@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python project with pinned dependencies by generating `code/requirements.txt` containing pinned versions for openface, librosa, scikit-learn, statsmodels, pandas, matplotlib, seaborn, synthpop
 - [X] T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root
 
@@ -76,17 +76,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` against `contracts/dataset_schema.yaml`
-- [ ] T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
+- [X] T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI data OR generate synthetic time-series via `synthpop` if no real data exists (adhering to FR-001 fallback), calling validator from T005
-- [ ] T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py` as a placeholder script that logs a warning and halts execution if real data is required, directing the user to manual IRB steps (do NOT automate IRB logic)
+- [X] T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI data OR generate synthetic time-series via `synthpop` if no real data exists (adhering to FR-001 fallback), calling validator from T005 <!-- FAILED: unspecified -->
+- [X] T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py` as a placeholder script that logs a warning and halts execution if real data is required, directing the user to manual IRB steps (do NOT automate IRB logic)
 - [ ] T013 [P] [US1] Implement facial feature extraction in `code/extract_facial.py` using OpenFace (CPU binary) for video frames
-- [ ] T014 [P] [US1] Implement vocal prosody extraction in `code/extract_vocal.py` using librosa for pitch, energy, tempo from audio tracks
-- [~] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004, consuming `data/processed/features.csv` produced by T013/T014 (WAIT FOR T013/T014 COMPLETION)
+- [X] T014 [P] [US1] Implement vocal prosody extraction in `code/extract_vocal.py` using librosa for pitch, energy, tempo from audio tracks
+- [ ] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004, consuming `data/processed/features.csv` produced by T013/T014 (WAIT FOR T013/T014 COMPLETION)
 - [ ] T016 [US1] Implement Spearman correlation analysis in `code/analyze.py` to compute coefficient and 95% CI per FR-005, reading consistency scores from T015 output
-- [~] T017 [US1] Add logic to frame results as associational only (non-causal) in all outputs per SC-004
+- [ ] T017 [US1] Add logic to frame results as associational only (non-causal) in all outputs per SC-004
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,8 +105,8 @@
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement ordinal regression (proportional odds model) in `code/analyze.py` including control variables per FR-006 <!-- ATOMIZE: requested -->
-- [~] T020 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls
-- [~] T021 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report
+- [ ] T020 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls
+- [ ] T021 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,7 +124,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007, including embedded logic to verify WCAG 2.1 AA contrast (≥4.5:1) and minimum font sizes before export per SC-003
+- [X] T023 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007, including embedded logic to verify WCAG 2.1 AA contrast (≥4.5:1) and minimum font sizes before export per SC-003
 - [~] T025 [US3] Export final figure to `outputs/` with proper labeling (title indicating correlation coefficient)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -135,10 +135,10 @@
 
 **Purpose**: Verify the full pipeline runs within constraints and produces valid results.
 
-- [ ] T026b [US1] Create `code/benchmark.py` to profile memory/time on N=50 sample and verify constraints before full run (Proactive SC-005 check)
+- [X] T026b [US1] Create `code/benchmark.py` to profile memory/time on N=50 sample and verify constraints before full run (Proactive SC-005 check)
 - [X] T026c [US1] Implement resource monitoring and optimization logic in `code/monitor_resources.py` to ensure analysis completes within 6 hours and <7GB RAM based on benchmark results
 - [ ] T026a [US1] Create `code/run_pipeline.py` to orchestrate the full pipeline execution
-- [ ] T026 [US1] Execute `code/run_pipeline.py` with N=500 sample and verify outputs exist in `outputs/` (after T026b/T026c pass) <!-- ATOMIZE: requested -->
+- [ ] T026 [US1] Execute `code/run_pipeline.py` with N=500 sample and verify outputs exist in `outputs/` (after T026b/T026c pass) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T027 [US1] Verify memory usage stays within acceptable peak limits by creating `code/monitor_resources.py` that logs peak RAM usage to `state/memory_log.csv` and asserts <7GB
 - [~] T028 [US1] Validate all output artifacts (CSV, JSON, PNG) against their respective schemas and success criteria
 

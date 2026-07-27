@@ -3,8 +3,9 @@
 # Referenced by utils/logging.py and the main execution pipeline.
 #
 # NOTE: This configuration satisfies the requirements for T008b (log levels/destinations)
-# and T009 (dataset_paths). It replaces the previous `data_paths` section with
-# the required `dataset_paths` key to align with the specification.
+# and T009 (dataset_paths, random_seed, cpu_limit). It replaces the previous
+# `data_paths` section with the required `dataset_paths` key to align with
+# the specification.
 
 logging:
   # Log levels: NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -59,6 +60,17 @@ logging:
       mode: "a"
       encoding: "utf-8"
 
+    # Explicit ERROR level handler for critical failures
+    error:
+      type: "FileHandler"
+      level: ERROR
+      formatter: "json"
+      filename: "../data/logs/errors.log"
+      mode: "a"
+      encoding: "utf-8"
+      maxBytes: 10485760
+      backupCount: 3
+
   # Specific logger configurations
   loggers:
     episodic_memory:
@@ -68,17 +80,17 @@ logging:
 
     retrieval_service:
       level: DEBUG
-      handlers: ["console", "retrieval_stats", "fallback"]
+      handlers: ["console", "retrieval_stats", "fallback", "error"]
       propagate: false
 
     planning_service:
       level: INFO
-      handlers: ["console", "file"]
+      handlers: ["console", "file", "error"]
       propagate: false
 
     validation:
       level: WARNING
-      handlers: ["console", "fallback"]
+      handlers: ["console", "fallback", "error"]
       propagate: false
 
 # Global project settings

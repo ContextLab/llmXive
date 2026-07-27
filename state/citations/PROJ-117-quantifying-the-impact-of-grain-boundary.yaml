@@ -78,7 +78,7 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
   verified_at: '2026-07-16T03:16:19.542884Z'
-- artifact_hash: ad75dc6c09799affee22c6c127bd4e35d49b3406cc123fc80a84e5c8c1c44ed6
+- artifact_hash: 77da4498f2b219831c72a588687e54ea1baa2e75d9a6e3af96f16873474aa8fa
   artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -88,8 +88,8 @@
   value: https://www.wikidata.org/wiki/Q4503831
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q4503831
-  verified_at: '2026-07-19T22:08:38.200215Z'
-- artifact_hash: ad75dc6c09799affee22c6c127bd4e35d49b3406cc123fc80a84e5c8c1c44ed6
+  verified_at: '2026-07-27T07:41:42.545700Z'
+- artifact_hash: 77da4498f2b219831c72a588687e54ea1baa2e75d9a6e3af96f16873474aa8fa
   artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -99,4 +99,4 @@
   value: https://www.wikidata.org/wiki/Q37499364
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37499364
-  verified_at: '2026-07-19T22:08:38.200215Z'
+  verified_at: '2026-07-27T07:41:42.545700Z'

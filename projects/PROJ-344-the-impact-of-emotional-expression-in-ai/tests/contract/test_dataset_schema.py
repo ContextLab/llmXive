@@ -24,6 +24,7 @@ from code.logging_config import get_logger
 logger = get_logger("contract_test_dataset_schema")
 
 # Path to the schema file as defined in the project structure
+# Adjusted to match the project root structure where specs are located
 SCHEMA_PATH = project_root / "specs" / "001-emotional-synchrony-trust" / "contracts" / "dataset_schema.yaml"
 
 def test_schema_loads_correctly():
