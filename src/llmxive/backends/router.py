@@ -35,7 +35,8 @@ if TYPE_CHECKING:
     # itself is likewise imported function-locally below for the same reason.
     # ``from __future__ import annotations`` (above) makes the annotations that
     # reference ``RequirementOverrides`` lazy strings, so this is safe.
-    from llmxive.model_selection.types import RequirementOverrides
+    from llmxive.model_selection.attempt_hooks import ReservationAuthority, RouteAudit
+    from llmxive.model_selection.types import IndependenceBaseline, RequirementOverrides
 
 _REGISTRY: dict[str, type[BaseBackend]] = {
     "dartmouth": DartmouthBackend,
@@ -236,6 +237,11 @@ def _walker_route(
     temperature: float | None,
     overrides: RequirementOverrides | None = None,
     profile: str = "standard_generation",
+    independence_against: IndependenceBaseline | None = None,
+    route_audit: RouteAudit | None = None,
+    reservation_authority: ReservationAuthority | None = None,
+    route_id: str | None = None,
+    reraise_model_unavailable: bool = False,
 ) -> ChatResponse:
     """Shared body for the retired instance-taking walkers (spec 026 slice 5):
     delegate to ``route_chat`` (select() → execute()), adapting the caller's
@@ -259,6 +265,15 @@ def _walker_route(
     cold start) and ``ChainExhausted`` (transient/outage exhaustion) re-raise as
     ``BackendUnavailable`` (clean run-loop abort with state preserved, never a
     human escalation); a request-level permanent refusal propagates unchanged.
+
+    ``independence_against``/``route_audit``/``reservation_authority``/``route_id``
+    (spec 025) are forwarded straight to ``route_chat``, which already accepts all
+    four; every one defaults to ``None``, so an unmigrated caller's behavior is
+    byte-for-byte unchanged. ``reraise_model_unavailable`` is the ONE deviation
+    from the classification contract above, and only for the caller that asks:
+    FR-002's proposal reroute needs the RAW ``ModelUnavailable`` to decide whether
+    to try its relaxed second leg, which a ``BackendUnavailable`` has already
+    erased. ``ChainExhausted`` is never affected — see the handler.
     """
     from llmxive.model_selection.execute import ChainExhausted
     from llmxive.model_selection.route import route_chat
@@ -278,8 +293,26 @@ def _walker_route(
             temperature=temperature,
             backend_factory=factory,
             overrides=overrides,
+            independence_against=independence_against,
+            route_audit=route_audit,
+            reservation_authority=reservation_authority,
+            route_id=route_id,
         )
-    except (ModelUnavailable, ChainExhausted) as exc:
+    except ModelUnavailable as exc:
+        # Spec 025 FR-002: the proposal reroute needs the RAW ModelUnavailable to decide
+        # whether to try its relaxed second leg. Converting first would erase the very
+        # distinction the reroute turns on. Every other caller keeps the contract above.
+        if reraise_model_unavailable:
+            raise
+        raise BackendUnavailable(
+            f"model selection/execution produced no usable candidate "
+            f"(outage or ineligible): {exc}"
+        ) from exc
+    except ChainExhausted as exc:
+        # ALWAYS converted, even for a caller that asked for the raw ModelUnavailable: the
+        # chain RAN and every candidate failed, which is an outage, not an eligibility
+        # problem a relaxed profile could solve. Rerouting on it would burn the fallback
+        # leg on the same broken backends.
         raise BackendUnavailable(
             f"model selection/execution produced no usable candidate "
             f"(outage or ineligible): {exc}"
@@ -295,6 +328,11 @@ def chat_with_model_fallback(
     temperature: float | None = None,
     overrides: RequirementOverrides | None = None,
     profile: str = "standard_generation",
+    independence_against: IndependenceBaseline | None = None,
+    route_audit: RouteAudit | None = None,
+    reservation_authority: ReservationAuthority | None = None,
+    route_id: str | None = None,
+    reraise_model_unavailable: bool = False,
 ) -> ChatResponse:
     """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
     slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
@@ -307,6 +345,13 @@ def chat_with_model_fallback(
     escalation constraints to ``route_chat``; ``None`` (default) is a no-op.
     ``profile`` (spec 026 slice 7) selects the capability class; default
     ``"standard_generation"`` preserves prior behavior for unmigrated callers.
+
+    The five spec-025 params are lane plumbing, forwarded verbatim to
+    :func:`_walker_route`: ``independence_against`` (FR-002's required-family
+    constraint), the mandatory ``route_audit`` sink and ``reservation_authority``
+    (FR-033a/FR-033), the durable ``route_id`` that makes a replayed call
+    recognizable, and ``reraise_model_unavailable`` for the reroute. All default to
+    a no-op, so the research/paper pipeline is untouched.
     """
     return _walker_route(
         backend, messages, model=model,
@@ -314,6 +359,11 @@ def chat_with_model_fallback(
         temperature=temperature,
         overrides=overrides,
         profile=profile,
+        independence_against=independence_against,
+        route_audit=route_audit,
+        reservation_authority=reservation_authority,
+        route_id=route_id,
+        reraise_model_unavailable=reraise_model_unavailable,
     )
 
 
