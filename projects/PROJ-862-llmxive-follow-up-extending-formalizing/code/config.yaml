@@ -1,36 +1,32 @@
-# Configuration for llmXive Noise Injection Pipeline
-# T036: Optimized for vectorized perturbation sweep
-
-data:
-  name: "bigbench_lite"
-  subset: "reasoning"
-  cache_dir: "data/raw"
-  streaming: true
-  batch_size: 32
-
-model:
-  name: "google-bert/bert-base-uncased"
-  device: "cpu"
-  hidden_size: 768
+noise_config:
+  sigma_min: 0.01
+  sigma_max: 0.20
+  step: 0.01
+  seed: 42
+model_config:
+  model_name: "distilbert-base-uncased"
   max_length: 512
-
-noise:
-  sigma_min: 0.1
-  sigma_max: 2.0
-  step: 0.1
-  batch_size: 512 # Increased for vectorized performance
-
-pipeline:
-  run_baseline: true
-  run_sweep: true
-  run_analysis: true
-  save_intermediate: true
-
-output:
-  base_dir: "data/processed"
-  paths: "data/processed"
-  save_intermediate: true
-
-memory:
-  limit_gb: 7.0
-  log_interval: 1000
+  device: "cpu"
+validity_config:
+  drift_threshold: 0.95
+  output_f1_threshold: 0.85
+  perplexity_bound: 2.0
+  collapse_threshold: 0.90
+memory_config:
+  peak_rss_limit_gb: 7.0
+  profile_path: "data/processed/memory_profile.json"
+data_config:
+  dataset_name: "bigbench_lite"
+  dataset_url: "https://huggingface.co/datasets/google/bigbench_lite"
+  expected_answer_column: "expected_answer"
+  task_type_column: "task_type"
+  question_column: "question"
+output_paths:
+  baseline_vectors: "data/processed/baseline_vectors.csv"
+  perturbed_vectors: "data/processed/perturbed_vectors.csv"
+  validity_log: "data/processed/validity_log.csv"
+  statistical_results: "data/processed/statistical_results.json"
+  trade_off_curve: "data/processed/trade_off_curve.csv"
+  global_trade_off_curve: "data/processed/global_trade_off_curve.csv"
+  sensitivity_report: "data/processed/sensitivity_report.json"
+  memory_profile: "data/processed/memory_profile.json"

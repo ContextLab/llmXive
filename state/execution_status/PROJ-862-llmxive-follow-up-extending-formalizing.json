@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-862-llmxive-follow-up-extending-formalizing",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/memory_profile.json; data/processed/perturbed_vectors.csv; data/processed/statistical_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Pipeline failed: 'PipelineConfig' object has no attribute 'data_config'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-28T00:05:18Z"
+}

@@ -1,0 +1,10 @@
+status: none
+intent: bigbench hard dataset pip install python package dataset
+required_fields:
+- task_name
+- question_id
+- question_text
+- pair_id
+cache_key: a6b7c595cbb18ed608c8b8852873bbf38cfe1c3afcce0d5f433a79821298cfae
+searched_at: '2026-07-28T00:06:03.373455+00:00'
+retry_count: 1

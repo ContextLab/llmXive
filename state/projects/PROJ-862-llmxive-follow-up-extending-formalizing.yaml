@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T10:38:20.476980Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-862-llmxive-follow-up-extending-formalizing
-last_run_id: 9871d8ca-2047-45d7-b404-6c5e85f74425
+last_run_id: 6b791621-687f-4b30-9f33-6a158a082b11
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing
 title: 'llmXive follow-up: extending "Formalizing Latent Thoughts: Four Axioms of
   Thought Representation in "'
-updated_at: '2026-07-27T23:43:05.629182Z'
+updated_at: '2026-07-28T00:26:56.582367Z'

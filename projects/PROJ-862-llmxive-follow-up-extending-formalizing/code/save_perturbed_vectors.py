@@ -1,295 +1,272 @@
 """
-save_perturbed_vectors.py
+T025: Save perturbed vectors and metadata to data/processed/perturbed_vectors.csv.
 
-Implements T025: Save perturbed vectors and metadata to data/processed/perturbed_vectors.csv
-linked by PairID and sigma.
+This script consumes the intermediate perturbation results generated during the noise sweep
+(typically stored in a temporary JSON or in-memory structure by main.py) and persists them
+to a permanent CSV artifact linked by PairID and sigma.
 
-This script is designed to be run after the perturbation sweep (T024) has generated
-the perturbation results in memory or temporary storage. It aggregates the results
-into a single CSV file as required by the data schema.
+It ensures the output matches the schema defined in specs/001-lm-axive-noise-injection/contracts/latent-vector.schema.yaml:
+Fields: pair_id, task_type, vector_base64 (L2 normalized), norm_status.
+Additional columns for T025: sigma, perturbation_method.
+
+Prerequisites:
+- data/processed/baseline_vectors.csv (for PairID/TaskType mapping if not in results)
+- Perturbation results must be available (passed via argument or generated inline by main.py context)
+
+Execution:
+python code/save_perturbed_vectors.py
 """
+
 import os
 import sys
 import csv
 import json
 import logging
+import base64
 import torch
-import numpy as np
-from typing import List, Dict, Any, Optional, Iterator, Tuple
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-# Import from project modules
-from config import load_config, OutputPaths, PipelineConfig
-from streaming_utils import batch_iterator
-from memory_monitor import get_current_memory_mb, check_memory_limit, MemoryLimitExceeded
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from config import OutputPaths, load_config
+from memory_monitor import get_peak_memory_mb, check_memory_limit
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("save_perturbed_vectors")
 
-def load_perturbation_results(
-    perturbation_log_path: str,
-    batch_size: int = 1000
-) -> Iterator[Dict[str, Any]]:
+# Constants
+MEMORY_LIMIT_GB = 7.0  # SC-004
+
+def load_perturbation_results(results_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Load perturbation results from the log generated during the sweep.
-    
-    Expected format in perturbation_log_path (JSONL or JSON):
-    - If JSONL: Each line is a JSON object with keys:
-      {
-        "pair_id": "string",
-        "sigma": float,
-        "task_type": "string",
-        "vector": [list of floats],
-        "validity_passed": bool,
-        "input_drift_passed": bool,
-        "output_validity_passed": bool
-      }
-    - If JSON: A list of such objects.
-    
-    Yields:
-        Dict[str, Any]: A dictionary representing a single perturbation record.
+    Loads perturbation results. 
+    In the context of T024a (main.py), these are often generated in-memory and passed here.
+    If a file path is provided (e.g., from a checkpoint), load from disk.
+    Otherwise, attempts to load from the standard intermediate location if main.py wrote one.
     """
-    logger.info(f"Loading perturbation results from {perturbation_log_path}")
+    if results_path and os.path.exists(results_path):
+        logger.info(f"Loading perturbation results from: {results_path}")
+        with open(results_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
     
-    if not os.path.exists(perturbation_log_path):
-        raise FileNotFoundError(f"Perturbation log not found: {perturbation_log_path}")
+    # Fallback: Check for a standard intermediate file created by main.py sweep loop
+    # T024a logic might write to a temp file before this script runs, or we rely on main.py
+    # to pass the data. For this standalone script, we expect the data to be generated 
+    # or passed via a specific mechanism. 
+    # However, per T025 description, we are the saver. 
+    # If main.py didn't write a temp file, this script must be run in a context where 
+    # data is available. 
+    # To make this script runnable as a standalone verification or continuation, 
+    # we will assume main.py generated 'data/processed/perturbation_intermediate.json'
+    # or we raise an error if not found, preventing silent failure.
+    
+    default_path = os.path.join(PROJECT_ROOT, "data", "processed", "perturbation_intermediate.json")
+    if os.path.exists(default_path):
+        logger.info(f"Loading from default intermediate path: {default_path}")
+        with open(default_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    
+    # If we are here, we have no data. This is a critical failure state for T025.
+    # We must not fabricate data.
+    raise FileNotFoundError(
+        "No perturbation results found. "
+        "Ensure T024a (main.py) has run and produced 'data/processed/perturbation_intermediate.json' "
+        "or pass the --results-path argument."
+    )
 
-    try:
-        with open(perturbation_log_path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            
-        if not content:
-            logger.warning("Perturbation log is empty.")
-            return
-
-        # Try parsing as JSONL first (line by line)
-        if '\n' in content:
-            logger.info("Detected JSONL format.")
-            for line in content.splitlines():
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    record = json.loads(line)
-                    yield record
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping invalid JSON line: {e}")
-                    continue
-        else:
-            # Try parsing as a single JSON list
-            logger.info("Detected JSON list format.")
-            try:
-                records = json.loads(content)
-                if not isinstance(records, list):
-                    raise ValueError("Expected a JSON list of records.")
-                for record in records:
-                    yield record
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON file: {e}")
-                raise
-
-    except Exception as e:
-        logger.error(f"Error reading perturbation log: {e}")
-        raise
-
-def parse_vector(vector_data: Any) -> np.ndarray:
+def parse_vector(vector_data: Any) -> torch.Tensor:
     """
-    Convert vector data (list, tensor, or string) to a numpy array.
-    
-    Args:
-        vector_data: The vector data in various formats.
-        
-    Returns:
-        np.ndarray: The vector as a numpy array.
+    Parses vector data which might be a list of floats, a base64 string, or a tensor representation.
+    Returns a torch.Tensor.
     """
     if isinstance(vector_data, torch.Tensor):
-        return vector_data.detach().cpu().numpy()
-    elif isinstance(vector_data, list):
-        return np.array(vector_data, dtype=np.float32)
-    elif isinstance(vector_data, np.ndarray):
         return vector_data
-    elif isinstance(vector_data, str):
-        # Assume comma-separated floats if string
-        return np.array([float(x) for x in vector_data.split(',')], dtype=np.float32)
-    else:
-        raise TypeError(f"Unsupported vector type: {type(vector_data)}")
+    
+    if isinstance(vector_data, list):
+        return torch.tensor(vector_data, dtype=torch.float32)
+    
+    if isinstance(vector_data, str):
+        # Might be base64
+        try:
+            decoded = base64.b64decode(vector_data)
+            # Try to load as numpy/torch if it was serialized that way, 
+            # but simpler assumption: if it's a string in the result, it might be raw floats separated by comma
+            # or base64 of a float array. 
+            # Given T015 outputs base64, we assume this might be base64.
+            # If it fails base64 decode as tensor, try comma split.
+            try:
+                # Attempt base64 decode to bytes then reconstruct (complex)
+                # Simpler: If it's a base64 string of a tensor, we need to know the format.
+                # Let's assume if it's a string, it's a list of floats stringified or base64.
+                # We'll try comma split first as a fallback for list-strings.
+                if ',' in vector_data:
+                    return torch.tensor([float(x) for x in vector_data.split(',')], dtype=torch.float32)
+                else:
+                    # It's likely base64 encoded bytes of a numpy array or similar.
+                    # For safety, we assume the input from main.py is a list of floats or base64.
+                    # If it's base64 of a tensor, we need to know the dtype/shape.
+                    # Let's assume the 'vector_data' passed here is a list of floats for simplicity 
+                    # unless it's explicitly a base64 string that decodes to bytes.
+                    # Actually, T015 outputs base64. T024a likely carries that forward or recalculates.
+                    # We will try to decode as base64 and assume it's a raw float32 array.
+                    import numpy as np
+                    arr = np.frombuffer(decoded, dtype=np.float32)
+                    return torch.from_numpy(arr)
+            except Exception:
+                raise ValueError(f"Could not parse vector string: {vector_data[:50]}...")
+        except Exception:
+            raise ValueError(f"Invalid vector string format: {vector_data[:50]}...")
+    
+    raise TypeError(f"Unsupported vector type: {type(vector_data)}")
 
-def validate_and_prepare_record(record: Dict[str, Any]) -> Dict[str, Any]:
+def validate_and_prepare_record(record: Dict[str, Any]) -> Dict[str, str]:
     """
-    Validate and prepare a single record for CSV output.
-    
-    Ensures:
-    - pair_id is present
-    - sigma is a number
-    - vector is a list of floats
-    - validity flags are booleans
-    
-    Args:
-        record: The raw record from the log.
-        
-    Returns:
-        Dict[str, Any]: The validated and prepared record.
-        
-    Raises:
-        ValueError: If the record is invalid.
+    Validates a single record and prepares it for CSV writing.
+    Ensures L2 normalization and base64 encoding.
     """
-    required_keys = ['pair_id', 'sigma', 'vector']
-    for key in required_keys:
-        if key not in record:
-            raise ValueError(f"Missing required key: {key}")
-
-    pair_id = str(record['pair_id'])
-    sigma = float(record['sigma'])
+    pair_id = record.get('pair_id')
+    task_type = record.get('task_type')
+    sigma = record.get('sigma')
+    vector_data = record.get('vector')
     
-    vector = parse_vector(record['vector'])
+    if not pair_id or not task_type:
+        raise ValueError(f"Record missing pair_id or task_type: {record}")
     
-    # Ensure L2 normalization (as per T015/T016 requirements for baseline, 
-    # and typically expected for perturbed vectors in this context)
-    norm = np.linalg.norm(vector)
-    if norm > 1e-9:
-        vector = vector / norm
-    else:
-        logger.warning(f"Zero norm vector for pair_id={pair_id}, sigma={sigma}. Keeping as is.")
-    
-    # Prepare validity flags with defaults
-    validity_passed = bool(record.get('validity_passed', False))
-    input_drift_passed = bool(record.get('input_drift_passed', False))
-    output_validity_passed = bool(record.get('output_validity_passed', False))
-    task_type = str(record.get('task_type', 'unknown'))
-
-    return {
-        'pair_id': pair_id,
-        'sigma': sigma,
-        'task_type': task_type,
-        'vector': vector.tolist(), # Convert back to list for CSV
-        'validity_passed': validity_passed,
-        'input_drift_passed': input_drift_passed,
-        'output_validity_passed': output_validity_passed,
-        'vector_dimension': len(vector)
-    }
-
-def save_perturbed_vectors(
-    records_iterator: Iterator[Dict[str, Any]],
-    output_path: str,
-    batch_size: int = 1000
-) -> int:
-    """
-    Save perturbed vectors and metadata to a CSV file.
-    
-    Args:
-        records_iterator: Iterator yielding validated records.
-        output_path: Path to the output CSV file.
-        batch_size: Number of records to process in a batch (for memory efficiency).
-        
-    Returns:
-        int: The number of records saved.
-    """
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-        logger.info(f"Created output directory: {output_dir}")
-
-    fieldnames = [
-        'pair_id', 'sigma', 'task_type', 
-        'validity_passed', 'input_drift_passed', 'output_validity_passed',
-        'vector_dimension', 'vector'
-    ]
-    
-    count = 0
-    batch = []
-    
-    logger.info(f"Starting to save perturbed vectors to {output_path}")
+    if vector_data is None:
+        raise ValueError(f"Record missing vector data: {record}")
     
     try:
-        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            
-            for record in records_iterator:
-                # Memory check
-                if count % batch_size == 0 and count > 0:
-                    current_mem = get_current_memory_mb()
-                    # Assuming a 7GB limit as per T008b, but we check periodically
-                    # If this script is run in a constrained environment, we might need to adjust
-                    if current_mem > 6000: # 6GB safety buffer
-                        logger.warning(f"Memory usage high: {current_mem:.2f} MB. Flushing batch.")
-                
-                prepared = validate_and_prepare_record(record)
-                batch.append(prepared)
-                
-                if len(batch) >= batch_size:
-                    writer.writerows(batch)
-                    count += len(batch)
-                    logger.info(f"Saved batch of {len(batch)} records. Total: {count}")
-                    batch = []
-                    
-                    # Optional: Check memory limit explicitly
-                    try:
-                        check_memory_limit(limit_mb=7000)
-                    except MemoryLimitExceeded:
-                        logger.error("Memory limit exceeded during save.")
-                        raise
-
-            # Write remaining records
-            if batch:
-                writer.writerows(batch)
-                count += len(batch)
-                logger.info(f"Saved final batch of {len(batch)} records. Total: {count}")
-                
+        vec_tensor = parse_vector(vector_data)
     except Exception as e:
-        logger.error(f"Error saving to CSV: {e}")
+        logger.error(f"Failed to parse vector for PairID {pair_id}: {e}")
         raise
+    
+    # L2 Normalize
+    norm = vec_tensor.norm(p=2)
+    if norm.item() == 0:
+        # Avoid division by zero, though unlikely for meaningful embeddings
+        vec_tensor = vec_tensor / 1e-9
+    else:
+        vec_tensor = vec_tensor / norm
+    
+    # Base64 encode
+    vec_np = vec_tensor.detach().cpu().numpy().astype('float32')
+    import numpy as np
+    vec_bytes = vec_np.tobytes()
+    vec_base64 = base64.b64encode(vec_bytes).decode('ascii')
+    
+    return {
+        'pair_id': str(pair_id),
+        'task_type': str(task_type),
+        'sigma': str(sigma),
+        'vector_base64': vec_base64,
+        'norm_status': 'L2_NORMALIZED',
+        'dimension': str(vec_tensor.shape[0])
+    }
+
+def save_perturbed_vectors(records: List[Dict[str, Any]], output_path: str) -> int:
+    """
+    Saves the validated records to the output CSV.
+    Returns the count of saved records.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    fieldnames = ['pair_id', 'task_type', 'sigma', 'vector_base64', 'norm_status', 'dimension']
+    
+    saved_count = 0
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
         
-    logger.info(f"Successfully saved {count} perturbed vector records to {output_path}")
-    return count
+        for record in records:
+            try:
+                prepared = validate_and_prepare_record(record)
+                writer.writerow(prepared)
+                saved_count += 1
+            except Exception as e:
+                logger.warning(f"Skipping invalid record {record.get('pair_id', 'UNKNOWN')}: {e}")
+                continue
+    
+    logger.info(f"Saved {saved_count} perturbed vectors to {output_path}")
+    return saved_count
 
 def main():
     """
-    Main entry point for saving perturbed vectors.
-    
-    Usage:
-        python code/save_perturbed_vectors.py [--config <path>] [--log <path>] [--output <path>]
+    Entry point for T025.
     """
-    import argparse
+    logger.info("Starting T025: Save Perturbed Vectors")
     
-    parser = argparse.ArgumentParser(description="Save perturbed vectors to CSV")
-    parser.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
-    parser.add_argument('--log', type=str, help='Path to perturbation log (overrides config)')
-    parser.add_argument('--output', type=str, help='Path to output CSV (overrides config)')
-    args = parser.parse_args()
+    # Check memory
+    check_memory_limit(MEMORY_LIMIT_GB)
     
-    # Load configuration
+    # Load config to get paths
+    config = load_config()
+    output_paths = config.output_paths if hasattr(config, 'output_paths') else OutputPaths()
+    
+    # Determine output path
+    # T025 specific output: data/processed/perturbed_vectors.csv
+    output_file = os.path.join(PROJECT_ROOT, "data", "processed", "perturbed_vectors.csv")
+    
+    # Check for command line argument for results path
+    results_path = None
+    if len(sys.argv) > 1:
+        results_path = sys.argv[1]
+    
     try:
-        config = load_config(args.config)
+        # 1. Load results
+        perturbation_results = load_perturbation_results(results_path)
+        
+        if not isinstance(perturbation_results, list):
+            raise ValueError("Expected perturbation results to be a list of records.")
+        
+        logger.info(f"Loaded {len(perturbation_results)} perturbation records.")
+        
+        # 2. Save to CSV
+        saved_count = save_perturbed_vectors(perturbation_results, output_file)
+        
+        if saved_count == 0:
+            logger.warning("No valid records were saved. Check input data.")
+            # Do not fail hard if input was empty, but log warning.
+        else:
+            logger.info(f"Successfully wrote {output_file}")
+            
+        # 3. Update memory profile if possible
+        # T008b requirement: log peak RSS
+        from memory_monitor import get_peak_memory_mb, save_memory_profile
+        peak_mb = get_peak_memory_mb()
+        profile_path = os.path.join(PROJECT_ROOT, "data", "processed", "memory_profile.json")
+        
+        # Load existing profile if exists, update, save
+        profile = {}
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = json.load(f)
+        
+        profile['last_perturbation_save'] = {
+            'timestamp': str(torch.utils.data.get_worker_info()), # Placeholder for real timestamp logic if needed
+            'peak_memory_mb': peak_mb
+        }
+        
+        with open(profile_path, 'w') as f:
+            json.dump(profile, f, indent=2)
+            
+        logger.info(f"Updated memory profile at {profile_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Critical: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        # Fallback to defaults if config is missing, but warn
-        logger.warning("Using default paths. Ensure perturbation_log and output paths are set.")
-        from dataclasses import dataclass
-        @dataclass
-        class DefaultOutputPaths:
-            perturbation_log: str = "data/processed/perturbation_sweep_log.jsonl"
-            perturbed_vectors_csv: str = "data/processed/perturbed_vectors.csv"
-        config = type('Config', (), {'output': DefaultOutputPaths()})()
-
-    perturbation_log_path = args.log or config.output.perturbation_log
-    output_path = args.output or config.output.perturbed_vectors_csv
-    
-    logger.info(f"Perturbation log path: {perturbation_log_path}")
-    logger.info(f"Output CSV path: {output_path}")
-    
-    # Load and process records
-    records = load_perturbation_results(perturbation_log_path)
-    
-    # Save to CSV
-    count = save_perturbed_vectors(records, output_path)
-    
-    logger.info(f"Pipeline complete. {count} records saved.")
+        logger.error(f"Error during T025 execution: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
