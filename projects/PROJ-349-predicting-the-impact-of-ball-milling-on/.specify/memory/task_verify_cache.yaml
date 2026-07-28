@@ -37,14 +37,6 @@ T013b:
     \ logic, table\u2011scraping for D10/D50/D90 headers, and the final JSON output\
     \ step. Moreover, the expected output file `data/raw/arxiv_tables.json` is absent.\
     \ The task\u2019s core requirements are therefore not satisfied."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion or preprocessing script, no generated CSV dataset, and no logs\
-    \ or metrics are provided. Without these artifacts we cannot verify that a dataset\
-    \ of \u2265500 (or \u2265150) experiments with the required non\u2011null features\
-    \ was created, nor that missing values were imputed, categorical encoding applied,\
-    \ or OCR flagging performed. The required outputs are missing."
 T015:
   c: false
   h: 41682429d7884e9c07d1ade1ee0910aa2fd3ba35b0a9d18e6d39fc74b589f53c
@@ -60,10 +52,3 @@ T015b:
     \ dataset from T015, checks its row count, raises `SystemExit` with code\u202F\
     1 when rows\u202F<\u202F150, and logs the required message. Without these concrete\
     \ artifacts, the task\u2019s requirement is not satisfied."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion or preprocessing script, nor any generated CSV dataset, is present\
-    \ to verify that \u2265500 (or \u2265150) experiments with the required features\
-    \ were aggregated and cleaned. Consequently the core requirement of US\u20111\
-    \ cannot be confirmed."

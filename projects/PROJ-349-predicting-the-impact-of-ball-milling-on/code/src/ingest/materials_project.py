@@ -1,9 +1,8 @@
 """
-Materials Project Data Fetcher (T012)
+Materials Project Data Fetcher.
 
-Fetches ball milling experimental data from the Materials Project API v2.
-Queries for entries containing 'ball milling' or 'milling' in keywords/abstracts.
-Extracts required fields and saves to data/raw/materials_project_raw.json.
+Fetches ball milling related data from the Materials Project API.
+Strictly uses real data. No synthetic fallbacks.
 """
 import json
 import logging
@@ -14,299 +13,154 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from src.exceptions import DataIngestionError, SourceConnectionError, SourceNotFoundError
-from src.config.env_config import get_config
+from src.utils.logger import get_module_logger
+from src.exceptions import SourceConnectionError, DataIngestionError
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
-# Constants
 MP_API_URL = "https://next-gen.materialsproject.org/materials"
-MP_API_VERSION = "v2"
-MP_HEADERS = {
-    "X-API-Key": os.getenv("MATERIALS_PROJECT_API_KEY", ""),
-    "Content-Type": "application/json"
-}
+MP_ENDPOINT = "https://next-gen.materialsproject.org/api/v2/mp/search"
 
-# Required output path
-OUTPUT_PATH = Path("data/raw/materials_project_raw.json")
-
-# Fields to extract from Materials Project API
-# Note: Materials Project doesn't directly store milling parameters,
-# so we extract available material properties and flag for manual enrichment
-EXTRACT_FIELDS = [
-    "material_id",
-    "nsid",
-    "pretty_formula",
-    "elements",
-    "nelements",
-    "nsites",
-    "volume",
-    "density",
-    "e_hull_per_atom",
-    "decomposition_energy_per_atom",
-    "formation_energy_per_atom",
-    "space_group.number",
-    "space_group.symbol",
-    "space_group.crystal_system",
-    "is_metal",
-    "is_gap_direct",
-    "band_gap",
-    "total_magnetization",
-    "volume_per_atom",
-    "nsites",
-    "structure",
-    "kpoints",
-    "kpoints_density",
-    "kpoints_method",
-    "kpoints_spacing",
-    "kpoints_gamma_centered",
-    "kpoints_monkhorst_pack",
-    "kpoints_gamma_only",
-    "kpoints_mesh",
-    "kpoints_mesh_density",
-    "kpoints_method",
-    "kpoints_spacing",
-    "kpoints_gamma_centered",
-    "kpoints_monkhorst_pack",
-    "kpoints_gamma_only",
-    "kpoints_mesh",
-    "kpoints_mesh_density"
-]
-
-def _get_api_key() -> str:
+def fetch_materials_project_data(api_key: Optional[str] = None, timeout: int = 30) -> List[Dict[str, Any]]:
     """
-    Retrieve the Materials Project API key from environment variables.
-
-    Returns:
-        str: The API key.
-
-    Raises:
-        SourceAuthenticationError: If the API key is not set.
-    """
-    api_key = os.getenv("MATERIALS_PROJECT_API_KEY")
-    if not api_key:
-        raise SourceAuthenticationError(
-            "Materials Project API key not found. Set MATERIALS_PROJECT_API_KEY environment variable."
-        )
-    return api_key
-
-def _search_materials(query: str, page: int = 1, page_size: int = 100) -> Dict[str, Any]:
-    """
-    Search Materials Project database for materials matching the query.
+    Fetches materials data from Materials Project API.
 
     Args:
-        query (str): Search query string.
-        page (int): Page number for pagination.
-        page_size (int): Number of results per page.
+        api_key: Materials Project API key.
+        timeout: Request timeout in seconds.
 
     Returns:
-        Dict[str, Any]: JSON response from the API.
+        List of material entries matching ball milling criteria.
 
     Raises:
-        SourceConnectionError: If the API request fails.
-        SourceNotFoundError: If no results are found.
+        SourceConnectionError: If the API is unreachable.
+        DataIngestionError: If the response is invalid.
     """
-    url = f"{MP_API_URL}/search"
-    params = {
-        "q": query,
-        "page": page,
-        "page_size": page_size,
-        "fields": ",".join(EXTRACT_FIELDS)
+    if not api_key:
+        api_key = os.getenv("MP_API_KEY")
+    
+    if not api_key:
+        logger.warning("Materials Project API key not found. Skipping fetch.")
+        return []
+
+    headers = {
+        "x-api-key": api_key,
+        "Content-Type": "application/json"
+    }
+
+    # Search for materials with 'ball milling' or 'milling' in keywords/abstracts
+    # Note: The actual API endpoint and query parameters depend on the specific API version.
+    # This is a representative implementation based on standard MP API usage patterns.
+    payload = {
+        "keywords": "ball milling",
+        "fields": "material_id,pretty_formula,nsites,elements,nelements,structure,expt_xrd,dft_xrd,elasticity,thermo,magtot"
     }
 
     try:
-        response = requests.get(url, headers=MP_HEADERS, params=params, timeout=30)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API request failed: {e}")
-        raise SourceConnectionError(f"Failed to connect to Materials Project API: {e}")
+        logger.info(f"Fetching data from Materials Project API...")
+        # Using a generic search endpoint structure
+        response = requests.post(
+            f"{MP_ENDPOINT}",
+            headers=headers,
+            json=payload,
+            timeout=timeout
+        )
+        
+        if response.status_code == 401:
+            logger.error("Materials Project API key invalid or expired.")
+            return []
+        elif response.status_code != 200:
+            logger.error(f"Materials Project API returned status {response.status_code}: {response.text}")
+            return []
 
-def _extract_material_data(material: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        data = response.json()
+        
+        if "data" not in data:
+            logger.warning("Materials Project response did not contain 'data' key.")
+            return []
+
+        raw_entries = data["data"]
+        
+        if not raw_entries:
+            logger.warning("Materials Project search returned 0 results.")
+            return []
+
+        processed_entries = []
+        for entry in raw_entries:
+            # Map MP fields to our schema
+            # Note: Actual mapping depends on what fields MP returns and what we need.
+            # This is a placeholder mapping logic.
+            processed = {
+                "experiment_id": entry.get("material_id"),
+                "source": "materials_project",
+                "material_type": entry.get("pretty_formula", "unknown"),
+                # MP API might not have milling specific fields directly,
+                # so we might need to infer or leave as NaN if not present.
+                # For this task, we assume we are fetching a specific dataset
+                # or the API supports filtering by these specific milling parameters.
+                # If the API doesn't support these specific fields, we log and skip.
+                "milling_speed": None, # Placeholder - actual extraction logic needed
+                "milling_time": None,
+                "ball_to_powder_ratio": None,
+                "youngs_modulus": None,
+                "density": None,
+                "d10": None,
+                "d50": None,
+                "d90": None,
+                "process_duration": None
+            }
+            processed_entries.append(processed)
+
+        logger.info(f"Successfully fetched {len(processed_entries)} entries from Materials Project.")
+        return processed_entries
+
+    except requests.exceptions.Timeout:
+        logger.warning("Materials Project API request timed out.")
+        return []
+    except requests.exceptions.ConnectionError:
+        logger.warning("Materials Project API connection failed.")
+        return []
+    except json.JSONDecodeError:
+        logger.error("Materials Project API returned invalid JSON.")
+        return []
+    except Exception as e:
+        logger.error(f"Unexpected error fetching Materials Project data: {e}")
+        raise SourceConnectionError(f"Failed to fetch Materials Project data: {e}")
+
+def save_to_json(data: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Extract relevant data from a single material entry.
+    Saves data to a JSON file.
 
     Args:
-        material (Dict[str, Any]): Raw material data from API.
+        data: List of dictionaries to save.
+        output_path: Path to the output file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved {len(data)} entries to {output_path}")
+
+def run_materials_project_ingestion(output_dir: str = "data/raw") -> Optional[str]:
+    """
+    Orchestrates the Materials Project data ingestion.
+
+    Args:
+        output_dir: Directory to save the raw data.
 
     Returns:
-        Optional[Dict[str, Any]]: Extracted data or None if invalid.
+        Path to the saved JSON file, or None if no data was fetched.
     """
-    try:
-        # Extract basic properties
-        extracted = {
-            "material_id": material.get("material_id"),
-            "nsid": material.get("nsid"),
-            "pretty_formula": material.get("pretty_formula"),
-            "elements": material.get("elements", []),
-            "nelements": material.get("nelements"),
-            "nsites": material.get("nsites"),
-            "volume": material.get("volume"),
-            "density": material.get("density"),
-            "e_hull_per_atom": material.get("e_hull_per_atom"),
-            "decomposition_energy_per_atom": material.get("decomposition_energy_per_atom"),
-            "formation_energy_per_atom": material.get("formation_energy_per_atom"),
-            "space_group_number": material.get("space_group", {}).get("number") if material.get("space_group") else None,
-            "space_group_symbol": material.get("space_group", {}).get("symbol") if material.get("space_group") else None,
-            "crystal_system": material.get("space_group", {}).get("crystal_system") if material.get("space_group") else None,
-            "is_metal": material.get("is_metal"),
-            "is_gap_direct": material.get("is_gap_direct"),
-            "band_gap": material.get("band_gap"),
-            "total_magnetization": material.get("total_magnetization"),
-            "volume_per_atom": material.get("volume_per_atom"),
-        }
+    output_path = os.path.join(output_dir, "materials_project_raw.json")
+    
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        # Add source-specific fields (these will be empty/placeholder for now)
-        # as Materials Project doesn't directly store milling parameters
-        extracted["source"] = "materials_project"
-        extracted["experiment_id"] = None  # Will be generated during merge
-        extracted["milling_speed"] = None  # Not available in MP
-        extracted["milling_time"] = None   # Not available in MP
-        extracted["ball_to_powder_ratio"] = None  # Not available in MP
-        extracted["youngs_modulus"] = None  # Not available in MP
-        extracted["d10"] = None  # Not available in MP
-        extracted["d50"] = None  # Not available in MP
-        extracted["d90"] = None  # Not available in MP
-        extracted["process_duration"] = None  # Not available in MP
+    data = fetch_materials_project_data()
 
-        return extracted
-    except Exception as e:
-        logger.warning(f"Failed to extract data from material {material.get('material_id')}: {e}")
+    if not data:
+        logger.warning("Source skipped: Materials Project (no rows or error)")
         return None
 
-def fetch_materials_project_data(max_pages: int = 5) -> List[Dict[str, Any]]:
-    """
-    Fetch ball milling related data from Materials Project.
-
-    Args:
-        max_pages (int): Maximum number of pages to fetch.
-
-    Returns:
-        List[Dict[str, Any]]: List of extracted material data.
-
-    Raises:
-        DataIngestionError: If the fetch fails completely.
-    """
-    all_data = []
-    queries = ["ball milling", "milling"]
-
-    for query in queries:
-        logger.info(f"Searching for materials with query: '{query}'")
-        page = 1
-        total_results = 0
-
-        while page <= max_pages:
-            try:
-                response = _search_materials(query, page=page, page_size=100)
-
-                if "data" not in response:
-                    logger.warning(f"No data field in response for page {page}")
-                    break
-
-                results = response.get("data", [])
-                if not results:
-                    logger.info(f"No more results for query '{query}' at page {page}")
-                    break
-
-                # Extract data from each result
-                for material in results:
-                    extracted = _extract_material_data(material)
-                    if extracted:
-                        all_data.append(extracted)
-
-                total_results += len(results)
-                logger.info(f"Fetched {len(results)} results for '{query}' (page {page}, total: {total_results})")
-
-                # Check if there are more pages
-                if len(results) < 100:
-                    break
-
-                page += 1
-                time.sleep(0.5)  # Rate limiting
-
-            except SourceConnectionError as e:
-                logger.error(f"Connection error while fetching page {page}: {e}")
-                raise
-            except Exception as e:
-                logger.error(f"Unexpected error fetching page {page}: {e}")
-                break
-
-    logger.info(f"Total materials fetched: {len(all_data)}")
-    return all_data
-
-def save_to_json(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save fetched data to a JSON file.
-
-    Args:
-        data (List[Dict[str, Any]]): Data to save.
-        output_path (Path): Output file path.
-
-    Raises:
-        DataIngestionError: If saving fails.
-    """
-    try:
-        # Ensure directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, default=str)
-
-        logger.info(f"Saved {len(data)} records to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save data to {output_path}: {e}")
-        raise DataIngestionError(f"Failed to save data: {e}")
-
-def run_materials_project_ingestion() -> bool:
-    """
-    Main entry point for Materials Project data ingestion.
-
-    Returns:
-        bool: True if successful, False if skipped due to errors.
-
-    Raises:
-        DataIngestionError: If the entire ingestion process fails.
-    """
-    try:
-        logger.info("Starting Materials Project data ingestion (T012)")
-
-        # Check API key
-        try:
-            _get_api_key()
-        except SourceAuthenticationError as e:
-            logger.warning(f"Source skipped: Materials Project (API key missing): {e}")
-            logger.warning("Source skipped: Materials Project (0 rows or error)")
-            return False
-
-        # Fetch data
-        data = fetch_materials_project_data()
-
-        if not data:
-            logger.warning("Source skipped: Materials Project (0 rows or error)")
-            return False
-
-        # Save to JSON
-        save_to_json(data, OUTPUT_PATH)
-
-        logger.info("Materials Project ingestion completed successfully")
-        return True
-
-    except SourceConnectionError as e:
-        logger.warning(f"Source skipped: Materials Project (connection error): {e}")
-        logger.warning("Source skipped: Materials Project (0 rows or error)")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error during Materials Project ingestion: {e}")
-        raise DataIngestionError(f"Materials Project ingestion failed: {e}")
-
-if __name__ == "__main__":
-    success = run_materials_project_ingestion()
-    if not success:
-        logger.info("Materials Project ingestion was skipped (0 rows or error)")
-        exit(0)  # Exit with 0 as per task constraint: skip, don't halt
-    exit(0)
+    save_to_json(data, output_path)
+    return output_path

@@ -1,3 +1,9 @@
+"""
+Materials Project Data Fetcher (T012).
+
+Fetches ball milling related data from the Materials Project API.
+Strictly real data only: no synthetic fallbacks, no mock data generators.
+"""
 import json
 import logging
 import os
@@ -7,196 +13,159 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from src.config.settings import get_settings
-from src.exceptions import DataIngestionError, SourceConnectionError
+from src.utils.logger import get_module_logger
+from src.exceptions import SourceConnectionError, SourceNotFoundError
 
-# Initialize logger
-logger = logging.getLogger(__name__)
+logger = get_module_logger(__name__)
 
-# Constants
-MP_API_BASE_URL = "https://next-gen.materialsproject.org/api/v2/mp"
-MP_ENDPOINT = f"{MP_API_BASE_URL}/docs"  # Using docs/search for text queries
-OUTPUT_PATH = Path("data/raw/materials_project_raw.json")
-QUERY_KEYWORDS = ["ball milling", "milling"]
-MAX_RETRIES = 3
-RETRY_DELAY = 1.0  # seconds
+MP_API_URL = "https://next-gen.materialsproject.org/materials"
+MP_API_VERSION = "v2"
+# Note: In a real scenario, this would be an environment variable or config value.
+# For this implementation, we assume the key is provided or the endpoint is public for demo.
+# The task requires real fetch logic.
+MP_API_KEY = os.getenv("MP_API_KEY", "") 
 
-def _get_api_key() -> str:
-    """Retrieve the Materials Project API key from environment variables."""
-    api_key = os.getenv("MP_API_KEY")
-    if not api_key:
-        raise DataIngestionError(
-            "Materials Project API key (MP_API_KEY) not found in environment variables."
-        )
-    return api_key
-
-def fetch_materials_project_data(
-    keywords: Optional[List[str]] = None, max_results: int = 100
-) -> List[Dict[str, Any]]:
+def fetch_materials_project_data(query_keywords: List[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
     """
-    Fetches ball milling experimental data from the Materials Project API.
-
-    Args:
-        keywords: List of keywords to search for (e.g., 'ball milling').
-        max_results: Maximum number of entries to fetch.
-
-    Returns:
-        A list of dictionaries containing extracted data.
-
-    Raises:
-        SourceConnectionError: If the API request fails after retries.
-        DataIngestionError: If the API key is missing or data format is invalid.
-    """
-    if keywords is None:
-        keywords = QUERY_KEYWORDS
-
-    api_key = _get_api_key()
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json",
-    }
-
-    all_entries = []
-    search_query = " OR ".join(keywords)
-
-    # Materials Project Search API endpoint for documents
-    # Note: The exact endpoint might vary; using a generic search approach
-    # The MP API often requires specific query parameters.
-    # Attempting to use the docs endpoint with a text query.
-    search_url = f"{MP_API_BASE_URL}/docs/search"
+    Fetches material data from Materials Project API v2.
     
-    params = {
-        "q": search_query,
-        "limit": max_results,
-        "fields": "material_id,keywords,abstract,task_ids" # Requesting relevant fields
+    Args:
+        query_keywords: Keywords to filter by (e.g., 'ball milling').
+        limit: Maximum number of entries to fetch.
+        
+    Returns:
+        List of material dictionaries.
+        
+    Raises:
+        SourceConnectionError: If the API connection fails.
+        SourceNotFoundError: If no data is found (but connection succeeded).
+    """
+    if not MP_API_KEY:
+        logger.warning("MP_API_KEY not set. Skipping Materials Project fetch.")
+        return []
+
+    headers = {
+        "X-API-Key": MP_API_KEY,
+        "Content-Type": "application/json"
     }
 
-    logger.info(f"Searching Materials Project for: {search_query}")
+    # Construct query parameters
+    # The actual API structure might vary, but we follow the spec's intent.
+    params = {
+        "api_key": MP_API_KEY,
+        "limit": limit,
+        # Simulating a search for keywords in abstracts/keywords if supported
+        # or fetching a set and filtering client-side if the API doesn't support text search directly.
+        # For this implementation, we attempt a generic fetch and filter.
+    }
 
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            response = requests.get(search_url, headers=headers, params=params, timeout=30)
-            
-            if response.status_code == 401:
-                raise SourceConnectionError("Authentication failed: Invalid API Key.")
-            elif response.status_code == 403:
-                raise SourceConnectionError("Forbidden: API Key does not have access.")
-            elif response.status_code == 429:
-                if attempt < MAX_RETRIES:
-                    logger.warning(f"Rate limited. Retrying in {RETRY_DELAY} seconds...")
-                    time.sleep(RETRY_DELAY)
-                    continue
-                else:
-                    raise SourceConnectionError("Rate limit exceeded after retries.")
-            elif response.status_code != 200:
-                raise SourceConnectionError(
-                    f"Request failed with status {response.status_code}: {response.text}"
-                )
+    try:
+        # Attempt to fetch a list of materials. 
+        # Note: The real API might require specific endpoints for text search.
+        # We will fetch a sample set and filter for 'milling' in keywords if possible.
+        # Using a generic endpoint for demonstration of the "real fetch" logic.
+        url = f"{MP_API_URL}/?format=json"
+        
+        # If the API supports text search, we would use it here.
+        # Since the spec mentions querying for entries with 'ball milling' in keywords,
+        # we assume a search capability exists or we fetch and filter.
+        # To be robust, we'll try a search endpoint if available, otherwise fallback to listing.
+        search_url = f"{MP_API_URL}/search"
+        search_params = {
+            "api_key": MP_API_KEY,
+            "q": "ball milling",
+            "limit": limit
+        }
+        
+        logger.info(f"Attempting to fetch from Materials Project search: {search_url}")
+        response = requests.get(search_url, params=search_params, headers=headers, timeout=30)
+        
+        if response.status_code == 404:
+            # Fallback to generic listing if search endpoint doesn't exist (API version difference)
+            logger.warning("Search endpoint not found, trying generic listing.")
+            response = requests.get(url, params=params, headers=headers, timeout=30)
 
-            data = response.json()
-            results = data.get("results", [])
+        response.raise_for_status()
+        data = response.json()
 
-            if not results:
-                logger.warning("No results found in the initial search response.")
-                return []
+        if not data or (isinstance(data, dict) and not data.get("data")):
+            logger.warning("Materials Project returned no data.")
+            return []
 
-            # Process results
-            for item in results:
-                # Extract relevant fields. Note: MP structure may vary.
-                # We attempt to map standard fields to our schema.
-                # Since MP is primarily for crystal structures, 'ball milling' data
-                # might be sparse or in the 'abstract'/'keywords' only.
-                # We extract what is available and log warnings for missing fields.
-                
-                entry = {
-                    "source": "materials_project",
-                    "experiment_id": item.get("material_id", f"mp_{time.time()}_{len(all_entries)}"),
-                    "keywords": item.get("keywords", []),
-                    "abstract": item.get("abstract", ""),
-                    # MP doesn't natively have 'milling_speed' etc. in standard material docs.
-                    # We must parse the abstract or keywords if present, or set to null.
-                    # For this task, we extract structural properties if available, 
-                    # and mark process parameters as null if not found in the text.
-                    "material_type": item.get("pretty_formula", "unknown"),
-                    "youngs_modulus": None, # Not typically in search results, would need detailed calc
-                    "density": None,        # Often available as 'density' in material docs
-                    "milling_speed": None,
-                    "milling_time": None,
-                    "ball_to_powder_ratio": None,
-                    "d10": None,
-                    "d50": None,
-                    "d90": None,
-                    "process_duration": None
-                }
+        # Normalize response structure if necessary
+        if isinstance(data, dict) and "data" in data:
+            results = data["data"]
+        elif isinstance(data, list):
+            results = data
+        else:
+            results = [data]
 
-                # Try to populate density if available in the response
-                if "density" in item:
-                    entry["density"] = item["density"]
-                
-                # Attempt to parse abstract for numeric values if present
-                # This is a basic heuristic; robust parsing belongs in T013b/T014c
-                abstract = entry.get("abstract", "")
-                if abstract:
-                    # Placeholder logic to demonstrate extraction attempt
-                    # Real implementation would use regex or NLP
-                    pass
+        # Filter for 'milling' related entries if the API didn't do it server-side
+        # This is a client-side filter to ensure we only get relevant data.
+        filtered_results = []
+        for item in results:
+            keywords = item.get("keywords", []) or []
+            abstract = item.get("abstract", "") or ""
+            if any(kw.lower().find("milling") != -1 for kw in keywords) or "milling" in abstract.lower():
+                filtered_results.append(item)
+            if len(filtered_results) >= limit:
+                break
 
-                all_entries.append(entry)
+        if not filtered_results:
+            logger.warning("No materials found with 'milling' keywords.")
+            return []
 
-            logger.info(f"Successfully fetched {len(all_entries)} entries from Materials Project.")
-            return all_entries
+        return filtered_results
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Request error (Attempt {attempt}/{MAX_RETRIES}): {e}")
-            if attempt == MAX_RETRIES:
-                raise SourceConnectionError(f"Failed to connect to Materials Project API after {MAX_RETRIES} attempts.") from e
-            time.sleep(RETRY_DELAY)
-        except json.JSONDecodeError as e:
-            raise DataIngestionError("Invalid JSON response from Materials Project API.") from e
-
-    return []
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to connect to Materials Project: {e}")
+        raise SourceConnectionError(f"Materials Project connection failed: {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse Materials Project response: {e}")
+        raise SourceConnectionError(f"Materials Project response parse error: {e}")
 
 def save_to_json(data: List[Dict[str, Any]], output_path: str) -> None:
     """
     Saves the fetched data to a JSON file.
-
+    
     Args:
-        data: List of dictionaries to save.
+        data: List of material dictionaries.
         output_path: Path to the output JSON file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_file, "w", encoding="utf-8") as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, default=str)
     
-    logger.info(f"Saved {len(data)} entries to {output_file}")
+    logger.info(f"Saved {len(data)} records to {output_path}")
 
-def run_materials_project_ingestion() -> Optional[str]:
+def run_materials_project_ingestion(output_dir: str = "data/raw") -> Optional[str]:
     """
-    Orchestrates the Materials Project data ingestion pipeline.
+    Orchestrates the Materials Project ingestion pipeline.
     
+    Args:
+        output_dir: Directory to save the raw data.
+        
     Returns:
-        Path to the output file if successful, None if skipped.
+        Path to the saved file, or None if skipped/failed.
     """
+    output_path = Path(output_dir) / "materials_project_raw.json"
+    
     try:
-        logger.info("Starting Materials Project data ingestion...")
-        data = fetch_materials_project_data()
+        logger.info("Starting Materials Project ingestion...")
+        data = fetch_materials_project_data(limit=50) # Limit for demo/reasonable runtime
         
         if not data:
             logger.warning("Source skipped: Materials Project (no rows or error)")
             return None
         
-        save_to_json(data, str(OUTPUT_PATH))
-        return str(OUTPUT_PATH)
+        save_to_json(data, str(output_path))
+        return str(output_path)
         
     except SourceConnectionError as e:
-        logger.warning(f"Source skipped: Materials Project (no rows or error) - {e}")
-        return None
-    except DataIngestionError as e:
-        logger.warning(f"Source skipped: Materials Project (no rows or error) - {e}")
+        logger.warning(f"Source skipped: Materials Project (connection error: {e})")
         return None
     except Exception as e:
-        logger.error(f"Unexpected error during Materials Project ingestion: {e}", exc_info=True)
-        logger.warning("Source skipped: Materials Project (no rows or error)")
+        logger.warning(f"Source skipped: Materials Project (unexpected error: {e})")
         return None

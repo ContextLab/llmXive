@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 7586ca3ac2db08fa0ab8c569aa81882e48188f01f88009b48906e204d976f9c1
+- artifact_hash: 94f168a58ad014788d4aa8197730da2409062da29da79dc954a77abf7d0b05ab
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://next-gen.materialsproject.org/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-28T02:20:57.031012Z'
-- artifact_hash: 7586ca3ac2db08fa0ab8c569aa81882e48188f01f88009b48906e204d976f9c1
+  verified_at: '2026-07-28T10:53:59.595255Z'
+- artifact_hash: 94f168a58ad014788d4aa8197730da2409062da29da79dc954a77abf7d0b05ab
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-28T02:20:57.031012Z'
+  verified_at: '2026-07-28T10:53:59.595255Z'
