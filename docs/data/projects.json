@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-28T03:08:29.668365+00:00",
+  "generated_at": "2026-07-28T03:18:00.110304+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -107045,7 +107045,7 @@
       },
       "authors": [
         {
-          "contributions": 3302,
+          "contributions": 3312,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -107105,83 +107105,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.725752,
-          "ended_at": "2026-07-28T01:38:10.317050Z",
+          "duration_s": 0.724466,
+          "ended_at": "2026-07-28T03:06:13.716850Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:09.591298Z"
+          "started_at": "2026-07-28T03:06:12.992384Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.056113,
-          "ended_at": "2026-07-28T01:38:09.526102Z",
+          "duration_s": 0.759524,
+          "ended_at": "2026-07-28T03:06:12.922040Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:08.469989Z"
+          "started_at": "2026-07-28T03:06:12.162516Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.875776,
-          "ended_at": "2026-07-28T01:38:08.422251Z",
+          "duration_s": 0.702463,
+          "ended_at": "2026-07-28T03:06:12.091936Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:07.546475Z"
+          "started_at": "2026-07-28T03:06:11.389473Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.731901,
-          "ended_at": "2026-07-28T01:38:07.498231Z",
+          "duration_s": 0.734641,
+          "ended_at": "2026-07-28T03:06:11.318513Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:06.766330Z"
+          "started_at": "2026-07-28T03:06:10.583872Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.940596,
-          "ended_at": "2026-07-28T01:38:06.718457Z",
+          "duration_s": 0.916273,
+          "ended_at": "2026-07-28T03:06:10.513379Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:05.777861Z"
+          "started_at": "2026-07-28T03:06:09.597106Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.873294,
-          "ended_at": "2026-07-28T01:38:05.729882Z",
+          "duration_s": 0.734491,
+          "ended_at": "2026-07-28T03:06:09.526860Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:04.856588Z"
+          "started_at": "2026-07-28T03:06:08.792369Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.7613,
-          "ended_at": "2026-07-28T01:38:04.671841Z",
+          "duration_s": 0.890411,
+          "ended_at": "2026-07-28T03:06:08.630091Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:03.910541Z"
+          "started_at": "2026-07-28T03:06:07.739680Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.816854,
-          "ended_at": "2026-07-28T01:38:03.862641Z",
+          "duration_s": 0.86819,
+          "ended_at": "2026-07-28T03:06:07.669703Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:03.045787Z"
+          "started_at": "2026-07-28T03:06:06.801513Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.7437,
-          "ended_at": "2026-07-28T01:38:02.997317Z",
+          "duration_s": 0.9532,
+          "ended_at": "2026-07-28T03:06:06.731233Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:38:02.253617Z"
+          "started_at": "2026-07-28T03:06:05.778033Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.031063,
-          "ended_at": "2026-07-28T01:38:02.182880Z",
+          "duration_s": 3.992153,
+          "ended_at": "2026-07-28T03:06:05.698440Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:59.151817Z"
+          "started_at": "2026-07-28T03:06:01.706287Z"
         }
       ],
       "paper_status": null,
@@ -116328,7 +116328,7 @@
       },
       "authors": [
         {
-          "contributions": 3299,
+          "contributions": 3309,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -116386,83 +116386,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.756072,
-          "ended_at": "2026-07-28T01:37:34.301538Z",
+          "duration_s": 0.840901,
+          "ended_at": "2026-07-28T03:06:23.928185Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:33.545466Z"
+          "started_at": "2026-07-28T03:06:23.087284Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.831186,
-          "ended_at": "2026-07-28T01:37:33.497830Z",
+          "duration_s": 0.836971,
+          "ended_at": "2026-07-28T03:06:23.011448Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:32.666644Z"
+          "started_at": "2026-07-28T03:06:22.174477Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.064055,
-          "ended_at": "2026-07-28T01:37:32.615926Z",
+          "duration_s": 0.800337,
+          "ended_at": "2026-07-28T03:06:22.102804Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:31.551871Z"
+          "started_at": "2026-07-28T03:06:21.302467Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.260565,
-          "ended_at": "2026-07-28T01:37:31.504359Z",
+          "duration_s": 0.852149,
+          "ended_at": "2026-07-28T03:06:21.232954Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:30.243794Z"
+          "started_at": "2026-07-28T03:06:20.380805Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.679709,
-          "ended_at": "2026-07-28T01:37:30.194317Z",
+          "duration_s": 0.825259,
+          "ended_at": "2026-07-28T03:06:20.311450Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:29.514608Z"
+          "started_at": "2026-07-28T03:06:19.486191Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.723759,
-          "ended_at": "2026-07-28T01:37:29.465482Z",
+          "duration_s": 0.860693,
+          "ended_at": "2026-07-28T03:06:19.416754Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:28.741723Z"
+          "started_at": "2026-07-28T03:06:18.556061Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.786671,
-          "ended_at": "2026-07-28T01:37:28.646333Z",
+          "duration_s": 0.809449,
+          "ended_at": "2026-07-28T03:06:18.424695Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:27.859662Z"
+          "started_at": "2026-07-28T03:06:17.615246Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.789045,
-          "ended_at": "2026-07-28T01:37:27.812082Z",
+          "duration_s": 0.705779,
+          "ended_at": "2026-07-28T03:06:17.544341Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:27.023037Z"
+          "started_at": "2026-07-28T03:06:16.838562Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.912365,
-          "ended_at": "2026-07-28T01:37:26.974067Z",
+          "duration_s": 0.896406,
+          "ended_at": "2026-07-28T03:06:16.768487Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:26.061702Z"
+          "started_at": "2026-07-28T03:06:15.872081Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.15132,
-          "ended_at": "2026-07-28T01:37:26.001572Z",
+          "duration_s": 3.313847,
+          "ended_at": "2026-07-28T03:06:15.787717Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T01:37:22.850252Z"
+          "started_at": "2026-07-28T03:06:12.473870Z"
         }
       ],
       "paper_status": null,
@@ -156199,6 +156199,246 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 0.840901,
+      "ended_at": "2026-07-28T03:06:23.928185Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:23.087284Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.836971,
+      "ended_at": "2026-07-28T03:06:23.011448Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:22.174477Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.800337,
+      "ended_at": "2026-07-28T03:06:22.102804Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:21.302467Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.852149,
+      "ended_at": "2026-07-28T03:06:21.232954Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:20.380805Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.825259,
+      "ended_at": "2026-07-28T03:06:20.311450Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:19.486191Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.860693,
+      "ended_at": "2026-07-28T03:06:19.416754Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:18.556061Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.809449,
+      "ended_at": "2026-07-28T03:06:18.424695Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:17.615246Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.705779,
+      "ended_at": "2026-07-28T03:06:17.544341Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:16.838562Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.896406,
+      "ended_at": "2026-07-28T03:06:16.768487Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:15.872081Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.313847,
+      "ended_at": "2026-07-28T03:06:15.787717Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:12.473870Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.724466,
+      "ended_at": "2026-07-28T03:06:13.716850Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:12.992384Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.759524,
+      "ended_at": "2026-07-28T03:06:12.922040Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:12.162516Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.702463,
+      "ended_at": "2026-07-28T03:06:12.091936Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:11.389473Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.734641,
+      "ended_at": "2026-07-28T03:06:11.318513Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:10.583872Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.916273,
+      "ended_at": "2026-07-28T03:06:10.513379Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:09.597106Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.734491,
+      "ended_at": "2026-07-28T03:06:09.526860Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:08.792369Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.890411,
+      "ended_at": "2026-07-28T03:06:08.630091Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:07.739680Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.86819,
+      "ended_at": "2026-07-28T03:06:07.669703Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:06.801513Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.9532,
+      "ended_at": "2026-07-28T03:06:06.731233Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:05.778033Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.992153,
+      "ended_at": "2026-07-28T03:06:05.698440Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T03:06:01.706287Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 0.515086,
       "ended_at": "2026-07-28T03:05:45.631038Z",
       "failure_reason": "",
@@ -161956,366 +162196,6 @@
       "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-07-27T20:24:31.208831Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 91.050439,
-      "ended_at": "2026-07-27T20:24:39.330131Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:23:08.279692Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.576166,
-      "ended_at": "2026-07-27T20:24:31.205345Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:23:54.629179Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.568696,
-      "ended_at": "2026-07-27T20:23:43.264419Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:23:42.695723Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 58.909638,
-      "ended_at": "2026-07-27T20:23:42.692335Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:22:43.782697Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 80.112794,
-      "ended_at": "2026-07-27T20:23:08.276285Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:21:48.163491Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 63.07893,
-      "ended_at": "2026-07-27T20:22:43.779304Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:21:40.700374Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 33.433141,
-      "ended_at": "2026-07-27T20:21:48.160178Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:21:14.727037Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.323404,
-      "ended_at": "2026-07-27T20:21:40.696957Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:21:02.373553Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 272.423155,
-      "ended_at": "2026-07-27T20:21:14.723667Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:16:42.300512Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.225747,
-      "ended_at": "2026-07-27T20:21:02.370149Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:20:32.144402Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 97.897455,
-      "ended_at": "2026-07-27T20:20:32.141013Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:18:54.243558Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 66.037005,
-      "ended_at": "2026-07-27T20:18:54.240173Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:17:48.203168Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 102.373409,
-      "ended_at": "2026-07-27T20:17:48.199717Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:16:05.826308Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 53.581539,
-      "ended_at": "2026-07-27T20:16:42.297181Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:15:48.715642Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 721.451478,
-      "ended_at": "2026-07-27T20:16:05.673482Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:04:04.222004Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 98.682231,
-      "ended_at": "2026-07-27T20:15:48.712310Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:14:10.030079Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 337.533306,
-      "ended_at": "2026-07-27T20:14:00.462860Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:08:22.929554Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 91.187475,
-      "ended_at": "2026-07-27T20:08:22.926140Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:06:51.738665Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 74.708589,
-      "ended_at": "2026-07-27T20:06:51.735286Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:05:37.026697Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 67.800987,
-      "ended_at": "2026-07-27T20:05:37.023325Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:04:29.222338Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.019086,
-      "ended_at": "2026-07-27T20:04:29.218984Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:03:55.199898Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 651.936745,
-      "ended_at": "2026-07-27T20:04:04.156635Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:53:12.219890Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 92.618182,
-      "ended_at": "2026-07-27T20:03:55.196523Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:02:22.578341Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 62.826337,
-      "ended_at": "2026-07-27T20:02:22.574948Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T20:01:19.748611Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 651.975093,
-      "ended_at": "2026-07-27T20:01:19.671850Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:50:27.696757Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 530.002524,
-      "ended_at": "2026-07-27T19:56:05.933245Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:47:15.930721Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.743563,
-      "ended_at": "2026-07-27T19:47:03.644992Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:46:37.901429Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 223.939988,
-      "ended_at": "2026-07-27T19:46:42.031010Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-165-predicting-chemical-reaction-yields-from",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:42:58.091022Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 63.627712,
-      "ended_at": "2026-07-27T19:46:37.897570Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:45:34.269858Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.947999,
-      "ended_at": "2026-07-27T19:45:34.266076Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-27T19:45:05.318077Z"
     }
   ],
   "reviewed_preprints": [
