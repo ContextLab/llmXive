@@ -1,78 +1,77 @@
-"""Create the repository skeleton required for the project.
+"""
+create_skeleton.py
+------------------
 
-This script ensures that the top‑level directories expected by the
-pipeline exist:
+This module provides a simple command‑line utility that creates the
+repository skeleton required by the project.  The skeleton consists of the
+following top‑level directories:
 
-- src/
-- tests/
-- data/
-- results/
-- docs/
-- contracts/
+    src/
+    tests/
+    data/
+    results/
+    docs/
+    contracts/
 
-It is idempotent – existing directories are left untouched.
-The script is used by the unit test ``tests/test_skeleton.py`` and can be
-executed directly via ``python code/create_skeleton.py``.
+The script is deliberately lightweight – it only creates the directories
+if they do not already exist and exits with a zero status code.  It is
+invoked by the CI integration tests (see ``tests/test_skeleton.py``) to
+guarantee that the expected layout is present before any further
+processing occurs.
 """
 
 import sys
 from pathlib import Path
+from typing import Iterable
+
+# The list of directories that constitute the project skeleton.
+SKELETON_DIRS: Iterable[Path] = (
+    Path("src"),
+    Path("tests"),
+    Path("data"),
+    Path("results"),
+    Path("docs"),
+    Path("contracts"),
+)
 
 
-# List of directories that constitute the repository skeleton.
-SKELETON_DIRS = [
-    "src",
-    "tests",
-    "data",
-    "results",
-    "docs",
-    "contracts",
-]
-
-
-def _project_root() -> Path:
+def create_directories(base_path: Path = Path.cwd()) -> None:
     """
-    Resolve the project root directory.
-
-    ``create_skeleton.py`` lives in ``code/``; the repository root is the
-    parent of that directory.
-    """
-    return Path(__file__).resolve().parent.parent
-
-
-def _create_directories(root: Path) -> None:
-    """
-    Create each directory in ``SKELETON_DIRS`` under ``root``.
-
-    ``parents=True`` ensures that intermediate directories are created if
-    they do not already exist, and ``exist_ok=True`` makes the operation
-    safe to run multiple times.
-    """
-    for rel_dir in SKELETON_DIRS:
-        dir_path = root / rel_dir
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-
-def main(argv: list = None) -> None:
-    """
-    Entry point for the script.
+    Create all skeleton directories under ``base_path`` if they are missing.
 
     Parameters
     ----------
-    argv : list, optional
-        Command‑line arguments (unused).  The signature matches the style
-        used by other scripts in the repository and allows the function to
-        be called directly from tests.
+    base_path: Path
+        The directory in which the skeleton should be created.  By default
+        the current working directory is used, which matches the behaviour
+        expected by the integration tests.
     """
-    if argv is None:
-        argv = sys.argv[1:]  # noqa: F841  (kept for future extensions)
+    for directory in SKELETON_DIRS:
+        target = base_path / directory
+        try:
+            target.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            # Propagate a clear error – the CI test will treat any exception
+            # as a failure.
+            raise RuntimeError(f"Failed to create skeleton directory {target!s}: {exc}") from exc
 
-    root = _project_root()
-    _create_directories(root)
 
-    # Provide a minimal user‑facing message – useful when the script is run
-    # manually.
-    print(f"Repository skeleton created under {root}")
+def main() -> None:
+    """
+    Entry point used by the test suite and by developers.
+
+    The function creates the repository skeleton and exits with status 0.
+    If an unexpected error occurs, the exception is printed and the process
+    exits with status 1.
+    """
+    try:
+        create_directories()
+    except Exception as exc:  # pragma: no cover – defensive programming
+        print(f"Error creating repository skeleton: {exc}", file=sys.stderr)
+        sys.exit(1)
+    else:
+        # Successful creation – silence any output to keep CI logs clean.
+        sys.exit(0)
 
 
 if __name__ == "__main__":

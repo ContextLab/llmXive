@@ -5,4 +5,4 @@ goatools
 scikit-learn
 tqdm
 requests
-PyYAML
+PyYAML>=6.0

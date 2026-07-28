@@ -1,48 +1,67 @@
-"""
-test_renv_lock.py
-
-Checks that the ``renv.lock`` file created by ``initialize_renv`` exists,
-can be parsed as JSON, and contains entries for the required Bioconductor
-packages.
-"""
-
 import json
 from pathlib import Path
 
-REQUIRED_PACKAGES = {
-    "DESeq2",
-    "org.At.tair.db",
-    "biomaRt",
-    "sva",
-    "GEOquery",
-}
+import pytest
+
+# Path to the renv lockfile at the repository root
+RENV_LOCK_PATH = Path("renv.lock")
+
+
+def _load_lockfile():
+    """Helper to load the renv.lock JSON content."""
+    with RENV_LOCK_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
 
 def test_renv_lock_exists():
-    """The lockfile must be present in the project root."""
-    assert Path("renv.lock").is_file(), "renv.lock does not exist"
+    """The renv.lock file must exist after the R environment initialization."""
+    assert RENV_LOCK_PATH.is_file(), (
+        "renv.lock not found. Ensure that the R environment initialization "
+        "script (init_r_environment) has been executed and that it successfully "
+        "creates a lockfile."
+    )
+
 
 def test_renv_lock_is_valid_json():
     """The lockfile must be valid JSON."""
-    with Path("renv.lock").open() as fp:
-        json.load(fp)  # will raise if invalid
+    try:
+        data = _load_lockfile()
+    except json.JSONDecodeError as exc:
+        pytest.fail(f"renv.lock is not valid JSON: {exc}")
+    assert isinstance(data, dict), "renv.lock JSON root should be a dictionary."
+
 
 def test_renv_lock_records_package_versions():
     """
-    The lockfile should list at least one of the required Bioconductor
-    packages and include a version field for each listed package.
+    The lockfile must contain a ``Packages`` section where each listed package
+    records its version. At a minimum, the Bioconductor packages required by the
+    project should be present.
     """
-    with Path("renv.lock").open() as fp:
-        data = json.load(fp)
+    data = _load_lockfile()
+    packages = data.get("Packages")
+    assert isinstance(packages, dict) and packages, (
+        "renv.lock is missing a non‑empty 'Packages' mapping."
+    )
 
-    # ``renv`` stores package metadata under a top‑level ``Packages`` key.
-    packages = data.get("Packages") or data.get("packages")
-    assert isinstance(packages, dict), "Packages section missing in renv.lock"
+    # Expected core Bioconductor packages for this project
+    expected_packages = {
+        "DESeq2",
+        "org.At.tair.db",
+        "biomaRt",
+        "sva",
+        "GEOquery",
+    }
+    missing = expected_packages - set(packages.keys())
+    assert not missing, f"Missing expected packages in renv.lock: {missing}"
 
-    # Identify which of the required packages are present.
-    found = [pkg for pkg in REQUIRED_PACKAGES if pkg in packages]
-    assert found, f"None of the required packages {REQUIRED_PACKAGES} found in renv.lock"
-
-    # Verify that each found package entry contains a version string.
-    for pkg in found:
-        pkg_info = packages[pkg]
-        assert "Version" in pkg_info or "version" in pkg_info, f"Version missing for {pkg}"
+    for pkg_name, pkg_info in packages.items():
+        assert isinstance(pkg_info, dict), (
+            f"Package entry for '{pkg_name}' should be a mapping."
+        )
+        assert "Version" in pkg_info, (
+            f"Package '{pkg_name}' does not record a 'Version' field in renv.lock."
+        )
+        version = pkg_info["Version"]
+        assert isinstance(version, str) and version, (
+            f"Package '{pkg_name}' has an invalid version string."
+        )

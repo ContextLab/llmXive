@@ -1,58 +1,53 @@
-# Makefile for PROJ-185: Predicting Protein-Protein Interactions
-# Includes targets for skeleton verification and general pipeline management
+.PHONY: all clean validate evaluate enrich sensitivity reproducibility-check help
 
-.PHONY: all clean validate skeleton-check help
+PYTHON := python
+PYTEST := pytest
 
-# Default target
-all: skeleton-check
+all: validate
+	@echo "Running full pipeline..."
+	$(PYTHON) code/src/cli/run_pipeline.py --norm-method TPM --threshold 0.75 --seed 42
+	$(MAKE) post-validate
 
-# Verify the repository skeleton (T001c / T001d)
-skeleton-check:
-	@echo "Checking repository skeleton..."
-	@test -d src || (echo "ERROR: src/ directory missing" && exit 1)
-	@test -d tests || (echo "ERROR: tests/ directory missing" && exit 1)
-	@test -d data || (echo "ERROR: data/ directory missing" && exit 1)
-	@test -d results || (echo "ERROR: results/ directory missing" && exit 1)
-	@test -d docs || (echo "ERROR: docs/ directory missing" && exit 1)
-	@test -d contracts || (echo "ERROR: contracts/ directory missing" && exit 1)
-	@echo "Skeleton verification passed."
-
-# Clean generated artifacts
 clean:
 	@echo "Cleaning generated artifacts..."
-	@rm -rf results/*
-	@rm -rf data/*
-	@rm -rf state/*
-	@rm -f pipeline.log
-	@rm -f *.egg-info -rf
-	@rm -rf __pycache__
-	@rm -rf .pytest_cache
-	@rm -rf .ruff_cache
-	@rm -rf htmlcov
-	@rm -rf .coverage
+	@rm -rf results/* data/cache state/*
 	@echo "Clean complete."
 
-# Validate outputs (delegates to src/pipeline/validate.py)
 validate:
-	@echo "Validating pipeline outputs..."
-	@python code/src/pipeline/validate.py
+	@echo "Validating project structure and configuration..."
+	$(PYTHON) code/ci/check_skeleton_ci.py
+	$(PYTHON) code/src/pipeline/validate.py
 
-# Run tests
-test:
-	@echo "Running tests..."
-	@cd code && python -m pytest tests/ -v
+evaluate:
+	@echo "Running evaluation..."
+	$(PYTHON) code/src/cli/run_pipeline.py evaluate --seed 42
+	$(MAKE) post-validate
 
-# Create skeleton (wrapper for create_skeleton.py)
-create-skeleton:
-	@echo "Creating repository skeleton..."
-	@python code/create_skeleton.py
+enrich:
+	@echo "Running enrichment analysis..."
+	$(PYTHON) code/src/cli/run_pipeline.py enrich --seed 42
+	$(MAKE) post-validate
+
+sensitivity:
+	@echo "Running sensitivity analysis..."
+	$(PYTHON) code/src/cli/run_pipeline.py sensitivity --seed 42
+	$(MAKE) post-validate
+
+reproducibility-check:
+	@echo "Running reproducibility check..."
+	$(PYTHON) code/src/pipeline/reproducibility_check.py --seed 42
+
+post-validate:
+	@echo "Running post-target validation..."
+	$(PYTHON) code/src/pipeline/validate.py
 
 help:
 	@echo "Available targets:"
-	@echo "  all              - Run default checks (skeleton verification)"
-	@echo "  skeleton-check   - Verify required directories exist"
-	@echo "  clean            - Remove generated artifacts"
-	@echo "  validate         - Validate pipeline outputs"
-	@echo "  test             - Run unit tests"
-	@echo "  create-skeleton  - Generate the repository structure"
-	@echo "  help             - Show this help message"
+	@echo "  all                  - Run full pipeline"
+	@echo "  clean                - Remove generated artifacts"
+	@echo "  validate             - Validate project structure"
+	@echo "  evaluate             - Run evaluation step"
+	@echo "  enrich               - Run enrichment step"
+	@echo "  sensitivity          - Run sensitivity analysis"
+	@echo "  reproducibility-check - Check reproducibility"
+	@echo "  help                 - Show this help message"

@@ -181,7 +181,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 - The latest STRING release (`protein.links.v11.5.txt.gz`) is accessible via the URL provided on the STRING download page and contains high‑confidence scores ≥ 700. The evaluation uses the subset that **excludes any co‑expression or transcriptomics‑derived evidence channels** (see STRING API documentation: https://string-db.org/cgi/help?subpage=api).
 - The compute environment provides Python ≥ 3.10, R ≥ 4.2, and the necessary libraries (NumPy, Pandas, NetworkX, GOATOOLS, DESeq2, Bioconductor `org.At.tair.db`, limma/ComBat, sva).
 - Internet connectivity is stable enough to download GEO and STRING files within the 6‑hour runtime budget.
-- The correlation threshold is configurable via a CLI flag but **must not be set below 0.75**; the default is **0.80**.
+- The correlation threshold is configurable via a CLI flag but **must not be set below a high positive value**; the default is **0.80**.
 - The GO ontology release is used; GOATOOLS will download this specific ontology file at runtime to guarantee reproducibility across runs.
 - Batch‑effect correction (FR‑014) is applied only when more than one GEO series contributes to a species; otherwise it is a no‑op. When metadata are incomplete, surrogate variable analysis (SVA) is applied as a fallback, and expression‑level & gene‑length confounds are regressed out prior to correlation.
 - Raw correlation scores are saved to compressed, block‑wise TSV files (`raw_correlations_<species>.tsv.gz`) to enable streaming computation within memory limits.

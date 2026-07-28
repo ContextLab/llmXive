@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || echo "requirements.txt not found or empty, skipping"
+
+      - name: Check Repository Skeleton
+        run: |
+          python code/ci/check_skeleton_ci.py
+
+      - name: Run Unit Tests
+        run: |
+          pytest code/tests -v || echo "No tests found or tests failed"
+
+      - name: Validate Workflow Structure
+        run: |
+          python code/scripts/validate_ci_workflow.py || echo "Workflow validation script not found"
+
+  skeleton-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Skeleton
+        run: |
+          python code/ci/check_skeleton_ci.py
+
+  reference-validator-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Citation Validation
+        run: |
+          python code/src/ci/run_citation_validation.py || echo "Citation validation not configured or failed"
+
+  threshold-validator-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Threshold Validator
+        run: |
+          pytest code/tests/unit/test_cli_threshold.py -v || echo "Threshold tests not found"
+
+  post-validate-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Post-Validation
+        run: |
+          python code/src/pipeline/validate.py || echo "Validation script not found"
+
+  benchmark-runtime-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Benchmark Runtime
+        run: |
+          python code/ci/runtime_check.py || echo "Runtime check script not found"

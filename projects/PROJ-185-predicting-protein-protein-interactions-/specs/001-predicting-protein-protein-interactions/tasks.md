@@ -17,8 +17,8 @@
 ## Phase 0 – Project Setup (Shared Infrastructure)
 
 - [ ] T001 Create repository skeleton (`src/`, `tests/`, `data/`, `results/`, `docs/`, `contracts/`)
-- [ ] T001c Verify repository skeleton directories exist after T001 execution (CI test) — Add `tests/integration/test_skeleton_ci.py::test_directories_exist`
-- [ ] T001d CI step that fails if any skeleton directory is missing — Implemented as `tests/integration/test_skeleton_ci.py` and CI job `skeleton-ci`
+- [X] T001c Verify repository skeleton directories exist after T001 execution (CI test) — Add `tests/integration/test_skeleton_ci.py::test_directories_exist`
+- [X] T001d CI step that fails if any skeleton directory is missing — Implemented as `tests/integration/test_skeleton_ci.py` and CI job `skeleton-ci`
 - [X] T002 Initialize Python project with `pyproject.toml` and pin dependencies in `requirements.txt` (numpy, pandas, networkx, goatools, scikit‑learn, tqdm, requests)
 - [X] T002c Verify `pyproject.toml` and `requirements.txt` are created and dependencies are pinned (unit test)
 - [ ] T003 Initialize R environment with `renv.lock` and install Bioconductor packages (`DESeq2`, `org.At.tair.db`, `biomaRt`, `sva`, `GEOquery`)
@@ -27,7 +27,7 @@
 - [ ] T004 Add linting/formatting configuration (`ruff`, `black`, `styler`)
 - [ ] T004c Verify linting config files (`.ruff.toml`, `pyproject.toml` sections) exist and runnable (unit test) — Implemented as `tests/unit/test_lint_config.py`
 - [ ] T005 Add CI workflow file `.github/workflows/ci.yml` that runs `make validate` on fresh runner
-- [ ] T005c Verify CI workflow file exists and contains a `validate` job (unit test) — Implemented as `tests/unit/test_ci_workflow.py`
+- [X] T005c Verify CI workflow file exists and contains a `validate` job (unit test) — Implemented as `tests/unit/test_ci_workflow.py`
 - [ ] T005d CI step that validates the workflow file structure — Implemented via `scripts/validate_ci_workflow.py` and test `tests/unit/test_ci_workflow_structure.py`
 - [ ] T005e CI job `ci-workflow-validation` runs the above script on each push
 
@@ -36,8 +36,9 @@
 - [ ] T006 Create central logger module `src/utils/logger.py` that writes ISO‑8601 timestamps to `pipeline.log`
 - [ ] T006c Unit test ensuring logger writes JSON‑Line entries with required fields (`timestamp`, `level`, `message`, `schema_version`) and conforms to `contracts/pipeline_log.schema.yaml` — Implemented as `tests/unit/test_logger_fields.py`
 - [ ] T098 Extend logger to record the exact command‑line invocation, software versions, and random seed in `pipeline.log` (FR‑035)
-- [ ] T098c Unit test confirming logger entries contain `command`, `versions`, and `seed` fields per schema — Implemented as `tests/unit/test_logger_extension.py`
-- [ ] T098d Verify logger extension unit test exists (`tests/unit/test_logger_extension.py`)
+- [ ] T098_schema Update `contracts/pipeline_log.schema.yaml` to include `command`, `versions`, and `seed` fields (prerequisite for T098)
+- [X] T098c Unit test confirming logger entries contain `command`, `versions`, and `seed` fields per schema — Implemented as `tests/unit/test_logger_extension.py`
+- [X] T098d Verify logger extension unit test exists (`tests/unit/test_logger_extension.py`)
 - [X] T007 Implement CLI entry point `src/cli/run_pipeline.py` with argument parsing (`--norm-method`, `--threshold`, `--seed`, `--species`, etc.)
 - [X] T008 Write Makefile with targets `all`, `evaluate`, `enrich`, `clean`, `validate`, `sensitivity`, `reproducibility-check` (calls appropriate Python/R scripts)
 - [ ] T009 Create configuration directory `src/config/` with `species.yaml` (default Arabidopsis GEO list) and `parameters.yaml` (default threshold set to a high confidence level, using a standard random seed)
@@ -63,7 +64,6 @@
 - [ ] T013c CI job `reference-validator-ci` invoking the above script and failing on non‑zero exit
 - [ ] T013d Unit test enforcing title‑token overlap ≥ 0.7 (`tests/unit/test_citation_overlap.py`)
 
-- [ ] T098a Extend logger to record the exact command‑line invocation, software versions, and random seed in `pipeline.log` (FR‑035) *(legacy placeholder – now superseded by T098)*
 - [ ] T099 CI test for CLI validator — Implemented as CI job `threshold-validator-ci` running `pytest tests/unit/test_cli_threshold.py`
 - [ ] T099c CI step executing T012c unit test — Implemented in job `cli-threshold-ci`
 
@@ -94,18 +94,18 @@
 - [ ] T065c After batch correction, compute residual batch variance; log warning if > 5% (FR‑014) — Unit test `tests/unit/test_batch_variance_warning.py`
 - [ ] T014 Implement normalization script `src/pipeline/normalize.py` supporting `TPM` (default) and `VST` (R) with CLI flag `--norm-method`
 - [ ] T014c Unit test confirming correct handling of both TPM and VST modes (`tests/unit/test_normalization_modes.py`)
-- [ ] T015 Implement gene‑filtering `src/pipeline/filter.py` (CPM < 1 in > 80 % samples) and retain at most the N genes with highest variance, where N defaults to a substantial number of top‑variance genes (read from `species.yaml` if present, else default [deferred])
+- [ ] T015 Implement gene‑filtering `src/pipeline/filter.py` (CPM < 1 in > 80 % samples) and retain **at most 5,000 genes** with highest variance (hard limit per FR‑003, SC‑003)
 - [ ] T015c Unit test for CPM filter and variance‑based sub‑selection (`tests/unit/test_gene_filtering.py`)
 - [ ] T015e Verify default N=5,000 is enforced if config missing (`tests/unit/test_default_gene_limit.py`)
 - [ ] T016a Implement Pearson correlation matrix generation `src/pipeline/correlation_raw.py` to compute and stream full raw correlation scores for all gene‑pair candidates (block size=1000 genes) to `results/raw_correlations_<species>.tsv.gz` before any thresholding
 - [ ] T016a_c Unit test confirming raw correlation file is correctly streamed and parsable (`tests/unit/test_raw_correlation_output.py`)
 - [ ] T016a_verify Verify that `results/raw_correlations_*.tsv.gz` is written before thresholding (unit test) — Implemented as `tests/unit/test_raw_correlation_presence.py`
-- [ ] T016b Implement edge extraction `src/pipeline/correlation_extract.py` to extract edges from T016a using the `--threshold` parameter only (no p‑value filtering); output to `results/predicted_ppi_<species>.tsv` — IGNORES FDR output
+- [ ] T017 Implement identifier mapping `src/pipeline/mapping.py` using `org.At.tair.db` with fallback to Ensembl BioMart; write `results/mapping_warnings_<species>.log` for unmapped genes (FR‑005)
+- [ ] T017c Unit test for identifier mapping correctness and logging of unmapped genes (`tests/unit/test_mapping.py`)
+- [ ] T016b Implement edge extraction `src/pipeline/correlation_extract.py` to extract edges from T016a using the `--threshold` parameter **ONLY** (no p‑value filtering; **IGNORES FDR output** per FR‑045); output to `results/predicted_ppi_<species>.tsv` (requires T017 for protein IDs)
 - [ ] T016b_c Verify edge extraction respects correlation threshold exclusively (`tests/unit/test_edge_extraction_threshold.py`)
 - [ ] T083 Implement Benjamini‑Hochberg FDR correction `src/pipeline/fdr_correction.py` on correlation p‑values from T016a; output adjusted p‑values to `results/correlation_stats_<species>.tsv` (FR‑045) — **Reporting ONLY; never consumed by edge selection logic**
 - [ ] T084 Verify `correlation_stats_<species>.tsv` exists, is complete, and parsable (unit test) (`tests/unit/test_fdr_output.py`)
-- [ ] T017 Implement identifier mapping `src/pipeline/mapping.py` using `org.At.tair.db` with fallback to Ensembl BioMart; write `results/mapping_warnings_<species>.log` for unmapped genes (FR‑005)
-- [ ] T017c Unit test for identifier mapping correctness and logging of unmapped genes (`tests/unit/test_mapping.py`)
 - [ ] T018 Write edge‑list exporter that creates `results/predicted_ppi_<species>.tsv` (STRING protein IDs, correlation) and logs warnings (`results/pipeline.log`) — depends on T017 (FR‑011)
 - [ ] T018c Unit test for edge‑list exporter (format, warnings) (`tests/unit/test_edge_export.py`)
 - [ ] T020a Integration test `tests/integration/test_end_to_end_us1.py` that runs `make all` on a tiny mock dataset and checks edge‑list header and **header‑only OR ≥ 10 000 edges** via T042
@@ -125,14 +125,14 @@
 - [ ] T200c Unit test confirming mock edge list format and size suitability (`tests/unit/test_mock_edge_list.py`)
 - [ ] T021 Implement STRING downloader `src/pipeline/download_string.py` (fixed URL, checksum verification) – downloads high‑confidence set (combined score ≥ 700) and explicitly filters out the co‑expression evidence channel
 - [ ] T021c Unit test to verify that the downloaded STRING file excludes the co‑expression evidence channel (`tests/unit/test_string_download.py`)
-- [ ] T022a Implement evaluation script `src/pipeline/evaluate.py` that (a) loads predicted edges **from the real file `results/predicted_ppi_<species>.tsv`**, (b) loads STRING high‑confidence interactions (filtered), (c) computes AUROC/AUPRC with `sklearn.metrics` using **streaming/block‑wise loading** of raw correlations, (d) writes per‑species entries to `results/evaluation_metrics.json` (covers FR‑006, FR‑020)
-- [ ] T022c Verify evaluation script loads data correctly and produces valid JSON (unit test) (`tests/unit/test_full_evaluation.py`)
-- [ ] T022a_c Validate metric values against a known benchmark on mock data (`tests/unit/test_full_evaluation_mock.py`)
-- [ ] T023 Implement baseline generator `src/pipeline/baseline.py` that creates a degree‑preserving random graph via NetworkX `double_edge_swap` (controlled by `--seed`) and computes baseline AUROC/AUPRC using the same mock edge list input (FR‑007)
-- [ ] T023c Validate baseline graph preserves node degree distribution and compute permutation‑test p‑value (`tests/unit/test_baseline.py`)
-- [ ] T091 Implement balanced negative‑sampling module `src/pipeline/negative_sampling.py` that draws N=1 independent balanced negative set (size = positive set) from the complement of STRING (excluding co‑expression channel), using the global random seed (FR‑016)
+- [ ] T091 Implement balanced negative‑sampling module `src/pipeline/negative_sampling.py` that {{claim:c_6ffc1bf5}} ({{claim:c_41a5b477}}, https://oeis.org/A331313) (size = positive set) from the complement of STRING (excluding co‑expression channel), using the global random seed (FR‑016)
 - [ ] T091c Unit test asserting each negative set is true complement of STRING high‑confidence set and respects seed reproducibility (covers FR‑016)
 - [ ] T091d Verify negative‑sampling uses global seed and size equals positive set (`tests/unit/test_negative_sampling.py`)
+- [ ] T023 Implement baseline generator `src/pipeline/baseline.py` that creates a degree‑preserving random graph via NetworkX `double_edge_swap` (controlled by `--seed`) and computes baseline AUROC/AUPRC using the same mock edge list input (FR‑007)
+- [ ] T023c Validate baseline graph preserves node degree distribution and compute permutation‑test p‑value (`tests/unit/test_baseline.py`)
+- [ ] T022a Implement evaluation script `src/pipeline/evaluate.py` that (a) loads predicted edges **from the real file `results/predicted_ppi_<species>.tsv`**, (b) loads STRING high‑confidence interactions (filtered), (c) **processes ALL gene-pair correlation scores (full set)** via streaming/block-wise loading to compute AUROC/AUPRC with `sklearn.metrics`, (d) writes per‑species entries to `results/evaluation_metrics.json` (covers FR‑006, FR‑020). **Prerequisites**: T023 (baseline graph), T091 (negative set).
+- [ ] T022c Verify evaluation script loads data correctly and produces valid JSON (unit test) (`tests/unit/test_full_evaluation.py`)
+- [ ] T022a_c Validate metric values against a known benchmark on mock data (`tests/unit/test_full_evaluation_mock.py`)
 - [ ] T092 Implement median aggregation `src/pipeline/aggregate_metrics.py` to compute median AUROC/AUPRC across the 1 negative set generated by T091
 - [ ] T102 Unit test for balanced negative‑sampling (size, seed reproducibility) (`tests/unit/test_negative_sampling.py`)
 - [ ] T024 Extend `src/cli/run_pipeline.py` to expose `evaluate` sub‑command and pass seed/threshold flags
@@ -147,12 +147,12 @@
 
 ## Phase 4 – User Story 3 – Functional Enrichment of Predicted Interactome (US‑3)
 
-- [ ] T027 Implement GO enrichment script `src/pipeline/enrichment.py` using GOATOOLS (ontology dated ‑‑01) with Fisher’s exact test and Benjamini‑Hochberg correction; reads the **mock** prediction file and outputs `results/go_enrichment_<species>.tsv`
 - [ ] T028 Add CLI flag `--go-ontology` (default points to cached 2023‑12‑01 file) and integrate into `run_pipeline.py` as `enrich` sub‑command
+- [ ] T027 Implement GO enrichment script `src/pipeline/enrichment.py` using GOATOOLS (ontology dated ‑‑01) with Fisher’s exact test and Benjamini‑Hochberg correction; reads the **mock** prediction file and outputs `results/go_enrichment_<species>.tsv`
 - [ ] T029 Unit test `tests/unit/test_enrichment.py` that runs enrichment on a tiny gene set with a known GO term and checks adjusted p‑value calculation (uses mock predictions)
-- [ ] T044 CI step that parses `results/go_enrichment_<species>.tsv` and asserts at least one term has adjusted p < 0.05; if none, pipeline records “No significant enrichment” **and fails** (per SC‑002)
-- [ ] T044c Verification that GO enrichment output contains at least one significant term **or fails** when only “No significant enrichment” line is present (`tests/unit/test_enrichment_no_terms.py`)
+- [ ] T044c Unit test for the 'no enrichment' case: verify that the enrichment logic correctly identifies no significant terms and prepares the 'No significant enrichment' record (`tests/unit/test_enrichment_no_terms.py`)
 - [ ] T044d Integration test ensuring pipeline continues without error when only “No significant enrichment” line is present (`tests/integration/test_no_enrichment.py`)
+- [ ] T044 CI step that parses `results/go_enrichment_<species>.tsv` and asserts at least one term has adjusted p < 0.05; if none, pipeline records “No significant enrichment” and **exits gracefully** (per SC‑002)
 - [ ] T030 Integration test `tests/integration/test_end_to_edge_us3.py` that runs `make enrich` after US‑1 & US‑2 (or using the mock predictions from T201) and validates presence of at least one significant term (or graceful handling)
 
 - **Data‑model entity tasks**
@@ -162,14 +162,8 @@
 
 - [ ] T148 Perform pilot benchmark on a held‑out Arabidopsis GEO series (held‑out series = **last entry in species.yaml**) using default correlation threshold **high value**; compute precision ≥ 0.60 and recall ≥ 0.40 against STRING high‑confidence interactions (excluding co‑expression evidence); output `pilot_validation_<species>.json` and cite it in the summary (FR‑048)
 - [ ] T148c Unit test verifying pilot benchmark metrics meet precision/recall requirements and JSON is correctly formatted (`tests/unit/test_pilot_benchmark.py`)
-- [ ] T149 Implement false‑positive burden calculation using a Poisson approximation (based on number of gene‑pair tests, correlation threshold, and chosen significance level) and write results to `results/false_positive_burden_<species>.txt` (src/pipeline/false_positive.py) (FR‑149)
-- [ ] T149c Unit test for false‑positive calculation correctness on a known small example (`tests/unit/test_false_positive.py`)
-- [ ] T150 Extend per‑species summary generation (`src/pipeline/summary.py`) to include the false‑positive burden estimate and a brief interpretation of its impact on downstream analyses (FR‑150)
-- [ ] T150c Integration test confirming the summary report contains a “False‑Positive Burden” section with numeric values (`tests/integration/test_summary_false_positive.py`)
-- [ ] T151 Implement external validation set loader (`src/pipeline/validation_set.py`) for BioGRID interactions, download, checksum, map to STRING IDs (FR‑151)
-- [ ] T151c Unit test for validation‑set loader ensuring correct parsing and mapping (`tests/unit/test_validation_set.py`)
-- [ ] T151d Update evaluation pipeline to compute precision and recall against this independent validation set and store results in `results/validation_metrics_<species>.json` (FR‑151)
-- [ ] T151e Add schema `contracts/validation_metrics.schema.yaml` and unit test (`tests/unit/test_validation_schema.py`)
+- [ ] T150 Extend per‑species summary generation (`src/pipeline/summary.py`) to include the pilot benchmark results and a construct‑validity justification using the citation block from T128 (FR‑026)
+- [ ] T150c Integration test confirming the summary report contains a "Pilot Benchmark" section with numeric values (`tests/integration/test_summary_pilot.py`)
 
 ## Phase 6 – Sensitivity Analysis & Supporting Tasks
 

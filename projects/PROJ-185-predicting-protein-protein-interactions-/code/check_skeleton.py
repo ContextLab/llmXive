@@ -1,86 +1,75 @@
-"""Utility to verify that the repository skeleton directories exist.
+"""
+check_skeleton.py
+-----------------
 
-The function ``missing_directories`` returns a list of any expected
-top‑level directories that are absent.  The ``main`` function exits with
-status code ``0`` when everything is present and ``1`` otherwise,
-printing a helpful message.  This script is intended for CI usage (e.g.,
-as a step that fails the build if the skeleton is incomplete) and is also
-exercised by the unit tests in ``tests/test_skeleton_directories.py``.
+Utility used by the CI integration test ``tests/ci/test_skeleton_ci.py`` to
+verify that the expected repository skeleton exists.  It provides two
+public callables:
+
+* ``missing_directories`` – given an iterable of expected directories,
+  returns a list of those that are absent.
+* ``main`` – the command‑line entry point that exits with status 0 when all
+  expected directories are present, otherwise prints the missing ones and
+  exits with status 1.
 """
 
 import sys
 from pathlib import Path
-from typing import List
+from typing import Iterable, List
 
 
-# The same list used by ``create_skeleton`` – keeping them in sync avoids
-# accidental mismatches.
-EXPECTED_DIRS = [
-    "src",
-    "tests",
-    "data",
-    "results",
-    "docs",
-    "contracts",
+# Expected top‑level directories for the project skeleton.
+EXPECTED_DIRS: List[Path] = [
+    Path("src"),
+    Path("tests"),
+    Path("data"),
+    Path("results"),
+    Path("docs"),
+    Path("contracts"),
 ]
 
 
-def _project_root() -> Path:
+def missing_directories(
+    expected: Iterable[Path] = EXPECTED_DIRS, root: Path = Path.cwd()
+) -> List[Path]:
     """
-    Resolve the repository root directory.
-
-    This file lives in ``code/``; the root is its parent directory.
-    """
-    return Path(__file__).resolve().parent.parent
-
-
-def missing_directories(root: Path = None) -> List[Path]:
-    """
-    Return a list of expected skeleton directories that are missing.
+    Return a list of directories from ``expected`` that do not exist under
+    ``root``.
 
     Parameters
     ----------
-    root : Path, optional
-        The directory to treat as the repository root.  If omitted, the
-        function determines the root relative to this file.
+    expected: Iterable[Path]
+        The directories that should be present relative to ``root``.
+    root: Path
+        Base directory to resolve the expected paths against (defaults to the
+        current working directory).
 
     Returns
     -------
     List[Path]
-        Paths (relative to ``root``) of directories that do not exist.
+        Paths (relative to ``root``) that are missing.
     """
-    if root is None:
-        root = _project_root()
-    missing = []
-    for rel in EXPECTED_DIRS:
-        if not (root / rel).is_dir():
-            missing.append(root / rel)
+    missing: List[Path] = []
+    for rel_path in expected:
+        full_path = root / rel_path
+        if not full_path.is_dir():
+            missing.append(rel_path)
     return missing
 
 
-def main(argv: list = None) -> None:
+def main() -> None:
     """
-    CLI entry point used by CI scripts.
-
-    Exits with ``0`` if all skeleton directories are present, otherwise
-    prints the missing paths and exits with ``1``.
+    CLI entry point used by CI.  Prints missing directories (if any) and
+    exits with a non‑zero status code when the skeleton is incomplete.
     """
-    if argv is None:
-        argv = sys.argv[1:]  # noqa: F841  (reserved for future flags)
-
-    root = _project_root()
-    missing = missing_directories(root)
-
+    missing = missing_directories()
     if missing:
-        print("Missing required repository directories:", file=sys.stderr)
-        for p in missing:
-            print(f"  - {p}", file=sys.stderr)
+        print("Missing repository skeleton directories:", file=sys.stderr)
+        for d in missing:
+            print(f"- {d}", file=sys.stderr)
         sys.exit(1)
-    else:
-        # Successful verification – print nothing (or a brief confirmation
-        # for interactive runs).
-        print("All repository skeleton directories are present.")
-        sys.exit(0)
+    # All directories present – silent success.
+    sys.exit(0)
 
 
 if __name__ == "__main__":

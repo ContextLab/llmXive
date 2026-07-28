@@ -1,6 +1,4 @@
-# Global pipeline parameters
-# These defaults satisfy the CLI validator (threshold >= 0.75) and provide
-# reproducible behavior via a fixed random seed.
-threshold: 0.80        # correlation threshold for edge extraction
-seed: 42               # global random seed for reproducibility
-norm_method: TPM       # default normalization method (TPM or VST)
+# Pipeline parameter defaults for PROJ-185
+threshold: 0.85
+seed: 42
+norm_method: "TPM"

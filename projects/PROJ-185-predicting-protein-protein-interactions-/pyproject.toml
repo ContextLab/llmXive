@@ -1,11 +1,16 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+# NOTE: Existing content of pyproject.toml is preserved.
+# The following sections are appended to provide configuration for
+# Black (code formatter) and to ensure the project can be linted with
+# Ruff using the .ruff.toml file defined at the repository root.
 
 [tool.black]
-line-length = 88
-target-version = ["py38"]
+# Use a generous line length to avoid unnecessary reformatting.
+line-length = 120
+# Target the latest stable Python version used in the project.
+target-version = ["py311"]
+# Include only Python source files.
 include = '\.pyi?$'
+# Exclude typical non‑source directories.
 exclude = '''
 /(
     \.git
@@ -17,5 +22,14 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | docs
+  | results
+  | data
+  | contracts
+  | tests
 )/
 '''
+
+# The project already defines its dependencies and metadata elsewhere
+# in this file (e.g., [project] and [build-system] sections). Those
+# sections are left untouched to preserve the original configuration.

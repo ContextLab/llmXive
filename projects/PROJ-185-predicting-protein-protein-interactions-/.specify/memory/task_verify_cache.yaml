@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required repository skeleton directories (`src/`, `tests/`,
-    `data/`, `results/`, `docs/`, `contracts/`) is present; the provided material
-    only contains a feature specification and no filesystem artifacts. The task therefore
-    remains unfinished.
 T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,39 +5,31 @@ T001d:
     \ the presence of required skeleton directories and causes the CI job to fail\
     \ if any are missing. The implementer supplied no artifact matching the task\u2019\
     s requirement, so the claim of completion is unsupported."
-T003:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `renv.lock` file, R initialization script, or any evidence of the listed Bioconductor
-    packages being installed is present. The required artifact (the environment lockfile
-    and installation steps) is missing, so the task is not satisfied.
-T003c:
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, or a Styler config) are present in the\
+    \ provided artifacts, and the only evidence shown relates to the PPI prediction\
+    \ feature, not to adding `ruff`, `black`, or `styler` setup. The task\u2019s requirement\
+    \ is therefore unmet."
+T004c:
+  c: false
+  h: cbfd365d92ac6675498727d380e6d661b88ccf4b3e14a0eba763b8d401551f64
+  r: "The repository lacks the required `tests/unit/test_lint_config.py` unit\u2011\
+    test file and the `.ruff.toml` configuration file; only a `pyproject.toml` with\
+    \ Black settings is present. Without these artifacts the linting config cannot\
+    \ be verified as runnable."
+T005e:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `renv.lock` file, nor any unit\u2011test code or test results were provided;\
-    \ without these artifacts we cannot verify that a test checks the lockfile\u2019\
-    s existence and that it records package versions. The required test and lockfile\
-    \ are missing."
-T003d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit\u2011test file or script is present in the provided evidence; there\
-    \ is no code that runs `Rscript -e \"renv::status()\"` and checks for a non\u2011\
-    zero exit status. The required test artifact is missing, so the task is not satisfied."
-T005d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI script, configuration, or test files that validate the workflow file structure\
-    \ were presented. The claim provides only a high\u2011level feature specification\
-    \ unrelated to a CI validation step, and there is no artifact (e.g., a GitHub\
-    \ Actions workflow, a validation script, or test results) to confirm that such\
-    \ a CI step exists or works. The required CI validation artifact is missing."
-T009c:
-  c: false
-  h: 0036871db05825cd6c1a0a47446f4e4f350c739d2add0aa0ba2a3993e8b8ea8d
-  r: Both required files `species.yaml` and `parameters.yaml` are reported as missing,
-    so the unit test that verifies their presence cannot pass. The artifact needed
-    to satisfy the task does not exist.
+  r: No CI workflow file, script, or any generated artifacts (e.g., `predicted_ppi_<species>.tsv`,
+    `evaluation_metrics.json`, logs, or the `ci-workflow-validation` job definition)
+    are present in the evidence. Consequently, the claim that the CI job runs the
+    required script on each push cannot be verified. The implementer must provide
+    the actual GitHub Actions workflow YAML, the script it executes, and sample output
+    files demonstrating that the pipeline produces the expected prediction and evaluation
+    artifacts.
 T009d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -90,18 +75,19 @@ T013:
     verification step, nor any evidence (e.g., GitHub Actions YAML, test logs, or\
     \ documentation) showing the Reference\u2011Validator Agent being invoked on markdown\
     \ and code files. The required artifact is missing, so the task is not satisfied."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit or integration test code, test data, or test results were provided to\
-    \ demonstrate that the edge\u2011list size is verified; the claim is only a placeholder\
-    \ token with no accompanying artifact. The required test artifact is missing."
 T064:
   c: false
   h: 45824f22fd38ac8a8fe3afd1d81f886b57180cb7d4d29840f92eeb355c6d62ce
   r: "The required `src/pipeline/download.py` file does not exist, and `state/artifact_hashes.yaml`\
     \ is empty (`{}`) with no recorded SHA\u2011256 hashes. Both the downloader implementation\
     \ and the hash recording are missing."
+T098:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes, configuration, or example `pipeline.log` file were provided\
+    \ that demonstrate the logger now records the exact command\u2011line invocation,\
+    \ software versions, and random seed. Without such artifacts, the requirement\
+    \ of FR\u2011035 cannot be verified."
 T099:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

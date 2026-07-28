@@ -1,0 +1,7 @@
+# Styler configuration for R code formatting
+# These are minimal options; users can extend as needed.
+style:
+  indent_by: 2
+  brace_newline: true
+  spaces_inside_parentheses: true
+  spaces_around_operators: true

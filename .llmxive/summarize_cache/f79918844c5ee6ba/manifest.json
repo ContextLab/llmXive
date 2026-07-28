@@ -2,9 +2,9 @@
   "schema": "llmxive-summary/1",
   "root_hash": "f79918844c5ee6ba",
   "goal": "extract every plan element (phases, contracts, entities, quickstart steps) the tasks must cover",
-  "model": "openai.gpt-oss-120b",
+  "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-07-27T16:55:04.717945+00:00",
+  "created_at": "2026-07-28T19:03:19.150503+00:00",
   "entries": [
     {
       "element_id": "e000",
