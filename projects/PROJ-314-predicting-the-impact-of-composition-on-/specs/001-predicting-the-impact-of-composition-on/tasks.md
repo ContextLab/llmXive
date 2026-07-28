@@ -79,8 +79,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Unit test for `chemparse` composition parsing in `tests/test_descriptors.py`
-- [ ] T014 [P] [US1] Unit test for imputation logic (group vs. global median) in `tests/test_ingestion.py`
+- [X] T013 [P] [US1] Unit test for `chemparse` composition parsing in `tests/test_descriptors.py`
+- [X] T014 [P] [US1] Unit test for imputation logic (group vs. global median) in `tests/test_ingestion.py`
 - [X] T015 [P] [US1] Integration test for full ingestion pipeline on a small sample in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
@@ -100,8 +100,8 @@
  1. Calculate mean atomic radius and electronegativity std.
  2. Calculate Cation Size Variance.
  3. **Explicitly Calculate Valence Electron Concentration (VEC)** as: `sum(valence electrons of all atoms) / total number of atoms in formula unit` (FR-002).
-- [~] T020 [US1] Add validation to ensure no missing values in primary predictors after imputation
-- [~] T021 [US1] Add logging for data exclusion reasons (e.g., "N < 30", "Invalid Stoichiometry", "Non-stoichiometric fallback used")
+- [ ] T020 [US1] Add validation to ensure no missing values in primary predictors after imputation
+- [ ] T021 [US1] Add logging for data exclusion reasons (e.g., "N < 30", "Invalid Stoichiometry", "Non-stoichiometric fallback used")
 - [X] T022 [P] [US3] Create `code/physics_mappings.py` with a dictionary mapping descriptors to physical mechanisms (e.g., "cation_size_variance" -> "Grain boundary stability") to support T040 (FR-006/US-3) (Resolves missing producer)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -118,19 +118,19 @@
 
 - [X] T023 [P] [US2] Unit test for stratified splitting logic in `tests/test_modeling.py`
 - [X] T024 [P] [US2] Unit test for baseline (global mean) predictor in `tests/test_modeling.py`
-- [~] T025 [P] [US2] Integration test for 5-fold CV workflow in `tests/integration/test_modeling.py`
+- [ ] T025 [P] [US2] Integration test for 5-fold CV workflow in `tests/integration/test_modeling.py`
 
 ### Implementation for User Story 2
 
 - [X] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004)
 - [X] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit 6h runtime (FR-004)
-- [~] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
-- [ ] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`:
+- [ ] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
+- [X] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`:
  1. Perform permutation test with **1000 permutations** and **random_seed=42**.
  2. **Success Criteria**: The model is significant ONLY if p-value < 0.05 (SC-001).
  3. **Output**: Generate `data/results/permutation_p_value.json` containing the p-value.
  4. **Constraint**: If p >= 0.05, flag as "Not Statistically Significant".
-- [ ] T030 [US2] Implement `check_leakage()` in `code/diagnostics.py`:
+- [X] T030 [US2] Implement `check_leakage()` in `code/diagnostics.py`:
  1. Select the best model from T027/T028 (lowest validation MAE).
  2. Re-run the model without the `primary_anion_cation_group` feature.
  3. **Logic**: Calculate performance drop = (Original MAE - New MAE) / Original MAE.
@@ -150,18 +150,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US3] Unit test for VIF calculation in `tests/test_diagnostics.py`
-- [ ] T034 [P] [US3] Unit test for SHAP value aggregation in `tests/test_report.py`
-- [ ] T035 [P] [US3] Integration test for full interpretability pipeline in `tests/integration/test_interpretability.py`
+- [X] T033 [P] [US3] Unit test for VIF calculation in `tests/test_diagnostics.py`
+- [X] T034 [P] [US3] Unit test for SHAP value aggregation in `tests/test_report.py`
+- [X] T035 [P] [US3] Integration test for full interpretability pipeline in `tests/integration/test_interpretability.py`
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement `calculate_shap()` in `code/diagnostics.py`: Generate SHAP values for the best-performing model (FR-006)
-- [ ] T037 [US3] Implement `calculate_vif()` in `code/diagnostics.py`:
+- [X] T036 [US3] Implement `calculate_shap()` in `code/diagnostics.py`: Generate SHAP values for the best-performing model (FR-006)
+- [X] T037 [US3] Implement `calculate_vif()` in `code/diagnostics.py`:
  1. Compute VIF for all predictors.
  2. **Output**: Report individual VIF scores for every feature in `data/results/vif_diagnostics.json`.
  3. Flag any pair with VIF > 5.0 (FR-007, SC-003).
-- [ ] T038 [US3] Implement `group_correlated_features()` in `code/diagnostics.py`:
+- [X] T038 [US3] Implement `group_correlated_features()` in `code/diagnostics.py`:
  1. Cluster features with VIF > 5 for *interpretive grouping*.
  2. **Constraint**: Suppress individual causal claims for clustered features. Report aggregate importance for clusters instead to prevent invalid claims (SC-003).
  3. Do NOT suppress individual VIF scores in the diagnostic report (T037), only in the interpretive summary.

@@ -55,8 +55,8 @@ The research question is: Can large language models be prompted to perform few-s
  - Memory limit flag (`max_ram_gb: sufficient for model and data`).
 
 The research question is: Can large language models be effectively fine-tuned for specialized tasks with limited computational resources?
-The method is: We will explore parameter-efficient fine-tuning (PEFT) techniques, specifically LoRA (Hu et al., 2021), on a moderately sized language model.
-References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685.
+The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.
  - A sanity‑check script `scripts/run-ci.sh --dry-run` that attempts to execute **every** script under `code/` and `scripts/` without manual input; logs success to `logs/env_check.log`. This satisfies Constitution I’s requirement that all scripts be runnable end‑to‑end. <!-- environment configuration and verification -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -86,14 +86,14 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
  - Calculates the three descriptors, writes `data/derived/descriptor_vector.csv`.
  - Records descriptor‑calculation parameters in `code/descriptors/provenance.yaml`.
  - Triggers a SHA‑256 checksum entry for the descriptor file in `state/artifact_hashes.yaml` whenever parameters change, satisfying **Constitution VI**.
-- [ ] T012 [US1] Implement fallback logic in `code/descriptors/utils.py`:
+- [X] T012 [US1] Implement fallback logic in `code/descriptors/utils.py`:
  - For missing elemental properties, selects the nearest periodic‑table neighbor, logs a warning to `logs/fallback.log`.
-- [ ] T013 [US1] Extend `code/descriptors/compute.py` to **explicitly handle error cases** for invalid compositions:
+- [X] T013 [US1] Extend `code/descriptors/compute.py` to **explicitly handle error cases** for invalid compositions:
  - Adds an `error_code` column (enum: `INVALID_SYMBOL`, `INVALID_STOICHIOMETRY`) and writes flagged rows to `data/derived/descriptor_vector_errors.csv`.
  - This fulfills **FR‑001**’s requirement for robust error handling of invalid inputs.
 - [X] T014 [US1] Add structured logging in `code/descriptors/compute.py`:
  - Writes JSON‑Lines to `logs/computation_log.jsonl` with fields `timestamp`, `sample_id`, `step`, `status`.
-- [ ] T035 [US1] Implement `scripts/validate_descriptors.py`:
+- [X] T035 [US1] Implement `scripts/validate_descriptors.py`:
  - Compares descriptors for Cu‑Zr benchmark alloys against DScribe reference values (tolerance ±0.02) and writes a pass/fail report to `results/descriptor_benchmark_report.json`, supporting **SC‑002** verification of descriptor accuracy.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -108,28 +108,28 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T015 [US2] Contract test for model performance metrics schema in `tests/contract/test_performance_schema.py`.
-- [ ] T016 [US2] Integration test for full training pipeline on synthetic data in `tests/integration/test_training_pipeline.py`.
+- [X] T015 [US2] Contract test for model performance metrics schema in `tests/contract/test_performance_schema.py`.
+- [X] T016 [US2] Integration test for full training pipeline on synthetic data in `tests/integration/test_training_pipeline.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `scripts/sample_dataset.py`:
+- [X] T017 [US2] Implement `scripts/sample_dataset.py`:
  - Performs stratified sampling (`StratifiedShuffleSplit` with seed 42) to keep class ratios.
  - Ensures resulting CSV `data/samples/sample_dataset.csv` is **≤ 7 GB** to respect the RAM limit (`max_ram_gb`) per **FR‑007**.
  - Writes sampling metadata (ratio, seed) to `logs/sampling_log.json`.
-- [ ] T018 [US2] Implement `scripts/filter_labels.py`:
+- [X] T018 [US2] Implement `scripts/filter_labels.py`:
  - Retains rows with `phase_label` from experimental sources.
  - Marks DFT‑derived rows with `confidence='low'` and logs a warning, fulfilling **FR‑009** (experimental priority, lower‑confidence DFT handling).
  - Outputs `data/derived/filtered_alloys.csv`.
 - [ ] T019 [US2] Implement `code/descriptors/check_imbalance.py`:
  - Calculates glass‑to‑crystalline ratio.
  - **If ratio > 3:1, writes `data/derived/imbalance_report.json` with `flag='UNSUITABLE_FOR_BINARY_CLASSIFICATION'` and **aborts** the pipeline (hard stop).** This enforces **FR‑006** as a non‑negotiable flag.
-- [ ] T020 [US2] Implement `code/models/train.py`:
+- [X] T020 [US2] Implement `code/models/train.py`:
  - Trains Random Forest and Gradient Boosting with cross-validation.
  - Saves models to `models/trained_models.pkl`.
  - Writes **all hyper‑parameters** to `code/models/hyperparameters.yaml` (Constitution VII compliance).
  - After training, checks if mean ROC‑AUC < 0.80; if so, logs explanation in `logs/model_accuracy_issue.log` as required by Constitution VII.
-- [ ] T021 [US2] Implement `code/models/evaluate.py`:
+- [X] T021 [US2] Implement `code/models/evaluate.py`:
  - Evaluates on held‑out test set, computes **ROC‑AUC**, precision, recall, and standard deviation across folds.
  - Writes `results/performance_metrics.json` containing all metrics, training time, and a `validation_limitation_note` field, satisfying **FR‑004**, **SC‑001**, and Constitution VII.
 

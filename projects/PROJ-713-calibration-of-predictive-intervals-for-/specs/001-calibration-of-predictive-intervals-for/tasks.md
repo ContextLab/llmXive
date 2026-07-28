@@ -47,7 +47,7 @@
 - [ ] T001b [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/tests/` directory structure
 - [ ] T001c [P] Create `data/raw/` and `data/processed/` directories
 - [ ] T001d [P] Create `results/` directory structure
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `statsmodels`, `prophet`, `torch`, `properscoring`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `statsmodels`, `prophet`, `torch`, `properscoring`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -68,7 +68,7 @@
  - Standardization (zero mean, unit variance)
 - [X] T007 Create `code/models/__init__.py` and base model interface definitions
 - [X] T008 Implement `code/metrics/__init__.py` and base metric interface definitions
-- [~] T009 Setup `data/raw/` and `data/processed/` directory structures with checksum verification logic
+- [ ] T009 Setup `data/raw/` and `data/processed/` directory structures with checksum verification logic
 - [X] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20) and streaming behavior on a small mock dataset
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -119,16 +119,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/metrics/pit.py`:
+- [X] T022 [P] [US2] Implement `code/metrics/pit.py`:
  - Calculate Probability Integral Transform for forecast errors
  - Generate histogram data
  - Perform **Ljung-Box test** for uniformity (per Constitution Principle VI and Spec FR-004, SC-002) to account for autocorrelation. **Do NOT use Kolmogorov-Smirnov test.**
  - Return p-value and histogram bins
-- [ ] T023 [P] [US2] Implement `code/metrics/crps.py`:
+- [X] T023 [P] [US2] Implement `code/metrics/crps.py`:
  - Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`
  - Ensure compatibility with both Gaussian and Empirical CDF interval types
-- [ ] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete)
-- [ ] T025 [US2] Aggregate PIT and CRPS results to `results/distributional_metrics.csv`
+- [X] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete)
+- [~] T025 [US2] Aggregate PIT and CRPS results to `results/distributional_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,16 +142,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for bootstrap output in `tests/contract/test_bootstrap_schema.py`
-- [ ] T028 [P] [US3] Integration test for conformal wrapper improvement in `tests/integration/test_conformal_improvement.py`
+- [X] T027 [P] [US3] Contract test for bootstrap output in `tests/contract/test_bootstrap_schema.py`
+- [X] T028 [P] [US3] Integration test for conformal wrapper improvement in `tests/integration/test_conformal_improvement.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/evaluation/bootstrap_test.py`:
+- [X] T029 [P] [US3] Implement `code/evaluation/bootstrap_test.py`:
  - Paired bootstrap test with a sufficient number of resamples at time-series level
  - Compare coverage deviations between models
  - Return p-values for significance at α=0.05
-- [ ] T030 [P] [US3] Implement `code/calibration/conformal.py`:
+- [X] T030 [P] [US3] Implement `code/calibration/conformal.py`:
  - Self-Calibrating Conformal Prediction wrapper
  - CPU-optimized implementation (fixed sample size, no nested CV)
  - Compare baseline vs. wrapped empirical coverage

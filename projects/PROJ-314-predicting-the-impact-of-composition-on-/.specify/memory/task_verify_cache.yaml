@@ -1,0 +1,50 @@
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration script, or documentation for environment variable
+    handling is present in the provided evidence. Without an actual artifact demonstrating
+    that API keys (or other secrets) are loaded from a `.env` file, the requirement
+    for environment configuration management is not satisfied. The next implementer
+    must add a `.env` example (e.g., `.env.example`), code that loads it (e.g., using
+    `python-dotenv` or similar), and documentation on its usage.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation artifact was presented that adds a validation
+    step to check for missing values in primary predictors after imputation. Without
+    a concrete implementation (e.g., a function, script, or unit test) the requirement
+    cannot be verified as satisfied. The next implementer must provide the actual
+    validation logic and evidence (e.g., code snippet, test results) showing that
+    after imputation no primary predictor contains missing values.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output was presented showing that logging for\
+    \ data exclusion reasons (e.g., \u201CN < 30\u201D, \u201CInvalid Stoichiometry\u201D\
+    , \u201CNon\u2011stoichiometric fallback used\u201D) has been added to the data\
+    \ pipeline. The implementer provided only the task description and specifications,\
+    \ but no concrete artifact (such as modified source files, logging statements,\
+    \ or example log entries) to verify the requirement. The missing implementation\
+    \ must be supplied and demonstrated."
+T025:
+  c: false
+  h: 4e75caf2a2c7cdfe41a51df07044ba9eb0adcb01a821d170fc2d6fb31a997632
+  r: "The required artifact `tests/integration/test_modeling.py` does not exist in\
+    \ the repository, so the integration test for the 5\u2011fold CV workflow is missing.\
+    \ The task cannot be considered completed until this file is added with appropriate\
+    \ test code."
+T028:
+  c: false
+  h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
+  r: The provided `code/modeling.py` does not contain an `evaluate_models()` function
+    (the file only shows imports and a `prepare_splits` implementation), and the required
+    output file `data/results/model_metrics.json` is absent. Both the core function
+    and its expected JSON output are missing, so the task is not satisfied.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that demonstrates the addition\
+    \ of logic to exclude material classes with fewer than\u202F5 samples from stratified\
+    \ splitting. Without an artifact showing the implemented change (e.g., updated\
+    \ data pipeline, unit test, or commit diff), the requirement cannot be confirmed\
+    \ as met."

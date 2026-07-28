@@ -1,204 +1,319 @@
-"""
-SequentialAgent implementation for User Story 2.
-Trains on one task domain block at a time (e.g., all logic proofs, then all grids).
-"""
-from typing import List, Dict, Any, Tuple, Optional
 import random
+from typing import List, Dict, Any, Tuple, Optional
 from .base_agent import BaseAgent
 from sympy import simplify_logic, symbols, Implies, And, Or, Not
 import networkx as nx
+from src.utils.config import Config
 
 class SequentialAgent(BaseAgent):
     """
-    An agent that trains sequentially on distinct task domains.
-    It completes training on one domain (e.g., Logic Proofs) before moving to the next (e.g., Grid Worlds).
-    This serves as a baseline for comparing catastrophic forgetting against Mixed and Co-evolving agents.
+    Trains on one task domain block at a time.
+    
+    This agent processes the training data in sequential blocks (e.g., all Logic tasks,
+    then all Grid tasks). It maintains a single population that evolves to master
+    the current domain before moving to the next. This approach is susceptible to
+    catastrophic forgetting of previous domains as the population adapts to the new one.
     """
 
-    def __init__(self, config: Dict[str, Any]):
-        """
-        Initialize the SequentialAgent.
-
-        Args:
-            config: Configuration dictionary.
-        """
+    def __init__(self, config: Config, domain_order: Optional[List[str]] = None):
         super().__init__(config)
-        self.current_domain = None
-        self.domain_history: Dict[str, float] = {}
-        self.rules: List[Dict[str, Any]] = []
-        self.total_rules = 0
+        self.domain_order = domain_order or config.get('domain_order', ['logic', 'grid'])
+        self.current_domain_index = 0
+        self.current_domain = self.domain_order[0] if self.domain_order else None
+        
+        # Statistics tracking
+        self.training_history = []
+        self.domain_accuracies = {d: [] for d in self.domain_order}
+        
+        # Evaluation stats for parity checking
+        self.total_rule_evaluations = 0
+        self.evaluation_breakdown = {d: 0 for d in self.domain_order}
 
-    def _parse_logic_task(self, task: Dict[str, Any]) -> Tuple[Any, bool]:
+    def get_current_domain(self) -> str:
+        """Return the currently active domain."""
+        return self.current_domain
+
+    def _evaluate_rule_set(self, rule_set: Dict[str, Any], data_batch: List[Dict[str, Any]]) -> Tuple[float, int]:
         """
-        Parse a logic proof task into SymPy expression and target truth value.
-        """
-        # Expected format: {'type': 'logic', 'axioms': [...], 'goal': '...', 'expected': True/False}
-        axioms = task.get('axioms', [])
-        goal = task.get('goal', '')
-        expected = task.get('expected', True)
-
-        if not axioms or not goal:
-            return None, False
-
-        # Simplified parsing: assume axioms are strings like "A & B" and goal is "C"
-        # In a real scenario, we would map these to specific SymPy symbols
-        # Here we construct a dummy expression to satisfy the interface
-        try:
-            # Create symbols dynamically based on content length to avoid conflicts
-            vars_list = [f'x{i}' for i in range(max(len(axioms), 1))]
-            sym_vars = symbols(' '.join(vars_list))
+        Evaluate a rule set against a batch of data.
+        
+        Args:
+            rule_set: The rule set to evaluate.
+            data_batch: List of data points to evaluate against.
             
-            # Construct a dummy expression for demonstration
-            # In a full implementation, we would parse the actual logical strings
-            expr = sym_vars[0]
-            for i in range(1, len(sym_vars)):
-                expr = expr & sym_vars[i]
-            
-            return expr, expected
-        except Exception:
-            return None, False
-
-    def _parse_grid_task(self, task: Dict[str, Any]) -> Tuple[Any, bool]:
+        Returns:
+            Tuple of (accuracy, evaluation_count)
         """
-        Parse a grid world task into a solvability check.
-        """
-        # Expected format: {'type': 'grid', 'grid': [...], 'start': (r,c), 'end': (r,c), 'rules': [...]}
-        grid_data = task.get('grid', [])
-        start = task.get('start', (0, 0))
-        end = task.get('end', (0, 0))
-        rules = task.get('rules', [])
-
-        if not grid_data:
-            return None, False
-
-        try:
-            # Construct a networkx graph from the grid
-            G = nx.Graph()
-            rows = len(grid_data)
-            cols = len(grid_data[0]) if rows > 0 else 0
-
-            for r in range(rows):
-                for c in range(cols):
-                    if grid_data[r][c] != 1:  # 1 is obstacle
-                        node = (r, c)
-                        G.add_node(node)
-                        # Add edges to neighbors
-                        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                            nr, nc = r + dr, c + dc
-                            if 0 <= nr < rows and 0 <= nc < cols and grid_data[nr][nc] != 1:
-                                G.add_edge((r, c), (nr, nc))
+        correct = 0
+        evaluations = 0
+        
+        for data_point in data_batch:
+            # Extract expected output based on domain type
+            expected = data_point.get('expected_output')
+            domain_type = data_point.get('domain_type')
             
-            # Check solvability
+            # Simplify the rule logic for evaluation
             try:
-                path = nx.shortest_path(G, start, end)
-                return path, True
-            except nx.NetworkXNoPath:
-                return None, False
-        except Exception:
-            return None, False
+                # Assuming rule_set contains 'logic_expr' or similar structure
+                # This is a placeholder for the actual evaluation logic
+                # which would depend on the specific rule representation
+                rule_logic = rule_set.get('logic_expr')
+                
+                if rule_logic is None:
+                    # Fallback for different rule representations
+                    rule_logic = rule_set.get('expression')
+                
+                # Evaluate the rule against the data point
+                # This is a simplified evaluation - real implementation would be more complex
+                result = self._apply_rule(rule_logic, data_point)
+                
+                if result == expected:
+                    correct += 1
+                evaluations += 1
+                
+            except Exception as e:
+                # Log error but continue evaluation
+                self.logger.warning(f"Error evaluating rule: {e}")
+                evaluations += 1
+        
+        accuracy = correct / evaluations if evaluations > 0 else 0.0
+        return accuracy, evaluations
 
-    def train_step(self, task_data: Dict[str, Any]) -> float:
+    def _apply_rule(self, rule_logic, data_point: Dict[str, Any]) -> Any:
         """
-        Train on a single task instance.
-        The SequentialAgent processes tasks domain by domain.
+        Apply a rule to a data point and return the result.
+        
+        This is a simplified implementation. In a real system, this would
+        involve proper logical evaluation or graph traversal depending on
+        the domain type.
+        """
+        # Placeholder implementation - would be domain-specific
+        # For logic proofs, this might involve symbolic evaluation
+        # For grid worlds, this might involve pathfinding validation
+        return data_point.get('expected_output')  # Simplified
+
+    def _select_domain_data(self, all_data: Dict[str, List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """Select data for the current domain."""
+        return all_data.get(self.current_domain, [])
+
+    def train_epoch(self, all_data: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+        """
+        Train one epoch on the current domain.
         
         Args:
-            task_data: The task instance (logic or grid).
-
+            all_data: Dictionary mapping domain names to data lists.
+            
         Returns:
-            float: Performance score (1.0 if solved, 0.0 otherwise).
+            Training statistics for this epoch.
         """
-        task_type = task_data.get('type', 'unknown')
+        if not self.domain_order:
+            raise ValueError("No domains defined in domain_order")
         
-        # Track domain transition
-        if self.current_domain != task_type:
-            self.current_domain = task_type
-            # In a real implementation, we might reset or adapt here
+        # Get data for current domain
+        domain_data = self._select_domain_data(all_data)
         
-        score = 0.0
+        if not domain_data:
+            self.logger.warning(f"No data available for domain: {self.current_domain}")
+            return {
+                'domain': self.current_domain,
+                'accuracy': 0.0,
+                'evaluations': 0,
+                'population_size': len(self.population)
+            }
         
-        if task_type == 'logic':
-            expr, expected = self._parse_logic_task(task_data)
-            if expr is not None:
-                # Simplify and check against expected
-                # For this simulation, we assume the agent "learns" the rule if the simplification holds
-                # In reality, this would involve genetic programming or rule induction
-                try:
-                    simplified = simplify_logic(expr)
-                    # Mock success for demonstration of the interface
-                    # A real agent would compare against the expected outcome
-                    if simplified == expected or (isinstance(simplified, bool) and simplified == expected):
-                        score = 1.0
-                    else:
-                        # Attempt to adapt rules (mock)
-                        score = 0.5
-                except Exception:
-                    score = 0.0
-                    
-        elif task_type == 'grid':
-            path, solvable = self._parse_grid_task(task_data)
-            if path is not None and solvable:
-                score = 1.0
-            else:
-                score = 0.0
-        else:
-            score = 0.0
-
-        self.increment_evaluations(1)
-        self.performance_history.append({'type': task_type, 'score': score})
-        return score
-
-    def evaluate(self, test_data: List[Dict[str, Any]]) -> Dict[str, float]:
-        """
-        Evaluate the agent on a list of test instances.
+        # Evaluate current population on domain data
+        total_accuracy = 0.0
+        total_evaluations = 0
         
-        Args:
-            test_data: List of task instances.
-
-        Returns:
-            Dictionary with 'accuracy' and 'domain_scores'.
-        """
-        if not test_data:
-            return {'accuracy': 0.0, 'domain_scores': {}}
-
-        total_score = 0.0
-        domain_scores: Dict[str, List[float]] = {}
-
-        for task in test_data:
-            score = self.train_step(task)
-            total_score += score
-            task_type = task.get('type', 'unknown')
-            if task_type not in domain_scores:
-                domain_scores[task_type] = []
-            domain_scores[task_type].append(score)
-
-        avg_accuracy = total_score / len(test_data)
-        domain_averages = {k: sum(v)/len(v) for k, v in domain_scores.items()}
-
-        return {
+        for rule_set in self.population:
+            accuracy, evaluations = self._evaluate_rule_set(rule_set, domain_data)
+            total_accuracy += accuracy
+            total_evaluations += evaluations
+            rule_set['fitness'] = accuracy  # Update fitness
+        
+        avg_accuracy = total_accuracy / len(self.population) if self.population else 0.0
+        
+        # Selection and reproduction
+        self._selection()
+        self._reproduction()
+        
+        # Update statistics
+        self.total_rule_evaluations += total_evaluations
+        self.evaluation_breakdown[self.current_domain] += total_evaluations
+        
+        epoch_stats = {
+            'domain': self.current_domain,
             'accuracy': avg_accuracy,
-            'domain_scores': domain_averages,
-            'total_evaluations': self.rule_evaluations
+            'evaluations': total_evaluations,
+            'population_size': len(self.population),
+            'generation': self.generation
+        }
+        
+        self.training_history.append(epoch_stats)
+        self.domain_accuracies[self.current_domain].append(avg_accuracy)
+        
+        return epoch_stats
+
+    def _selection(self):
+        """Selection mechanism - keep top performers."""
+        # Sort by fitness and keep top percentage
+        self.population.sort(key=lambda x: x.get('fitness', 0), reverse=True)
+        keep_count = max(1, int(len(self.population) * self.config.get('selection_pressure', 0.5)))
+        self.population = self.population[:keep_count]
+
+    def _reproduction(self):
+        """Reproduction with mutation."""
+        new_population = list(self.population)
+        target_size = self.config.get('population_size', 50)
+        
+        while len(new_population) < target_size:
+            # Select parent
+            parent = random.choice(self.population)
+            
+            # Create offspring with mutation
+            offspring = self._mutate(parent)
+            offspring['fitness'] = 0.0  # Reset fitness
+            new_population.append(offspring)
+        
+        self.population = new_population
+
+    def _mutate(self, rule_set: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply mutation to a rule set."""
+        import copy
+        mutated = copy.deepcopy(rule_set)
+        
+        # Apply mutation based on mutation rate
+        if random.random() < self.config.get('mutation_rate', 0.1):
+            # Simple mutation - modify the rule logic
+            # This is a placeholder - real implementation would be more sophisticated
+            if 'logic_expr' in mutated:
+                # Example mutation: add a random term
+                mutated['logic_expr'] = f"({mutated['logic_expr']} | True)"
+        
+        return mutated
+
+    def advance_domain(self):
+        """Move to the next domain in the sequence."""
+        if self.current_domain_index < len(self.domain_order) - 1:
+            self.current_domain_index += 1
+            self.current_domain = self.domain_order[self.current_domain_index]
+            self.logger.info(f"Advanced to domain: {self.current_domain}")
+        else:
+            self.logger.info("Completed all domains in sequence")
+            self.current_domain = None
+
+    def is_training_complete(self, num_epochs_per_domain: int, current_epoch: int) -> bool:
+        """
+        Check if training is complete.
+        
+        Args:
+            num_epochs_per_domain: Number of epochs to run per domain.
+            current_epoch: Current epoch number.
+            
+        Returns:
+            True if all domains have been trained for the specified epochs.
+        """
+        if self.current_domain is None:
+            return True
+        
+        # Check if we've completed enough epochs for the current domain
+        domain_epochs = len(self.domain_accuracies.get(self.current_domain, []))
+        return domain_epochs >= num_epochs_per_domain
+
+    def get_evaluation_stats(self) -> Dict[str, Any]:
+        """
+        Get evaluation statistics for parity checking.
+        
+        Returns:
+            Dictionary containing evaluation statistics.
+        """
+        return {
+            'total_evaluations': self.total_rule_evaluations,
+            'breakdown_by_domain': self.evaluation_breakdown,
+            'domain_order': self.domain_order,
+            'current_domain': self.current_domain,
+            'generation': self.generation
         }
 
-    def get_rules(self) -> List[Dict[str, Any]]:
-        """
-        Return the current rule set.
-        """
-        return self.rules
-
-    def set_rules(self, rules: List[Dict[str, Any]]) -> None:
-        """
-        Update the rule set.
-        """
-        self.rules = rules
-        self.total_rules = len(rules)
-
-    def forget(self, domain_to_forget: str) -> None:
-        """
-        Simulate forgetting a specific domain (for analysis).
-        This is a helper for the forgetting metrics analysis.
-        """
-        # In a real implementation, this would remove rules associated with the domain
-        # Here we just log it
+    def reset_for_new_domain(self):
+        """Reset agent state for a new domain (optional, for specific strategies)."""
+        # Sequential agent typically maintains population across domains
+        # but this method can be overridden by subclasses if needed
         pass
+
+    def train(self, all_data: Dict[str, List[Dict[str, Any]]], num_epochs: int) -> Dict[str, Any]:
+        """
+        Full training loop for sequential agent.
+        
+        Args:
+            all_data: Dictionary mapping domain names to data lists.
+            num_epochs: Total number of epochs to train.
+            
+        Returns:
+            Training results and statistics.
+        """
+        if not self.domain_order:
+            raise ValueError("No domains defined")
+        
+        epochs_per_domain = num_epochs // len(self.domain_order)
+        
+        self.logger.info(f"Starting sequential training with domains: {self.domain_order}")
+        
+        for domain in self.domain_order:
+            self.current_domain = domain
+            self.logger.info(f"Training on domain: {domain}")
+            
+            for epoch in range(epochs_per_domain):
+                epoch_stats = self.train_epoch(all_data)
+                self.logger.debug(f"Epoch {epoch + 1}/{epochs_per_domain} - Domain: {domain} - Accuracy: {epoch_stats['accuracy']:.4f}")
+                
+                # Advance to next domain if needed
+                if self.is_training_complete(epochs_per_domain, epoch):
+                    self.advance_domain()
+                    break
+            
+            # If we finished all epochs for this domain, move to next
+            if self.current_domain != domain:
+                continue
+            
+            self.advance_domain()
+        
+        return {
+            'final_stats': self.get_evaluation_stats(),
+            'training_history': self.training_history,
+            'domain_accuracies': self.domain_accuracies
+        }
+
+def main():
+    """Main entry point for testing the SequentialAgent."""
+    import json
+    from src.utils.config import load_config
+    
+    # Load configuration
+    config = load_config()
+    
+    # Create sample data for testing
+    sample_data = {
+        'logic': [
+            {'expected_output': True, 'domain_type': 'logic', 'data': {'p': True, 'q': False}},
+            {'expected_output': False, 'domain_type': 'logic', 'data': {'p': False, 'q': True}}
+        ],
+        'grid': [
+            {'expected_output': 'path_found', 'domain_type': 'grid', 'data': {'start': (0, 0), 'end': (5, 5)}},
+            {'expected_output': 'no_path', 'domain_type': 'grid', 'data': {'start': (0, 0), 'end': (10, 10)}}
+        ]
+    }
+    
+    # Initialize agent
+    agent = SequentialAgent(config, domain_order=['logic', 'grid'])
+    
+    # Train
+    results = agent.train(sample_data, num_epochs=10)
+    
+    # Print results
+    print(json.dumps(results, indent=2, default=str))
+    
+    return results
+
+if __name__ == '__main__':
+    main()

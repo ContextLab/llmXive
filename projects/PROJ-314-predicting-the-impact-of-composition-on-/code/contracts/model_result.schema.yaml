@@ -1,38 +1,102 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ModelResult
-description: Schema for the output of the predictive modeling pipeline.
+description: >
+  Schema for the output of the predictive modeling pipeline (US2).
+  Contains performance metrics, hyperparameters, and validation details.
 type: object
 required:
   - model_type
   - metrics
-  - timestamp
+  - hyperparameters
+  - cross_validation_results
 properties:
   model_type:
     type: string
-    description: Type of model (e.g., "RandomForest", "GradientBoosting").
+    enum:
+      - RandomForestRegressor
+      - GradientBoostingRegressor
+      - BaselineMeanPredictor
+    description: "Type of model that produced these results."
+  
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the model was trained."
+  
+  data_version:
+    type: string
+    description: "Hash or version identifier of the input dataset used."
+  
   metrics:
     type: object
     required:
       - mae
       - r2
+      - rmse
     properties:
       mae:
         type: number
-        description: Mean Absolute Error.
+        description: "Mean Absolute Error on the test set."
       r2:
         type: number
-        description: R-squared score.
+        description: "R-squared coefficient on the test set."
+      rmse:
+        type: number
+        description: "Root Mean Squared Error on the test set."
       baseline_mae:
         type: number
-        description: MAE of the global mean baseline.
-      improvement_percent:
+        nullable: true
+        description: "MAE of the baseline (global mean) predictor for comparison."
+      improvement_over_baseline:
         type: number
-        description: Percentage improvement over baseline.
+        nullable: true
+        description: "Percentage improvement over baseline (1 - (model_mae / baseline_mae))."
+  
   hyperparameters:
     type: object
-    description: Dictionary of hyperparameters used.
+    description: "Dictionary of the final hyperparameters used for the model."
+    additionalProperties: true
+  
+  cross_validation_results:
+    type: object
+    required:
+      - method
+      - k_folds
+      - mean_r2
+      - std_r2
+      - fold_scores
+    properties:
+      method:
+        type: string
+        enum:
+          - StratifiedKFold
+          - HoldOut
+        description: "Cross-validation strategy used."
+      k_folds:
+        type: integer
+        minimum: 1
+        description: "Number of folds used (if applicable)."
+      mean_r2:
+        type: number
+        description: "Mean R2 score across folds."
+      std_r2:
+        type: number
+        description: "Standard deviation of R2 scores across folds."
+      fold_scores:
+        type: array
+        items:
+          type: number
+        description: "List of R2 scores for each individual fold."
+      stratification_report:
+        type: object
+        nullable: true
+        description: "Report on class distribution if stratified splitting was used."
+        additionalProperties: true
+  
   feature_importance:
     type: array
+    nullable: true
+    description: "List of features ranked by importance (if available for the model type)."
     items:
       type: object
       required:
@@ -43,40 +107,29 @@ properties:
           type: string
         importance:
           type: number
-  shap_summary:
+  
+  permutation_test:
     type: object
     nullable: true
-    description: Summary statistics for SHAP values if available.
-  permutation_p_value:
-    type: number
-    nullable: true
-    description: P-value from the permutation test.
-  is_significant:
-    type: boolean
-    description: True if p-value < 0.05.
+    description: "Results of the permutation significance test."
+    properties:
+      p_value:
+        type: number
+      is_significant:
+        type: boolean
+      permutations:
+        type: integer
+  
   leakage_check:
     type: object
     nullable: true
+    description: "Results of the data leakage check."
     properties:
-      drop_percent:
+      feature_removed:
+        type: string
+      performance_drop:
         type: number
-      warning:
-        type: string
-        nullable: true
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the run.
-  data_version:
-    type: string
-    description: Hash or version of the input data used.
-  split_info:
-    type: object
-    nullable: true
-    properties:
-      train_size:
-        type: integer
-      test_size:
-        type: integer
-      stratification_field:
-        type: string
+      warning_issued:
+        type: boolean
+  
+  additionalProperties: false

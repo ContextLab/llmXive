@@ -1,6 +1,7 @@
 """
-Unit tests for data writer functionality.
+Unit tests for data writing functionality.
 """
+
 import pytest
 import json
 import tempfile
@@ -8,8 +9,8 @@ from pathlib import Path
 import sys
 import os
 
-# Add code to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.generators.data_writer import (
     write_dataset,
@@ -17,142 +18,174 @@ from src.generators.data_writer import (
     generate_and_save_training_data,
     DataWriteError
 )
-from src.utils.checksums import load_checksums, compute_file_sha256
+from src.utils.config import Config, get_default_config
+
 
 class TestDataWriter:
-    """Test cases for data writer module."""
-    
-    def test_write_dataset_creates_file(self, tmp_path):
+    """Test cases for data writing functionality."""
+
+    @pytest.fixture
+    def temp_config(self):
+        """Create a temporary config for testing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config = get_default_config()
+            config.data_dir = Path(tmpdir)
+            config.num_logic_proofs = 5
+            config.num_grid_worlds = 5
+            yield config
+
+    @pytest.fixture
+    def sample_data(self):
+        """Create sample dataset for testing."""
+        return [
+            {"id": 1, "type": "logic", "proof": "A -> B"},
+            {"id": 2, "type": "logic", "proof": "B -> C"},
+            {"id": 3, "type": "grid", "grid": [[0, 1], [1, 0]]}
+        ]
+
+    def test_write_dataset_creates_file(self, temp_config, sample_data):
         """Test that write_dataset creates a valid JSON file."""
-        test_data = {
-            "test": "value",
-            "number": 42,
-            "list": [1, 2, 3]
-        }
-        output_file = tmp_path / "test_output.json"
-        
-        write_dataset(test_data, output_file)
-        
-        assert output_file.exists()
-        with open(output_file, "r") as f:
+        output_path = temp_config.data_dir / "test_output.json"
+
+        # Write data
+        result_path = write_dataset(sample_data, output_path)
+
+        # Verify file exists
+        assert result_path.exists()
+        assert result_path == output_path
+
+        # Verify content
+        with open(result_path, 'r') as f:
             loaded_data = json.load(f)
-            
-        assert loaded_data == test_data
-        
-    def test_write_dataset_creates_directories(self, tmp_path):
-        """Test that write_dataset creates parent directories."""
-        test_data = {"test": "value"}
-        output_file = tmp_path / "subdir1" / "subdir2" / "test.json"
-        
-        write_dataset(test_data, output_file)
-        
-        assert output_file.exists()
-        
-    def test_register_checksum_computes_hash(self, tmp_path):
-        """Test that register_checksum computes and stores correct hash."""
-        test_file = tmp_path / "test.txt"
-        test_content = "test content for checksum"
-        test_file.write_text(test_content)
-        
-        checksum_file = tmp_path / "checksums.json"
-        checksum = register_checksum(test_file, checksum_file)
-        
-        # Verify checksum matches computed value
-        expected_hash = compute_file_sha256(test_file)
-        assert checksum == expected_hash
-        
-        # Verify checksum was saved
-        assert checksum_file.exists()
-        saved_checksums = load_checksums(checksum_file)
-        assert any(expected_hash in v for v in saved_checksums.values())
-        
-    def test_register_checksum_updates_existing(self, tmp_path):
-        """Test that register_checksum updates existing checksums file."""
-        # Create initial checksum file
-        checksum_file = tmp_path / "checksums.json"
-        initial_data = {"checksums": {"existing.txt": "abc123"}}
-        with open(checksum_file, "w") as f:
-            json.dump(initial_data, f)
-            
-        # Add new file
-        test_file = tmp_path / "new.txt"
-        test_file.write_text("new content")
-        register_checksum(test_file, checksum_file)
-        
-        # Verify both checksums exist
-        saved_checksums = load_checksums(checksum_file)
-        assert len(saved_checksums) == 2
-        assert "abc123" in saved_checksums.values()
-        
-    def test_generate_and_save_training_data_creates_files(self, tmp_path):
-        """Test that generate_and_save_training_data creates expected files."""
-        config = {
-            "logic_count": 10,
-            "grid_count": 10,
-            "seed": 42
-        }
-        output_dir = tmp_path / "output"
-        checksum_file = tmp_path / "checksums.json"
-        
-        # This test may fail if generators are not fully implemented,
-        # but should at least attempt to create files
-        try:
-            results = generate_and_save_training_data(
-                config, output_dir, checksum_file
-            )
-            
-            # Verify expected files were created
-            assert "logic_proofs.json" in results
-            assert "grid_worlds.json" in results
-            
-            # Verify checksums file exists
-            assert checksum_file.exists()
-            
-            # Verify generated files exist
-            assert (output_dir / "logic_proofs.json").exists()
-            assert (output_dir / "grid_worlds.json").exists()
-            
-        except Exception as e:
-            # If generators are not fully implemented, we expect some failure
-            # but the structure should be correct
-            pytest.skip(f"Generator implementation incomplete: {e}")
-            
-    def test_data_write_error_on_missing_file(self, tmp_path):
-        """Test that DataWriteError is raised for missing files."""
-        from src.utils.checksums import ChecksumError
-        
-        missing_file = tmp_path / "nonexistent.txt"
-        checksum_file = tmp_path / "checksums.json"
-        
+
+        assert loaded_data == sample_data
+
+    def test_write_dataset_creates_parent_dirs(self, temp_config, sample_data):
+        """Test that write_dataset creates parent directories if needed."""
+        output_path = temp_config.data_dir / "subdir" / "nested" / "test.json"
+
+        # This should not raise an error
+        result_path = write_dataset(sample_data, output_path)
+
+        assert result_path.exists()
+        assert result_path.parent.exists()
+
+    def test_write_dataset_empty_list(self, temp_config):
+        """Test writing an empty list."""
+        output_path = temp_config.data_dir / "empty.json"
+
+        result_path = write_dataset([], output_path)
+
+        assert result_path.exists()
+        with open(result_path, 'r') as f:
+            data = json.load(f)
+        assert data == []
+
+    def test_register_checksum_updates_file(self, temp_config, sample_data):
+        """Test that register_checksum creates and updates checksums.json."""
+        # First write a dataset
+        output_path = temp_config.data_dir / "test_data.json"
+        write_dataset(sample_data, output_path)
+
+        # Register checksum
+        register_checksum(output_path, "test_dataset", temp_config)
+
+        # Verify checksums file exists
+        checksums_path = temp_config.data_dir / "checksums.json"
+        assert checksums_path.exists()
+
+        # Verify content
+        with open(checksums_path, 'r') as f:
+            checksums = json.load(f)
+
+        assert "test_dataset" in checksums
+        assert "sha256" in checksums["test_dataset"]
+        assert "file" in checksums["test_dataset"]
+        assert "size_bytes" in checksums["test_dataset"]
+
+        # Verify the file path is relative
+        assert checksums["test_dataset"]["file"] == "test_data.json"
+
+    def test_register_checksum_overwrites_existing(self, temp_config, sample_data):
+        """Test that register_checksum updates existing entries."""
+        output_path = temp_config.data_dir / "test_data.json"
+        write_dataset(sample_data, output_path)
+
+        # Register checksum twice
+        register_checksum(output_path, "test_dataset", temp_config)
+        register_checksum(output_path, "test_dataset", temp_config)
+
+        # Should still have only one entry
+        checksums_path = temp_config.data_dir / "checksums.json"
+        with open(checksums_path, 'r') as f:
+            checksums = json.load(f)
+
+        assert len(checksums) == 1
+        assert "test_dataset" in checksums
+
+    def test_generate_and_save_training_data_creates_files(self, temp_config):
+        """Test that generate_and_save_training_data creates both datasets."""
+        # Set small numbers for testing
+        temp_config.num_logic_proofs = 3
+        temp_config.num_grid_worlds = 3
+
+        result = generate_and_save_training_data(temp_config)
+
+        # Check return value
+        assert "logic_proofs_train" in result
+        assert "grid_worlds_train" in result
+
+        # Verify files exist
+        logic_path = Path(result["logic_proofs_train"])
+        grid_path = Path(result["grid_worlds_train"])
+
+        assert logic_path.exists()
+        assert grid_path.exists()
+
+        # Verify checksums file
+        checksums_path = temp_config.data_dir / "checksums.json"
+        assert checksums_path.exists()
+
+        with open(checksums_path, 'r') as f:
+            checksums = json.load(f)
+
+        assert "logic_proofs_train" in checksums
+        assert "grid_worlds_train" in checksums
+
+    def test_generate_and_save_training_data_valid_content(self, temp_config):
+        """Test that generated datasets have valid content."""
+        temp_config.num_logic_proofs = 2
+        temp_config.num_grid_worlds = 2
+
+        result = generate_and_save_training_data(temp_config)
+
+        # Verify logic proofs
+        with open(result["logic_proofs_train"], 'r') as f:
+            logic_data = json.load(f)
+
+        assert isinstance(logic_data, list)
+        assert len(logic_data) == temp_config.num_logic_proofs
+        for item in logic_data:
+            assert "id" in item
+            assert "proof" in item or "axioms" in item
+
+        # Verify grid worlds
+        with open(result["grid_worlds_train"], 'r') as f:
+            grid_data = json.load(f)
+
+        assert isinstance(grid_data, list)
+        assert len(grid_data) == temp_config.num_grid_worlds
+        for item in grid_data:
+            assert "id" in item
+            assert "grid" in item or "nodes" in item
+
+    def test_write_dataset_invalid_path(self, temp_config, sample_data):
+        """Test writing to an invalid path raises error."""
+        # Use a path that should fail (e.g., trying to write to a file that is a directory)
+        invalid_path = temp_config.data_dir / "invalid"
+
+        # Create a directory with the same name
+        invalid_path.mkdir(parents=True, exist_ok=True)
+
         with pytest.raises(DataWriteError):
-            register_checksum(missing_file, checksum_file)
-            
-    def test_write_dataset_with_empty_data(self, tmp_path):
-        """Test writing empty dataset."""
-        test_data = {}
-        output_file = tmp_path / "empty.json"
-        
-        write_dataset(test_data, output_file)
-        
-        assert output_file.exists()
-        with open(output_file, "r") as f:
-            loaded_data = json.load(f)
-        assert loaded_data == {}
-        
-    def test_write_dataset_with_nested_structure(self, tmp_path):
-        """Test writing dataset with nested structure."""
-        test_data = {
-            "level1": {
-                "level2": {
-                    "level3": [1, 2, {"key": "value"}]
-                }
-            }
-        }
-        output_file = tmp_path / "nested.json"
-        
-        write_dataset(test_data, output_file)
-        
-        assert output_file.exists()
-        with open(output_file, "r") as f:
-            loaded_data = json.load(f)
-        assert loaded_data == test_data
+            write_dataset(sample_data, invalid_path)

@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement configuration loader in `src/utils/config.py` to handle seeding, generation counts, and rule evaluation budgets
-- [ ] T005 [P] Implement checksum utility in `src/utils/checksums.py` to generate SHA-256 hashes for data artifacts and manage `data/checksums.json`
-- [ ] T006 [P] Create base abstract agent class in `src/agents/base_agent.py` defining the interface for rule-set management and evaluation
-- [ ] T007 [P] Implement CLI skeleton in `src/cli.py` (entry point only, no logic) to establish command structure
+- [X] T005 [P] Implement checksum utility in `src/utils/checksums.py` to generate SHA-256 hashes for data artifacts and manage `data/checksums.json`
+- [X] T006 [P] Create base abstract agent class in `src/agents/base_agent.py` defining the interface for rule-set management and evaluation
+- [X] T007 [P] Implement CLI skeleton in `src/cli.py` (entry point only, no logic) to establish command structure
 - [ ] T008 [P] Implement schema validators in `tests/contract/` based on existing contracts (`contracts/`) to validate `dataset`, `agent_state`, and `result` JSON structures
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,8 +77,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for generated proof validity in `tests/contract/test_dataset_schema.py`
-- [ ] T010 [P] [US1] Unit test for grid solvability and rule isolation in `tests/unit/test_logic_generation.py` <!-- FAILED: unspecified -->
+- [X] T009 [P] [US1] Contract test for generated proof validity in `tests/contract/test_dataset_schema.py`
+- [X] T010 [P] [US1] Unit test for grid solvability and rule isolation in `tests/unit/test_logic_generation.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -102,7 +102,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Contract test for rule-evaluation counter parity in `tests/contract/test_result_schema.py`
-- [~] T017 [P] [US2] Unit test for bidirectional exchange logic in `tests/unit/test_agent_conditions.py`
+- [ ] T017 [P] [US2] Unit test for bidirectional exchange logic in `tests/unit/test_agent_conditions.py`
 
 ### Implementation for User Story 2
 
@@ -130,10 +130,10 @@
 
 ### Implementation for User Story 3
 
-- [~] T026 [P] [US3] Implement evaluation logic in `src/analysis/forgetting_metrics.py` to calculate accuracy drop from initial single-task to final multi-task performance
+- [ ] T026 [P] [US3] Implement evaluation logic in `src/analysis/forgetting_metrics.py` to calculate accuracy drop from initial single-task to final multi-task performance
 - [ ] T027 [P] [US3] Implement statistical analysis module in `src/analysis/statistical_tests.py` using `scipy` and `statsmodels` to perform a Mixed-Design ANOVA (repeated measures) to account for within-subjects factors across sequential, mixed, and co-evolving conditions, followed by post-hoc Tukey tests to compare forgetting rates, strictly adhering to Constitution Principle VII
 - [X] T029 [US3] Implement batch runner in `src/cli.py` (orchestration component) to execute 30+ independent runs per condition with unique seeds, generating the dataset required for SC-004 statistical power and ensuring the data exists for the ANOVA
-- [~] T030 [US3] Implement data aggregation logic to collect results from the batch runner output in `data/results/`, verifying that the number of runs meets the SC-004 requirement (N ≥ 30) before proceeding to analysis
+- [ ] T030 [US3] Implement data aggregation logic to collect results from the batch runner output in `data/results/`, verifying that the number of runs meets the SC-004 requirement (N ≥ 30) before proceeding to analysis
 - [ ] T031 [US3] Implement retention rate calculation in `src/analysis/forgetting_metrics.py` to compute and store raw retention rates of distinct logical rules for Co-evolving vs Mixed-task conditions (SC-003)
 - [ ] T032 [US3] Implement comparison logic in `src/analysis/statistical_tests.py` to compare retention rates between Co-evolving and Mixed-task conditions
 - [ ] T033 [US3] Implement report generation to output forgetting rates, ANOVA results (p-values), and retention comparisons to `data/results/forgetting_analysis.json`
@@ -147,7 +147,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T034 [P] Implement full CLI logic in `src/cli.py` to orchestrate the complete pipeline: generation -> validation gate (T015b) -> training (T023) -> batch running (T029) -> analysis (T027-T033), integrating all previous components
-- [~] T035 [P] Documentation updates in `docs/` and `quickstart.md` with examples of running the 3 conditions
+- [ ] T035 [P] Documentation updates in `docs/` and `quickstart.md` with examples of running the 3 conditions
 - [~] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete <!-- ATOMIZE: requested -->
 - [~] T037 Performance optimization to ensure a sufficient number of runs complete within the CI time limit on a limited number of CPU cores
 - [ ] T038 [P] Additional unit tests for edge cases (logical contradictions, floating-point drift) in `tests/unit/`

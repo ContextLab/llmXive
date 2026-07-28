@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.12792",
+  "judged_at": "2026-07-28T18:39:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability coefficients using graph neural networks and publicly available datasets chemistry",
+  "rationale": "The paper proposes a general heterogeneous graph neural network architecture (MECCH) for node classification and link prediction on generic datasets, but it does not address the specific domain of molecular permeability, nor does it apply the method to chemical datasets or measure the permeability coefficient. While it is a GNN paper, it fails the \"off-domain entirely\" rejection rule because it lacks the necessary connection to the specific biological/chemical mechanism (permeability) or the spe",
+  "relevant": false
+}

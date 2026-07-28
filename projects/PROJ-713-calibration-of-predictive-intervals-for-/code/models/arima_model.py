@@ -1,68 +1,76 @@
+"""
+ARIMA model implementation for time series forecasting with predictive intervals.
+"""
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Tuple, Optional, List
 import logging
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.arima.model import ARIMA as StatsmodelsARIMA
-from config import ARIMA_ORDER, RANDOM_SEED
+from utils.logger import get_logger
+from utils.exceptions import ModelConvergenceError
+from config import ARIMA_ORDER
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class ARIMAModel:
-    """ARIMA model wrapper for time series forecasting."""
-    
+    """ARIMA model wrapper for forecasting with conditional variance intervals."""
+
     def __init__(self, order: Tuple[int, int, int] = ARIMA_ORDER):
+        """
+        Initialize ARIMA model.
+
+        Args:
+            order: ARIMA order (p, d, q)
+        """
         self.order = order
         self.model = None
         self.results = None
-        self.forecast_steps = None
-        
-    def fit(self, train_series: pd.Series) -> 'ARIMAModel':
-        """Fit the ARIMA model to the training data.
-        
+        self.logger = logger
+
+    def fit(self, train_data: pd.Series) -> None:
+        """
+        Fit ARIMA model to training data.
+
         Args:
-            train_series: Training time series data.
-            
-        Returns:
-            Self for method chaining.
+            train_data: Training time series data
         """
         try:
-            # Using statsmodels ARIMA (newer interface)
-            self.model = StatsmodelsARIMA(train_series, order=self.order)
+            self.logger.info(f"Fitting ARIMA model with order {self.order}")
+            self.model = StatsmodelsARIMA(train_data, order=self.order)
             self.results = self.model.fit()
-            logger.info(f"ARIMA model fitted successfully. AIC: {self.results.aic}")
+            self.logger.info("ARIMA model fitted successfully")
         except Exception as e:
-            logger.error(f"ARIMA model fitting failed: {e}")
-            raise
-            
-        return self
-        
+            raise ModelConvergenceError(f"ARIMA model failed to converge: {str(e)}")
+
     def predict_intervals(
-        self, 
-        steps: int, 
-        conf_int: float = 0.95
+        self,
+        n_periods: int,
+        conf_level: float = 0.95
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Generate point forecasts and prediction intervals.
-        
+        """
+        Generate forecasts with predictive intervals.
+
         Args:
-            steps: Number of steps to forecast.
-            conf_int: Confidence level for intervals (e.g., 0.95).
-            
+            n_periods: Number of periods to forecast
+            conf_level: Confidence level for intervals (default: 0.95)
+
         Returns:
-            Tuple of (point_forecasts, lower_bound, upper_bound).
+            Tuple of (forecasts, lower_bounds, upper_bounds)
         """
         if self.results is None:
-            raise RuntimeError("Model must be fitted before prediction.")
-            
-        self.forecast_steps = steps
-        forecast = self.results.get_forecast(steps=steps)
-        
-        # Get prediction intervals
-        # Note: 'conditional' method is the default for ARIMA in statsmodels
-        pred_int = forecast.conf_int(alpha=1 - conf_int)
-        
-        point_forecasts = forecast.predicted_mean.values
-        lower_bound = pred_int.iloc[:, 0].values
-        upper_bound = pred_int.iloc[:, 1].values
-        
-        return point_forecasts, lower_bound, upper_bound
+            raise ValueError("Model must be fitted before prediction")
+
+        # Generate forecast with intervals
+        forecast = self.results.get_forecast(steps=n_periods)
+        conf_int = forecast.conf_int(alpha=1 - conf_level, method='conditional')
+
+        predictions = forecast.predicted_mean.values
+        lower_bounds = conf_int.iloc[:, 0].values
+        upper_bounds = conf_int.iloc[:, 1].values
+
+        return predictions, lower_bounds, upper_bounds
+
+    def get_params(self) -> Dict[str, Any]:
+        """Return model parameters."""
+        return {"order": self.order}

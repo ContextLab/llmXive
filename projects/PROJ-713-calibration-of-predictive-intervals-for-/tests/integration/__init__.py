@@ -1,3 +1,5 @@
 """
-Integration tests for end-to-end workflows.
+Integration tests package for predictive interval calibration project.
+
+Integration tests verify that multiple components work together correctly.
 """

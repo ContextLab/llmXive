@@ -333,3 +333,224 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T04:44:29Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Brown et al. 2020 study on few-shot learning
+  claim_id: c_7e3a15d3
+  context: The method will involve prompting a large language model with varying numbers
+    of examples and evaluating its performance on a held-out test set. (Brown et al.,
+    2020).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Brown et al., 2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:15:08Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Hu et al. 2021 study on LoRA
+  claim_id: c_5cac84d7
+  context: 'The method is: We will explore parameter-efficient fine-tuning (PEFT)
+    techniques, specifically LoRA (Hu et al., 2021), on a moderately sized language
+    model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hu et al., 2021
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:15:18Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: LoRA paper arXiv ID 2106.09685
+  claim_id: c_603a86a6
+  context: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models. arXiv:2106.09685.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: arXiv:2106.09685
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T19:15:26Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can perform few-shot learning with minimal examples
+    (Brown et al., 2020)
+  claim_id: c_a7feab44
+  context: 'T005 Create scripts/generate_synthetic_data.py... The research question
+    is: Can large language models be prompted to perform few-shot learning on a novel
+    task with minimal examples? The method will involve prompting a large language
+    model with varying numbers of examples and evaluating its performance on a held-out
+    test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:16:31Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Parameter-efficient fine-tuning techniques include LoRA (Hu et al., 2021)
+  claim_id: c_7c3825c9
+  context: 'T007 Create code/config/env.yaml... The research question is: Can large
+    language models be effectively fine-tuned for specialized tasks with limited computational
+    resources? The method is: We will explore parameter-efficient fine-tuning (PEFT)
+    techniques, specifically LoRA (Hu et al., 2021), on a moderately sized language
+    model. References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models. arXiv:2106.09685.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2506.15415'
+        url: https://arxiv.org/abs/2506.15415
+        value: 8B
+      quote: 'Federated Sketching LoRA: A Flexible Framework for Heterogeneous'
+      source_id: '2501.19389'
+      url: https://arxiv.org/abs/2501.19389
+      value: LoRA
+    filled: true
+  kind: numeric
+  raw_text: We will explore parameter-efficient fine-tuning (PEFT) techniques, specifically
+    LoRA (Hu et al., 2021), on a moderately sized language model.
+  resolved_value: LoRA
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T19:16:54Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can be prompted for few-shot learning evaluated
+    on held-out test sets (Brown et al., 2020)
+  claim_id: c_a7eb7655
+  context: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method will involve prompting a large language model with varying
+    numbers of examples and evaluating its performance on a held-out test set. (Brown
+    et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:18:27Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Method for fine-tuning large language models for specialized tasks with
+    limited computational resources (arXiv:2501.19389)
+  claim_id: c_3c0c9a82
+  context: 'The research question is: Can large language models be effectively fine-tuned
+    for specialized tasks with limited computational resources? The method is: {{claim:c_7c3825c9}}
+    (2501.19389, https://arxiv.org/abs/2501.19389)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T19:18:30Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'LoRA: Low-Rank Adaptation of Large Language Models (Hu et al., 2021)'
+  claim_id: c_5bbecc9c
+  context: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)
+    References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:19:03Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can be prompted for few-shot learning with minimal
+    examples (Brown et al., 2020)
+  claim_id: c_09094695
+  context: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method will involve prompting a large language model with varying
+    numbers of examples and evaluating its performance on a held-out test set. (Brown
+    et al., 2020).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:22:09Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can be effectively fine-tuned for specialized tasks
+    with limited computational resources (2501.19389)
+  claim_id: c_d5825a47
+  context: 'The research question is: Can large language models be effectively fine-tuned
+    for specialized tasks with limited computational resources? The method is: {{claim:c_7c3825c9}}
+    (2501.19389, https://arxiv.org/abs/2501.19389)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'The method is: {{claim:c_7c3825c9}} (2501.19389, https://arxiv.org/abs/2501.19389)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T19:22:10Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 'Hu et al. (2021) proposed LoRA: Low-Rank Adaptation of Large Language
+    Models'
+  claim_id: c_9bf8aa1a
+  context: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T19:22:10Z'

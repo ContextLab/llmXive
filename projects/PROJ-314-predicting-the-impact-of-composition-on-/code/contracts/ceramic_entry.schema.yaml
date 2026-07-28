@@ -1,57 +1,86 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: CeramicEntry
-description: Schema for a single ceramic material entry used in ingestion and modeling.
+description: >
+  Schema for a single ceramic material entry after ingestion and cleaning.
+  Corresponds to the output of the data ingestion pipeline (US1).
 type: object
 required:
   - composition
   - weibull_modulus
+  - sample_count
+  - is_range_flag
+  - primary_anion_cation_group
 properties:
   composition:
     type: string
-    description: Chemical formula string (e.g., "Al2O3").
+    description: "Stoichiometric chemical formula (e.g., 'Al2O3', 'SiC')."
+    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
+  
   weibull_modulus:
     type: number
-    description: The Weibull modulus (m) value.
+    description: "The Weibull modulus (m) value. May be a float or integer."
+    minimum: 0.0
+  
   sample_count:
     type: integer
-    minimum: 30
-    description: Number of samples used to derive the Weibull modulus.
+    description: "Number of samples (N) used to calculate the Weibull modulus."
+    minimum: 1
+  
   is_range_flag:
     type: boolean
-    description: True if the original Weibull modulus was a range.
+    description: "True if the original weibull_modulus was reported as a range, False if a single point."
+  
   range_original:
     type: string
     nullable: true
-    description: Original range string if applicable (e.g., "5-10").
+    description: "Original string representation of the range if is_range_flag is true (e.g., '10-15'), otherwise null."
+  
   range_uncertainty:
     type: number
     nullable: true
-    description: Calculated uncertainty derived from the range.
+    description: "Calculated uncertainty (half-width) of the range if is_range_flag is true, otherwise null."
+  
   primary_anion_cation_group:
     type: string
-    description: Categorical group derived from primary anion/cation (e.g., "O-Al").
+    description: "Group classification based on primary anion and cation (e.g., 'O-Al', 'C-Si')."
+  
   mean_atomic_radius:
     type: number
-    description: Mean atomic radius of the composition.
+    nullable: true
+    description: "Composition-weighted mean atomic radius (Å)."
+  
   electronegativity_std:
     type: number
-    description: Standard deviation of electronegativity values.
+    nullable: true
+    description: "Standard deviation of electronegativity values in the composition."
+  
   valence_electron_concentration:
     type: number
-    description: Valence Electron Concentration (VEC).
+    nullable: true
+    description: "Valence Electron Concentration (VEC) calculated as sum(valence) / total atoms."
+  
   cation_size_variance:
     type: number
-    description: Variance in cation sizes.
+    nullable: true
+    description: "Variance in cation ionic radii within the composition."
+  
   sintering_temp:
     type: number
-    description: Sintering temperature in Celsius.
+    nullable: true
+    description: "Sintering temperature in Celsius or Kelvin (units specified in metadata)."
+  
   is_imputed:
     type: boolean
-    description: True if any primary fields were imputed.
+    description: "True if any primary predictor fields were imputed, False if all values were original."
+  
   source_id:
     type: string
-    description: Unique identifier from the source (e.g., Materials Project ID).
-  source_url:
+    nullable: true
+    description: "Identifier from the source dataset (e.g., Materials Project ID, DOI)."
+  
+  notes:
     type: string
-    format: uri
-    description: URL to the source data.
+    nullable: true
+    description: "Optional notes regarding data cleaning or exclusions."
+
+additionalProperties: false

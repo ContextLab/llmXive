@@ -11,107 +11,128 @@ class TestMixedAgent:
 
     @pytest.fixture
     def config(self):
-        """Create a default configuration for testing."""
+        """Create a default config for testing."""
         cfg = get_default_config()
-        cfg.seed = 42
-        cfg.generation_count = 10
-        cfg.rule_evaluation_budget = 1000
+        cfg['population_size'] = 5
+        cfg['max_generations'] = 3
+        cfg['evaluations_per_generation'] = 10
         return cfg
 
     @pytest.fixture
-    def mixed_agent(self, config):
+    def agent(self, config):
         """Create a MixedAgent instance for testing."""
-        return MixedAgent(config, seed=42)
+        return MixedAgent(config, run_id="test_run_1")
 
-    def test_initialization(self, mixed_agent):
+    def test_initialization(self, agent):
         """Test that MixedAgent initializes correctly."""
-        assert mixed_agent is not None
-        assert mixed_agent.current_rule_set is not None
-        assert "logic_rules" in mixed_agent.current_rule_set
-        assert "grid_rules" in mixed_agent.current_rule_set
-        assert mixed_agent.rule_evaluation_count == 0
-        assert len(mixed_agent.evaluation_history) == 0
+        assert agent.run_id == "test_run_1"
+        assert len(agent.current_population) == 5
+        assert agent.evaluation_stats.total_evaluations == 0
+        assert len(agent.history) == 0
 
-    def test_train_generation_logic(self, mixed_agent):
-        """Test training on a logic task."""
-        result = mixed_agent.train_generation()
-        
-        assert result is not None
-        assert "task_type" in result
-        assert "rule_evaluations" in result
-        assert "current_score" in result
-        
-        # Should have recorded one generation
-        assert len(mixed_agent.evaluation_history) == 1
-        assert mixed_agent.evaluation_history[0]["task_type"] in ["logic", "grid"]
+    def test_population_structure(self, agent):
+        """Test that population members have the correct structure."""
+        for individual in agent.current_population:
+            assert 'logic_rules' in individual
+            assert 'grid_rules' in individual
+            assert 'fitness' in individual
+            assert 'age' in individual
+            assert individual['fitness'] == 0.0
+            assert individual['age'] == 0
+            assert isinstance(individual['logic_rules'], list)
+            assert isinstance(individual['grid_rules'], list)
 
-    def test_train_generation_grid(self, mixed_agent):
-        """Test training on a grid task."""
-        # Force multiple generations to increase chance of grid task
-        results = []
-        for _ in range(20):
-            result = mixed_agent.train_generation()
-            results.append(result)
-        
-        # Verify we have mixed task types
-        task_types = [r["task_type"] for r in results]
-        assert len(set(task_types)) >= 1  # At least one task type present
-
-    def test_rule_evaluation_count_increases(self, mixed_agent):
-        """Test that rule evaluation count increases with generations."""
-        initial_count = mixed_agent.rule_evaluation_count
-        
-        mixed_agent.train_generation()
-        mixed_agent.train_generation()
-        mixed_agent.train_generation()
-        
-        assert mixed_agent.rule_evaluation_count >= initial_count
-
-    def test_get_rule_set(self, mixed_agent):
-        """Test retrieving the current rule set."""
-        rule_set = mixed_agent.get_rule_set()
-        
-        assert rule_set is not None
-        assert "logic_rules" in rule_set
-        assert "grid_rules" in rule_set
-        assert "metadata" in rule_set
-
-    def test_get_evaluation_history(self, mixed_agent):
-        """Test retrieving evaluation history."""
-        history = mixed_agent.get_evaluation_history()
-        assert isinstance(history, list)
-        assert len(history) == 0  # Initially empty
-
-        mixed_agent.train_generation()
-        history = mixed_agent.get_evaluation_history()
-        assert len(history) == 1
-
-    def test_reset(self, mixed_agent):
-        """Test resetting the agent."""
-        mixed_agent.train_generation()
-        mixed_agent.train_generation()
-        
-        mixed_agent.reset()
-        
-        assert len(mixed_agent.evaluation_history) == 0
-        assert mixed_agent.rule_evaluation_count == 0
-        assert mixed_agent.current_rule_set is not None
-
-    def test_mixed_task_distribution(self, config):
-        """Test that MixedAgent samples both task types over time."""
-        agent = MixedAgent(config, seed=123)
-        
-        task_types = []
+    def test_random_task_selection(self, agent):
+        """Test that task domain selection is random."""
+        domains = set()
         for _ in range(100):
-            result = agent.train_generation()
-            task_types.append(result["task_type"])
+            domain = agent._select_random_task_domain()
+            domains.add(domain)
+            assert domain in ['logic', 'grid']
+        assert len(domains) == 2  # Should have seen both domains
+
+    def test_train_generation_logic(self, agent):
+        """Test training generation with logic tasks."""
+        # Force logic domain by mocking
+        original_select = agent._select_random_task_domain
+        agent._select_random_task_domain = lambda: 'logic'
         
-        # With random selection, we expect both types in a large enough sample
-        assert "logic" in task_types or "grid" in task_types
+        stats = agent.train_generation(num_evaluations=5)
         
-        # Check that we don't have 100% of one type (statistically unlikely with 100 samples)
-        logic_count = task_types.count("logic")
-        grid_count = task_types.count("grid")
+        assert stats['total_evaluations'] == 5
+        assert stats['logic_evaluations'] == 5
+        assert stats['grid_evaluations'] == 0
+        assert len(agent.history) == 1
+        assert agent.evaluation_stats.total_evaluations == 5
+
+    def test_train_generation_grid(self, agent):
+        """Test training generation with grid tasks."""
+        # Force grid domain
+        agent._select_random_task_domain = lambda: 'grid'
         
-        # Allow for some variance, but both should be present
-        assert logic_count > 0 or grid_count > 0
+        stats = agent.train_generation(num_evaluations=5)
+        
+        assert stats['total_evaluations'] == 5
+        assert stats['logic_evaluations'] == 0
+        assert stats['grid_evaluations'] == 5
+        assert len(agent.history) == 1
+
+    def test_mixed_training_generation(self, agent):
+        """Test training generation with mixed domains."""
+        # Reset mock
+        agent._select_random_task_domain = lambda: random.choice(['logic', 'grid'])
+        import random as r
+        r.seed(42)  # For reproducibility
+        
+        stats = agent.train_generation(num_evaluations=10)
+        
+        assert stats['total_evaluations'] == 10
+        # Should have a mix of logic and grid evaluations
+        total_domain_evals = stats['logic_evaluations'] + stats['grid_evaluations']
+        assert total_domain_evals == 10
+        assert stats['avg_fitness'] >= 0.0
+        assert stats['avg_fitness'] <= 1.0
+
+    def test_evaluation_stats_persistence(self, agent):
+        """Test that evaluation stats are correctly accumulated."""
+        initial_total = agent.evaluation_stats.total_evaluations
+        
+        agent.train_generation(num_evaluations=5)
+        agent.train_generation(num_evaluations=3)
+        
+        assert agent.evaluation_stats.total_evaluations == initial_total + 8
+
+    def test_save_and_load_state(self, agent, tmp_path):
+        """Test saving and loading agent state."""
+        filepath = tmp_path / "test_state.json"
+        
+        # Train a bit first
+        agent.train_generation(num_evaluations=5)
+        
+        # Save state
+        agent.save_state(str(filepath))
+        assert filepath.exists()
+        
+        # Load into new agent
+        new_agent = MixedAgent(agent.config, run_id="new_run")
+        new_agent.load_state(str(filepath))
+        
+        assert new_agent.run_id == "test_run_1"  # Run ID from saved state
+        assert len(new_agent.current_population) == len(agent.current_population)
+        assert new_agent.evaluation_stats.total_evaluations == agent.evaluation_stats.total_evaluations
+
+    def test_get_population(self, agent):
+        """Test that get_population returns the correct population."""
+        population = agent.get_population()
+        assert len(population) == 5
+        assert population is agent.current_population
+
+    def test_get_evaluation_stats(self, agent):
+        """Test that get_evaluation_stats returns correct stats."""
+        stats = agent.get_evaluation_stats()
+        assert stats.total_evaluations == 0
+        assert stats.logic_evaluations == 0
+        assert stats.grid_evaluations == 0
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

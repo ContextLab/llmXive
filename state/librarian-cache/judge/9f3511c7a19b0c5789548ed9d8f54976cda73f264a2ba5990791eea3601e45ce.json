@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.14523",
+  "judged_at": "2026-07-28T18:40:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability coefficients using graph neural networks and publicly available datasets chemistry",
+  "rationale": "The paper focuses on the general architectural challenge of handling homophily and heterophily in Graph Neural Networks across generic real-world datasets, without addressing the specific domain of molecular permeability, chemistry, or the use of publicly available chemical datasets. While it is a foundational methodology paper for GNNs (category d), it lacks the necessary domain connection (molecular properties) to be included in a literature review specifically for predicting molecular permeab",
+  "relevant": false
+}
