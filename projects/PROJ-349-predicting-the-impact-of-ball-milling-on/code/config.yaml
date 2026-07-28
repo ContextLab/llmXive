@@ -1,0 +1,22 @@
+api_endpoints:
+  materials_project: "https://next-gen.materialsproject.org/api/v2"
+  nist_search: "https://www.nist.gov/pml/automated-spectroscopy-database-search-api"
+  arxiv: "http://export.arxiv.org/api/query"
+
+resource_limits:
+  gpr_max_runtime: 1800
+  gpr_max_memory: 5.0
+
+ocr_settings:
+  ocr_enabled: true
+  ocr_language: "eng"
+  ocr_confidence_threshold: 0.7
+
+data_paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  splits: "data/splits"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

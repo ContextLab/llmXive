@@ -1,17 +1,20 @@
-# Existing dependencies
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-pyyaml>=6.0
-requests>=2.31.0
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+statsmodels==0.14.*
+matplotlib==3.9.*
+seaborn==0.13.*
+requests==2.32.*
+tqdm==4.66.*
+pyarrow==16.*
+pdfminer.six==20231228
+easyocr>=1.7.0
+arxiv>=2.0.0
 psutil>=5.9.0
 pytest>=7.4.0
-black>=23.0.0
 flake8>=6.1.0
-pdfminer.six>=20230000
-tqdm>=4.66.0
-
-# New dependency for T012 (Materials Project fetcher)
-# requests is already listed above, ensuring it is present
+black>=23.12.0
+pyyaml>=6.0.0
+pillow>=10.0.0
+pdf2image>=1.16.0
+opencv-python>=4.8.0

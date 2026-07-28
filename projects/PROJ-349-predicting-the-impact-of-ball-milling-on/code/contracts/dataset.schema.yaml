@@ -1,82 +1,72 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Ball Milling Dataset Schema
-description: >
-  Schema for the ball milling experimental data used to predict particle size distribution.
-  Includes features for milling parameters, material properties, and target PSD metrics.
-type: object
-required:
-  - experiment_id
-  - source
-  - material_type
-  - milling_speed
-  - milling_time
-  - ball_to_powder_ratio
-  - youngs_modulus
-  - density
-  - d10
-  - d50
-  - d90
-  - process_duration
+# Dataset Schema for Ball Milling Experiments
+# This schema defines the required fields and their types for the ball milling dataset.
+# Used by T007b for schema validation.
 
-properties:
+version: "1.0"
+description: "Schema for ball milling experimental data including process parameters and particle size distribution metrics."
+
+fields:
   experiment_id:
-    type: string
-    description: Unique identifier for the experiment
-    minLength: 1
-
+    type: str
+    required: true
+    description: "Unique identifier for the experiment"
+    
   source:
-    type: string
-    description: Source of the data (e.g., 'Materials Project', 'NIST', 'arXiv')
-    minLength: 1
-
+    type: str
+    required: true
+    description: "Data source (materials_project, nist, arxiv)"
+    
   material_type:
-    type: string
-    description: Type of material being milled (e.g., 'metal', 'ceramic', 'polymer')
-    minLength: 1
-
+    type: str
+    required: true
+    description: "Type of material being milled"
+    
   milling_speed:
-    type: number
-    description: Milling speed in RPM
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Milling speed in RPM"
+    
   milling_time:
-    type: number
-    description: Milling duration in minutes
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Milling time in hours"
+    
   ball_to_powder_ratio:
-    type: number
-    description: Ratio of ball mass to powder mass
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Ratio of ball mass to powder mass"
+    
   youngs_modulus:
-    type: number
-    description: Young's modulus of the material in GPa
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Young's modulus of the material in GPa"
+    
   density:
-    type: number
-    description: Density of the material in g/cm³
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Density of the material in g/cm³"
+    
   d10:
-    type: number
-    description: Particle size at 10% cumulative distribution in microns
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Particle size at 10th percentile in micrometers"
+    
   d50:
-    type: number
-    description: Median particle size (50% cumulative distribution) in microns
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Particle size at 50th percentile (median) in micrometers"
+    
   d90:
-    type: number
-    description: Particle size at 90% cumulative distribution in microns
-    minimum: 0
-
+    type: float
+    required: true
+    description: "Particle size at 90th percentile in micrometers"
+    
   process_duration:
-    type: number
-    description: Total process duration including setup and milling in minutes
-    minimum: 0
+    type: float
+    required: true
+    description: "Total process duration in hours"
 
-additionalProperties: false
+constraints:
+  # Constraints are checked separately in T015c and T017c
+  min_rows: 150
+  target_rows: 500

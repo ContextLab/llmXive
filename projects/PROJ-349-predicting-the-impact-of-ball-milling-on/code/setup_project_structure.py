@@ -1,23 +1,37 @@
 import os
 import sys
 from pathlib import Path
+import logging
+
+# Configure logging for the setup script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def setup_directories():
     """
-    Create the project directory structure as defined in the implementation plan.
-    Creates: src/, tests/, data/raw, data/processed, data/splits, results, contracts/, .github/workflows/
-    Places .gitkeep files in each directory to ensure they are tracked by git.
+    Create the required project directory structure.
+    
+    Creates:
+    - src/
+    - tests/
+    - data/raw
+    - data/processed
+    - data/splits
+    - results
+    - contracts/
+    - .github/workflows/
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Define the project root (current directory)
-    root = Path(".")
+    # Define the project root (current working directory)
+    project_root = Path.cwd()
     
-    # Define the directory structure relative to the root
-    # Note: The task description mentions 'src/', but existing API surface shows code in 'code/' and 'src/'.
-    # We will create 'src/' as requested by the task, and 'code/' is likely the root for scripts.
-    # Based on task description: "Create project structure per implementation plan: src/, tests/, data/raw..."
-    # We will ensure the directories match the task requirement exactly.
-    
-    directories = [
+    # Define the required directories relative to the project root
+    required_dirs = [
         "src",
         "tests",
         "data/raw",
@@ -25,33 +39,37 @@ def setup_directories():
         "data/splits",
         "results",
         "contracts",
-        ".github/workflows",
-        "data/fallback", # Added based on T043/T013 requirements for fallback data
-        "figures",      # Standard location for plots (referenced in constraints)
+        ".github/workflows"
     ]
     
-    created_count = 0
+    success = True
     
-    for dir_path in directories:
-        full_path = root / dir_path
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
         try:
+            # Create the directory and any necessary parent directories
             full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Directory created/exists: {full_path}")
             
-            # Create .gitkeep to ensure directory is tracked
-            keep_file = full_path / ".gitkeep"
-            if not keep_file.exists():
-                keep_file.touch()
-                created_count += 1
-                print(f"Created directory: {full_path} (with .gitkeep)")
-            else:
-                print(f"Directory exists: {full_path}")
+            # Create a .gitkeep file to ensure the directory is tracked by git
+            # This is important for empty directories
+            gitkeep_path = full_path / ".gitkeep"
+            if not gitkeep_path.exists():
+                gitkeep_path.touch()
+                logger.debug(f"Created .gitkeep in: {gitkeep_path}")
+                
         except Exception as e:
-            print(f"Error creating directory {full_path}: {e}")
-            return False
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            success = False
     
-    print(f"Project structure setup complete. Created {created_count} new directories.")
-    return True
+    if success:
+        logger.info("Project structure setup completed successfully.")
+    else:
+        logger.error("Project structure setup completed with errors.")
+        
+    return success
 
 if __name__ == "__main__":
+    logger.info("Starting project structure setup...")
     success = setup_directories()
     sys.exit(0 if success else 1)

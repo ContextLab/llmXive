@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or placeholder files were provided; therefore we cannot\
-    \ confirm that the required folders (`src/`, `tests/`, `data/raw`, `data/processed`,\
-    \ `data/splits`, `results`, `contracts/`, `.github/workflows/`) actually exist\
-    \ or contain the expected empty or placeholder contents. The implementer must\
-    \ supply a file\u2011system snapshot or a script output showing these directories."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,27 +5,54 @@ T003:
     \ command\u2011line output showing `flake8 --version`, `black --version`, or a\
     \ successful `black --check src/` run are present. Without these artifacts the\
     \ claim that linting and formatting are set up cannot be verified."
-T004:
+T009:
+  c: false
+  h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
+  r: The required `src/config/settings.py` file does not exist, so the environment
+    configuration management is not set up as specified, even though `config.yaml`
+    is present and contains the needed keys. The missing `settings.py` must be added
+    (e.g., loading the YAML, exposing the configuration) to satisfy the task.
+T012:
+  c: false
+  h: 73f39ebb83affed76f196d72ad39808765d94da40d7286534ae0a9391d0a10eb
+  r: "The repository contains a partially implemented `src/ingest/materials_project.py`,\
+    \ but the required output file `data/raw/materials_project_raw.json` is missing,\
+    \ so the fetcher does not produce any rows. Additionally, the code shown does\
+    \ not include logic for extracting the specified fields or writing them to the\
+    \ JSON file, nor does it demonstrate the warning\u2011skip behavior. The task\
+    \ therefore remains unfinished."
+T013:
+  c: false
+  h: a9f988f436e6c792d252e1eb38993442d7052bd1b9d9107e1020a7dc71eaa4e4
+  r: "The `src/ingest/nist_repo.py` file is present but the implementation is incomplete\
+    \ (truncated) and does not show handling of JSON downloads, does not log the exact\
+    \ warning \u201CSource skipped: NIST (no rows or error)\u201D, and there is no\
+    \ `contracts/dataset.schema.yaml` file to validate the output schema. These missing\
+    \ pieces prevent the task from being fully satisfied."
+T013b:
+  c: false
+  h: c628e90c982b9b235f35e247bf96bec82d39825ecd5dc800ec542970236744ec
+  r: "The repository contains a partially\u2011implemented `src/ingest/arxiv_extractor.py`\
+    \ that lacks any use of the `arxiv` package, the required search query, pagination\
+    \ logic, table\u2011scraping for D10/D50/D90 headers, and the final JSON output\
+    \ step. Moreover, the expected output file `data/raw/arxiv_tables.json` is absent.\
+    \ The task\u2019s core requirements are therefore not satisfied."
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or filesystem evidence were provided; the required `data/raw`,\
-    \ `data/processed`, `data/splits`, and `results` folders are not shown to exist,\
-    \ so the task\u2019s deliverable cannot be verified."
-T007a:
+  r: "No ingestion or preprocessing script, no generated CSV dataset, and no logs\
+    \ or metrics are provided. Without these artifacts we cannot verify that a dataset\
+    \ of \u2265500 (or \u2265150) experiments with the required non\u2011null features\
+    \ was created, nor that missing values were imputed, categorical encoding applied,\
+    \ or OCR flagging performed. The required outputs are missing."
+T015:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `contracts/dataset.schema.yaml` does not exist on disk, so\
-    \ no schema definition is present to satisfy the listed field requirements. The\
-    \ task\u2019s primary artifact is missing."
-T007b:
-  c: false
-  h: f2929e7cf964aa9b99c60b752e927e242e7d101345b78faeae3c31cd205cf107
-  r: "The `validate_schema.py` file exists and contains validation logic, but it depends\
-    \ on a schema file (`contracts/dataset.schema.yaml`) that is missing, causing\
-    \ `load_schema` to raise `FileNotFoundError`. Additionally, the import statement\
-    \ `from src.exceptions import \u2026` does not match the actual location of `exceptions.py`\
-    \ (`src/utils/exceptions.py`), so the module would fail to import. Both issues\
-    \ prevent the function from being fully functional as required."
+  h: 41682429d7884e9c07d1ade1ee0910aa2fd3ba35b0a9d18e6d39fc74b589f53c
+  r: "The repository contains a `src/ingest/merge.py` file, but it is truncated and\
+    \ does not show the required post\u2011merge steps (reading `data/flagged_psd.json`,\
+    \ invoking `extract_psd_from_image`, and writing `data/raw/merged_dataset.parquet`).\
+    \ Moreover, both `data/flagged_psd.json` and the expected output parquet file\
+    \ are absent, so the task\u2019s core deliverables are missing."
 T015b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,9 +60,10 @@ T015b:
     \ dataset from T015, checks its row count, raises `SystemExit` with code\u202F\
     1 when rows\u202F<\u202F150, and logs the required message. Without these concrete\
     \ artifacts, the task\u2019s requirement is not satisfied."
-T041:
+T016:
   c: false
-  h: d722cb212136e1be19d9bceb61c2b532e9b141f98e1b5b1d2d37daaebcc1d407
-  r: "The required file `src/ingest/nist_repo.py` is missing, so there is no updated\
-    \ script, no URL handling, and no error\u2011raising behavior to verify. The task\u2019\
-    s core artifact does not exist."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion or preprocessing script, nor any generated CSV dataset, is present\
+    \ to verify that \u2265500 (or \u2265150) experiments with the required features\
+    \ were aggregated and cleaned. Consequently the core requirement of US\u20111\
+    \ cannot be confirmed."
