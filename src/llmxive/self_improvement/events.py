@@ -45,6 +45,12 @@ KNOWN_EVENT_TYPES_V1 = frozenset({
     "ChainResolved", "SelectionFailure", "ReservationOpened", "DispatchStarted",
     "DispatchCompleted", "DispatchUnknown", "CandidateOutcome",
     "ProblemDiscovered", "Proposed", "ProposalVerified", "Rejected",
+    # Slice 1B (FR-002): the EXPLICIT proposal-review degradation record. Its payload is
+    # schema-checked by _validate_review_rerouted below. `relaxed_constraints` is FACTUAL
+    # (what the fallback always relaxes), NOT a causal claim about which constraint made
+    # the primary fail. A vocabulary extension only — the record SHAPE is unchanged, so
+    # SCHEMA_VERSION stays 1.
+    "ReviewRerouted",
 })
 
 LEGS = ("primary", "fallback")   # FR-002's two-attempt reroute; nothing else is a leg
@@ -266,6 +272,74 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
     _positive_int(payload, "call_ceiling")
 
 
+#: The ONE sanctioned proposal reroute (FR-002). Pinned, not merely documented: a record
+#: naming other profiles would assert a degradation that never happened.
+_REROUTE_PRIMARY_PROFILE = "independent_review"
+_REROUTE_FALLBACK_PROFILE = "deep_review"
+_REROUTE_TRIGGER = "ModelUnavailable"
+_REROUTE_RELAXED = ("family_independence", "snapshot_freshness")
+
+#: The EXACT key set. "Required fields" alone would let extras ride along: harmless today,
+#: but it makes the contract untestable and future schema evolution ambiguous — a reader
+#: could not tell a typo'd key from a new one.
+_REROUTE_KEYS = frozenset({
+    "operation_id", "lens", "primary_profile", "fallback_profile",
+    "primary_route_id", "fallback_route_id", "primary_failure", "relaxed_constraints",
+})
+_REROUTE_FAILURE_KEYS = frozenset({"exception_type", "message"})
+
+
+def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
+    """FR-002's degradation record.
+
+    ``build_invocation_identity`` builds its ``IndependenceDegraded`` straight out of this
+    payload, so an unchecked key is either a ``KeyError`` inside that projection or — worse
+    — a FALSE claim about which safeguards the fallback gave up. The profile, trigger, and
+    relaxed-constraint values are pinned to v1's sanctioned reroute: a later stage that
+    reroutes differently must EXTEND this validator with its own combination, never bypass
+    it."""
+    payload = raw["payload"]
+    _exact_keys(payload, _REROUTE_KEYS, "ReviewRerouted payload")
+    for key in ("operation_id", "lens", "primary_route_id", "fallback_route_id"):
+        _require(payload, key, str)
+    # Recompute BOTH legs at WRITE time from the envelope's attempt_id — the same binding
+    # build_invocation_identity checks at projection time. The projection already fails
+    # closed, so this is defense in depth, but a record that can never become durable beats
+    # one that is only rejected when read.
+    attempt_id = raw.get("attempt_id")
+    if not attempt_id:
+        raise ValueError("a ReviewRerouted event must carry its envelope attempt_id")
+    for key, leg in (("primary_route_id", "primary"), ("fallback_route_id", "fallback")):
+        expected = derive_route_id(attempt_id, payload["operation_id"], leg)
+        if payload[key] != expected:
+            raise ValueError(
+                f"{key}={payload[key]!r} is not attempt {attempt_id!r}'s {leg} claim for "
+                f"operation {payload['operation_id']!r} — expected {expected!r}"
+            )
+    if payload["primary_route_id"] == payload["fallback_route_id"]:
+        raise ValueError("primary_route_id and fallback_route_id must be distinct "
+                         "(the two legs are two logical route_chat invocations)")
+    primary = _require(payload, "primary_profile", str)
+    if primary != _REROUTE_PRIMARY_PROFILE:
+        raise ValueError(f"primary_profile must be {_REROUTE_PRIMARY_PROFILE!r}, got {primary!r}")
+    fallback = _require(payload, "fallback_profile", str)
+    if fallback != _REROUTE_FALLBACK_PROFILE:
+        raise ValueError(
+            f"fallback_profile must be {_REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}"
+        )
+    failure = _require(payload, "primary_failure", Mapping)
+    _exact_keys(failure, _REROUTE_FAILURE_KEYS, "ReviewRerouted primary_failure")
+    for key in ("exception_type", "message"):
+        _require(failure, key, str)
+    if failure["exception_type"] != _REROUTE_TRIGGER:
+        raise ValueError(f"primary_failure.exception_type must be {_REROUTE_TRIGGER!r} — FR-002 "
+                         f"reroutes on nothing else; got {failure['exception_type']!r}")
+    relaxed = _require(payload, "relaxed_constraints", list)
+    if tuple(relaxed) != _REROUTE_RELAXED:
+        raise ValueError(f"relaxed_constraints must be exactly {list(_REROUTE_RELAXED)} (the "
+                         f"fallback always relaxes both, in that order), got {relaxed!r}")
+
+
 _RESERVATION_TRANSITION_KEYS = frozenset({"reservation_id"})
 
 
@@ -356,7 +430,9 @@ TYPE_VALIDATORS: dict[str, Callable[[Mapping[str, Any]], None]] = {
     "ClaimReleased": _validate_claim,
     "MonitorStarted": _validate_monitor_started,
     "PromotionEnabledSet": _validate_promotion_enabled_set,
-    # Slice 1B registers "ReviewRerouted" here.
+    # Slice 1B: vocabulary membership alone would leave this payload unchecked, and it is
+    # not a passive record — the invocation-identity projection reads it field by field.
+    "ReviewRerouted": _validate_review_rerouted,
 }
 
 

@@ -356,6 +356,105 @@ def test_policy_version_is_optional_but_typed():
             )
 
 
+# ---- Slice 1B: the FR-002 degradation record ----
+
+_OP = "op-1"
+
+
+def _reroute_payload(**kw):
+    base = {
+        "operation_id": _OP, "lens": "worthwhile-improvement",
+        "primary_profile": "independent_review", "fallback_profile": "deep_review",
+        "primary_route_id": derive_route_id("A1", _OP, "primary"),
+        "fallback_route_id": derive_route_id("A1", _OP, "fallback"),
+        "primary_failure": {"exception_type": "ModelUnavailable",
+                            "message": "no independent family live"},
+        "relaxed_constraints": ["family_independence", "snapshot_freshness"],
+    }
+    base.update(kw)
+    return base
+
+
+def _reroute_event(**kw):
+    return _raw(event_type="ReviewRerouted", attempt_id="A1", payload=_reroute_payload(**kw))
+
+
+def test_review_rerouted_is_a_known_event_type():
+    # A VOCABULARY extension, so SCHEMA_VERSION must NOT change — bumping it would make a
+    # reader reject every prior-version record in the append-only history.
+    from llmxive.self_improvement.events import KNOWN_EVENT_TYPES_V1
+
+    assert "ReviewRerouted" in KNOWN_EVENT_TYPES_V1
+    assert SCHEMA_VERSION == 1
+
+
+def test_review_rerouted_event_validates():
+    validate_lane_event(_reroute_event())
+
+
+def test_review_rerouted_is_registered_for_payload_validation():
+    # Vocabulary membership alone leaves the payload unchecked.
+    from llmxive.self_improvement.events import TYPE_VALIDATORS
+
+    assert "ReviewRerouted" in TYPE_VALIDATORS
+
+
+def test_review_rerouted_route_ids_are_recomputed_at_write_time():
+    # The same binding the identity projection checks at read time, enforced at WRITE time,
+    # so a foreign or borrowed leg never becomes durable in the first place.
+    foreign = derive_route_id("A2", _OP, "primary")
+    with pytest.raises(ValueError, match="primary_route_id"):
+        validate_lane_event(_reroute_event(primary_route_id=foreign))
+    with pytest.raises(ValueError, match="attempt_id"):
+        validate_lane_event(_raw(event_type="ReviewRerouted", attempt_id=None,
+                                 payload=_reroute_payload()))
+
+
+def test_review_rerouted_rejects_unknown_keys():
+    # The schema is EXACT, not merely "required fields present" — otherwise a typo'd key is
+    # indistinguishable from a new one and the contract is untestable.
+    with pytest.raises(ValueError, match="unexpected ReviewRerouted payload keys"):
+        validate_lane_event(_reroute_event(surprise="extra"))
+    with pytest.raises(ValueError, match="unexpected ReviewRerouted primary_failure keys"):
+        validate_lane_event(_reroute_event(
+            primary_failure={"exception_type": "ModelUnavailable", "message": "x", "extra": 1}))
+
+
+@pytest.mark.parametrize("bad, why", [
+    # both legs the same id: caught by the write-time derivation check (two identical ids
+    # cannot both be correct derivations), with the distinctness guard behind it
+    ({"primary_route_id": "same", "fallback_route_id": "same"}, "route_id"),
+    ({"primary_profile": "deep_review"}, "primary_profile"),
+    ({"fallback_profile": "standard_generation"}, "fallback_profile"),
+    ({"primary_failure": {"exception_type": "ChainExhausted", "message": "x"}},
+     "ModelUnavailable"),
+    ({"primary_failure": {"message": "x"}}, "exception_type"),
+    ({"relaxed_constraints": ["family_independence"]}, "relaxed_constraints"),
+    ({"relaxed_constraints": ["snapshot_freshness", "family_independence"]},
+     "relaxed_constraints"),
+    ({"lens": ""}, "lens"),
+])
+def test_review_rerouted_rejects_malformed_payloads(bad, why):
+    # Each of these would otherwise land durably and then either KeyError inside the
+    # identity projection or assert a FALSE claim about what the fallback relaxed.
+    with pytest.raises(ValueError, match=why):
+        validate_lane_event(_reroute_event(**bad))
+
+
+def test_review_rerouted_rejects_a_missing_key():
+    payload = _reroute_payload()
+    del payload["fallback_route_id"]
+    with pytest.raises(ValueError, match="fallback_route_id"):
+        validate_lane_event(_raw(event_type="ReviewRerouted", attempt_id="A1", payload=payload))
+
+
+def test_a_reroute_for_a_different_operation_cannot_borrow_these_legs():
+    # operation_id is part of the derivation, so a record that renames the operation while
+    # keeping the route ids is refused — the ids ARE the claim about which call ran.
+    with pytest.raises(ValueError, match="route_id"):
+        validate_lane_event(_reroute_event(operation_id="some-other-operation"))
+
+
 def test_types_without_a_validator_are_envelope_only():
     # By design: the audit-mirror types re-serialize already-typed slice-0 dataclasses.
     from llmxive.self_improvement.events import TYPE_VALIDATORS
