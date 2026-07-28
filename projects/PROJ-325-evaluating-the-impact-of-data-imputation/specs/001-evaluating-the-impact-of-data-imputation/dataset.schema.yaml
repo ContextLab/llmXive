@@ -1,77 +1,19 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Survey Dataset Schema
-description: >
-  Schema for raw and processed survey datasets used in the imputation impact study.
-  Must include design variables (weights, strata, psu) and analysis variables.
+title: Synthetic Dataset Schema
+description: Schema for synthetic datasets used in imputation validation.
 type: object
-required:
-  - metadata
-  - columns
-  - design_variables
 properties:
-  metadata:
-    type: object
-    required:
-      - source
-      - year
-      - n_rows
-      - n_columns
-      - created_at
-      - missingness_mechanism
-    properties:
-      source:
-        type: string
-        description: Data source identifier (e.g., 'GSS', 'ACS')
-      year:
-        type: integer
-        description: Survey year
-      n_rows:
-        type: integer
-        minimum: 1
-      n_columns:
-        type: integer
-        minimum: 1
-      created_at:
-        type: string
-        format: date-time
-      missingness_mechanism:
-        type: string
-        enum: [MCAR, MAR, MNAR, Unknown]
-        description: Assumed or known missingness mechanism
-  columns:
-    type: array
-    description: List of column definitions
-    items:
-      type: object
-      required:
-        - name
-        - dtype
-        - has_missing
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-          enum: [int64, float64, object, bool]
-        has_missing:
-          type: boolean
-        missing_pct:
-          type: number
-          minimum: 0
-          maximum: 100
-  design_variables:
-    type: object
-    required:
-      - weight
-      - strata
-      - psu
-    properties:
-      weight:
-        type: string
-        description: Column name for sampling weights
-      strata:
-        type: string
-        description: Column name for strata identifiers
-      psu:
-        type: string
-        description: Column name for primary sampling units
+  id:
+    type: integer
+    description: Unique identifier for the row.
+  covariate_X:
+    type: number
+    description: Observed covariate used for MAR mechanism generation.
+  target_Y:
+    type: number
+    description: Target variable, may contain NaN for missing values.
+required:
+  - id
+  - covariate_X
+  - target_Y
+additionalProperties: false

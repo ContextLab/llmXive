@@ -88,7 +88,7 @@ projects/PROJ-325-evaluating-the-impact-of-data-imputation/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Custom MICE Wrapper | `miceforest` provides true MCMC‑style multiple imputation with independent chains and burn‑in. | A single deterministic run would violate FR‑002 (4 chains, burn‑in) and provide no multiple‑imputation variance. |
+| Custom MICE Wrapper | `miceforest` provides true MCMC‑style multiple imputation with independent chains and burn‑in. | A single deterministic run would violate FR (multiple chains, burn‑in) and provide no multiple‑imputation variance. |
 | Sensitivity Sweep Orchestrator | FR‑005 requires a concrete set `{5, 10, 20}`. | Hard‑coding a single parameter value would not satisfy the required sweep. |
 | Design‑Based Variance Module | Standard variance ignores clustering/stratification. | Using i.i.d. variance would breach Principle VI and invalidate bias comparisons. |
 | Small‑Cluster Fallback | Edge case PSU = 1 requires special handling. | Ignoring the case would leave the pipeline without a defined behavior, breaking the spec. |

@@ -5,6 +5,21 @@ T004:
     \ than a configurable URL fetcher, never writes the DataFrame to `data/raw/gss_2018_subset.csv`,\
     \ and the required CSV output file is absent. Consequently the task\u2019s core\
     \ requirements are not met."
+T005:
+  c: false
+  h: 5f9ecb3799219d400b0bd0071496d45ec873a45abe7d9185646430756052dceb
+  r: "The repository contains `code/synthetic_generator.py`, but the required output\
+    \ files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`\
+    \ are absent, and the code snippet is truncated with no evidence of writing those\
+    \ files or validating against a schema. Additionally, the referenced `contracts/dataset.schema.yaml`\
+    \ is missing. The task\u2019s core deliverables are therefore not present."
+T005b:
+  c: false
+  h: 19e3b01e801287a8af66e7bf4523bc347a50aeda669fa6134bae90181148cedb
+  r: The required output files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`
+    are missing, and the manifest contains placeholder zero hashes instead of real
+    checksums, indicating the generator was not run nor the outputs verified. The
+    task therefore remains unfinished.
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205

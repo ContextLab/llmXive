@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-325-evaluating-the-impact-of-data-imputation",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026-> pd.DataFrame:     \"\"\"Generates synthetic data with specified para\u2026\u201d; code/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"Main function to generate and save synthetic data.\"\"\"      n_samples\u2026\u201d; 5 run-book script(s) missing (plan/impl path mismatch): python code/data/loader.py --source \"gss\"  --url \"<GSS_URL>\"  --output data/raw/gss_2018.parquet; python code/data/loader.py --source \"acs\"  --url \"<ACS_URL>\"  --output data/raw/acs_income.parquet; python code/imputation/run_all.py  --input data/processed/synthetic_mar.parquet  --methods \"cc,single,mice\"  --mice-chains 4  --mice-iterations 1000  --burn-in 500  --output data/processed/imputation_results.json; 1 command(s) failed: python code/synthetic_generator.py --n-rows 50000 --mechanism MAR --output data/processed/synthetic_mar.parquet (rc=1); 4 declared deliverable(s) absent: data/processed/baseline_results.json; data/processed/synthetic_mar_v1.csv; data/processed/synthetic_mar_v1_meta.json",
+  "artifacts": [],
+  "failures": [
+    "python -c \"import pandas; import sklearn; import statsmodels; import miceforest; print('Environment OK')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'pandas'",
+    "python code/data/loader.py --source \"gss\"  --url \"<GSS_URL>\"  --output data/raw/gss_2018.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/data/loader.py': [Errno 2] No such file or directory",
+    "python code/data/loader.py --source \"acs\"  --url \"<ACS_URL>\"  --output data/raw/acs_income.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/data/loader.py': [Errno 2] No such file or directory",
+    "python code/synthetic_generator.py --n-rows 50000 --mechanism MAR --output data/processed/synthetic_mar.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/synthetic_generator.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/imputation/run_all.py  --input data/processed/synthetic_mar.parquet  --methods \"cc,single,mice\"  --mice-chains 4  --mice-iterations 1000  --burn-in 500  --output data/processed/imputation_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/imputation/run_all.py': [Errno 2] No such file or directory",
+    "python code/metrics/bias.py  --results data/processed/imputation_results.json  --true-variance 150.5  --sweep-param \"m\"  --sweep-values \"5,10,20\"  --output data/reports/bias_analysis.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/metrics/bias.py': [Errno 2] No such file or directory",
+    "python code/main.py --generate-report --output reports/final_report.md -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-325-evaluating-the-impact-of-data-imputation/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-28T04:20:06Z"
+}
