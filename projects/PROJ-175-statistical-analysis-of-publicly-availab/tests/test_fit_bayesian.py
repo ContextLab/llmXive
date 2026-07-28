@@ -1,61 +1,67 @@
-"""
-Tests for T025: Hierarchical Bayesian Model Fit.
-"""
-import json
 import os
-import tempfile
+import json
+import pytest
 from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Mock the environment variables and paths for testing
-def test_convergence_logic():
-    """Test that convergence logic correctly identifies R_hat > 1.01."""
-    from models.fit_bayesian import check_convergence
+# Import the module functions
+from code.models.fit_bayesian import (
+    load_processed_data,
+    prepare_features,
+    fit_bayesian_model,
+    save_results,
+    save_convergence_log
+)
+
+@pytest.fixture
+def mock_train_data(tmp_path):
+    """Creates a mock train_set.parquet for testing"""
+    data = {
+        'compatibility_label': np.random.randint(0, 2, 100),
+        'log_co_occurrence': np.random.randn(100),
+        'similarity_score': np.random.rand(100),
+        'functional_role_tertile': np.random.randint(0, 3, 100)
+    }
+    df = pd.DataFrame(data)
+    output_path = tmp_path / "train_set.parquet"
+    df.to_parquet(output_path)
+    return str(output_path)
+
+def test_prepare_features(mock_train_data, tmp_path):
+    """Tests that features are prepared correctly"""
+    # Temporarily move the mock file to the expected location
+    expected_path = Path("data/processed/train_set.parquet")
+    expected_path.parent.mkdir(parents=True, exist_ok=True)
+    os.rename(mock_train_data, str(expected_path))
     
-    # We cannot easily run the full MCMC in a unit test without heavy dependencies,
-    # so we test the logic wrapper by mocking the trace summary.
-    # However, since check_convergence calls az.summary on a real trace object,
-    # we will test the file I/O and structure instead.
-    pass
+    try:
+        df = pd.read_parquet(expected_path)
+        X, y = prepare_features(df)
+        
+        assert X.shape[0] == df.shape[0]
+        assert y.shape[0] == df.shape[0]
+        # 2 continuous + 3 dummies (assuming 3 categories)
+        assert X.shape[1] == 5 
+    finally:
+        # Cleanup
+        if expected_path.exists():
+            expected_path.unlink()
 
-def test_output_schema():
-    """Verify that if the script runs, it produces valid JSON."""
-    # This is a structural test. The actual fit requires data.
-    # We verify the expected output keys exist in the code logic.
-    expected_keys = ["status", "convergence_metrics", "posterior_means", "posterior_sd", "timestamp"]
-    convergence_keys = ["r_hat_max", "ess_min", "converged"]
+def test_save_results(tmp_path):
+    """Tests that results are saved correctly"""
+    results = {
+        "status": "SUCCESS",
+        "convergence": {"R_hat_max": 1.001, "ESS_min": 500},
+        "coefficients": [{"var_names": "beta", "mean": 0.5}]
+    }
+    output_path = tmp_path / "test_results.json"
     
-    # Just verify the code defines these keys
-    import models.fit_bayesian as module
-    import inspect
-    source = inspect.getsource(module.save_results)
-    assert "posterior_means" in source
-    assert "convergence_metrics" in source
+    save_results(results, str(output_path))
     
-    source_conv = inspect.getsource(module.save_convergence_log)
-    assert "R_hat" in source_conv
-    assert "ESS" in source_conv
-
-def test_cpu_enforcement():
-    """Verify that the script attempts to disable CUDA."""
-    import models.fit_bayesian as module
-    import inspect
-    source = inspect.getsource(module.main)
-    assert "CUDA_VISIBLE_DEVICES" in source
-
-def test_timeout_logic():
-    """Verify timeout handler exists."""
-    import models.fit_bayesian as module
-    import inspect
-    source = inspect.getsource(module)
-    assert "timeout_handler" in source
-    assert "TimeoutError" in source
-
-def test_file_paths():
-    """Verify output paths match task requirements."""
-    import models.fit_bayesian as module
-    assert module.RESULTS_PATH.name == "bayesian_results.json"
-    assert module.CONVERGENCE_LOG_PATH.name == "bayesian_convergence_log.json"
-    assert module.RESULTS_PATH.parent.name == "final"
-    assert module.CONVERGENCE_LOG_PATH.parent.name == "data"
+    assert output_path.exists()
+    with open(output_path) as f:
+        loaded = json.load(f)
+    
+    assert loaded['status'] == "SUCCESS"
+    assert 'R_hat_max' in loaded['convergence']

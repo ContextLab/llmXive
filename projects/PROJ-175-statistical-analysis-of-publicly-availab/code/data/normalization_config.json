@@ -1,7 +1,9 @@
 {
-  "threshold": 2,
-  "method": "levenshtein",
-  "timestamp": "2026-07-27T14:24:43Z",
-  "mapped_count": 3,
-  "excluded_count": 0
+  "max_levenshtein_distance": 2,
+  "canonical_source": "recipe1m_counts",
+  "input_file": "data/raw/recipe1m_counts.parquet",
+  "output_file": "data/processed/normalized_ingredients.parquet",
+  "report_file": "data/normalization_report.json",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "status": "CONFIGURED"
 }

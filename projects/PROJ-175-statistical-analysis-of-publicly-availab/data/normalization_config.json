@@ -1,1 +1,5 @@
-[]
+{
+  "threshold": 2,
+  "canonical_map_size": 20,
+  "timestamp": "2023-10-27T10:00:00Z"
+}

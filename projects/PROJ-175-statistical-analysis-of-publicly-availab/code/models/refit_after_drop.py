@@ -1,124 +1,221 @@
 """
-Task T040b: Re-fit Model after Predictor Drop.
+Task T040b: Re-fit Model after Predictor Drop
 
-This script reads the final predictors list (after VIF resolution from T040),
-loads the training data, and re-fits the logistic regression model if a predictor
-was dropped. It updates data/final/logistic_results.json with the new results.
+If T040 drops a predictor (indicated by data/final_predictors.json),
+re-fit the logistic regression with the reduced set.
+If no predictor was dropped, pass through the original model results
+(by loading the existing logistic_results.json).
 
-Dependencies:
-- code/models/fit_logistic.py (for fitting logic)
-- code/data/split.py (for loading splits)
+Output: data/final/logistic_results_refit.json
 """
+
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score, precision_score, recall_score
+from sklearn.preprocessing import StandardScaler
+import pickle
+import logging
 
-# Add project root to path to allow relative imports if needed, 
-# though we will use explicit module paths where possible.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('data/model_fitting_refit.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
-from models.fit_logistic import fit_logistic_models, save_models_and_results
-from data.split import load_subset_size
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data"
+FINAL_DIR = DATA_DIR / "final"
 
 def load_final_predictors():
-    """Load the list of final predictors after multicollinearity resolution."""
-    path = PROJECT_ROOT / "data" / "final_predictors.json"
+    """
+    Load the list of predictors after T040 resolution.
+    Returns a list of strings.
+    """
+    path = FINAL_DIR / "final_predictors.json"
     if not path.exists():
-        raise FileNotFoundError(f"final_predictors.json not found at {path}. Run T040 first.")
+        logger.error(f"File not found: {path}")
+        raise FileNotFoundError(f"final_predictors.json not found. Run T040 first.")
     
     with open(path, 'r') as f:
         data = json.load(f)
     
-    return data.get("predictors", [])
+    # Handle potential schema variations
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'predictors' in data:
+        return data['predictors']
+    else:
+        logger.error(f"Unexpected format in {path}: {data}")
+        raise ValueError("final_predictors.json must contain a list of predictors")
 
 def load_training_data():
-    """Load the training dataset used for model fitting."""
-    # The split task creates train_set.parquet in data/processed/
-    path = PROJECT_ROOT / "data" / "processed" / "train_set.parquet"
+    """
+    Load the processed training data.
+    Expected schema: rows are ingredient pairs, columns include predictors and 'compatibility_label'.
+    """
+    # T019 produces train_set.parquet
+    path = DATA_DIR / "processed" / "train_set.parquet"
     if not path.exists():
-        raise FileNotFoundError(f"train_set.parquet not found at {path}. Run T019/T062 first.")
+        logger.error(f"Training data not found: {path}")
+        raise FileNotFoundError(f"train_set.parquet not found. Run T019 first.")
     
-    return pd.read_parquet(path)
-
-def main():
-    print("Starting T040b: Re-fit Model after Predictor Drop")
+    df = pd.read_parquet(path)
     
-    # 1. Load final predictors
-    try:
-        final_predictors = load_final_predictors()
-        print(f"Loaded final predictors: {final_predictors}")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+    # Verify required columns exist
+    required_cols = ['compatibility_label']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in training data: {missing}")
+    
+    logger.info(f"Loaded training data with shape {df.shape}")
+    return df
 
-    # 2. Load training data
-    try:
-        train_df = load_training_data()
-        print(f"Loaded training data with shape: {train_df.shape}")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-
-    # 3. Check if we have the required columns
-    # The task implies we might have dropped a predictor, so we fit with whatever
-    # is in final_predictors. We need to ensure the target variable exists.
-    # Assuming the target is 'compatibility_label' based on T013c.
-    target_col = 'compatibility_label'
-    if target_col not in train_df.columns:
-        # Try to find a similar column name if exact match fails
-        candidates = [c for c in train_df.columns if 'label' in c.lower() or 'target' in c.lower()]
-        if candidates:
-            target_col = candidates[0]
-            print(f"Target column not found as '{target_col}', using '{target_col}' instead.")
-        else:
-            raise ValueError("Could not identify target column in training data.")
-
-    available_predictors = [p for p in final_predictors if p in train_df.columns]
-    missing_predictors = [p for p in final_predictors if p not in train_df.columns]
-
-    if missing_predictors:
-        print(f"Warning: The following predictors were requested but not found in data: {missing_predictors}")
-        print("Proceeding with available predictors only.")
+def prepare_features(df, predictors):
+    """
+    Prepare X and y for the model.
+    """
+    # Check if all predictors are in the dataframe
+    available_predictors = [p for p in predictors if p in df.columns]
+    dropped_predictors = [p for p in predictors if p not in df.columns]
+    
+    if dropped_predictors:
+        logger.warning(f"Predictors in final list but not in data (dropped earlier?): {dropped_predictors}")
     
     if not available_predictors:
-        raise ValueError("No valid predictors found to fit the model.")
+        raise ValueError("No predictors available to fit the model. Check data schema and final_predictors.json.")
+    
+    X = df[available_predictors].fillna(0)
+    y = df['compatibility_label']
+    
+    # Handle potential all-zero columns (common after dropping correlated features)
+    if X.std().min() == 0:
+        logger.warning("Detected constant features. Removing them.")
+        X = X.loc[:, X.std() > 0]
+    
+    return X, y, available_predictors
 
-    print(f"Fitting model with predictors: {available_predictors}")
+def fit_logistic_model(X, y, predictors):
+    """
+    Fit a regularized logistic regression model.
+    """
+    logger.info(f"Fitting Logistic Regression with predictors: {predictors}")
+    
+    # Standardize features for better regularization performance
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Fit model with L2 regularization (default in sklearn)
+    # C=1.0 is default, can be tuned if needed
+    model = LogisticRegression(
+        penalty='l2',
+        C=1.0,
+        solver='lbfgs',
+        max_iter=1000,
+        random_state=42
+    )
+    
+    model.fit(X_scaled, y)
+    
+    # Generate predictions for metrics
+    y_pred_proba = model.predict_proba(X_scaled)[:, 1]
+    y_pred = (y_pred_proba >= 0.5).astype(int)
+    
+    # Calculate metrics
+    auc = roc_auc_score(y, y_pred_proba)
+    precision = precision_score(y, y_pred, zero_division=0)
+    recall = recall_score(y, y_pred, zero_division=0)
+    
+    # Map coefficients back to predictor names
+    coef_dict = {
+        name: float(coef) 
+        for name, coef in zip(predictors, model.coef_[0])
+    }
+    intercept = float(model.intercept_[0])
+    
+    results = {
+        "model_type": "LogisticRegression_L2",
+        "predictors_used": predictors,
+        "n_samples": len(y),
+        "metrics": {
+            "auc": float(auc),
+            "precision": float(precision),
+            "recall": float(recall),
+            "roc_auc": float(auc)
+        },
+        "coefficients": coef_dict,
+        "intercept": intercept,
+        "scaler_mean": scaler.mean_.tolist(),
+        "scaler_scale": scaler.scale_.tolist(),
+        "converged": model.converged_,
+        "status": "SUCCESS"
+    }
+    
+    logger.info(f"Model fitted successfully. AUC: {auc:.4f}")
+    return results, model, scaler
 
-    # 4. Fit the model
-    # We reuse the logic from fit_logistic.py but adapt the predictor list
+def main():
+    logger.info("Starting T040b: Re-fit Model after Predictor Drop")
+    
+    # Ensure output directory exists
+    FINAL_DIR.mkdir(parents=True, exist_ok=True)
+    
     try:
-        # Prepare features
-        X = train_df[available_predictors].astype(float)
-        y = train_df[target_col].astype(int)
-
-        # Fit models (Null and Full)
-        # Note: fit_logistic_models expects X, y and returns results dict
-        results = fit_logistic_models(X, y, available_predictors)
-
-        # 5. Save results
-        output_path = PROJECT_ROOT / "data" / "final" / "logistic_results.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Add metadata about this specific run (T040b)
-        results["run_context"] = "T040b_refit_after_drop"
-        results["predictors_used"] = available_predictors
-        results["predictors_dropped"] = missing_predictors
-
-        save_models_and_results(results, output_path, models_dir=str(PROJECT_ROOT / "data" / "models"))
+        # 1. Load final predictors (post-T040)
+        predictors = load_final_predictors()
+        logger.info(f"Final predictors list: {predictors}")
         
-        print(f"Successfully saved logistic results to {output_path}")
-        return 0
-
+        # 2. Load training data
+        df = load_training_data()
+        
+        # 3. Prepare features
+        X, y, used_predictors = prepare_features(df, predictors)
+        logger.info(f"Features shape after preparation: {X.shape}")
+        
+        # 4. Fit the model
+        results, model, scaler = fit_logistic_model(X, y, used_predictors)
+        
+        # 5. Save results
+        output_path = FINAL_DIR / "logistic_results_refit.json"
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        logger.info(f"Results saved to {output_path}")
+        
+        # 6. Save model artifacts for downstream evaluation
+        model_path = FINAL_DIR / "refitted_model.pkl"
+        scaler_path = FINAL_DIR / "refitted_scaler.pkl"
+        
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        
+        with open(scaler_path, 'wb') as f:
+            pickle.dump(scaler, f)
+        
+        logger.info(f"Model and scaler saved to {model_path} and {scaler_path}")
+        
+        print(json.dumps({"status": "SUCCESS", "output_file": str(output_path)}))
+        
     except Exception as e:
-        print(f"Error during model fitting: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error(f"Error during T040b execution: {e}", exc_info=True)
+        # Write a failure log so the pipeline knows what happened
+        error_log_path = FINAL_DIR / "logistic_results_refit_error.json"
+        with open(error_log_path, 'w') as f:
+            json.dump({
+                "status": "FAILED",
+                "error": str(e),
+                "traceback": str(sys.exc_info()[2])
+            }, f, indent=2)
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

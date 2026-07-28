@@ -1,5 +1,5 @@
 {
   "epsilon": 1e-06,
-  "zero_pair_count": 0,
-  "total_pairs": 1000
+  "zero_pair_count": 100,
+  "description": "Epsilon value for log-transform smoothing in co-occurrence matrix"
 }

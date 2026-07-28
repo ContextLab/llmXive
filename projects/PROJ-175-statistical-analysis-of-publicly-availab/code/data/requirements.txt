@@ -9,5 +9,6 @@ requests
 tqdm
 huggingface_hub
 sentence-transformers
-torch
 arviz
+psutil
+torch

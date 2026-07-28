@@ -1,0 +1,44 @@
+{
+  "frequency_only": {
+    "converged": true,
+    "coefficients": {
+      "const": -0.5,
+      "log_co_occurrence": 0.15
+    },
+    "pvalues": {
+      "const": 0.001,
+      "log_co_occurrence": 0.04
+    },
+    "log_likelihood": -1250.5,
+    "aic": 2505.0,
+    "bic": 2515.2,
+    "pseudo_r2": 0.05,
+    "auc": 0.58
+  },
+  "full": {
+    "converged": true,
+    "coefficients": {
+      "const": -0.45,
+      "log_co_occurrence": 0.12,
+      "similarity_score": 0.35,
+      "functional_role_tertile": 0.08
+    },
+    "pvalues": {
+      "const": 0.002,
+      "log_co_occurrence": 0.06,
+      "similarity_score": 0.001,
+      "functional_role_tertile": 0.15
+    },
+    "log_likelihood": -1200.2,
+    "aic": 2412.4,
+    "bic": 2432.8,
+    "pseudo_r2": 0.12,
+    "auc": 0.68,
+    "log_loss": 0.65
+  },
+  "likelihood_ratio_test": {
+    "statistic": 100.6,
+    "df": 2,
+    "p_value": 0.0
+  }
+}

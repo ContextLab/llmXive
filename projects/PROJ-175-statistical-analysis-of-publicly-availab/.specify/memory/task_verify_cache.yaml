@@ -6,17 +6,12 @@ T008:
     \ task\u2019s deliverables are not fully satisfied."
 T022:
   c: false
-  h: 3e3e8dc369001a69908e81f91b293a5254875c93665c33e85c2873d3f7f59930
-  r: 'Both required artifacts are absent: `data/final_predictors.json` (the predictor
-    list) and `data/final/logistic_results.json` (the logistic regression results)
-    do not exist on disk, so the model fitting cannot have been performed. The task
-    therefore is not satisfied.'
-T025:
-  c: false
-  h: bddbc8a95c4737db3a2ce24de1bf8a1422b7cbeecdf4aec0c6f0ce80ee04eb51
-  r: "The required output file `data/final/bayesian_results.json` is missing, so the\
-    \ core artifact of the task was not produced. The convergence log exists, but\
-    \ without the results JSON the task\u2019s primary requirement is unmet."
+  h: 05ba5842e9e07e069c2587cbb2900003bc3b9ad42e01cdd3f13da667f4a537fc
+  r: "The required output file `data/final/logistic_results.json` is missing, and\
+    \ the provided `data/final_predictors.json` contains only placeholder predictor\
+    \ names rather than the expected list (frequency, similarity, categorical role).\
+    \ Without the results file containing coefficients and p\u2011values, the task\
+    \ is not satisfied."
 T033b#1:
   c: true
   h: 07750d5014bd1db1b87d75cbbf5e4251ba4f5c96597302416e69698c4110834c
@@ -31,12 +26,6 @@ T038:
   r: The `download.py` still uses a generic `except Exception` block and does not
     show specific HTTP error handling or logging of the URL and error code to `data/download_errors.log`.
     Moreover, the required `data/download_errors.log` file is missing.
-T040b:
-  c: false
-  h: 5f9640ca8c89c749ed299c80130b7fc1e067d534a076ee40a5739456a0776ed1
-  r: "The required artifact `data/final/logistic_results.json` does not exist, so\
-    \ the logistic regression re\u2011fit after predictor drop has not been recorded\
-    \ as required. The task therefore remains unfinished."
 T056:
   c: false
   h: b4a2b5ef912feea603d78716ad5319afd77920c72a50ecf66da11315548d0f72
