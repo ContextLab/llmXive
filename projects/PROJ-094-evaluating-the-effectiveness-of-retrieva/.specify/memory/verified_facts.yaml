@@ -1,0 +1,5 @@
+'|1gb faiss index stay':
+  quote: memory usage at 0.24 MB index size, and Annoy is the fastest, with
+  source_id: '2412.01555'
+  url: https://arxiv.org/abs/2412.01555
+  value: 0.24 MB

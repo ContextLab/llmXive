@@ -1,0 +1,625 @@
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: 'Exact library versions: ir-datasets 1.2.10, sentence-transformers 2.7.0,
+    faiss-cpu 1.8.0, rank_bm25 0.2.2, scikit-learn 1.5.0, pandas 2.2.0, numpy 1.26.0,
+    psutil 6.0.0, transformers 4.42.0, torch 2.3.0, accelerate 0.31.0'
+  claim_id: c_11df2f2a
+  context: 'Create requirements.txt pinning exact versions for: ir-datasets==1.2.10,
+    sentence-transformers==2.7.0, faiss-cpu==1.8.0, rank_bm25==0.2.2, scikit-learn==1.5.0,
+    pandas==2.2.0, numpy==1.26.0, psutil==6.0.0, transformers==4.42.0, torch==2.3.0,
+    accelerate==0.31.0.'
+  evidence:
+    asserted: '1.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pinning exact versions for: ir-datasets==1.2.10, sentence-transformers==2.7.0,
+    faiss-cpu==1.8.0, rank_bm25==0.2.2, scikit-learn==1.5.0, pandas==2.2.0, numpy==1.26.0,
+    psutil==6.0.0, transformers==4.42.0, torch==2.3.0, accelerate==0.31.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:23:19Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Dual-encoder retrieval uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_f45d2aba
+  context: Implement src/models/retriever_neural.py using sentence-transformers/all-MiniLM-L6-v2
+    for dual-encoder retrieval; load on CPU
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dual-encoder_retrieval_uses_sentence-transformers/all-MiniLM
+  kind: entity_fact
+  raw_text: using sentence-transformers/all-MiniLM-L6-v2 for dual-encoder retrieval
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:23:35Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG generator loads Salesforce/codegen-350M-mono on CPU
+  claim_id: c_9951d863
+  context: Load Salesforce/codegen-350M-mono with device="cpu" (CPU-only mode, no
+    bitsandbytes if unsupported).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAG_generator_loads_Salesforce/codegen-350M-mono_on_CPU
+  kind: entity_fact
+  raw_text: Load Salesforce/codegen-350M-mono with device="cpu"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:24:02Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG generation uses temperature 0.0
+  claim_id: c_025c6217
+  context: Generate response with temperature=0.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate response with temperature=0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:24:22Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: API density is calculated as ratio of API calls to total tokens
+  claim_id: c_4e13f612
+  context: Calculate API density (ratio of API calls to total tokens).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_density_is_calculated_as_ratio_of_API_calls_to_total_tok
+  kind: entity_fact
+  raw_text: calculate API density (ratio of API calls to total tokens)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:24:44Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Documentation density is calculated as ratio of comment tokens
+  claim_id: c_e5c90646
+  context: Calculate Documentation density (ratio of comment tokens).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Documentation_density_is_calculated_as_ratio_of_comment_toke
+  kind: entity_fact
+  raw_text: Calculate Documentation density (ratio of comment tokens)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:25:22Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Naming-consistency score uses microsoft/codebert-base embeddings
+  claim_id: c_9e4d9c3d
+  context: Calculate Naming-consistency score using microsoft/codebert-base embeddings
+    (average pairwise cosine similarity of identifiers) per FR-002, FR-008.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Naming-consistency_score_uses_microsoft/codebert-base_embedd
+  kind: entity_fact
+  raw_text: Calculate Naming-consistency score using microsoft/codebert-base embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:25:37Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: FAISS index size stays under 1GB
+  claim_id: c_035ff90b
+  context: The pipeline runs with "strict resource" flags, FAISS index stays <1GB,
+    model is reduced, and a degradation report is generated.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: memory usage at 0.24 MB index size, and Annoy is the fastest, with
+      source_id: '2412.01555'
+      url: https://arxiv.org/abs/2412.01555
+      value: 0.24 MB
+    filled: true
+  kind: entity_fact
+  raw_text: FAISS index stays <1GB
+  resolved_value: 0.24 MB
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:25:58Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Constrained model uses 2 hidden layers
+  claim_id: c_205cea3e
+  context: 'Model: Load Salesforce/codegen-350M-mono with config.num_hidden_layers
+    = 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Model reduced to config.num_hidden_layers = 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:26:09Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Memory limit verified at 1.05GB
+  claim_id: c_8e8ab330
+  context: "Runtime Monitoring: Measure peak process RSS via psutil during execution\
+    \ to verify the \u22641.05GB limit (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the \u22641.05GB limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:26:09Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Throughput target is at least 33 queries per hour
+  claim_id: c_5c1438ab
+  context: "Performance optimization: ensure throughput \u2265 33 queries/hour (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Throughput_target_is_at_least_33_queries_per_hour
+  kind: magnitude
+  raw_text: "ensure throughput \u2265 33 queries/hour"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:26:46Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs CSV with nDCG scores within 45 minutes on CPU
+  claim_id: c_c1d4f68e
+  context: "Independent Test: The system executes the pipeline on a set of test queries\
+    \ and outputs a CSV file containing three distinct rows (one per method) with\
+    \ valid nDCG@ scores (0.0\u20131.0) within 45 minutes on CPU, without external\
+    \ APIs."
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The system executes the pipeline on a set of test queries and outputs\
+    \ a CSV file containing three distinct rows (one per method) with valid nDCG@\
+    \ scores (0.0\u20131.0) within 45 minutes on CPU, without external APIs."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:28:29Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Degradation report generated with reduced model under strict resource
+    flags
+  claim_id: c_16cddf60
+  context: 'Independent Test: The pipeline runs with ''strict resource'' flags, {{claim:c_035ff90b}}
+    (2412.01555, https://arxiv.org/abs/2412.01555), model is reduced, and a degradation
+    report is generated.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Degradation_report_generated_with_reduced_model_under_strict
+  kind: entity_fact
+  raw_text: The pipeline runs with 'strict resource' flags, model is reduced, and
+    a degradation report is generated.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:29:12Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Index subsampling triggered if size exceeds 1.05GB
+  claim_id: c_09098f9a
+  context: 'Memory Enforcement: Calculate index size; if >1.05GB, subsample to top
+    k vectors.'
+  evidence:
+    asserted: '1.05'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Calculate index size; if >1.05GB, subsample to top k vectors.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:29:12Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Peak RSS verified to be within 1.05GB limit
+  claim_id: c_58f3ebf1
+  context: "Runtime Monitoring: Measure peak process RSS via psutil during execution\
+    \ to verify the \u22641.05GB limit (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Measure peak process RSS via psutil during execution to verify the \u2264\
+    1.05GB limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:29:13Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: FAISS index configured with 1.05GB memory limit
+  claim_id: c_348a2d87
+  context: "Configuration: Configure FAISS IndexFlatIP with memory limit \u22641.05GB\
+    \ (monitor via psutil)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure FAISS IndexFlatIP with memory limit \u22641.05GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:29:13Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Degradation report includes absolute percentage point drops
+  claim_id: c_6ffa996f
+  context: Compare results to standard run; output data/results/degradation_report.json
+    with absolute percentage point drops (FR-006).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Degradation_report_includes_absolute_percentage_point_drops
+  kind: entity_fact
+  raw_text: Output data/results/degradation_report.json with absolute percentage point
+    drops.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:37:29Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: System throughput at least 33 queries per hour
+  claim_id: c_d3883931
+  context: "Performance optimization: ensure throughput \u2265 33 queries/hour (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_throughput_at_least_33_queries_per_hour
+  kind: magnitude
+  raw_text: "Ensure throughput \u2265 33 queries/hour."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:37:30Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG generator uses temperature 0.0
+  claim_id: c_d707b817
+  context: Generate response with temperature=0.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/models/rag_generator.py with temperature=0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:03Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Dual-encoder retrieval uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_30f7a8fd
+  context: Implement src/models/retriever_neural.py using sentence-transformers/all-MiniLM-L6-v2
+    for dual-encoder retrieval; load on CPU.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dual-encoder_retrieval_uses_sentence-transformers/all-MiniLM
+  kind: entity_fact
+  raw_text: Implement src/models/retriever_neural.py using sentence-transformers/all-MiniLM-L6-v2
+    for dual-encoder retrieval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:09Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG retrieval uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_2694c0d1
+  context: 'Retrieval: Use sentence-transformers/all-MiniLM-L6-v2 to index and retrieve
+    top snippets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAG_retrieval_uses_sentence-transformers/all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: Implement src/models/retriever_rag.py using sentence-transformers/all-MiniLM-L6-v2
+    to index and retrieve top snippets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:14Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG generator loads Salesforce/codegen-350M-mono on CPU
+  claim_id: c_05500d80
+  context: Load Salesforce/codegen-350M-mono with device=cpu (CPU-only mode, no bitsandbytes
+    if unsupported).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAG_generator_loads_Salesforce/codegen-350M-mono_on_CPU
+  kind: entity_fact
+  raw_text: Load Salesforce/codegen-350M-mono with device=cpu.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:16Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: API density calculated as ratio of API calls to total tokens
+  claim_id: c_15f0d1de
+  context: Calculate API density (ratio of API calls to total tokens).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_density_calculated_as_ratio_of_API_calls_to_total_tokens
+  kind: entity_fact
+  raw_text: Calculate API density (ratio of API calls to total tokens).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:17Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Documentation density calculated as ratio of comment tokens
+  claim_id: c_cb6e65db
+  context: Calculate Documentation density (ratio of comment tokens).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Documentation_density_calculated_as_ratio_of_comment_tokens
+  kind: entity_fact
+  raw_text: Calculate Documentation density (ratio of comment tokens).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:18Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Naming consistency uses microsoft/codebert-base for average pairwise
+    cosine similarity
+  claim_id: c_a75fb94a
+  context: Calculate Naming-consistency score using microsoft/codebert-base embeddings
+    (average pairwise cosine similarity of identifiers) per FR-002, FR-008.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Naming_consistency_uses_microsoft/codebert-base_for_average
+  kind: entity_fact
+  raw_text: Calculate Naming-consistency score using microsoft/codebert-base embeddings
+    (average pairwise cosine similarity of identifiers).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:20Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Performance delta defined as RAG nDCG minus Baseline nDCG
+  claim_id: c_cf5f9b3a
+  context: Compute performance deltas (RAG nDCG - Baseline nDCG) per query.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_delta_defined_as_RAG_nDCG_minus_Baseline_nDCG
+  kind: entity_fact
+  raw_text: Compute performance deltas (RAG nDCG - Baseline nDCG) per query.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:25Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test used if data is non-normal
+  claim_id: c_10752dbc
+  context: Perform normality check; switch to Wilcoxon signed-rank test if non-normal
+    (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_used_if_data_is_non-normal
+  kind: entity_fact
+  raw_text: Perform normality check; switch to Wilcoxon signed-rank test if non-normal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:33Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: 50 test queries and ground-truth snippets have API and documentation
+    tokens masked
+  claim_id: c_2f0ca1e1
+  context: 'Step 1: Mask API and documentation tokens in the 50 test queries and their
+    ground-truth snippets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mask API and documentation tokens in the 50 test queries and their ground-truth
+    snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:35Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: All three retrieval pipelines re-run on masked snippets
+  claim_id: c_4b8e3a55
+  context: 'Step 2: Re-run all three retrieval pipelines (BM25, Dual-Encoder, RAG)
+    on the masked snippets (masking both index and query) to generate NEW performance
+    deltas.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_three_retrieval_pipelines_re-run_on_masked_snippets
+  kind: entity_fact
+  raw_text: Re-run all three retrieval pipelines (BM25, Dual-Encoder, RAG) on the
+    masked snippets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:40Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG generation re-executed only with masked retrieved snippets
+  claim_id: c_567f358b
+  context: 'Step 3: Re-execute the RAG generation step ONLY (using the masked retrieved
+    snippets as context) to produce valid generation metrics for the control comparison.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1315: 1259167'
+      source_id: Q2728155
+      url: https://www.wikidata.org/wiki/Q2728155
+      value: '1259167'
+    filled: true
+  kind: entity_fact
+  raw_text: Re-execute the RAG generation step ONLY using the masked retrieved snippets
+    as context.
+  resolved_value: '1259167'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:40:49Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: New descriptors computed for 50 masked test queries and ground-truth
+    snippets
+  claim_id: c_e9e31059
+  context: 'Step 4: Compute new descriptors for the masked 50 test queries and their
+    ground-truth snippets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute new descriptors for the masked 50 test queries and their ground-truth
+    snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:51Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Constrained pipeline uses 2 hidden layers
+  claim_id: c_c5a3d370
+  context: 'Model: Load Salesforce/codegen-350M-mono with config.num_hidden_layers
+    = 2.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement src/models/rag_pipeline_constrained.py with config.num_hidden_layers
+    = 2.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T16:40:51Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Process fails loudly if memory limit exceeded after subsampling
+  claim_id: c_3ba36b2d
+  context: 'Enforcement Loop: Implement a runtime enforcement loop: estimate size,
+    construct index, measure peak RSS via psutil; if >1.05GB, perform a random subsample
+    of vectors and retry; if limit still exceeded after subsampling, fail loudly with
+    an explicit error message.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_fails_loudly_if_memory_limit_exceeded_after_subsampl
+  kind: entity_fact
+  raw_text: If limit still exceeded after subsampling, fail loudly with an explicit
+    error message.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:40:58Z'

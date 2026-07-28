@@ -35,7 +35,7 @@ The research question is to evaluate the feasibility of using FAISS under constr
 | **IV. Single Source of Truth** | ✅ PASS | All metrics (nDCG, Precision) will be computed by code and stored in CSV; paper figures will reference these CSVs. |
 | **V. Versioning Discipline** | ✅ PASS | Artifacts will carry content hashes; `state/` file updated on changes. |
 | **VI. Semantic Descriptor Traceability** | ✅ PASS | Plan explicitly links RAG superiority claims to API density, doc density, and naming consistency scores (FR-002, FR-008). **Pearson's r is computed to satisfy Principle VI**, alongside Spearman's rho. |
-| **VII. Resource-Constraint Fidelity** | ✅ PASS | Plan includes "strict resource" mode (FR-006) with explicit 1GB FAISS limit and 2-layer model constraint. **CPU-only execution enforced.** |
+| **VII. Resource-Constraint Fidelity** | ✅ PASS | Plan includes "strict resource" mode (FR-006) with explicit GB FAISS limit and 2-layer model constraint. **CPU-only execution enforced.** |
 
 ## Project Structure
 
@@ -126,7 +126,7 @@ No violations identified. The scope is tightly bounded by the spec (50 queries, 
 
 1.  **Data Preprocessing**: Load, clean, truncate. Extract `func_name`.
 2.  **Semantic Descriptor Calculation**: Compute API density, doc density, and Naming Consistency (orthogonalized) for the **query** and **ground truth** code only.
-3.  **Retrieval Execution**: Run BM25, Dual-Encoder, and RAG on 50 queries.
+3.  **Retrieval Execution**: Run BM, Dual-Encoder, and RAG on 50 queries.
 4.  **Evaluation**: Calculate nDCG@10, Precision@10, Recall@10, and Generation Quality (BLEU/ROUGE).
 5.  **Statistical Analysis**: Compute Pearson's r and Spearman's rho. Run multivariate regression.
 6.  **Control Experiment**: Mask API/doc tokens and re-run correlation.
