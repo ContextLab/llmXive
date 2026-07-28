@@ -1,4 +1,4 @@
-- artifact_hash: 34c160d6eb0d0a459cbc34f1e04c9a31cd29c46167f0700958be2124c17d2a80
+- artifact_hash: 7e4d33a1cd43080fa11daca929f6fce777bb87ca827f786262a6387feebabee2
   artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://docs.astral.sh/ruff/rules/
   verification_status: pending
   verified_against_url: https://docs.astral.sh/ruff/rules/
-  verified_at: '2026-07-28T13:29:13.824349Z'
+  verified_at: '2026-07-28T13:39:40.297559Z'

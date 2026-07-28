@@ -19,22 +19,14 @@ T009b:
     \ the `generate_power_curve` function in `code/00_power_analysis.py` is truncated\
     \ and does not contain the code to create and save the plot with the required\
     \ axis labels. The task\u2019s visualization artifact is therefore missing."
-T011a:
+T010a:
   c: false
-  h: 42e392200ea8f4ec619f1f5794679ef8d1609081c0c93f3f2e1797a38e53f9d8
-  r: The provided `tests/contract/test_rating_schema.py` is truncated and does not
-    show the required `test_rating_schema_valid` function, and the dependent data
-    file `data/raw/ratings.csv` is absent, so the test cannot actually validate the
-    ratings against the schema.
-T013:
-  c: false
-  h: f0b08fc074874784b50ac7fd6893d0d9bceec42fd1896d607c425ced61bb3f63
-  r: "The repository contains `code/01_generate_stimuli.py`, but the script is truncated\
-    \ and there is no `data/raw/stimuli.csv` file produced. Since the required output\
-    \ file is missing, the factorial stimulus generation task is not fulfilled. The\
-    \ next implementer must ensure the script fully implements generation, writes\
-    \ the CSV with the specified columns, and that running `python code/01_generate_stimuli.py\
-    \ --verify` creates a non\u2011empty, correctly formatted `data/raw/stimuli.csv`."
+  h: 3a1b861496f774e8f94785a4a1b8bc4da17831f8ba44da7615ab012dded69b27
+  r: "The provided test file exists but it only validates hard\u2011coded in\u2011\
+    memory records and never reads `data/raw/stimuli.csv`. Moreover, the required\
+    \ `data/raw/stimuli.csv` file is missing from the repository, so the contract\
+    \ test cannot actually validate the real stimulus data against the schema. The\
+    \ task\u2019s core requirement is therefore unmet."
 T014:
   c: false
   h: bffebeaa544b254c51cff6968bcfe5e1095d0448c8d679a462d2ad1d4450b5a9
@@ -47,14 +39,19 @@ T014:
     \ considered complete."
 T015c:
   c: false
-  h: cfcc9c7516ff453e1322e5010cea622af8ad31d57e6e9bb33eb98ba53d79cc74
-  r: "The `code/04_collect_real_data.py` file does not demonstrate the required CLI\
-    \ flag (`--mode real`) or environment\u2011variable check, nor does it contain\
-    \ an explicit verification that `data/raw/real_ratings.csv` exists and raise a\
-    \ `FileNotFoundError` with a clear message. Additionally, the required `data/raw/real_ratings.csv`\
-    \ file is absent from the repository. The implementer must add the mode handling,\
-    \ existence check with proper error handling, and provide the real\u2011ratings\
-    \ CSV (or ensure the script fails correctly when it is missing)."
+  h: 5fa336182c23e4da154c211b33de8fa974ae9099947f73dc1bf4230e29fb71d7
+  r: "The provided `code/04_collect_real_data.py` does not show any CLI flag `--mode\
+    \ real` handling, environment\u2011variable check, or a verification that `data/raw/real_ratings.csv`\
+    \ exists with the required `FileNotFoundError`. The snippet ends before any consent\u2011\
+    record generation logic, so the core requirement is not implemented. The needed\
+    \ checks and conditional consent\u2011record creation are missing."
+T019:
+  c: false
+  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
+  r: "The required integration test file `tests/integration/test_lmm_pipeline.py`\
+    \ does not exist in the repository, so the artifact needed to verify full LMM\
+    \ pipeline execution is missing. Without this test, the task\u2019s requirement\
+    \ is not satisfied."
 T020:
   c: false
   h: 2c167d912a5b87b162ebe42d0f2883e6ede028307b16ac43a1b978da222a5e7d

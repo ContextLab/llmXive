@@ -5,33 +5,44 @@
 
 ## Summary
 
-This plan implements a computational psychology study investigating how paralinguistic features (emoji, punctuation, length) in text messages interact with relational context (friend vs. acquaintance) to influence perceived emotional support. The approach involves: (1) algorithmic generation of a factorial stimulus set; (2) a simulated data collection pipeline (mocking Prolific submission) to generate a dataset of ratings; (3) execution of Linear Mixed-Effects Models (LMM) using CPU-optimized libraries (`statsmodels`, `linearmodels`) to test interaction effects; and (4) a sensitivity analysis module to validate robustness against varying structural operationalizations of "Cue Intensity." All computations are constrained to run on free-tier GitHub Actions runners (CPU-only, ≤7 GB RAM).
+This project implements a psychological experiment to quantify how paralinguistic cues (emoji, punctuation, length) in text messages interact with relational context (close friend vs. acquaintance) to influence perceived emotional support. The implementation follows a strict, multi-phase pipeline:
+
+1.  **Stimulus Generation**: Systematic generation of factorial text stimuli.
+2.  **Power Analysis**: Calculation of required sample size (N) based on literature-derived effect sizes.
+3.  **Pipeline Validation (CI)**: Simulation of human rating data to verify code correctness (LMM, sensitivity checks) without claiming empirical results.
+4.  **Real Data Collection**: Execution of a Prolific study (or open-source proxy) to collect genuine human ratings.
+5.  **Statistical Analysis**: Execution of a Linear Mixed-Effects Model (LMM) with random intercepts for Participant and Stimulus on *real* data.
+6.  **Sensitivity & Robustness**: Analysis of cue intensity definitions and non-linearity (quadratic terms).
+
+**Critical Distinction**: Simulation (`02_simulate_ratings.py`) is strictly for **Pipeline Validation**. It verifies that the code runs and recovers known parameters. It **does not** produce scientific findings. All empirical claims in the final paper must be derived from `data/raw/real_ratings.csv` (Phase 4).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `linearmodels`, `pyyaml`, `pytest`  
-**Storage**: Local CSV/Parquet files (`data/`); no external database.  
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels` (LMM implementation), `pyyaml`, `pytest`, `requests` (for Prolific API).  
+**Storage**: CSV files (`data/raw/`, `data/processed/`) and JSON configuration.  
 **Testing**: `pytest` with contract validation against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Computational research pipeline / CLI.  
-**Performance Goals**: Entire pipeline (generation + analysis + sensitivity) must complete in < 6 hours on 2 vCPU, 7 GB RAM.  
-**Constraints**: No GPU/CUDA; no external API calls during analysis (data must be local); strict random seed pinning for reproducibility.  
-**Scale/Scope**: Stimulus set ~ variants; simulated participants [deferred] (target N based on power analysis for medium effect); total data volume < 10 MB.
+**Target Platform**: Linux (GitHub Actions runner).  
+**Project Type**: Computational psychology research pipeline.  
+**Performance Goals**: Complete full pipeline (generation, power analysis, simulation, real collection logic, LMM, sensitivity) within 4 hours on 2-core CPU.  
+**Constraints**: No GPU; data must fit <7 GB RAM; no external API calls for *real* data collection in CI (mocked); real data collection requires Prolific API key (manual step or external runner).  
+**Scale/Scope**: [deferred] stimuli (factorial design), N participants determined by power analysis (targeting power=0.80, effect size f²=0.15), ~N * 40 ratings.
 
-> **Data Strategy**: **Synthetic data generation via FR-001 and FR-002 is the primary source.** No external datasets are consumed. The "Verified datasets" block provided in the input (image-text benchmarks) is irrelevant to this text-message sentiment study. The pipeline explicitly supports "Null" and "Noise" simulation modes to validate statistical rigor without circularity.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **COMPLIANT** | All random seeds pinned in `code/analysis/`. Dependencies pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | **COMPLIANT** | No external citations used for dataset sources (synthetic generation). Methodology cites standard LMM literature (Satterthwaite, Tukey) which will be validated by the Reference-Validator Agent. |
-| **III. Data Hygiene** | **COMPLIANT** | Raw generated stimuli and simulated ratings stored in `data/raw/`. Derived analysis files in `data/processed/`. Checksums recorded in state file. |
-| **IV. Single Source of Truth** | **COMPLIANT** | All statistics in `paper/` will be parsed from `data/processed/results.json` generated by the LMM script. |
-| **V. Versioning Discipline** | **COMPLIANT** | Content hashes for all code and data artifacts will be computed and stored. |
-| **VI. Human-Subject Anonymity** | **COMPLIANT** | Simulated data uses synthetic IDs (e.g., `P-001`). No PII collected or stored. **Pipeline generates anonymized mock consent records in `data/consent/` to satisfy preservation requirements.** |
-| **VII. Stimulus-Response Separation** | **COMPLIANT** | Stimulus features (emoji, length) stored in `data/raw/stimuli.csv`. Responses stored in `data/raw/ratings.csv`. Join performed only during analysis. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. Reproducibility | **PASS** | Random seeds pinned in `code/01_generate_stimuli.py`, `01_power_analysis.py`, and `02_simulate_ratings.py`. All data fetched/generated via scripts. |
+| II. Verified Accuracy | **PASS** | No external citations in code logic; references to validated psychological constructs (Likert scale) are standard. Power analysis uses literature effect sizes. |
+| III. Data Hygiene | **PASS** | Raw data (`data/raw/`) is immutable. Derived data (`data/processed/`) includes checksums. PII stripped (simulated IDs only; real Prolific IDs hashed). |
+| IV. Single Source of Truth | **PASS** | All statistics trace to `data/raw/real_ratings.csv` (once collected) and `data/processed/lmm_results.json`. Simulated results are flagged as "validation only" and never reported as findings. |
+| V. Versioning Discipline | **PASS** | Artifact hashes tracked in `state/`. Code and data versions synchronized. `data/processed/power_analysis_results.json` is generated before data collection. |
+| VI. Human-Subject Anonymity | **PASS** | Simulated data contains no PII. Real data collection stores consent in `data/consent/` separate from analysis data. Prolific IDs are hashed. |
+| VII. Stimulus-Response Separation | **PASS** | Stimulus features (emoji, punctuation) stored in `data/raw/stimuli.csv`; responses in `data/raw/real_ratings.csv`. Interaction calculated in `code/03_lmm_analysis.py`. |
 
 ## Project Structure
 
@@ -44,9 +55,10 @@ specs/001-text-tone-emotional-support/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── stimulus.schema.yaml
-│   ├── rating.schema.yaml
-│   └── analysis_result.schema.yaml
+│   ├── stimuli.schema.yaml
+│   ├── ratings.schema.yaml
+│   ├── power_analysis.schema.yaml
+│   └── analysis_results.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -54,47 +66,93 @@ specs/001-text-tone-emotional-support/
 
 ```text
 code/
-├── 01_generate_stimuli.py       # FR-001: Factorial design generator
-├── 02_simulate_ratings.py       # FR-002: Mock Prolific data collection (includes Null/Effect modes)
-├── 03_clean_data.py             # FR-006: Straight-lining detection
-├── 04_run_lmm.py                # FR-003, FR-004: Primary analysis (Full Factorial)
-├── 05_sensitivity_analysis.py   # FR-005: Robustness checks (Structural definitions)
-└── requirements.txt             # Pinned dependencies
+├── 01_generate_stimuli.py       # Factorial design generation
+├── 01_power_analysis.py         # Calculates target N based on literature effect sizes
+├── 02_simulate_ratings.py       # Synthetic data generation (for CI validation ONLY)
+├── 04_collect_real_data.py      # Prolific API integration / Real data ingestion
+├── 03_lmm_analysis.py           # Primary LMM, straight-lining detection, post-hoc tests
+├── 04_sensitivity_analysis.py   # Robustness checks on cue intensity (with quadratic terms)
+├── 05_report_generation.py      # JSON/Markdown report generation
+└── tests/
+    ├── test_stimuli.py          # Validates stimuli.csv against schema
+    ├── test_ratings.py          # Validates ratings.csv against schema
+    └── test_analysis.py         # Validates analysis outputs
 
 data/
 ├── raw/
-│   ├── stimuli.csv
-│   └── ratings.csv
+│   ├── stimuli.csv              # Generated stimuli
+│   ├── simulated_ratings.csv    # Synthetic data (validation only)
+│   └── real_ratings.csv         # Human ratings (Single Source of Truth)
 ├── processed/
-│   ├── analysis_results.json
-│   └── sensitivity_report.csv
-└── consent/                     # Mock consent records (generated by pipeline)
+│   ├── power_analysis_results.json # Target N and parameters
+│   ├── lmm_results.json         # Model coefficients
+│   └── sensitivity_report.json  # Robustness metrics
+└── consent/                     # (Populated if real data collected)
 
-tests/
-├── contract/
-│   ├── test_stimulus_schema.py
-│   ├── test_rating_schema.py
-│   └── test_analysis_schema.py
-└── unit/
-    └── test_analysis_logic.py
+specs/001-text-tone-emotional-support/
+└── contracts/
+    ├── stimuli.schema.yaml
+    ├── ratings.schema.yaml
+    ├── power_analysis.schema.yaml
+    └── analysis_results.schema.yaml
 ```
 
-**Structure Decision**: Single project structure chosen. The workflow is linear (Generate -> Simulate -> Clean -> Analyze -> Sensitivity). No frontend/backend split is required as this is a research pipeline, not a web service.
+**Structure Decision**: Single-project structure selected. The pipeline is linear and script-based, not requiring a web server or mobile app. All data flows through CSV/JSON intermediates to ensure reproducibility and schema validation.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Full Factorial LMM** | Required to address methodology concerns about masking non-linear effects of individual cues. | A single composite "cue_intensity" variable assumes linearity and additive effects, which may not reflect psychological reality (e.g., 2 emojis vs 1). |
-| **Sensitivity Analysis (Structural)** | Required by FR-005 to address methodological robustness of "Cue Intensity" definition. | Simple re-weighting of a linear composite is insufficient; the study requires demonstrating that results hold across different structural definitions (e.g., conjunctive vs disjunctive rules). |
-| **Null Hypothesis Simulation** | Required to validate pipeline correctness (Type I error control). | Simulating only "effect present" data creates a tautological validation loop where the pipeline is guaranteed to succeed. |
-| **LMM (Mixed Effects)** | Required by FR-003 to handle hierarchical data (Participants x Stimuli). | Standard OLS regression is inappropriate as it ignores non-independence of ratings from the same participant and same stimulus. |
+|-----------|------------|-------------------------------------|
+| Power Analysis Module | Required to determine N scientifically (FR-002) rather than arbitrarily. | Arbitrary N (e.g., "500") lacks statistical justification and risks underpowered results. |
+| Real Data Collection Module | Required by FR-002 to collect "independent human ratings". | Simulation cannot answer the research question about human psychology; it only validates code. |
+| Sensitivity Analysis Module | Required by FR-005 to validate "Cue Intensity" operationalization. | Simple single-run LMM would fail to address the robustness of the interaction effect to arbitrary weighting of features. |
+| Quadratic Term in LMM | Required to test H2 (non-linearity/inverted-U). | Linear-only model would miss potential curvilinear effects of cue intensity. |
 
-## Statistical Rigor & Methodological Notes
+## Phased Implementation Plan
 
-- **Multiple Comparisons**: All post-hoc pairwise comparisons will use Tukey's HSD correction to control Family-Wise Error Rate (FWER) at α=0.05.
-- **Power Analysis**: Sample size will be determined via simulation (using `simr` or manual power sweep) targeting [deferred] power for a medium interaction effect (f² = 0.15).
-- **Collinearity**: The design is a full factorial; main effects and interactions are orthogonal by design in the stimulus generation, minimizing collinearity issues.
-- **Measurement Validity**: A standard Likert scale is used for perceived support. The simulation will model realistic noise distributions to reflect human rating variance.
-- **Dataset Fit**: The synthetic dataset is explicitly designed to contain all required variables (Emoji, Punctuation, Length, Relationship, Rating) with no missing data (except for simulated dropouts).
-- **Encoding Strategy**: Categorical predictors (Emoji, Punctuation, Length) will be **dummy-coded (treatment contrasts)** to avoid assuming a linear additive effect of cue intensity.
+### Phase 0: Stimulus Generation
+- **Script**: `code/01_generate_stimuli.py`
+- **Action**: Generate factorial stimuli (3 emoji × 2 punctuation × 2 length × N scenarios).
+- **Output**: `data/raw/stimuli.csv`.
+- **Validation**: `test_stimuli.py` reads `stimuli.csv` from disk and validates against `stimuli.schema.yaml`.
+
+### Phase 1: Power Analysis
+- **Script**: `code/01_power_analysis.py`
+- **Action**: Calculate required sample size (N) using `statsmodels.stats.power.FTestAnovaPower` or simulation-based power analysis for LMM. Inputs: Literature effect size (f² ≈ 0.15), α=0.05, Power=0.80.
+- **Output**: `data/processed/power_analysis_results.json` (contains `target_N`).
+- **Validation**: Ensure `target_N` is > 0 and documented.
+
+### Phase 2: Pipeline Validation (CI Simulation)
+- **Script**: `code/02_simulate_ratings.py`
+- **Action**: Generate synthetic ratings using `target_N` from Phase 1. Simulate known interaction effects to verify LMM recovery.
+- **Output**: `data/raw/simulated_ratings.csv`.
+- **Validation**: Run LMM on simulated data; verify recovered parameters match simulation inputs within tolerance.
+- **Note**: These results are **NOT** reported as findings.
+
+### Phase 3: Real Data Collection
+- **Script**: `code/04_collect_real_data.py`
+- **Action**: Interface with Prolific API (or ingest CSV from manual collection) to gather real human ratings.
+- **Logic**: 
+  - Check `PROLIFIC_API_KEY` env var.
+  - If `--mode real`: Fetch data, validate Prolific IDs, store in `data/raw/real_ratings.csv`.
+  - If `--mode mock`: Generate mock real data (for CI).
+  - Generate consent records in `data/consent/` if real data collected.
+- **Output**: `data/raw/real_ratings.csv`.
+
+### Phase 4: Statistical Analysis
+- **Script**: `code/03_lmm_analysis.py`
+- **Action**: 
+  1. **Data Cleaning**: Detect straight-lining (variance=0) per participant (FR-006). Exclude flagged participants.
+  2. **Model Fitting**: LMM with fixed effects: Relationship, Cue Intensity, Cue Intensity² (for H2), Interaction. Random intercepts: Participant, Stimulus.
+  3. **Post-Hoc**: Tukey-corrected comparisons if interaction significant.
+- **Output**: `data/processed/lmm_results.json`.
+
+### Phase 5: Sensitivity Analysis
+- **Script**: `code/04_sensitivity_analysis.py`
+- **Action**: Re-run LMM with alternative Cue Intensity definitions (anchored to literature). Test robustness of interaction p-value.
+- **Output**: `data/processed/sensitivity_report.json`.
+
+### Phase 6: Reporting
+- **Script**: `code/05_report_generation.py`
+- **Action**: Compile results from `real_ratings.csv` analysis into final report.
+- **Output**: `report.md`, `data/processed/final_results.json`.

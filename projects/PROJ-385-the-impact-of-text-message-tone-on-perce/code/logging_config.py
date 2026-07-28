@@ -31,6 +31,7 @@ def setup_logging() -> logging.Logger:
         return logger
 
     # Create data directory if it doesn't exist
+    # The log file goes in data/pipeline.log (parent of processed)
     data_dir = get_processed_data_dir().parent
     data_dir.mkdir(parents=True, exist_ok=True)
 

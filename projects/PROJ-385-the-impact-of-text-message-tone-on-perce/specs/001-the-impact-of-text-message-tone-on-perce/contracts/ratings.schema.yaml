@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rating Schema"
+description: "Schema for human or simulated ratings"
+type: object
+properties:
+  rating_id:
+    type: string
+    pattern: "^R\\d+$"
+    description: "Unique identifier for the rating record"
+  participant_id:
+    type: string
+    description: "Unique ID for the participant"
+  stimulus_id:
+    type: string
+    pattern: "^S\\d+$"
+    description: "Foreign key to stimuli"
+  relationship_context:
+    type: string
+    enum:
+      - "friend"
+      - "acquaintance"
+    description: "Context of the sender"
+  support_rating:
+    type: integer
+    minimum: 1
+    maximum: 7
+    description: "Perceived emotional support rating (1-7 Likert)"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Time of rating"
+  is_straight_lined:
+    type: boolean
+    description: "Flag for data quality check"
+required:
+  - rating_id
+  - participant_id
+  - stimulus_id
+  - relationship_context
+  - support_rating
+  - is_straight_lined
+additionalProperties: false

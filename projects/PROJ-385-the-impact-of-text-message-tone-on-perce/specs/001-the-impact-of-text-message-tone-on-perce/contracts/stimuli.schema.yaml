@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Schema"
+description: "Schema for generated text message stimuli"
+type: object
+properties:
+  stimulus_id:
+    type: string
+    pattern: "^S\\d+$"
+    description: "Unique identifier for the stimulus"
+  base_scenario:
+    type: string
+    description: "The underlying situation text"
+  emoji_count:
+    type: integer
+    minimum: 0
+    maximum: 2
+    description: "Number of emojis (0, 1, 2+)"
+  punctuation_pattern:
+    type: string
+    enum:
+      - "standard"
+      - "exaggerated"
+    description: "Punctuation style"
+  length_category:
+    type: string
+    enum:
+      - "short"
+      - "long"
+    description: "Message length category"
+  cue_intensity_score:
+    type: number
+    description: "Calculated weighted score of cues"
+  text_content:
+    type: string
+    description: "The full generated text message"
+required:
+  - stimulus_id
+  - base_scenario
+  - emoji_count
+  - punctuation_pattern
+  - length_category
+  - cue_intensity_score
+  - text_content
+additionalProperties: false

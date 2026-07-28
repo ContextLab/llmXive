@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for LMM and sensitivity analysis outputs"
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique run ID"
+  fixed_effects:
+    type: object
+    description: "Dictionary of coefficient estimates"
+    additionalProperties:
+      type: object
+      properties:
+        estimate:
+          type: number
+        std_error:
+          type: number
+        p_value:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+  random_effects:
+    type: object
+    description: "Variance components"
+  interaction_p_value:
+    type: number
+    description: "P-value for the interaction term"
+  interaction_effect_size:
+    type: number
+    description: "Cohen's f² or partial R²"
+  post_hoc_comparisons:
+    type: array
+    items:
+      type: object
+      properties:
+        comparison:
+          type: string
+        estimate:
+          type: number
+        p_value_adjusted:
+          type: number
+  sensitivity_report:
+    type: object
+    description: "Results of robustness checks"
+    properties:
+      alternative_definitions:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            p_value:
+              type: number
+            effect_size:
+              type: number
+  exclusion_summary:
+    type: object
+    description: "Summary of excluded participants"
+    properties:
+      total_excluded:
+        type: integer
+      reasons:
+        type: object
+        additionalProperties:
+          type: integer
+required:
+  - model_id
+  - fixed_effects
+  - interaction_p_value
+  - interaction_effect_size
+  - post_hoc_comparisons
+  - sensitivity_report
+  - exclusion_summary
+additionalProperties: false

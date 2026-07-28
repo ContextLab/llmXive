@@ -1,0 +1,17 @@
+status: none
+intent: TextMessageStimuliDataset SMS Conversation Corpus EmpatheticDialogues downloadable
+  with emojis punctuation length relational context python package dataset
+required_fields:
+- stimulus_id
+- base_scenario
+- emoji_level
+- punctuation_pattern
+- length_category
+- relationship_type
+- generated_text
+- rating_score
+- participant_id
+- timestamp
+cache_key: 600dfb3e363732c69e85db0c0355af75d738a9d441a17422395257efa795032f
+searched_at: '2026-07-28T13:49:51.691759+00:00'
+retry_count: 1
