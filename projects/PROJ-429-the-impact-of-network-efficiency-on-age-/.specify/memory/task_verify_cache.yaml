@@ -1,24 +1,9 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or other evidence was provided showing that the required\
-    \ folders (`code/`, `data/`, `state/`, `tests/`, `docs/`) actually exist in the\
-    \ project. Without concrete artifacts, we cannot confirm the project structure\
-    \ was created. The implementer must supply a file\u2011system snapshot, manifest,\
-    \ or similar proof that these directories are present and non\u2011empty."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
     with black settings) are present in the provided evidence, so the requirement
     to configure ruff/flake8 and black is not satisfied.
-T014a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or excerpt showing the updated FR\u2011002 text is provided;\
-    \ without the actual document we cannot verify that the epoch length was changed\
-    \ from 2\u202Fseconds to 10\u202Fseconds. The implementer must supply the modified\
-    \ `spec.md` containing the revised FR\u2011002 clause."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

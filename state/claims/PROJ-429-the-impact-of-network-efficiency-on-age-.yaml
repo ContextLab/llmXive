@@ -1,0 +1,171 @@
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: longer epochs reduce variance
+  claim_id: c_34d218d4
+  context: Longer epochs provide sufficient spectral resolution for coherence estimation
+    in the low-frequency band, reducing variance compared to shorter epochs. This
+    deviates from initial FR-002 (2s) which has been formally noted as a ratified
+    assumption in the plan.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Longer_epochs_reduce_variance
+  kind: entity_fact
+  raw_text: Longer epochs provide sufficient spectral resolution for coherence estimation
+    in the low-frequency band, reducing variance compared to shorter epochs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:34:18Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: increased epoch duration improves SNR
+  claim_id: c_a98d6714
+  context: Longer epochs provide sufficient spectral resolution for coherence estimation
+    in the low-frequency band, reducing variance compared to shorter epochs. This
+    deviates from initial FR-002 (2s) which has been formally noted as a ratified
+    assumption in the plan. Increased epoch duration improves signal-to-noise ratio
+    for connectivity metrics but reduces the number of independent epochs per recording.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Increased_epoch_duration_improves_SNR
+  kind: entity_fact
+  raw_text: Increased epoch duration improves signal-to-noise ratio for connectivity
+    metrics but reduces the number of independent epochs per recording.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:34:58Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: epoch length is 10 seconds
+  claim_id: c_d7d1f3f0
+  context: 'Implement `code/config.py` to manage paths (raw, processed, results) and
+    configuration parameters (thresholds, epoch length). **Config Note**: Set `epoch_length_sec
+    = 10` as a ratified design decision (see `docs/decisions/epoch_length.md` created
+    in T014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `epoch_length_sec = 10` as a ratified design decision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:35:27Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: minimum age is 18
+  claim_id: c_086615e9
+  context: '1. Check `age >= 18`. 2. Check `cognitive_score` presence. 3. **FR-007
+    Compliance**: Validate `cognitive_instrument` field against the registry defined
+    in `data/config/cognitive_instrument_registry.yaml` (T025a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check `age >= 18`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:35:56Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: low signal quality flag propagation
+  claim_id: c_97c6d71a
+  context: 'Merge the `flag` column into `network_metrics.csv` as `signal_quality_flag`.
+    **Logic**: If any epoch for a participant has `flag == "Low Signal Quality"`,
+    set `signal_quality_flag` to "Low Signal Quality" for that participant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Low_signal_quality_flag_propagation
+  kind: entity_fact
+  raw_text: If any epoch for a participant has `flag == "Low Signal Quality"`, set
+    `signal_quality_flag` to "Low Signal Quality" for that participant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:36:47Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: snr calculation and threshold
+  claim_id: c_204a4817
+  context: '- Bandpass filter (low-frequency cutoff to a suitable frequency threshold).
+    - Apply ICA for artifact removal. - **Epoch the continuous data into 10-second
+    segments**. - Reject epochs with >50% artifacts. - **Calculate Signal-to-Noise
+    Ratio (SNR) per epoch** and flag SNR < 10dB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Snr_calculation_and_threshold
+  kind: entity_fact
+  raw_text: Calculate Signal-to-Noise Ratio (SNR) per epoch and flag SNR < 10dB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:37:18Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: global efficiency formula
+  claim_id: c_011c6546
+  context: '- Global Efficiency = 1.0 / Characteristic Path Length (Global). - Local
+    Efficiency = 1.0 / mean_shortest_path(subgraph) (calculated via subgraph path
+    lengths, NOT the global inverse).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Global Efficiency = 1.0 / Characteristic Path Length (Global).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:37:45Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: local efficiency formula
+  claim_id: c_2efcf9c6
+  context: '- Global Efficiency = 1.0 / Characteristic Path Length (Global). - Local
+    Efficiency = 1.0 / mean_shortest_path(subgraph) (calculated via subgraph path
+    lengths, NOT the global inverse).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local Efficiency = 1.0 / mean_shortest_path(subgraph)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:38:09Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: no cognitive data condition
+  claim_id: c_19664a64
+  context: '1. If `missing_cognitive_count == total_count` (no cognitive data found):
+    Generate `data/results/cognitive_status.json` with `{"status": "BLOCKED", "reason":
+    "No linked cognitive data found in TUH Corpus"}`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_cognitive_data_condition
+  kind: entity_fact
+  raw_text: If `missing_cognitive_count == total_count` (no cognitive data found)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T15:39:06Z'

@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory listing or other evidence was provided showing that the required folders (`code/`, `data/`, `state/`, `tests/`, `docs/`) actually exist in the project. Without concrete artifacts, we cannot confirm the project structure was created. The implementer must supply a file\u2011system snapshot, manifest, or similar proof that these directories are present and non\u2011empty.",
+      "first_seen": "2026-07-28T15:39:06.485942+00:00",
+      "last_seen": "2026-07-28T15:39:06.485942+00:00"
+    }
+  ],
+  "updated_at": "2026-07-28T15:39:06.485942+00:00"
+}
