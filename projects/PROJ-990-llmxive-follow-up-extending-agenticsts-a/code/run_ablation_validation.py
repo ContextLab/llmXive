@@ -6,58 +6,52 @@ import pandas as pd
 from pathlib import Path
 
 from ablation import load_trajectories, simulate_ablation_engine, generate_ablation_config, run_ablation_study
+from config import load_config_from_file
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('llmXive.ablation_validation')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger('llmXive.run_ablation_validation')
 
 def main():
     """
-    Main entry point for T008b: Generate Ground Truth Labels (Validation).
+    T008b: Generate Ground Truth Labels (Validation).
     
     Logic:
-    1. Verify `data/processed/validation_set.csv` exists and is non-empty.
-    2. Execute `code/ablation.py` (run_ablation_study) on the 'validation' set.
-    3. Output: `data/processed/ablation_labels_validation.json`.
+    1. Verify 'data/processed/validation_set.csv' exists and is non-empty.
+    2. Execute run_ablation_study on the 'validation' dataset split.
+    3. Output: 'data/processed/ablation_labels_validation.json'.
     """
     logger.info("Starting T008b: Generate Ground Truth Labels (Validation).")
     
-    # 1. Verify input exists and is non-empty
-    config_path = Path('config.json')
-    if not config_path.exists():
-        # Fallback to default if config missing, though T004 should have created it
-        processed_dir = Path('data/processed')
-    else:
-        from config import load_config_from_file
-        config = load_config_from_file('config.json')
-        processed_dir = Path(config['data']['processed'])
+    # 1. Verify Input
+    config = load_config_from_file('config.json')
+    input_path = Path(config['data']['processed']) / 'validation_set.csv'
     
-    input_file = processed_dir / 'validation_set.csv'
-    
-    if not input_file.exists():
-        raise FileNotFoundError(
-            f"CRITICAL: Input file {input_file} does not exist. "
-            "T014a (Splitter) must complete successfully before T008b can run."
-        )
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("Dependency T014a (Splitter) has not produced validation_set.csv.")
+        raise FileNotFoundError(f"Required input file missing: {input_path}")
     
     try:
-        df = pd.read_csv(input_file)
+        df = pd.read_csv(input_path)
     except Exception as e:
-        raise RuntimeError(f"Failed to read {input_file}: {e}")
+        logger.error(f"Failed to read input file: {e}")
+        raise
     
     if df.empty:
-        raise ValueError(
-            f"CRITICAL: Input file {input_file} is empty. "
-            "The validation set must contain at least 20 trajectories (FR-006)."
-        )
+        logger.error(f"Input file {input_path} is empty.")
+        raise ValueError(f"Validation set is empty. Cannot generate ablation labels.")
     
-    logger.info(f"Input validation passed. Found {len(df)} trajectories in {input_file}.")
+    logger.info(f"Input validated: {len(df)} rows in validation_set.csv.")
     
-    # 2. Execute ablation study on the 'validation' set
-    # The run_ablation_study function expects the dataset_name (without '_set')
-    # and constructs the path internally.
+    # 2. Execute Ablation Study
+    # The function run_ablation_study is defined in ablation.py and expects the dataset name (without '_set')
+    # to construct the path internally or via config.
+    # Based on T008 implementation, it calls load_trajectories('ablation_train') which looks for 'ablation_train_set.csv'.
+    # Here we need to run on 'validation', so it will look for 'validation_set.csv'.
+    
     try:
         run_ablation_study('validation')
-        logger.info("T008b completed successfully.")
+        logger.info("Ablation study on validation set completed successfully.")
     except Exception as e:
         logger.error(f"Ablation study failed: {e}")
         raise

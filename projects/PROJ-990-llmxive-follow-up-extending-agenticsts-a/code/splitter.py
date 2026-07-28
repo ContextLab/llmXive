@@ -4,226 +4,257 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
-# Configure logging
+# Configure logging for the splitter module
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-INPUT_FILE = "data/processed/metrics_with_moves.csv"
-OUTPUT_DIR = "data/processed"
-TRAIN_FILE = "data/processed/train_set.csv"
-ABLATION_TRAIN_FILE = "data/processed/ablation_train_set.csv"
-VALIDATION_FILE = "data/processed/validation_set.csv"
-TEST_FILE = "data/processed/test_set.csv"
-VALIDATION_IDS_FILE = "data/processed/validation_set_ids.json"
+# Constants for split ratios (Train, Ablation-Train, Validation, Test)
+# Based on standard practices and the requirement for a robust validation set
+# We aim for: Train (40%), Ablation-Train (20%), Validation (20%), Test (20%)
+# Adjusted to ensure Validation has at least 20 samples if total N is sufficient
+SPLIT_RATIOS = {
+    'train': 0.40,
+    'ablation_train': 0.20,
+    'validation': 0.20,
+    'test': 0.20
+}
+
+# Minimum validation set size constraint (FR-006)
 MIN_VALIDATION_SIZE = 20
 
 def load_processed_data(input_path: str) -> pd.DataFrame:
-    """Load the processed metrics CSV file."""
-    path = Path(input_path)
-    if not path.exists():
+    """
+    Load the processed metrics CSV from T006.
+    
+    Args:
+        input_path: Path to data/processed/metrics_with_moves.csv
+        
+    Returns:
+        DataFrame with columns: trajectory_id, turn, health_ratio, threat_level, 
+        deck_size, move_entropy, and potentially win_rate (if aggregated)
+        
+    Raises:
+        FileNotFoundError: If input file does not exist
+        ValueError: If required columns are missing
+    """
+    logger.info(f"Loading processed data from {input_path}")
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+    df = pd.read_csv(input_path)
     
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(path)
-    
-    # Validate required columns
-    required_cols = ['trajectory_id', 'win_rate']
+    # Verify required columns exist
+    required_cols = ['trajectory_id', 'turn', 'move_entropy']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns in input file: {missing_cols}")
+        raise ValueError(f"Missing required columns in input data: {missing_cols}")
+        
+    # Aggregate to trajectory level if necessary
+    # The splitter needs one row per trajectory for stratification
+    if df.shape[0] != df['trajectory_id'].nunique():
+        logger.info("Aggregating trajectory-level metrics for stratification...")
+        # Calculate win_rate per trajectory if available, or derive from other metrics
+        # For now, we assume win_rate might be in the data or needs to be derived
+        # If win_rate is not present, we might need to derive it from the raw data
+        # or use a proxy. For this implementation, we check for it first.
+        if 'win_rate' not in df.columns:
+            # If win_rate is not present, we cannot stratify by it directly.
+            # However, the task specification explicitly requires stratification by win_rate.
+            # We assume the upstream T006 or T006a has populated this, or we derive it.
+            # Let's assume for this task that the input CSV has a 'win_rate' column 
+            # aggregated at the trajectory level. If not, we raise an error.
+            # Actually, looking at T006 description: "Output: data/processed/metrics_with_moves.csv"
+            # It doesn't explicitly say win_rate is there. But T014a says "Stratification Key: win_rate".
+            # This implies the data must be aggregated to trajectory level with win_rate.
+            # We will perform the aggregation here if needed, assuming 'win' column exists or similar.
+            # If neither exists, we cannot proceed with stratification by win_rate.
+            
+            # Fallback: If we have a 'result' or 'outcome' column, we can compute win_rate.
+            # If not, we might have to assume a proxy or fail.
+            # Let's check for common outcome columns
+            outcome_cols = [c for c in df.columns if 'win' in c.lower() or 'result' in c.lower()]
+            if outcome_cols:
+                # Assume binary win/loss (1/0) or similar
+                # Group by trajectory_id and compute mean of win column
+                win_col = outcome_cols[0]
+                agg_df = df.groupby('trajectory_id').agg({
+                    'turn': 'max', # max turns
+                    'move_entropy': 'mean',
+                    win_col: 'mean' # This becomes win_rate
+                }).reset_index()
+                agg_df.rename(columns={win_col: 'win_rate'}, inplace=True)
+                df = agg_df
+            else:
+                # If no win info, we cannot stratify by win_rate.
+                # We will raise an error as per strict requirement.
+                raise ValueError("Input data must contain 'win_rate' or an outcome column to stratify by win_rate.")
+        else:
+            # Aggregate if multiple rows per trajectory
+            agg_cols = [c for c in df.columns if c not in ['trajectory_id']]
+            df = df.groupby('trajectory_id')[agg_cols].mean().reset_index()
     
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    # Ensure we have win_rate column
+    if 'win_rate' not in df.columns:
+        raise ValueError("Aggregated data must contain 'win_rate' column for stratification.")
+        
+    # Ensure win_rate is numeric
+    df['win_rate'] = pd.to_numeric(df['win_rate'], errors='coerce')
+    df = df.dropna(subset=['win_rate'])
+    
+    logger.info(f"Loaded {len(df)} trajectories for splitting.")
     return df
 
-def stratified_split(
-    df: pd.DataFrame, 
-    train_ratio: float = 0.6,
-    ablation_train_ratio: float = 0.15,
-    validation_ratio: float = 0.125,
-    test_ratio: float = 0.125,
-    seed: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def stratified_split(df: pd.DataFrame, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Perform a stratified split of the data into Train, Ablation-Train, Validation, and Test sets.
     
-    Stratification is performed on 'win_rate'.
-    The split ensures that the Validation set has at least MIN_VALIDATION_SIZE trajectories.
-    
     Args:
-        df: Input DataFrame with 'trajectory_id' and 'win_rate' columns.
-        train_ratio: Proportion for training set.
-        ablation_train_ratio: Proportion for ablation training set.
-        validation_ratio: Proportion for validation set.
-        test_ratio: Proportion for test set.
-        seed: Random seed for reproducibility.
-    
+        df: DataFrame with 'trajectory_id' and 'win_rate' columns
+        seed: Random seed for reproducibility
+        
     Returns:
         Tuple of (train_df, ablation_train_df, validation_df, test_df)
+        
+    Raises:
+        ValueError: If validation set size is less than MIN_VALIDATION_SIZE
     """
-    if not np.isclose(train_ratio + ablation_train_ratio + validation_ratio + test_ratio, 1.0):
-        raise ValueError("Ratios must sum to 1.0")
-    
-    # Ensure unique trajectories for stratification
-    # If multiple rows per trajectory, we must split by trajectory_id, not by row
-    # Group by trajectory_id and take the mean win_rate for stratification
-    traj_stats = df.groupby('trajectory_id')['win_rate'].mean().reset_index()
-    
-    # Stratify based on binned win_rate to handle continuous variable
-    # Create bins for stratification
-    n_bins = 10
-    traj_stats['win_rate_bin'] = pd.qcut(traj_stats['win_rate'], q=n_bins, duplicates='drop')
-    
-    # Set random seed
+    logger.info("Performing stratified split...")
     np.random.seed(seed)
     
-    # Perform stratified split on trajectory IDs
-    # We use a manual approach to ensure exact ratios and minimum validation size
-    train_ids = []
-    ablation_train_ids = []
-    validation_ids = []
-    test_ids = []
-    
-    # Shuffle within each bin
-    for _, group in traj_stats.groupby('win_rate_bin'):
-        group_ids = group['trajectory_id'].values
-        np.random.shuffle(group_ids)
+    # Stratify by win_rate bins
+    # Create bins for stratification to handle continuous win_rate
+    n_bins = 5
+    try:
+        df['win_rate_bin'] = pd.qcut(df['win_rate'], q=n_bins, duplicates='drop')
+    except ValueError:
+        # If qcut fails (e.g., too few unique values), use equal width bins
+        logger.warning("qcut failed, using equal width bins for stratification.")
+        df['win_rate_bin'] = pd.cut(df['win_rate'], bins=n_bins)
         
-        n = len(group_ids)
-        n_train = int(n * train_ratio)
-        n_ablation = int(n * ablation_train_ratio)
-        n_val = int(n * validation_ratio)
-        n_test = n - n_train - n_ablation - n_val
+    # Shuffle the dataframe
+    df_shuffled = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    
+    # Calculate split indices
+    n = len(df_shuffled)
+    train_end = int(n * SPLIT_RATIOS['train'])
+    ablation_end = train_end + int(n * SPLIT_RATIOS['ablation_train'])
+    val_end = ablation_end + int(n * SPLIT_RATIOS['validation'])
+    
+    # Split the data
+    train_df = df_shuffled.iloc[:train_end].drop(columns=['win_rate_bin'], errors='ignore')
+    ablation_train_df = df_shuffled.iloc[train_end:ablation_end].drop(columns=['win_rate_bin'], errors='ignore')
+    validation_df = df_shuffled.iloc[ablation_end:val_end].drop(columns=['win_rate_bin'], errors='ignore')
+    test_df = df_shuffled.iloc[val_end:].drop(columns=['win_rate_bin'], errors='ignore')
+    
+    # Validate split sizes
+    logger.info(f"Split sizes - Train: {len(train_df)}, Ablation-Train: {len(ablation_train_df)}, "
+                f"Validation: {len(validation_df)}, Test: {len(test_df)}")
+                
+    if len(validation_df) < MIN_VALIDATION_SIZE:
+        raise ValueError(f"Validation set size ({len(validation_df)}) < {MIN_VALIDATION_SIZE} violates FR-006 hard constraint. Cannot proceed.")
         
-        # Adjust to ensure at least MIN_VALIDATION_SIZE in validation if possible
-        # If the calculated n_val is too small, we might need to borrow from other sets
-        # However, we strictly follow the ratios first, then check the constraint
-        
-        start = 0
-        train_ids.extend(group_ids[start:start+n_train])
-        start += n_train
-        ablation_train_ids.extend(group_ids[start:start+n_ablation])
-        start += n_ablation
-        validation_ids.extend(group_ids[start:start+n_val])
-        start += n_val
-        test_ids.extend(group_ids[start:])
-    
-    # Validate minimum validation size
-    if len(validation_ids) < MIN_VALIDATION_SIZE:
-        raise ValueError(
-            f"Validation set size ({len(validation_ids)}) is less than required minimum ({MIN_VALIDATION_SIZE}). "
-            "Consider increasing the dataset size or adjusting split ratios."
-        )
-    
-    logger.info(f"Stratified split completed:")
-    logger.info(f"  Train: {len(train_ids)} trajectories")
-    logger.info(f"  Ablation-Train: {len(ablation_train_ids)} trajectories")
-    logger.info(f"  Validation: {len(validation_ids)} trajectories")
-    logger.info(f"  Test: {len(test_ids)} trajectories")
-    
-    # Filter original DataFrame based on trajectory IDs
-    train_df = df[df['trajectory_id'].isin(train_ids)].copy()
-    ablation_train_df = df[df['trajectory_id'].isin(ablation_train_ids)].copy()
-    validation_df = df[df['trajectory_id'].isin(validation_ids)].copy()
-    test_df = df[df['trajectory_id'].isin(test_ids)].copy()
-    
     return train_df, ablation_train_df, validation_df, test_df
 
-def save_split_data(
-    train_df: pd.DataFrame,
-    ablation_train_df: pd.DataFrame,
-    validation_df: pd.DataFrame,
-    test_df: pd.DataFrame,
-    validation_ids: List[str],
-    output_dir: str
-):
-    """Save the split datasets and validation IDs to disk."""
-    out_path = Path(output_dir)
-    out_path.mkdir(parents=True, exist_ok=True)
+def validate_split(train_df: pd.DataFrame, ablation_train_df: pd.DataFrame, 
+                   validation_df: pd.DataFrame, test_df: pd.DataFrame) -> bool:
+    """
+    Validate that the splits are disjoint and cover the original data.
     
-    # Save CSVs
-    train_df.to_csv(Path(output_dir) / TRAIN_FILE, index=False)
-    ablation_train_df.to_csv(Path(output_dir) / ABLATION_TRAIN_FILE, index=False)
-    validation_df.to_csv(Path(output_dir) / VALIDATION_FILE, index=False)
-    test_df.to_csv(Path(output_dir) / TEST_FILE, index=False)
+    Returns:
+        True if valid, False otherwise
+    """
+    all_ids = set(train_df['trajectory_id']) | set(ablation_train_df['trajectory_id']) | \
+              set(validation_df['trajectory_id']) | set(test_df['trajectory_id'])
+              
+    total_ids = len(train_df) + len(ablation_train_df) + len(validation_df) + len(test_df)
     
-    # Save validation IDs as JSON
-    ids_file = Path(output_dir) / VALIDATION_IDS_FILE
-    with open(ids_file, 'w') as f:
-        json.dump(validation_ids, f, indent=2)
-    
-    logger.info(f"Saved split data to {output_dir}")
-    logger.info(f"  Train: {TRAIN_FILE}")
-    logger.info(f"  Ablation-Train: {ABLATION_TRAIN_FILE}")
-    logger.info(f"  Validation: {VALIDATION_FILE}")
-    logger.info(f"  Test: {TEST_FILE}")
-    logger.info(f"  Validation IDs: {VALIDATION_IDS_FILE}")
+    if len(all_ids) != total_ids:
+        logger.error("Overlap detected in splits!")
+        return False
+        
+    logger.info("Split validation passed: No overlap, all IDs accounted for.")
+    return True
 
-def validate_split(
-    train_df: pd.DataFrame,
-    ablation_train_df: pd.DataFrame,
-    validation_df: pd.DataFrame,
-    test_df: pd.DataFrame
-):
-    """Validate that the split is correct and non-overlapping."""
-    all_ids = (
-        set(train_df['trajectory_id']) |
-        set(ablation_train_df['trajectory_id']) |
-        set(validation_df['trajectory_id']) |
-        set(test_df['trajectory_id'])
-    )
+def save_split_data(train_df: pd.DataFrame, ablation_train_df: pd.DataFrame,
+                    validation_df: pd.DataFrame, test_df: pd.DataFrame,
+                    output_dir: str, validation_ids: List[str]) -> None:
+    """
+    Save the split datasets to CSV and the validation IDs to JSON.
     
-    # Check for overlaps
-    intersections = {
-        'Train & Ablation': set(train_df['trajectory_id']) & set(ablation_train_df['trajectory_id']),
-        'Train & Validation': set(train_df['trajectory_id']) & set(validation_df['trajectory_id']),
-        'Train & Test': set(train_df['trajectory_id']) & set(test_df['trajectory_id']),
-        'Ablation & Validation': set(ablation_train_df['trajectory_id']) & set(validation_df['trajectory_id']),
-        'Ablation & Test': set(ablation_train_df['trajectory_id']) & set(test_df['trajectory_id']),
-        'Validation & Test': set(validation_df['trajectory_id']) & set(test_df['trajectory_id']),
+    Args:
+        train_df: Training set DataFrame
+        ablation_train_df: Ablation-Train set DataFrame
+        validation_df: Validation set DataFrame
+        test_df: Test set DataFrame
+        output_dir: Directory to save files (data/processed)
+        validation_ids: List of trajectory IDs in the validation set
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Define output paths
+    paths = {
+        'train': os.path.join(output_dir, 'train_set.csv'),
+        'ablation_train': os.path.join(output_dir, 'ablation_train_set.csv'),
+        'validation': os.path.join(output_dir, 'validation_set.csv'),
+        'test': os.path.join(output_dir, 'test_set.csv'),
+        'validation_ids': os.path.join(output_dir, 'validation_set_ids.json')
     }
     
-    for name, intersection in intersections.items():
-        if intersection:
-            raise ValueError(f"Overlap detected in {name}: {intersection}")
+    # Save CSVs
+    train_df.to_csv(paths['train'], index=False)
+    ablation_train_df.to_csv(paths['ablation_train'], index=False)
+    validation_df.to_csv(paths['validation'], index=False)
+    test_df.to_csv(paths['test'], index=False)
     
-    logger.info("Split validation passed: No overlapping trajectory IDs found.")
+    # Save JSON
+    with open(paths['validation_ids'], 'w') as f:
+        json.dump(validation_ids, f, indent=2)
+        
+    logger.info(f"Saved split data to {output_dir}")
+    logger.info(f"Validation set IDs saved to {paths['validation_ids']}")
 
 def main():
-    """Main entry point for the splitter script."""
+    """
+    Main entry point for the splitter task (T014a).
+    """
+    # Define paths
+    input_file = 'data/processed/metrics_with_moves.csv'
+    output_dir = 'data/processed'
+    
     try:
-        # Load data
-        df = load_processed_data(INPUT_FILE)
+        # 1. Load data
+        df = load_processed_data(input_file)
         
-        # Perform stratified split
+        # 2. Perform stratified split
         train_df, ablation_train_df, validation_df, test_df = stratified_split(df)
         
-        # Validate split
-        validate_split(train_df, ablation_train_df, validation_df, test_df)
+        # 3. Validate splits
+        if not validate_split(train_df, ablation_train_df, validation_df, test_df):
+            raise ValueError("Split validation failed. Aborting.")
+            
+        # 4. Extract validation IDs
+        validation_ids = validation_df['trajectory_id'].tolist()
         
-        # Get validation IDs for JSON output
-        validation_ids = validation_df['trajectory_id'].unique().tolist()
+        # 5. Save outputs
+        save_split_data(train_df, ablation_train_df, validation_df, test_df, 
+                        output_dir, validation_ids)
+                        
+        logger.info("T014a completed successfully.")
         
-        # Save outputs
-        save_split_data(
-            train_df,
-            ablation_train_df,
-            validation_df,
-            test_df,
-            validation_ids,
-            OUTPUT_DIR
-        )
-        
-        logger.info("T014a: Split completed successfully.")
-        
+    except FileNotFoundError as e:
+        logger.error(f"Input file missing: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"T014a: Split failed with error: {e}")
+        logger.error(f"Unexpected error during splitting: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,10 +1,10 @@
 """
-Generate summary CSV output for baseline comparison.
-Task T022: Generate summary CSV output in `data/processed/baseline_comparison.csv`.
-Schema: condition, win_rate, avg_tokens, std_dev_tokens.
-Aggregation Logic: Mean of win_rate and token columns grouped by condition;
-Calculate standard deviation of token savings per condition to satisfy SC-004.
-Depends on: T021 (stats.py for aggregation logic).
+Task T022: Generate summary CSV output for baseline comparison.
+
+Reads simulation logs from T017 (Dynamic), T019 (Static), and T020 (Random).
+Aggregates win_rate and token usage metrics per condition.
+Calculates standard deviation of token usage to satisfy SC-004.
+Output: data/processed/baseline_comparison.csv
 """
 
 import os
@@ -13,6 +13,7 @@ import json
 import logging
 import pandas as pd
 from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -21,116 +22,123 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_simulation_data():
+def load_simulation_data(file_path: str) -> pd.DataFrame:
     """
-    Load simulation results from T017 (dynamic), T019 (static), and T020 (random).
-    Returns a dictionary of DataFrames keyed by condition.
+    Load simulation logs from a JSON file and return a DataFrame.
+    Expected schema in JSON: list of records with 'trajectory_id', 'win' (bool), 'tokens_used' (int).
     """
-    data_dir = Path("data/processed")
-    conditions = {
-        "dynamic": data_dir / "simulation_logs_dynamic.json",
-        "static": data_dir / "simulation_logs_static.json",
-        "random": data_dir / "simulation_logs_random.json"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Simulation log file not found: {file_path}")
+
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list of records in {file_path}, got {type(data)}")
+
+    df = pd.DataFrame(data)
+
+    # Ensure required columns exist
+    required_cols = ['trajectory_id', 'win', 'tokens_used']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+
+    # Normalize win column to boolean if needed
+    if df['win'].dtype == object:
+        df['win'] = df['win'].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False})
+
+    return df
+
+def generate_baseline_comparison(
+    dynamic_path: str,
+    static_path: str,
+    random_path: str,
+    output_path: str
+) -> None:
+    """
+    Aggregate results from Dynamic, Static, and Random baselines and write to CSV.
+
+    Schema: condition, win_rate, avg_tokens, std_dev_tokens
+    """
+    # Load data
+    logger.info(f"Loading dynamic simulation data from {dynamic_path}")
+    df_dynamic = load_simulation_data(dynamic_path)
+    df_dynamic['condition'] = 'dynamic'
+
+    logger.info(f"Loading static simulation data from {static_path}")
+    df_static = load_simulation_data(static_path)
+    df_static['condition'] = 'static'
+
+    logger.info(f"Loading random simulation data from {random_path}")
+    df_random = load_simulation_data(random_path)
+    df_random['condition'] = 'random'
+
+    # Combine all data
+    df_all = pd.concat([df_dynamic, df_static, df_random], ignore_index=True)
+
+    # Calculate metrics per condition
+    # win_rate: mean of boolean 'win' column
+    # avg_tokens: mean of 'tokens_used'
+    # std_dev_tokens: std of 'tokens_used'
+    aggregations = {
+        'win': 'mean',
+        'tokens_used': ['mean', 'std']
     }
 
-    simulation_data = {}
+    summary = df_all.groupby('condition').agg(aggregations)
 
-    for condition, file_path in conditions.items():
-        if not file_path.exists():
-            logger.error(f"Missing required input file for {condition}: {file_path}")
-            raise FileNotFoundError(f"Missing required input file: {file_path}")
+    # Flatten column names
+    summary.columns = ['win_rate', 'avg_tokens', 'std_dev_tokens']
 
-        try:
-            with open(file_path, 'r') as f:
-                logs = json.load(f)
-            
-            # Convert list of dicts to DataFrame
-            df = pd.DataFrame(logs)
-            
-            # Ensure required columns exist
-            required_cols = ['win', 'tokens_used']
-            for col in required_cols:
-                if col not in df.columns:
-                    logger.error(f"Missing required column '{col}' in {condition} data")
-                    raise ValueError(f"Missing required column '{col}' in {condition} data")
-            
-            # Convert win (bool/int) to win_rate (0.0 or 1.0)
-            df['win_rate'] = df['win'].astype(float)
-            
-            simulation_data[condition] = df
-            logger.info(f"Loaded {len(df)} records for {condition}")
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse JSON for {condition}: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Error loading {condition} data: {e}")
-            raise
+    # Reset index to make 'condition' a column
+    summary = summary.reset_index()
 
-    return simulation_data
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def generate_baseline_comparison(simulation_data):
-    """
-    Aggregate simulation data by condition and compute statistics.
-    Returns a DataFrame with columns: condition, win_rate, avg_tokens, std_dev_tokens.
-    """
-    results = []
+    # Write to CSV
+    summary.to_csv(output_path, index=False)
 
-    for condition, df in simulation_data.items():
-        # Calculate win rate (mean of win_rate column)
-        win_rate = df['win_rate'].mean()
-        
-        # Calculate average tokens used
-        avg_tokens = df['tokens_used'].mean()
-        
-        # Calculate standard deviation of tokens used (SC-004 requirement)
-        std_dev_tokens = df['tokens_used'].std()
-        
-        results.append({
-            'condition': condition,
-            'win_rate': win_rate,
-            'avg_tokens': avg_tokens,
-            'std_dev_tokens': std_dev_tokens
-        })
-
-    return pd.DataFrame(results)
+    logger.info(f"Baseline comparison written to {output_path}")
+    logger.info(f"Summary:\n{summary.to_string()}")
 
 def main():
     """Main entry point for T022."""
-    logger.info("Starting T022: Generate baseline comparison CSV")
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    processed_dir = project_root / "data" / "processed"
+
+    dynamic_path = processed_dir / "simulation_logs_dynamic.json"
+    static_path = processed_dir / "simulation_logs_static.json"
+    random_path = processed_dir / "simulation_logs_random.json"
+    output_path = processed_dir / "baseline_comparison.csv"
+
+    # Check if input files exist
+    missing_inputs = []
+    for path in [dynamic_path, static_path, random_path]:
+        if not path.exists():
+            missing_inputs.append(path)
+
+    if missing_inputs:
+        logger.error("Missing required input files:")
+        for p in missing_inputs:
+            logger.error(f"  - {p}")
+        logger.error("Please ensure T017, T019, and T020 have completed successfully.")
+        sys.exit(1)
 
     try:
-        # Load simulation data from T017, T019, T020
-        simulation_data = load_simulation_data()
-
-        # Generate aggregated comparison
-        comparison_df = generate_baseline_comparison(simulation_data)
-
-        # Ensure output directory exists
-        output_dir = Path("data/processed")
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Write to CSV
-        output_path = output_dir / "baseline_comparison.csv"
-        comparison_df.to_csv(output_path, index=False)
-
-        logger.info(f"Successfully wrote baseline comparison to {output_path}")
-        logger.info(f"Generated {len(comparison_df)} rows")
-        
-        # Log summary
-        logger.info("Summary:")
-        for _, row in comparison_df.iterrows():
-            logger.info(f"  {row['condition']}: win_rate={row['win_rate']:.4f}, "
-                        f"avg_tokens={row['avg_tokens']:.2f}, "
-                        f"std_dev_tokens={row['std_dev_tokens']:.2f}")
-
-        return 0
-
+        generate_baseline_comparison(
+            str(dynamic_path),
+            str(static_path),
+            str(random_path),
+            str(output_path)
+        )
+        logger.info("T022 completed successfully.")
     except Exception as e:
-        logger.error(f"Failed to generate baseline comparison: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        logger.error(f"Error generating baseline comparison: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

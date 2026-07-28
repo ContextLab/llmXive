@@ -1,5 +1,5 @@
 """
-Unit tests for T007c: Proxy Extractor
+Unit tests for code/proxy_extractor.py (T007c).
 """
 
 import os
@@ -8,110 +8,145 @@ import tempfile
 import pandas as pd
 import pytest
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 # Import the functions to test
-# We need to adjust the import path since this is a unit test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from proxy_extractor import (
+from code.proxy_extractor import (
     load_validation_ids,
     load_metrics_master,
     extract_static_proxy,
-    save_proxy_json
+    save_proxy_json,
+    main
 )
-
 
 @pytest.fixture
 def temp_dir():
-    with tempfile.TemporaryDirectory() as tmp:
-        yield Path(tmp)
+    """Create a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
+@pytest.fixture
+def mock_validation_ids_file(temp_dir):
+    """Create a mock validation_set_ids.json file."""
+    file_path = temp_dir / "validation_set_ids.json"
+    data = ["traj_001", "traj_002", "traj_003"]
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+    return file_path
+
+@pytest.fixture
+def mock_metrics_file(temp_dir):
+    """Create a mock metrics_with_moves.csv file."""
+    file_path = temp_dir / "metrics_with_moves.csv"
+    data = {
+        "trajectory_id": ["traj_001", "traj_001", "traj_001", "traj_002", "traj_002", "traj_003", "traj_004"],
+        "layer_id": ["layer_A", "layer_B", "layer_A", "layer_A", "layer_B", "layer_C", "layer_A"],
+        "health_ratio": [0.5, 0.6, 0.7, 0.8, 0.9, 0.4, 0.5],
+        "threat_level": [1, 2, 1, 3, 2, 1, 1],
+        "deck_size": [10, 10, 10, 10, 10, 10, 10],
+        "move_entropy": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(file_path, index=False)
+    return file_path
+
+def test_load_validation_ids_success(mock_validation_ids_file, temp_dir):
+    """Test successful loading of validation IDs."""
+    # Mock the global path
+    with patch('code.proxy_extractor.VALIDATION_IDS_FILE', mock_validation_ids_file):
+        ids = load_validation_ids()
+        assert ids == ["traj_001", "traj_002", "traj_003"]
 
 def test_load_validation_ids_missing_file(temp_dir):
-    """Test that load_validation_ids raises FileNotFoundError if file is missing."""
-    # Create a path that doesn't exist
-    fake_path = temp_dir / "nonexistent.json"
-    # We need to mock the global path or pass it as argument.
-    # Since the function uses a global constant, we test the logic by creating a mock file structure
-    # or by patching. For simplicity, let's just test the logic by creating the file.
-    # Actually, the function uses VALIDATION_IDS_PATH which is global.
-    # We can't easily change that in a unit test without patching.
-    # Let's test the logic by creating the file and then deleting it.
-    pass
+    """Test error when validation IDs file is missing."""
+    missing_path = temp_dir / "nonexistent.json"
+    with patch('code.proxy_extractor.VALIDATION_IDS_FILE', missing_path):
+        with pytest.raises(FileNotFoundError):
+            load_validation_ids()
 
+def test_load_validation_ids_empty(temp_dir):
+    """Test error when validation IDs file is empty."""
+    file_path = temp_dir / "empty.json"
+    with open(file_path, 'w') as f:
+        json.dump([], f)
+    
+    with patch('code.proxy_extractor.VALIDATION_IDS_FILE', file_path):
+        with pytest.raises(ValueError, match="empty or invalid"):
+            load_validation_ids()
 
-def test_extract_static_proxy_basic(temp_dir):
-    """Test basic extraction of static proxy."""
-    # Create mock data
-    metrics_data = {
-        'trajectory_id': ['t1', 't1', 't2', 't2', 't2'],
-        'layer_id': ['layer_a', 'layer_b', 'layer_a', 'layer_a', 'layer_c'],
-        'turn': [1, 2, 1, 2, 3],
-        'health_ratio': [0.5, 0.6, 0.7, 0.8, 0.9],
-        'threat_level': [1, 2, 1, 2, 3],
-        'deck_size': [10, 9, 8, 7, 6],
-        'move_entropy': [0.1, 0.2, 0.3, 0.4, 0.5]
-    }
-    df = pd.DataFrame(metrics_data)
-    metrics_path = temp_dir / "metrics_with_moves.csv"
-    df.to_csv(metrics_path, index=False)
+def test_load_metrics_master_success(mock_metrics_file, temp_dir):
+    """Test successful loading of metrics master."""
+    with patch('code.proxy_extractor.METRICS_FILE', mock_metrics_file):
+        df = load_metrics_master()
+        assert len(df) == 7
+        assert 'trajectory_id' in df.columns
+        assert 'layer_id' in df.columns
 
-    validation_ids = ['t1', 't2']
-    ids_path = temp_dir / "validation_set_ids.json"
-    with open(ids_path, 'w') as f:
-        json.dump({'validation_set_ids': validation_ids}, f)
+def test_load_metrics_master_missing_file(temp_dir):
+    """Test error when metrics file is missing."""
+    missing_path = temp_dir / "nonexistent.csv"
+    with patch('code.proxy_extractor.METRICS_FILE', missing_path):
+        with pytest.raises(FileNotFoundError):
+            load_metrics_master()
 
-    # Mock the global paths by temporarily replacing them
-    # Since the functions use global constants, we need to patch them or
-    # pass the paths as arguments. The current implementation uses global constants.
-    # To test, we can create a modified version of the function that takes paths.
-    # But for now, let's assume the test environment sets up the files correctly.
-    # Instead, let's test the core logic of extract_static_proxy directly.
+def test_extract_static_proxy_logic(mock_metrics_file, mock_validation_ids_file, temp_dir):
+    """Test the core logic of proxy extraction."""
+    # Setup
+    with patch('code.proxy_extractor.METRICS_FILE', mock_metrics_file):
+        with patch('code.proxy_extractor.VALIDATION_IDS_FILE', mock_validation_ids_file):
+            metrics_df = load_metrics_master()
+            validation_ids = load_validation_ids()
+            
+            result = extract_static_proxy(metrics_df, validation_ids)
+            
+            # Expected:
+            # traj_001: 3 turns (A, B, A) -> A: 2/3, B: 1/3
+            # traj_002: 2 turns (A, B) -> A: 1/2, B: 1/2
+            # traj_003: 1 turn (C) -> C: 1/1
+            # traj_004 is NOT in validation set, so should be excluded.
+            
+            assert len(result) == 5  # 2 for traj_001, 2 for traj_002, 1 for traj_003
+            
+            # Verify specific scores
+            scores = { (r['trajectory_id'], r['layer_id']): r['utility_score'] for r in result }
+            
+            assert abs(scores[('traj_001', 'layer_A')] - 2/3) < 0.001
+            assert abs(scores[('traj_001', 'layer_B')] - 1/3) < 0.001
+            assert abs(scores[('traj_002', 'layer_A')] - 0.5) < 0.001
+            assert abs(scores[('traj_002', 'layer_B')] - 0.5) < 0.001
+            assert abs(scores[('traj_003', 'layer_C')] - 1.0) < 0.001
+            
+            # Ensure traj_004 is not present
+            assert ('traj_004', 'layer_A') not in scores
 
-    proxy_data = extract_static_proxy(df, validation_ids)
+def test_extract_static_proxy_no_match(mock_metrics_file, temp_dir):
+    """Test extraction when no IDs match."""
+    # Create a validation file with IDs not in metrics
+    file_path = temp_dir / "validation_ids.json"
+    with open(file_path, 'w') as f:
+        json.dump(["traj_999"], f)
+    
+    with patch('code.proxy_extractor.METRICS_FILE', mock_metrics_file):
+        with patch('code.proxy_extractor.VALIDATION_IDS_FILE', file_path):
+            metrics_df = load_metrics_master()
+            validation_ids = load_validation_ids()
+            result = extract_static_proxy(metrics_df, validation_ids)
+            
+            assert result == []
 
-    assert len(proxy_data) == 4  # t1: layer_a(1/2), layer_b(1/2); t2: layer_a(2/3), layer_c(1/3)
-
-    # Check t1 layer_a
-    t1_la = [x for x in proxy_data if x['trajectory_id'] == 't1' and x['layer_id'] == 'layer_a'][0]
-    assert abs(t1_la['utility_score'] - 0.5) < 1e-6
-
-    # Check t2 layer_a
-    t2_la = [x for x in proxy_data if x['trajectory_id'] == 't2' and x['layer_id'] == 'layer_a'][0]
-    assert abs(t2_la['utility_score'] - 2/3) < 1e-6
-
-
-def test_extract_static_proxy_empty_validation(temp_dir):
-    """Test that extract_static_proxy raises ValueError if validation set is empty."""
-    metrics_data = {
-        'trajectory_id': ['t1', 't1'],
-        'layer_id': ['layer_a', 'layer_b'],
-        'turn': [1, 2],
-        'health_ratio': [0.5, 0.6],
-        'threat_level': [1, 2],
-        'deck_size': [10, 9],
-        'move_entropy': [0.1, 0.2]
-    }
-    df = pd.DataFrame(metrics_data)
-    validation_ids = ['t99']  # Not in metrics
-
-    with pytest.raises(ValueError):
-        extract_static_proxy(df, validation_ids)
-
-
-def test_extract_static_proxy_missing_layer_id(temp_dir):
-    """Test that extract_static_proxy raises KeyError if layer_id is missing."""
-    metrics_data = {
-        'trajectory_id': ['t1', 't1'],
-        'turn': [1, 2],
-        'health_ratio': [0.5, 0.6],
-        'threat_level': [1, 2],
-        'deck_size': [10, 9],
-        'move_entropy': [0.1, 0.2]
-    }
-    df = pd.DataFrame(metrics_data)
-    validation_ids = ['t1']
-
-    with pytest.raises(KeyError):
-        extract_static_proxy(df, validation_ids)
+def test_save_proxy_json(temp_dir):
+    """Test saving proxy data to JSON."""
+    data = [
+        {"trajectory_id": "t1", "layer_id": "l1", "utility_score": 0.5},
+        {"trajectory_id": "t1", "layer_id": "l2", "utility_score": 0.5}
+    ]
+    output_path = temp_dir / "test_proxy.json"
+    
+    save_proxy_json(data, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert len(loaded) == 2
+    assert loaded[0]['trajectory_id'] == 't1'

@@ -1,3 +1,51 @@
+T005:
+  c: false
+  h: cdf77a48cf1c6b5bd408a445bd82aa4e3ef20ba38f1bc1b08183c15741eb5d61
+  r: "The provided `code/entropy.py` defines entropy calculation functions but does\
+    \ not show any logic that reads `data/processed/metrics_with_moves.csv`, checks\
+    \ for its existence, or skips processing when it is absent. It also never logs\
+    \ the required warning message with the exact text to `data/processed/edge_case_warnings.log`,\
+    \ and that log file is missing. Consequently, the implementation does not satisfy\
+    \ the task\u2019s full requirements."
+T006:
+  c: false
+  h: 95558369f803286a3a356df17eb05d007ce44c09f2b3673eba043450438491d6
+  r: "The repository lacks the required output file `data/processed/metrics_with_moves.csv`,\
+    \ and the referenced schema file `contracts/trajectory.schema.yaml` (or `schema.yaml`)\
+    \ is missing, so validation cannot be performed. Moreover, the provided `code/parser.py`\
+    \ snippet does not show any implementation of the per\u2011turn metric extraction,\
+    \ legal\u2011move entropy calculation, or CSV writing required by the task. These\
+    \ essential components must be added for the task to be considered complete."
+T007c:
+  c: false
+  h: 9929cbead68f48f3c97c61a5bfe2d4f49bbad5a63b790d0b290557c6f97e4ea7
+  r: The repository lacks the required input files (`metrics_with_moves.csv` and `validation_set_ids.json`)
+    and the expected output (`static_log_proxy.json`). Moreover, `code/proxy_extractor.py`
+    is truncated (e.g., `extract_static_proxy` has a typo and no implementation) and
+    does not actually perform the extraction or write the JSON file. The task is therefore
+    not fulfilled.
+T008:
+  c: false
+  h: 37b290f8767809deb230580c989c8166b2eedac75e360efc979fdf1dd8559fc5
+  r: "The required input file `data/processed/ablation_train_set.csv` does not exist\
+    \ (and thus cannot be validated as non\u2011empty), and the expected output `data/processed/ablation_labels_train.json`\
+    \ is also missing. Consequently the ablation script was never successfully run\
+    \ to produce the ground\u2011truth labels."
+T008b:
+  c: false
+  h: 3b2869678fbaf78c23c73333c33115905592ca6c796fc2f0e07c57837a58b4a2
+  r: "The required input `data/processed/validation_set.csv` does not exist, and the\
+    \ expected output `data/processed/ablation_labels_validation.json` is also missing.\
+    \ Consequently the validation step cannot run and the task\u2019s deliverable\
+    \ is absent."
+T014a:
+  c: false
+  h: 50f74a05e80113c31e90636455e5ae45aeb7524219b472624d61932160f0606c
+  r: The repository lacks the required input `data/processed/metrics_with_moves.csv`
+    and none of the expected output files (`train_set.csv`, `ablation_train_set.csv`,
+    `validation_set.csv`, `test_set.csv`, `validation_set_ids.json`) are present.
+    Consequently the splitter cannot be executed nor verified, so the task is not
+    fulfilled.
 T019:
   c: false
   h: 033c31af7351e253a1f1bd8e48dbd27e2572a8aea33f27ed9391c74f264bc8d4
