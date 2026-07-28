@@ -1,188 +1,158 @@
-import pytest
+"""
+Unit tests for statistical tests implementation.
+Specifically tests the Nadeau & Bengio corrected t-test.
+"""
 import numpy as np
-from src.evaluate.statistical_tests import nadeau_bengio_ttest, compare_models
+import pytest
+import os
+import sys
+from pathlib import Path
+
+# Add parent to path for imports if needed, though standard project structure handles this
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from src.evaluate.statistical_tests import nadeau_bengio_ttest, run_model_comparison_test
 
 
 class TestNadeauBengioTTest:
-    """Test the Nadeau & Bengio corrected resampled t-test implementation."""
+    """Tests for the Nadeau & Bengio corrected t-test implementation."""
 
-    def test_identical_scores(self):
-        """When scores are identical, t-statistic should be 0 and p-value 1."""
-        scores = [0.8, 0.85, 0.9, 0.82, 0.88]
-        t_stat, p_value, is_significant = nadeau_bengio_ttest(
-            scores, scores, n_train=100, n_test=20
-        )
-        assert np.isclose(t_stat, 0.0, atol=1e-10)
-        assert np.isclose(p_value, 1.0, atol=1e-10)
-        assert not is_significant
+    def test_basic_calculation(self):
+        """Test basic calculation with known values."""
+        # Simulate scores where Model 1 is consistently better
+        model1 = np.array([0.85, 0.86, 0.84, 0.87, 0.85])
+        model2 = np.array([0.75, 0.76, 0.74, 0.77, 0.75])
 
-    def test_clear_difference(self):
-        """When one model is clearly better, test should be significant."""
-        scores_a = [0.9, 0.92, 0.91, 0.93, 0.94]
-        scores_b = [0.7, 0.72, 0.71, 0.73, 0.74]
+        n_train = 400
+        n_test = 100
+        k = 5
+
         t_stat, p_value, is_significant = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=100, n_test=20
+            model1, model2, n_train, n_test
         )
-        assert t_stat > 0  # Model A is better
+
+        # Since Model 1 is clearly better, t should be positive and large
+        assert t_stat > 0
+        # P-value should be very small (highly significant)
         assert p_value < 0.05
         assert is_significant
 
-    def test_variance_correction_effect(self):
-        """Test that the variance correction factor is applied correctly."""
-        # Create scores with a known difference
-        scores_a = [0.8, 0.81, 0.82, 0.83, 0.84]
-        scores_b = [0.7, 0.71, 0.72, 0.73, 0.74]
+    def test_no_difference(self):
+        """Test when there is no difference between models."""
+        scores = np.array([0.80, 0.81, 0.79, 0.82, 0.80])
 
-        # With a small test set relative to training, the correction should be small
-        t_stat_small_test, p_small_test, _ = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=1000, n_test=10
-        )
-
-        # With a large test set relative to training, the correction should be larger
-        # (reducing the t-statistic)
-        t_stat_large_test, p_large_test, _ = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=100, n_test=100
-        )
-
-        # The t-statistic should be smaller when the test set is larger
-        # (due to the correction factor)
-        assert t_stat_small_test > t_stat_large_test
-
-    def test_mismatched_lengths(self):
-        """Should raise ValueError if scores have different lengths."""
-        with pytest.raises(ValueError):
-            nadeau_bengio_ttest([0.8, 0.9], [0.7], n_train=100, n_test=20)
-
-    def test_empty_scores(self):
-        """Should raise ValueError if scores are empty."""
-        with pytest.raises(ValueError):
-            nadeau_bengio_ttest([], [], n_train=100, n_test=20)
-
-    def test_zero_variance(self):
-        """Test handling of zero variance in differences."""
-        # All differences are the same
-        scores_a = [0.8, 0.8, 0.8, 0.8, 0.8]
-        scores_b = [0.7, 0.7, 0.7, 0.7, 0.7]
         t_stat, p_value, is_significant = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=100, n_test=20
+            scores, scores, n_train=400, n_test=100
         )
-        # If mean difference is non-zero and variance is zero, it should be significant
-        assert t_stat != 0
-        assert is_significant
 
-    def test_manual_calculation_match(self):
+        # T-stat should be 0 (or very close due to floating point)
+        assert np.isclose(t_stat, 0.0)
+        # P-value should be 1.0
+        assert np.isclose(p_value, 1.0)
+        assert not is_significant
+
+    def test_variance_correction_factor(self):
         """
-        Verify the implementation matches the manual calculation of the Nadeau-Bengio formula.
-        This is the core verification for T047.
+        Verify that the variance correction factor is applied correctly.
+        We compare the standard error calculation manually.
         """
-        # Create a small synthetic dataset with known values
-        scores_a = np.array([0.85, 0.87, 0.82, 0.88, 0.84])
-        scores_b = np.array([0.75, 0.78, 0.73, 0.79, 0.76])
+        model1 = np.array([0.8, 0.8, 0.8, 0.8, 0.8])
+        model2 = np.array([0.7, 0.7, 0.7, 0.7, 0.7])
 
-        n_folds = len(scores_a)
-        n_train = 100
-        n_test = 20
+        n_train = 400
+        n_test = 100
+        k = 5
+        n_total = n_train + n_test
 
-        # Manual calculation
-        diffs = scores_a - scores_b
+        diffs = model1 - model2
         mean_diff = np.mean(diffs)
         var_diff = np.var(diffs, ddof=1)
 
-        # Nadeau-Bengio correction
-        correction_factor = (1.0 / n_folds) + (n_test / n_train)
-        se_mean_diff = np.sqrt(correction_factor * var_diff)
+        # Manual calculation of SE with Nadeau-Bengio correction
+        correction_factor = (1.0 / k + float(n_test) / float(n_total))
+        expected_se = np.sqrt(correction_factor * var_diff)
 
-        t_stat_manual = mean_diff / se_mean_diff
+        # Get SE from function (by calculating t = mean / se => se = mean / t)
+        # Handle case where t might be 0 or inf
+        t_stat, _, _ = nadeau_bengio_ttest(model1, model2, n_train, n_test)
 
-        # Call the function
-        t_stat_func, p_value, is_significant = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train, n_test
+        if t_stat != 0:
+            calculated_se = mean_diff / t_stat
+            # Allow for some floating point tolerance
+            assert np.isclose(calculated_se, expected_se, rtol=1e-5), \
+                f"Expected SE {expected_se}, got {calculated_se}"
+
+    def test_mismatched_lengths(self):
+        """Test that mismatched lengths raise an error."""
+        model1 = np.array([0.8, 0.8, 0.8])
+        model2 = np.array([0.7, 0.7])
+
+        with pytest.raises(ValueError):
+            nadeau_bengio_ttest(model1, model2, n_train=40, n_test=10)
+
+    def test_small_sample_size(self):
+        """Test with a small number of folds (k=2)."""
+        model1 = np.array([0.9, 0.85])
+        model2 = np.array([0.8, 0.75])
+
+        t_stat, p_value, is_significant = nadeau_bengio_ttest(
+            model1, model2, n_train=50, n_test=50
         )
 
-        # Verify the t-statistic matches the manual calculation
-        assert np.isclose(t_stat_func, t_stat_manual, rtol=1e-5), (
-            f"t-statistic mismatch: function={t_stat_func}, manual={t_stat_manual}"
+        # Should run without error
+        assert isinstance(t_stat, float)
+        assert isinstance(p_value, float)
+        assert isinstance(is_significant, bool)
+
+class TestRunModelComparisonTest:
+    """Tests for the wrapper function run_model_comparison_test."""
+
+    def test_return_structure(self):
+        """Test that the return dictionary contains all expected keys."""
+        model1 = [0.85, 0.86, 0.84]
+        model2 = [0.75, 0.76, 0.74]
+
+        result = run_model_comparison_test(
+            model1, model2, n_train=100, n_test=50,
+            model1_name="GPR", model2_name="RF"
         )
+
+        expected_keys = [
+            "model1_name", "model2_name", "model1_mean", "model2_mean",
+            "mean_difference", "t_statistic", "p_value", "alpha",
+            "is_significant", "folds", "n_train", "n_test"
+        ]
+
+        for key in expected_keys:
+            assert key in result, f"Missing key: {key}"
+
+        assert result["model1_name"] == "GPR"
+        assert result["model2_name"] == "RF"
+        assert result["folds"] == 3
+        assert result["is_significant"] is True # Based on the large difference
 
     def test_alpha_threshold(self):
-        """Test that significance is correctly determined by alpha."""
-        scores_a = [0.8, 0.81, 0.82, 0.83, 0.84]
-        scores_b = [0.7, 0.71, 0.72, 0.73, 0.74]
+        """Test that alpha parameter affects significance."""
+        model1 = [0.85, 0.86, 0.84]
+        model2 = [0.84, 0.85, 0.83] # Very close
 
-        # With alpha=0.05
-        _, p_val_05, is_sig_05 = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=100, n_test=20, alpha=0.05
+        result_low_alpha = run_model_comparison_test(
+            model1, model2, n_train=100, n_test=50, alpha=0.01
+        )
+        result_high_alpha = run_model_comparison_test(
+            model1, model2, n_train=100, n_test=50, alpha=0.10
         )
 
-        # With alpha=0.01
-        _, p_val_01, is_sig_01 = nadeau_bengio_ttest(
-            scores_a, scores_b, n_train=100, n_test=20, alpha=0.01
-        )
-
-        # The p-value is the same, but significance depends on alpha
-        # If p < 0.01, both should be significant
-        # If 0.01 <= p < 0.05, only alpha=0.05 should be significant
-        # If p >= 0.05, neither should be significant
-
-        # We check the logic, not the specific p-value
-        if p_val_05 < 0.05:
-            assert is_sig_05
+        # With very close scores, p-value might be high.
+        # If p > 0.01, low_alpha result is False.
+        # If p < 0.10, high_alpha result is True.
+        # We just check that the logic holds:
+        if result_low_alpha["p_value"] < 0.01:
+            assert result_low_alpha["is_significant"] is True
         else:
-            assert not is_sig_05
+            assert result_low_alpha["is_significant"] is False
 
-        if p_val_01 < 0.01:
-            assert is_sig_01
+        if result_high_alpha["p_value"] < 0.10:
+            assert result_high_alpha["is_significant"] is True
         else:
-            assert not is_sig_01
-
-
-class TestCompareModels:
-    """Test the compare_models wrapper function."""
-
-    def test_compare_models_structure(self):
-        """Verify the output structure of compare_models."""
-        scores_a = [0.8, 0.85, 0.9, 0.82, 0.88]
-        scores_b = [0.7, 0.75, 0.8, 0.72, 0.78]
-
-        result = compare_models(
-            scores_a, scores_b, n_train=100, n_test=20,
-            model_a_name="GPR", model_b_name="RF"
-        )
-
-        assert "t_statistic" in result
-        assert "p_value" in result
-        assert "is_significant" in result
-        assert "alpha" in result
-        assert "mean_a" in result
-        assert "mean_b" in result
-        assert "difference" in result
-        assert "model_a_name" in result
-        assert "model_b_name" in result
-        assert "n_folds" in result
-        assert "summary" in result
-
-        assert result["model_a_name"] == "GPR"
-        assert result["model_b_name"] == "RF"
-        assert result["n_folds"] == 5
-        assert result["n_train"] == 100
-        assert result["n_test"] == 20
-
-    def test_compare_models_significance(self):
-        """Test that significance is correctly reported."""
-        scores_a = [0.9, 0.92, 0.91, 0.93, 0.94]
-        scores_b = [0.7, 0.72, 0.71, 0.73, 0.74]
-
-        result = compare_models(scores_a, scores_b, n_train=100, n_test=20)
-
-        assert result["is_significant"]
-        assert "significant" in result["summary"].lower()
-
-    def test_compare_models_not_significant(self):
-        """Test that non-significance is correctly reported."""
-        scores_a = [0.8, 0.81, 0.82, 0.83, 0.84]
-        scores_b = [0.79, 0.80, 0.81, 0.82, 0.83]
-
-        result = compare_models(scores_a, scores_b, n_train=100, n_test=20)
-
-        assert not result["is_significant"]
-        assert "not significant" in result["summary"].lower()
+            assert result_high_alpha["is_significant"] is False

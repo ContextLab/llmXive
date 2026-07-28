@@ -1,23 +1,5 @@
-'|based calculate detectable effect minimum power size':
-  quote: 'For users who do not require graphical output and are solely interested
-    in obtaining the numerical result, the sample size calculation can also be performed
-    by executing the following command: pls_sem_power(method = "a priori", MDES =
-    0.5, alpha = 0.05) The function returns the following message: To detect an effect
-    of 0.5 with 80% power at alpha = 0.05 you need at least 25 observations. Sensitivity
-    For the sensitivity scenario, suppose the researcher has already collected the
-    data prior to conducting any power analysis. In this example, the final sample
-    consists of 68 participants. The researcher may now wish to determine the smallest
-    effect size that can be reliably detected with a statistical power of 80%. Although
-    this approach is less optimal than conducting an a priori power analysis, carrying
-    out an a priori power analysis is still of help to make the research process more
-    transparent. Given the available sample size, a sensitivity power analysis is
-    suitable in these situations to estimate the MDES. The following command can be
-    used to achieve this: pls_sem_power_graph(method = "sensitivity", N = 68, alpha
-    = 0.05) The function works in the same way as the a priori version; the only necessary
-    adjustments involve indicating the method as "sensitivity" and supplying the sample
-    size (N) rather than the expected effect size (MDES). As shown in Figure 3, the
-    resulting graph indicates that, with such a sample size, effects greater than
-    0.30 can be detected with 80% power.'
-  source_id: '2511.14546'
-  url: https://arxiv.org/abs/2511.14546
-  value: '0.30'
+'|based calculate dataset detectable effect minimum output power size':
+  quote: HO 0.106 0.797
+  source_id: '2112.15273'
+  url: https://arxiv.org/abs/2112.15273
+  value: '0.106'

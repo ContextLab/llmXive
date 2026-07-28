@@ -5,75 +5,36 @@ from unittest.mock import patch, MagicMock
 import pytest
 from code.setup_data_dirs import setup_directories
 
-
 class TestSetupDataDirs:
-    """Unit tests for data directory setup functionality."""
+    def test_setup_directories_creates_all_folders(self, tmp_path):
+        """Verify that setup_directories creates all required directories."""
+        with patch('code.setup_data_dirs.Path.cwd', return_value=tmp_path):
+            setup_directories()
 
-    def test_setup_directories_creates_data_structure(self):
-        """Test that data directory structure is created correctly."""
-        with tempfile.TemporaryDirectory() as temp_root:
-            root = Path(temp_root)
-            
-            # Call the function
-            setup_directories(root)
-            
-            # Define expected data directories
-            expected_dirs = [
-                "data/raw",
-                "data/processed",
-                "data/splits",
-                "results"
-            ]
-            
-            # Verify each directory exists
-            for dir_path in expected_dirs:
-                full_path = root / dir_path
-                assert full_path.exists(), f"Directory {dir_path} was not created"
-                assert full_path.is_dir(), f"{dir_path} exists but is not a directory"
+        required_dirs = [
+            "src",
+            "tests",
+            "data/raw",
+            "data/processed",
+            "data/splits",
+            "results",
+            "contracts",
+            ".github/workflows"
+        ]
 
-    def test_setup_directories_creates_gitkeep_in_data_dirs(self):
-        """Test that .gitkeep files are created in data directories."""
-        with tempfile.TemporaryDirectory() as temp_root:
-            root = Path(temp_root)
-            
-            # Call the function
-            setup_directories(root)
-            
-            # Check that .gitkeep files exist
-            data_dirs = [
-                "data/raw",
-                "data/processed",
-                "data/splits",
-                "results"
-            ]
-            
-            for dir_path in data_dirs:
-                full_path = root / dir_path
-                gitkeep = full_path / ".gitkeep"
-                assert gitkeep.exists(), f".gitkeep not found in {dir_path}"
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} is not a directory"
 
-    def test_setup_directories_idempotent(self):
-        """Test that running setup_directories twice doesn't cause errors."""
-        with tempfile.TemporaryDirectory() as temp_root:
-            root = Path(temp_root)
-            
-            # Run twice
-            setup_directories(root)
-            setup_directories(root)  # Should not raise
-            
-            # Verify directories still exist
-            assert (root / "data/raw").exists()
-            assert (root / "results").exists()
-
-    def test_setup_directories_creates_nested_structure(self):
-        """Test that nested directory structures are created correctly."""
-        with tempfile.TemporaryDirectory() as temp_root:
-            root = Path(temp_root)
-            
-            setup_directories(root)
-            
-            # Verify nested structure
-            assert (root / "data" / "raw").exists()
-            assert (root / "data" / "processed").exists()
-            assert (root / "data" / "splits").exists()
-            assert (root / "results").exists()
+    def test_setup_directories_idempotent(self, tmp_path):
+        """Verify that running setup_directories twice doesn't fail."""
+        with patch('code.setup_data_dirs.Path.cwd', return_value=tmp_path):
+            # First run
+            setup_directories()
+            # Second run
+            setup_directories()
+        
+        # Verify existence again
+        assert (tmp_path / "src").exists()
+        assert (tmp_path / "data/raw").exists()

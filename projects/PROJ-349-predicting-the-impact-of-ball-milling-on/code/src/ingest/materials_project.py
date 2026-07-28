@@ -1,166 +1,132 @@
-"""
-Materials Project Data Fetcher.
-
-Fetches ball milling related data from the Materials Project API.
-Strictly uses real data. No synthetic fallbacks.
-"""
 import json
 import logging
 import os
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import requests
 
 from src.utils.logger import get_module_logger
-from src.exceptions import SourceConnectionError, DataIngestionError
 
 logger = get_module_logger(__name__)
 
 MP_API_URL = "https://next-gen.materialsproject.org/materials"
-MP_ENDPOINT = "https://next-gen.materialsproject.org/api/v2/mp/search"
+MP_SEARCH_URL = "https://next-gen.materialsproject.org/api/v2/doc/search"
 
-def fetch_materials_project_data(api_key: Optional[str] = None, timeout: int = 30) -> List[Dict[str, Any]]:
+def fetch_materials_project_data(api_key: Optional[str] = None, query_terms: List[str] = None) -> List[Dict[str, Any]]:
     """
-    Fetches materials data from Materials Project API.
-
-    Args:
-        api_key: Materials Project API key.
-        timeout: Request timeout in seconds.
-
-    Returns:
-        List of material entries matching ball milling criteria.
-
-    Raises:
-        SourceConnectionError: If the API is unreachable.
-        DataIngestionError: If the response is invalid.
-    """
-    if not api_key:
-        api_key = os.getenv("MP_API_KEY")
+    Fetch ball milling data from Materials Project API.
     
-    if not api_key:
+    Note: The Materials Project API does not directly provide 'ball milling' 
+    specific experimental parameters like milling_speed or d50 in standard 
+    entries. This function attempts to search for relevant entries but 
+    will likely return an empty list or limited data if the specific 
+    experimental metadata is not indexed.
+    
+    CRITICAL: This function does NOT generate synthetic data. If the API 
+    returns no results or fails, it returns an empty list and logs a warning.
+    """
+    if query_terms is None:
+        query_terms = ["ball milling", "milling"]
+    
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": api_key or os.getenv("MP_API_KEY", "")
+    }
+    
+    if not headers["X-API-Key"]:
         logger.warning("Materials Project API key not found. Skipping fetch.")
         return []
 
-    headers = {
-        "x-api-key": api_key,
-        "Content-Type": "application/json"
-    }
-
-    # Search for materials with 'ball milling' or 'milling' in keywords/abstracts
-    # Note: The actual API endpoint and query parameters depend on the specific API version.
-    # This is a representative implementation based on standard MP API usage patterns.
-    payload = {
-        "keywords": "ball milling",
-        "fields": "material_id,pretty_formula,nsites,elements,nelements,structure,expt_xrd,dft_xrd,elasticity,thermo,magtot"
-    }
-
+    results = []
+    
+    # Attempt to search for documents containing ball milling keywords
+    # Note: The MP API search endpoint might not support full-text search 
+    # on abstracts in the way required for this specific scientific domain.
+    # We attempt a search but expect potential emptiness.
     try:
-        logger.info(f"Fetching data from Materials Project API...")
-        # Using a generic search endpoint structure
-        response = requests.post(
-            f"{MP_ENDPOINT}",
+        # Try searching via the search endpoint if available, otherwise fallback to known structure
+        # Since specific ball milling parameters are rare in standard MP entries,
+        # we simulate a query structure but expect limited real-world success 
+        # without a dedicated experimental database.
+        
+        # Construct a query for the search API
+        search_payload = {
+            "keywords": query_terms,
+            "limit": 100
+        }
+        
+        # The MP API search structure varies; if this specific endpoint isn't 
+        # available or returns 404, we catch it and return empty list.
+        # We do NOT fallback to synthetic data.
+        resp = requests.post(
+            MP_SEARCH_URL,
+            json=search_payload,
             headers=headers,
-            json=payload,
-            timeout=timeout
+            timeout=30
         )
         
-        if response.status_code == 401:
-            logger.error("Materials Project API key invalid or expired.")
-            return []
-        elif response.status_code != 200:
-            logger.error(f"Materials Project API returned status {response.status_code}: {response.text}")
-            return []
-
-        data = response.json()
-        
-        if "data" not in data:
-            logger.warning("Materials Project response did not contain 'data' key.")
-            return []
-
-        raw_entries = data["data"]
-        
-        if not raw_entries:
-            logger.warning("Materials Project search returned 0 results.")
-            return []
-
-        processed_entries = []
-        for entry in raw_entries:
-            # Map MP fields to our schema
-            # Note: Actual mapping depends on what fields MP returns and what we need.
-            # This is a placeholder mapping logic.
-            processed = {
-                "experiment_id": entry.get("material_id"),
-                "source": "materials_project",
-                "material_type": entry.get("pretty_formula", "unknown"),
-                # MP API might not have milling specific fields directly,
-                # so we might need to infer or leave as NaN if not present.
-                # For this task, we assume we are fetching a specific dataset
-                # or the API supports filtering by these specific milling parameters.
-                # If the API doesn't support these specific fields, we log and skip.
-                "milling_speed": None, # Placeholder - actual extraction logic needed
-                "milling_time": None,
-                "ball_to_powder_ratio": None,
-                "youngs_modulus": None,
-                "density": None,
-                "d10": None,
-                "d50": None,
-                "d90": None,
-                "process_duration": None
-            }
-            processed_entries.append(processed)
-
-        logger.info(f"Successfully fetched {len(processed_entries)} entries from Materials Project.")
-        return processed_entries
-
-    except requests.exceptions.Timeout:
-        logger.warning("Materials Project API request timed out.")
+        if resp.status_code == 200:
+            data = resp.json()
+            if "results" in data:
+                for item in data["results"]:
+                    # Map MP fields to our schema if possible. 
+                    # Most MP entries will NOT have milling_speed, d50, etc.
+                    # We only add if we can reasonably map, otherwise skip.
+                    # Since MP is primarily DFT, experimental milling data is unlikely.
+                    # We return empty if we can't map real experimental data.
+                    # This ensures we don't pollute the dataset with DFT data 
+                    # pretending to be milling experiments.
+                    logger.info(f"Found MP entry: {item.get('material_id', 'unknown')}")
+                    # Placeholder for actual mapping logic if MP had this data.
+                    # In reality, MP does not contain 'milling_speed' or 'd50' for standard entries.
+                    # So we effectively return empty to avoid fake data.
+                    pass 
+        elif resp.status_code == 404:
+            logger.warning("Materials Project search endpoint not found or no results.")
+        else:
+            logger.warning(f"Materials Project API returned status {resp.status_code}")
+            
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Materials Project fetch failed: {e}")
         return []
-    except requests.exceptions.ConnectionError:
-        logger.warning("Materials Project API connection failed.")
-        return []
-    except json.JSONDecodeError:
-        logger.error("Materials Project API returned invalid JSON.")
-        return []
-    except Exception as e:
-        logger.error(f"Unexpected error fetching Materials Project data: {e}")
-        raise SourceConnectionError(f"Failed to fetch Materials Project data: {e}")
+    
+    # Since MP likely doesn't have the specific experimental milling data required,
+    # and we must not fabricate, we return an empty list if no valid experimental 
+    # rows were found.
+    # If the API actually returned experimental data (unlikely), we would populate 'results'.
+    # For now, to be safe and real-data compliant, we ensure we don't invent data.
+    return results
 
 def save_to_json(data: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Saves data to a JSON file.
-
-    Args:
-        data: List of dictionaries to save.
-        output_path: Path to the output file.
-    """
+    """Save data to a JSON file."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, 'w') as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Saved {len(data)} entries to {output_path}")
 
-def run_materials_project_ingestion(output_dir: str = "data/raw") -> Optional[str]:
+def run_materials_project_ingestion(output_path: str = "data/raw/materials_project_raw.json") -> int:
     """
-    Orchestrates the Materials Project data ingestion.
-
-    Args:
-        output_dir: Directory to save the raw data.
-
-    Returns:
-        Path to the saved JSON file, or None if no data was fetched.
-    """
-    output_path = os.path.join(output_dir, "materials_project_raw.json")
+    Run the Materials Project ingestion pipeline.
     
-    # Ensure output directory exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
+    Returns:
+        int: Number of rows fetched.
+    """
+    logger.info("Starting Materials Project ingestion...")
+    
+    # Fetch data
     data = fetch_materials_project_data()
-
+    
     if not data:
         logger.warning("Source skipped: Materials Project (no rows or error)")
-        return None
-
+        # Create an empty file to indicate the run happened but yielded nothing
+        # This allows the pipeline to continue without synthetic data.
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump([], f)
+        return 0
+    
+    # Save data
     save_to_json(data, output_path)
-    return output_path
+    logger.info(f"Saved {len(data)} rows to {output_path}")
+    return len(data)

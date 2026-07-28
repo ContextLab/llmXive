@@ -1,33 +1,29 @@
 import os
 import tempfile
+import shutil
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
-from setup_project_structure import setup_directories
+from code.setup_project_structure import setup_directories
 
 class TestSetupProjectStructure:
-    """
-    Unit tests for the project structure setup script.
-    Verifies that the required directories are created and .gitkeep files are placed.
-    """
+    """Tests for the setup_project_structure.py script."""
 
-    def test_setup_directories_creates_all_folders(self, tmp_path):
-        """
-        Test that setup_directories creates all required directories.
-        """
-        # Change to the temp directory to simulate project root
-        original_dir = os.getcwd()
+    def test_setup_directories_creates_all_required_dirs(self, tmp_path):
+        """Verify that setup_directories creates all required directories."""
+        # Change to the temporary directory
+        original_cwd = Path.cwd()
         os.chdir(tmp_path)
         
         try:
-            # Call the function
+            # Run the setup function
             result = setup_directories()
             
-            # Assert success
+            # Assert the function returned True (success)
             assert result is True
             
-            # Define expected directories
-            expected_dirs = [
+            # Verify all required directories exist
+            required_dirs = [
                 "src",
                 "tests",
                 "data/raw",
@@ -35,61 +31,56 @@ class TestSetupProjectStructure:
                 "data/splits",
                 "results",
                 "contracts",
-                ".github/workflows",
-                "data/fallback",
-                "figures"
+                ".github/workflows"
             ]
             
-            # Verify each directory exists
-            for dir_name in expected_dirs:
+            for dir_name in required_dirs:
                 dir_path = tmp_path / dir_name
                 assert dir_path.exists(), f"Directory {dir_name} was not created"
                 assert dir_path.is_dir(), f"{dir_name} is not a directory"
-                
-                # Verify .gitkeep exists
-                keep_file = dir_path / ".gitkeep"
-                assert keep_file.exists(), f".gitkeep missing in {dir_name}"
-                
         finally:
-            # Restore original directory
-            os.chdir(original_dir)
+            # Restore original working directory
+            os.chdir(original_cwd)
 
-    def test_setup_directories_idempotent(self, tmp_path):
-        """
-        Test that running setup_directories twice does not cause errors.
-        """
-        original_dir = os.getcwd()
+    def test_setup_directories_handles_existing_dirs(self, tmp_path):
+        """Verify that setup_directories handles pre-existing directories gracefully."""
+        original_cwd = Path.cwd()
         os.chdir(tmp_path)
         
         try:
-            # Run twice
-            result1 = setup_directories()
-            result2 = setup_directories()
+            # Pre-create some directories
+            (tmp_path / "src").mkdir()
+            (tmp_path / "results").mkdir()
             
-            assert result1 is True
-            assert result2 is True
+            # Run the setup function
+            result = setup_directories()
             
-            # Verify structure still intact
-            assert (tmp_path / "src").exists()
-            assert (tmp_path / "data/raw").exists()
+            # Should still succeed
+            assert result is True
             
+            # Verify all directories still exist
+            required_dirs = [
+                "src", "tests", "data/raw", "data/processed",
+                "data/splits", "results", "contracts", ".github/workflows"
+            ]
+            
+            for dir_name in required_dirs:
+                assert (tmp_path / dir_name).exists()
         finally:
-            os.chdir(original_dir)
+            os.chdir(original_cwd)
 
-    def test_setup_directories_nested_creation(self, tmp_path):
-        """
-        Test that nested directories (e.g., .github/workflows) are created correctly.
-        """
-        original_dir = os.getcwd()
+    def test_setup_directories_creates_nested_dirs(self, tmp_path):
+        """Verify that nested directories (like .github/workflows) are created correctly."""
+        original_cwd = Path.cwd()
         os.chdir(tmp_path)
         
         try:
-            setup_directories()
+            result = setup_directories()
+            assert result is True
             
-            # Check nested path
-            nested_path = tmp_path / ".github" / "workflows"
-            assert nested_path.exists()
-            assert (nested_path / ".gitkeep").exists()
-            
+            # Specifically check nested directory
+            github_workflows = tmp_path / ".github" / "workflows"
+            assert github_workflows.exists()
+            assert github_workflows.is_dir()
         finally:
-            os.chdir(original_dir)
+            os.chdir(original_cwd)

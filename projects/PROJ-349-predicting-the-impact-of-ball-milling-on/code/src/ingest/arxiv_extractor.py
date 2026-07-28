@@ -1,9 +1,3 @@
-"""
-arXiv PDF Extractor.
-
-Extracts PSD data from ball milling papers on arXiv.
-Strictly uses real data. No synthetic fallbacks.
-"""
 import hashlib
 import json
 import logging
@@ -11,111 +5,106 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Optional, List, Dict, Any
-
+from typing import List, Dict, Any, Optional
 import arxiv
+import fitz  # PyMuPDF for PDF handling
 import pandas as pd
-from pdfminer.high_level import extract_text
-from pdfminer.layout import LAParams
 
 from src.utils.logger import get_module_logger
-from src.exceptions import SourceConnectionError, DataIngestionError
 
 logger = get_module_logger(__name__)
 
-# Regex pattern for D10, D50, D90
-PSD_PATTERN = re.compile(r'D(10|50|90)[\s:]*([0-9]+(?:\.[0-9]+)?)', re.IGNORECASE)
-
 def extract_psd_from_arxiv(paper: arxiv.Result) -> Optional[Dict[str, Any]]:
     """
-    Extracts PSD data from a single arXiv paper.
-
-    Args:
-        paper: arXiv paper result.
-
-    Returns:
-        Dictionary with extracted data, or None if failed.
+    Extract PSD data from an arXiv paper.
+    
+    CRITICAL: This function does NOT generate synthetic data. 
+    If extraction fails, it returns None and logs a warning.
     """
     try:
         # Download PDF
-        pdf_path = paper.download_pdf(dirpath="data/raw/arxiv_temp", filename=f"{paper.pdf_id}.pdf")
+        pdf_path = f"/tmp/{paper.arxiv_id}.pdf"
+        paper.download_pdf(filename=pdf_path)
         
-        # Extract text
-        text = extract_text(pdf_path, laparams=LAParams())
+        # Read PDF and extract text
+        doc = fitz.open(pdf_path)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
         
-        # Search for PSD values
-        d_values = {}
-        for match in PSD_PATTERN.finditer(text):
-            key = f"d{match.group(1)}"
-            value = float(match.group(2))
-            d_values[key] = value
-
-        if not d_values:
-            logger.debug(f"No PSD values found in {paper.title}")
+        # Search for D10, D50, D90 patterns
+        d10_match = re.search(r'D10[:\s]*([0-9]+(?:\.[0-9]+)?)', text, re.IGNORECASE)
+        d50_match = re.search(r'D50[:\s]*([0-9]+(?:\.[0-9]+)?)', text, re.IGNORECASE)
+        d90_match = re.search(r'D90[:\s]*([0-9]+(?:\.[0-9]+)?)', text, re.IGNORECASE)
+        
+        if d10_match and d50_match and d90_match:
+            return {
+                "experiment_id": paper.arxiv_id,
+                "source": "arxiv",
+                "d10": float(d10_match.group(1)),
+                "d50": float(d50_match.group(1)),
+                "d90": float(d90_match.group(1)),
+                # Other fields like milling_speed would need more specific extraction
+                # For now, we only return if we found PSD data
+                "material_type": "unknown",
+                "milling_speed": None,
+                "milling_time": None,
+                "ball_to_powder_ratio": None,
+                "youngs_modulus": None,
+                "density": None,
+                "process_duration": None
+            }
+        else:
+            logger.warning(f"No PSD data found in {paper.arxiv_id}")
             return None
-
-        # Construct entry
-        entry = {
-            "experiment_id": f"arxiv_{paper.pdf_id}",
-            "source": "arxiv",
-            "material_type": "unknown", # Extract from title or abstract if possible
-            "milling_speed": None,
-            "milling_time": None,
-            "ball_to_powder_ratio": None,
-            "youngs_modulus": None,
-            "density": None,
-            "process_duration": None
-        }
-        entry.update(d_values)
-
-        return entry
-
+            
     except Exception as e:
-        logger.warning(f"Failed to extract data from {paper.pdf_id}: {e}")
+        logger.warning(f"Failed to extract from {paper.arxiv_id}: {e}")
         return None
 
-def run_arxiv_ingestion(output_dir: str = "data/raw", max_papers: int = 10) -> Optional[str]:
+def run_arxiv_ingestion(output_path: str = "data/raw/arxiv_tables.json", max_papers: int = 10) -> int:
     """
-    Orchestrates the arXiv data ingestion.
-
-    Args:
-        output_dir: Directory to save the raw data.
-        max_papers: Maximum number of papers to process.
-
+    Run the arXiv ingestion pipeline.
+    
     Returns:
-        Path to the saved JSON file, or None if no data was fetched.
+        int: Number of rows fetched.
     """
-    output_path = os.path.join(output_dir, "arxiv_tables.json")
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    Path("data/raw/arxiv_temp").mkdir(parents=True, exist_ok=True)
-
+    logger.info("Starting arXiv ingestion...")
+    
+    # Search for papers
     client = arxiv.Client()
     search = arxiv.Search(
-        query="cat:cond-mat.mtrl-sci AND ball milling",
-        max_results=max_papers
+        query="cond-mat.mtrl-sci ball milling",
+        max_results=max_papers,
+        sort_by=arxiv.SortCriterion.Relevance
     )
-
-    results = list(client.results(search))
-
-    if not results:
-        logger.warning("Source skipped: arXiv (no results found)")
-        return None
-
-    entries = []
-    for i, paper in enumerate(results):
-        logger.info(f"Processing paper {i+1}/{len(results)}: {paper.title}")
-        entry = extract_psd_from_arxiv(paper)
-        if entry:
-            entries.append(entry)
-        # Small delay to respect API limits
-        time.sleep(0.5)
-
-    if not entries:
-        logger.warning("Source skipped: arXiv (no rows or error)")
-        return None
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(entries, f, indent=2)
     
-    logger.info(f"Saved {len(entries)} entries from arXiv to {output_path}")
-    return output_path
+    results = []
+    count = 0
+    
+    try:
+        for paper in client.results(search):
+            extracted = extract_psd_from_arxiv(paper)
+            if extracted:
+                results.append(extracted)
+                count += 1
+    except Exception as e:
+        logger.warning(f"arXiv search failed: {e}")
+    
+    if count == 0:
+        logger.warning("Source skipped: arXiv (no rows or error)")
+        # Create an empty file to indicate the run happened but yielded nothing
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump([], f)
+        return 0
+    
+    # Save data
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Saved {count} rows to {output_path}")
+    return count
