@@ -1,19 +1,21 @@
 {
   "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
   "ok": false,
-  "reason": "3 run-book script(s) missing (plan/impl path mismatch): python code/main.py --stage ingest_and_distill; python code/main.py --stage execute_and_compare; python code/main.py --stage analyze; 13 declared deliverable(s) absent: data/artifacts/citation_validation_report.json; data/artifacts/quantization_verification.json; data/derived/baseline_resource_metrics.json",
+  "reason": "3 run-book script(s) missing (plan/impl path mismatch): python code/main.py --stage ingest_and_distill; python code/main.py --stage execute_and_compare; python code/main.py --stage analyze; 13 declared deliverable(s) absent: data/artifacts/quantization_verification.json; data/artifacts/rule_validation_report.json; data/derived/baseline_resource_metrics.json",
   "artifacts": [],
   "failures": [
-    "python -c \"from datasets import load_dataset; ds = load_dataset('claw-ai-lab/arc-bench', streaming=True); print(next(iter(ds)))\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'datasets'",
+    "python -c \"from datasets import load_dataset; ds = load_dataset('claw-ai-lab/arc-bench', streaming=True); print(next(iter(ds)))\" -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1698, in load_dataset\n    builder_instance = load_dataset_builder(\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1325, in load_dataset_bui",
     "python code/main.py --stage ingest_and_distill -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/main.py': [Errno 2] No such file or directory",
     "python code/main.py --stage execute_and_compare -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/main.py': [Errno 2] No such file or directory",
     "python code/main.py --stage analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
-  "evidence": [],
-  "updated_at": "2026-07-27T19:36:00Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python -c \"from datasets import load_dataset; ds = load_dataset('claw-ai-lab/arc-bench', streaming=True); print(next(iter(ds)))\""
+  ],
+  "updated_at": "2026-07-28T03:07:56Z"
 }

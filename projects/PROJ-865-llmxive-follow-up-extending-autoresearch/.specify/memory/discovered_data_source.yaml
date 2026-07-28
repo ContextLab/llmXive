@@ -1,13 +1,14 @@
 status: none
-intent: download ARC-Bench 25 topic subset huggingface datasets python package dataset
+intent: download ARC-Bench 25 topic subset failure transcripts huggingface datasets
+  python package dataset
 required_fields:
 - error_trace
-- resolution_path
-- task_prompt
 - raw_error_log
+- resolution_path
 - ground_truth_resolution
+- task_prompt
 - task_context
-- structural_feature
-cache_key: 59ad4a3b41512df07c46b9fa568d649b54c45519346a5656b9531e8c57dc08f2
-searched_at: '2026-07-27T19:36:53.622861+00:00'
+- structural_feature_label
+cache_key: 399e8651a1ea188b58d8327a95272923b9f1c208135c9cb4fab67dd38242b97a
+searched_at: '2026-07-28T03:08:43.761274+00:00'
 retry_count: 1

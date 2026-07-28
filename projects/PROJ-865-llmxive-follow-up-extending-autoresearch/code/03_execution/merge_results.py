@@ -5,225 +5,220 @@ from pathlib import Path
 from typing import List, Dict, Any, Set, Optional
 from utils.logging import get_logger, log_stage_start, log_stage_end
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DERIVED = PROJECT_ROOT / "data" / "derived"
-DATA_ARTIFACTS = PROJECT_ROOT / "data" / "artifacts"
-
-# Input paths
-RULE_ENGINE_RESULTS_PATH = DATA_DERIVED / "results_rule_engine.csv"
-BASELINE_RESULTS_PATH = DATA_DERIVED / "baseline_results.json"
-MANIFEST_PATH = DATA_DERIVED / "experiment_manifest.csv"
-
-# Output paths
-MERGED_RESULTS_PATH = DATA_DERIVED / "results.csv"
-
 logger = get_logger(__name__)
 
+# Constants
+MISSING_BASELINE_SENTINEL = -1.0
+FAILED_SUCCESS_FLAG = False
 
-def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
-    """Load the experiment manifest to get the list of expected task IDs."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found at {manifest_path}. Ensure T019a (generate_manifest.py) has completed.")
-    
-    tasks = []
-    with open(manifest_path, 'r', encoding='utf-8') as f:
+def load_manifest(manifest_path: str) -> List[Dict[str, Any]]:
+    """Load the experiment manifest CSV."""
+    logger.info(f"Loading manifest from {manifest_path}")
+    manifest = []
+    with open(manifest_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            tasks.append(row)
-    return tasks
+            manifest.append(row)
+    logger.info(f"Loaded {len(manifest)} task IDs from manifest")
+    return manifest
 
-
-def load_rule_engine_results(results_path: Path) -> Dict[str, Dict[str, Any]]:
-    """Load rule engine results from CSV into a dict keyed by task_id."""
-    if not results_path.exists():
-        raise FileNotFoundError(f"Rule engine results not found at {results_path}.")
-    
+def load_rule_engine_results(results_path: str) -> Dict[str, Dict[str, Any]]:
+    """Load rule engine results from CSV into a dictionary keyed by task_id."""
+    logger.info(f"Loading rule engine results from {results_path}")
     results = {}
-    with open(results_path, 'r', encoding='utf-8') as f:
+    with open(results_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             task_id = row.get('task_id')
             if task_id:
-                # Convert numeric strings to appropriate types
+                # Convert time_to_pivot to float, handle potential parsing errors
                 try:
-                    row['time_to_pivot'] = float(row['time_to_pivot']) if row['time_to_pivot'] else None
+                    ttp = float(row.get('time_to_pivot', 0))
                 except ValueError:
-                    row['time_to_pivot'] = None
-                try:
-                    row['success'] = row['success'].lower() == 'true' if row['success'] else False
-                except (AttributeError, ValueError):
-                    row['success'] = False
-                results[task_id] = row
+                    ttp = 0.0
+                
+                success = row.get('success', '').lower() == 'true'
+                results[task_id] = {
+                    'time_to_pivot': ttp,
+                    'success': success,
+                    'failure_type': row.get('failure_type', 'Unknown')
+                }
+    logger.info(f"Loaded {len(results)} rule engine results")
     return results
 
+def load_baseline_results(results_path: str) -> Dict[str, Dict[str, Any]]:
+    """Load baseline results from JSON into a dictionary keyed by task_id."""
+    logger.info(f"Loading baseline results from {results_path}")
+    results = {}
+    if not Path(results_path).exists():
+        logger.warning(f"Baseline results file not found at {results_path}")
+        return results
 
-def load_baseline_results(results_path: Path) -> Dict[str, Dict[str, Any]]:
-    """Load baseline results from JSON into a dict keyed by task_id."""
-    if not results_path.exists():
-        raise FileNotFoundError(f"Baseline results not found at {results_path}.")
-    
     with open(results_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Handle both list and dict formats for baseline results
+    # Handle both list of objects and single object formats
     if isinstance(data, list):
-        results = {item['task_id']: item for item in data}
+        items = data
     elif isinstance(data, dict):
-        # If it's a dict where keys are task_ids
-        results = data
+        # If it's a single object, wrap it in a list or check if it contains a list key
+        if 'results' in data and isinstance(data['results'], list):
+            items = data['results']
+        else:
+            items = [data]
     else:
-        raise ValueError(f"Unexpected baseline results format: {type(data)}")
+        logger.error("Unexpected format in baseline results JSON")
+        return results
+
+    for item in items:
+        task_id = item.get('task_id')
+        if task_id:
+            # Handle missing or failed tasks
+            ttp = item.get('time_to_pivot')
+            if ttp is None:
+                # If the task failed to run or timed out, use sentinel
+                ttp = MISSING_BASELINE_SENTINEL
+            else:
+                try:
+                    ttp = float(ttp)
+                except (ValueError, TypeError):
+                    ttp = MISSING_BASELINE_SENTINEL
+
+            success = item.get('success', False)
+            if ttp == MISSING_BASELINE_SENTINEL:
+                success = False
+
+            results[task_id] = {
+                'time_to_pivot': ttp,
+                'success': success,
+                'failure_type': item.get('failure_type', 'Unknown')
+            }
     
-    # Normalize types
-    for task_id, row in results.items():
-        try:
-            row['time_to_pivot'] = float(row['time_to_pivot']) if row.get('time_to_pivot') else None
-        except (ValueError, TypeError):
-            row['time_to_pivot'] = None
-        try:
-            row['success'] = str(row['success']).lower() == 'true' if row.get('success') is not None else False
-        except (AttributeError, ValueError):
-            row['success'] = False
+    logger.info(f"Loaded {len(results)} baseline results")
     return results
 
-
-def merge_results(
-    manifest_tasks: List[Dict[str, Any]],
-    rule_engine_results: Dict[str, Dict[str, Any]],
-    baseline_results: Dict[str, Dict[str, Any]]
-) -> List[Dict[str, Any]]:
-    """
-    Merge rule engine and baseline results based on the manifest.
-    
-    Logic:
-    - Iterate through manifest tasks to ensure strict ID matching.
-    - If a task is missing from baseline_results, mark it as 'failed' in the success column.
-    - Filter out failed baselines from the 'time_to_pivot' column (set to None) for statistical analysis,
-      but retain the 'success' status (False).
-    """
-    manifest_task_ids = {task['task_id'] for task in manifest_tasks}
-    baseline_task_ids = set(baseline_results.keys())
-    
-    # Validation: Check if all manifest IDs are in baseline results
-    missing_in_baseline = manifest_task_ids - baseline_task_ids
-    if missing_in_baseline:
-        logger.warning(f"Baseline results missing {len(missing_in_baseline)} tasks from manifest: {missing_in_baseline}")
-    
+def merge_results(manifest: List[Dict[str, Any]], 
+                  rule_results: Dict[str, Dict[str, Any]], 
+                  baseline_results: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Merge rule engine and baseline results based on the manifest."""
     merged = []
-    
-    for task in manifest_tasks:
-        task_id = task['task_id']
-        failure_type = task.get('failure_type', 'Unknown')
+    manifest_ids = set()
+    baseline_ids = set(baseline_results.keys())
+    rule_ids = set(rule_results.keys())
+
+    missing_from_baseline = []
+    missing_from_rule = []
+
+    for entry in manifest:
+        task_id = entry.get('task_id')
+        if not task_id:
+            continue
+
+        manifest_ids.add(task_id)
         
         # Get rule engine data
-        re_data = rule_engine_results.get(task_id, {})
-        re_time = re_data.get('time_to_pivot')
-        re_success = re_data.get('success', False)
-        re_method = re_data.get('method', 'rule_engine')
-        re_fallback = re_data.get('fallback_chain', 'None')
-        
-        # Get baseline data
-        bl_data = baseline_results.get(task_id)
-        
-        if bl_data is None:
-            # Task missing from baseline (external failure)
-            bl_time = None
-            bl_success = False
-            bl_method = 'baseline'
-            # Mark as failed in results
-            logger.info(f"Task {task_id} missing from baseline. Marking as failed.")
-        else:
-            bl_time = bl_data.get('time_to_pivot')
-            bl_success = bl_data.get('success', False)
-            bl_method = 'baseline'
-            
-            # Handle Failure Logic:
-            # If baseline failed (success is False), set time_to_pivot to None for statistical analysis
-            # (to avoid skewing averages with infinite/timeout values), but keep success=False.
-            if not bl_success:
-                logger.debug(f"Baseline failed for {task_id}. Setting time_to_pivot to None for analysis.")
-                bl_time = None
+        rule_data = rule_results.get(task_id, {})
+        rule_ttp = rule_data.get('time_to_pivot', 0.0)
+        rule_success = rule_data.get('success', False)
+        rule_ft = rule_data.get('failure_type', entry.get('failure_type', 'Unknown'))
 
-        row = {
+        # Get baseline data
+        baseline_data = baseline_results.get(task_id)
+        if baseline_data is None:
+            # Task failed in baseline execution or was not run
+            baseline_ttp = MISSING_BASELINE_SENTINEL
+            baseline_success = FAILED_SUCCESS_FLAG
+            missing_from_baseline.append(task_id)
+            logger.warning(f"Baseline result missing for task {task_id}. Marking as failed.")
+        else:
+            baseline_ttp = baseline_data.get('time_to_pivot', MISSING_BASELINE_SENTINEL)
+            baseline_success = baseline_data.get('success', False)
+            if baseline_ttp == MISSING_BASELINE_SENTINEL:
+                baseline_success = False
+
+        merged_row = {
             'task_id': task_id,
-            'failure_type': failure_type,
-            'method': re_method,
-            'time_to_pivot': re_time,
-            'success': re_success,
-            'fallback_chain': re_fallback,
-            'baseline_time_to_pivot': bl_time,
-            'baseline_success': bl_success
+            'method_rule_ttp': rule_ttp,
+            'method_rule_success': str(rule_success).lower(),
+            'method_rule_failure_type': rule_ft,
+            'method_baseline_ttp': baseline_ttp,
+            'method_baseline_success': str(baseline_success).lower(),
+            'method_baseline_failure_type': baseline_data.get('failure_type', entry.get('failure_type', 'Unknown')) if baseline_data else entry.get('failure_type', 'Unknown')
         }
-        merged.append(row)
+        merged.append(merged_row)
+
+    # Validation
+    if missing_from_baseline:
+        logger.warning(f"Found {len(missing_from_baseline)} tasks missing from baseline results: {missing_from_baseline[:5]}...")
     
+    if not baseline_ids.issuperset(manifest_ids):
+        missing = manifest_ids - baseline_ids
+        logger.warning(f"Baseline results do not contain all manifest IDs. Missing: {len(missing)}")
+
     return merged
 
+def write_merged_results(merged_data: List[Dict[str, Any]], output_path: str) -> None:
+    """Write merged results to CSV."""
+    logger.info(f"Writing merged results to {output_path}")
+    if not merged_data:
+        logger.error("No data to write.")
+        return
 
-def write_merged_results(merged_data: List[Dict[str, Any]], output_path: Path):
-    """Write the merged results to a CSV file."""
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fieldnames = [
-        'task_id', 'failure_type', 'method', 'time_to_pivot', 'success', 
-        'fallback_chain', 'baseline_time_to_pivot', 'baseline_success'
-    ]
+    fieldnames = list(merged_data[0].keys())
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(merged_data)
     
-    logger.info(f"Merged results written to {output_path}")
-
+    logger.info(f"Successfully wrote {len(merged_data)} rows to {output_path}")
 
 def main():
-    log_stage_start("merge_results")
+    """Main entry point for merging results."""
+    log_stage_start(logger, "merge_results")
     
+    # Define paths
+    project_root = Path(__file__).resolve().parents[2]
+    manifest_path = project_root / 'data' / 'derived' / 'experiment_manifest.csv'
+    rule_results_path = project_root / 'data' / 'derived' / 'results_rule_engine.csv'
+    baseline_results_path = project_root / 'data' / 'derived' / 'baseline_results.json'
+    output_path = project_root / 'data' / 'derived' / 'results.csv'
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
         # 1. Load Manifest
-        logger.info(f"Loading manifest from {MANIFEST_PATH}")
-        manifest_tasks = load_manifest(MANIFEST_PATH)
-        if not manifest_tasks:
-            logger.error("Manifest is empty. Cannot proceed.")
+        if not manifest_path.exists():
+            logger.error(f"Manifest not found: {manifest_path}. Ensure T019a has completed.")
             sys.exit(1)
-        logger.info(f"Loaded {len(manifest_tasks)} tasks from manifest.")
+        manifest = load_manifest(str(manifest_path))
+        if not manifest:
+            logger.error("Manifest is empty.")
+            sys.exit(1)
 
         # 2. Load Rule Engine Results
-        logger.info(f"Loading rule engine results from {RULE_ENGINE_RESULTS_PATH}")
-        rule_engine_results = load_rule_engine_results(RULE_ENGINE_RESULTS_PATH)
-        logger.info(f"Loaded {len(rule_engine_results)} rule engine results.")
+        if not rule_results_path.exists():
+            logger.error(f"Rule engine results not found: {rule_results_path}. Ensure T019 has completed.")
+            sys.exit(1)
+        rule_results = load_rule_engine_results(str(rule_results_path))
 
         # 3. Load Baseline Results
-        logger.info(f"Loading baseline results from {BASELINE_RESULTS_PATH}")
-        baseline_results = load_baseline_results(BASELINE_RESULTS_PATH)
-        logger.info(f"Loaded {len(baseline_results)} baseline results.")
+        # Note: T021 might produce this file. If it doesn't exist, we treat it as all failures.
+        baseline_results = load_baseline_results(str(baseline_results_path))
 
         # 4. Merge
-        logger.info("Merging results...")
-        merged = merge_results(manifest_tasks, rule_engine_results, baseline_results)
+        merged_data = merge_results(manifest, rule_results, baseline_results)
 
         # 5. Write Output
-        logger.info(f"Writing merged results to {MERGED_RESULTS_PATH}")
-        write_merged_results(merged, MERGED_RESULTS_PATH)
+        write_merged_results(merged_data, str(output_path))
 
-        # Verification
-        if not MERGED_RESULTS_PATH.exists():
-            logger.error("Output file was not created.")
-            sys.exit(1)
-        
-        logger.info("Merge completed successfully.")
+        logger.info("Merge results completed successfully.")
+        log_stage_end(logger, "merge_results")
 
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
     except Exception as e:
-        logger.exception(f"Unexpected error during merge: {e}")
+        logger.error(f"Error during merge: {e}", exc_info=True)
         sys.exit(1)
-    finally:
-        log_stage_end("merge_results")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

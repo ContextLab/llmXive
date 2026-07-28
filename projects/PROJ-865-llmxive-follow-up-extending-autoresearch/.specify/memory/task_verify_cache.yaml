@@ -20,6 +20,14 @@ T007:
     \ does it automatically run after each major phase. Moreover, the required state\
     \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
     \ is missing, so the hashes and timestamp cannot be recorded."
+T011b:
+  c: false
+  h: 8b8202aa2b4da42a5ce77dff0042fb8c4e0b767227f5cf94ba301fcf4bc1ad5a
+  r: The repository lacks the required input `data/derived/failure_cases_raw.json`,
+    the generated `data/derived/failure_cases.json` (and the split train/val/test
+    files), and the schema file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`.
+    Without these files the script cannot be executed or validated, so the task is
+    not genuinely completed.
 T013:
   c: false
   h: 623df3e18f031fc0946a892abb84bed6678319b0912774c6493a0b9d9e151168
@@ -37,18 +45,31 @@ T015b:
     \ missing, and there is no evidence that the validator was executed or that it\
     \ correctly exits with code\u202F1 when the schema is absent. The implementation\
     \ cannot be verified as functional without these artifacts."
-T018:
+T019:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `rule_engine.py` file or code changes were provided, so there is no evidence\
-    \ that logic handling \u201CUnstructured\u201D cases and defaulting to the baseline\
-    \ retrieval method was implemented. The required artifact is missing."
-T020:
+  h: 116d5c983e715ba84d7473b97aef0b69653753090e07b2af83f7e1e91690dd18
+  r: "The provided `run_experiments.py` raises a `FileNotFoundError` instead of exiting\
+    \ with code\u202F1 and the required error message, and it does not check that\
+    \ the manifest is non\u2011empty. Moreover, `data/derived/experiment_manifest.csv`\
+    \ is missing entirely, so the script cannot perform the intended pre\u2011check\
+    \ or subsequent processing. The implementation must add the exact pre\u2011check\
+    \ logic, proper exit handling, and ensure the manifest file exists and contains\
+    \ data."
+T019a:
   c: false
-  h: 588f2121acbb8cb22df8c6f629d407eb5d2ce4750cf5e35f75b46c54abddfc64
-  r: "The required `data/derived/results_rule_engine.csv` file does not exist, so\
-    \ no recorded metrics can be verified. The task\u2019s core output is missing,\
-    \ indicating the implementation has not fulfilled the requirement."
+  h: a59d91b5ba59e6d6793c48cf82cdc34b1b5b6b9ec634e688ceda9c1c3074d9d5
+  r: "The required output file `data/derived/experiment_manifest.csv` does not exist,\
+    \ and the provided `generate_manifest.py` script is incomplete (truncated) and\
+    \ shows no evidence that it actually writes the manifest. The task\u2019s core\
+    \ deliverable\u2014a generated manifest CSV\u2014is missing."
+T022:
+  c: false
+  h: 86ba43c2302b3e8fc32d25b603b830ce062ba3fef20d31600d57b4e97fdbfb8c
+  r: "The provided `merge_results.py` is truncated, contains undefined variables (e.g.,\
+    \ `MIS`), and does not implement the full merging logic. Moreover, the required\
+    \ input files (`results_rule_engine.csv`, `baseline_results.json`) and the expected\
+    \ output file (`results.csv`) are all missing, so the task\u2019s functional requirements\
+    \ are not met."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -95,12 +116,3 @@ T044:
     \ mixed\u2011effects regression nor write the JSON report (the script is truncated\
     \ and lacks a final write step). The task\u2019s core deliverable is therefore\
     \ missing."
-T052:
-  c: false
-  h: e1432d2a369124aab237991516922b964ebc2307ecf0a3be0a303ecb77887603
-  r: "The provided `rule_engine.py` only contains utility functions (e.g., `parse_error_log`)\
-    \ and does not show any implementation of a secondary keyword\u2011based fallback,\
-    \ logging of the fallback chain, or integration with a results CSV. Moreover,\
-    \ the required `data/derived/results_rule_engine.csv` file is absent, so the new\
-    \ `fallback_chain` column cannot be verified. The task\u2019s core requirements\
-    \ are therefore unmet."
