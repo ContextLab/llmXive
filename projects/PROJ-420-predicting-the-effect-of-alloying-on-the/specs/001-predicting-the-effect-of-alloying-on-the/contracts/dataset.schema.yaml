@@ -9,8 +9,7 @@ properties:
   source:
     type: "string"
     enum:
-      - "Materials Project"
-      - "NIST"
+      - "OpenML"
     description: "Source database of the record."
   poissons_ratio:
     type: "number"
@@ -21,10 +20,6 @@ properties:
     type: "number"
     exclusiveMinimum: 0
     description: "Young's modulus in GPa."
-  shear_modulus_gpa:
-    type: "number"
-    exclusiveMinimum: 0
-    description: "Shear modulus in GPa (required for independence verification)."
   measurement_method:
     type: "string"
     description: "Method used to measure Poisson's ratio."
@@ -81,7 +76,6 @@ required:
   - source
   - poissons_ratio
   - youngs_modulus_gpa
-  - shear_modulus_gpa
   - measurement_method
   - composition_cu
   - composition_mg

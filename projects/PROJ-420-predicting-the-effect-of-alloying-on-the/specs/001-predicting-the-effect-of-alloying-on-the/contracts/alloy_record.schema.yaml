@@ -18,10 +18,9 @@ properties:
     description: "Unique identifier for the alloy entry."
   source:
     type: "string"
-    description: "Source of the data (Materials Project or NIST)."
+    description: "Source of the data (OpenML)."
     enum:
-      - "Materials Project"
-      - "NIST"
+      - "OpenML"
   poissons_ratio:
     type: "number"
     description: "Poisson's ratio of the alloy."

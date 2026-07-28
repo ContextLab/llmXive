@@ -25,7 +25,7 @@ properties:
     description: "Random seed used for reproducibility."
   feature_importance:
     type: "array"
-    description: "List of feature importance scores mapped back to compositional space via perturbation analysis."
+    description: "List of feature importance scores mapped back to compositional space via Perturbation Analysis."
     items:
       type: "object"
       required:
@@ -80,3 +80,7 @@ properties:
         type: "integer"
         description: "Number of bootstrap iterations performed."
         minimum: 1
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB during training."
+    minimum: 0

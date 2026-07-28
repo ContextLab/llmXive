@@ -2,75 +2,89 @@
 
 ## Overview
 
-This document defines the data structures and transformations used in the project. It ensures consistency between the raw data extraction, the modeling pipeline, and the final output.
+This document defines the data structures, transformations, and schemas used in the project. The data flow is: `Raw Download` → `Filtered/Normalized` → `ILR-Transformed` → `Model Input`. The model learns the direct mapping from composition to Poisson's ratio without intermediate physical derivations (e.g., VRH bounds) due to missing elemental constants.
 
-## Entities
+## Entity Definitions
 
-### 1. AlloyRecord (Raw & Processed)
+### 1. Raw Alloy Record
+The raw data structure as downloaded from OpenML.
+- `id`: Unique identifier (integer).
+- `composition`: Dictionary of element atomic fractions (e.g., `{"Cu": 0.05, "Mg": 0.02, ...}`).
+- `poisson_ratio`: Float (unitless).
+- `youngs_modulus`: Float (unit: GPa or MPa).
+- `source`: String (e.g., "OpenML").
+- `measurement_method`: String (e.g., "Ultrasonic", "Derived", "Calculation").
 
-Represents a single aluminum alloy entry.
+### 2. Cleaned Alloy Record
+The record after filtering and unit normalization.
+- `alloy_id`: String.
+- `cu_frac`: Float (atomic fraction).
+- `mg_frac`: Float.
+- `si_frac`: Float.
+- `zn_frac`: Float.
+- `mn_frac`: Float.
+- `al_frac`: Float (calculated as `1.0 - sum(other_fractions)`).
+- `poisson_ratio`: Float (unitless).
+- `youngs_modulus`: Float (normalized to GPa).
+- `is_monolithic`: Boolean (true if non-composite).
+- `is_independent_measurement`: Boolean (true if `measurement_method` is "Ultrasonic" or similar).
+- `data_quality_flag`: String (e.g., "PASS", "MISSING_COMPOSITION", "SUM_MISMATCH", "DERIVED_MEASUREMENT").
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Unique identifier from source. | Non-null, unique. |
-| `source` | string | "Materials Project" or "NIST". | Non-null. |
-| `poissons_ratio` | float | Poisson's ratio. | Non-null, > 0, < 1. |
-| `youngs_modulus_gpa` | float | Young's modulus in GPa. | Non-null, > 0. |
-| `fraction_cu` | float | Atomic fraction of Copper. | ≥ 0, ≤ 1. |
-| `fraction_mg` | float | Atomic fraction of Magnesium. | ≥ 0, ≤ 1. |
-| `fraction_si` | float | Atomic fraction of Silicon. | ≥ 0, ≤ 1. |
-| `fraction_zn` | float | Atomic fraction of Zinc. | ≥ 0, ≤ 1. |
-| `fraction_mn` | float | Atomic fraction of Manganese. | ≥ 0, ≤ 1. |
-| `fraction_al` | float | Calculated atomic fraction of Aluminum. | `1.0 - sum(other fractions)`. |
-| `sum_major_elements` | float | Sum of Cu, Mg, Si, Zn, Mn fractions. | Must be ≥ 0.95 (else excluded). |
-| `measurement_method` | string | Method used to measure Poisson's ratio. | Must be "ultrasonic" or "experimental" (else excluded). |
-| `is_independent_measurement` | boolean | Flag for Poisson's ratio independence. | Must be True (else excluded/flagged). |
+### 3. ILR-Transformed Record
+The record ready for model training.
+- `ilr_1`: Float (First ILR coordinate).
+- `ilr_2`: Float.
+- `ilr_3`: Float.
+- `ilr_4`: Float.
+- `ilr_5`: Float (Optional, depending on the number of components).
+- `poisson_ratio`: Float (Target).
 
-### 2. ILRFeatureVector
+## Data Flow Diagram
 
-The transformed feature set used for modeling.
+```mermaid
+graph TD
+    A[Raw Data Download (OpenML 42347)] --> B{Filter: Monolithic?}
+    B -- No --> C[Exclude]
+    B -- Yes --> D{Check: Missing Values?}
+    D -- Yes --> C
+    D -- No --> E{Check: Sum of Fractions?}
+    E -- < 0.95 --> C
+    E -- >= 0.95 --> F{Check: Independence?}
+    F -- Not Independent (Derived) --> C
+    F -- Independent --> G[Normalize Units: GPa]
+    G --> H[Calculate Al Balance]
+    H --> I[ILR Transformation]
+    I --> J[Train/Test Split]
+    J --> K[Model Training]
+    K --> L[Physical Sanity Check]
+```
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Reference to source. | Non-null. |
-| `ilr_1` ... `ilr_4` | float | Isometric Log-Ratio transformed coordinates. | Real numbers. |
-| *Note*: ILR transforms D components into D-1 coordinates. Here D=5 (Cu, Mg, Si, Zn, Mn), so 4 coordinates. |
+## Transformation Logic
 
-### 3. ModelMetrics
+### Unit Normalization
+- If `youngs_modulus` unit is "MPa", divide by 1000.
+- If `poisson_ratio` is not unitless (rare), flag error.
 
-Output metrics from the modeling phase.
+### Compositional Balance
+- Ensure `sum(Cu, Mg, Si, Zn, Mn) >= 0.95`.
+- If sum < 0.95, exclude the record (per spec).
+- Calculate `Al_frac = 1.0 - (Cu + Mg + Si + Zn + Mn)`.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `cv_mae` | float | Mean Absolute Error from 5-fold CV. | ≥ 0. |
-| `test_mae` | float | Mean Absolute Error on held-out test set. | ≥ 0. |
-| `model_type` | string | "Random Forest". | Constant. |
-| `random_seed` | integer | Seed used for reproducibility. | Pinned. |
+### Independence Check
+- Filter records where `measurement_method` is NOT "Ultrasonic" or "Independent".
+- This ensures Poisson's ratio is not derived solely from Young's modulus (FR-009).
 
-### 4. CollinearityDiagnostic
+### ILR Transformation
+- Input: Vector `x = [Cu, Mg, Si, Zn, Mn, Al]`.
+- Method: Isometric Log-Ratio (ILR) using a sequential binary partition or standard orthonormal basis.
+- Output: `z = ilr(x)`.
+- Implementation: Use `compositional` library or `scikit-bio` (if available) or custom implementation.
 
-Diagnostic output for raw composition collinearity.
+### Physical Sanity Check
+- Validate that predicted Poisson's ratio values fall within the theoretical range for isotropic materials (0.0 <= nu <= 0.5).
+- Flag any predictions outside this range for review.
+- Note: This is a post-hoc validation, not a derivation from missing elemental constants.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `element` | string | Element name (Cu, Mg, Si, Zn, Mn). | Non-null. |
-| `vif_score` | float | Variance Inflation Factor. | ≥ 1.0. |
-| `is_flagged` | boolean | True if VIF > 5. | **Clarification**: Indicates "High collinearity in raw space (expected)", not a model failure. |
+## Schema Validation
 
-## Transformations
-
-1.  **Normalization**: Convert all elastic constants to GPa.
-2.  **Filtering**: Remove rows where `sum_major_elements` < 0.95 or missing required fields.
-3.  **Independence Filter**: Remove rows where `measurement_method` is not "ultrasonic" or "experimental".
-4.  **ILR Transformation**:
-    - Input: Vector $x = [x_1, x_2, x_3, x_4, x_5]$ (atomic fractions).
-    - Method: Apply sequential binary partition or standard basis to compute ILR coordinates.
-    - Output: Vector $z = [z_1, z_2, z_3, z_4]$.
-5.  **Back-transformation for Importance**: Map feature importance from $z$ space to $x$ space using a perturbation-based sensitivity analysis (shuffling original components and measuring impact on ILR-transformed predictions).
-
-## Data Flow
-
-1.  `data/raw` (JSON/CSV) -> `data_extraction.py` -> `data/processed/alloy_records.parquet`
-2.  `alloy_records.parquet` -> `data_cleaning.py` -> `data/processed/cleaned_records.parquet`
-3.  `cleaned_records.parquet` -> `modeling.py` -> `data/processed/ilr_features.parquet` + `models/random_forest.joblib`
-4.  `models/random_forest.joblib` + `cleaned_records.parquet` -> `analysis.py` -> `data/processed/metrics.json`, `data/processed/diagnostics.json`
+The implementation will validate data against the schemas defined in `contracts/`.
