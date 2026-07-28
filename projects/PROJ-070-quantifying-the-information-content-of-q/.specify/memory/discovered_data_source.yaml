@@ -1,0 +1,13 @@
+status: none
+intent: ALPS spin chain wavefunction HDF5 dataset python package dataset
+required_fields:
+- system_size
+- model
+- coupling_parameters
+- basis_state
+- wavefunction_coefficient
+- boundary_conditions
+- total_momentum
+cache_key: 813a8a0ed4fd45a30aa9a93f06aa5de325b4321c9cc1a1fe681ab89abac38c21
+searched_at: '2026-07-28T19:42:11.955353+00:00'
+retry_count: 1

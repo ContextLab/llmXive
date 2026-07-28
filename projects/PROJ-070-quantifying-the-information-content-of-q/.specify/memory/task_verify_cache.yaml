@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project structure (folders, files, or any non\u2011empty code scaffold) was\
+    \ provided; the evidence contains only the specification text, with no actual\
+    \ repository layout or implementation files. The required artifact \u2013 a created\
+    \ project directory matching the implementation plan \u2013 is missing."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or\
+    \ a virtual environment) were provided, and there is no evidence that a Python\u202F\
+    3.11 project with the listed dependencies has been created. The implementer needs\
+    \ to supply the actual initialization artifacts containing the specified packages."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., pyproject.toml entries for\
+    \ ruff/black, .ruff.toml, or CI scripts) were provided, so the required artifact\
+    \ for \u201CConfigure linting (ruff) and formatting (black) tools\u201D is missing.\
+    \ The implementer must add the appropriate configuration files and ensure they\
+    \ are non\u2011empty."
