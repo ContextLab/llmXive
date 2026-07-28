@@ -20,30 +20,30 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` with subdirs `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/results`
+- [ ] T001a [P] Create directory structure: `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` with subdirs `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/checkpoints`, `artifacts/results`
 - [ ] T001b [P] Create `__init__.py` files for `code`, `code/models`, `code/training`, `code/evaluation`, `code/analysis`, `code/utils`
 - [X] T001c [P] Initialize Python 3.11 project with `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn` in `requirements.txt`
 - [X] T001d [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to the first tokens (config key: `config.TOKEN_LIMIT`), saving to `data/raw/pile_arxiv_truncated.json` with checksum in `data/manifest.json`. **Note**: This task is strictly for TRAINING data.
+- [X] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to a representative initial segment (resolving the `[deferred]` placeholder in FR-002 with the value [deferred] as defined by Constitution Principle VII's "100k-token subset" requirement) as defined by `config.TOKEN_LIMIT`, saving to `data/raw/pile_arxiv_truncated.json`. **MUST** record the checksum of this *truncated* subset in `data/manifest.json` to satisfy Constitution Principle III (Data Hygiene). **Note**: This task is strictly for TRAINING data.
 - [X] T004b [P] Implement `data_loader.py` (additional function) to fetch GSM8K and MMLU datasets via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` and `data/raw/mmlu.json` with checksums in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data.
 - [ ] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
 - [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` dataclasses in `code/models/` and `code/evaluation/`
@@ -83,8 +83,8 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
-- [ ] T012 [P] [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from internal generation: generate multiple internal paths for the training batch, compute majority vote correctness, and use this binary signal to train the confidence head. This aligns with spec.md FR-002 and Assumptions.
-- [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`
+- [ ] T012 [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from **internal generation** on the training batch: (1) Generate N=5 reasoning paths per training item using the current model state; (2) Compute the majority vote of these paths to determine a binary 'proxy correctness' signal; (3) **Tie-Breaking Rule**: If no strict majority exists (e.g., 2-2-1 split or 3-2 split where majority is incorrect), the proxy signal defaults to 0 (incorrect). (4) Compare the model's predicted confidence for the final answer against this proxy signal. **Dependency**: Must be completed before T013. (Removed [P] tag to enforce ordering). **Note**: This task implements the Spec.md Assumptions (internal proxy). **ACTION REQUIRED**: The plan.md's reference to 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' is inconsistent with this spec-mandated internal proxy implementation and MUST be updated by the human reviewer to remove these references to resolve the architectural contradiction.
+- [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T012 to be complete.
 - [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
 - [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
 
@@ -105,7 +105,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`
+- [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL ADDITION**: Implement `calculate_error_detection_calibration` function. This function must: (1) Extract the scalar confidence score attached to the model's final answer for each item; (2) Bin these scores into equal-width bins spanning the full score range; (3) Calculate the observed accuracy (fraction of correct answers) within each bin; (4) **Edge Case**: If a bin contains zero samples, the observed accuracy for that bin is set to 0.0 to prevent division by zero; (5) Return a JSON object with keys `bin_edges` (list of floats), `bin_counts` (list of ints), and `observed_accuracies` (list of floats). This output satisfies the "calibration curve" requirement for error detection.
 - [X] T019 [US2] Implement `run_benchmarks.py` to generate **a set of reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) and run MMLU/GSM8K (US-02) in `code/evaluation/run_benchmarks.py`
 - [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`
 - [X] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
@@ -127,10 +127,9 @@
 
 ### Implementation for User Story 3
 
-- [X] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`
-- [ ] T024b [US3] Implement logic in `stats.py` to calculate and report the **percentage difference in self-consistency scores** between recursive and baseline models as required by spec.md SC-001. Output this to `artifacts/results/statistical_report.json`.
-- [ ] T025 [US3] Implement sensitivity analysis sweep for confidence thresholds across the discrete set **{0.4, 0.5, 0.6}** (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` with columns `threshold, false_positive_rate, false_negative_rate` in `code/analysis/stats.py`
-- [X] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, and sensitivity plots (US-03) in `code/analysis/stats.py`
+- [X] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`. **Must include**: Logic to calculate the **percentage difference in self-consistency scores** between recursive and baseline models (SC-001) and output to `artifacts/results/statistical_report.json`.
+- [X] T025 [US3] Implement sensitivity analysis sweep for confidence thresholds across a **specific discrete set of values** (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` with columns `threshold, false_positive_rate, false_negative_rate, fp_rate_delta, fn_rate_delta` (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Must also**: Integrate the `calculate_error_detection_calibration` output from T018 to generate the sensitivity plot for the calibration curve across thresholds.
+- [X] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, sensitivity plots, and the percentage difference metric (US-03) in `code/analysis/stats.py`. **Must define**: JSON schema for the report.
 - [X] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -141,10 +140,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` including the new statistical report format
+- [ ] T037 [P] Documentation updates in `docs/` including the new statistical report format and the definitions of the new reviewer-resolved metrics
 - [ ] T038 [P] Run `ruff check` and `black --check` on the entire `code/` directory; CI must fail if any lint/format errors exist
 - [ ] T039 [P] Run memory profiling on the training script (`train.py`) with max batch size; verify peak RSS < 7GB and log result to `artifacts/results/memory_profile.log`
-- [ ] T040 [P] Additional unit tests for the new statistical metrics in `tests/unit/analysis/test_stats.py`
+- [X] T040 [P] Additional unit tests for the new statistical metrics in `tests/unit/analysis/test_stats.py` and `tests/unit/evaluation/test_metrics.py`
 - [ ] T041 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
 
 ---
@@ -180,24 +179,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all Test Definition tasks for User Story 1 together:
-Task: "Create unit test file tests/unit/models/test_recursive_attention.py"
-Task: "Create unit test file tests/unit/training/test_loss_functions.py"
-
-# Launch all Implementation tasks for User Story 1 together:
-Task: "Implement recursive_llama.py with temporal recursive self-attention module"
-Task: "Implement loss_functions.py with joint loss using self-consistency proxy"
-```
+- Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
 
 ---
 
@@ -217,7 +199,7 @@ Task: "Implement loss_functions.py with joint loss using self-consistency proxy"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Final Validation
 
 ### Parallel Team Strategy
 
@@ -228,7 +210,6 @@ With multiple developers:
  - Developer A: User Story 1 (Training)
  - Developer B: User Story 2 (Evaluation)
  - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
 
 ---
 
@@ -242,5 +223,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization.
-- **Scope Note**: The "Reviewer Concerns" (Turing, Socrates, Krakauer, etc.) and associated metrics (e.g., "Metabolic Cost Proxy", "Value-Judgment Proxy", "Pre-Generation Prediction") mentioned in `plan.md` are **OUT OF SCOPE** for this implementation. `spec.md` does not contain Functional Requirements (FRs) or Success Criteria (SCs) for these philosophical operationalizations. Consequently, no tasks exist to implement them. The project scope is strictly limited to the measurable metrics defined in `spec.md` (self-consistency, calibration, error detection) as per the "Assumptions" section of `spec.md`.
-- **Plan Contradiction Note**: `plan.md` mentions "Teacher-Student Distillation" and "Pre-computed Teacher Labels" as a complexity tracking item. However, `spec.md` FR-002 and Assumptions mandate a self-consistency proxy derived from internal generation. Tasks T011-T015 implement the `spec.md` requirement (internal proxy), effectively superseding the `plan.md` complexity tracking item which is now considered out of scope.
+- **Scope Note**: The 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' mentioned in plan.md are inconsistent with spec.md Assumptions. Task T012 strictly implements the spec-mandated **internal self-consistency proxy** (majority vote on training split) to avoid tautology. **ACTION REQUIRED**: The plan.md MUST be updated by the human reviewer to remove the 'Teacher-Student' references to resolve the architectural contradiction. This is a Plan-level conflict flagged for kickback.
+- **Dependency Note**: Task T012 (loss_functions.py) is a strict prerequisite for T013 (train.py) and is not parallel-safe relative to T013.
+- **Removed Tasks**: Tasks T030, T042-T048 have been removed as they implemented features not defined in spec.md FRs or SCs, constituting scope creep. The project scope remains strictly limited to the measurable metrics defined in the methodology (self-consistency, calibration, error detection) as per spec.md Assumptions.

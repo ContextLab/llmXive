@@ -1,2 +1,4 @@
-# Root code package
-pass
+"""
+Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
+Core code package.
+"""

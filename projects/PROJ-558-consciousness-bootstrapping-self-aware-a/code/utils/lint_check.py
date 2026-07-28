@@ -1,65 +1,117 @@
 """
-Lint and Format Check Script for llmXive Project.
-
-This script runs `ruff check` and `black --check` on the `code/` directory.
-It exits with a non-zero status if any linting or formatting errors are found,
-ensuring CI fails appropriately.
+Linting and formatting check utilities for the project.
+Runs ruff and black checks on the codebase.
 """
 import subprocess
 import sys
 import os
+from pathlib import Path
+from utils.logging import get_logger
 
-def run_command(cmd: list[str]) -> int:
-    """Run a command and return its exit code."""
+logger = get_logger(__name__)
+
+
+def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
+    """
+    Run a shell command and return the result.
+
+    Args:
+        cmd: Command and arguments as a list.
+        check: If True, raise CalledProcessError on non-zero exit.
+
+    Returns:
+        CompletedProcess instance.
+    """
+    logger.info(f"Running command: {' '.join(cmd)}")
     try:
-        print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, check=False)
-        return result.returncode
+        result = subprocess.run(
+            cmd,
+            check=check,
+            capture_output=True,
+            text=True,
+            cwd=os.getcwd()
+        )
+        return result
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed with return code {e.returncode}")
+        logger.error(f"stdout: {e.stdout}")
+        logger.error(f"stderr: {e.stderr}")
+        raise
+
+
+def check_ruff() -> bool:
+    """
+    Run ruff check on the code/ directory.
+
+    Returns:
+        True if check passes, False otherwise.
+    """
+    cmd = ["ruff", "check", "code/"]
+    try:
+        result = run_command(cmd)
+        if result.returncode == 0:
+            logger.info("ruff check passed.")
+            return True
+        else:
+            logger.error("ruff check failed.")
+            if result.stdout:
+                logger.error(result.stdout)
+            if result.stderr:
+                logger.error(result.stderr)
+            return False
     except FileNotFoundError:
-        print(f"ERROR: Command not found: {cmd[0]}")
-        print("Please ensure 'ruff' and 'black' are installed in your environment.")
-        return 1
+        logger.error("ruff not found. Please install it: pip install ruff")
+        return False
+    except Exception as e:
+        logger.error(f"Error running ruff: {e}")
+        return False
+
+
+def check_black() -> bool:
+    """
+    Run black --check on the code/ directory.
+
+    Returns:
+        True if check passes, False otherwise.
+    """
+    cmd = ["black", "--check", "code/"]
+    try:
+        result = run_command(cmd)
+        if result.returncode == 0:
+            logger.info("black check passed.")
+            return True
+        else:
+            logger.error("black check failed.")
+            if result.stdout:
+                logger.error(result.stdout)
+            if result.stderr:
+                logger.error(result.stderr)
+            return False
+    except FileNotFoundError:
+        logger.error("black not found. Please install it: pip install black")
+        return False
+    except Exception as e:
+        logger.error(f"Error running black: {e}")
+        return False
+
 
 def main():
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    code_dir = os.path.join(project_root, "code")
+    """
+    Main entry point for lint and format checks.
+    Exits with non-zero code if any check fails.
+    """
+    logger.info("Starting lint and format checks...")
 
-    if not os.path.isdir(code_dir):
-        print(f"ERROR: Directory not found: {code_dir}")
+    ruff_ok = check_ruff()
+    black_ok = check_black()
+
+    if ruff_ok and black_ok:
+        logger.info("All checks passed.")
+        sys.exit(0)
+    else:
+        logger.error("Some checks failed. Please fix the issues.")
         sys.exit(1)
 
-    print(f"Checking lint and format in: {code_dir}")
-    print("=" * 50)
-
-    exit_code = 0
-
-    # 1. Run Ruff Check
-    print("\n[1/2] Running Ruff Check...")
-    ruff_cmd = ["ruff", "check", code_dir]
-    ruff_code = run_command(ruff_cmd)
-    if ruff_code != 0:
-        print("RUFF CHECK FAILED.")
-        exit_code = 1
-    else:
-        print("RUFF CHECK PASSED.")
-
-    # 2. Run Black Check
-    print("\n[2/2] Running Black Check...")
-    black_cmd = ["black", "--check", code_dir]
-    black_code = run_command(black_cmd)
-    if black_code != 0:
-        print("BLACK CHECK FAILED.")
-        exit_code = 1
-    else:
-        print("BLACK CHECK PASSED.")
-
-    print("\n" + "=" * 50)
-    if exit_code == 0:
-        print("SUCCESS: All linting and formatting checks passed.")
-    else:
-        print("FAILURE: One or more checks failed. Please fix the issues above.")
-
-    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

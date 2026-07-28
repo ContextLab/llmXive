@@ -1,3 +1,3 @@
 """
-Models package for recursive and base Llama implementations.
+Models package for the Consciousness Bootstrapping project.
 """

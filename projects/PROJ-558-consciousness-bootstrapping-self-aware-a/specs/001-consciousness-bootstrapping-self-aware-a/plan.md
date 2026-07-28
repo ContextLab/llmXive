@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational investigation into whether recursive self-attention mechanisms can bootstrap meta-cognitive behaviors (self-consistency, error detection, uncertainty calibration) in a small language model. The technical approach involves modifying a small transformer architecture (e.g., Qwen1.5-0.5B) to include a temporal recursive self-attention module that attends to confidence distributions from previous generation steps. We will train both a recursive variant and a standard baseline on a sampled subset of the Pile dataset (arXiv domain) using a joint loss function, where the confidence signal is derived from pre-computed teacher model labels (external truth). The models will be evaluated on MMLU, GSM8K, and Self-Consistency benchmarks, followed by rigorous statistical analysis (paired t-tests, sensitivity analysis, multiple-comparison correction) across five random seeds to determine if the recursive architecture yields statistically significant improvements in the correlation between consistency and accuracy.
+This project implements a computational investigation into whether recursive self-attention mechanisms can bootstrap meta-cognitive behaviors (self-consistency, error detection, uncertainty calibration) in a small language model. The technical approach involves modifying a small transformer architecture (e.g., Qwen1.5-0.5B) to include a temporal recursive self-attention module that attends to confidence distributions from previous generation steps. We will train both a recursive variant and a standard baseline on a sampled subset of the Pile dataset (arXiv domain) using a joint loss function, where the confidence signal is derived from pre-computed teacher model labels (external truth). The models will be evaluated on MMLU, GSMK, and Self-Consistency benchmarks, followed by rigorous statistical analysis (paired t-tests, sensitivity analysis, multiple-comparison correction) across five random seeds to determine if the recursive architecture yields statistically significant improvements in the correlation between consistency and accuracy.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ This project implements a computational investigation into whether recursive sel
 **Primary Dependencies**: `torch` (CPU-only, pinned to 2.1.0+), `transformers` (4.40+), `datasets` (2.18+), `scikit-learn`, `numpy`, `pandas`, `pytest`, `jsonschema`  
 **Storage**: Local filesystem (`data/` for datasets, `artifacts/` for checkpoints and evaluation results).  
 **Testing**: `pytest` for unit tests; `GitHub Actions` for end-to-end integration and reproducibility.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU cores, ~7 GB RAM, ~14 GB disk, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, ~14 GB disk, no GPU).  
 **Project Type**: Computational research / Machine Learning experiment  
 **Performance Goals**: Training must complete within 2 hours per seed; total CI job time ≤ 4 hours for 5 seeds (aligned with Constitution Principle VII). Memory usage must remain < 7 GB.  
 **Constraints**: No GPU/CUDA usage; no 8-bit/4-bit quantization requiring CUDA; no large-LLM inference; strict adherence to 7 GB RAM limit.  
@@ -92,7 +92,7 @@ projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
 |-----------|------------|-------------------------------------|
 | Recursive Self-Attention Module | Required by FR-001 to implement the core hypothesis of temporal recursion. | A standard attention mechanism cannot model the "confidence distribution of the previous generation step" as required. |
 | Joint Loss Function | Required by FR-002 to train the model on self-consistency proxies. | Standard cross-entropy alone does not optimize for confidence calibration or error detection. |
-| 5 Random Seeds | Required by Constitution Principle VI and FR-005 for statistical rigor. | A single seed or fewer seeds would not provide sufficient power for paired t-tests or control for stochastic variance. |
+| Random Seeds | Required by Constitution Principle VI and FR-005 for statistical rigor. | A single seed or fewer seeds would not provide sufficient power for paired t-tests or control for stochastic variance. |
 | Teacher-Student Distillation | Required to break the tautological loop of self-consistency proxies. | Internal consistency proxies create circular validation and cannot measure true error detection. |
 | Small Model (<300M params) | Required to fit the 7GB RAM and 2-hour CPU budget. | Larger models are computationally infeasible on the target hardware. |
 | Pre-computed Teacher Labels | Required to avoid triple inference cost during training. | On-the-fly generation for labels is too slow and memory-intensive. |
