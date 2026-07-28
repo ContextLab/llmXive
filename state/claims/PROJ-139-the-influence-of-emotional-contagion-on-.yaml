@@ -665,25 +665,6 @@
   updated_at: '2026-07-24T14:08:32Z'
 - artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   attempts: 1
-  canonical: Reddit consensus defined as upvotes greater than downvotes
-  claim_id: c_3f440b1a
-  context: 'Consensus Definition: For Stack Exchange, consensus is the ''accepted_answer_id''.
-    For Reddit, consensus is ''upvotes > downvotes''.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Reddit_consensus_defined_as_upvotes_greater_than_downvotes
-  kind: magnitude
-  raw_text: For Reddit threads, consensus is defined as upvotes being greater than
-    downvotes.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T14:08:56Z'
-- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
-  attempts: 1
   canonical: metadata completeness verified for at least 95% of extracted threads
   claim_id: c_f7f8acd2
   context: "Implement validation logic in code/data/extract.py to ensure metadata\
@@ -2070,3 +2051,2513 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T00:30:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download implements full fallback chain with origin_type logging
+  claim_id: c_34e04e2f
+  context: 'T008a [S] [US1] Implement code/data/download.py to fetch data: Primary:
+    Pushshift API. Fallback 1: Reddit Official API (OAuth). Fallback 2: Verified HuggingFace
+    archives.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_implements_full_fallback_chain_with_origin_typ
+  kind: entity_fact
+  raw_text: 'The script MUST implement the full fallback chain: if the primary fails,
+    automatically attempt the next, and log the origin_type (API vs. archive) for
+    every thread.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:07:19Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download raises RuntimeError if all sources fail
+  claim_id: c_a55947cd
+  context: 'Constraint: If all sources fail, raise a RuntimeError with a clear message
+    indicating the data source failure. Do NOT generate synthetic data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_raises_RuntimeError_if_all_sources_fail
+  kind: entity_fact
+  raw_text: If all sources fail, raise a RuntimeError with a clear message indicating
+    the data source failure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:07:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cryptographic checksum recorded in project state YAML
+  claim_id: c_0ff27633
+  context: 'Output: Write raw data to data/raw/reddit_threads.jsonl. Data Hygiene:
+    Compute a cryptographic checksum of data/raw/reddit_threads.jsonl and record it
+    in state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml under
+    artifact_hashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute a cryptographic checksum of data/raw/reddit_threads.jsonl and
+    record it in state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml
+    under artifact_hashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:07:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa computed between VADER scores and human annotations
+  claim_id: c_b47cc3ab
+  context: '3. Verification: Compute Cohen''s Kappa between VADER scores and human
+    annotations on the sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_computed_between_VADER_scores_and_human_annota
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa between VADER scores and human annotations on the
+    sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:08:22Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Manual annotation mandatory for n=50 if external corpus unavailable
+  claim_id: c_b682d4b7
+  context: 'Constraint: Do NOT use only the project''s own data without human annotation.
+    If no external human-annotated corpus is found, manual annotation is MANDATORY.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If no external human-annotated corpus is found, manual annotation is MANDATORY
+    for a representative sample (n=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:08:57Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads classified into valid, valid_no_gt, and invalid states
+  claim_id: c_29e7d147
+  context: 'Action: Classify threads into three states: ''valid'' (has GT), ''valid_no_gt''
+    (Reddit), ''invalid'' (excluded). Log the count and percentage of each.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threads_classified_into_valid,_valid_no_gt,_and_invalid_stat
+  kind: entity_fact
+  raw_text: 'Classify threads into three states: ''valid'' (has GT), ''valid_no_gt''
+    (Reddit), ''invalid'' (excluded).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:05Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: External validation score set to null if upvote/downvote data missing
+  claim_id: c_69982990
+  context: If upvote/downvote data is missing, set external_validation_score to null
+    and log the reason as 'Missing Data'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_validation_score_set_to_null_if_upvote/downvote_dat
+  kind: entity_fact
+  raw_text: If upvote/downvote data is missing, set external_validation_score to null
+    and log the reason as 'Missing Data'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:16Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: External validation score set to null if upvotes equal downvotes
+  claim_id: c_4f11b4c3
+  context: If upvotes == downvotes for a Reddit thread, set external_validation_score
+    to null and log the reason as 'Inconclusive'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_validation_score_set_to_null_if_upvotes_equal_downv
+  kind: entity_fact
+  raw_text: If upvotes == downvotes for a Reddit thread, set external_validation_score
+    to null and log the reason as 'Inconclusive'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:22Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if ground truth percentage below 30
+  claim_id: c_be4bd46f
+  context: 'Constraint: If valid_thread_percentage < 30, raise a RuntimeError with
+    a message ''Ground truth threshold (<30%) not met. Predictive accuracy analysis
+    cannot proceed.'' This halts the pipeline for the predictive accuracy branch but
+    allows other metrics (agreement, entropy) to continue if implemented separately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If valid_thread_percentage < 30, raise a RuntimeError with a message 'Ground
+    truth threshold (<30%) not met. Predictive accuracy analysis cannot proceed.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:22Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Ground truth stats JSON always generated with exact counts
+  claim_id: c_a5e0d6e2
+  context: 'If valid_thread_percentage >= 30, generate status: pass. CRITICAL: Regardless
+    of the threshold outcome, always generate data/processed/ground_truth_stats.json
+    containing the exact total_dataset_count, valid_dataset_count, and valid_thread_percentage
+    to satisfy FR-009 logging requirements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_stats_JSON_always_generated_with_exact_counts
+  kind: entity_fact
+  raw_text: Regardless of the threshold outcome, always generate data/processed/ground_truth_stats.json
+    containing the exact total_dataset_count, valid_dataset_count, and valid_thread_percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:28Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Metadata completeness required for 95% of extracted threads
+  claim_id: c_5a6cebc3
+  context: "T011 [S] [US1] Implement validation logic in code/data/extract.py to ensure\
+    \ metadata (timestamp, author, comment ID) is complete for \u226595% of extracted\
+    \ threads."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement validation logic in code/data/extract.py to ensure metadata\
+    \ (timestamp, author, comment ID) is complete for \u226595% of extracted threads."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:29Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VADER scores verified within -1.0 to 1.0 range
+  claim_id: c_fb5bb66d
+  context: '2. Standard Test: Run VADER against the built-in NLTK VADER test suite
+    (bundled with the library) to ensure scores fall within [-1.0, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run VADER against the built-in NLTK VADER test suite to ensure scores
+    fall within [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:31Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Random sample of 50 comments verified for VADER scores
+  claim_id: c_6cc0a9d3
+  context: '3. Fixed Test Corpus: Select a random sample of 50 comments from data/raw/reddit_threads.jsonl
+    (output of T008) and verify that VADER scores are bounded and non-null.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random sample of 50 comments from data/raw/reddit_threads.jsonl
+    and verify that VADER scores are bounded and non-null.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa computed between VADER and human annotations
+  claim_id: c_76b74527
+  context: '4. Inter-Rater Reliability: Compute Cohen''s Kappa between VADER predictions
+    and human annotations on the fetched corpus.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_computed_between_VADER_and_human_annotations
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa between VADER predictions and human annotations
+    on the fetched corpus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:39Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum recorded for verification sample
+  claim_id: c_7029013c
+  context: 'Data Hygiene: Compute SHA-256 checksum of the sample used for verification
+    and record it in state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml
+    under artifact_hashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA-256 checksum of the sample used for verification and record
+    it in state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml under
+    artifact_hashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:42Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with fewer than 5 replies excluded from contagion analysis
+  claim_id: c_ef67e402
+  context: 'Constraint: Strictly exclude threads with <5 replies from all contagion
+    analysis. Threads with <20 replies are excluded from the primary fixed-window
+    set but included in the secondary variable-window set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_fewer_than_5_replies_excluded_from_contagion_an
+  kind: magnitude
+  raw_text: Strictly exclude threads with <5 replies from all contagion analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:50Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sentiment delta calculated over first 20 comments for threads with 20+
+    replies
+  claim_id: c_de4c6790
+  context: '1. Fixed Window (Primary): For threads with reply_count >= 20, calculate
+    the change in sentiment (delta) of subsequent replies over the first 20 comments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For threads with reply_count >= 20, calculate the change in sentiment
+    (delta) of subsequent replies over the first 20 comments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:09:54Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Delta defined as slope of linear regression of sentiment vs reply position
+  claim_id: c_63453f29
+  context: Delta is defined as the slope of the linear regression of sentiment score
+    vs. reply position (1 to 20).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Delta_defined_as_slope_of_linear_regression_of_sentiment_vs
+  kind: entity_fact
+  raw_text: Delta is defined as the slope of the linear regression of sentiment score
+    vs. reply position (1 to 20).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:27Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between seed sentiment and delta
+  claim_id: c_9e5fc0a4
+  context: Compute the Pearson correlation between the seed-post sentiment and this
+    delta.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_computed_between_seed_sentiment_and_delt
+  kind: entity_fact
+  raw_text: Compute the Pearson correlation between the seed-post sentiment and this
+    delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:34Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Delta calculated over available replies for threads with 5 to 19 replies
+  claim_id: c_8d5537db
+  context: '2. Variable Window (Secondary): For threads with 5 <= reply_count < 20,
+    calculate the delta over the available replies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For threads with 5 <= reply_count < 20, calculate the delta over the available
+    replies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:39Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Beta regression used for bounded outcomes
+  claim_id: c_027f8957
+  context: Use beta regression for bounded outcomes (agreement proportion).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Beta_regression_used_for_bounded_outcomes
+  kind: entity_fact
+  raw_text: Use beta regression for bounded outcomes (agreement proportion).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:47Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Distribution for time-to-decision selected based on AIC/BIC
+  claim_id: c_bb4b0ca9
+  context: For time-to-decision (continuous duration), select an appropriate distribution
+    (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC) and use the
+    corresponding link function.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distribution_for_time-to-decision_selected_based_on_AIC/BIC
+  kind: entity_fact
+  raw_text: For time-to-decision (continuous duration), select an appropriate distribution
+    (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction applied when 3 or more tests run
+  claim_id: c_dd9bd6c8
+  context: "Implement multiple-comparison correction in code/data/modeling.py: Apply\
+    \ Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests are run (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests\
+    \ are run."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: FP/FN columns set to null if SC-006 compliance fails
+  claim_id: c_071c42b9
+  context: 'Constraint: If T019b reports sc_006_compliance: false, FP/FN columns must
+    be filled with null and a warning logged. Inconclusive cases are excluded from
+    FP/FN calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If T019b reports sc_006_compliance: false, FP/FN columns must be filled
+    with null and a warning logged.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:10:58Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between contagion index and three metrics
+  claim_id: c_4e188800
+  context: '1. Correlation Analysis: Compute the Pearson correlation between contagion_index
+    and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation
+    score for each sweep (agreement cutoff {, 0.6, 0.7} and entropy threshold {0.2,
+    0.4, 0.6}).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute the Pearson correlation between contagion_index and (1) agreement_proportion,
+    (2) Shannon entropy, and (3) external validation score for each sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:01Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Correlation set to null if fewer than 2 data points in grid cell
+  claim_id: c_35c136fd
+  context: '2. Null Handling: If a grid cell has <2 data points or correlation cannot
+    be computed, set the correlation coefficient to null and log the reason.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_set_to_null_if_fewer_than_2_data_points_in_grid
+  kind: magnitude
+  raw_text: If a grid cell has <2 data points or correlation cannot be computed, set
+    the correlation coefficient to null and log the reason.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:06Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: No RuntimeError raised if sensitivity grid is incomplete
+  claim_id: c_d2d5a284
+  context: '3. Grid Enforcement: Do NOT raise a RuntimeError if the grid is incomplete.
+    Report valid sensitivity analysis for any subset of the grid (partial coverage
+    is acceptable) and log a warning for missing cells.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_RuntimeError_raised_if_sensitivity_grid_is_incomplete
+  kind: entity_fact
+  raw_text: Do NOT raise a RuntimeError if the grid is incomplete.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:13Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Partial sensitivity analysis acceptable if at least one analysis reported
+  claim_id: c_4da2c90f
+  context: "This ensures SC-004 compliance is met as long as \u22651 analysis is reported."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Partial_sensitivity_analysis_acceptable_if_at_least_one_anal
+  kind: magnitude
+  raw_text: "Report valid sensitivity analysis for any subset of the grid (partial\
+    \ coverage is acceptable) as long as \u22651 analysis is reported."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:22Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Trend summary set to decreasing if correlation drops with higher cutoffs
+  claim_id: c_96d0b010
+  context: If correlation coefficient decreases as agreement cutoff increases (0.5
+    -> 0.6 -> 0.7), set trend_summary = 'decreasing trend'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation coefficient decreases as agreement cutoff increases (0.5
+    -> 0.6 -> 0.7), set trend_summary = 'decreasing trend'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:26Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Trend summary set to increasing if correlation rises with higher cutoffs
+  claim_id: c_f2414efe
+  context: If correlation coefficient increases as agreement cutoff increases, set
+    trend_summary = 'increasing trend'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trend_summary_set_to_increasing_if_correlation_rises_with_hi
+  kind: entity_fact
+  raw_text: If correlation coefficient increases as agreement cutoff increases, set
+    trend_summary = 'increasing trend'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:11:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VIF computed only if at least 2 predictors correlated above 0.5
+  claim_id: c_9c09aa09
+  context: "Threshold Logic: Conditional Trigger: First compute pairwise correlations\
+    \ for the 4 predictors. Only if \u22652 predictors have a correlation coefficient\
+    \ > 0.5 (or a defined threshold) does the task proceed to compute VIF."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_computed_only_if_at_least_2_predictors_correlated_above
+  kind: magnitude
+  raw_text: "Only if \u22652 predictors have a correlation coefficient > 0.5 does\
+    \ the task proceed to compute VIF."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:05Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Flag set to true if any predictor VIF exceeds 5
+  claim_id: c_c8a5956d
+  context: 'If any predictor has VIF > 5, set flagged: true and frame joint relationships
+    descriptively in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If any predictor has VIF > 5, set flagged: true and frame joint relationships
+    descriptively in the final report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:05Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Synthetic data fallbacks removed from download script
+  claim_id: c_2f831eb9
+  context: 'Review Fix: Ensure code/data/download.py implements a strict ''fail-loud''
+    policy for data fetching: Remove any try/except blocks that fall back to generate_synthetic_*()
+    or mock data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_fallbacks_removed_from_download_script
+  kind: entity_fact
+  raw_text: Remove any try/except blocks that fall back to generate_synthetic_*()
+    or mock data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:16Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if all data sources fail
+  claim_id: c_7f4bd60a
+  context: If the primary Pushshift API, Reddit API, and HuggingFace archives all
+    fail, the script MUST raise a RuntimeError with a clear message indicating the
+    data source failure, ensuring the execution stage can re-try with a verified real
+    source rather than proceeding with fabricated data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_all_data_sources_fail
+  kind: entity_fact
+  raw_text: If the primary Pushshift API, Reddit API, and HuggingFace archives all
+    fail, the script MUST raise a RuntimeError with a clear message indicating the
+    data source failure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:23Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Runtime error raised if pipeline exceeds duration threshold
+  claim_id: c_9319d352
+  context: 'Requirement: Implement a runtime check that raises an error or flags a
+    status: failure if the total runtime exceeds a predefined maximum duration threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_error_raised_if_pipeline_exceeds_duration_threshold
+  kind: entity_fact
+  raw_text: 'Implement a runtime check that raises an error or flags a status: failure
+    if the total runtime exceeds a predefined maximum duration threshold.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:30Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Performance log generated with runtime and resource metrics
+  claim_id: c_49aba878
+  context: 'Output: Generate state/performance_log.json containing total_runtime_seconds
+    (int), thread_count (int), status (string: ''success'' or ''failure''), and resource_check
+    (object: {cpu: bool, ram_gb: float, disk_gb: float}).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_log_generated_with_runtime_and_resource_metrics
+  kind: entity_fact
+  raw_text: 'Generate state/performance_log.json containing total_runtime_seconds
+    (int), thread_count (int), status (string: ''success'' or ''failure''), and resource_check.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:35Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Project state YAML updated with SHA-256 hash map
+  claim_id: c_169ae966
+  context: 'Record all artifact checksums: Update state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml
+    with a map of file paths to SHA-256 hashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml
+    with a map of file paths to SHA-256 hashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:38Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Raw data checksum verified against recorded hash before pipeline run
+  claim_id: c_a4c83b76
+  context: '1. Verify Checksum: Verify that the checksum of data/raw/reddit_threads.jsonl
+    matches the hash recorded in state/...yaml before running.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_data_checksum_verified_against_recorded_hash_before_pipe
+  kind: entity_fact
+  raw_text: Verify that the checksum of data/raw/reddit_threads.jsonl matches the
+    hash recorded in state/...yaml before running.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline re-run with same raw data and fixed seeds
+  claim_id: c_e0ad69c5
+  context: '2. Re-run Pipeline: Re-run the full pipeline (python code/analysis/run_pipeline.py
+    --threads) using the same downloaded raw data (do not re-download) and fixed random
+    seeds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_re-run_with_same_raw_data_and_fixed_seeds
+  kind: entity_fact
+  raw_text: Re-run the full pipeline using the same downloaded raw data (do not re-download)
+    and fixed random seeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:51Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: New artifact hashes asserted to match old hashes
+  claim_id: c_2098bceb
+  context: '5. Assertion: Assert that hash(new) == hash(old) for all artifacts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/New_artifact_hashes_asserted_to_match_old_hashes
+  kind: entity_fact
+  raw_text: Assert that hash(new) == hash(old) for all artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:12:58Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised and project failed on hash mismatch
+  claim_id: c_2b16d3b0
+  context: 'Constraint: If any hash mismatch is found, raise a RuntimeError and mark
+    the project as failed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_and_project_failed_on_hash_mismatch
+  kind: entity_fact
+  raw_text: If any hash mismatch is found, raise a RuntimeError and mark the project
+    as failed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:13:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Warning generated if thread count below 100
+  claim_id: c_ecec47c4
+  context: 'Logic: Read thread_count from state/performance_log.json. If thread_count
+    < 100, generate a warning block in the summary stating: ''Power limitation detected:
+    n < 100 threads. Results should be interpreted with caution due to limited statistical
+    power.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If thread_count < 100, generate a warning block in the summary stating:
+    ''Power limitation detected: n < 100 threads. Results should be interpreted with
+    caution due to limited statistical power.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:13:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Statement of sufficient power if thread count 100 or more
+  claim_id: c_b35c469f
+  context: "Constraint: This task must run after T025. Output: Append the power limitation\
+    \ statement to docs/analysis_summary.md if triggered; otherwise, state 'Power\
+    \ sufficient (n \u2265 100)'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If thread_count >= 100, state 'Power sufficient (n \u2265 100)'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:13:42Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Limitations section inserted stating study is observational and correlational
+  claim_id: c_9527489c
+  context: '1. Insert Limitations: Insert a ''Limitations'' section in docs/paper.md
+    that states: ''This study is observational with no random assignment. All reported
+    relationships between emotional contagion and decision quality are correlational
+    and should not be interpreted as causal.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Limitations_section_inserted_stating_study_is_observational
+  kind: entity_fact
+  raw_text: 'Insert a ''Limitations'' section in docs/paper.md that states: ''This
+    study is observational with no random assignment. All reported relationships between
+    emotional contagion and decision quality are correlational and should not be interpreted
+    as causal.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:13:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Limitations section verified to contain associational framing
+  claim_id: c_b8e48989
+  context: '2. Content Framing Check: Verify that the ''Limitations'' section explicitly
+    contains the associational framing statement. If missing, raise a RuntimeError.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Limitations_section_verified_to_contain_associational_framin
+  kind: entity_fact
+  raw_text: Verify that the 'Limitations' section explicitly contains the associational
+    framing statement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:14:39Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Full paper scanned for causal language
+  claim_id: c_a854fff9
+  context: '3. Full Document Scan: Scan the entire docs/paper.md (Abstract, Introduction,
+    Methods, Results, Discussion, Conclusion) for causal language.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_paper_scanned_for_causal_language
+  kind: entity_fact
+  raw_text: Scan the entire docs/paper.md (Abstract, Introduction, Methods, Results,
+    Discussion, Conclusion) for causal language.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:14:57Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Causal phrases checked in paper
+  claim_id: c_579b490d
+  context: '4. Forbidden Phrases: Check for the following phrases: ''causes'', ''leads
+    to'', ''proves'', ''determines'', ''results in'', ''influences'' (when used causally),
+    ''impact'' (when used causally), ''effect'' (when used causally).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Causal_phrases_checked_in_paper
+  kind: causal
+  raw_text: 'Check for the following phrases: ''causes'', ''leads to'', ''proves'',
+    ''determines'', ''results in'', ''influences'' (when used causally), ''impact''
+    (when used causally), ''effect'' (when used causally).'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:14:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if causal language found in paper
+  claim_id: c_94bac91d
+  context: '6. Action: If any causal language is found in any section, raise a RuntimeError
+    with a message listing the detected phrases and their locations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_causal_language_found_in_paper
+  kind: entity_fact
+  raw_text: If any causal language is found in any section, raise a RuntimeError with
+    a message listing the detected phrases and their locations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:15:11Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis verified to contain at least one valid row
+  claim_id: c_1674997f
+  context: Verify that at least one row exists with valid correlation data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_verified_to_contain_at_least_one_valid
+  kind: magnitude
+  raw_text: Verify that at least one row exists with valid correlation data in data/processed/sensitivity_analysis.csv.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:15:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis values verified against specified sets
+  claim_id: c_b1ab60d0
+  context: Verify that agreement_cutoff and entropy_threshold values are from the
+    specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that agreement_cutoff and entropy_threshold values are from the
+    specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:15:48Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline run on GitHub Actions free-tier runner with 7 GB RAM and 14
+    GB disk
+  claim_id: c_6ed28025
+  context: 'Execution Gate: Run the full pipeline end-to-end on the GitHub Actions
+    free-tier runner (limited CPU, 7 GB RAM, 14 GB disk).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If no valid rows are found, log an error to state/validation_errors.log
+    and set sc_004_compliance: false in state/validation_summary.json.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:16:04Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Artifacts generated without synthetic data fallbacks
+  claim_id: c_1eebe66f
+  context: 'Verification: Confirm that all artifacts are generated, no synthetic data
+    fallbacks are triggered, and the runtime remains within acceptable operational
+    limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Artifacts_generated_without_synthetic_data_fallbacks
+  kind: entity_fact
+  raw_text: Confirm that all artifacts are generated, no synthetic data fallbacks
+    are triggered, and the runtime remains within acceptable operational limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:16:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Output files verified for valid checksums and schema compliance
+  claim_id: c_01dc56fa
+  context: 'Data Integrity Check: Verify that all output files in data/processed/
+    have valid checksums and match the schema definitions in code/contracts/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_files_verified_for_valid_checksums_and_schema_complia
+  kind: entity_fact
+  raw_text: Verify that all output files in data/processed/ have valid checksums and
+    match the schema definitions in code/contracts/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:16:44Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Schema verification script run against generated files
+  claim_id: c_a0931733
+  context: 'Logic: Run code/analysis/verify_schemas.py against all generated CSV/JSON
+    files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_verification_script_run_against_generated_files
+  kind: entity_fact
+  raw_text: Run code/analysis/verify_schemas.py against all generated CSV/JSON files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:16:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Schema validation report generated with status and errors
+  claim_id: c_a3bd990a
+  context: 'Output: state/schema_validation_report.json with status (pass/fail) and
+    errors (list).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_validation_report_generated_with_status_and_errors
+  kind: entity_fact
+  raw_text: Generate state/schema_validation_report.json with status (pass/fail) and
+    errors (list).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:17:30Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Final validation JSON generated with criteria status
+  claim_id: c_616b76f9
+  context: 'Output: state/final_validation.json with all_criteria_met (boolean) and
+    details (object).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_validation_JSON_generated_with_criteria_status
+  kind: entity_fact
+  raw_text: Generate state/final_validation.json with all_criteria_met (boolean) and
+    details (object).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:17:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: APIs mocked to raise connection errors for fail-loud test
+  claim_id: c_70c87f57
+  context: 1. Mocks the Pushshift API, Reddit API, and HuggingFace datasets to raise
+    connection errors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/APIs_mocked_to_raise_connection_errors_for_fail-loud_test
+  kind: entity_fact
+  raw_text: Mock the Pushshift API, Reddit API, and HuggingFace datasets to raise
+    connection errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:18:10Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError asserted with specific failure message
+  claim_id: c_35f8e3af
+  context: 3. Asserts that a RuntimeError is raised with the message 'All data sources
+    failed. No synthetic data generated.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_asserted_with_specific_failure_message
+  kind: entity_fact
+  raw_text: Assert that a RuntimeError is raised with the message 'All data sources
+    failed. No synthetic data generated.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:18:31Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Paper updated to cite compliance and validation reports
+  claim_id: c_4109f682
+  context: 'Action: Update docs/paper.md to include a ''Data Quality and Limitations''
+    subsection that cites these reports.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paper_updated_to_cite_compliance_and_validation_reports
+  kind: entity_fact
+  raw_text: Update docs/paper.md to include a 'Data Quality and Limitations' subsection
+    that cites state/sc_006_compliance_report.json and state/validation_summary.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:18:58Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Model specification note added explaining random effect choice
+  claim_id: c_bb5e25de
+  context: 'Action: Add a ''Model Specification Note'' in docs/paper.md explaining
+    the choice of Subreddit as the random effect to account for intra-thread correlation
+    and avoid singular matrix error, referencing the override of Plan.md''s Subreddit
+    suggestion.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_specification_note_added_explaining_random_effect_choi
+  kind: entity_fact
+  raw_text: Add a 'Model Specification Note' in docs/paper.md explaining the choice
+    of Subreddit as the random effect to account for intra-thread correlation and
+    avoid singular matrix error, referencing the override of Plan.md's Subreddit suggestion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:19:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Quickstart updated with data sources and fallback order
+  claim_id: c_261be6e6
+  context: 'Action: Update docs/quickstart.md to include a ''Data Sources'' subsection
+    listing: 1. Primary: Pushshift API URL/Endpoint. 2. Fallback 1: Reddit Official
+    API (OAuth flow description). 3. Fallback 2: Exact HuggingFace dataset ID (hf://datasets/reddit-research/threads-2024)
+    and command to fetch. 4. Fallback 3: Internet Archive/Common Crawl archive IDs
+    and verification method.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Update docs/quickstart.md to include a ''Data Sources'' subsection listing:
+    1. Primary: Pushshift API URL/Endpoint. 2. Fallback 1: Reddit Official API (OAuth
+    flow description). 3. Fallback 2: Exact HuggingFace dataset ID (hf://datasets/reddit-research/threads-2024)
+    and command to fetch. 4. Fallback 3: Internet Archive/Common Crawl archive IDs
+    and verification method.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:19:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Empty grid cells logged and correlation set to null
+  claim_id: c_742d8680
+  context: 'Action: Add a check in code/data/modeling.py within T023b logic: if len(threads_in_cell)
+    == 0, log ''Warning: Empty grid cell for cutoff X and threshold Y'' and set correlation
+    values to null.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add a check in code/data/modeling.py within T023b logic: if len(threads_in_cell)
+    == 0, log ''Warning: Empty grid cell for cutoff X and threshold Y'' and set correlation
+    values to null.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:19:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Reproducibility report includes random seed from pytest.ini
+  claim_id: c_27fabf92
+  context: 'Action: Modify code/analysis/verify_reproducibility.py to read the seed
+    from pytest.ini and include it in the report: {''random_seed'': 42,...}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Modify code/analysis/verify_reproducibility.py to read the seed from
+    pytest.ini and include it in the report: {''random_seed'': 42,...}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:20:38Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Missing vote data logged and score set to null
+  claim_id: c_4e1ed7c0
+  context: 'Action: Update code/data/validation.py to check for missing upvotes/downvotes
+    keys in the raw JSON for Reddit threads, log thread_id to data/processed/missing_vote_data.log,
+    and set external_validation_score to null.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Missing_vote_data_logged_and_score_set_to_null
+  kind: entity_fact
+  raw_text: Update code/data/validation.py to check for missing upvotes/downvotes
+    keys in the raw JSON for Reddit threads, log thread_id to data/processed/missing_vote_data.log,
+    and set external_validation_score to null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:15Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Analysis summary updated with distribution statistics
+  claim_id: c_339cd066
+  context: 'Action: Update code/analysis/analysis_summary.py to read data/processed/all_threads_classified.csv
+    and calculate distribution statistics, appending them to the summary.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_summary_updated_with_distribution_statistics
+  kind: entity_fact
+  raw_text: Update code/analysis/analysis_summary.py to read data/processed/all_threads_classified.csv
+    and calculate distribution statistics, appending them to the summary.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Download attempts logged with timestamp and status code
+  claim_id: c_60cc86c3
+  context: 'Action: Modify code/data/download.py to log {''timestamp'': ''...'', ''endpoint'':
+    ''...'', ''status_code'':..., ''success'': true/false} for each attempt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_attempts_logged_with_timestamp_and_status_code
+  kind: entity_fact
+  raw_text: 'Modify code/data/download.py to log {''timestamp'': ''...'', ''endpoint'':
+    ''...'', ''status_code'':..., ''success'': true/false} for each attempt.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:27Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Unit test verifies emoji tokenization and sentiment scores
+  claim_id: c_e57dae9d
+  context: "Action: Add a unit test in code/tests/test_sentiment.py that verifies\
+    \ emoji sequences (e.g., '\U0001F621', '\u2764\uFE0F') are correctly tokenized\
+    \ and assigned non-zero sentiment scores."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verifies_emoji_tokenization_and_sentiment_scores
+  kind: entity_fact
+  raw_text: "Add a unit test in code/tests/test_sentiment.py that verifies emoji sequences\
+    \ (e.g., '\U0001F621', '\u2764\uFE0F') are correctly tokenized and assigned non-zero\
+    \ sentiment scores."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:32Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals computed for Pearson correlation
+  claim_id: c_a86a1a6f
+  context: 'Action: Update code/data/metrics.py in Tb to compute 95% confidence intervals
+    for the Pearson correlation and append them to the output CSV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update code/data/metrics.py in Tb to compute 95% confidence intervals
+    for the Pearson correlation and append them to the output CSV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Paper updated with data availability subsection
+  claim_id: c_9ae7907c
+  context: 'Action: Update docs/paper.md to include a ''Data Availability'' subsection
+    with the exact file path, checksum, and instructions for accessing the raw data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paper_updated_with_data_availability_subsection
+  kind: entity_fact
+  raw_text: Update docs/paper.md to include a 'Data Availability' subsection with
+    the exact file path, checksum, and instructions for accessing the raw data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:40Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Raw data scanned for synthetic markers
+  claim_id: c_45dd072d
+  context: 1. Scan data/raw/reddit_threads.jsonl for synthetic markers (e.g., 'synthetic',
+    'mock', 'generated_fallback').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_data_scanned_for_synthetic_markers
+  kind: entity_fact
+  raw_text: Scan data/raw/reddit_threads.jsonl for synthetic markers (e.g., 'synthetic',
+    'mock', 'generated_fallback').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if synthetic markers found or checksums mismatch
+  claim_id: c_b4172397
+  context: 5. If any synthetic markers are found or checksums mismatch, raise a RuntimeError
+    with a detailed report.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_synthetic_markers_found_or_checksums
+  kind: entity_fact
+  raw_text: If any synthetic markers are found or checksums mismatch, raise a RuntimeError
+    with a detailed report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:50Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data source verification JSON generated
+  claim_id: c_9a3e0950
+  context: 'Output: Generate state/data_source_verification.json with status (pass/fail),
+    sources_verified (list), and anomalies (list).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_source_verification_JSON_generated
+  kind: entity_fact
+  raw_text: Generate state/data_source_verification.json with status (pass/fail),
+    sources_verified (list), and anomalies (list).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:21:57Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Memory profiling ensures RAM usage below 7 GB
+  claim_id: c_160e9bd8
+  context: 3. Run a memory profiling test on the pipeline to ensure RAM usage stays
+    below 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a memory profiling test on the pipeline to ensure RAM usage stays
+    below 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:02Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Memory usage profile logged to JSON
+  claim_id: c_90014193
+  context: 4. Log the memory usage profile to data/processed/memory_profile.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_profile_logged_to_JSON
+  kind: entity_fact
+  raw_text: Log the memory usage profile to data/processed/memory_profile.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:11Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Streaming validation JSON generated with RAM metrics
+  claim_id: c_252156ff
+  context: 'Output: Generate state/streaming_validation.json with status (pass/fail),
+    max_ram_gb (float), and rule_compliance (boolean).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_validation_JSON_generated_with_RAM_metrics
+  kind: entity_fact
+  raw_text: Generate state/streaming_validation.json with status (pass/fail), max_ram_gb
+    (float), and rule_compliance (boolean).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Ground truth percentage verified to be 30% or higher
+  claim_id: c_9c35af73
+  context: "2. Verify that valid_thread_percentage is \u2265 30%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that valid_thread_percentage is \u2265 30%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Report generated if ground truth percentage below 30%
+  claim_id: c_830fe3b0
+  context: 3. If the percentage is < 30%, generate a detailed report explaining which
+    subreddits/sites contributed to the low coverage and why.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the percentage is < 30%, generate a detailed report explaining which
+    subreddits/sites contributed to the low coverage and why.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:47Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Ground truth coverage report generated
+  claim_id: c_84e0c97d
+  context: 'Output: Generate state/ground_truth_coverage_report.json with status (pass/fail),
+    valid_thread_percentage (float), and recommendations (list).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_coverage_report_generated
+  kind: entity_fact
+  raw_text: Generate state/ground_truth_coverage_report.json with status (pass/fail),
+    valid_thread_percentage (float), and recommendations (list).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:22:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis verified to contain at least one valid row
+  claim_id: c_7d8dc3c7
+  context: 2. Verify that at least one row exists with valid correlation data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_verified_to_contain_at_least_one_valid
+  kind: magnitude
+  raw_text: Verify that at least one row exists with valid correlation data in data/processed/sensitivity_analysis.csv.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:00Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Null correlation values verified to be logged as insufficient data
+  claim_id: c_da6f6c87
+  context: 3. Verify that no correlation values are null unless explicitly logged
+    as due to insufficient data points.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_correlation_values_verified_to_be_logged_as_insufficien
+  kind: entity_fact
+  raw_text: Verify that no correlation values are null unless explicitly logged as
+    due to insufficient data points.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:09Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if no valid sensitivity rows found
+  claim_id: c_7f6823e3
+  context: 4. If no valid rows are found, raise a RuntimeError with a detailed report.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_no_valid_sensitivity_rows_found
+  kind: entity_fact
+  raw_text: If no valid rows are found, raise a RuntimeError with a detailed report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:15Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity grid validation JSON generated
+  claim_id: c_a6d887b9
+  context: 'Output: Generate state/sensitivity_grid_validation.json with status (pass/fail),
+    grid_coverage (boolean), and missing_cells (list).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_grid_validation_JSON_generated
+  kind: entity_fact
+  raw_text: Generate state/sensitivity_grid_validation.json with status (pass/fail),
+    grid_coverage (boolean), and missing_cells (list).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Random intercept verified to be thread_id
+  claim_id: c_1d1f0812
+  context: 2. Verify that the random intercept is thread_id (not subreddit).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_intercept_verified_to_be_thread_id
+  kind: entity_fact
+  raw_text: Verify that the random intercept is thread_id (not subreddit).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:28Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Link functions and distributions verified against Spec requirements
+  claim_id: c_27cdb009
+  context: 3. Verify that the link functions and distributions match the Spec requirements
+    (beta regression for bounded outcomes, appropriate link for time-to-decision).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Link_functions_and_distributions_verified_against_Spec_requi
+  kind: entity_fact
+  raw_text: Verify that the link functions and distributions match the Spec requirements
+    (beta regression for bounded outcomes, appropriate link for time-to-decision).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:23:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if model specification mismatch found
+  claim_id: c_7871a63b
+  context: 4. If any mismatch is found, raise a RuntimeError with a detailed report.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_model_specification_mismatch_found
+  kind: entity_fact
+  raw_text: If any mismatch is found, raise a RuntimeError with a detailed report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:24:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Model specification validation JSON generated
+  claim_id: c_2c23bd6e
+  context: 'Output: Generate state/model_specification_validation.json with status
+    (pass/fail), random_intercept (string), and link_functions (dict).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_specification_validation_JSON_generated
+  kind: entity_fact
+  raw_text: Generate state/model_specification_validation.json with status (pass/fail),
+    random_intercept (string), and link_functions (dict).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:24:26Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download script implements full fallback chain with origin_type
+    logging
+  claim_id: c_258175ce
+  context: 'T008a [S] [US1] Implement `code/data/download.py` to fetch data: Primary:
+    Pushshift API. Fallback 1: Reddit Official API (OAuth). Fallback 2: Verified HuggingFace
+    archives.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_script_implements_full_fallback_chain_with_ori
+  kind: entity_fact
+  raw_text: 'The script MUST implement the full fallback chain: if the primary fails,
+    automatically attempt the next, and log the `origin_type` (API vs. archive) for
+    every thread.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:26:06Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download script raises RuntimeError if all sources fail
+  claim_id: c_5d917cf6
+  context: 'Constraint: If all sources fail, raise a `RuntimeError` with a clear message
+    indicating the data source failure. Do NOT generate synthetic data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_script_raises_RuntimeError_if_all_sources_fail
+  kind: entity_fact
+  raw_text: If all sources fail, raise a `RuntimeError` with a clear message indicating
+    the data source failure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:26:08Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VADER verification computes Cohen's Kappa against human annotations
+  claim_id: c_e871bc29
+  context: '3. **Verification**: Compute Cohen''s Kappa between VADER scores and human
+    annotations on the sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VADER_verification_computes_Cohen's_Kappa_against_human_anno
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa between VADER scores and human annotations on the
+    sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:26:10Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Manual annotation mandatory if no external human-annotated corpus found
+  claim_id: c_cfc2c672
+  context: 'Constraint: Do NOT use only the project''s own data without human annotation.
+    If no external human-annotated corpus is found, manual annotation is MANDATORY.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_annotation_mandatory_if_no_external_human-annotated_c
+  kind: entity_fact
+  raw_text: If no external human-annotated corpus is found, manual annotation is MANDATORY.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:26:31Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: 'Thread classification states: valid, valid_no_gt, invalid'
+  claim_id: c_96e8d7b2
+  context: 'Action: Classify threads into three states: ''valid'' (has GT), ''valid_no_gt''
+    (Reddit), ''invalid'' (excluded). Log the count and percentage of each.'
+  evidence:
+    entailment_evidence: 'Thread classification states: valid, valid no gt, invalid'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Thread_classification_states:_valid,_valid_no_gt,_invalid
+  kind: entity_fact
+  raw_text: 'Classify threads into three states: ''valid'' (has GT), ''valid_no_gt''
+    (Reddit), ''invalid'' (excluded).'
+  resolved_value: 'Thread classification states: valid, valid_no_gt, invalid'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T08:26:34Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Reddit consensus defined as upvotes greater than downvotes
+  claim_id: c_83f3a9a2
+  context: For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data
+    is missing, set `external_validation_score` to `null` and log the reason as 'Missing
+    Data'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reddit_consensus_defined_as_upvotes_greater_than_downvotes
+  kind: magnitude
+  raw_text: For Reddit threads, consensus is 'upvotes > downvotes'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:26:53Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Metadata completeness requirement of 95 percent for extracted threads
+  claim_id: c_51ac285f
+  context: "T011 [S] [US1] Implement validation logic in `code/data/extract.py` to\
+    \ ensure metadata (timestamp, author, comment ID) is complete for \u226595% of\
+    \ extracted threads."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate that metadata (timestamp, author, comment ID) is complete for\
+    \ \u226595% of extracted threads."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:27:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VADER scores range from -1.0 to 1.0
+  claim_id: c_754a259a
+  context: '2. **Standard Test**: Run VADER against the built-in NLTK VADER test suite
+    (bundled with the library) to ensure scores fall within [-1.0, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VADER scores must fall within the standard normalized range [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:27:54Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with fewer than 5 replies excluded from contagion analysis
+  claim_id: c_38086659
+  context: 'Constraint: **Strictly exclude** threads with <5 replies from all contagion
+    analysis. Threads with <20 replies are excluded from the *primary* fixed-window
+    set but included in the *secondary* variable-window set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_fewer_than_5_replies_excluded_from_contagion_an
+  kind: magnitude
+  raw_text: Strictly exclude threads with <5 replies from all contagion analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:27:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Fixed-window contagion index calculation uses threads with 20 or more
+    replies
+  claim_id: c_a0cd0924
+  context: '1. **Primary Set**: Select threads with `reply_count >= 20` for the fixed-window
+    contagion index calculation (as per Plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select threads with `reply_count >= 20` for the fixed-window contagion
+    index calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:04Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Delta defined as slope of linear regression of sentiment vs reply position
+    1 to 20
+  claim_id: c_6f069f53
+  context: '**Delta is defined as the slope of the linear regression of sentiment
+    score vs. reply position (1 to 20)**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Delta_defined_as_slope_of_linear_regression_of_sentiment_vs
+  kind: entity_fact
+  raw_text: Delta is defined as the slope of the linear regression of sentiment score
+    vs. reply position (1 to 20).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:06Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction applied when 3 or more hypothesis tests
+    are run
+  claim_id: c_b4de207c
+  context: "Implement multiple-comparison correction in `code/data/modeling.py`: Apply\
+    \ Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests are run (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests\
+    \ are run."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:07Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VIF computation triggered if 2 or more predictors have correlation greater
+    than 0.5
+  claim_id: c_16d08ae2
+  context: "**Conditional Trigger**: First compute pairwise correlations for the 4\
+    \ predictors. Only if \u22652 predictors have a correlation coefficient > 0.5\
+    \ (or a defined threshold) does the task proceed to compute VIF."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_computation_triggered_if_2_or_more_predictors_have_corre
+  kind: magnitude
+  raw_text: "Only if \u22652 predictors have a correlation coefficient > 0.5 does\
+    \ the task proceed to compute VIF."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:09Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Flagged true if predictor VIF exceeds 5
+  claim_id: c_70a8f4d6
+  context: 'If any predictor has VIF > 5, set `flagged: true` and frame joint relationships
+    descriptively in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If any predictor has VIF > 5, set `flagged: true`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:10Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on up to 500 threads within 6 hours on CPU-only runner
+  claim_id: c_b801b449
+  context: 'T025 [S] [US3] **Review Fix**: Run full pipeline on **up to N=500** threads
+    and verify completion within 6 hours on CPU-only runner (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on up to N=500 threads and verify completion within
+    6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:28:32Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Warning generated if thread count is less than 100
+  claim_id: c_db2040f3
+  context: 'If `thread_count < 100`, generate a warning block in the summary stating:
+    ''Power limitation detected: n < 100 threads. Results should be interpreted with
+    caution due to limited statistical power.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_generated_if_thread_count_is_less_than_100
+  kind: magnitude
+  raw_text: If `thread_count < 100`, generate a warning block stating 'Power limitation
+    detected'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:29:35Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis grid values from sets 0.5, 0.6, 0.7 and 0.2, 0.4,
+    0.6
+  claim_id: c_adf9b12c
+  context: Verify that `agreement_cutoff` and `entropy_threshold` values are from
+    the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that `agreement_cutoff` and `entropy_threshold` values are from
+    the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:29:36Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline execution on GitHub Actions free-tier with 7 GB RAM and 14 GB
+    disk
+  claim_id: c_58af49a1
+  context: 'T036 [S] **Execution Gate**: Run the full pipeline end-to-end on the GitHub
+    Actions free-tier runner (limited CPU, 7 GB RAM, 14 GB disk).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must execute on the GitHub Actions free-tier runner (limited
+    CPU, 7 GB RAM, 14 GB disk).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:29:53Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis grid must contain at least one row with valid correlation
+    data
+  claim_id: c_08a94a7a
+  context: Verify that at least one row exists with valid correlation data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_grid_must_contain_at_least_one_row_with
+  kind: magnitude
+  raw_text: Verify that at least one row exists with valid correlation data in the
+    sensitivity analysis grid.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:30:23Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 42 in pytest.ini
+  claim_id: c_b0315705
+  context: Create `code/tests/conftest.py` and `pytest.ini` to enforce random seed
+    pinning (e.g., `addopts = --random-seed=42`)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed is pinned to 42 in pytest.ini.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:30:37Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download script implements fallback chain logging origin type
+  claim_id: c_7841b7c9
+  context: 'T008a [S] [US1] Implement `code/data/download.py` to fetch data: Primary:
+    Pushshift API. Fallback 1: Reddit Official API (OAuth). Fallback 2: Verified HuggingFace
+    archives.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_script_implements_fallback_chain_logging_origi
+  kind: entity_fact
+  raw_text: 'The script MUST implement the full fallback chain: if the primary fails,
+    automatically attempt the next, and log the `origin_type` (API vs. archive) for
+    every thread.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:35:26Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Data download raises RuntimeError on source failure without generating
+    synthetic data
+  claim_id: c_49ecf8e0
+  context: 'Constraint: If all sources fail, raise a `RuntimeError` with a clear message
+    indicating the data source failure. Do NOT generate synthetic data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_raises_RuntimeError_on_source_failure_without
+  kind: entity_fact
+  raw_text: If all sources fail, raise a `RuntimeError` with a clear message indicating
+    the data source failure. Do NOT generate synthetic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:35:51Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cryptographic checksum of raw data recorded in project state file
+  claim_id: c_21de4b76
+  context: 'Data Hygiene: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl`
+    and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`
+    under `artifact_hashes`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and
+    record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`
+    under `artifact_hashes`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:35:51Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VADER scores verified within standard normalized range
+  claim_id: c_2c707055
+  context: 'Standard Test: Run VADER against the built-in NLTK VADER test suite (bundled
+    with the library) to ensure scores fall within the standard normalized range.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VADER_scores_verified_within_standard_normalized_range
+  kind: entity_fact
+  raw_text: Verify VADER scores fall within the standard normalized range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:36:03Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa computed between VADER scores and human annotations
+  claim_id: c_e36176cb
+  context: 'Verification: Compute Cohen''s Kappa between VADER scores and human annotations
+    on the sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_computed_between_VADER_scores_and_human_annota
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa between VADER scores and human annotations on the
+    sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:36:05Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Manual annotation mandatory for n=50 sample by 2 raters if external corpus
+    unavailable
+  claim_id: c_3067092b
+  context: 'Fallback: If the external dataset is unavailable or lacks human annotations,
+    implement a manual annotation protocol for a representative sample (n=50) from
+    the project''s own data (if available) or a generic corpus, ensuring the sample
+    is annotated by at least 2 human raters to calculate inter-rater reliability.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 3.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Manual_annotation_mandatory_for_n=50_sample_by_2_raters_if_e
+  kind: magnitude
+  raw_text: If no external human-annotated corpus is found, manual annotation is MANDATORY
+    for a representative sample (n=50) annotated by at least 2 human raters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T08:41:33Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 3
+  canonical: Reddit consensus defined as upvotes greater than downvotes
+  claim_id: c_3f440b1a
+  context: 'Consensus Definition: For Stack Exchange, consensus is the ''accepted_answer_id''.
+    For Reddit, consensus is ''upvotes > downvotes''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reddit_consensus_defined_as_upvotes_greater_than_downvotes
+  kind: magnitude
+  raw_text: For Reddit threads, consensus is defined as upvotes being greater than
+    downvotes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:46:41Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: External validation score set to null if Reddit upvotes equal downvotes
+  claim_id: c_7210b1bf
+  context: If upvote/downvote data is missing, set `external_validation_score` to
+    `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit
+    thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_validation_score_set_to_null_if_Reddit_upvotes_equa
+  kind: entity_fact
+  raw_text: If upvotes == downvotes for a Reddit thread, set `external_validation_score`
+    to `null` and log the reason as 'Inconclusive'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:46:43Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 2
+  canonical: RuntimeError raised if valid thread percentage is less than 30
+  claim_id: c_59a595a8
+  context: 'Constraint: If `valid_thread_percentage < 30`, **raise a RuntimeError**
+    with a message ''Ground truth threshold (<30%) not met. Predictive accuracy analysis
+    cannot proceed.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_valid_thread_percentage_is_less_than
+  kind: magnitude
+  raw_text: If `valid_thread_percentage < 30`, raise a RuntimeError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:46:45Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Metadata completeness verified for at least 95 percent of extracted threads
+  claim_id: c_49a6ee36
+  context: "Implement validation logic in `code/data/extract.py` to ensure metadata\
+    \ (timestamp, author, comment ID) is complete for \u226595% of extracted threads."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metadata_completeness_verified_for_at_least_95_percent_of_ex
+  kind: magnitude
+  raw_text: "Ensure metadata (timestamp, author, comment ID) is complete for \u2265\
+    95% of extracted threads."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:47:04Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VADER scores bounded within negative one to positive one
+  claim_id: c_471d7b28
+  context: 'Standard Test: Run VADER against the built-in NLTK VADER test suite (bundled
+    with the library) to ensure scores fall within [-1.0, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VADER scores must fall within [-1.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:47:24Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Random sample of 50 comments selected for verification
+  claim_id: c_cd6b2f97
+  context: 'Fixed Test Corpus: Select a random sample of 50 comments from `data/raw/reddit_threads.jsonl`
+    (output of T008) and verify that VADER scores are bounded and non-null.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random sample of 50 comments from `data/raw/reddit_threads.jsonl`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:47:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with fewer than 5 replies excluded from contagion analysis
+  claim_id: c_fa1f5811
+  context: 'Constraint: **Strictly exclude** threads with <5 replies from all contagion
+    analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_fewer_than_5_replies_excluded_from_contagion_an
+  kind: magnitude
+  raw_text: Strictly exclude threads with <5 replies from all contagion analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:02Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with 20 or more replies selected for fixed-window analysis
+  claim_id: c_f5a2a131
+  context: 'Primary Set: Select threads with `reply_count >= 20` for the fixed-window
+    contagion index calculation (as per Plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select threads with `reply_count >= 20` for the fixed-window contagion
+    index calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:03Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with 5 to 19 replies selected for variable-window analysis
+  claim_id: c_09996994
+  context: 'Secondary Set: Select threads with `5 <= reply_count < 20` for the variable-window
+    analysis (to satisfy US2 Independent Test).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select threads with `5 <= reply_count < 20` for the variable-window analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:13Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sentiment delta calculated over first 20 comments
+  claim_id: c_2b737127
+  context: 'Fixed Window (Primary): For threads with `reply_count >= 20`, calculate
+    the **change in sentiment (delta)** of subsequent replies over the **first 20
+    comments**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the change in sentiment (delta) of subsequent replies over the
+    first 20 comments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:26Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Delta defined as slope of linear regression of sentiment vs reply position
+    1 to 20
+  claim_id: c_410b940e
+  context: Delta is defined as the slope of the linear regression of sentiment score
+    vs. reply position (1 to 20).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Delta_defined_as_slope_of_linear_regression_of_sentiment_vs
+  kind: entity_fact
+  raw_text: Delta is defined as the slope of the linear regression of sentiment score
+    vs. reply position (1 to 20).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:28Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction applied when 3 or more tests are run
+  claim_id: c_d14a01c1
+  context: "Implement multiple-comparison correction in `code/data/modeling.py`: Apply\
+    \ Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests are run (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests\
+    \ are run."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:29Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between contagion index and agreement proportion,
+    entropy, and validation score
+  claim_id: c_0b35cdee
+  context: 'Correlation Analysis: Compute the **Pearson correlation between contagion_index
+    and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation
+    score** for each sweep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute the Pearson correlation between contagion_index and (1) agreement_proportion,
+    (2) Shannon entropy, and (3) external validation score for each sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:30Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Partial sensitivity analysis grid coverage acceptable with warnings for
+    missing cells
+  claim_id: c_e767a7a6
+  context: 'Grid Enforcement: **Do NOT raise a RuntimeError** if the grid is incomplete.
+    Report valid sensitivity analysis for any subset of the grid (partial coverage
+    is acceptable) and log a warning for missing cells.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Partial_sensitivity_analysis_grid_coverage_acceptable_with_w
+  kind: entity_fact
+  raw_text: Report valid sensitivity analysis for any subset of the grid (partial
+    coverage is acceptable) and log a warning for missing cells.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VIF computation proceeds only if 2 or more predictors correlate above
+    0.5
+  claim_id: c_b5b7a834
+  context: "Conditional Trigger: First compute pairwise correlations for the 4 predictors.\
+    \ Only if \u22652 predictors have a correlation coefficient > 0.5 (or a defined\
+    \ threshold) does the task proceed to compute VIF."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Only if \u22652 predictors have a correlation coefficient > 0.5 does\
+    \ the task proceed to compute VIF."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:57Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Flag set to true if predictor VIF exceeds 5
+  claim_id: c_c91f1f62
+  context: 'Threshold Logic: If any predictor has VIF > 5, set `flagged: true` and
+    frame joint relationships descriptively in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If any predictor has VIF > 5, set `flagged: true`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:58Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline run on up to 500 threads completing within 6 hours
+  claim_id: c_d4f99a57
+  context: Run full pipeline on **up to N=500** threads and verify completion within
+    6 hours on CPU-only runner (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on up to N=500 threads and verify completion within
+    6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:59Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Warning generated for power limitation if thread count is less than 100
+  claim_id: c_197c4f12
+  context: 'Logic: Read `thread_count` from `state/performance_log.json`. If `thread_count
+    < 100`, generate a warning block in the summary stating: ''Power limitation detected:
+    n < 100 threads. Results should be interpreted with caution due to limited statistical
+    power.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_generated_for_power_limitation_if_thread_count_is_le
+  kind: magnitude
+  raw_text: 'If `thread_count < 100`, generate a warning block in the summary stating:
+    ''Power limitation detected: n < 100 threads.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:49:50Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Regex pattern used to detect specific causal phrases
+  claim_id: c_57900668
+  context: "Regex Logic: Use regex `r'\b(causes|leads to|proves|determines|results\
+    \ in|influences|impact|effect)\b'` (case-insensitive) to find matches."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Regex_pattern_used_to_detect_specific_causal_phrases
+  kind: causal
+  raw_text: "Use regex `r'\b(causes|leads to|proves|determines|results in|influences|impact|effect)\b\
+    '` to find matches for causal language."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:49:52Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Agreement and entropy thresholds verified against specified sets
+  claim_id: c_948ae616
+  context: Verify that `agreement_cutoff` and `entropy_threshold` values are from
+    the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that `agreement_cutoff` and `entropy_threshold` values are from
+    the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:49:53Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Verification requires at least one row with valid correlation data
+  claim_id: c_7ebacbf8
+  context: Verify that at least one row exists with valid correlation data.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1051: 12500'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '12500'
+    filled: true
+  kind: magnitude
+  raw_text: Verify that at least one row exists with valid correlation data.
+  resolved_value: '12500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T08:50:04Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Ground truth coverage verified to be at least 30 percent
+  claim_id: c_d4199e6d
+  context: "Verify that `valid_thread_percentage` is \u2265 30%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_coverage_verified_to_be_at_least_30_percent
+  kind: magnitude
+  raw_text: "Verify that `valid_thread_percentage` is \u2265 30%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:50:21Z'

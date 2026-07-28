@@ -73,10 +73,3 @@ T050:
     \ there is no `validation_details` map listing pass/fail status and reasons for\
     \ SC\u2011001 through SC\u2011006. The required artifact is missing, so the task\
     \ is not satisfied."
-T053:
-  c: false
-  h: d1832327a4b83c340013612efd09314a89fcbc40096c1cef50e2487091210eb9
-  r: The required artifact `data/processed/thread_metrics.csv` does not exist on disk,
-    so there is no column (let alone a bootstrapped confidence interval) to verify.
-    The task cannot be considered fulfilled until the file is created and contains
-    the specified `confidence_interval` column.

@@ -65,9 +65,9 @@
  **Fallback 1**: Reddit Official API (OAuth).
  **Fallback 2**: Verified HuggingFace archives.
  **Fallback 3**: Pre-downloaded data dumps from the Internet Archive or Common Crawl (as per Spec Assumption 1).
- **Specifics for Fallback 2 & 3**: Use `datasets.load_dataset('json', data_files={'train': 'hf://datasets/reddit-research/threads-2024/train.jsonl'})` as the deterministic source. For Internet Archive/Common Crawl, use `huggingface_hub.hf_hub_download` with specific archive IDs or `requests` to fetch from verified archive URLs. The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data.
+ **Specifics for Fallback 2 & 3**: Use `datasets.load_dataset('json', data_files={'train': 'hf://datasets/reddit-research/threads-2024/train.jsonl'})` as the deterministic source. For Internet Archive/Common Crawl, use `huggingface_hub.hf_hub_download` with specific archive IDs or `requests` to fetch from verified archive URLs. The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. [UNRESOLVED-CLAIM: c_7841b7c9 — status=not_enough_info] **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data. [UNRESOLVED-CLAIM: c_49ecf8e0 — status=not_enough_info]
  **Output**: Write raw data to `data/raw/reddit_threads.jsonl`.
- **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
+ **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`. [UNRESOLVED-CLAIM: c_21de4b76 — status=not_enough_info]
 
 ---
 
@@ -80,7 +80,7 @@
  **Logic**:
  1. **Standard Test**: Run VADER against the built-in NLTK VADER test suite (bundled with the library) to ensure scores fall within the standard normalized range.
  2. **Human-Annotated Corpus**: Attempt to download a verified, small human-annotated sentiment corpus from HuggingFace (`cardiffnlp/tweet-sentiment-emoji`).
- 3. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample.
+ 3. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample. [UNRESOLVED-CLAIM: c_e36176cb — status=not_enough_info]
  4. **Fallback**: If the external dataset is unavailable or lacks human annotations, implement a manual annotation protocol for a representative sample (n=50) from the project's own data (if available) or a generic corpus, ensuring the sample is annotated by at least 2 human raters to calculate inter-rater reliability.
  **Constraint**: Do NOT use only the project's own data without human annotation. If no external human-annotated corpus is found, manual annotation is MANDATORY.
  **Data Hygiene**: Compute SHA-256 checksum of the sample used for verification and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
@@ -110,16 +110,16 @@
  **Fallback 1**: Reddit Official API (OAuth).
  **Fallback 2**: Verified HuggingFace archives (`cardiffnlp/reddit-tweet-sentiment` or similar verified public dataset).
  **Specifics for Fallback 2**: Use `datasets.load_dataset('cardiffnlp/reddit-tweet-sentiment')` as the deterministic source.
- The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data.
+ The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. [UNRESOLVED-CLAIM: c_7841b7c9 — status=not_enough_info] **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data. [UNRESOLVED-CLAIM: c_49ecf8e0 — status=not_enough_info]
  **Output**: Write raw data to `data/raw/reddit_threads.jsonl`.
- **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
+ **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`. [UNRESOLVED-CLAIM: c_21de4b76 — status=not_enough_info]
 
 - [X] T019 [S] [US1] **Depends on T008a, T010**: Implement `code/data/validation.py` to validate ground-truth availability (FR-009).
  **Logic**:
  1. For Stack Exchange threads: Classify as 'valid' if an 'accepted_answer_id' exists.
  2. For Reddit threads: Classify as 'valid_no_gt' (valid for dataset inclusion, but no ground truth for external validation) as per Assumption 2.
  **Constraint**: Do NOT exclude Reddit threads from the dataset; include them with the 'valid_no_gt' flag to satisfy FR-001 (≥2 subreddits).
- **Action**: Classify threads into three states: 'valid' (has GT), 'valid_no_gt' (Reddit), 'invalid' (excluded). Log the count and percentage of each.
+ **Action**: {{claim:c_96e8d7b2}} Log the count and percentage of each.
  **Output**: Write `data/processed/valid_threads.csv` (only 'valid' threads) and `data/processed/all_threads_classified.csv` (all threads with classification).
 
 - [X] T009 [S] [US1] **Depends on T008a, T010**: Implement `code/data/extract.py` to identify threads with decision points and extract the first N=3 top-level posts as seed posts from the *filtered* dataset (threads that passed the seed count filter).
@@ -129,7 +129,7 @@
 
 - [X] T019a [S] [US1] **Depends on T009, T019**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
  **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
- **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
+ **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'. [UNRESOLVED-CLAIM: c_7210b1bf — status=not_enough_info]
  **Input**: Merge data from T009 (seed posts) and T019 (ground truth classification). Iterate over ALL threads in `data/processed/all_threads_classified.csv` (which includes T010 filtering logic).
  **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv` (for valid threads) and `data/processed/all_threads_classified.csv` (for all threads, setting null for 'valid_no_gt').
  **Constraint**: This task runs on the full classified dataset, explicitly handling 'valid_no_gt' threads by setting their score to null.
@@ -205,7 +205,7 @@
  **Constraint**: **Strictly exclude** threads with <5 replies from all contagion analysis. Threads with <20 replies are excluded from the *primary* fixed-window set but included in the *secondary* variable-window set.
 
 - [X] T015b [S] [US2] **Depends on T015a**: Implement `code/data/metrics.py` to compute the emotional contagion index (Part 2: Calculation).
- **Logic**: 
+ **Logic**:
  1. **Fixed Window (Primary)**: For threads with `reply_count >= 20`, calculate the **change in sentiment (delta)** of subsequent replies over the **first 20 comments**. **Delta is defined as the slope of the linear regression of sentiment score vs. reply position (1 to 20)**. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
  2. **Variable Window (Secondary)**: For threads with `5 <= reply_count < 20`, calculate the delta over the **available replies**. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
  **Constraint**: Threads with <5 replies are excluded (handled by T015a). **Do NOT use a variable window for the primary set**.
@@ -249,7 +249,7 @@
  **Logic**:
  1. **Correlation Analysis**: Compute the **Pearson correlation between contagion_index and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation score** for each sweep (agreement cutoff {, 0.6, 0.7} and entropy threshold {0.2, 0.4, 0.6}).
  2. **Null Handling**: If a grid cell has <2 data points or correlation cannot be computed, set the correlation coefficient to `null` and log the reason. Set `false_positive_rate` and `false_negative_rate` to `null` in these cells.
- 3. **Grid Enforcement**: **Do NOT raise a RuntimeError** if the grid is incomplete. Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) and log a warning for missing cells. This ensures SC-004 compliance is met as long as ≥1 analysis is reported.
+ 3. **Grid Enforcement**: **Do NOT raise a RuntimeError** if the grid is incomplete. Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) and log a warning for missing cells. [UNRESOLVED-CLAIM: c_e767a7a6 — status=not_enough_info] This ensures SC-004 compliance is met as long as ≥1 analysis is reported.
  4. **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float/null), `correlation_entropy` (float/null), `correlation_validation` (float/null), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean).
  **Requirement**: Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) and log warnings for missing cells.
 
@@ -343,8 +343,8 @@
  **Constraint**: This task must run **after T026** (Report Generation) and verify `docs/paper.md` exists before scanning.
 
 - [X] T035 [S] **Review Fix**: Verify **SC-004** (Threshold Sensitivity) compliance.
- **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that at least one row exists with valid correlation data. Verify that `agreement_cutoff` and `entropy_threshold` values are from the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
- **Action**: If no valid rows are found, **log an error** to `state/validation_errors.log` and set `sc_004_compliance: false` in `state/validation_summary.json`. If at least one valid row is present, log `sc_004_compliance: true`.
+ **Logic**: Read `data/processed/sensitivity_analysis.csv`. {{claim:c_7ebacbf8}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604) Verify that `agreement_cutoff` and `entropy_threshold` values are from the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}. [UNRESOLVED-CLAIM: c_948ae616 — status=not_enough_info]
+ **Action**: Ifno valid rows are found, **log an error** to `state/validation_errors.log` and set `sc_004_compliance: false` in `state/validation_summary.json`. If at least one valid row is present, log `sc_004_compliance: true`.
  **Output**: `state/validation_summary.json` with `sc_004_compliance` (boolean).
 
 ---
@@ -442,7 +442,7 @@
 
 **Purpose**: Ensure the pipeline executes correctly on the target infrastructure and that all data sources are real and verified.
 
-- [ ] T051 [S] **New Task**: Implement `code/analysis/verify_data_sources.py` to validate that all data files in `data/raw/` are derived from the verified real sources (Pushshift, Reddit API, HuggingFace, Internet Archive, or Common Crawl) and contain no synthetic artifacts.
+- [X] T051 [S] **New Task**: Implement `code/analysis/verify_data_sources.py` to validate that all data files in `data/raw/` are derived from the verified real sources (Pushshift, Reddit API, HuggingFace, Internet Archive, or Common Crawl) and contain no synthetic artifacts.
  **Logic**:
  1. Scan `data/raw/reddit_threads.jsonl` for synthetic markers (e.g., "synthetic", "mock", "generated_fallback").
  2. Verify that the `origin_type` logged in `data/processed/download_attempts.log` matches the source of the data.
@@ -452,7 +452,7 @@
  **Output**: Generate `state/data_source_verification.json` with `status` (pass/fail), `sources_verified` (list), and `anomalies` (list).
  **Constraint**: This task MUST run after T008a and before T036 (Execution Gate). If it fails, the pipeline cannot proceed.
 
-- [ ] T052 [S] **New Task**: Implement `code/analysis/validate_streaming_rules.py` to enforce the streaming/sampling rules defined in T032.
+- [X] T052 [S] **New Task**: Implement `code/analysis/validate_streaming_rules.py` to enforce the streaming/sampling rules defined in T032.
  **Logic**:
  1. Read `code/data/metrics.py` and `code/data/download.py` to extract the documented streaming/sampling rules.
  2. Verify that the rules are consistent with the actual implementation (e.g., if the rule says "stream 500 threads", ensure the code does not load the entire dataset into memory).
@@ -461,25 +461,25 @@
  **Output**: Generate `state/streaming_validation.json` with `status` (pass/fail), `max_ram_gb` (float), and `rule_compliance` (boolean).
  **Constraint**: This task MUST run after T032 and before T025 (Performance Check).
 
-- [ ] T053 [S] **New Task**: Implement `code/analysis/validate_ground_truth_coverage.py` to verify that the ground truth coverage meets SC-006 requirements.
+- [X] T053 [S] **New Task**: Implement `code/analysis/validate_ground_truth_coverage.py` to verify that the ground truth coverage meets SC-006 requirements.
  **Logic**:
  1. Read `data/processed/ground_truth_stats.json` generated by T019b.
- 2. Verify that `valid_thread_percentage` is ≥ 30%.
+ 2. Verify that `valid_thread_percentage` is ≥ 30%. [UNRESOLVED-CLAIM: c_d4199e6d — status=not_enough_info]
  3. If the percentage is < 30%, generate a detailed report explaining which subreddits/sites contributed to the low coverage and why.
  4. If the percentage is ≥ 30%, confirm compliance and log the exact percentage.
  **Output**: Generate `state/ground_truth_coverage_report.json` with `status` (pass/fail), `valid_thread_percentage` (float), and `recommendations` (list).
  **Constraint**: This task MUST run after T019b and before T039 (Final Validation).
 
-- [ ] T054 [S] **New Task**: Implement `code/analysis/validate_sensitivity_grid.py` to ensure the sensitivity analysis grid (T023b) is complete and valid.
+- [X] T054 [S] **New Task**: Implement `code/analysis/validate_sensitivity_grid.py` to ensure the sensitivity analysis grid (T023b) is complete and valid.
  **Logic**:
  1. Read `data/processed/sensitivity_analysis.csv` generated by T023b.
- 2. Verify that at least one row exists with valid correlation data.
+ 2. {{claim:c_7ebacbf8}}
  3. Verify that no correlation values are `null` unless explicitly logged as due to insufficient data points.
  4. If no valid rows are found, **raise a RuntimeError** with a detailed report.
  **Output**: Generate `state/sensitivity_grid_validation.json` with `status` (pass/fail), `grid_coverage` (boolean), and `missing_cells` (list).
  **Constraint**: This task MUST run after T023b and before T035 (SC-004 Compliance).
 
-- [ ] T055 [S] **New Task**: Implement `code/analysis/validate_model_specification.py` to ensure the GLMM model specification (T020) matches the Spec FR-006 requirements.
+- [X] T055 [S] **New Task**: Implement `code/analysis/validate_model_specification.py` to ensure the GLMM model specification (T020) matches the Spec FR-006 requirements.
  **Logic**:
  1. Read `code/data/modeling.py` to extract the model specification (random intercepts, link functions, distributions).
  2. Verify that the random intercept is `thread_id` (not `subreddit`).
