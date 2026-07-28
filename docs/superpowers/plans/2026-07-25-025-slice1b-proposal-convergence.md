@@ -463,10 +463,18 @@ def test_a_reroute_persistence_failure_is_route_fatal(repo, monkeypatch):
                                   message="none live")
 ```
 
+**Three corrections applied during implementation:**
+
+1. **The test's `record_reroute` calls must pass DERIVED route ids.** The draft above uses `primary_route_id="r1"`/`fallback_route_id="r2"`, but Task 1's write-time hardening recomputes both legs from the envelope `attempt_id` + `operation_id` — so those literals are rejected at the write boundary. The shipped test uses `derive_route_id("A1", operation_id, leg)`, and an added case asserts that an underived id is refused (which is the stronger contract, and the reason Task 1 added the check).
+2. **The persistence-failure test induces a REAL failure, not a monkeypatched one.** The draft patched `route_context.append` to raise. Instead the context points at a remote whose lane ref was never bootstrapped, so `sync_and_verify` fails closed with a genuine `GitLogAuthError` — same code path, no patching (Constitution III).
+3. **`derive_route_id` is imported from `events`, not `call_ledger`.** The draft's import works by accident (`call_ledger` imports the name) but names the wrong owner.
+
+**Note on "frozen — holds no mutable counter":** the SPEND counter is gone (it is durable now), but `next_operation_id` still needs a process-local repeat sequencer, so the frozen dataclass carries a `_repeats: dict` field (`compare=False`, `repr=False`). Mutating a dict inside a frozen dataclass is fine — frozen binds the fields, not their contents. The two are different things and the docstring says so.
+
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/integration/test_self_improvement_route_context.py -q`
-Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improvement.route_context'`.
+Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.self_improvement.route_context'`. Then PASS at **13 passed**; removing `record_reroute`'s error normalization fails 2 of them.
 
 - [ ] **Step 3: Write minimal implementation**
 
