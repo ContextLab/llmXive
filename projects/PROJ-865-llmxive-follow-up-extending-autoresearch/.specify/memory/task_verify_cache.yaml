@@ -37,24 +37,16 @@ T013:
     \ back to regex, which the task forbids. Moreover, the required output file `data/derived/rules_library.json`\
     \ is missing. These missing/incorrect artifacts prevent the task from being considered\
     \ complete."
-T015b:
-  c: false
-  h: 65df646451a212313097390dff1d1db991dacbbf59164aa71e508c6acf80f7c1
-  r: "The required input `data/derived/rules_library.json`, the schema file `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`,\
-    \ and the expected output `data/artifacts/rule_validation_report.json` are all\
-    \ missing, and there is no evidence that the validator was executed or that it\
-    \ correctly exits with code\u202F1 when the schema is absent. The implementation\
-    \ cannot be verified as functional without these artifacts."
 T019:
   c: false
   h: 116d5c983e715ba84d7473b97aef0b69653753090e07b2af83f7e1e91690dd18
   r: "The provided `run_experiments.py` raises a `FileNotFoundError` instead of exiting\
-    \ with code\u202F1 and the required error message, and it does not check that\
-    \ the manifest is non\u2011empty. Moreover, `data/derived/experiment_manifest.csv`\
-    \ is missing entirely, so the script cannot perform the intended pre\u2011check\
-    \ or subsequent processing. The implementation must add the exact pre\u2011check\
-    \ logic, proper exit handling, and ensure the manifest file exists and contains\
-    \ data."
+    \ with code\u202F1 and the exact error message required, and it does not check\
+    \ that the manifest is non\u2011empty. Moreover, `data/derived/experiment_manifest.csv`\
+    \ is missing entirely, so the script cannot perform the mandated pre\u2011check.\
+    \ The implementation must add the proper existence/non\u2011empty check, exit\
+    \ with status\u202F1 and the specified message, and ensure the manifest file is\
+    \ present."
 T019a:
   c: false
   h: a59d91b5ba59e6d6793c48cf82cdc34b1b5b6b9ec634e688ceda9c1c3074d9d5
@@ -64,12 +56,14 @@ T019a:
     \ deliverable\u2014a generated manifest CSV\u2014is missing."
 T022:
   c: false
-  h: 86ba43c2302b3e8fc32d25b603b830ce062ba3fef20d31600d57b4e97fdbfb8c
-  r: "The provided `merge_results.py` is truncated, contains undefined variables (e.g.,\
-    \ `MIS`), and does not implement the full merging logic. Moreover, the required\
-    \ input files (`results_rule_engine.csv`, `baseline_results.json`) and the expected\
-    \ output file (`results.csv`) are all missing, so the task\u2019s functional requirements\
-    \ are not met."
+  h: ca5a0b9684df8744c539310038d9201d99543ba55ee1edb6ad573d7aa96a6a6d
+  r: "The repository contains `code/03_execution/merge_results.py`, but the required\
+    \ data files (`data/derived/results_rule_engine.csv`, `data/derived/baseline_results.json`,\
+    \ and the manifest) are absent, and no `data/derived/results.csv` was produced.\
+    \ Moreover, the script is truncated, so we cannot confirm it implements the strict\
+    \ ID matching, validation, and failure\u2011handling logic demanded by the task.\
+    \ The missing inputs and output mean the merging functionality cannot be verified\
+    \ or executed."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -79,11 +73,13 @@ T028:
     \ satisfied."
 T029a:
   c: false
-  h: e7a3e36037e5db3ba2c479536c378254a835170497f75df44a76a438235e9e0a
+  h: 29ae00c2ab0ecb72b4339f32b58a3db573b5230cd0d6ee095f43bce33e2dc395
   r: "The required output file `data/derived/time_diff_results.json` does not exist,\
-    \ and the provided `time_diff_test.py` is incomplete (truncated) and does not\
-    \ show the logic that writes the JSON with the required keys. The task\u2019s\
-    \ core deliverable is therefore missing."
+    \ so the task\u2019s output artifact is missing. Additionally, the provided `time_diff_test.py`\
+    \ is truncated and does not clearly show that it performs the Tobit regression\
+    \ and writes the JSON with the specified keys. The next implementer must ensure\
+    \ the script generates the JSON file containing `p_value`, `ci_lower`, `ci_upper`,\
+    \ and `statistic`."
 T029b:
   c: false
   h: c2387e0aa6e67aea20ce79ce8a866d9a1990c51746ee86cac23ac58c8662c36d

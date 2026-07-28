@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
   verified_at: '2026-07-25T00:25:36.269226Z'
-- artifact_hash: 9cd5e381ad16dbbc550ac6214e0d6e7518a684080544d00d1a939fd8dfe1c8bd
+- artifact_hash: 82b16848334b0d7ff2bd809ebc6b447645ac8b1282cc7741c4384abc85f72fa1
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-28T04:08:05.363016Z'
+  verified_at: '2026-07-28T05:12:08.841313Z'

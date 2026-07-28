@@ -93,7 +93,7 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 
 ## Assumptions
 
-- The ARC-Bench dataset (25-topic subset) is accessible via the official repository linked in the *Claw AI Lab* paper and contains sufficient failure-resolution pairs for the analysis.
+- The ARC-Bench dataset (topic subset) is accessible via the official repository linked in the *Claw AI Lab* paper and contains sufficient failure-resolution pairs for the analysis.
 - The "full-mode" baseline agent can be executed on standard resources (a multi-core CPU and sufficient memory) without exceeding hardware limits.
 - The small language model used for distillation (e.g., Llama-INT) will run within the constrained RAM limit on a CPU runner.; if it exceeds this, the dataset will be sampled further to ensure feasibility.
 - The structural features (syntactic vs. semantic) are mutually exclusive and can be reliably annotated with high inter-rater agreement using the defined taxonomy.

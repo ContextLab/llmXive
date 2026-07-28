@@ -244,174 +244,232 @@
   updated_at: '2026-07-27T19:43:23Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Statistical power analysis sample size 500
-  claim_id: c_be1504e2
-  context: 'Phase 1: Setup (Shared Infrastructure), Task T044: Statistical Power Analysis'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement code/04_analysis/power_analysis.py to calculate the statistical
+  canonical: Statistical power analysis uses sample size 500 and moderate effect size
+  claim_id: c_cab4aaca
+  context: Implement code/04_analysis/power_analysis.py to calculate the statistical
     power of the mixed-effects regression given the sample size (N=500) and expected
     effect size (moderate).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis uses a sample size of N=500 and an expected
+    effect size of moderate.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:13:58Z'
+  updated_at: '2026-07-28T04:17:08Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Statistical power threshold 0.80
-  claim_id: c_48565719
-  context: 'Phase 1: Setup (Shared Infrastructure), Task T044: Statistical Power Analysis'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address causal claim
-    source_url: https://en.wikipedia.org/wiki/Statistical_power_threshold_0.80
-  kind: causal
-  raw_text: If power < 0.80, flag the result in the final report as 'Low Power' and
+  canonical: Statistical power analysis flags low power if power < 0.80
+  claim_id: c_d9fb0135
+  context: If power < 0.80, flag the result in the final report as 'Low Power' and
     suggest a larger sample size.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_flags_low_power_if_power_%3C_0.80
+  kind: magnitude
+  raw_text: The statistical power analysis flags results as 'Low Power' if the calculated
+    power is less than 0.80.
   resolved_value: null
-  resolver: resolve_causal
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:03Z'
+  updated_at: '2026-07-28T04:17:32Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Resource watchdog max memory limit 7 GB
-  claim_id: c_6b95378d
-  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T007c: Implement
-    Resource Watchdog Library'
+  canonical: Configuration sets MAX_CPU_CORES to 2 and MAX_MEMORY_GB to 7
+  claim_id: c_318091ba
+  context: 'Implement code/utils/config.py with environment variables, random seeds,
+    and explicit resource limits: MAX_CPU_CORES=2, MAX_MEMORY_GB=7...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The function select_model checks the RAM requirement of each model against
-    max_memory_gb, where max_memory_gb is 7.
+  raw_text: The configuration sets MAX_CPU_CORES to 2 and MAX_MEMORY_GB to 7.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:10Z'
+  updated_at: '2026-07-28T04:17:54Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Resource watchdog max CPU cores limit 2
-  claim_id: c_c9e574a0
-  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T007c: Implement
-    Resource Watchdog Library'
+  canonical: Configuration sets TIMEOUT_SECONDS to 3600 and BASELINE_TIMEOUT_SECONDS
+    to 7200
+  claim_id: c_8db3fd9d
+  context: '...TIMEOUT_SECONDS=3600, BASELINE_TIMEOUT_SECONDS=7200, BASELINE_CPU_CORES=4,
+    BASELINE_MEMORY_GB=16...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The function select_model checks the RAM requirement of each model against
-    max_cpu_cores, where max_cpu_cores is 2.
+  raw_text: The configuration sets TIMEOUT_SECONDS to 3600 and BASELINE_TIMEOUT_SECONDS
+    to 7200.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:17Z'
+  updated_at: '2026-07-28T04:18:10Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Synthetic fallback sample size 50
-  claim_id: c_990ed126
-  context: 'Phase 3: User Story 1, Task T036: Implement Streaming Data Loader'
+  canonical: Configuration sets BASELINE_CPU_CORES to 4 and BASELINE_MEMORY_GB to
+    16
+  claim_id: c_25784ba9
+  context: '...BASELINE_CPU_CORES=4, BASELINE_MEMORY_GB=16, MAX_STREAMING_ROWS=500...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If streaming fails or memory limits are exceeded, the script MUST generate
-    a minimal, valid synthetic sample of exactly N=50 cases.
+  raw_text: The configuration sets BASELINE_CPU_CORES to 4 and BASELINE_MEMORY_GB
+    to 16.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:25Z'
+  updated_at: '2026-07-28T04:18:32Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Inter-rater reliability Kappa threshold 0.6
-  claim_id: c_c83413d9
-  context: 'Phase 3: User Story 1, Task T054: Implement Annotation Inter-Rater Reliability
-    Check'
+  canonical: Configuration sets MAX_STREAMING_ROWS to 500
+  claim_id: c_78585a9f
+  context: '...MAX_STREAMING_ROWS=500, EXPECTED_EFFECT_SIZE=0.5, DEFAULT_SAMPLE_SIZE=50...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'If Kappa < 0.6 (and multiple annotators exist), the script MUST exit
-    with code 1 and log ''Insufficient Human Validation: Kappa < 0.6.'''
+  raw_text: The configuration sets MAX_STREAMING_ROWS to 500.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:25Z'
+  updated_at: '2026-07-28T04:18:51Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Model distillation coverage threshold 90 percent
-  claim_id: c_2649dc43
-  context: 'Phase 3: User Story 1, Task T013: Implement distill_rules.py'
+  canonical: Configuration sets EXPECTED_EFFECT_SIZE to 0.5
+  claim_id: c_a672de06
+  context: '...EXPECTED_EFFECT_SIZE=0.5, DEFAULT_SAMPLE_SIZE=50, MODEL_PRIORITY_LIST=[...]'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If the selected model produces <90% coverage on data/derived/failure_cases_val.json,
-    the script MUST fail with an error.
+  raw_text: The configuration sets EXPECTED_EFFECT_SIZE to 0.5.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:25Z'
+  updated_at: '2026-07-28T04:19:13Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Keyword retrieval uses first 50 characters
-  claim_id: c_118581f8
-  context: 'Phase 4: User Story 2, Task T017: Implement rule_engine.py'
+  canonical: Configuration sets DEFAULT_SAMPLE_SIZE to 50
+  claim_id: c_da7a530f
+  context: '...DEFAULT_SAMPLE_SIZE=50, MODEL_PRIORITY_LIST=[''Llama-3-8B-INT4'', ''Llama-3-4B-INT4'',
+    ''TinyLlama-1.1B-INT4''].'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement a secondary 'keyword-based' retrieval using the first 50 characters
-    of the error log.
+  raw_text: The configuration sets DEFAULT_SAMPLE_SIZE to 50.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:33Z'
+  updated_at: '2026-07-28T04:19:36Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Stratified sampling minimum sample size 50
-  claim_id: c_3a323e4b
-  context: 'Phase 4: User Story 2, Task T019a: Generate Manifest'
+  canonical: Model priority list includes Llama-3-8B-INT4, Llama-3-4B-INT4, and TinyLlama-1.1B-INT4
+  claim_id: c_295293e7
+  context: MODEL_PRIORITY_LIST=['Llama-3-8B-INT4', 'Llama-3-4B-INT4', 'TinyLlama-1.1B-INT4'].
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If the total sample size is insufficient for statistical power (e.g.,
-    < 50), the script MUST fail with an error.
+  raw_text: The model priority list includes Llama-3-8B-INT4, Llama-3-4B-INT4, and
+    TinyLlama-1.1B-INT4.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:33Z'
+  updated_at: '2026-07-28T04:19:50Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 2
-  canonical: Baseline execution standard resources 4 CPU 16 GB RAM
-  claim_id: c_5136c5d9
-  context: 'Phase 4: User Story 2, Task T021c: Instrument Baseline Resource Metrics'
+  attempts: 1
+  canonical: Inter-rater reliability requires Cohen's Kappa >= 0.6 for multiple annotators
+  claim_id: c_9a0fd449
+  context: 'If Kappa < 0.6 (and multiple annotators exist), the script MUST exit with
+    code 1 and log ''Insufficient Human Validation: Kappa < 0.6. Pipeline cannot proceed.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inter-rater_reliability_requires_Cohen's_Kappa_%3E=_0.6_for_mu
+  kind: magnitude
+  raw_text: The inter-rater reliability check requires a Cohen's Kappa score of at
+    least 0.6 if multiple annotators are used.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:20:38Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule distillation requires >= 90% coverage on validation set
+  claim_id: c_ddd66d29
+  context: If the selected model produces <90% coverage on data/derived/failure_cases_val.json,
+    the script MUST fail with an error and exit with code 1.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rule_distillation_requires_%3E=_90%25_coverage_on_validation_set
+  kind: magnitude
+  raw_text: The rule distillation process requires a coverage of at least 90% on the
+    validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:21:22Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule engine fallback uses first 50 characters of error log
+  claim_id: c_301d4737
+  context: If no rule matches (Unstructured), implement a secondary 'keyword-based'
+    retrieval using the first 50 characters of the error log.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run on Standard Resources (4 CPU, 16 GB RAM) via resource_watchdog.py.
+  raw_text: The rule engine fallback strategy uses the first 50 characters of the
+    error log for keyword-based retrieval.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:35Z'
+  updated_at: '2026-07-28T04:21:46Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Censored data sentinel value -1.0
-  claim_id: c_bb54cf42
-  context: 'Phase 4: User Story 2, Task T022: Data Merging'
+  canonical: Baseline execution configured for 4 CPU cores and 16 GB RAM
+  claim_id: c_be75d130
+  context: Run on Standard Resources (4 CPU, 16 GB RAM) via resource_watchdog.py by
+    explicitly passing BASELINE_CPU_CORES=4 and BASELINE_MEMORY_GB=16...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline execution is configured to run with 4 CPU cores and 16 GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:22:07Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Failed baselines recorded with time-to-pivot sentinel -1.0
+  claim_id: c_4852ddce
+  context: Explicitly retain failed baselines in the time_to_pivot column with a sentinel
+    value of -1.0 (censored data) and success as false...
   evidence:
     asserted: '-1.0'
     authority: math.pi (IEEE-754 double, Python stdlib)
@@ -421,145 +479,244 @@
     true_value: 3.141592653589793
     url: https://en.wikipedia.org/wiki/Pi
   kind: numeric
-  raw_text: Explicitly retain failed baselines in the time_to_pivot column with a
-    sentinel value of -1.0.
+  raw_text: Failed baselines are recorded with a time-to-pivot sentinel value of -1.0.
   resolved_value: '3.1'
   resolver: approximate
   source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
   source_type: external
   status: verified
-  updated_at: '2026-07-28T03:14:35Z'
+  updated_at: '2026-07-28T04:22:07Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Mixed-effects logistic regression model specification
-  claim_id: c_188d000c
-  context: 'Phase 5: User Story 3, Task T025: Implement statistical_model.py'
+  canonical: Statistical significance threshold set to alpha 0.05
+  claim_id: c_0af0030e
+  context: Implement logic... to compare the p-value from T026a against alpha=0.05.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Fit mixed-effects logistic regression (Success ~ FailureType * Method
-    + (1|TaskID)).
+  raw_text: The statistical significance threshold for the interaction term is set
+    to alpha=0.05.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:38Z'
+  updated_at: '2026-07-28T04:22:24Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Significance determination alpha 0.05
-  claim_id: c_2087722f
-  context: 'Phase 5: User Story 3, Task T026b: Significance Determination'
+  canonical: Interaction term robustness requires > 95% significance in bootstrap
+    iterations
+  claim_id: c_b304433a
+  context: Verify that the interaction term remains significant in >95% of iterations.
+    ... Verify the JSON contains percentage_significant > 0.95.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_robustness_requires_%3E_95%25_significance_in_b
+  kind: magnitude
+  raw_text: The interaction term robustness validation requires the interaction to
+    remain significant in more than 95% of bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:22:48Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests distillation thresholds 85%, 90%, and 95%
+  claim_id: c_d302a64d
+  context: Re-run the distillation process (T013) with varying coverage thresholds
+    (85%, 90%, 95%) and measure the impact on the final success rate...
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Compare the p-value from T026a against alpha=0.05.
+  raw_text: The sensitivity analysis for distillation thresholds tests values of 85%,
+    90%, and 95%.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:14:40Z'
+  updated_at: '2026-07-28T04:22:48Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Interaction term robustness threshold 95 percent
-  claim_id: c_a19fabc9
-  context: 'Phase 5: User Story 3, Task T047: Validate Interaction Term Robustness'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify that the interaction term remains significant in >95% of iterations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T03:14:40Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Bootstrap iterations for interaction term validation
-  claim_id: c_96bf1224
-  context: 'Phase 5: User Story 3, Task T047: Validate Interaction Term Robustness'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bootstrap_iterations_for_interaction_term_validation
-  kind: entity_fact
-  raw_text: Perform a sensitivity analysis on the mixed-effects model by bootstrapping
-    the dataset multiple times.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T03:14:54Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Censored data check warning condition zero rows
-  claim_id: c_474caa24
-  context: 'Revision Tasks, Task T059: Validate Censored Data Handling in Visualization'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Censored_data_check_warning_condition_zero_rows
-  kind: entity_fact
-  raw_text: If zero censored rows are found, log a warning 'No censored data detected;
-    survival curve may be inaccurate.'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T03:16:10Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Flag statistical power as low if power is less than 0.80
-  claim_id: c_019f7fd7
-  context: 'T044 [P] [US3] **Statistical Power Analysis**: Implement `code/04_analysis/power_analysis.py`
+  canonical: Statistical power analysis uses sample size N=500 and moderate expected
+    effect size
+  claim_id: c_18176fd5
+  context: 'T044 [P] [US3] Statistical Power Analysis: Implement code/04_analysis/power_analysis.py
     to calculate the statistical power of the mixed-effects regression given the sample
-    size (N=500) and expected effect size (moderate). **Logic**: Use `statsmodels.stats.power`
-    to estimate power. If power < 0.80, flag the result in the final report as ''Low
-    Power'' and suggest a larger sample size.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address causal claim
-    source_url: https://en.wikipedia.org/wiki/Flag_statistical_power_as_low_if_power_is_less_than_0.80
-  kind: causal
-  raw_text: Use statsmodels.stats.power to estimate power. If power < 0.80, flag the
-    result in the final report as 'Low Power' and suggest a larger sample size.
-  resolved_value: null
-  resolver: resolve_causal
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T03:18:02Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Generate synthetic fallback sample of exactly 50 cases
-  claim_id: c_f839bbdd
-  context: 'T036 [US1] **Implement Streaming Data Loader**: ... **Constraint**: If
-    streaming fails (e.g., network error, dataset not found) OR if memory limits are
-    exceeded during processing, the script MUST generate a minimal, valid synthetic
-    sample of exactly N=50 cases (defined in `config.py` as `DEFAULT_SAMPLE_SIZE`)
-    using `generate_mock_fallback.py`.'
+    size (N=500) and expected effect size (moderate).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The script MUST generate a minimal, valid synthetic sample of exactly
-    N=50 cases (defined in `config.py` as `DEFAULT_SAMPLE_SIZE`) using `generate_mock_fallback.py`.
+  raw_text: The statistical power analysis calculates the power of the mixed-effects
+    regression given the sample size (N=500) and expected effect size (moderate).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:19:12Z'
+  updated_at: '2026-07-28T04:24:27Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Exit pipeline if Cohen's Kappa is less than 0.6 for multiple annotators
-  claim_id: c_bd7bf273
-  context: 'T054 [US1] **Implement Annotation Inter-Rater Reliability Check**: ...
-    If Kappa < 0.6 (and multiple annotators exist), the script MUST exit with code
-    1 and log ''Insufficient Human Validation: Kappa < 0.6. Pipeline cannot proceed.'''
+  canonical: Resource watchdog implements aggressive sampling fallback when model
+    selection fails
+  claim_id: c_3fa3c100
+  context: 'T007c [Setup] Implement Resource Watchdog Library: If no model fits within
+    the limit, the function MUST implement ''aggressive sampling'' by reducing the
+    dataset size (e.g., MAX_STREAMING_ROWS reduced by [deferred]) and retrying model
+    selection.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_watchdog_implements_aggressive_sampling_fallback_wh
+  kind: entity_fact
+  raw_text: The resource watchdog implements aggressive sampling by reducing the dataset
+    size if no model fits within the limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:24:48Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Streaming data fallback sample size is exactly 50 cases
+  claim_id: c_c1ba7795
+  context: 'T036 [US1] Implement Streaming Data Loader: If streaming fails... the
+    script MUST generate a minimal, valid synthetic sample of exactly N=50 cases (defined
+    in config.py as DEFAULT_SAMPLE_SIZE) using generate_mock_fallback.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback sample for streaming data failure consists of exactly N=50
+    cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:25:28Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Inter-rater reliability check requires Cohen's Kappa >= 0.6
+  claim_id: c_d8dc1511
+  context: 'T054 [US1] Implement Annotation Inter-Rater Reliability Check: If Kappa
+    < 0.6 (and multiple annotators exist), the script MUST exit with code 1 and log
+    ''Insufficient Human Validation: Kappa < 0.6. Pipeline cannot proceed.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inter-rater_reliability_check_requires_Cohen's_Kappa_%3E=_0.6
+  kind: magnitude
+  raw_text: The inter-rater reliability check requires a Cohen's Kappa of at least
+    0.6 for multiple annotators.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:26:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Distillation rule generation requires >= 90% coverage on validation set
+  claim_id: c_40b739f0
+  context: 'T013 [US1] [FR-002] Implement code/02_annotation_distillation/distill_rules.py:
+    If the selected model produces <90% coverage on data/derived/failure_cases_val.json,
+    the script MUST fail with an error and exit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distillation_rule_generation_requires_%3E=_90%25_coverage_on_val
+  kind: magnitude
+  raw_text: The distillation rule generation requires at least 90% coverage on the
+    validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:26:43Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline agent execution constrained to 4 CPU cores and 16 GB RAM
+  claim_id: c_528836fc
+  context: 'T021c [US2] Instrument Baseline Resource Metrics: Run on Standard Resources
+    (4 CPU, 16 GB RAM) via resource_watchdog.py by explicitly passing BASELINE_CPU_CORES=4
+    and BASELINE_MEMORY_GB=16.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent execution is constrained to 4 CPU cores and 16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:27:00Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline agent execution constrained to 16 GB RAM
+  claim_id: c_42b589f5
+  context: 'T021c [US2] Instrument Baseline Resource Metrics: Run on Standard Resources
+    (4 CPU, 16 GB RAM) via resource_watchdog.py by explicitly passing BASELINE_CPU_CORES=4
+    and BASELINE_MEMORY_GB=16.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent execution is constrained to 4 CPU cores and 16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:27:01Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Interaction term robustness verified in > 95% of bootstrap iterations
+  claim_id: c_133d3a22
+  context: 'T047 [US3] [SC-003] Validate Interaction Term Robustness: Perform a sensitivity
+    analysis on the mixed-effects model by bootstrapping the dataset multiple times
+    and verifying that the interaction term remains significant in >95% of iterations.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_robustness_verified_in_%3E_95%25_of_bootstrap_i
+  kind: magnitude
+  raw_text: The sensitivity analysis for the interaction term robustness verifies
+    significance in more than 95% of bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:27:26Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: ResourceLimitExceeded exception and exit code 1 if model exceeds system
+    memory
+  claim_id: c_270ee979
+  context: 'Constraint: If the selected model exceeds the available system memory
+    during loading, raise a `ResourceLimitExceeded` exception and exit with code 1
+    (failure).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the selected model exceeds the available system memory during loading,
+    raise a ResourceLimitExceeded exception and exit with code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:33:15Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 if Kappa < 0.6 with multiple annotators
+  claim_id: c_9801ce84
+  context: 'If Kappa < 0.6 (and multiple annotators exist), the script MUST exit with
+    code 1 and log ''Insufficient Human Validation: Kappa < 0.6. Pipeline cannot proceed.'''
   evidence:
     asserted: '0.6'
     authority: math.pi (IEEE-754 double, Python stdlib)
@@ -568,7 +725,7 @@
     mode: approximate
     true_value: 3.141592653589793
     url: https://en.wikipedia.org/wiki/Pi
-  kind: magnitude
+  kind: numeric
   raw_text: 'If Kappa < 0.6 (and multiple annotators exist), the script MUST exit
     with code 1 and log ''Insufficient Human Validation: Kappa < 0.6. Pipeline cannot
     proceed.'''
@@ -577,40 +734,37 @@
   source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
   source_type: external
   status: verified
-  updated_at: '2026-07-28T03:19:13Z'
+  updated_at: '2026-07-28T04:33:15Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Fail distillation if model coverage is less than 90 percent
-  claim_id: c_b7936049
-  context: 'T013 [US1] [FR-002] Implement `code/02_annotation_distillation/distill_rules.py`
-    ... **Coverage Check**: If the selected model produces <90% coverage on `data/derived/failure_cases_val.json`,
+  canonical: Distillation script fails with exit code 1 if coverage is less than 90%
+  claim_id: c_c9352e27
+  context: 'Coverage Check: If the selected model produces <90% coverage on `data/derived/failure_cases_val.json`,
     the script MUST fail with an error and exit with code 1.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Fail_distillation_if_model_coverage_is_less_than_90_percent
+    source_url: https://en.wikipedia.org/wiki/Distillation_script_fails_with_exit_code_1_if_coverage_is_le
   kind: magnitude
-  raw_text: If the selected model produces <90% coverage on `data/derived/failure_cases_val.json`,
+  raw_text: If the selected model produces <90% coverage on data/derived/failure_cases_val.json,
     the script MUST fail with an error and exit with code 1.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:20:01Z'
+  updated_at: '2026-07-28T04:33:52Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Fail stratified sampling if total sample size is less than 50
-  claim_id: c_f08a774a
-  context: 'T019a [US2] **CRITICAL**: Implement `code/03_execution/generate_manifest.py`
-    ... If the total sample size is insufficient for statistical power (e.g., < 50),
-    the script MUST fail with an error ''Insufficient data for stratified sampling.
-    Pipeline cannot proceed.'''
+  canonical: Pipeline fails if stratified sample size is less than 50
+  claim_id: c_02f58de4
+  context: If the total sample size is insufficient for statistical power (e.g., <
+    50), the script MUST fail with an error 'Insufficient data for stratified sampling.
+    Pipeline cannot proceed.'
   evidence:
-    entailment_evidence: Fail stratified sampling if total sample size is less than
-      5
-    entailment_status: contradicted
-    source_url: https://en.wikipedia.org/wiki/Fail_stratified_sampling_if_total_sample_size_is_less_than_5
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_stratified_sample_size_is_less_than_50
   kind: magnitude
   raw_text: If the total sample size is insufficient for statistical power (e.g.,
     < 50), the script MUST fail with an error 'Insufficient data for stratified sampling.
@@ -619,61 +773,297 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: refuted
-  updated_at: '2026-07-28T03:21:21Z'
-- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
-  attempts: 1
-  canonical: Baseline agent execution uses 4 CPU cores and 16 GB RAM
-  claim_id: c_73af4846
-  context: 'T021c [US2] **Instrument Baseline Resource Metrics**: ... **Constraint**:
-    Run on **Standard Resources** (4 CPU, 16 GB RAM) via `resource_watchdog.py` (T007c)
-    by **explicitly passing** `BASELINE_CPU_CORES=4` and `BASELINE_MEMORY_GB=16` to
-    the watchdog function, overriding the global defaults.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Explicitly passing `BASELINE_CPU_CORES=4` and `BASELINE_MEMORY_GB=16`
-    to the watchdog function, overriding the global defaults.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:22:01Z'
+  updated_at: '2026-07-28T04:34:46Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Compare regression p-value against alpha of 0.05
-  claim_id: c_28c2ead8
-  context: 'T026b [US3] [SC-003] **Significance Determination**: Implement logic in
-    `statistical_model.py` (or a wrapper) to compare the p-value from T026a against
-    alpha=0.05.'
+  canonical: Missing baseline tasks marked as failed with time_to_pivot sentinel value
+    of -1.0
+  claim_id: c_1f86bb71
+  context: Explicitly retain failed baselines in the `time_to_pivot` column with a
+    sentinel value of `-1.0` (censored data) and `success` as `false` for the same
+    task IDs.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+    asserted: '-1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
   kind: numeric
-  raw_text: Implement logic in `statistical_model.py` (or a wrapper) to compare the
+  raw_text: If a task is missing due to external failure, mark it as 'failed' in results.csv
+    with a sentinel value of -1.0 in the time_to_pivot column.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T04:34:46Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Significance determined by comparing p-value against alpha of 0.05
+  claim_id: c_fccb89e8
+  context: Implement logic in `statistical_model.py` (or a wrapper) to compare the
     p-value from T026a against alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare the p-value from T026a against alpha=0.05 to determine significance.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:22:19Z'
+  updated_at: '2026-07-28T04:35:09Z'
 - artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   attempts: 1
-  canonical: Verify interaction term is significant in more than 95 percent of bootstrap
-    iterations
-  claim_id: c_c337befd
-  context: 'T047 [US3] [SC-003] **Validate Interaction Term Robustness**: ... **Verification**:
-    Verify the JSON contains `percentage_significant` > 0.95.'
+  canonical: Interaction term significant in more than 95% of bootstrap iterations
+  claim_id: c_77e33656
+  context: 'Verification: Verify the JSON contains `percentage_significant` > 0.95.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_interaction_term_is_significant_in_more_than_95_perce
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_significant_in_more_than_95%25_of_bootstrap_i
   kind: magnitude
-  raw_text: Verify the JSON contains `percentage_significant` > 0.95.
+  raw_text: Verify that the interaction term remains significant in >95% of bootstrap
+    iterations.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T03:22:52Z'
+  updated_at: '2026-07-28T04:35:30Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline agent runs on 4 CPU cores and 16 GB RAM
+  claim_id: c_eb476bc0
+  context: 'Constraint: Run on **Standard Resources** (4 CPU, 16 GB RAM) via `resource_watchdog.py`
+    (T007c) by **explicitly passing** `BASELINE_CPU_CORES=4` and `BASELINE_MEMORY_GB=16`
+    to the watchdog function.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent is expected to run on Standard Resources of 4 CPU and
+    16 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:35:53Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Rule engine fallback uses first 50 characters of error log for keyword
+    retrieval
+  claim_id: c_aca336e8
+  context: 'Fallback Strategy: If no rule matches (Unstructured), implement a secondary
+    ''keyword-based'' retrieval using the first 50 characters of the error log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rule engine uses a fallback strategy of keyword-based retrieval using
+    the first 50 characters of the error log if no rule matches.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:36:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis uses sample size of 500 and moderate effect
+    size
+  claim_id: c_b3275055
+  context: Implement `code/04_analysis/power_analysis.py` to calculate the statistical
+    power of the mixed-effects regression given the sample size (N=500) and expected
+    effect size (moderate).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis estimates power given a sample size of
+    N=500 and expected effect size of moderate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:36:53Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Default sample size is 50
+  claim_id: c_739eee3f
+  context: 'Constraint: ...generate a minimal, valid synthetic sample of exactly N=50
+    cases (defined in `config.py` as `DEFAULT_SAMPLE_SIZE`)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sample size is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:37:13Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Maximum memory limit for model selection is 7 GB
+  claim_id: c_62a83cfe
+  context: 'Deterministic Selection: Use the `select_model` function from `resource_watchdog.py`
+    (T007c) to select the largest model that fits within 7GB RAM...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum memory limit for model selection is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:37:36Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Maximum CPU cores limit for model selection is 2
+  claim_id: c_29d1891f
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: `MAX_CPU_CORES=2`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum CPU cores limit for model selection is 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:37:57Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Maximum streaming rows limit is 500
+  claim_id: c_d93eb0a1
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `MAX_STREAMING_ROWS=500`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum streaming rows limit is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:38:11Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Standard execution timeout is 3600 seconds
+  claim_id: c_51cabe5e
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `TIMEOUT_SECONDS=3600`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout for standard execution is 3600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:38:27Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline timeout is 7200 seconds
+  claim_id: c_4a47e662
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `BASELINE_TIMEOUT_SECONDS=7200`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline timeout is 7200 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:38:49Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline CPU cores limit is 4
+  claim_id: c_19af72d9
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `BASELINE_CPU_CORES=4`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline CPU cores limit is 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:39:08Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Baseline memory limit is 16 GB
+  claim_id: c_cd1d2442
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `BASELINE_MEMORY_GB=16`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline memory limit is 16 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:39:25Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Expected effect size is 0.5
+  claim_id: c_f6a43bf3
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `EXPECTED_EFFECT_SIZE=0.5`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The expected effect size for power analysis is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:39:56Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Default sample size for power analysis is 50
+  claim_id: c_48da7466
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `DEFAULT_SAMPLE_SIZE=50`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sample size for power analysis is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:40:37Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: Model priority list includes Llama-3-8B-INT4, Llama-3-4B-INT4, and TinyLlama-1.1B-INT4
+  claim_id: c_db200316
+  context: 'Implement `code/utils/config.py` with environment variables, random seeds,
+    and explicit resource limits: ... `MODEL_PRIORITY_LIST=[''Llama-3-8B-INT4'', ''Llama-3-4B-INT4'',
+    ''TinyLlama-1.1B-INT4'']`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model priority list includes Llama-3-8B-INT4, Llama-3-4B-INT4, and
+    TinyLlama-1.1B-INT4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T04:40:37Z'
