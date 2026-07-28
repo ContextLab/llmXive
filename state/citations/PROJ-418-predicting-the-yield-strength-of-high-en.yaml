@@ -1,44 +1,11 @@
-- artifact_hash: c0c41440accec26206b8938cb4864f647857d2cc94c701b579e7ef9786e6b8dc
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.3935596
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3935596
-  verified_at: '2026-07-28T18:38:13.013281Z'
-- artifact_hash: 9183e0cf21f001702265e86f570f8e63a8775ff4c190a21612bd7af04806799c
+- artifact_hash: 8fd0673b36bbc6660966a6f5ff2531d3c175d4ab58406ab49f04375f1918effc
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.3935596
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3935596
-  verified_at: '2026-07-28T18:38:35.671805Z'
-- artifact_hash: a88faff9891bdd54ca565be45d721b45e65c1969bbc6fd3fbba1bea3a57cb3e3
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/data-model.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.87654321
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.87654321
-  verified_at: '2026-07-28T18:38:56.463127Z'
-- artifact_hash: fb9e173f930a371d9e4940c019610e24eccd2d3a79daadff3304eaee3a263373
-  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.3935596
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3935596
-  verified_at: '2026-07-28T18:38:58.089376Z'
+  kind: url
+  value: https://huggingface.co/datasets/materialsproject/hea-yield-strength`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/materialsproject/hea-yield-strength
+  verified_at: '2026-07-28T19:30:33.337860Z'

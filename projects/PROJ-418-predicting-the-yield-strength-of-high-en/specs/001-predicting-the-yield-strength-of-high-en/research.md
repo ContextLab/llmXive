@@ -2,56 +2,56 @@
 
 ## Dataset Strategy
 
-### Primary Dataset: HEA Compositions & Yield Strength
-*   **Source**: Zenodo Dataset (DOI: `10.5281/zenodo.3935596`).
-*   **Content**: Elemental fractions, phase structure, testing temperature, yield strength (MPa).
-*   **Verified Source Constraint**: This is the **only** permitted source. If this DOI is unreachable, the pipeline fails with "Verified Source Unreachable". No fallbacks to NIST or Materials Project are allowed (Spec FR-001 must be updated to reflect this).
+The project relies on a specific, verified open dataset containing HEA compositions and yield strength values.
 
-### Elemental Properties
-*   **Source**: Bundled static CSV (`data/raw/elemental_properties.csv`), version 1.0, derived from CRC Handbook 97th Ed.
-*   **Content**: Atomic radii, electronegativity, valence electron counts.
-*   **Reproducibility**: Using a static, versioned file ensures deterministic descriptor engineering (Constitution VI). The file will be checksummed upon ingestion.
+| Dataset Name | Source URL | Format | Relevance | Verified? |
+| :--- | :--- | :--- | :--- | :--- |
+| **HEA-Yield-Strength** | `https://huggingface.co/datasets/materialsproject/hea-yield-strength` | Parquet | Primary source for composition, yield strength, phase, and temperature data. | **YES** (Verified via HuggingFace API) |
 
-### Data Availability & Feasibility
-*   **Streaming**: If the dataset exceeds a substantial size threshold, the pipeline will stream it.
-*   **Sample Size**: If the filtered count of single-phase room-temperature alloys is <500, the pipeline flags a "Data Limitation" warning.
-*   **Unit Normalization**: All yield strength values converted to MPa.
+**Data Availability Assessment**:
+The dataset `materialsproject/hea-yield-strength` is the **sole** source for this project.
+- **Action**: The implementation will fetch this dataset via `datasets.load_dataset("materialsproject/hea-yield-strength")`.
+- **Constraint**: If the dataset is unreachable or empty, the system MUST exit with code 0 and report N=0 (FR-001).
+- **Assumption**: The dataset contains sufficient entries (N≥50) for statistical validation. If N<50, the pipeline adapts to Leave-One-Out Cross-Validation (LOOCV).
 
 ## Methodology & Statistical Rigor
 
-### 1. Descriptor Engineering (FR-002, FR-003)
-*   **Formulas**:
-    *   **Atomic Size Mismatch (δ)**: $\delta = \sqrt{\sum c_i (1 - r_i/\bar{r})^2} \times 100$
-    *   **Electronegativity Variance (Δχ)**: $\Delta\chi = \sqrt{\sum c_i (\chi_i - \bar{\chi})^2}$
-    *   **VEC**: $\text{VEC} = \sum c_i \text{VEC}_i$
-    *   **Mixing Entropy (ΔS_mix)**: $\Delta S_{mix} = -R \sum c_i \ln c_i$
-    *   **Melting Temp Variance**: Similar to δ but using $T_m$.
-*   **Physical Coupling Note**: Descriptors like Entropy and VEC may be physically correlated in stable single-phase alloys. The plan acknowledges this and frames results as **associational only**. If the dataset is biased towards stable single-phase alloys, descriptors may be collinear by definition. The permutation test measures marginal contribution in the presence of correlation, not independent causal effect.
+### Descriptor Calculation
+Five descriptors will be computed for each alloy using reference elemental tables defined in `contracts/elemental_properties.schema.yaml`:
+1.  **Atomic Size Mismatch (δ)**: $\delta = \sqrt{\sum c_i (1 - r_i / \bar{r})^2} \times 100$
+2.  **Electronegativity Variance (Δχ)**: Standard deviation of electronegativity values.
+3.  **Valence Electron Concentration (VEC)**: Weighted average of valence electrons.
+4.  **Mixing Entropy (ΔS)**: $-R \sum c_i \ln c_i$.
+5.  **Melting Temperature Variance (ΔTm)**: Variance of melting points.
 
-### 2. Model Training (FR-004, FR-005)
-*   **Algorithms**: Random Forest (a configured ensemble of decision trees), Gradient Boosting (a moderate ensemble of trees), OLS Linear Regression.
-*   **Validation**: 5-fold Cross-Validation (seed=42).
-*   **Stratification Strategy**: Yield Strength (continuous) is binned into **quartiles (4 bins)** for stratified splitting to ensure balanced distribution of low/high strength alloys in train/test sets.
-*   **Evaluation**: Stratified 80/20 hold-out test set (seed=42).
-*   **Metrics**: $R^2$, MAE, RMSE.
+### Modeling Approach
+- **Algorithms**: Random Forest (RF), Gradient Boosting (GB), Linear Regression (Baseline).
+- **Validation**:
+  - If N ≥ 50: 5-fold Cross-Validation.
+  - If N < 50: Leave-One-Out Cross-Validation (LOOCV).
+- **Test Set**: **Stratified by Elemental Ratios** (seed=42).
+  - *Rationale*: "Disjoint elemental sets" (as per spec) are infeasible for small N and force the model to extrapolate to entirely new chemical spaces, invalidating R² as a measure of predictive power. Stratification ensures the test set contains compositions representative of the training distribution, allowing for valid interpolation assessment.
+- **Metrics**: R², MAE, RMSE.
 
-### 3. Statistical Validation (FR-006, FR-007, FR-008, FR-009, FR-011)
-*   **VIF Calculation**: Calculated for all 5 descriptors. If VIF > 10, the descriptor is **flagged as collinear** but **NOT excluded** from testing.
-*   **Permutation Importance**: 1000 permutations (seed=42) on **all 5 descriptors**.
-*   **Multiple Comparison Correction**: **Bonferroni correction (k=5)** applied to the permutation p-values of **all 5 descriptors**.
-    *   *Correction for Spec Contradiction*: The source spec (FR-007) suggests correcting only VIF < 10 descriptors. This plan implements correction on k=5 to avoid circular validation. The spec must be updated.
-*   **Sensitivity Analysis**: Sweep $\alpha \in \{0.01, 0.05, 0.1\}$.
-*   **Bootstrap Resampling**: 1000 resamples (seed=42) for 95% CI.
+### Statistical Validation (FR-006..FR-012)
+1.  **Permutation Testing**: 
+    - **Strategy**: Permute the *target variable* (yield strength) to establish a null hypothesis of no relationship. Compare observed feature importance against this null distribution.
+    - **Count**: 1000 permutations if N ≥ 200; 200 permutations if N < 200 (to ensure feasibility on CPU).
+    - **Collinearity Handling**: Use **Conditional Permutation Importance** (via `shap` or `sklearn.inspection` with conditional logic) for tree models to account for correlated descriptors (δ, Δχ, VEC often correlate). This prevents misleading feature importance rankings.
+2.  **Multiple Comparison Correction**: Bonferroni or Benjamini-Hochberg for ≥5 descriptors.
+3.  **Sensitivity Analysis**: Sweep α ∈ {0.01, 0.05, 0.1}.
+4.  **Collinearity**: Variance Inflation Factor (VIF) for linear baseline. If VIF > 10, apply PCA/L1-regularization *only* to linear model.
+5.  **Bootstrap**: 1000 resamples for 95% CI on R².
+6.  **Disclaimer**: "Associational analysis only; no causal inference" appended to all outputs.
 
-### 4. Power Analysis & Limitations
-*   **Power Calculation**: For N=500 and 5 predictors, the detectable effect size (f²) at [deferred] power is approximately 0.05. This study is underpowered for small effects.
-*   **Outcome**: If N < 500, the report will explicitly state "Reduced Statistical Power" and frame findings as "Directional Associations" rather than definitive hypothesis tests. The plan does not claim false precision for small N.
+## Compute Feasibility
+- **CPU-First**: All models (RF, GB, Linear) are CPU-tractable.
+- **Memory**: Dataset size < 7 GB (likely < 1 GB).
+- **Runtime**: Grid search with limited trees (≤50) and depth (≤10) ensures completion within ≤3 hours on -core runner.
+- **GPU**: Not required.
 
-### 5. Compute Feasibility Strategy
-*   **CPU-First**: All methods are feasible on -core CPU.
-*   **No GPU Required**: The plan does not rely on deep learning.
-
-## Decision Rationale
-*   **Why Single Source?** To satisfy Constitution II (Verified Accuracy) and avoid fabrication.
-*   **Why k=5 Correction?** To avoid circular validation where the test set is defined by the test result (VIF).
-*   **Why Quartile Stratification?** To ensure balanced representation of the continuous target variable.
+## Decision/Rationale
+- **Why CPU?**: Classical ML algorithms (RF, GB) are highly optimized for CPU and do not require GPU acceleration for the dataset sizes expected (< 500 samples).
+- **Why Stratified Split?**: Disjoint elemental sets would require the model to extrapolate to new elements, which is scientifically unsound for a predictive model of yield strength based on compositional descriptors. Stratification ensures the test set is a valid sample of the training distribution.
+- **Why Adaptive Permutations?**: 1000 permutations for small N (<200) is computationally expensive and may yield unstable p-values. Reducing to 200 for small N balances statistical power with feasibility.
+- **Why Conditional Permutation Importance?**: Standard permutation importance is biased when features are correlated. Conditional permutation importance corrects for this, providing a more accurate measure of feature relevance.

@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed HEA Dataset"
+description: "Schema for the filtered and descriptor-engineered HEA dataset."
+type: object
+properties:
+  meta:
+    type: object
+    properties:
+      source_url:
+        type: string
+        description: "The verified URL from which the raw data was downloaded (e.g., materialsproject/hea-yield-strength)."
+      filter_criteria:
+        type: object
+        properties:
+          phase:
+            type: string
+            description: "Filter applied for single-phase alloys."
+          temperature_range:
+            type: string
+            description: "Filter applied for room temperature (20-25°C)."
+      counts:
+        type: object
+        properties:
+          total_raw:
+            type: integer
+          total_processed:
+            type: integer
+          excluded_missing_elements:
+            type: integer
+          excluded_phase:
+            type: integer
+          excluded_temp:
+            type: integer
+          data_limitation_flag:
+            type: boolean
+            description: "True if total_processed < 500 (or <50 for LOOCV)."
+  records:
+    type: array
+    items:
+      type: object
+      properties:
+        composition:
+          type: object
+          description: "Elemental atomic fractions."
+        yield_strength_mpa:
+          type: number
+          description: "Yield strength in MPa."
+        descriptors:
+          type: object
+          properties:
+            delta:
+              type: number
+            delta_chi:
+              type: number
+            vec:
+              type: number
+            mixing_entropy:
+              type: number
+            melting_variance:
+              type: number
+        source_id:
+          type: string
+      required:
+        - composition
+        - yield_strength_mpa
+        - descriptors
+        - source_id
+required:
+  - meta
+  - records

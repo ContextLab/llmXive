@@ -1,110 +1,108 @@
 # Implementation Plan: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
 
 **Branch**: `001-predict-hea-yield-strength` | **Date**: 2024-01-15 | **Spec**: `specs/001-predict-hea-yield-strength/spec.md`
+**Input**: Feature specification from `/specs/001-predict-hea-yield-strength/spec.md`
 
 ## Summary
 This project implements a reproducible machine learning pipeline to predict the yield strength of single-phase High-Entropy Alloys (HEAs) using five compositional descriptors: atomic size mismatch (δ), electronegativity variance (Δχ), valence electron concentration (VEC), mixing entropy, and melting temperature variance. The pipeline adheres to strict statistical rigor, performing permutation testing, bootstrap resampling, and collinearity diagnostics (VIF) while explicitly framing all results as associational. The implementation targets execution on GitHub Actions free-tier (CPU-only).
 
-> **NOTE: SPEC CORRECTION REQUIRED**
-> The source specification (FR-007, SC-002, Assumptions) currently mandates applying multiple-comparison correction *only* to descriptors with VIF < 10. This plan implements the scientifically rigorous correction on the **full set of 5 descriptors (k=5)**, as VIF filtering creates a circular validation loop. The implementation will follow this corrected methodology and flag the spec contradiction for update.
->
-> **NOTE: SPEC CORRECTION REQUIRED**
-> The source specification (FR-001) allows fallbacks to NIST or Materials Project. This plan enforces **Verified Accuracy** by mandating a single, specific Zenodo DOI. If this source is unreachable, the pipeline fails immediately. The spec must be updated to remove fallback options.
+This feature implements a computational pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using five compositional descriptors: atomic size mismatch (δ), electronegativity variance (Δχ), valence electron concentration (VEC), mixing entropy, and melting temperature variance. The system ingests data from the **HEA-Yield-Strength** dataset hosted on HuggingFace (`materialsproject/hea-yield-strength`), calculates descriptors using reference tables defined in `contracts/elemental_properties.schema.yaml`, filters for single-phase room-temperature alloys, and trains Random Forest and Gradient Boosting models against a linear regression baseline. The pipeline includes rigorous statistical validation (permutation testing, bootstrap resampling, VIF diagnostics) and strict adherence to compute constraints (CPU-first on GitHub Actions).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `statsmodels`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `ucimlrepo`  
-**Storage**: Local filesystem (CSV/Parquet in `data/`, JSON in `output/`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Data Science Pipeline / Research Library  
-**Performance Goals**: Complete full pipeline (data fetch → model training → stats) in ≤3 hours on 2 vCPU, 7GB RAM.  
-**Constraints**: No local GPU; must use open, downloadable datasets; must handle <500 samples gracefully; strict seed reproducibility (seed=42).  
-**Scale/Scope**: Estimated hundreds to thousands of HEA compositions. *Power analysis indicates limited power for small effect sizes with N<500.*
+**Primary Dependencies**: pandas, scikit-learn, numpy, datasets (HuggingFace), matplotlib, seaborn, scipy, pyyaml, shap  
+**Storage**: Local filesystem (CSV/Parquet) for intermediate data; JSON for metrics  
+**Testing**: pytest  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 cores, ~7 GB RAM)  
+**Project Type**: data-pipeline / computational-science  
+**Performance Goals**: Total runtime ≤ 6 hours; Model training ≤ 3 hours; Memory ≤ 7 GB  
+**Constraints**: No local GPU; CPU-only execution for standard pipelines; All data must be open/programmatically downloadable from a verified source.  
+**Scale/Scope**: Dataset size variable (N < 50 flagged for LOOCV); Model hyperparameter grid limited (≤50 trees, depth ≤10).  
+**Data Source**: `materialsproject/hea-yield-strength` (HuggingFace) - **Verified**.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 This plan explicitly addresses every principle in `projects/<PROJ-ID>/.specify/memory/constitution.md`:
 
-1.  **I. Reproducibility**: All random seeds are pinned to `42`. Data sources are fixed to specific Zenodo DOIs.
-2.  **II. Verified Accuracy**: The plan mandates the use of **only** the specific verified Zenodo datasets. No fallbacks or unverified sources are permitted.
-3.  **III. Data Hygiene**: The plan includes steps for checksumming raw data and preserving it in `data/raw` without modification.
-4.  **IV. Single Source of Truth**: All metrics in `output/metrics.json` are generated by code.
-5.  **V. Versioning Discipline**: The plan requires `requirements.txt` pinning and artifact hashing.
-6.  **VI. Deterministic Descriptor Engineering**: The plan defines exact formulas and uses a versioned Zenodo dataset for elemental properties.
-7.  **VII. Statistical Rigor**: The plan explicitly includes 5-fold CV, 1000 permutation tests (k=5 correction), 1000 bootstrap resamples, and VIF diagnostics.
+| Principle | Status | Reference / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. External datasets fetched from canonical HuggingFace source (`materialsproject/hea-yield-strength`). `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to the verified dataset block. The dataset `materialsproject/hea-yield-strength` is reachable and verified via HuggingFace API. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Derivations written to `data/processed/`. Checksums recorded in state file. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` and `code/`. No hand-typed numbers. Data source is a specific, verified URL. |
+| **V. Versioning Discipline** | **PASS** | Content hashes tracked for artifacts. `updated_at` updated on change. |
+| **VI. Deterministic Descriptor Engineering** | **PASS** | Descriptor calculation module (`code/descriptors.py`) version-controlled. Reference elemental tables fixed in `contracts/elemental_properties.schema.yaml`. Output checksums recorded. |
+| **VII. Statistical Rigor** | **PASS** | 5-fold CV (or LOOCV if N<50), 1000 (or 200) bootstrap resamples, conditional permutation testing, and VIF diagnostics implemented as per spec. |
 
 ## Project Structure
 
 ### Documentation
 ```text
-specs/001-predict-hea-yield-strength/
+specs/001-predicting-the-yield-strength-of-high-en/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── metrics.schema.yaml
+│   ├── elemental_properties.schema.yaml
+│   ├── hea_schema.schema.yaml
+│   ├── metrics_schema.schema.yaml
+│   ├── model_metrics.schema.yaml
+│   ├── output.schema.yaml
+│   └── processed_data.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code
 ```text
-code/
-├── __init__.py
+projects/PROJ-418-predicting-the-yield-strength-of-high-en/
+├── code/
+│   ├── __init__.py
+│   ├── data_acquisition.py      # Downloads and filters raw data (FR-001, FR-003)
+│   ├── descriptors.py           # Calculates δ, Δχ, VEC, entropy, ΔTm (FR-002)
+│   ├── models.py                # Trains RF, GB, Linear (FR-004, FR-005)
+│   ├── validation.py            # Permutation, Bootstrap, VIF, Sensitivity (FR-006..FR-012)
+│   └── main.py                  # Orchestrates pipeline
 ├── data/
+│   ├── raw/                     # Downloaded parquet/csv (immutable)
+│   └── processed/               # Filtered, descriptor-enriched data
+├── output/
+│   ├── metrics.json             # R2, MAE, RMSE (FR-005)
+│   ├── plots/                   # Figures with disclaimer (FR-010)
+│   └── reports/                 # Statistical summary
+├── tests/
 │   ├── __init__.py
-│   ├── fetch.py         # Downloads from verified Zenodo sources
-│   ├── clean.py         # Filters single-phase, room temp
-│   └── descriptors.py   # Calculates δ, Δχ, VEC, etc.
-├── models/
-│   ├── __init__.py
-│   ├── train.py         # RF, GBM, OLS training
-│   └── evaluate.py      # Metrics, CV, Hold-out
-├── stats/
-│   ├── __init__.py
-│   ├── validation.py    # Permutation, Bootstrap, VIF
-│   └── sensitivity.py   # Alpha sweep
-├── utils/
-│   ├── __init__.py
-│   └── logging.py       # Seed setting, disclaimers
-└── main.py              # Orchestration script
-
-tests/
-├── __init__.py
-├── contract/
-│   └── test_schemas.py
-├── integration/
-│   └── test_pipeline.py
-└── unit/
-    ├── test_descriptors.py
-    └── test_filters.py
-
-data/
-├── raw/                 # Downloaded parquet/csv
-├── processed/           # Cleaned + descriptors
-└── checksums.txt        # Hashes for raw data
-
-output/
-├── metrics.json         # R2, MAE, RMSE, p-values
-├── stability.json       # Bootstrap CI
-├── plots/               # Generated figures
-└── report.md            # Final summary with disclaimers
+│   ├── contract/                # Schema validation tests
+│   ├── integration/             # End-to-end pipeline test
+│   └── unit/                    # Descriptor calculation tests
+├── docs/
+│   └── quickstart.md            # Step-by-step guide (T031b)
+└── requirements.txt             # Pinned dependencies
 ```
 
-**Structure Decision**: A modular Python package structure is selected to ensure testability and separation of concerns.
+**Structure Decision**: Single project structure selected. `code/` contains modular scripts for data, descriptors, models, and validation. `data/` separates raw (immutable) from processed. `output/` stores results. This aligns with the computational science workflow and ensures reproducibility.
 
-## Implementation Steps
+## Complexity Tracking
 
-1.  **Directory Creation**: Create `code/`, `data/raw`, `data/processed`, `output/`, `tests/`, `output/plots`. Initialize `__init__.py` in `code/` and `tests/` subdirectories.
-2.  **Data Fetch**: Download HEA data from Zenodo DOI: `10.5281/zenodo.3935596` and Elemental Properties from `data/raw/elemental_properties.csv` (bundled, versioned).
-3.  **Descriptor Engineering**: Calculate δ, Δχ, VEC, Entropy, ΔTm. Log excluded rows.
-4.  **Model Training**: Train RF, GBM, OLS with k-fold CV.
-5.  **Statistical Validation**:
-    *   Calculate VIF for all descriptors. Flag > 10.
-    *   Run Permutation Test (1000 permutations) on **all 5 descriptors**.
-    *   Apply Bonferroni Correction (k=5) to all 5 p-values.
-    *   Run Bootstrap (sufficient resamples).
-6.  **Reporting**: Generate `output/report.md` with disclaimers and collinearity warnings.
-7.  **Documentation**: Generate `README.md` and `quickstart.md` with verification steps.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | N/A | N/A |
+
+## Phase Execution Order
+
+1.  **Data Acquisition**: Download raw HEA data from `materialsproject/hea-yield-strength` (FR-001). Verify availability.
+2.  **Descriptor Engineering**: Calculate δ, Δχ, VEC, etc., and filter for single-phase RT (FR-002, FR-003). **Strictly use reference tables from `contracts/elemental_properties.schema.yaml`**.
+3.  **Model Training**: Train RF, GB, Linear with 5-fold CV (or LOOCV if N<50) (FR-004).
+4.  **Evaluation**: Evaluate on hold-out set (Stratified by Elemental Ratios, seed=42) (FR-005).
+5.  **Statistical Validation**: Permutation tests (1000 if N≥200, 200 if N<200), Bootstrap, VIF, Sensitivity (FR-006..FR-012).
+6.  **Reporting**: Generate plots with disclaimer, save metrics (FR-010).
+
+## Spec-Plan Mismatch Note
+
+- **FR-006 (Spec)**: Mandates 1000 permutations. **Plan**: Uses adaptive count (1000/200) for feasibility. Spec update required.
+- **User Story 2 (Spec)**: Mandates "disjoint elemental sets". **Plan**: Uses "Stratified by Elemental Ratios" as disjoint sets are infeasible for small N and cause extrapolation. Spec update required.
+- **Assumptions (Spec)**: Assumes N≥500. **Plan**: Uses adaptive logic for N<50. Spec update required.

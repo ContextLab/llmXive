@@ -1,86 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HEA Processed Dataset Schema"
-description: "Schema for the processed HEA dataset containing descriptors and yield strength."
-type: object
+title: "HEA Dataset Schema"
+description: "Schema for the processed HEA dataset with compositional descriptors."
+type: "object"
 properties:
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-        description: "Name of the source repository (Zenodo DOI)."
-      total_raw_records:
-        type: integer
-        description: "Count of records before filtering."
-      filtered_records:
-        type: integer
-        description: "Count of single-phase room-temperature records."
-      excluded_missing_props:
-        type: integer
-        description: "Count of rows excluded due to missing elemental properties."
-      checksum:
-        type: string
-        description: "SHA256 hash of the raw data file."
-  records:
-    type: array
-    items:
-      type: object
-      properties:
-        id:
-          type: string
-          description: "Unique identifier for the alloy."
-        elements:
-          type: object
-          additionalProperties:
-            type: number
-            description: "Atomic fraction of each element (0.0 to 1.0)."
-        phase:
-          type: string
-          enum:
-            - "Single-phase"
-          description: "Phase structure of the alloy."
-        temperature:
-          type: number
-          description: "Testing temperature in Celsius."
-        yield_strength_mpa:
-          type: number
-          description: "Yield strength normalized to MPa."
-        descriptor_delta:
-          type: number
-          description: "Atomic size mismatch (δ)."
-        descriptor_delta_chi:
-          type: number
-          description: "Electronegativity variance (Δχ)."
-        descriptor_vec:
-          type: number
-          description: "Valence electron concentration (VEC)."
-        descriptor_entropy:
-          type: number
-          description: "Mixing entropy."
-        descriptor_delta_tm:
-          type: number
-          description: "Melting temperature variance."
-        vif_scores:
-          type: object
-          additionalProperties:
-            type: number
-          description: "Variance Inflation Factor for each descriptor."
-        is_collinear:
-          type: boolean
-          description: "True if any VIF > 10."
-      required:
-        - id
-        - elements
-        - phase
-        - temperature
-        - yield_strength_mpa
-        - descriptor_delta
-        - descriptor_delta_chi
-        - descriptor_vec
-        - descriptor_entropy
-        - descriptor_delta_tm
-        - vif_scores
-        - is_collinear
+  composition:
+    type: "object"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    description: "Atomic fractions of elements in the alloy."
+  yield_strength_mpa:
+    type: "number"
+    minimum: 0
+    description: "Yield strength in MPa."
+  phase:
+    type: "string"
+    enum: ["Single-phase", "BCC", "FCC", "HCP", "Multi-phase"]
+    description: "Phase structure of the alloy."
+  testing_temp_c:
+    type: "number"
+    description: "Testing temperature in Celsius."
+  delta:
+    type: "number"
+    description: "Atomic size mismatch."
+  delta_chi:
+    type: "number"
+    description: "Electronegativity variance."
+  vec:
+    type: "number"
+    description: "Valence electron concentration."
+  mixing_entropy:
+    type: "number"
+    description: "Mixing entropy."
+  delta_tm:
+    type: "number"
+    description: "Melting temperature variance."
 required:
-  - metadata
-  - records
+  - composition
+  - yield_strength_mpa
+  - phase
+  - testing_temp_c
+  - delta
+  - delta_chi
+  - vec
+  - mixing_entropy
+  - delta_tm
+additionalProperties: false

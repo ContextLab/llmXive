@@ -67,15 +67,15 @@
 
 - [X] T010 [US1] Apply unit normalization in `code/data/preprocess.py` using the utility from T006 to convert all yield strength to MPa. **Depends on T009, T006**.
 
-- [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts) with fallback to standard databases. **Depends on T005**.
+- [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts, **melting temperature**). **Primary Source**: Load from `data/elemental_properties.csv`. **Fallback**: If missing, query WebElements API via `requests` for the specific element. **CRITICAL**: If melting temperature data is missing for any element in the dataset, the task MUST raise an error or exclude the composition; it MUST NOT silently omit the descriptor. **Depends on T005**.
 
-- [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and melting temperature variance. **Depends on T010, T011**.
+- [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and **melting temperature variance**. **CRITICAL**: This task MUST explicitly list 'melting temperature variance' as a required output and fail if the input data (from T011) does not contain melting temperatures. **Depends on T010, T011**.
 
 - [X] T013 [US1] Implement composition filter in `code/data/descriptors.py` to exclude entries with missing elemental properties. **Depends on T012**.
 
-- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **CRITICAL**: This task MUST depend on the COMPLETION of the entire data preparation chain (T008 -> T009 -> T010 -> T011 -> T012 -> T013) to ensure data artifacts are ready before orchestration. **Depends on T008, T009, T010, T011, T012, T013**.
+- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T008, T009, T010, T011, T012, T013**.
 
-- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**: This task MUST explicitly implement the "flagging" action required by FR-001: if count < 500, log a user-facing warning "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced." to stdout/stderr AND ensure this warning is included in the final report. **Depends on T014**.
+- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**: This task MUST explicitly implement the "flagging" action required by FR-001: if count < 500, log a user-facing warning "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced." to stdout/stderr AND ensure this warning flag (`count_warning`) is set to `true` in the JSON so the Report Generator (T028) can read and re-emit it. **CRITICAL**: The task description MUST explicitly state that this warning flag must be passed to the report generator (T028) to ensure it is included in the final report. **Depends on T014**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,22 +117,22 @@
 
 - [X] T030 [US3] Implement power analysis checker in `code/models/evaluate.py` to read `output/data_status.json` (from T015) and write `output/power_analysis.json` at the exact relative path `output/power_analysis.json`. **Schema**: `{ "n": int, "status": "sufficient" | "insufficient_power", "action": "run" | "skip" }`. If N < 50, set status to `insufficient_power` and action to `skip`. This artifact is the single source of truth for whether statistical tests should run. **Depends on T015**.
 
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline only** (`model_linear` from T017). Calculate VIF for all descriptors in the OLS model and flag any VIF > 10. **CRITICAL**: This task must satisfy FR-009's requirement to compute VIF "within the full multiple regression model". Do NOT calculate VIF for RF or GBM. Write results to `output/vif_results.json`. **Depends on T017**.
+- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline model ONLY** (`model_linear`). Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **CRITICAL**: FR-009 specifies VIF "within the full multiple regression model". Random Forest and Gradient Boosting are non-linear ensemble methods that do not utilize a design matrix suitable for standard VIF calculation; therefore, VIF is **not** calculated for RF or GB. Write results to `output/vif_results.json`. **Depends on T017**.
 
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T017, T018, T019, T021, T030**.
+- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (A sufficient number of permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
 
 - [X] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
 
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the **best performing tree-based model** (selected in T021) to calculate 95% CI for R². **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST **RUN** the bootstrap but report the result with a `status` of "low_power" and include a note in the confidence interval interpretation about reduced statistical power. Do NOT skip execution. **Depends on T015, T017, T018, T019, T021, T030**.
+- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (A substantial number of resamples will be generated to ensure robust statistical inference.) for **BOTH** the Linear Regression baseline model (`model_linear`) AND the best performing tree-based model (selected after tuning) to calculate a confidence interval for R². **CRITICAL**: This task MUST satisfy FR-011's requirement for "full model" stability analysis. It must check `output/power_analysis.json` (from T030). If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/bootstrap_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power. If `action` is "run", it executes the test for both models. **Depends on T015, T017, T018, T019, T030**.
 
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and calculate the count of significant descriptors and R² values for each. **CRITICAL**: This task MUST write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results. It must handle cases where T024 is skipped or reports low power by reporting "skipped" or "low_power" for the relevant alpha values. **Depends on T024, T025**.
+- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}**. Calculate the count of significant descriptors and R² values for each threshold. **CRITICAL**: This task MUST also calculate and report a "headline R²" comparison metric (e.g., `delta_R2 = best_model_R2 - linear_baseline_R2`) for each threshold to satisfy SC-003. It must write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results, the headline R² deltas, and the count of significant descriptors. **Depends on T024, T025**.
 
 - [X] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. The report MUST follow this template:
  1. Overview
  2. Model Performance (from T021)
  3. Statistical Validation (VIF, Permutation, Bootstrap)
  4. Sensitivity Analysis (from T027)
- 5. Conclusion (with disclaimer). **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated output/report.md". **Depends on T021, T023, T024, T025, T026, T027, T029a, T029b**.
+ 5. Conclusion (with disclaimer). **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated output/report.md". **CRITICAL**: This task MUST explicitly depend on T015 to read `output/data_status.json`. If `data_status['count_warning']` is true, the report MUST include a dedicated section titled "Data Limitation Warning" re-emitting the warning message from T015. **Depends on T015, T021, T023, T024, T025, T026, T027, T029a, T029b**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,6 +152,18 @@
 
 ---
 
+## Phase 7: Execution & Verification (Critical Path)
+
+**Purpose**: Ensure the pipeline executes correctly with real data and produces verified results.
+
+- [ ] T037 [US1] Execute `code/data/pipeline.py` with a verified real dataset URL. **CRITICAL**: Execute using the URL defined in `research.md` under the "Verified datasets" section. If no URL is found, raise `DATA_SOURCE_MISSING` error as per T008 logic. **Depends on T008, T015**.
+- [ ] T038 [US2] Execute `code/models/train.py` and `code/models/evaluate.py` on the processed data from T037. **Depends on T037**.
+- [ ] T039 [US3] Execute `code/models/evaluate.py` for statistical validation (Permutation, Bootstrap, VIF, Sensitivity) based on the power analysis from T030. **Depends on T038**.
+- [ ] T040 [US3] Generate the final `output/report.md` and verify all disclaimers and metrics are present. **Depends on T039**.
+- [ ] T041 [Cross-Cutting] Validate the entire pipeline end-to-end by running `tests/integration/test_pipeline.py` in a clean environment. **Depends on T040**.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -162,6 +174,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Execution & Verification (Phase 7)**: Depends on all code implementation being complete
 
 ### User Story Dependencies
 

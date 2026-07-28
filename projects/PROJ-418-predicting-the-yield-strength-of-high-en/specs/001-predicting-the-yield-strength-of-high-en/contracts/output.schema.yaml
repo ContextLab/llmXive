@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model performance metrics and statistical validation results."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    properties:
+      random_forest:
+        $ref: "#/definitions/model_metrics"
+      gradient_boosting:
+        $ref: "#/definitions/model_metrics"
+      linear_regression:
+        $ref: "#/definitions/model_metrics"
+    required:
+      - random_forest
+      - gradient_boosting
+      - linear_regression
+  statistical_validation:
+    type: "object"
+    properties:
+      permutation_p_values:
+        type: "object"
+        description: "P-values for feature importance from permutation testing."
+      bootstrap_ci:
+        type: "object"
+        description: "95% confidence intervals from bootstrap resampling."
+      vif_scores:
+        type: "object"
+        description: "Variance Inflation Factors for linear model descriptors."
+      sensitivity_analysis:
+        type: "array"
+        description: "Results for alpha sweeps (0.01, 0.05, 0.1)."
+    required:
+      - permutation_p_values
+      - bootstrap_ci
+      - vif_scores
+      - sensitivity_analysis
+  disclaimer:
+    type: "string"
+    const: "Associational analysis only; no causal inference"
+definitions:
+  model_metrics:
+    type: "object"
+    properties:
+      R2:
+        type: "number"
+      MAE:
+        type: "number"
+      RMSE:
+        type: "number"
+    required:
+      - R2
+      - MAE
+      - RMSE

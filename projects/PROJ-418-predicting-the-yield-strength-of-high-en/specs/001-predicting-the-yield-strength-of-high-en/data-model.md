@@ -2,65 +2,52 @@
 
 ## Entity Definitions
 
-### 1. HEA Composition (Raw)
-Represents the raw input record from the source dataset.
-* `elemental_fractions`: Dict or JSON string mapping element symbols (e.g., "Fe", "Cr") to atomic fractions (float).
-* `phase_structure`: String (e.g., "FCC", "BCC", "Single-phase", "Multi-phase").
-* `testing_temperature`: Float (°C).
-* `yield_strength`: Float (Original unit, e.g., MPa or GPa).
-* `source_id`: String (Unique identifier from the source dataset).
+This document defines the data structures, schemas, and transformations for the HEA yield strength prediction pipeline. All data flows from `data/raw/` (immutable) to `data/processed/` (derived) and finally to `output/`.
 
-### 2. HEA Composition (Processed)
-The cleaned and enriched record ready for modeling.
-* `id`: String (Unique project ID).
-* `elements`: Dict (Element -> Fraction).
-* `phase`: String (Filtered to "Single-phase").
-* `temperature`: Float (Filtered to 20-25°C).
-* `yield_strength_mpa`: Float (Normalized to MPa).
-* `descriptor_delta`: Float (Atomic size mismatch).
-* `descriptor_delta_chi`: Float (Electronegativity variance).
-* `descriptor_vec`: Float (Valence electron concentration).
-* `descriptor_entropy`: Float (Mixing entropy).
-* `descriptor_delta_tm`: Float (Melting temperature variance).
-* `vif_scores`: Dict (Descriptor name -> VIF value).
-* `is_collinear`: Boolean (True if any VIF > 10).
+## Entity Definitions
 
-### 3. Model Metrics
-The output of the evaluation phase.
-* `model_type`: String ("RandomForest", "GradientBoosting", "OLS").
-* `metric_name`: String ("R2", "MAE", "RMSE").
-* `value`: Float.
-* `split`: String ("train_cv", "test_holdout").
-* `seed`: Integer (42).
+### HEA Composition
+Represents a single high-entropy alloy entry.
+- **Attributes**:
+  - `composition`: Dict mapping element symbols to atomic fractions (e.g., `{"Cr": 0.2, "Fe": 0.2, ...}`).
+  - `yield_strength_mpa`: Float (normalized to MPa).
+  - `phase`: String (e.g., "BCC", "FCC", "Single-phase").
+  - `testing_temp_c`: Float (must be 20-25°C).
+  - `source`: String (dataset origin).
 
-### 4. Statistical Validation Results
-* `descriptor`: String.
-* `permutation_p_value`: Float.
-* `corrected_p_value`: Float (Bonferroni applied to k=5).
-* `is_significant_alpha_05`: Boolean.
-* `bootstrap_ci_lower`: Float (95% CI lower bound).
-* `bootstrap_ci_upper`: Float (95% CI upper bound).
+### Descriptor Set
+Computed features per alloy.
+- **Attributes**:
+  - `delta`: Float (Atomic size mismatch).
+  - `delta_chi`: Float (Electronegativity variance).
+  - `vec`: Float (Valence electron concentration).
+  - `mixing_entropy`: Float.
+  - `delta_tm`: Float (Melting temperature variance).
+  - `yield_strength_mpa`: Float (Target).
 
 ## Data Flow
 
-1. **Ingestion**: Raw data downloaded to `data/raw/`.
-2. **Cleaning**:
- * Filter: `phase == "Single-phase"` AND `20 <= temperature <= 25`.
- * Unit Conversion: `yield_strength` -> `MPa`.
- * Exclusion: Rows with missing elemental properties.
-3. **Descriptor Calculation**:
- * Load elemental properties from Zenodo ().
- * Compute δ, Δχ, VEC, Entropy, ΔTm.
- * Store in `data/processed/processed_hea.csv`.
-4. **Modeling**:
- * Split: [deferred] Train, [deferred] Test (stratified by quartile of yield strength).
- * Train: RF, GBM, OLS.
- * Evaluate: Generate `output/metrics.json`.
-5. **Validation**:
- * Permutation, Bootstrap, VIF (on all 5 descriptors).
- * Generate `output/stability.json` and `output/report.md`.
+1.  **Raw Input**: Downloaded Parquet/CSV from open repository.
+2.  **Cleaning**:
+    - Filter: `phase == "Single-phase"` AND `20 <= testing_temp_c <= 25`.
+    - Filter: Remove rows with missing `yield_strength_mpa` or missing elemental properties.
+    - Normalize: Convert all yield strength to MPa.
+3.  **Transformation**:
+    - Calculate descriptors (δ, Δχ, VEC, etc.) using fixed elemental tables.
+    - Handle missing elemental properties: Exclude composition.
+4.  **Output**:
+    - `data/processed/final_dataset.csv`: Cleaned data with descriptors.
+    - `output/metrics.json`: Model performance results.
 
-## Constraints & Assumptions
-* **Missing Data**: If an element in the composition is not found in the Zenodo elemental properties, the row is excluded.
-* **Collinearity**: If VIF > 10, the descriptor is kept for prediction but flagged as collinear in the report.
-* **Sample Size**: If N < 500, the pipeline proceeds but flags the limitation.
+## Schema Constraints
+
+- **Yield Strength**: Must be > 0.
+- **Composition**: Sum of atomic fractions must be ≈ 1.0 (within tolerance 1e-5).
+- **Descriptors**: Must be finite (no NaN/Inf).
+- **Phase**: Must be "Single-phase" for the final analysis set.
+
+## Error Handling
+
+- **Missing Data**: If N=0 after filtering, exit with code 0 and report N=0.
+- **Unit Mismatch**: Log conversion factor if non-MPa units detected.
+- **Collinearity**: If VIF > 10, flag descriptor and apply regularization (linear only).

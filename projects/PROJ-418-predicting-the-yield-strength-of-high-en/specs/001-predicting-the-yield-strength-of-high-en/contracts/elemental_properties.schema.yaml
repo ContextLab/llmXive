@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Elemental Properties"
+description: "Schema for the elemental property lookup table used in descriptor calculation."
+type: object
+properties:
+  elements:
+    type: array
+    items:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: "Element symbol (e.g., Fe, Cr)."
+        atomic_radius:
+          type: number
+          description: "Atomic radius in pm."
+        electronegativity:
+          type: number
+          description: "Pauling electronegativity."
+        valence_electrons:
+          type: integer
+          description: "Number of valence electrons."
+        melting_temp:
+          type: number
+          description: "Melting temperature in Kelvin."
+      required:
+        - symbol
+        - atomic_radius
+        - electronegativity
+        - valence_electrons
+        - melting_temp
+required:
+  - elements
