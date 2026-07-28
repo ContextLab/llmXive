@@ -1,15 +1,15 @@
 status: none
-intent: download visual genome image dataset with annotations via python package dataset
+intent: download visual genome dataset python package with images and annotations
+  python package dataset
 required_fields:
 - image_id
-- file_name
-- width
-- height
-- annotations
-- annotation_id
-- category_id
-- category_name
-- bbox
-cache_key: 936e435ad85ad48575d473948c3c8b290c976d0853a766854744372a9f5fffd3
-searched_at: '2026-07-27T16:46:45.608547+00:00'
+- image_file_path_or_url
+- objects
+- object_bounding_boxes
+- relationships
+- region_descriptions
+- scene_graph
+- complexity_score
+cache_key: 565ae76979cfb208a7046dca3e10ea4ff8f1b032e1edae2f88b7a617fdcde71f
+searched_at: '2026-07-28T21:12:21.195496+00:00'
 retry_count: 1

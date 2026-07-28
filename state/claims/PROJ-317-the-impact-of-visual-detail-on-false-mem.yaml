@@ -2168,3 +2168,677 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T09:58:26Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_23e41085
+  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) ''The Misinformation
+    Effect''.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:05:28Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 20 valid PNG files generated in data/assets/minor_objects
+  claim_id: c_e29a159a
+  context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
+    Verification: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:05:52Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: output_image shape 512x512x3 with object_count 5 after add_minor_objects
+  claim_id: c_82da18c9
+  context: 'Unit test for image enhancement logic in tests/unit/test_stimuli_manipulator.py:
+    Implement test_add_minor_objects(). Assert that output_image.shape == (512, 512,
+    3) (fixed dimensions) and object_count == 5 after calling add_minor_objects().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that output_image.shape == (512, 512, 3) (fixed dimensions) and
+    object_count == 5 after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:06:23Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: std_dev output region less than 0.1 times std_dev input region after
+    blurring
+  claim_id: c_43967a33
+  context: 'Unit test for image reduction logic in tests/unit/test_stimuli_manipulator.py:
+    Implement test_remove_minor_elements(). Assert that std_dev(output_region) < 0.1
+    * std_dev(input_region) where input_region is the masked area of the original
+    image and output_region is the same area after blurring.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Std_dev_output_region_less_than_0.1_times_std_dev_input_regi
+  kind: magnitude
+  raw_text: Assert that std_dev(output_region) < 0.1 * std_dev(input_region) where
+    input_region is the masked area of the original image and output_region is the
+    same area after blurring.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:06:38Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: At least 1 metadata file and 2 manipulated images created per input image
+  claim_id: c_b5463f58
+  context: "Integration test for full pipeline (generate \u2192 manipulate \u2192\
+    \ metadata) in tests/integration/test_stimuli_pipeline.py: Implement test_full_pipeline().\
+    \ Assert that at least 1 metadata file and 2 manipulated images (enhanced/reduced)\
+    \ are created for each input image."
+  evidence:
+    candidates:
+    - - At least 1 metadata file and
+      - 2.0
+    - - Donate Create account Log in At least
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/At_least_1_metadata_file_and_2_manipulated_images_created_pe
+  kind: magnitude
+  raw_text: Assert that at least 1 metadata file and 2 manipulated images (enhanced/reduced)
+    are created for each input image.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T21:07:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Baseline image display duration 10 seconds with 0.5 second tolerance
+  claim_id: c_4ef4b433
+  context: "Implement View: Image Display: Implement code/participants/interface.py\
+    \ to display baseline images for 10 seconds (\xB10.5s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Display baseline images for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:07:21Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration 2 minutes with 10 second tolerance
+  claim_id: c_4fd08c78
+  context: "Implement View: Distractor Task: Implement code/participants/interface.py\
+    \ to administer arithmetic questions for 2 minutes (\xB110s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Administer arithmetic questions for 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:07:45Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: SystemExit raised if false pool length is less than 10
+  claim_id: c_0da0e1b8
+  context: 'Generate Recognition Questions (Strict): ... 3. If len(false_pool) < 10,
+    raise SystemExit. 4. Select a balanced set of true and false items.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SystemExit_raised_if_false_pool_length_is_less_than_10
+  kind: magnitude
+  raw_text: If len(false_pool) < 10, raise SystemExit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:08:13Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power insufficient flag set if calculated sample size N is less than
+    50
+  claim_id: c_3a80c43a
+  context: 'Implement Power Analysis in code/analysis/stats.py: ... Constraint: If
+    calculated N < 50, set power_insufficient to true in the JSON output.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_insufficient_flag_set_if_calculated_sample_size_N_is_l
+  kind: magnitude
+  raw_text: 'Constraint: If calculated N < 50, set power_insufficient to true in the
+    JSON output.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:08:57Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: SystemExit raised if power_insufficient flag is true or missing file
+    indicating N less than 50
+  claim_id: c_ee036235
+  context: 'Power Analysis Validation Logic: ... Constraint: If power_insufficient
+    is true OR if the file is missing, raise SystemExit with message ''Power Analysis
+    Failed: Insufficient sample size (N < 50). Data collection halted.'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SystemExit_raised_if_power_insufficient_flag_is_true_or_miss
+  kind: magnitude
+  raw_text: 'Constraint: If `power_insufficient` is `true` OR if the file is missing,
+    raise SystemExit with message ''Power Analysis Failed: Insufficient sample size
+    (N < 50). Data collection halted.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:09:15Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image complexity Q1-Q3 range greater than or equal to 0.3 with target
+    mean 0.5 and std 0.15
+  claim_id: c_07670dfb
+  context: 'Calculate Complexity Score: Implement code/stimuli/filter.py to calculate
+    baseline_complexity_score for downloaded images based on object density (count
+    of objects per image). Algorithm: Filter the fetched image set to ensure the Q1-Q3
+    range is >= 0.3 (target mean=0.5, std=0.15).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_complexity_Q1-Q3_range_greater_than_or_equal_to_0.3_wi
+  kind: magnitude
+  raw_text: Filter the fetched image set to ensure the Q1-Q3 range is >= 0.3 (target
+    mean=0.5, std=0.15).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:09:39Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Maximum 3 retry attempts for image selection filter failure
+  claim_id: c_4f91fb35
+  context: 'Select Representative Sample: ... Constraint: If the specific complexity
+    range (Q1-Q3 >= 0.3) is NOT met in the fetched batch, log a CRITICAL error and
+    fetch a larger batch (next 1000 images). Retry up to 3 times. If all retries fail,
+    raise SystemExit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times. If all retries fail, raise SystemExit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:09:55Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Maximum 3 retry attempts for resample on failure
+  claim_id: c_fb4d37eb
+  context: 'Resample on Failure: Implement retry logic in code/stimuli/filter.py to
+    handle T006.3-Filter failures. ... Constraint: Max 3 retry attempts. If all fail,
+    raise SystemExit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 retry attempts. If all fail, raise SystemExit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:10:31Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Gaussian blur radius 5 used for reduced detail manipulation
+  claim_id: c_562f0d4a
+  context: 'Implement reduced detail manipulation with error handling in code/stimuli/manipulator.py:
+    Use Gaussian blur (radius=5) or masking to remove minor elements from baseline
+    images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Gaussian blur (radius=5) or masking to remove minor elements from
+    baseline images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:11:27Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_ff4aa86e
+  context: 'Update research.md by appending Section 2.1 with the text: Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:13:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 20 valid PNG files in minor objects asset directory
+  claim_id: c_6fc09748
+  context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
+    Verification: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:13:01Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Study measures behavioral false memory rates not molecular mechanisms
+  claim_id: c_a6013e3b
+  context: Explicitly state that this study measures behavioral false memory rates
+    and does not measure or infer specific molecular/cellular mechanisms (e.g. CREB
+    activation, synaptic weight changes) in humans.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_measures_behavioral_false_memory_rates_not_molecular_m
+  kind: entity_fact
+  raw_text: The study measures behavioral false memory rates and does not measure
+    or infer specific molecular/cellular mechanisms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:13:52Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Target mean complexity 0.5 std 0.15
+  claim_id: c_9d899da5
+  context: Filter the fetched image set to ensure the Q1-Q3 range is >= 0.3 (target
+    mean=0.5, std=0.15).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target mean complexity score is 0.5 with a standard deviation of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:14:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Asset dimensions 64x64 pixels
+  claim_id: c_ca4138d2
+  context: 'Schema: Assets must be valid PNGs with alpha channel. Dimensions: 64x64
+    pixels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Asset_dimensions_64x64_pixels
+  kind: entity_fact
+  raw_text: Assets must be 64x64 pixels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:14:25Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Baseline image display duration 10 seconds
+  claim_id: c_b4a1463f
+  context: "Implement code/participants/interface.py to display baseline images for\
+    \ 10 seconds (\xB10.5s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Baseline images are displayed for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:14:44Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration 2 minutes
+  claim_id: c_d1c92643
+  context: "Implement code/participants/interface.py to administer arithmetic questions\
+    \ for 2 minutes (\xB110s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Distractor task duration is 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:14:59Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image manipulation optimization under 30 seconds per image
+  claim_id: c_f2cdf662
+  context: Optimize the top bottleneck identified in T046-A to ensure <30s/image.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_manipulation_optimization_under_30_seconds_per_image
+  kind: magnitude
+  raw_text: Image manipulation must complete in less than 30 seconds per image.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:15:21Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_e8d59bc1
+  context: 'T012.0 [P] [Shared-Infra] Document Effect Size Source: Update research.md
+    by appending Section 2.1 with the text...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:16:40Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Output image shape 512x512x3 with object count 5 after add_minor_objects
+  claim_id: c_49c84ec7
+  context: 'T050 [P] [US1] Unit test for image enhancement logic in tests/unit/test_stimuli_manipulator.py:
+    Implement test_add_minor_objects().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that output_image.shape == (512, 512, 3) (fixed dimensions) and
+    object_count == 5 after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:16:40Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Standard deviation of output region less than 0.1 times standard deviation
+    of input region after blurring
+  claim_id: c_3cbe329f
+  context: 'T051 [P] [US1] Unit test for image reduction logic in tests/unit/test_stimuli_manipulator.py:
+    Implement test_remove_minor_elements().'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_output_region_less_than_0.1_times_stan
+  kind: magnitude
+  raw_text: Assert that std_dev(output_region) < 0.1 * std_dev(input_region) where
+    input_region is the masked area of the original image and output_region is the
+    same area after blurring.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:16:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: At least 1 metadata file and 2 manipulated images created per input image
+  claim_id: c_4fcbe4a3
+  context: "T052 [P] [US1] Integration test for full pipeline (generate \u2192 manipulate\
+    \ \u2192 metadata) in tests/integration/test_stimuli_pipeline.py: Implement test_full_pipeline()."
+  evidence:
+    candidates:
+    - - At least 1 metadata file and
+      - 2.0
+    - - Donate Create account Log in At least
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/At_least_1_metadata_file_and_2_manipulated_images_created_pe
+  kind: magnitude
+  raw_text: Assert that at least 1 metadata file and 2 manipulated images (enhanced/reduced)
+    are created for each input image.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T21:16:44Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Exactly 20 valid PNG files exist in data/assets/minor_objects
+  claim_id: c_90c397e3
+  context: 'T015.1-Run [P] [Shared-Infra] Execute Asset Generation: Run code/stimuli/asset_generator.py
+    to generate the assets in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:16:45Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image complexity Q1-Q3 range greater than or equal to 0.3 with target
+    mean 0.5 and std 0.15
+  claim_id: c_131161f1
+  context: 'T006.2-Calc [P] [Shared-Infra] [FR-001] Calculate Complexity Score: Implement
+    code/stimuli/filter.py to calculate baseline_complexity_score...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_complexity_Q1-Q3_range_greater_than_or_equal_to_0.3_wi
+  kind: magnitude
+  raw_text: Filter the fetched image set to ensure the Q1-Q3 range is >= 0.3 (target
+    mean=0.5, std=0.15).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:16:46Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Fetch next 1000 images if Q1-Q3 filter fails and retry up to 3 times
+  claim_id: c_97c43013
+  context: 'T006.3-Filter [P] [Shared-Infra] [FR-001] Select Representative Sample:
+    Implement selection logic in code/stimuli/filter.py...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If all retries fail, raise SystemExit after fetching a larger batch (next
+    1000 images).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:06Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Retry up to 3 times if Q1-Q3 filter fails
+  claim_id: c_76b8e626
+  context: 'T006.4-Resample [P] [Shared-Infra] [FR-001] Resample on Failure: Implement
+    retry logic in code/stimuli/filter.py to handle T006.3-Filter failures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times. If all retries fail, raise SystemExit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:06Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Baseline images displayed for 10 seconds with tolerance of 0.5 seconds
+  claim_id: c_a83f24a2
+  context: "T025 [P] [US2] [Model:View] Implement View: Image Display: Implement code/participants/interface.py\
+    \ to display baseline images for 10 seconds (\xB10.5s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Display baseline images for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Arithmetic questions administered for 2 minutes with tolerance of 10
+    seconds
+  claim_id: c_759b8ffb
+  context: "T026 [US2] [Model:View] Implement View: Distractor Task: Implement code/participants/interface.py\
+    \ to administer arithmetic questions for 2 minutes (\xB110s)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Administer arithmetic questions for 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Raise SystemExit if false pool length is less than 10
+  claim_id: c_00706928
+  context: 'T027.2 [US2] [Model:Gen] Generate Recognition Questions (Strict): Implement
+    code/participants/interface.py to extract true details...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_SystemExit_if_false_pool_length_is_less_than_10
+  kind: magnitude
+  raw_text: If len(false_pool) < 10, raise SystemExit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Set power_insufficient to true if calculated sample size N is less than
+    50
+  claim_id: c_221eb981
+  context: 'T012 [P] [Shared-Infra] [US1] Implement Power Analysis in code/analysis/stats.py:
+    Calculate required sample size...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_power_insufficient_to_true_if_calculated_sample_size_N_i
+  kind: magnitude
+  raw_text: 'Constraint: If calculated N < 50, set power_insufficient to true in the
+    JSON output.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:11Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Use Gaussian blur with radius 5 to remove minor elements
+  claim_id: c_7e68bd02
+  context: 'T016 [US1] Implement reduced detail manipulation with error handling in
+    code/stimuli/manipulator.py: Use Gaussian blur (radius=5) or masking to remove
+    minor elements from baseline images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Gaussian blur (radius=5) or masking to remove minor elements from
+    baseline images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:17:12Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_1b00c81b
+  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:18:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 20 valid PNG files generated in data/assets/minor_objects
+  claim_id: c_9b653ce5
+  context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
+    Verification: Assert exactly 20 valid PNG files exist.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:18:52Z'

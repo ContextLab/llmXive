@@ -13,7 +13,7 @@ This project implements a computational pipeline to test the hypothesis that vis
 **Primary Dependencies**: `Pillow` (image manipulation), `scipy` (statistics), `matplotlib` (visualization), `datasets` (HuggingFace data loading), `pandas` (data handling), `pytest` (testing).
 **Storage**: Local filesystem (`data/stimuli/`, `data/responses/`, `data/analysis/`).
 **Testing**: `pytest` with unit tests for image manipulation logic and integration tests for the data flow.
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM).
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, sufficient RAM).
 **Project Type**: Research pipeline / CLI tool.
 **Performance Goals**: Image manipulation < 5s/image; Analysis < 30m for 60 participants; Total runtime < 6h.
 **Constraints**: No GPU dependencies; No external API calls during execution (except dataset download); Memory usage < 7GB; Disk usage < 14GB.

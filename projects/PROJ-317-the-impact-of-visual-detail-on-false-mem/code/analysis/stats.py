@@ -21,17 +21,14 @@ def calculate_anova_power(effect_size: float = 0.25, alpha: float = 0.05, power:
         
     Returns:
         Dictionary containing sample size calculation results with required keys:
-        n_per_group, total_n, effect_size, power, alpha
+        n_per_group, total_n, effect_size, power, alpha, power_insufficient
     """
     try:
         power_analysis = FTestAnovaPower()
         # For repeated measures ANOVA with 3 conditions (baseline, enhanced, reduced)
         k_groups = 3 
         # solve_power for F-test in statsmodels expects nobs (total sample size for fixed effects)
-        # However, for ANOVA F-test (fixed effects), the default interpretation is total N.
-        # To be precise for repeated measures, we calculate total N required.
-        # The standard FTestAnovaPower in statsmodels solves for nobs (total sample size).
-        # We will solve for total N directly.
+        # We solve for total N directly using the F-test power analysis.
         total_n = power_analysis.solve_power(effect_size=effect_size, alpha=alpha, power=power, k_groups=k_groups)
         
         # Round up to ensure sufficient power
@@ -40,12 +37,16 @@ def calculate_anova_power(effect_size: float = 0.25, alpha: float = 0.05, power:
         # Recalculate total based on per-group rounding to ensure k_groups * n_per_group >= total_n_ceil
         total_n_final = n_per_group_ceil * k_groups
         
+        # Constraint: If calculated N < 50, set power_insufficient to true
+        power_insufficient = total_n_final < 50
+        
         result = {
             "n_per_group": n_per_group_ceil,
             "total_n": total_n_final,
             "effect_size": effect_size,
             "power": power,
             "alpha": alpha,
+            "power_insufficient": power_insufficient,
             "groups": k_groups,
             "notes": "Calculated for repeated measures ANOVA with 3 conditions (baseline, enhanced, reduced)"
         }
@@ -117,15 +118,12 @@ def main():
     # Calculate power analysis
     result = calculate_anova_power()
     
-    # Constraint: If calculated total_n < 50, raise SystemExit with specific message
-    if result['total_n'] < 50:
-        error_msg = "Pipeline Halted: Insufficient Power (N < 50). Check power_report.json."
-        logger.error(error_msg)
-        raise SystemExit(error_msg)
+    # DO NOT raise SystemExit here; the gate T012.1 handles the halt.
+    # We simply set the flag in the result and save it.
     
     # Save results to data/analysis/power_report.json
     save_power_analysis(result)
-    print(f"Power analysis complete. Required N per group: {result['n_per_group']}, Total N: {result['total_n']}")
+    print(f"Power analysis complete. Required N per group: {result['n_per_group']}, Total N: {result['total_n']}, Power Insufficient: {result['power_insufficient']}")
 
 if __name__ == "__main__":
     main()
