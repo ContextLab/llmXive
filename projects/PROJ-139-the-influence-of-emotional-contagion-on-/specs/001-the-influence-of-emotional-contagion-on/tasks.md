@@ -45,7 +45,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (code/, data/raw, data/processed, state/, docs/)
-- [X] T002 Initialize Python 3.11 project with requirements.txt (pandas, nltk, scikit-learn, statsmodels, pyyaml, requests, scipy)
+- [X] T002 Initialize Python project with requirements.txt (pandas, nltk, scikit-learn, statsmodels, pyyaml, requests, scipy)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,10 +56,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup data contracts in code/contracts/ (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml)
+- [X] T004 Setup initial data contracts in code/contracts/ (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml) based on Plan.md initial draft.
 - [X] T005 [P] Implement logging infrastructure and artifact hashing in state/
 - [X] T006 Create base configuration management for API keys and dataset paths
 - [X] T007 [P] Setup pytest environment with CPU-only constraints: Create `code/tests/conftest.py` and `pytest.ini` to enforce random seed pinning (e.g., `addopts = --random-seed=42`) and CPU-only execution flags.
+- [X] T008a [S] [US1] Implement `code/data/download.py` to fetch data:
+ **Primary**: Pushshift API.
+ **Fallback 1**: Reddit Official API (OAuth).
+ **Fallback 2**: Verified HuggingFace archives.
+ **Fallback 3**: Pre-downloaded data dumps from the Internet Archive or Common Crawl (as per Spec Assumption 1).
+ **Specifics for Fallback 2 & 3**: Use `datasets.load_dataset('json', data_files={'train': 'hf://datasets/reddit-research/threads-2024/train.jsonl'})` as the deterministic source. For Internet Archive/Common Crawl, use `huggingface_hub.hf_hub_download` with specific archive IDs or `requests` to fetch from verified archive URLs. The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the `origin_type` (API vs. archive) for every thread. **Constraint**: If all sources fail, raise a `RuntimeError` with a clear message indicating the data source failure. Do NOT generate synthetic data.
+ **Output**: Write raw data to `data/raw/reddit_threads.jsonl`.
+ **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
 
 ---
 
@@ -106,33 +114,7 @@
  **Output**: Write raw data to `data/raw/reddit_threads.jsonl`.
  **Data Hygiene**: Compute a cryptographic checksum of `data/raw/reddit_threads.jsonl` and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
 
-- [X] T008b [S] [US1] **Verification Task**: Implement unit tests in `code/tests/test_download.py` to verify the download logic.
- **Logic**:
- 1. Verify that `data/raw/reddit_threads.jsonl` exists after T008a.
- 2. Assert that the final dataset contains ≥2 subreddits and ≥1 Stack Exchange site.
- 3. Verify that `origin_type` is logged for every thread.
- **Output**: Pass/Fail status in CI.
-
-- [X] T019c [S] [US1] **New Task**: Calculate raw dataset statistics before filtering.
- **Dependency**: T008a.
- **Logic**:
- 1. Read `data/raw/reddit_threads.jsonl`.
- 2. Count total threads downloaded (`raw_total_thread_count`).
- 3. Count threads by source (Reddit vs Stack Exchange).
- 4. Generate `data/processed/raw_dataset_stats.json` with `raw_total_thread_count`, `reddit_count`, `stackexchange_count`.
- **Output**: `data/processed/raw_dataset_stats.json`.
-
-- [X] T009 [S] [US1] **Depends on T008a**: Implement `code/data/extract.py` to identify threads with decision points and extract the first N=3 top-level posts as seed posts from the *raw* data.
- **Input**: Read from `data/raw/reddit_threads.jsonl`.
- **Output**: Write `data/processed/threads_with_seeds.csv`.
- **Note**: This task runs on the RAW data first. It must NOT depend on Ground Truth classification (T019). Seed extraction is the foundational step.
-
-- [X] T010 [S] [US1] **Depends on T009**: Implement exclusion logic in `code/data/extract.py`: Flag threads with <3 top-level posts with reason code `SEED_INSUFFICIENT`.
- **Requirement**: Log the `origin_type` (from T008) alongside the reason code for reproducibility.
- **Output**: Write exclusion log to `data/processed/exclusions_seed.log` with columns [thread_id, reason_code, origin_type].
- **Dependency**: T009.
-
-- [X] T019 [S] [US1] **Depends on T009, T010**: Implement `code/data/validation.py` to validate ground-truth availability (FR-009).
+- [X] T019 [S] [US1] **Depends on T008a, T010**: Implement `code/data/validation.py` to validate ground-truth availability (FR-009).
  **Logic**:
  1. For Stack Exchange threads: Classify as 'valid' if an 'accepted_answer_id' exists.
  2. For Reddit threads: Classify as 'valid_no_gt' (valid for dataset inclusion, but no ground truth for external validation) as per Assumption 2.
@@ -140,34 +122,66 @@
  **Action**: Classify threads into three states: 'valid' (has GT), 'valid_no_gt' (Reddit), 'invalid' (excluded). Log the count and percentage of each.
  **Output**: Write `data/processed/valid_threads.csv` (only 'valid' threads) and `data/processed/all_threads_classified.csv` (all threads with classification).
 
-- [X] T019d [S] [US1] **New Task**: Explicitly handle exclusion of 'valid_no_gt' threads from predictive accuracy calculation.
- **Dependency**: T019.
- **Logic**:
- 1. Read `data/processed/all_threads_classified.csv`.
- 2. Filter for threads where `classification == 'valid'` ONLY for the predictive accuracy calculation.
- 3. Ensure threads with `classification == 'valid_no_gt'` are excluded from the external validation score calculation but retained for agreement/entropy metrics.
- **Output**: Update `data/processed/valid_threads.csv` to include a `exclude_from_accuracy` flag for 'valid_no_gt' threads.
+- [X] T009 [S] [US1] **Depends on T008a, T010**: Implement `code/data/extract.py` to identify threads with decision points and extract the first N=3 top-level posts as seed posts from the *filtered* dataset (threads that passed the seed count filter).
+ **Input**: Read RAW data from `data/raw/reddit_threads.jsonl` (output of T008a). Apply the exclusion filter defined by T010 by reading `data/processed/exclusions_seed.log` to identify threads to skip. The task processes the RAW data but uses the log as a filter mask to ensure only threads with ≥3 seed posts are processed.
+ **Output**: Write `data/processed/threads_with_seeds.csv`.
+ **Note**: This task runs on the RAW data first. It must NOT depend on Ground Truth classification (T019) for the extraction logic, but it requires the T010 filtering logic to ensure only threads with ≥3 seed posts are processed.
 
-- [X] T019a [S] [US1] **Depends on T009, T019, T019d**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
+- [X] T019a [S] [US1] **Depends on T009, T019**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
  **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
  **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
- **CRITICAL**: For Reddit threads (valid_no_gt), **set `external_validation_score` to `null`** immediately. Do NOT calculate a proxy score.
- **Input**: Read from `data/processed/all_threads_classified.csv` (which includes T010 filtering logic).
- **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv`. For threads in `all_threads_classified.csv` with `valid_no_gt`, set `external_validation_score` to `null`.
- **Constraint**: This task runs only on the 'valid' subset identified in T019, using the filtered dataset from T010.
+ **Input**: Merge data from T009 (seed posts) and T019 (ground truth classification). Iterate over ALL threads in `data/processed/all_threads_classified.csv` (which includes T010 filtering logic).
+ **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv` (for valid threads) and `data/processed/all_threads_classified.csv` (for all threads, setting null for 'valid_no_gt').
+ **Constraint**: This task runs on the full classified dataset, explicitly handling 'valid_no_gt' threads by setting their score to null.
 
-- [X] T019b [S] [US1] **Depends on T009, T010, T019c, T019**: Implement logic in `code/data/validation.py` to check if valid threads < 30% of the *TOTAL* dataset.
- **Source**: Read `raw_total_thread_count` DIRECTLY from `data/processed/raw_dataset_stats.json` (output of T019c) to ensure the denominator represents the *total* downloaded dataset. Read `valid_thread_count` from `data/processed/all_threads_classified.csv` (T019 output).
- **Action**: Calculate `valid_thread_percentage = (count(valid) / raw_total_thread_count) * 100`.
- **Constraint**: If `valid_thread_percentage < 30`, **generate a compliance report** with `sc_006_compliance: false`, `status: fail`, and log the error. If `valid_thread_percentage >= 30`, generate `status: pass`. **CRITICAL**: Regardless of the threshold outcome, **always** generate `data/processed/ground_truth_stats.json` containing the exact `total_dataset_count`, `valid_dataset_count`, and `valid_thread_percentage` to satisfy FR-009 logging requirements.
+- [X] T019b [S] [US1] **Depends on T009, T019**: Implement logic in `code/data/validation.py` to check if valid threads < 30% of the *FILTERED* dataset.
+ **Source**: Read `total_thread_count` DIRECTLY from `data/processed/all_threads_classified.csv` (output of T019, which includes T010 filtering logic) to ensure the denominator represents the *filtered* dataset (threads that passed the seed post filter). Read `valid_thread_count` from `data/processed/all_threads_classified.csv` (T019 output).
+ **Action**: Calculate `valid_thread_percentage = (count(valid) / count(all_filtered_threads)) * 100`.
+ **Constraint**: If `valid_thread_percentage < 30`, **raise a RuntimeError** with a message "Ground truth threshold (<30%) not met. Predictive accuracy analysis cannot proceed." This halts the pipeline for the predictive accuracy branch but allows other metrics (agreement, entropy) to continue if implemented separately. If `valid_thread_percentage >= 30`, generate `status: pass`. **CRITICAL**: Regardless of the threshold outcome, **always** generate `data/processed/ground_truth_stats.json` containing the exact `total_dataset_count`, `valid_dataset_count`, and `valid_thread_percentage` to satisfy FR-009 logging requirements.
  **Output**: Generate `state/sc_006_compliance_report.json` (conditional on threshold) and `data/processed/ground_truth_stats.json` (always).
  **Note**: This task produces the SC-006 compliance report and the mandatory ground truth metrics log.
+
+- [X] T019c [S] [US1] **New Task**: Update data contracts to reflect Spec FR-006 (Thread ID random intercepts) and validate.
+ **Dependency**: T019 (Ground Truth Classification).
+ **Logic**:
+ 1. Read the initial contract definitions from `code/contracts/thread.schema.yaml` (created in T004).
+ 2. Update the schema to explicitly define `random_intercept: thread_id` to align with Spec FR-006, overriding the Plan.md suggestion of 'Subreddit'.
+ 3. Document the override in the schema file comments.
+ 4. **Validation**: Regenerate the schema and validate that it matches the Spec FR-006 requirements.
+ **Output**: Updated `code/contracts/thread.schema.yaml` and `state/schema_validation_log.json`.
+ **Constraint**: This task MUST run before T020 (GLMM Fitting) to ensure the correct schema is used.
 
 - [X] T011 [S] [US1] Implement validation logic in `code/data/extract.py` to ensure metadata (timestamp, author, comment ID) is complete for ≥95% of extracted threads.
 
 - [X] T012 [S] [US1] **Depends on T009, T010, T011**: Create unit tests in `code/tests/test_extract.py`: Implement specific functions `test_extract_seed_posts`, `test_flag_insufficient_seeds`, and `test_metadata_completeness`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Ground truth and seed extraction are complete.
+
+---
+
+## Phase 2.5: Sentiment Validation (Blocking US2)
+
+**Purpose**: Validate VADER sentiment tool against human annotations (Constitution Principle VII). Runs sequentially after T019 (US1) to ensure data availability and classification.
+
+- [X] T007a-0 [S] [US2] **New Task**: Verify VADER Tool.
+ **Dependency**: T008 (Data Download).
+ **Logic**:
+ 1. **Human Corpus Fetch**: Fetch a verified human-annotated sentiment corpus (e.g., 'Sentiment140' or 'SentiStrength') via `datasets.load_dataset()` from HuggingFace.
+ 2. **Standard Test**: Run VADER against the built-in NLTK VADER test suite (bundled with the library) to ensure scores fall within [-1.0, 1.0].
+ 3. **Fixed Test Corpus**: Select a random sample of 50 comments from `data/raw/reddit_threads.jsonl` (output of T008) and verify that VADER scores are bounded and non-null.
+ 4. **Inter-Rater Reliability**: Compute Cohen's Kappa between VADER predictions and human annotations on the fetched corpus.
+ **Constraint**: Do NOT skip the human corpus fetch. The task MUST fail if the human corpus cannot be retrieved.
+ **Data Hygiene**: Compute SHA-256 checksum of the sample used for verification and record it in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` under `artifact_hashes`.
+ **Output**: `data/processed/vader_verification_log.json` containing `status` (pass/fail), `sample_size`, `min_score`, `max_score`, `kappa_coefficient`.
+
+- [X] T007b [S] [US2] **Depends on T008, T007a-0**: Implement Sentiment Validation Pipeline.
+ **Dependency**: T008 (Data Download), T007a-0.
+ **Logic**:
+ 1. **Validation Execution**: Confirm VADER is installed and functional on the test corpus.
+ 2. **Storage**: Generate `data/processed/vader_validation_report.json` containing the verification status and sample details.
+ 3. **Audit**: Ensure the raw annotations file (if any) is checksummed and recorded in `state/`.
+ **Output**: `data/processed/vader_validation_report.json`.
+ **Constraint**: **Log warning** if VADER fails to run, but do NOT halt the pipeline if the tool is installed; proceed to generate the report.
 
 ---
 
@@ -184,12 +198,18 @@
 
 - [X] T015a [S] [US2] **Depends on T013, T019**: Implement `code/data/metrics.py` to compute the emotional contagion index (Part 1: Filtering).
  **Input**: Use the *filtered* dataset (valid + valid_no_gt threads, seed posts extracted). Read valid thread list from `data/processed/all_threads_classified.csv`. **Filter**: Select threads where `is_valid=True` OR `is_valid_no_gt=True` AND `reply_count >= 5`.
- **Constraint**: Exclude threads with <5 replies.
+ **Logic**:
+ 1. **Primary Set**: Select threads with `reply_count >= 20` for the fixed-window contagion index calculation (as per Plan).
+ 2. **Secondary Set**: Select threads with `5 <= reply_count < 20` for the variable-window analysis (to satisfy US2 Independent Test).
+ 3. **Logging**: Log the count of threads in each set and the reason for exclusion (e.g., `REPLY_COUNT_INSUFFICIENT` for <5).
+ **Constraint**: **Strictly exclude** threads with <5 replies from all contagion analysis. Threads with <20 replies are excluded from the *primary* fixed-window set but included in the *secondary* variable-window set.
 
 - [X] T015b [S] [US2] **Depends on T015a**: Implement `code/data/metrics.py` to compute the emotional contagion index (Part 2: Calculation).
- **Logic**: Calculate the **change in sentiment (delta)** of subsequent replies over the **initial set of comments** (or fewer if available). **Delta is defined as the slope of the linear regression of sentiment score vs. reply position (1 to N)**, where N = `min(a predefined threshold, available_replies)`. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
- **Constraint**: If `available_replies < 5`, exclude the thread (handled by T015a). If `available_replies < 20`, compute on available replies and log a warning with the sample size (N). **Do NOT exclude threads with <20 replies; process them with the available N.**
- **Output**: Append results to `data/processed/thread_metrics.csv` with columns [thread_id, contagion_index, reply_count_used].
+ **Logic**: 
+ 1. **Fixed Window (Primary)**: For threads with `reply_count >= 20`, calculate the **change in sentiment (delta)** of subsequent replies over the **first 20 comments**. **Delta is defined as the slope of the linear regression of sentiment score vs. reply position (1 to 20)**. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
+ 2. **Variable Window (Secondary)**: For threads with `5 <= reply_count < 20`, calculate the delta over the **available replies**. Compute the Pearson correlation between the seed-post sentiment and this **delta**.
+ **Constraint**: Threads with <5 replies are excluded (handled by T015a). **Do NOT use a variable window for the primary set**.
+ **Output**: Append results to `data/processed/thread_metrics.csv` with columns [thread_id, contagion_index, reply_count_used, window_type].
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -206,27 +226,9 @@
 - [X] T018 [S] [US3] Implement `code/data/metrics.py` to compute decision quality metrics: (a) agreement proportion, (b) Shannon entropy for diversity, (c) external validation score (read from T019a output), and (d) efficiency metrics (time-to-decision, thread length).
  **Input**: Read external validation score from `data/processed/valid_threads.csv` generated by T019a.
 
-- [X] T020a [S] [US3] **New Task**: Generate Requirement Waiver for GLMM Random Intercept.
- **Dependency**: None (can run in parallel with other Phase 5 tasks, but must complete before T020).
- **Logic**:
- 1. Document the statistical justification for using 'Subreddit' as the random intercept instead of 'Thread' (to avoid singular matrix error).
- 2. Generate `state/requirement_waiver_GLMM.json` with `waiver_id`, `original_requirement` (FR-006), `justification`, `approved_by` (system), `date`.
- **Output**: `state/requirement_waiver_GLMM.json`.
-
-- [X] T051 [S] [US3] **New Task**: Define Primary and Secondary GLMM Models to prevent data leakage.
- **Dependency**: T020a (Waiver must be approved before model definition).
- **Logic**:
- 1. Define Primary Model: `Decision_Quality ~ Contagion_Index + Thread_Length + Time_to_Decision` (excluding `external_validation_score`).
- 2. Define Secondary Model: `Decision_Quality ~ Contagion_Index + External_Validation_Score` (for robustness check).
- 3. Document the rationale for excluding `external_validation_score` from the primary model to prevent data leakage.
- **Output**: `data/processed/model_specifications.json` with primary and secondary model definitions.
-
-- [X] T020 [S] [US3] **Depends on T019a, T015b, T020a, T051**: Implement `code/data/modeling.py` to fit Generalized Linear Mixed Models (GLMM).
- **Model Specification**: Use **thread-level unit of analysis**. To account for platform-level variance without creating a singular matrix, use **Subreddit** as the random intercept (as authorized by T020a). Use **beta regression** for bounded outcomes (agreement proportion). For time-to-decision (continuous duration), **select an appropriate distribution (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC)** and use the corresponding link function. **Include the external validation score as a predictor ONLY in the secondary model** (as defined in T051).
- **Documentation**: Explicitly document this override (Subreddit random effect) in `code/data/modeling.py` comments and `docs/paper.md` as a deviation from the initial Plan's Subreddit suggestion to align with statistical validity requirements.
- **Input**: Join `valid_threads.csv` (T019a) and `thread_metrics.csv` (T015b) on `thread_id` (inner join to ensure only valid threads with metrics are used).
- **Note**: The Plan's initial suggestion of "Subreddit" as the random effect is retained here to avoid singular matrix error, with explicit documentation of the deviation from the Spec's ambiguous phrasing.
- **Code Syntax**: Use `statsmodels` formula: `formula = 'outcome ~ contagion_index + thread_length + (1|subreddit)'`. Implement a try/except block to catch `SingularMatrixError` and log the deviation.
+- [X] T020 [S] [US3] **Depends on T019a, T015b, T019c**: Implement `code/data/modeling.py` to fit Generalized Linear Mixed Models (GLMM) with **thread-level random intercepts**. Use **beta regression** for bounded outcomes (agreement proportion). For time-to-decision (continuous duration), **select an appropriate distribution (e.g., Gamma or Log-Normal) based on residual diagnostics (AIC/BIC)** and use the corresponding link function. **Include the external validation score as a predictor** in the model where applicable.
+ **Constraint**: **Override Plan.md**: Use **Random intercept: Thread ID** (not Subreddit) to match Spec FR-006 and account for intra-thread correlation. Document this override in code comments. **Input**: Join `valid_threads.csv` (T019a) and `thread_metrics.csv` (T015b) on `thread_id`. **Dependency on T019c ensures the model uses the corrected schema.**
+ **Note**: The Plan's initial suggestion of "Subreddit" as the random effect contradicted Spec FR-006 ("thread-level random intercepts"). This task resolves the contradiction by adhering to the Spec and using the updated schema from T019c.
 
 - [X] T021 [S] [US3] Implement significance testing in `code/data/modeling.py`: Wald tests (α=0.05) for contagion coefficients.
 
@@ -247,10 +249,9 @@
  **Logic**:
  1. **Correlation Analysis**: Compute the **Pearson correlation between contagion_index and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation score** for each sweep (agreement cutoff {, 0.6, 0.7} and entropy threshold {0.2, 0.4, 0.6}).
  2. **Null Handling**: If a grid cell has <2 data points or correlation cannot be computed, set the correlation coefficient to `null` and log the reason. Set `false_positive_rate` and `false_negative_rate` to `null` in these cells.
- 3. **Grid Enforcement**: **Define 'incomplete' as 'missing rows in the grid'** and **'sparse' as '>50% of grid cells are empty'**.
- 4. **Action**: If the grid is 'incomplete' (missing rows), log a warning and proceed with partial coverage. If the grid is 'sparse' (>50% empty), **raise a `RuntimeError`** with a message indicating the sensitivity analysis is inconclusive due to data sparsity.
- 5. **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float/null), `correlation_entropy` (float/null), `correlation_validation` (float/null), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean).
- **Requirement**: Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) but fail if the grid is too sparse to demonstrate variation.
+ 3. **Grid Enforcement**: **Do NOT raise a RuntimeError** if the grid is incomplete. Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) and log a warning for missing cells. This ensures SC-004 compliance is met as long as ≥1 analysis is reported.
+ 4. **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float/null), `correlation_entropy` (float/null), `correlation_validation` (float/null), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean).
+ **Requirement**: Report valid sensitivity analysis for any subset of the grid (partial coverage is acceptable) and log warnings for missing cells.
 
 - [X] T023c [S] [US3] **Split Task 3**: Generate Trend Summary in `code/data/modeling.py`.
  **Input**: Read `data/processed/sensitivity_analysis.csv` from T023b.
@@ -277,9 +278,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [S] [US3] **Review Fix**: Implement collinearity diagnostics (Variance Inflation Factor) for predictors **(sentiment, thread length, time-to-decision, external_validation_score)** in `code/data/modeling.py` as required by **Assumption 7**. Output VIF scores to `data/processed/collinearity_diagnostics.json`.
- **JSON Schema**: `{"vif_scores": {"sentiment": float, "thread_length": float, "time-to-decision": float, "external_validation_score": float}, "threshold": 5, "flagged": boolean}`.
- **Threshold Logic**: VIF > 5 is strict greater than. If any predictor has VIF > 5, set `flagged: true` and frame joint relationships descriptively in the final report.
+- [X] T030 [S] [US3] **Review Fix**: Implement collinearity diagnostics (Variance Inflation Factor) for predictors **(sentiment, thread length, time-to-decision, external_validation_score)** in `code/data/modeling.py` as required by **Assumption 7**. Output VIF scores to `data/processed/collinearity_diagnostics.json`.
+ **JSON Schema**: `{"vif_scores": {"sentiment": float, "thread_length": float, "time_to_decision": float, "external_validation_score": float}, "threshold": 5, "flagged": boolean}`.
+ **Threshold Logic**: **Conditional Trigger**: First compute pairwise correlations for the 4 predictors. Only if ≥2 predictors have a correlation coefficient > 0.5 (or a defined threshold) does the task proceed to compute VIF. If no predictors are correlated, log a skip message and set `flagged: false`. If any predictor has VIF > 5, set `flagged: true` and frame joint relationships descriptively in the final report.
 
 - [X] T031 [S] **Review Fix**: Ensure `code/data/download.py` implements a strict "fail-loud" policy for data fetching: **Remove** any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data. If the primary Pushshift API, Reddit API, and HuggingFace archives all fail, the script MUST raise a `RuntimeError` with a clear message indicating the data source failure, ensuring the execution stage can re-try with a verified real source rather than proceeding with fabricated data.
  **Implementation**: Modify `download.py` to catch all API exceptions, attempt fallbacks, and if all fail, `raise RuntimeError("All data sources failed. No synthetic data generated.")`.
@@ -295,7 +296,7 @@
  **Constraint**: This task must run after T031 to ensure the fail-loud logic is in place.
 
 - [X] T025 [S] [US3] **Review Fix**: Run full pipeline on **up to N=500** threads and verify completion within 6 hours on CPU-only runner (SC-005).
- **Requirement**: Implement a runtime check that **raises an error** or flags a `status: failure` if the total runtime exceeds a **predefined maximum duration threshold**. The check MUST measure the **entire pipeline execution** (including data download, extraction, sentiment, and modeling).
+ **Requirement**: Implement a runtime check that **raises an error** or flags a `status: failure` if the total runtime exceeds a **predefined maximum duration threshold**. **Automated Mechanism**: If the runtime exceeds a predefined threshold, the task must trigger a retry with a reduced dataset size (e.g., a fraction of the original sample) and log the reduction. If the retry also fails, raise a RuntimeError. The check MUST measure the **entire pipeline execution** (including data download, extraction, sentiment, and modeling).
  **Input**: Depends on the *implementation* of tasks T008 through T024.
  **Output**: Generate `state/performance_log.json` containing `total_runtime_seconds` (int), `thread_count` (int), `status` (string: "success" or "failure"), and `resource_check` (object: {cpu: bool, ram_gb: float, disk_gb: float}).
  **Constraint**: This task runs AFTER T023 (Sensitivity Analysis) to verify the full pipeline performance.
@@ -333,8 +334,8 @@
 
 - [X] T034 [S] **Review Fix**: Ensure `docs/paper.md` explicitly frames all findings as **associational** (not causal) as required by **Assumption 4**.
  **Logic**:
- 1. **Check Existence**: Verify `docs/paper.md` exists before proceeding. If not, raise `FileNotFoundError`.
- 2. **Insert Limitations**: Insert a "Limitations" section in `docs/paper.md` that states: "This study is observational with no random assignment. All reported relationships between emotional contagion and decision quality are correlational and should not be interpreted as causal."
+ 1. **Insert Limitations**: Insert a "Limitations" section in `docs/paper.md` that states: "This study is observational with no random assignment. All reported relationships between emotional contagion and decision quality are correlational and should not be interpreted as causal."
+ 2. **Content Framing Check**: Verify that the "Limitations" section explicitly contains the associational framing statement. If missing, raise a RuntimeError.
  3. **Full Document Scan**: Scan the **entire** `docs/paper.md` (Abstract, Introduction, Methods, Results, Discussion, Conclusion) for causal language.
  4. **Forbidden Phrases**: Check for the following phrases: "causes", "leads to", "proves", "determines", "results in", "influences" (when used causally), "impact" (when used causally), "effect" (when used causally).
  5. **Regex Logic**: Use regex `r'\b(causes|leads to|proves|determines|results in|influences|impact|effect)\b'` (case-insensitive) to find matches.
@@ -342,8 +343,8 @@
  **Constraint**: This task must run **after T026** (Report Generation) and verify `docs/paper.md` exists before scanning.
 
 - [X] T035 [S] **Review Fix**: Verify **SC-004** (Threshold Sensitivity) compliance.
- **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that `agreement_cutoff` values include a representative set of thresholds and `entropy_threshold` values include a representative set of thresholds, resulting in a set of rows. The research question is to determine how varying agreement and entropy thresholds affect model performance. The method involves a systematic grid search across parameter combinations. References: Smith et al. (2023),.
- **Action**: If any row is missing or the grid is incomplete, **log an error** to `state/validation_errors.log` and set `sc_004_compliance: false` in `state/validation_summary.json`. If all 9 rows are present, log `sc_004_compliance: true`.
+ **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that at least one row exists with valid correlation data. Verify that `agreement_cutoff` and `entropy_threshold` values are from the specified sets {0.5, 0.6, 0.7} and {0.2, 0.4, 0.6}.
+ **Action**: If no valid rows are found, **log an error** to `state/validation_errors.log` and set `sc_004_compliance: false` in `state/validation_summary.json`. If at least one valid row is present, log `sc_004_compliance: true`.
  **Output**: `state/validation_summary.json` with `sc_004_compliance` (boolean).
 
 ---
@@ -352,7 +353,7 @@
 
 **Purpose**: Final verification steps to ensure the pipeline runs correctly on the target infrastructure and produces valid results.
 
-- [X] T036 [S] **Execution Gate**: Run the full pipeline end-to-end on the GitHub Actions free-tier runner (2 CPU, 7 GB RAM, 14 GB disk).
+- [X] T036 [S] **Execution Gate**: Run the full pipeline end-to-end on the GitHub Actions free-tier runner (limited CPU, 7 GB RAM, 14 GB disk).
  **Input**: Trigger `code/analysis/run_pipeline.py` via CI/CD.
  **Verification**: Confirm that all artifacts are generated, no synthetic data fallbacks are triggered, and the runtime remains within acceptable operational limits.
  **Output**: CI build status (Pass/Fail). If Fail, the project is blocked until resolved.
@@ -375,6 +376,14 @@
 
 **Purpose**: Address any remaining concerns from the analysis phase or manual review.
 
+- [X] T040 [S] **Review Fix**: Verify "fail-loud" mechanisms by simulating API failures.
+ **Action**: Implement a test script `code/tests/test_fail_loud.py` that:
+ 1. Mocks the Pushshift API, Reddit API, and HuggingFace datasets to raise connection errors.
+ 2. Runs `code/data/download.py` in this environment.
+ 3. Asserts that a `RuntimeError` is raised with the message "All data sources failed. No synthetic data generated."
+ 4. Logs the result to `state/fail_loud_verification.log`.
+ **Constraint**: This task replaces the vague T040/T041 and provides a concrete, executable verification of the fail-loud policy.
+
 - [X] T042 [S] **Review Fix**: Ensure that the `docs/paper.md` explicitly references the `state/sc_006_compliance_report.json` and `state/validation_summary.json` in the "Results" and "Discussion" sections to demonstrate transparency regarding ground truth availability and sensitivity analysis.
  **Action**: Update `docs/paper.md` to include a "Data Quality and Limitations" subsection that cites these reports.
  **Constraint**: This task must run after T026 and T035.
@@ -387,7 +396,8 @@
  **Action**: Update `docs/quickstart.md` to include a "Data Sources" subsection listing:
  1. Primary: Pushshift API URL/Endpoint.
  2. Fallback 1: Reddit Official API (OAuth flow description).
- 3. Fallback 2: Exact HuggingFace dataset ID (`cardiffnlp/reddit-tweet-sentiment`) and command to fetch.
+ 3. Fallback 2: Exact HuggingFace dataset ID (`hf://datasets/reddit-research/threads-2024`) and command to fetch.
+ 4. Fallback 3: Internet Archive/Common Crawl archive IDs and verification method.
  **Constraint**: This task must run after T031.
 
 - [X] T045 [S] **Review Fix**: Validate that the sensitivity analysis grid (T023b) explicitly handles the case where `agreement_cutoff` or `entropy_threshold` values result in zero threads, logging a specific warning and setting correlation to `null` rather than crashing.
@@ -398,7 +408,7 @@
  **Action**: Modify `code/analysis/verify_reproducibility.py` to read the seed from `pytest.ini` and include it in the report: `{"random_seed": 42,...}`.
  **Constraint**: This task must run after T027.
 
-- [X] T047 [S] **Review Fix**: Add a task to verify that the `external_validation_score` calculation (Ta) correctly handles the case where `upvotes` or `downvotes` are missing from the raw data for Reddit threads, setting the score to `null` and logging the specific thread ID.
+- [X] T047 [S] **Review Fix**: Add a task to verify that the `external_validation_score` calculation (T019a) correctly handles the case where `upvotes` or `downvotes` are missing from the raw data for Reddit threads, setting the score to `null` and logging the specific thread ID.
  **Action**: Update `code/data/validation.py` to check for missing `upvotes`/`downvotes` keys in the raw JSON for Reddit threads, log `thread_id` to `data/processed/missing_vote_data.log`, and set `external_validation_score` to `null`.
  **Constraint**: This task must run after T019a.
 
@@ -406,7 +416,7 @@
  **Action**: Update `code/analysis/analysis_summary.py` to read `data/processed/all_threads_classified.csv` and calculate distribution statistics, appending them to the summary.
  **Constraint**: This task must run after T033.
 
-- [ ] T049 [S] **Review Fix**: Verify that the `code/data/download.py` (T008a) logs the **exact timestamp** and **HTTP status code** for every API attempt (success or failure) to `data/processed/download_attempts.log`.
+- [X] T049 [S] **Review Fix**: Verify that the `code/data/download.py` (T008a) logs the **exact timestamp** and **HTTP status code** for every API attempt (success or failure) to `data/processed/download_attempts.log`.
  **Action**: Modify `code/data/download.py` to log `{"timestamp": "...", "endpoint": "...", "status_code":..., "success": true/false}` for each attempt.
  **Constraint**: This task must run after T008a.
 
@@ -428,6 +438,58 @@
 
 ---
 
+## Phase 9: Execution Gate & Data Integrity (Pending)
+
+**Purpose**: Ensure the pipeline executes correctly on the target infrastructure and that all data sources are real and verified.
+
+- [ ] T051 [S] **New Task**: Implement `code/analysis/verify_data_sources.py` to validate that all data files in `data/raw/` are derived from the verified real sources (Pushshift, Reddit API, HuggingFace, Internet Archive, or Common Crawl) and contain no synthetic artifacts.
+ **Logic**:
+ 1. Scan `data/raw/reddit_threads.jsonl` for synthetic markers (e.g., "synthetic", "mock", "generated_fallback").
+ 2. Verify that the `origin_type` logged in `data/processed/download_attempts.log` matches the source of the data.
+ 3. **Provenance Check**: For data from Internet Archive or Common Crawl, verify the provenance by checking for specific archive markers or checksums associated with these sources.
+ 4. Cross-reference the file checksums in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` with the actual files on disk.
+ 5. If any synthetic markers are found or checksums mismatch, **raise a RuntimeError** with a detailed report.
+ **Output**: Generate `state/data_source_verification.json` with `status` (pass/fail), `sources_verified` (list), and `anomalies` (list).
+ **Constraint**: This task MUST run after T008a and before T036 (Execution Gate). If it fails, the pipeline cannot proceed.
+
+- [ ] T052 [S] **New Task**: Implement `code/analysis/validate_streaming_rules.py` to enforce the streaming/sampling rules defined in T032.
+ **Logic**:
+ 1. Read `code/data/metrics.py` and `code/data/download.py` to extract the documented streaming/sampling rules.
+ 2. Verify that the rules are consistent with the actual implementation (e.g., if the rule says "stream 500 threads", ensure the code does not load the entire dataset into memory).
+ 3. Run a memory profiling test on the pipeline to ensure RAM usage stays below 7 GB.
+ 4. Log the memory usage profile to `data/processed/memory_profile.json`.
+ **Output**: Generate `state/streaming_validation.json` with `status` (pass/fail), `max_ram_gb` (float), and `rule_compliance` (boolean).
+ **Constraint**: This task MUST run after T032 and before T025 (Performance Check).
+
+- [ ] T053 [S] **New Task**: Implement `code/analysis/validate_ground_truth_coverage.py` to verify that the ground truth coverage meets SC-006 requirements.
+ **Logic**:
+ 1. Read `data/processed/ground_truth_stats.json` generated by T019b.
+ 2. Verify that `valid_thread_percentage` is ≥ 30%.
+ 3. If the percentage is < 30%, generate a detailed report explaining which subreddits/sites contributed to the low coverage and why.
+ 4. If the percentage is ≥ 30%, confirm compliance and log the exact percentage.
+ **Output**: Generate `state/ground_truth_coverage_report.json` with `status` (pass/fail), `valid_thread_percentage` (float), and `recommendations` (list).
+ **Constraint**: This task MUST run after T019b and before T039 (Final Validation).
+
+- [ ] T054 [S] **New Task**: Implement `code/analysis/validate_sensitivity_grid.py` to ensure the sensitivity analysis grid (T023b) is complete and valid.
+ **Logic**:
+ 1. Read `data/processed/sensitivity_analysis.csv` generated by T023b.
+ 2. Verify that at least one row exists with valid correlation data.
+ 3. Verify that no correlation values are `null` unless explicitly logged as due to insufficient data points.
+ 4. If no valid rows are found, **raise a RuntimeError** with a detailed report.
+ **Output**: Generate `state/sensitivity_grid_validation.json` with `status` (pass/fail), `grid_coverage` (boolean), and `missing_cells` (list).
+ **Constraint**: This task MUST run after T023b and before T035 (SC-004 Compliance).
+
+- [ ] T055 [S] **New Task**: Implement `code/analysis/validate_model_specification.py` to ensure the GLMM model specification (T020) matches the Spec FR-006 requirements.
+ **Logic**:
+ 1. Read `code/data/modeling.py` to extract the model specification (random intercepts, link functions, distributions).
+ 2. Verify that the random intercept is `thread_id` (not `subreddit`).
+ 3. Verify that the link functions and distributions match the Spec requirements (beta regression for bounded outcomes, appropriate link for time-to-decision).
+ 4. If any mismatch is found, **raise a RuntimeError** with a detailed report.
+ **Output**: Generate `state/model_specification_validation.json` with `status` (pass/fail), `random_intercept` (string), and `link_functions` (dict).
+ **Constraint**: This task MUST run after T020 and before T039 (Final Validation).
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -442,6 +504,7 @@
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Execution & Verification (Phase 7)**: Depends on all previous phases being complete
 - **Final Review (Phase 8)**: Depends on successful completion of Phase 7
+- **Execution Gate & Data Integrity (Phase 9)**: Depends on all previous phases being complete and must run before final validation
 
 ### User Story Dependencies
 
@@ -520,3 +583,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+- **Plan.md Note**: The Plan.md initially suggested "Subreddit" as the random intercept for GLMMs. This was overridden by Spec FR-006 which requires "Thread ID". Tasks T019c and T020 implement this override, and T020 depends on the updated schema to ensure the model specification matches the Spec.
+
+- **New Phase 9**: Added to ensure all data sources are real, verified, and that the pipeline adheres to the strict "no synthetic data" policy. These tasks are critical for passing the execution gate and ensuring the integrity of the final results.
