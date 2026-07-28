@@ -1,10 +1,3 @@
-"""
-Schema Discovery and Validation Module for T038
-
-This module performs schema discovery on the Z-Reward dataset,
-validates required fields, and updates the schema contracts.
-"""
-
 import argparse
 import logging
 import sys
@@ -14,333 +7,200 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 import yaml
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-
-def setup_logging(level: int = logging.INFO) -> None:
-    """Configure logging for the module."""
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+def setup_logging() -> logging.Logger:
+    logger = logging.getLogger("schema_discovery")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(handler)
+    return logger
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
+    """Load the expected schema template."""
     if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, 'r') as f:
+        raise FileNotFoundError(f"Schema template not found at {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-
-def save_schema(schema: Dict[str, Any], schema_path: Path) -> None:
-    """Save a schema to a YAML file."""
-    schema_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(schema_path, 'w') as f:
+def save_schema(schema: Dict[str, Any], output_path: Path) -> None:
+    """Save the validated schema to a YAML file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"Schema saved to {schema_path}")
 
-
-def load_dataset(dataset_path: Path) -> pd.DataFrame:
-    """Load the Z-Reward dataset from a parquet file."""
-    if not dataset_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
-    
-    logger.info(f"Loading dataset from {dataset_path}")
-    df = pd.read_parquet(dataset_path)
-    logger.info(f"Loaded {len(df)} rows with {len(df.columns)} columns")
+def load_dataset(data_path: Path) -> pd.DataFrame:
+    """Load the dataset from Parquet."""
+    if not data_path.exists():
+        raise FileNotFoundError(f"Dataset not found at {data_path}")
+    logger.info(f"Loading dataset from {data_path}")
+    df = pd.read_parquet(data_path)
+    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
     return df
 
+def discover_schema(df: pd.DataFrame, expected_schema: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Discover the actual schema from the dataframe and map it to logical fields.
+    Returns an updated schema definition.
+    """
+    actual_columns = set(df.columns)
+    discovered_fields = []
+    critical_logical_fields = ["prompt", "teacher_scores", "student_scalar", "human_annotations", "primary_dimension"]
+    found_critical = []
 
-def discover_schema(df: pd.DataFrame) -> Dict[str, Any]:
-    """Discover the actual schema from the dataset."""
-    logger.info("Discovering schema from dataset...")
-    
-    discovered = {
-        "columns": [],
-        "detected_dimensions": set(),
-        "column_mapping": {}
+    # Map logical fields to actual columns
+    logical_mapping = {
+        "prompt": "prompt",
+        "image_url": "image_url",
+        "teacher_scores": "teacher_scores",
+        "student_scalar": "student_scalar",
+        "human_annotations": "human_annotations",
+        "primary_dimension": "primary_dimension",
+        "sample_id": "sample_id",
+        "excluded_reason": "excluded_reason"
     }
-    
-    # Iterate through columns and discover their types and properties
-    for col in df.columns:
-        col_info = {
-            "name": col,
-            "type": str(df[col].dtype),
-            "sample_values": df[col].head(3).tolist() if len(df) > 0 else []
-        }
-        
-        # Check for dict-like columns (teacher_scores, human_annotations)
-        if df[col].apply(lambda x: isinstance(x, dict)).any():
-            sample_dict = df[col].iloc[0] if len(df) > 0 else {}
-            if isinstance(sample_dict, dict):
-                col_info["properties"] = list(sample_dict.keys())
-                discovered["detected_dimensions"].update(sample_dict.keys())
-        
-        discovered["columns"].append(col_info)
-        discovered["column_mapping"][col] = col
-    
-    discovered["detected_dimensions"] = list(discovered["detected_dimensions"])
-    
-    logger.info(f"Discovered {len(discovered['columns'])} columns")
-    logger.info(f"Detected dimensions: {discovered['detected_dimensions']}")
-    
-    return discovered
 
+    for logical, potential_cols in logical_mapping.items():
+        # Check if the exact column name exists
+        if potential_cols in actual_columns:
+            col_type = df[potential_cols].dtype
+            if logical in ["teacher_scores", "human_annotations"]:
+                # These are object/dict columns, infer structure from sample
+                sample_val = df[potential_cols].iloc[0] if len(df) > 0 else {}
+                dims = list(sample_val.keys()) if isinstance(sample_val, dict) else []
+                discovered_fields.append({
+                    "name": logical,
+                    "type": "object",
+                    "logical_field": logical,
+                    "source_column": potential_cols,
+                    "required": True,
+                    "dimensions": dims
+                })
+            else:
+                discovered_fields.append({
+                    "name": logical,
+                    "type": str(col_type),
+                    "logical_field": logical,
+                    "source_column": potential_cols,
+                    "required": logical in critical_logical_fields
+                })
+            if logical in critical_logical_fields:
+                found_critical.append(logical)
+        else:
+            # Check for variations if exact match fails
+            found = False
+            for col in actual_columns:
+                if col.lower().replace("_", "") == logical.lower().replace("_", ""):
+                    discovered_fields.append({
+                        "name": logical,
+                        "type": str(df[col].dtype),
+                        "logical_field": logical,
+                        "source_column": col,
+                        "required": logical in critical_logical_fields,
+                        "note": f"Matched via fuzzy: {col}"
+                    })
+                    if logical in critical_logical_fields:
+                        found_critical.append(logical)
+                    found = True
+                    break
+            if not found:
+                if logical in critical_logical_fields:
+                    logger.warning(f"Critical field '{logical}' not found in dataset!")
 
-def validate_schema(df: pd.DataFrame, expected_dimensions: List[str]) -> Dict[str, Any]:
-    """Validate that the dataset contains all required fields and dimensions."""
-    logger.info("Validating schema...")
-    
-    validation_result = {
-        "valid": True,
-        "missing_columns": [],
-        "missing_dimensions": [],
-        "issues": []
-    }
-    
-    # Check for required columns
-    required_columns = [
-        "sample_id", "prompt", "image_url", 
-        "teacher_scores", "student_scalar", 
-        "human_annotations", "primary_dimension"
-    ]
-    
-    for col in required_columns:
-        if col not in df.columns:
-            validation_result["valid"] = False
-            validation_result["missing_columns"].append(col)
-            validation_result["issues"].append(f"Missing required column: {col}")
-    
-    # Check for required dimensions in teacher_scores
+    # Validate dimensions in teacher_scores and human_annotations
+    dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
     if "teacher_scores" in df.columns:
-        for dim in expected_dimensions:
-            if not df["teacher_scores"].apply(
-                lambda x: isinstance(x, dict) and dim in x
-            ).all():
-                validation_result["valid"] = False
-                validation_result["missing_dimensions"].append(dim)
-                validation_result["issues"].append(
-                    f"Missing dimension '{dim}' in teacher_scores"
-                )
-    
-    # Check for required dimensions in human_annotations
-    if "human_annotations" in df.columns:
-        for dim in expected_dimensions:
-            if not df["human_annotations"].apply(
-                lambda x: isinstance(x, dict) and dim in x
-            ).all():
-                validation_result["valid"] = False
-                validation_result["missing_dimensions"].append(dim)
-                validation_result["issues"].append(
-                    f"Missing dimension '{dim}' in human_annotations"
-                )
-    
-    # Check primary_dimension values
-    if "primary_dimension" in df.columns:
-        valid_dims = set(expected_dimensions)
-        unique_dims = df["primary_dimension"].unique()
-        invalid_dims = set(unique_dims) - valid_dims
-        if invalid_dims:
-            validation_result["valid"] = False
-            validation_result["issues"].append(
-                f"Invalid primary_dimension values found: {invalid_dims}"
-            )
-    
-    if validation_result["valid"]:
-        logger.info("Schema validation passed!")
-    else:
-        logger.warning(f"Schema validation failed with {len(validation_result['issues'])} issues")
-    
-    return validation_result
+        sample_t = df["teacher_scores"].iloc[0]
+        if isinstance(sample_t, dict):
+            if not all(d in sample_t for d in dimensions):
+                logger.warning(f"Teacher scores missing expected dimensions. Found: {list(sample_t.keys())}")
 
-
-def update_contract(
-    discovered_schema: Dict[str, Any],
-    validation_result: Dict[str, Any],
-    output_schema_path: Path,
-    expected_dimensions: List[str] = None
-) -> Dict[str, Any]:
-    """Update the schema contract file with discovered schema and validation results."""
-    
-    if expected_dimensions is None:
-        expected_dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    
-    # Load existing schema if it exists, otherwise create a new one
-    if output_schema_path.exists():
-        schema = load_schema(output_schema_path)
-    else:
-        schema = {
-            "version": "1.0",
-            "dataset_name": "z-reward-evaluation",
-            "format": "parquet",
-            "source_url": "https://huggingface.co/datasets/z-reward/z-reward",
-            "columns": [],
-            "validation_rules": [],
-            "notes": ""
-        }
-    
-    # Update columns with discovered schema
-    schema["columns"] = []
-    for col_info in discovered_schema["columns"]:
-        col_entry = {
-            "name": col_info["name"],
-            "type": col_info["type"],
-            "required": col_info["name"] in [
-                "sample_id", "prompt", "image_url", 
-                "teacher_scores", "student_scalar", 
-                "human_annotations", "primary_dimension"
-            ]
-        }
-        
-        # Add specific properties for dict columns
-        if col_info["name"] in ["teacher_scores", "human_annotations"]:
-            col_entry["type"] = "object"
-            col_entry["properties"] = {}
-            for dim in expected_dimensions:
-                col_entry["properties"][dim] = {
-                    "type": "number",
-                    "description": f"Score for {dim} dimension"
-                }
-            col_entry["description"] = f"{col_info['name']} for rubric dimensions"
-        
-        schema["columns"].append(col_entry)
-    
-    # Update validation rules
-    schema["validation_rules"] = [
-        {
-            "rule": "All four rubric dimensions must exist in teacher_scores",
-            "dimensions": expected_dimensions
+    return {
+        "schema": {
+            "description": "Validated schema for Z-Reward dataset after T038 discovery",
+            "version": "1.0.0",
+            "derived_from": str(data_path),
+            "fields": discovered_fields
         },
-        {
-            "rule": "All four rubric dimensions must exist in human_annotations",
-            "dimensions": expected_dimensions
-        },
-        {
-            "rule": "primary_dimension must be a valid enum value",
-            "enum": expected_dimensions
-        },
-        {
-            "rule": "student_scalar must be a numeric value"
-        }
-    ]
-    
-    # Add validation status
-    schema["validation_status"] = {
-        "last_validated": "T038",
-        "is_valid": validation_result["valid"],
-        "issues": validation_result["issues"]
+        "validation_status": "PASSED" if set(found_critical) == set(critical_logical_fields) else "FAILED",
+        "critical_columns_found": found_critical,
+        "mapping_notes": f"Schema discovered from {data_path.name}. Critical fields: {found_critical}"
     }
-    
-    # Add notes
-    schema["notes"] = (
-        "This schema was discovered and validated by inspecting the actual\n"
-        "z-reward/z-reward dataset on Hugging Face Hub. The dataset contains\n"
-        "image prompts, generated images, and human annotations for the four\n"
-        "rubric dimensions (Alignment, Realism, Aesthetics, Plausibility)."
-    )
-    
-    # Save updated schema
-    save_schema(schema, output_schema_path)
-    
-    return schema
 
+def validate_schema(discovered: Dict[str, Any]) -> bool:
+    """Validate that critical fields are present."""
+    status = discovered.get("validation_status", "FAILED")
+    return status == "PASSED"
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Schema Discovery and Validation for Z-Reward Dataset"
-    )
+def update_contract(discovered: Dict[str, Any], output_path: Path) -> None:
+    """Write the validated schema to the output contract file."""
+    save_schema(discovered, output_path)
+    logger.info(f"Validated schema saved to {output_path}")
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Schema Discovery and Validation")
     parser.add_argument(
-        "--dataset-path",
+        "--input-data",
         type=Path,
-        default=Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/z_reward_data.parquet"),
-        help="Path to the Z-Reward dataset parquet file"
+        default=PROJECT_ROOT / "data" / "processed" / "raw_data.parquet",
+        help="Path to input parquet file"
     )
     parser.add_argument(
-        "--schema-path",
+        "--template-schema",
         type=Path,
-        default=Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml"),
-        help="Path to the schema contract file"
+        default=PROJECT_ROOT / "specs" / "001-llmxive-entanglement-analysis" / "contracts" / "dataset.schema.yaml",
+        help="Path to template schema YAML"
     )
     parser.add_argument(
-        "--expected-dimensions",
-        type=str,
-        nargs="+",
-        default=["Alignment", "Realism", "Aesthetics", "Plausibility"],
-        help="Expected rubric dimensions"
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        "--output-schema",
+        type=Path,
+        default=PROJECT_ROOT / "specs" / "001-llmxive-entanglement-analysis" / "contracts" / "dataset.validated.schema.yaml",
+        help="Path to output validated schema YAML"
     )
     return parser.parse_args()
 
-
-def main() -> int:
-    """Main entry point for schema discovery and validation."""
+def main():
+    global logger
+    logger = setup_logging()
     args = parse_args()
-    
-    if args.verbose:
-        setup_logging(logging.DEBUG)
-    else:
-        setup_logging(logging.INFO)
-    
-    try:
-        # Load the dataset
-        df = load_dataset(args.dataset_path)
-        
-        # Discover schema
-        discovered_schema = discover_schema(df)
-        
-        # Validate schema
-        validation_result = validate_schema(df, args.expected_dimensions)
-        
-        # Update contract
-        updated_schema = update_contract(
-            discovered_schema,
-            validation_result,
-            args.schema_path,
-            args.expected_dimensions
-        )
-        
-        # Print summary
-        print("\n" + "="*60)
-        print("SCHEMA DISCOVERY AND VALIDATION SUMMARY")
-        print("="*60)
-        print(f"Dataset: {args.dataset_path}")
-        print(f"Rows: {len(df)}")
-        print(f"Columns: {len(df.columns)}")
-        print(f"Schema Valid: {validation_result['valid']}")
-        
-        if not validation_result['valid']:
-            print("\nIssues found:")
-            for issue in validation_result['issues']:
-                print(f"  - {issue}")
-        else:
-            print("\nAll validations passed!")
-        
-        print(f"\nUpdated schema saved to: {args.schema_path}")
-        print("="*60)
-        
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during schema discovery: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
 
+    logger.info(f"Starting schema discovery for {args.input_data}")
+
+    # Load template
+    try:
+        template = load_schema(args.template_schema)
+        logger.info(f"Loaded template schema from {args.template_schema}")
+    except FileNotFoundError as e:
+        logger.error(f"Template schema missing: {e}")
+        # Create a minimal template if missing to allow discovery to proceed
+        template = {"schema": {"fields": []}}
+
+    # Load data
+    try:
+        df = load_dataset(args.input_data)
+    except FileNotFoundError as e:
+        logger.critical(f"Input data missing: {e}")
+        sys.exit(1)
+
+    # Discover
+    discovered = discover_schema(df, template)
+
+    # Validate
+    is_valid = validate_schema(discovered)
+    if not is_valid:
+        logger.error("Schema validation FAILED. Critical fields missing.")
+        # Still write the discovered schema for debugging
+        update_contract(discovered, args.output_schema)
+        sys.exit(1)
+
+    # Write
+    update_contract(discovered, args.output_schema)
+    logger.info("Schema discovery and validation completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

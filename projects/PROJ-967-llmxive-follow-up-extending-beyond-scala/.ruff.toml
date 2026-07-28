@@ -1,24 +1,65 @@
 [lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",
+    "W",
+    "F",
+    "I",
+    "C90",
+    "N",
+    "D",
+    "UP",
+    "B",
+    "S",
+    "PIE",
+    "PT",
+    "Q",
+    "RSE",
+    "RET",
+    "SIM",
+    "PL",
+    "TRY",
+    "NPY",
+    "RUF"
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "D100",
+    "D104",
+    "D107",
+    "S101",
+    "S311",
+    "PLR0913"
 ]
 
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific rules for this project to avoid noise on generated code.
+per-file-ignores = {}
+
+# Same as `--line-length` in Black.
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
 [lint.isort]
-known-first-party = ["ingest", "features", "train", "evaluate", "schema_discovery", "download_zreward"]
-force-single-line = true
-lines-between-types = 1
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[lint.pydocstyle]
+convention = "google"
 
 [format]
+# Like Black, use double quotes for strings.
 quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
+
+# Like Black, respect magic trailing commas.
 skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"

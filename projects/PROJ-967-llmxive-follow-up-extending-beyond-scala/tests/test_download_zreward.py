@@ -1,71 +1,80 @@
-import os
-import tempfile
-import hashlib
+"""
+Tests for the Z-Reward dataset downloader.
+These tests verify the validation logic and error handling.
+Note: These tests do NOT actually download the dataset to avoid network dependencies in CI.
+Instead, they mock the download and test the validation logic.
+"""
 import pytest
-from pathlib import Path
+import pandas as pd
+from unittest.mock import patch, MagicMock
 import sys
+import os
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from download_zreward import calculate_sha256, verify_checksum, save_checksum
+from code.download_zreward import validate_columns, REQUIRED_COLUMNS, RUBRIC_DIMENSIONS
 
-def test_calculate_sha256():
-    """Test SHA256 calculation on a temporary file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test data")
-        tmp_path = tmp.name
 
-    try:
-        checksum = calculate_sha256(tmp_path)
-        assert len(checksum) == 64  # SHA256 hex string length
-        assert all(c in '0123456789abcdef' for c in checksum)
-    finally:
-        os.unlink(tmp_path)
+def create_mock_dataframe():
+    """Create a mock dataframe that matches the expected schema."""
+    data = {
+        "prompt": ["Sample 1", "Sample 2"],
+        "image_url": ["url1", "url2"],
+        "teacher_scores": [
+            {"Alignment": 0.8, "Realism": 0.7, "Aesthetics": 0.9, "Plausibility": 0.6},
+            {"Alignment": 0.5, "Realism": 0.6, "Aesthetics": 0.4, "Plausibility": 0.5}
+        ],
+        "student_scalar": [0.75, 0.55],
+        "human_annotations": [
+            {"Alignment": 0.85, "Realism": 0.75, "Aesthetics": 0.88, "Plausibility": 0.65},
+            {"Alignment": 0.55, "Realism": 0.65, "Aesthetics": 0.45, "Plausibility": 0.55}
+        ],
+        "primary_dimension": ["Alignment", "Realism"]
+    }
+    return pd.DataFrame(data)
 
-def test_save_and_verify_checksum():
-    """Test saving and verifying checksums."""
-    with tempfile.NamedTemporaryFile(delete=False, mode='w') as tmp_file:
-        tmp_file.write("test content")
-        file_path = tmp_file.name
 
-    checksum_dir = tempfile.mkdtemp()
-    checksum_file = os.path.join(checksum_dir, "checksums.csv")
+def test_validate_columns_valid():
+    """Test validation with a valid dataframe."""
+    df = create_mock_dataframe()
+    is_valid, errors = validate_columns(df, MagicMock())
+    assert is_valid is True
+    assert len(errors) == 0
 
-    try:
-        checksum = calculate_sha256(file_path)
-        save_checksum(checksum, file_path, checksum_file)
 
-        # Verify correct checksum
-        is_valid, msg = verify_checksum(file_path, checksum_file)
-        assert is_valid is True
+def test_validate_columns_missing_top_level():
+    """Test validation with missing top-level columns."""
+    df = create_mock_dataframe()
+    df = df.drop(columns=["prompt"])
+    is_valid, errors = validate_columns(df, MagicMock())
+    assert is_valid is False
+    assert "prompt" in errors
 
-        # Verify incorrect checksum
-        with open(checksum_file, 'w') as f:
-            f.write(f"{os.path.basename(file_path)},wrong_checksum\n")
 
-        is_valid, msg = verify_checksum(file_path, checksum_file)
-        assert is_valid is False
-        assert "mismatch" in msg.lower()
-    finally:
-        os.unlink(file_path)
-        os.unlink(checksum_file)
-        os.rmdir(checksum_dir)
+def test_validate_columns_invalid_teacher_scores():
+    """Test validation with invalid teacher_scores structure."""
+    df = create_mock_dataframe()
+    df.loc[0, "teacher_scores"] = "not a dict"
+    is_valid, errors = validate_columns(df, MagicMock())
+    assert is_valid is False
+    assert any("teacher_scores" in err for err in errors)
 
-def test_download_dataset_raises_on_failure(monkeypatch):
-    """Test that download_dataset raises RuntimeError when all sources fail."""
-    from download_zreward import download_dataset
-    import logging
 
-    # Mock load_dataset to always raise an exception
-    def mock_load_dataset(*args, **kwargs):
-        raise Exception("Simulated network failure")
+def test_validate_columns_missing_rubric_dimensions():
+    """Test validation with missing rubric dimensions in teacher_scores."""
+    df = create_mock_dataframe()
+    # Remove one dimension
+    df.loc[0, "teacher_scores"] = {"Alignment": 0.8, "Realism": 0.7, "Aesthetics": 0.9}
+    is_valid, errors = validate_columns(df, MagicMock())
+    assert is_valid is False
+    assert any("missing rubric dimensions" in err for err in errors)
 
-    monkeypatch.setattr("download_zreward.load_dataset", mock_load_dataset)
 
-    logger = logging.getLogger("test")
-    
-    with pytest.raises(RuntimeError) as excinfo:
-        download_dataset(logger)
-    
-    assert "Failed to download dataset" in str(excinfo.value)
+def test_validate_columns_nan_primary_dimension():
+    """Test validation with NaN in primary_dimension."""
+    df = create_mock_dataframe()
+    df.loc[0, "primary_dimension"] = None
+    is_valid, errors = validate_columns(df, MagicMock())
+    assert is_valid is False
+    assert any("primary_dimension contains NaN" in err for err in errors)

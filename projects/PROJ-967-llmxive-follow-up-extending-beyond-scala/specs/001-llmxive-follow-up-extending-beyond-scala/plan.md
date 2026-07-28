@@ -13,7 +13,7 @@ This project validates the hypothesis that "structural entanglement" (statistica
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `pyyaml`  
 **Storage**: Local files (CSV/JSON) within `data/` and `code/`  
 **Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7GB RAM, no GPU)  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, standard memory, no GPU)  
 **Project Type**: Research / Data Analysis Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion → feature engineering → training) within 6 hours.  
 **Constraints**: CPU-only execution; no GPU/CUDA; memory footprint < 7GB; no large-LLM inference.  

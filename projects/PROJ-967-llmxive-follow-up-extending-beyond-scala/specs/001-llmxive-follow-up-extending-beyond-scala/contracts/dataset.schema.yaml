@@ -1,89 +1,84 @@
-# Dataset Schema Contract for Z-Reward Entanglement Analysis
-# Updated via T038 Schema Discovery
-# Source: Z-Reward Evaluation Dataset (z-reward/z-reward)
+# Dataset Schema Template for Z-Reward Evaluation
+# This file defines the expected structure for the input dataset.
+# It serves as a contract for T038 (Schema Discovery) to validate against.
+#
+# Note: This is a template. The actual schema may be discovered and
+# validated in T038, resulting in a 'dataset.validated.schema.yaml'.
 
-version: "1.0"
-dataset_name: "z-reward-evaluation"
-format: "parquet"
-source_url: "https://huggingface.co/datasets/z-reward/z-reward"
+schema_version: "1.0.0"
+description: "Expected schema for Z-Reward teacher/student alignment dataset"
+source: "Z-Reward Evaluation Dataset"
 
-columns:
-  - name: sample_id
-    type: string
-    description: "Unique identifier for the sample"
-    required: true
-
+fields:
   - name: prompt
     type: string
-    description: "Text prompt used to generate the image"
+    description: "The input text prompt provided to the models"
     required: true
+    nullable: false
 
   - name: image_url
     type: string
-    description: "URL to the generated image"
-    required: true
+    description: "URL to the input image (if applicable)"
+    required: false
+    nullable: true
 
   - name: teacher_scores
     type: object
-    description: "Teacher model scores for rubric dimensions"
+    description: "Dictionary of scores assigned by the teacher model across dimensions"
     required: true
+    nullable: false
     properties:
       Alignment:
-        type: number
-        description: "Score for alignment dimension"
+        type: float
+        description: "Teacher score for alignment dimension"
       Realism:
-        type: number
-        description: "Score for realism dimension"
+        type: float
+        description: "Teacher score for realism dimension"
       Aesthetics:
-        type: number
-        description: "Score for aesthetics dimension"
+        type: float
+        description: "Teacher score for aesthetics dimension"
       Plausibility:
-        type: number
-        description: "Score for plausibility dimension"
+        type: float
+        description: "Teacher score for plausibility dimension"
 
   - name: student_scalar
-    type: number
-    description: "Student model scalar output (aggregated score)"
+    type: float
+    description: "Single scalar score output by the student model"
     required: true
+    nullable: false
 
   - name: human_annotations
     type: object
-    description: "Human annotations for rubric dimensions"
+    description: "Dictionary of human-annotated scores for validation"
     required: true
+    nullable: false
     properties:
       Alignment:
-        type: number
+        type: float
         description: "Human score for alignment dimension"
       Realism:
-        type: number
+        type: float
         description: "Human score for realism dimension"
       Aesthetics:
-        type: number
+        type: float
         description: "Human score for aesthetics dimension"
       Plausibility:
-        type: number
+        type: float
         description: "Human score for plausibility dimension"
 
   - name: primary_dimension
     type: string
-    description: "Primary quality dimension for this sample (one of: Alignment, Realism, Aesthetics, Plausibility)"
+    description: "The specific dimension used for primary fidelity loss calculation"
     required: true
+    nullable: false
     enum:
       - Alignment
       - Realism
       - Aesthetics
       - Plausibility
 
-validation_rules:
-  - rule: "All four rubric dimensions must exist in teacher_scores"
-    dimensions: ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-  - rule: "All four rubric dimensions must exist in human_annotations"
-    dimensions: ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-  - rule: "primary_dimension must be a valid enum value"
-  - rule: "student_scalar must be a numeric value"
-
-notes: |
-  This schema was discovered and validated by inspecting the actual
-  z-reward/z-reward dataset on Hugging Face Hub. The dataset contains
-  image prompts, generated images, and human annotations for the four
-  rubric dimensions (Alignment, Realism, Aesthetics, Plausibility).
+metadata:
+  created_at: "2023-10-27T00:00:00Z"
+  updated_at: "2023-10-27T00:00:00Z"
+  author: "llmXive Pipeline"
+  status: "template"

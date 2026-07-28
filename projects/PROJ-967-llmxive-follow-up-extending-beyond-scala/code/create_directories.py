@@ -1,7 +1,3 @@
-"""
-Task T001a: Create project directories for llmXive Follow-up.
-Creates the required directory structure under projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/
-"""
 import os
 import sys
 from pathlib import Path
@@ -14,13 +10,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative to where this script is run (assumed to be repo root)
-# The task specifies paths relative to repository root.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROJECT_DIR = PROJECT_ROOT / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
 
-# Directories to create as per T001a
-DIRECTORIES = [
+REQUIRED_DIRS = [
     "data/raw",
     "data/processed",
     "code",
@@ -30,20 +23,17 @@ DIRECTORIES = [
 
 def ensure_directory(dir_path: Path) -> bool:
     """
-    Ensures a directory exists. Creates it if it doesn't.
+    Ensure a directory exists, creating it if necessary.
     
     Args:
-        dir_path: Path object representing the directory to create.
+        dir_path: Path object representing the directory to create
         
     Returns:
-        True if directory exists or was created successfully, False otherwise.
+        bool: True if directory exists or was created successfully, False otherwise
     """
     try:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-        else:
-            logger.info(f"Directory already exists: {dir_path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Directory ensured: {dir_path}")
         return True
     except Exception as e:
         logger.error(f"Failed to create directory {dir_path}: {e}")
@@ -51,26 +41,25 @@ def ensure_directory(dir_path: Path) -> bool:
 
 def main():
     """
-    Main entry point for T001a.
-    Creates all required project directories.
+    Main function to create all required project directories.
     """
     logger.info(f"Starting directory creation for project: {PROJECT_DIR}")
     
-    success = True
-    for subdir in DIRECTORIES:
-        full_path = PROJECT_DIR / subdir
-        if not ensure_directory(full_path):
-            success = False
+    success_count = 0
+    total_count = len(REQUIRED_DIRS)
     
-    if success:
-        logger.info("All directories created successfully.")
-        # Print summary for verification
-        print(f"\nProject structure created at: {PROJECT_DIR}")
-        for subdir in DIRECTORIES:
-            print(f"  - {PROJECT_DIR / subdir}")
+    for dir_name in REQUIRED_DIRS:
+        full_path = PROJECT_DIR / dir_name
+        if ensure_directory(full_path):
+            success_count += 1
+    
+    logger.info(f"Directory creation complete: {success_count}/{total_count} directories created successfully")
+    
+    if success_count == total_count:
+        logger.info("All required directories have been created.")
         return 0
     else:
-        logger.error("Some directories failed to create.")
+        logger.error(f"Failed to create {total_count - success_count} directories.")
         return 1
 
 if __name__ == "__main__":

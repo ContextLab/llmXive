@@ -1,5 +1,5 @@
 """
-Task T001a: Create project directories for llmXive Follow-up project.
+Task T001a: Create project directories for PROJ-967-llmxive-follow-up-extending-beyond-scala.
 
 Creates the following directories relative to the repository root:
 - projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw
@@ -8,8 +8,8 @@ Creates the following directories relative to the repository root:
 - projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests
 - projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results
 
-This script replaces T004 and ensures all necessary directories exist
-before other pipeline tasks can execute.
+This script replaces T004 and ensures the project structure exists before
+other tasks begin.
 """
 import os
 import sys
@@ -23,60 +23,51 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directory(path: Path) -> bool:
-    """
-    Create a directory if it doesn't exist.
-    
-    Args:
-        path: Path object representing the directory to create
-        
-    Returns:
-        True if directory exists or was created successfully, False otherwise
-    """
-    try:
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path}")
-        else:
-            logger.info(f"Directory already exists: {path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create directory {path}: {e}")
-        return False
+PROJECT_ROOT = "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala"
 
-def main():
-    """
-    Main function to create all required project directories.
-    """
-    # Define the base project path
-    base_path = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+def ensure_directory(path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {path}")
+    except OSError as e:
+        logger.error(f"Failed to create directory {path}: {e}")
+        raise
+
+def main() -> None:
+    """Create all required project directories."""
+    logger.info(f"Starting directory creation for project: {PROJECT_ROOT}")
     
-    # Define all required directories
+    # Define required directories relative to project root
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "code",
-        base_path / "tests",
-        base_path / "results"
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests",
+        "results"
     ]
     
-    logger.info(f"Creating project structure under: {base_path}")
+    # Create each directory
+    created_count = 0
+    for dir_path in directories:
+        full_path = Path(PROJECT_ROOT) / dir_path
+        ensure_directory(full_path)
+        created_count += 1
     
-    success_count = 0
-    total_count = len(directories)
+    logger.info(f"Successfully created {created_count} directories for {PROJECT_ROOT}")
     
-    for directory in directories:
-        if ensure_directory(directory):
-            success_count += 1
+    # Verify directories exist
+    missing = []
+    for dir_path in directories:
+        full_path = Path(PROJECT_ROOT) / dir_path
+        if not full_path.exists():
+            missing.append(str(full_path))
     
-    logger.info(f"Directory creation complete: {success_count}/{total_count} successful")
-    
-    if success_count == total_count:
-        logger.info("All required directories created successfully.")
-        return 0
+    if missing:
+        logger.error(f"Verification failed: Missing directories: {missing}")
+        sys.exit(1)
     else:
-        logger.error(f"Failed to create {total_count - success_count} directories.")
-        return 1
+        logger.info("Verification successful: All directories exist.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

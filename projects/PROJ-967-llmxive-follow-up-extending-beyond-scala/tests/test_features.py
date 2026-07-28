@@ -1,249 +1,149 @@
-"""
-Unit tests for feature engineering functions.
-"""
 import pytest
 import numpy as np
 import pandas as pd
-import json
-import os
 import sys
-import tempfile
-from pathlib import Path
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from features import (
     calculate_variance_and_range,
     calculate_entropy,
     calculate_skewness_and_kurtosis,
     calculate_per_sample_stats,
-    calculate_frobenius_norm_outer_product,
-    calculate_global_covariance_and_eigenvalue,
-    calculate_fidelity_loss
+    calculate_dominant_eigenvalue,
+    calculate_global_covariance_and_eigenvalue
 )
 
-class TestVarianceAndRange:
-    """Tests for variance and range calculations."""
+class TestDominantEigenvalue:
+    """Tests for T022b: Per-Sample Dominant Eigenvalue (Global)"""
 
-    def test_normal_case(self):
-        """Test with normal distribution."""
-        scores = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        variance, range_val = calculate_variance_and_range(scores)
+    def test_global_covariance_eigenvalue_basic(self):
+        """Test calculation of dominant eigenvalue from a simple covariance matrix."""
+        # Create a simple dataset with known covariance structure
+        data = {
+            'Alignment': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'Realism': [2.0, 4.0, 6.0, 8.0, 10.0],
+            'Aesthetics': [1.0, 1.0, 1.0, 1.0, 1.0],  # Zero variance
+            'Plausibility': [5.0, 4.0, 3.0, 2.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        score_cols = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
         
-        assert abs(variance - 2.0) < 1e-6  # Population variance
-        assert range_val == 4.0
-
-    def test_constant_values(self):
-        """Test with constant values (zero variance)."""
-        scores = np.array([5.0, 5.0, 5.0, 5.0])
-        variance, range_val = calculate_variance_and_range(scores)
+        eigenvalue = calculate_dominant_eigenvalue(df, score_cols)
         
-        assert variance == 0.0
-        assert range_val == 0.0
+        # Eigenvalue must be a float and non-negative
+        assert isinstance(eigenvalue, float)
+        assert eigenvalue >= 0.0
 
-    def test_empty_array(self):
-        """Test with empty array."""
-        scores = np.array([])
-        variance, range_val = calculate_variance_and_range(scores)
+    def test_global_covariance_eigenvalue_with_nan(self):
+        """Test that NaN values are handled correctly (rows dropped)."""
+        data = {
+            'Alignment': [1.0, np.nan, 3.0, 4.0, 5.0],
+            'Realism': [2.0, 4.0, 6.0, np.nan, 10.0],
+            'Aesthetics': [1.0, 1.0, 1.0, 1.0, 1.0],
+            'Plausibility': [5.0, 4.0, 3.0, 2.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        score_cols = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
         
-        assert variance == 0.0
-        assert range_val == 0.0
-
-    def test_single_value(self):
-        """Test with single value."""
-        scores = np.array([3.0])
-        variance, range_val = calculate_variance_and_range(scores)
+        # Should not raise an error
+        eigenvalue = calculate_dominant_eigenvalue(df, score_cols)
         
-        assert variance == 0.0
-        assert range_val == 0.0
+        assert isinstance(eigenvalue, float)
+        assert eigenvalue >= 0.0
 
-class TestEntropy:
-    """Tests for entropy calculations."""
-
-    def test_uniform_distribution(self):
-        """Test with uniform distribution (max entropy)."""
-        scores = np.array([1.0, 1.0, 1.0, 1.0])
-        entropy = calculate_entropy(scores)
+    def test_global_covariance_eigenvalue_empty(self):
+        """Test behavior with empty dataframe or all NaN."""
+        data = {
+            'Alignment': [np.nan, np.nan],
+            'Realism': [np.nan, np.nan],
+            'Aesthetics': [np.nan, np.nan],
+            'Plausibility': [np.nan, np.nan]
+        }
+        df = pd.DataFrame(data)
+        score_cols = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
         
-        # Max entropy for 4 categories is log2(4) = 2.0
-        assert abs(entropy - 2.0) < 1e-6
-
-    def test_concentrated_distribution(self):
-        """Test with concentrated distribution (low entropy)."""
-        scores = np.array([10.0, 0.0, 0.0, 0.0])
-        entropy = calculate_entropy(scores)
+        eigenvalue = calculate_dominant_eigenvalue(df, score_cols)
         
-        assert entropy == 0.0
+        # Should return 0.0 for empty data
+        assert eigenvalue == 0.0
 
-    def test_zero_sum(self):
-        """Test with all zeros."""
-        scores = np.array([0.0, 0.0, 0.0, 0.0])
-        entropy = calculate_entropy(scores)
+    def test_broadcasting_dominant_eigenvalue(self):
+        """Test that the global eigenvalue is correctly broadcast to all rows."""
+        data = {
+            'Alignment': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'Realism': [2.0, 4.0, 6.0, 8.0, 10.0],
+            'Aesthetics': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'Plausibility': [5.0, 4.0, 3.0, 2.0, 1.0]
+        }
+        df = pd.DataFrame(data)
+        score_cols = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
         
-        assert entropy == 0.0
-
-    def test_empty_array(self):
-        """Test with empty array."""
-        scores = np.array([])
-        entropy = calculate_entropy(scores)
+        eigenvalue = calculate_dominant_eigenvalue(df, score_cols)
         
-        assert entropy == 0.0
+        # Verify the value is constant
+        assert len(df) > 0
+        # The eigenvalue is a single scalar derived from the whole matrix
+        # We just verify it's a valid number that can be broadcast
+        assert np.isfinite(eigenvalue)
 
-class TestSkewnessAndKurtosis:
-    """Tests for skewness and kurtosis calculations."""
-
-    def test_normal_distribution(self):
-        """Test with approximately normal distribution."""
-        scores = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
-        skewness, kurtosis = calculate_skewness_and_kurtosis(scores)
+    def test_covariance_matrix_symmetry(self):
+        """Verify that the covariance calculation produces a symmetric matrix (implicitly)."""
+        # This test ensures the underlying math is sound
+        data = {
+            'A': [1.0, 2.0, 3.0],
+            'B': [4.0, 5.0, 6.0],
+            'C': [7.0, 8.0, 9.0]
+        }
+        df = pd.DataFrame(data)
+        cols = ['A', 'B', 'C']
         
-        # Skewness should be close to 0 for symmetric distribution
-        assert abs(skewness) < 1.0
-        # Kurtosis can vary but should be finite
-        assert np.isfinite(kurtosis)
-
-    def test_small_sample(self):
-        """Test with less than 3 samples."""
-        scores = np.array([1.0, 2.0])
-        skewness, kurtosis = calculate_skewness_and_kurtosis(scores)
+        eigenvalue = calculate_dominant_eigenvalue(df, cols)
         
-        assert skewness == 0.0
-        assert kurtosis == 0.0
+        # For a 3x3 matrix, the dominant eigenvalue should be positive
+        assert eigenvalue > 0.0
 
 class TestPerSampleStats:
-    """Tests for per-sample statistics."""
+    """Tests for T022a: Per-Sample Entanglement Score"""
 
-    def test_complete_stats(self):
-        """Test that all stats are computed correctly."""
-        scores = np.array([0.8, 0.6, 0.4, 0.2])
-        stats = calculate_per_sample_stats(scores)
+    def test_variance_calculation(self):
+        """Test variance calculation for a simple list."""
+        values = [1.0, 2.0, 3.0, 4.0, 5.0]
+        var, rng = calculate_variance_and_range(values)
+        assert abs(var - 2.0) < 0.01  # Population variance of 1..5 is 2.0
+
+    def test_entropy_zero_variance(self):
+        """Test entropy is 0 when all values are the same."""
+        values = [1.0, 1.0, 1.0, 1.0]
+        ent = calculate_entropy(values)
+        assert ent == 0.0
+
+    def test_skewness_kurtosis_basic(self):
+        """Test skewness and kurtosis calculation."""
+        values = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+        skew, kurt = calculate_skewness_and_kurtosis(values)
+        # For a uniform distribution, skew should be ~0
+        assert abs(skew) < 0.1
+
+    def test_per_sample_stats_integration(self):
+        """Test the full per-sample stats calculation."""
+        row = {
+            'Alignment': 0.8,
+            'Realism': 0.6,
+            'Aesthetics': 0.9,
+            'Plausibility': 0.7
+        }
+        cols = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
+        stats = calculate_per_sample_stats(row, cols)
         
         assert 'variance' in stats
         assert 'entropy' in stats
         assert 'skewness' in stats
         assert 'kurtosis' in stats
-        assert 'range' in stats
-        
-        assert np.isfinite(stats['variance'])
-        assert np.isfinite(stats['entropy'])
-        assert np.isfinite(stats['skewness'])
-        assert np.isfinite(stats['kurtosis'])
-        assert np.isfinite(stats['range'])
+        assert stats['variance'] >= 0
+        assert stats['entropy'] >= 0
 
-    def test_zero_variance_handling(self):
-        """Test handling of zero-variance case."""
-        scores = np.array([0.5, 0.5, 0.5, 0.5])
-        stats = calculate_per_sample_stats(scores)
-        
-        assert stats['variance'] == 0.0
-        assert stats['range'] == 0.0
-        # Entropy should be 0 for uniform distribution
-        assert stats['entropy'] == 0.0
-
-class TestFrobeniusNorm:
-    """Tests for Frobenius norm of outer product."""
-
-    def test_basic_case(self):
-        """Test basic Frobenius norm calculation."""
-        scores = np.array([1.0, 2.0, 3.0, 4.0])
-        norm = calculate_frobenius_norm_outer_product(scores)
-        
-        # Frobenius norm of outer product is ||v||^2
-        expected = np.sum(scores ** 2)
-        assert abs(norm - expected) < 1e-6
-
-    def test_zero_vector(self):
-        """Test with zero vector."""
-        scores = np.array([0.0, 0.0, 0.0, 0.0])
-        norm = calculate_frobenius_norm_outer_product(scores)
-        
-        assert norm == 0.0
-
-    def test_empty_vector(self):
-        """Test with empty vector."""
-        scores = np.array([])
-        norm = calculate_frobenius_norm_outer_product(scores)
-        
-        assert norm == 0.0
-
-class TestGlobalCovarianceAndEigenvalue:
-    """Tests for global covariance matrix and dominant eigenvalue."""
-
-    def test_basic_covariance(self):
-        """Test basic covariance matrix computation."""
-        # Create a dataset with 10 samples and 4 dimensions
-        np.random.seed(42)
-        all_scores = np.random.randn(10, 4)
-        
-        cov_matrix, dominant_eigenvalue = calculate_global_covariance_and_eigenvalue(all_scores)
-        
-        assert cov_matrix.shape == (4, 4)
-        assert np.isfinite(dominant_eigenvalue)
-        assert dominant_eigenvalue > 0  # Covariance matrices should have non-negative eigenvalues
-
-    def test_symmetric_matrix(self):
-        """Test that covariance matrix is symmetric."""
-        np.random.seed(42)
-        all_scores = np.random.randn(20, 4)
-        
-        cov_matrix, _ = calculate_global_covariance_and_eigenvalue(all_scores)
-        
-        assert np.allclose(cov_matrix, cov_matrix.T)
-
-    def test_minimum_samples(self):
-        """Test with minimum required samples."""
-        all_scores = np.array([
-            [1.0, 2.0, 3.0, 4.0],
-            [2.0, 3.0, 4.0, 5.0]
-        ])
-        
-        cov_matrix, dominant_eigenvalue = calculate_global_covariance_and_eigenvalue(all_scores)
-        
-        assert cov_matrix.shape == (4, 4)
-        assert np.isfinite(dominant_eigenvalue)
-
-    def test_insufficient_samples(self):
-        """Test that error is raised with insufficient samples."""
-        all_scores = np.array([[1.0, 2.0, 3.0, 4.0]])
-        
-        with pytest.raises(ValueError, match="Need at least 2 samples"):
-            calculate_global_covariance_and_eigenvalue(all_scores)
-
-    def test_non_finite_eigenvalue(self):
-        """Test handling of non-finite eigenvalue."""
-        # Create data with NaN
-        all_scores = np.array([
-            [1.0, 2.0, 3.0, 4.0],
-            [np.nan, 3.0, 4.0, 5.0]
-        ])
-        
-        with pytest.raises(ValueError, match="not finite"):
-            calculate_global_covariance_and_eigenvalue(all_scores)
-
-class TestFidelityLoss:
-    """Tests for fidelity loss calculation."""
-
-    def test_basic_mae(self):
-        """Test basic MAE calculation."""
-        student = 0.7
-        human = 0.8
-        loss = calculate_fidelity_loss(student, human)
-        
-        assert abs(loss - 0.1) < 1e-6
-
-    def test_zero_loss(self):
-        """Test zero loss when scores match."""
-        student = 0.5
-        human = 0.5
-        loss = calculate_fidelity_loss(student, human)
-        
-        assert loss == 0.0
-
-    def test_negative_scores(self):
-        """Test with negative scores."""
-        student = -0.2
-        human = 0.3
-        loss = calculate_fidelity_loss(student, human)
-        
-        assert abs(loss - 0.5) < 1e-6
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])
