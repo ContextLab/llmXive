@@ -1,0 +1,16 @@
+status: none
+intent: download NIST HEA database yield strength dataset Materials Project Zenodo
+  Figshare python package dataset
+required_fields:
+- composition
+- element_fractions
+- yield_strength
+- phase
+- testing_temperature
+- atomic_radius
+- electronegativity
+- valence_electron_count
+- melting_temperature
+cache_key: ae3a071867eb5a0b732a3c9d648deb2b2921dfe0f6d6bc98ea420ec8a9744e35
+searched_at: '2026-07-28T18:26:02.782064+00:00'
+retry_count: 1

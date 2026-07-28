@@ -40,7 +40,7 @@
 
 - [X] T004 Setup deterministic logging and random seed management in `code/utils/logging.py`
 - [X] T005 [P] Create base data schemas and validation logic in `code/data/__init__.py`
-- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`
+- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`. **Scope**: This task creates a reusable function `normalize_to_mpa(value, unit)` available for the entire project. **Depends on T004**.
 - [X] T007 Setup environment configuration management for verified dataset URLs in `code/utils/config.py`
 - [X] T029a [P] [Cross-Cutting] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
 - [X] T029b [P] [Cross-Cutting] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
@@ -65,7 +65,7 @@
 
 - [X] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temperature, and handle missing yield strength values. **Depends on T008**.
 
-- [X] T010 [US1] Implement unit normalizer in `code/data/preprocess.py` to convert all yield strength to MPa. **Depends on T009**.
+- [X] T010 [US1] Apply unit normalization in `code/data/preprocess.py` using the utility from T006 to convert all yield strength to MPa. **Depends on T009, T006**.
 
 - [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts) with fallback to standard databases. **Depends on T005**.
 
@@ -83,7 +83,7 @@
 
 ## Phase 4: User Story 2 - Model Training and Predictive Performance Evaluation (Priority: P2)
 
-**Goal**: Train Random Forest and Gradient Boosting models (5-fold CV, hyperparameter tuning ≤50 trees, depth ≤10), evaluate on hold-out test set, and compare against Linear Regression baseline.
+**Goal**: Train Random Forest and Gradient Boosting models (5-fold CV, hyperparameter tuning 100-200 trees for RF, 50-100 for GBM, depth ≤ 6), evaluate on hold-out test set, and compare against Linear Regression baseline.
 
 **Independent Test**: Execute training script; verify `output/metrics.json` contains R², MAE, RMSE for all models; confirm runtime ≤ 3 hours on CPU.
 
@@ -93,13 +93,13 @@
 
 - [X] T017 [P] [US2] Implement Linear Regression baseline trainer in `code/models/train.py`. **Depends on T016**.
 
-- [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
+- [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees: 100-200, depth ≤ 6) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 100 to 200 trees and max_depth <= 6. **Depends on T016**.
 
-- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
+- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees: 50-100, depth ≤ 6) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 50 to 100 trees and max_depth <= 6. **Depends on T016**.
 
 - [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set AND generate plots. **Must use T029a for all generated plots**. **Depends on T017, T018, T019, T029a**.
 
-- [X] T021 [US2] Create `output/metrics.json` writer to record metrics for all models. The JSON schema MUST be: `{ "rf": { "R2": float, "MAE": float, "RMSE": float }, "gb": {... }, "linear": {... }, "best_model": "rf|gb|linear" }`. **Depends on T020**.
+- [X] T021 [US2] Create `output/metrics.json` writer to record metrics for all models and select the best model. The JSON schema MUST be: `{ "rf": { "R2": float, "MAE": float, "RMSE": float }, "gb": {... }, "linear": {... }, "best_model": "rf|gb|linear" }`. **Depends on T020**.
 
 - [X] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
 
@@ -117,15 +117,15 @@
 
 - [X] T030 [US3] Implement power analysis checker in `code/models/evaluate.py` to read `output/data_status.json` (from T015) and write `output/power_analysis.json` at the exact relative path `output/power_analysis.json`. **Schema**: `{ "n": int, "status": "sufficient" | "insufficient_power", "action": "run" | "skip" }`. If N < 50, set status to `insufficient_power` and action to `skip`. This artifact is the single source of truth for whether statistical tests should run. **Depends on T015**.
 
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for **ALL** trained models: Linear Regression baseline (`model_linear`), Random Forest (`model_rf`), and Gradient Boosting (`model_gb`). Calculate VIF for all descriptors in each model and flag any VIF > 10. **CRITICAL**: This task must satisfy FR-009's requirement to compute VIF for "each descriptor within the full multiple regression model" across the board, not just the baseline. Write results to `output/vif_results.json`. **Depends on T017, T018, T019**.
+- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline only** (`model_linear` from T017). Calculate VIF for all descriptors in the OLS model and flag any VIF > 10. **CRITICAL**: This task must satisfy FR-009's requirement to compute VIF "within the full multiple regression model". Do NOT calculate VIF for RF or GBM. Write results to `output/vif_results.json`. **Depends on T017**.
 
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
+- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T017, T018, T019, T021, T030**.
 
 - [X] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
 
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the **best performing tree-based model** (selected after tuning) to calculate 95% CI for R². **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/bootstrap_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
+- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the **best performing tree-based model** (selected in T021) to calculate 95% CI for R². **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST **RUN** the bootstrap but report the result with a `status` of "low_power" and include a note in the confidence interval interpretation about reduced statistical power. Do NOT skip execution. **Depends on T015, T017, T018, T019, T021, T030**.
 
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and calculate the count of significant descriptors and R² values for each. **CRITICAL**: This task MUST write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results. It must handle both the calculation and the aggregation/writing of the JSON artifact. **Depends on T024, T025**.
+- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and calculate the count of significant descriptors and R² values for each. **CRITICAL**: This task MUST write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results. It must handle cases where T024 is skipped or reports low power by reporting "skipped" or "low_power" for the relevant alpha values. **Depends on T024, T025**.
 
 - [X] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. The report MUST follow this template:
  1. Overview
@@ -142,13 +142,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031a [P] Update `README.md` with installation steps, usage instructions, and data source requirements.
-- [ ] T031b [P] Update `quickstart.md` with a step-by-step walkthrough of the pipeline execution.
+- [X] T031a [P] Update `README.md` with installation steps, usage instructions, and data source requirements. **Implementation**: Generate a comprehensive README.md file based on the spec's FR-012 requirements, including environment setup, data source details, and usage examples.
+- [X] T031b [P] Update `quickstart.md` with a step-by-step walkthrough of the pipeline execution. **Implementation**: Generate a quickstart.md file based on FR-013, providing a clear, numbered guide to running the pipeline from start to finish.
 - [X] T032a Run `ruff check` and fix all linting errors in `code/`
 - [X] T032b Run `black` and format all Python files in `code/`
 - [X] T034 [P] Unit tests for descriptor math in `tests/unit/test_descriptors.py`
 - [X] T035 [P] Integration tests for full pipeline in `tests/integration/test_pipeline.py`
-- [ ] T036 Run quickstart.md validation
+- [X] T036 Run quickstart.md validation. **Implementation**: Execute the steps in `quickstart.md` in a clean environment. Capture the output and generate `output/quickstart_validation_report.json` containing: `{ "status": "success|failure", "steps_executed": int, "errors": [], "timestamp": str }`. This satisfies SC-007.
 
 ---
 

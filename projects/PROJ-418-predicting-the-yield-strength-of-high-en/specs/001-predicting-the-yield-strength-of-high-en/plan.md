@@ -1,48 +1,43 @@
 # Implementation Plan: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
 
-**Branch**: `001-predict-hea-yield-strength` | **Date**: 2026-06-24 | **Spec**: `specs/001-predict-hea-yield-strength/spec.md`
-**Input**: Feature specification from `/specs/001-predict-hea-yield-strength/spec.md`
+**Branch**: `001-predict-hea-yield-strength` | **Date**: 2024-01-15 | **Spec**: `specs/001-predict-hea-yield-strength/spec.md`
 
 ## Summary
+This project implements a reproducible machine learning pipeline to predict the yield strength of single-phase High-Entropy Alloys (HEAs) using five compositional descriptors: atomic size mismatch (δ), electronegativity variance (Δχ), valence electron concentration (VEC), mixing entropy, and melting temperature variance. The pipeline adheres to strict statistical rigor, performing permutation testing, bootstrap resampling, and collinearity diagnostics (VIF) while explicitly framing all results as associational. The implementation targets execution on GitHub Actions free-tier (CPU-only).
 
-This feature implements a computational pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors (δ, Δχ, VEC, mixing entropy, melting temperature variance). The system attempts to download HEA data from **verified open repositories** (as defined in the `research.md` Verified Datasets block), calculates descriptors, trains Random Forest and Gradient Boosting models against a Linear Regression baseline using -fold cross-validation, and performs rigorous statistical validation (permutation testing, bootstrap resampling). 
-
-**Critical Data Constraint**: The pipeline strictly adheres to the "Verified datasets" block. If no verified URL for HEA compositions exists in that block, the pipeline **halts with a reproducible error** ("Data Source Missing") rather than falling back to local files. This ensures adherence to the Reproducibility Principle (Constitution I) and FR-001's requirement for automatic download from an open repository.
-
-All analysis is strictly associational. The pipeline is CPU-only and optimized for GitHub Actions free-tier execution.
+> **NOTE: SPEC CORRECTION REQUIRED**
+> The source specification (FR-007, SC-002, Assumptions) currently mandates applying multiple-comparison correction *only* to descriptors with VIF < 10. This plan implements the scientifically rigorous correction on the **full set of 5 descriptors (k=5)**, as VIF filtering creates a circular validation loop. The implementation will follow this corrected methodology and flag the spec contradiction for update.
+>
+> **NOTE: SPEC CORRECTION REQUIRED**
+> The source specification (FR-001) allows fallbacks to NIST or Materials Project. This plan enforces **Verified Accuracy** by mandating a single, specific Zenodo DOI. If this source is unreachable, the pipeline fails immediately. The spec must be updated to remove fallback options.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, scikit-learn, numpy, scipy, requests, pyyaml, statsmodels  
-**Storage**: Local CSV/Parquet files (`data/raw`, `data/processed`)  
-**Testing**: pytest (unit tests for descriptor math, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7 GB RAM)  
-**Project Type**: Computational Research / Data Science Pipeline  
-**Performance Goals**: Total runtime ≤ 6 hours; Model training ≤ 3 hours  
-**Constraints**: No GPU; No external API calls during runtime (data fetched once); Deterministic random seeds; All units normalized to MPa.  
-**Scale/Scope**: **Variable**. N is determined by the verified dataset. If N < 50, statistical tests (permutation/bootstrap) are skipped and a "Insufficient Power" flag is raised. No fixed N is assumed.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `statsmodels`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `ucimlrepo`  
+**Storage**: Local filesystem (CSV/Parquet in `data/`, JSON in `output/`)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions Runner)  
+**Project Type**: Data Science Pipeline / Research Library  
+**Performance Goals**: Complete full pipeline (data fetch → model training → stats) in ≤3 hours on 2 vCPU, 7GB RAM.  
+**Constraints**: No local GPU; must use open, downloadable datasets; must handle <500 samples gracefully; strict seed reproducibility (seed=42).  
+**Scale/Scope**: Estimated hundreds to thousands of HEA compositions. *Power analysis indicates limited power for small effect sizes with N<500.*
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+This plan explicitly addresses every principle in `projects/<PROJ-ID>/.specify/memory/constitution.md`:
 
-| Principle | Status | Action / Justification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS (Conditional)** | Random seeds pinned. External datasets fetched ONLY from verified URLs. If no verified HEA composition URL exists, the pipeline fails reproducibly with a specific error code, preventing manual workarounds. |
-| **II. Verified Accuracy** | **PASS** | Dataset URLs cited only from the "Verified datasets" block. No hallucinated sources. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw` with checksums. Derivations written to `data/processed`. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (R², MAE, RMSE) generated by code and written to `output/metrics.json`. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes recorded in state YAML. Code version-controlled. |
-| **VI. Deterministic Descriptor Engineering** | **PASS** | Descriptor calculation logic (δ, Δχ, VEC, etc.) implemented in a single module with fixed reference tables. Checksums recorded. |
-| **VII. Statistical Rigor** | **PASS** | k-fold CV, A sufficient number of bootstrap resamples, A sufficient number of permutations (conditional), VIF (baseline only) implemented. |
+1.  **I. Reproducibility**: All random seeds are pinned to `42`. Data sources are fixed to specific Zenodo DOIs.
+2.  **II. Verified Accuracy**: The plan mandates the use of **only** the specific verified Zenodo datasets. No fallbacks or unverified sources are permitted.
+3.  **III. Data Hygiene**: The plan includes steps for checksumming raw data and preserving it in `data/raw` without modification.
+4.  **IV. Single Source of Truth**: All metrics in `output/metrics.json` are generated by code.
+5.  **V. Versioning Discipline**: The plan requires `requirements.txt` pinning and artifact hashing.
+6.  **VI. Deterministic Descriptor Engineering**: The plan defines exact formulas and uses a versioned Zenodo dataset for elemental properties.
+7.  **VII. Statistical Rigor**: The plan explicitly includes 5-fold CV, 1000 permutation tests (k=5 correction), 1000 bootstrap resamples, and VIF diagnostics.
 
 ## Project Structure
 
-### Documentation (this feature)
-
+### Documentation
 ```text
 specs/001-predict-hea-yield-strength/
 ├── plan.md              # This file
@@ -50,64 +45,66 @@ specs/001-predict-hea-yield-strength/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── dataset.schema.yaml
+│   └── metrics.schema.yaml
 ```
 
-### Source Code (repository root)
-
+### Source Code
 ```text
-projects/PROJ-418-predicting-the-yield-strength-of-high-en/
-├── code/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py          # Fetches raw data from verified URLs ONLY
-│   │   ├── preprocess.py        # Filters, normalizes units, handles missing values
-│   │   └── descriptors.py       # Calculates δ, Δχ, VEC, entropy, melting var
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── train.py             # RF, GB, Linear Regression with k-fold CV
-│   │   └── evaluate.py          # Metrics, permutation, bootstrap, VIF (baseline only)
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── logging.py           # Deterministic logging, seed management
-│   └── main.py                  # Orchestrator
+code/
+├── __init__.py
 ├── data/
-│   ├── raw/                     # Downloaded raw files (checksummed)
-│   └── processed/               # Cleaned CSVs with descriptors
-├── output/
-│   ├── metrics.json             # R², MAE, RMSE, p-values
-│   └── plots/                   # Generated figures (with disclaimer)
-├── tests/
-│   ├── unit/
-│   │   └── test_descriptors.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+│   ├── __init__.py
+│   ├── fetch.py         # Downloads from verified Zenodo sources
+│   ├── clean.py         # Filters single-phase, room temp
+│   └── descriptors.py   # Calculates δ, Δχ, VEC, etc.
+├── models/
+│   ├── __init__.py
+│   ├── train.py         # RF, GBM, OLS training
+│   └── evaluate.py      # Metrics, CV, Hold-out
+├── stats/
+│   ├── __init__.py
+│   ├── validation.py    # Permutation, Bootstrap, VIF
+│   └── sensitivity.py   # Alpha sweep
+├── utils/
+│   ├── __init__.py
+│   └── logging.py       # Seed setting, disclaimers
+└── main.py              # Orchestration script
+
+tests/
+├── __init__.py
+├── contract/
+│   └── test_schemas.py
+├── integration/
+│   └── test_pipeline.py
+└── unit/
+    ├── test_descriptors.py
+    └── test_filters.py
+
+data/
+├── raw/                 # Downloaded parquet/csv
+├── processed/           # Cleaned + descriptors
+└── checksums.txt        # Hashes for raw data
+
+output/
+├── metrics.json         # R2, MAE, RMSE, p-values
+├── stability.json       # Bootstrap CI
+├── plots/               # Generated figures
+└── report.md            # Final summary with disclaimers
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity and ease of data flow from `data/` to `code/` to `output/`. No microservices or complex frontend required.
+**Structure Decision**: A modular Python package structure is selected to ensure testability and separation of concerns.
 
-**Data Contract Reference**: The pipeline adheres strictly to the schemas defined in `data-model.md` and validates input/output against `contracts/hea_schema.schema.yaml`.
+## Implementation Steps
 
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | The scope is contained within CPU-only limits and single-file data processing. | N/A |
-
-## Data Acquisition Strategy (FR-001 Compliance)
-
-The system MUST download HEA composition data from an open repository.
-1.  **Source Validation**: The `download.py` module checks the "Verified datasets" block in `research.md`.
-2.  **Execution**:
-    *   If a verified HEA composition URL is found: Fetch it automatically.
-    *   If **NO** verified HEA composition URL is found: The system **terminates** with error code `DATA_SOURCE_MISSING` and logs the specific missing requirement. It does **not** attempt to load local files or use unverified URLs.
-3.  **Rationale**: This strict behavior ensures the pipeline is fully reproducible and automated as required by Constitution Principle I and FR-001. Manual data provisioning is a failure mode, not a feature.
-
-## Statistical Validation Details
-
-*   **Permutation Testing**: Uses **Conditional Permutation** (residualization) to account for descriptor collinearity. If computationally infeasible, reports "Predictive Utility" with a disclaimer that independent effects cannot be claimed.
-*   **VIF Diagnostics**: Calculated **ONLY** for the Linear Regression baseline to assess its interpretability. **NOT** used to validate the Random Forest or Gradient Boosting models (which are robust to collinearity).
-*   **Power Analysis**: If N < 50, the pipeline skips permutation/bootstrap tests and reports "Insufficient Power".
+1.  **Directory Creation**: Create `code/`, `data/raw`, `data/processed`, `output/`, `tests/`, `output/plots`. Initialize `__init__.py` in `code/` and `tests/` subdirectories.
+2.  **Data Fetch**: Download HEA data from Zenodo DOI: `10.5281/zenodo.3935596` and Elemental Properties from `data/raw/elemental_properties.csv` (bundled, versioned).
+3.  **Descriptor Engineering**: Calculate δ, Δχ, VEC, Entropy, ΔTm. Log excluded rows.
+4.  **Model Training**: Train RF, GBM, OLS with k-fold CV.
+5.  **Statistical Validation**:
+    *   Calculate VIF for all descriptors. Flag > 10.
+    *   Run Permutation Test (1000 permutations) on **all 5 descriptors**.
+    *   Apply Bonferroni Correction (k=5) to all 5 p-values.
+    *   Run Bootstrap (sufficient resamples).
+6.  **Reporting**: Generate `output/report.md` with disclaimers and collinearity warnings.
+7.  **Documentation**: Generate `README.md` and `quickstart.md` with verification steps.
