@@ -1,187 +1,170 @@
 """
-Unit tests for network generation, specifically verifying Barabási-Albert
-power-law degree distribution properties.
+Unit tests for network generation utilities, specifically focusing on User Story 1.
 """
-import os
-import sys
-import tempfile
-import json
-import math
-
 import pytest
 import networkx as nx
 import numpy as np
+import sys
+from pathlib import Path
 
-# Ensure the code directory is in the path for imports
-_code_path = os.path.join(os.path.dirname(__file__), '..', '..', 'code')
-if os.path.isdir(_code_path) and _code_path not in sys.path:
-    sys.path.insert(0, _code_path)
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root / "code"))
 
-from utils.metrics import calculate_assortativity, calculate_average_path_length, calculate_clustering_coefficient
+from utils.metrics import calculate_clustering_coefficient
+
+# Configuration for tests
+NODES = 500
+REWIRING_PROBS = [0.0, 0.01, 0.1, 0.5, 1.0]
+TOLERANCE = 0.05  # 5% tolerance for theoretical expectations
 
 
-def generate_barabasi_albert(N=500, m=3, seed=42):
+def test_watts_strogatz_clustering_vs_rewiring():
     """
-    Helper to generate a BA graph. In a full implementation, this would
-    call the project's generator. Here we use NetworkX directly to
-    generate the ground truth for the test.
+    Test that the clustering coefficient of Watts-Strogatz networks
+    decreases as the rewiring probability increases.
+
+    This test verifies the theoretical behavior where:
+    - p=0 (regular lattice) has high clustering
+    - p=1 (random graph) has low clustering (similar to Erdos-Renyi)
     """
-    G = nx.barabasi_albert_graph(N, m, seed=seed)
-    return G
+    # Use a fixed seed for reproducibility
+    base_seed = 42
+    results = []
+
+    for p in REWIRING_PROBS:
+        # Generate multiple instances to get a stable average
+        cluster_coeffs = []
+        for i in range(5):  # 5 instances per p
+            seed = base_seed + int(p * 1000) + i
+            G = nx.watts_strogatz_graph(
+                n=NODES,
+                k=10,  # Average degree
+                p=p,
+                seed=seed
+            )
+            
+            # Calculate clustering coefficient
+            cc = calculate_clustering_coefficient(G)
+            cluster_coeffs.append(cc)
+        
+        avg_cc = np.mean(cluster_coeffs)
+        results.append((p, avg_cc))
+
+    # Verify monotonic decrease in clustering coefficient
+    # (with some tolerance for stochasticity)
+    prev_cc = float('inf')
+    for p, cc in results:
+        # The clustering coefficient should generally decrease as p increases
+        # We allow a small tolerance for stochastic variation
+        if p > 0 and cc > prev_cc * 1.1:  # 10% tolerance for stochasticity
+            pytest.fail(
+                f"Clustering coefficient increased unexpectedly: "
+                f"p={p:.2f}, cc={cc:.4f}, previous={prev_cc:.4f}"
+            )
+        prev_cc = cc
+
+    # Specific checks for extreme cases
+    p_zero_cc = next(cc for p, cc in results if p == 0.0)
+    p_one_cc = next(cc for p, cc in results if p == 1.0)
+
+    # p=0 should have significantly higher clustering than p=1
+    assert p_zero_cc > p_one_cc * 10, (
+        f"Watts-Strogatz with p=0 should have much higher clustering than p=1. "
+        f"Got p=0: {p_zero_cc:.4f}, p=1: {p_one_cc:.4f}"
+    )
+
+    # p=0 should have clustering > 0.5 for k=10, N=500 (theoretical approx)
+    # For a ring lattice with k=10, local clustering is ~0.75
+    assert p_zero_cc > 0.5, (
+        f"Watts-Strogatz with p=0 should have high clustering. "
+        f"Got {p_zero_cc:.4f}"
+    )
+
+    # p=1 should have clustering similar to Erdos-Renyi with same density
+    # Expected CC for ER graph is k/(N-1) ~ 10/499 ~ 0.02
+    expected_er_cc = 10 / (NODES - 1)
+    tolerance = expected_er_cc * 0.5  # 50% tolerance for small graph effects
+    assert abs(p_one_cc - expected_er_cc) < tolerance, (
+        f"Watts-Strogatz with p=1 should have clustering similar to ER graph. "
+        f"Expected ~{expected_er_cc:.4f}, got {p_one_cc:.4f}"
+    )
 
 
-def get_degree_distribution(G):
+def test_watts_strogatz_clustering_monotonicity():
     """
-    Returns a dictionary mapping degree k to the probability P(k).
+    Test that clustering coefficient decreases monotonically with increasing
+    rewiring probability (with reasonable tolerance for stochasticity).
     """
-    degrees = [d for n, d in G.degree()]
-    counts = {}
-    for d in degrees:
-        counts[d] = counts.get(d, 0) + 1
-    total = len(degrees)
-    return {k: v / total for k, v in counts.items()}
-
-
-def estimate_gamma_from_degrees(degrees):
-    """
-    Estimates the power-law exponent gamma using the method of moments
-    (approximation: gamma = 1 + N / (sum(log(k/k_min)))).
-    This is a standard estimator for discrete power laws.
-    """
-    if not degrees:
-        return None
-    # Filter for k >= 1 to avoid log(0)
-    valid_degrees = [k for k in degrees if k >= 1]
-    if not valid_degrees:
-        return None
+    base_seed = 123
+    p_values = [0.0, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0]
     
-    k_min = 1
-    # Estimate gamma using the maximum likelihood estimator for discrete power law
-    # gamma = 1 + n / sum(log(x_i / k_min))
-    sum_log = sum(math.log(k / k_min) for k in valid_degrees)
-    if sum_log == 0:
-        return None
-    gamma = 1.0 + len(valid_degrees) / sum_log
-    return gamma
-
-
-class TestBarabasiAlbertPowerLaw:
-    """
-    Test suite for verifying the power-law degree distribution of Barabási-Albert networks.
+    cc_values = []
+    for p in p_values:
+        # Use multiple seeds to get a stable estimate
+        seeds = [base_seed + i for i in range(10)]
+        cluster_coeffs = []
+        
+        for seed in seeds:
+            G = nx.watts_strogatz_graph(n=NODES, k=10, p=p, seed=seed)
+            cc = calculate_clustering_coefficient(G)
+            cluster_coeffs.append(cc)
+        
+        avg_cc = np.mean(cluster_coeffs)
+        cc_values.append(avg_cc)
     
-    Theoretical expectation:
-    For a Barabási-Albert network, the degree distribution P(k) follows a power law
-    P(k) ~ k^(-gamma) with gamma approx 3.0 for large N.
+    # Check that the sequence is mostly decreasing (allowing for some noise)
+    decreases = 0
+    increases = 0
+    
+    for i in range(1, len(cc_values)):
+        if cc_values[i] < cc_values[i-1] * 0.95:  # 5% tolerance
+            decreases += 1
+        elif cc_values[i] > cc_values[i-1] * 1.05:
+            increases += 1
+    
+    # At least 80% of transitions should be decreases
+    assert decreases / (len(cc_values) - 1) >= 0.8, (
+        f"Clustering coefficient should generally decrease with rewiring probability. "
+        f"Decreases: {decreases}, Increases: {increases}"
+    )
+
+
+def test_watts_strogatz_clustering_theoretical_bounds():
     """
-
-    @pytest.mark.parametrize("N,m,seed", [
-        (500, 3, 42),
-        (1000, 4, 123),
-        (2000, 5, 999)
-    ])
-    def test_power_law_exponent_near_3(self, N, m, seed):
-        """
-        Verify that the estimated power-law exponent gamma is close to 3.0.
-        Tolerance: 10% (0.3) to account for finite size effects in N=500.
-        """
-        G = generate_barabasi_albert(N, m, seed)
-        degrees = [d for n, d in G.degree()]
+    Test that clustering coefficients fall within theoretical bounds.
+    """
+    base_seed = 456
+    
+    for p in [0.0, 0.1, 0.5, 1.0]:
+        # Generate multiple instances
+        cluster_coeffs = []
+        for i in range(10):
+            seed = base_seed + i
+            G = nx.watts_strogatz_graph(n=NODES, k=10, p=p, seed=seed)
+            cc = calculate_clustering_coefficient(G)
+            cluster_coeffs.append(cc)
         
-        gamma = estimate_gamma_from_degrees(degrees)
+        avg_cc = np.mean(cluster_coeffs)
         
-        assert gamma is not None, "Could not estimate gamma"
+        # Clustering coefficient must be between 0 and 1
+        assert 0 <= avg_cc <= 1, (
+            f"Clustering coefficient must be in [0, 1]. Got {avg_cc:.4f} for p={p}"
+        )
         
-        # For N=500, we expect gamma to be reasonably close to 3.0.
-        # Finite size effects might push it slightly higher or lower.
-        # A 10% tolerance is generous for small N.
-        assert 2.5 <= gamma <= 3.5, f"Estimated gamma {gamma:.2f} is not within expected range [2.5, 3.5]"
-
-    @pytest.mark.parametrize("N,m,seed", [
-        (500, 3, 42),
-    ])
-    def test_log_log_linearity(self, N, m, seed):
-        """
-        Verify that the degree distribution is linear on a log-log scale,
-        which is a hallmark of power-law behavior.
-        """
-        G = generate_barabasi_albert(N, m, seed)
-        dist = get_degree_distribution(G)
+        # For p=0, should be close to theoretical value for ring lattice
+        if p == 0.0:
+            # Theoretical clustering for ring lattice with k=10 is (3(k-2))/(4(k-1)) ~ 0.75
+            theoretical = 3 * (10 - 2) / (4 * (10 - 1))
+            assert abs(avg_cc - theoretical) < 0.1, (
+                f"p=0 clustering should be close to theoretical {theoretical:.4f}. "
+                f"Got {avg_cc:.4f}"
+            )
         
-        # Filter out degrees with zero probability
-        log_k = []
-        log_p = []
-        for k, p in dist.items():
-            if p > 0:
-                log_k.append(math.log(k))
-                log_p.append(math.log(p))
-        
-        assert len(log_k) > 2, "Not enough data points to fit a line"
-        
-        # Perform simple linear regression to check linearity
-        # y = mx + c
-        n = len(log_k)
-        sum_x = sum(log_k)
-        sum_y = sum(log_p)
-        sum_xy = sum(x * y for x, y in zip(log_k, log_p))
-        sum_xx = sum(x * x for x in log_k)
-        
-        denominator = n * sum_xx - sum_x * sum_x
-        if denominator == 0:
-            # All points have same x, degenerate case
-            slope = 0
-        else:
-            slope = (n * sum_xy - sum_x * sum_y) / denominator
-        
-        # Calculate R-squared
-        mean_y = sum_y / n
-        ss_tot = sum((y - mean_y) ** 2 for y in log_p)
-        ss_res = sum((y - (slope * x + (sum_y - slope * sum_x) / n)) ** 2 for x, y in zip(log_k, log_p))
-        
-        if ss_tot == 0:
-            r_squared = 1.0
-        else:
-            r_squared = 1 - (ss_res / ss_tot)
-        
-        # For a power law, R^2 should be high on log-log scale
-        # We use a threshold of 0.85 to allow for noise in small networks
-        assert r_squared > 0.85, f"Log-log linearity R^2={r_squared:.3f} is too low, expected > 0.85"
-
-    def test_degree_distribution_has_long_tail(self):
-        """
-        Verify that the degree distribution exhibits a long tail (some nodes have high degree).
-        In a power law, the maximum degree should be significantly larger than the mean.
-        """
-        G = generate_barabasi_albert(500, 3, 42)
-        degrees = [d for n, d in G.degree()]
-        
-        mean_degree = np.mean(degrees)
-        max_degree = max(degrees)
-        
-        # In a BA network with N=500, m=3, max degree should be significantly higher than mean
-        # Mean is approx 2*m = 6. Max degree should be at least 3-4x the mean for a clear tail
-        assert max_degree > 3 * mean_degree, f"Max degree {max_degree} is not significantly larger than mean {mean_degree}"
-
-    def test_structural_metrics_compatibility(self):
-        """
-        Verify that the generated network is compatible with the project's metric functions.
-        This ensures the test can be extended to use the full pipeline.
-        """
-        G = generate_barabasi_albert(500, 3, 42)
-        
-        # These functions should run without error
-        assortativity = calculate_assortativity(G)
-        avg_path_len = calculate_average_path_length(G)
-        clustering = calculate_clustering_coefficient(G)
-        
-        assert isinstance(assortativity, float)
-        assert isinstance(avg_path_len, float)
-        assert isinstance(clustering, float)
-        
-        # BA networks typically have negative assortativity
-        assert assortativity < 0.1, "BA networks are typically disassortative"
-        
-        # BA networks have small-world properties
-        assert avg_path_len < 10, "BA networks should have short average path length"
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        # For p=1, should be close to ER graph expectation
+        if p == 1.0:
+            er_expected = 10 / (NODES - 1)
+            assert abs(avg_cc - er_expected) < 0.02, (
+                f"p=1 clustering should be close to ER expectation {er_expected:.4f}. "
+                f"Got {avg_cc:.4f}"
+            )

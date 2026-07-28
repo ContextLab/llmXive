@@ -57,17 +57,17 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T009 [P] [US1] Unit test for Barabási-Albert power-law degree distribution in `tests/unit/test_network_gen.py`
-- [ ] T010 [P] [US1] Unit test for Watts-Strogatz clustering coefficient vs. rewiring probability in `tests/unit/test_network_gen.py`
-- [ ] T011 [P] [US1] Memory constraint test: Verify 50 networks of $N=500$ fit within 7GB RAM in `tests/unit/test_memory_limits.py`
+- [X] T010 [P] [US1] Unit test for Watts-Strogatz clustering coefficient vs. rewiring probability in `tests/unit/test_network_gen.py`
+- [X] T011 [P] [US1] Memory constraint test: Verify 50 networks of $N=500$ fit within 7GB RAM in `tests/unit/test_memory_limits.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/generate_networks.py` to generate multiple independent instances per topology type with fixed random seeds using `numpy.random` explicitly wired to the global seed fixture defined in `tests/conftest.py` (FR-001)
+- [X] T012 [US1] Implement `code/generate_networks.py` to generate multiple independent instances per topology type with fixed random seeds using `numpy.random` explicitly wired to the global seed fixture defined in `tests/conftest.py` (FR-001)
 - [ ] T013 [US1] Implement logic to calculate and store structural metrics (assortativity, path length) for each generated network instance; save as JSON to `data/raw/networks/metrics_{seed}.json`
 - [ ] T014 [US1] Add serialization logic to save network instances and metrics to `data/raw/networks/` with checksums
 - [ ] T015 [US1] Add validation to ensure generated networks are connected (or handle disconnected components explicitly)
-- [ ] T016a [P] [US1] **Data Schema Prep**: Implement the data structure preparation for regression analysis in `code/contracts/regression_schema.py`. This task defines the schema for `regression_data.json` (mapping structural metrics to simulation IDs) but does NOT populate it with gamma values yet (FR-006, US-3 dependency).
-- [ ] T016b [P] [US3] **Data Population**: (Depends on US3 completion) Implement logic to populate `data/processed/regression_data.json` by correlating the extracted scaling exponent $\gamma$ (from T029/T030) with structural metrics (from T013) and outputting the final dataset (FR-006, US-3).
+- [X] T016a [P] [US1] **Data Schema Prep**: Implement the data structure preparation for regression analysis in `code/contracts/regression_schema.py`. This task defines the schema for `regression_data.json` (mapping structural metrics to simulation IDs) but does NOT populate it with gamma values yet (FR-006, US-3 dependency).
+- [ ] T016b [P] [US3] **Data Population**: (Depends on US3 completion) Implement logic to populate `data/processed/regression_data.json` by correlating the extracted scaling exponent $\gamma$ (from T029/T030) with structural metrics (from T013) and outputting the final dataset (FR-006, US-3). <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

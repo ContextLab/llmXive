@@ -1,58 +1,55 @@
 """
-Pytest configuration and fixtures for the project.
+Pytest configuration and shared fixtures for the Bounded Confidence project.
 """
 import os
 import sys
+import random
 from pathlib import Path
-import pytest
+
 import numpy as np
+import pytest
 
-# Add project root to path for imports
-# Assuming this file is at tests/conftest.py, root is two levels up
-ROOT_DIR = Path(__file__).parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+# Add project root to path to ensure imports work from tests/
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-@pytest.fixture(scope="session")
-def project_root() -> Path:
-    """Return the root directory of the project."""
-    return ROOT_DIR
+# Global random seed for reproducibility (FR-001)
+# This seed is used by the main simulation scripts and can be overridden
+# via environment variable for testing purposes.
+BASE_SEED = int(os.getenv("PROJECT_BASE_SEED", "42"))
 
-@pytest.fixture(scope="session")
-def data_dir(project_root: Path) -> Path:
-    """Return the data directory."""
-    return project_root / "data"
 
-@pytest.fixture(scope="session")
-def code_dir(project_root: Path) -> Path:
-    """Return the code directory."""
-    return project_root / "code"
-
-@pytest.fixture(scope="function")
-def fixed_seed() -> int:
+@pytest.fixture(scope="session", autouse=True)
+def set_global_seeds():
     """
-    Provide a fixed random seed for reproducibility in tests.
-    This ensures deterministic behavior in tests involving randomness.
+    Fixture to set global random seeds at the start of the test session.
+    Ensures reproducibility across the entire test run.
     """
-    return 42
+    random.seed(BASE_SEED)
+    np.random.seed(BASE_SEED)
+    # Note: If using other libraries like torch, set their seeds here too.
 
-@pytest.fixture(autouse=True)
-def set_random_seed(fixed_seed: int):
-    """
-    Automatically set random seeds before each test to ensure reproducibility.
-    """
-    np.random.seed(fixed_seed)
-    os.environ['PYTHONHASHSEED'] = str(fixed_seed)
-    # Note: If using other random libraries (e.g., random), seed them here too.
 
 @pytest.fixture
-def sample_network_data(fixed_seed: int):
-    """
-    Provide sample network data for testing network generation utilities.
-    """
-    np.random.seed(fixed_seed)
-    n_nodes = 10
-    adj_matrix = np.random.randint(0, 2, size=(n_nodes, n_nodes))
-    adj_matrix = (adj_matrix + adj_matrix.T) // 2 # Symmetric
-    np.fill_diagonal(adj_matrix, 0)
-    return adj_matrix
+def project_root_path():
+    """Returns the Path to the project root directory."""
+    return project_root
+
+
+@pytest.fixture
+def data_dir(project_root_path):
+    """Returns the Path to the data directory."""
+    return project_root_path / "data"
+
+
+@pytest.fixture
+def contracts_dir(project_root_path):
+    """Returns the Path to the contracts directory."""
+    return project_root_path / "code" / "contracts"
+
+
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    """Creates a temporary directory for test outputs."""
+    return tmp_path

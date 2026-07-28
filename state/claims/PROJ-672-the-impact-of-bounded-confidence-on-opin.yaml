@@ -56,25 +56,6 @@
   updated_at: '2026-07-14T21:19:45Z'
 - artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
   attempts: 1
-  canonical: Power-law fit R-squared greater than 0.8
-  claim_id: c_0690466d
-  context: 'Independent Test: Provide synthetic data, verify regression identifies
-    known correlation and power-law fit R^2 > 0.8.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Power-law_fit_R-squared_greater_than_0.8
-  kind: magnitude
-  raw_text: verify regression identifies known correlation and power-law fit R^2 >
-    0.8
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:20:12Z'
-- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
-  attempts: 1
   canonical: Gamma variation less than 5% across convergence threshold sweep
   claim_id: c_b29263eb
   context: 'Independent Test: Sweep convergence threshold 10^-3 to 10^-5 and verify
@@ -320,23 +301,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T21:28:19Z'
-- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
-  attempts: 1
-  canonical: Network metrics match theoretical expectations within 5% tolerance
-  claim_id: c_787c86b4
-  context: 'Independent Test: Generate one instance of each topology, compute metrics,
-    and verify they match theoretical expectations within 5% tolerance.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate one instance of each topology, compute metrics, and verify they
-    match theoretical expectations within 5% tolerance.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:32:06Z'
 - artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
   attempts: 1
   canonical: 50 networks of 500 nodes fit within 7GB RAM
@@ -690,3 +654,109 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T21:57:58Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 2
+  canonical: Network metrics match theoretical expectations within 5% tolerance
+  claim_id: c_787c86b4
+  context: 'Independent Test: Generate one instance of each topology, compute metrics,
+    and verify they match theoretical expectations within 5% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate one instance of each topology, compute metrics, and verify they
+    match theoretical expectations within 5% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:03:29Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 1
+  canonical: 50 networks of 500 nodes fit within 7GB RAM
+  claim_id: c_a5f72d21
+  context: "Unit test for Barab\xE1si-Albert power-law degree distribution... Memory\
+    \ constraint test: Verify 50 networks of N=500 fit within 7GB RAM in tests/unit/test_memory_limits.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 50 networks of N=500 fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:06:18Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 1
+  canonical: Simulation on 50 nodes converges to stable state with change less than
+    10^-4
+  claim_id: c_88efd47a
+  context: 'Independent Test: Run a single simulation on N=50 with fixed epsilon and
+    verify convergence to stable state (<10^-4 change) within reasonable iterations.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_on_50_nodes_converges_to_stable_state_with_change
+  kind: magnitude
+  raw_text: Run a single simulation on N=50 with fixed epsilon and verify convergence
+    to stable state (<10^-4 change) within reasonable iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:06:29Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 1
+  canonical: Full simulation suite completes within 5 hours
+  claim_id: c_10569cef
+  context: Implement performance optimization and runtime monitoring in code/simulate_hk.py...
+    to ensure the full simulation suite completes within 5 hours (SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure the full simulation suite completes within 5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:06:37Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 2
+  canonical: Power-law fit R-squared greater than 0.8
+  claim_id: c_0690466d
+  context: 'Independent Test: Provide synthetic data, verify regression identifies
+    known correlation and power-law fit R^2 > 0.8.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power-law_fit_R-squared_greater_than_0.8
+  kind: magnitude
+  raw_text: verify regression identifies known correlation and power-law fit R^2 >
+    0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:06:48Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin/tasks.md
+  attempts: 1
+  canonical: Gamma variation less than 5% across sensitivity sweep
+  claim_id: c_d4afe607
+  context: 'Independent Test: Sweep convergence threshold 10^-3 to 10^-5 and verify
+    gamma variation < 5%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gamma_variation_less_than_5%25_across_sensitivity_sweep
+  kind: magnitude
+  raw_text: verify gamma variation < 5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T01:06:59Z'
