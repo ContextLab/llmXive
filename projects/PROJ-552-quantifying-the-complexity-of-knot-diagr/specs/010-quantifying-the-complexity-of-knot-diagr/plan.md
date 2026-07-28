@@ -98,7 +98,7 @@ docs/
 │   ├── plot_validation_report.md # Required by SC-016
 │   ├── residual_analysis.md
 │   └── multicollinearity_assessment.md
-└── plots/                        # Generated PNGs (1200x900px)
+└── plots/                        # Generated PNGs (x900px)
 ```
 
 **Schema SSoT Clarification**:
@@ -147,7 +147,7 @@ docs/
     *   **Step 3.1**: Orthogonalize the braid index predictor with respect to crossing number to address multicollinearity (Methodology concern).
     *   Fit linear, polynomial, and logarithmic models using the orthogonalized predictors.
     *   Compute VIF to assess multicollinearity (expected to be high; reported as diagnostic only).
-    *   **Step 3.2**: Perform residual analysis using **Median Absolute Deviation (MAD)** scaled to standard deviation (1.4826 * MAD) for outlier detection (≥ 2 sigma threshold) to ensure robustness (Methodology concern).
+    *   **Step 3.2**: Perform residual analysis using **Median Absolute Deviation (MAD)** scaled to standard deviation (approximately 1.5 times the Median Absolute Deviation (MAD)) for outlier detection (≥ 2 sigma threshold) to ensure robustness (Methodology concern).
     *   Identify specific hyperbolic knot families that deviate significantly.
     *   **Mathematical Constraint Acknowledgment**: Explicitly state that individual coefficients are descriptive of the braid index ≤ crossing number constraint, not independent effects. Focus on R² and residual patterns.
     *   **Mathematical Fact vs. Statistical Inference**: Clarify that the analysis confirms known bounds and quantifies deviations, rather than testing for the existence of the relationship.

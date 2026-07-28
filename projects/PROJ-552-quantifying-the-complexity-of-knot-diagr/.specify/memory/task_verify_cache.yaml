@@ -1,13 +1,16 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No authentication/authorization code, configuration, or documentation is present\
-    \ in the provided artifacts, and the only evidence relates to knot\u2011data download\
-    \ and analysis, which is unrelated to the required authentication framework. The\
-    \ task therefore lacks the necessary implementation artifact."
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, configuration files, or documentation for API routing or middleware
     structure were presented. The only artifacts described relate to knot data download
     and analysis, not to any API setup, so the required deliverable is missing.
+T081:
+  c: false
+  h: 5cfe62ae0344bb1d46b87ef734133ffcf88a1995ca20ee8b581b2f0cb1eaf6a2
+  r: "The required markdown report `docs/reproducibility/computed_invariant_verification.md`\
+    \ does not exist, so the task\u2019s deliverable of generating a verification\
+    \ document is missing. Additionally, the provided script is truncated and appears\
+    \ focused on arc index, Seifert circle count, and bridge number, without clear\
+    \ evidence that it writes the markdown file or fully implements the comparison\
+    \ logic. The missing report must be created (and the script ensured to generate\
+    \ it) to satisfy the task."

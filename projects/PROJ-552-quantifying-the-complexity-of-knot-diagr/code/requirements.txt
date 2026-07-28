@@ -1,14 +1,10 @@
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-statsmodels>=0.14.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-requests>=2.31.0
-pyyaml>=6.0.0
+pandas
+numpy
+statsmodels
+matplotlib
+requests
+pyyaml
+seaborn
+pytest
+scikit-learn
 database-knotinfo
-gudhi  # auto-added: imported by run-book but missing from venv
-plotly  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-torch_geometric  # auto-added: imported by run-book but missing from venv

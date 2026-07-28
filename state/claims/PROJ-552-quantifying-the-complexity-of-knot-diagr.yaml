@@ -24948,3 +24948,377 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T18:31:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: crossing numbers less than or equal to 13
+  claim_id: c_5431f659
+  context: "Create docs/reproducibility/validation_scope.md containing the \u2264\
+    10 vs \u226413 crossing distinction, justification, and counts table (SC-012)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crossing_numbers_less_than_or_equal_to_13
+  kind: magnitude
+  raw_text: "crossing numbers \u2264 13"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:07:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: tolerance less than or equal to 1e-6 for core tabulated invariant precision
+  claim_id: c_2f8f9163
+  context: "Validate crossing number and braid index against KnotInfo references,\
+    \ tolerance \u2264 1e\u20116."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tolerance_less_than_or_equal_to_1e-6_for_core_tabulated_inva
+  kind: magnitude
+  raw_text: "tolerance \u2264 1e\u20116"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:08:04Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core tabulated invariant precision match rate greater than or equal to
+    99 percent
+  claim_id: c_a33046f6
+  context: "Validate crossing number and braid index against KnotInfo references,\
+    \ tolerance \u2264 1e\u20116. Verification: Match rate \u2265 99%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Core_tabulated_invariant_precision_match_rate_greater_than_o
+  kind: magnitude
+  raw_text: "Match rate \u2265 99%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:08:32Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume consistency match rate greater than or equal to 90
+    percent
+  claim_id: c_eeaabb74
+  context: "Validate hyperbolic volume against KnotInfo where available. Verification:\
+    \ Match rate \u2265 90%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_consistency_match_rate_greater_than_or_equ
+  kind: magnitude
+  raw_text: "Match rate \u2265 90%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:08:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data quality report null percentage less than or equal to 5 percent
+  claim_id: c_1381a87d
+  context: "Compute null percentages, duplicate counts, format pass rates. Verification:\
+    \ Report shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_quality_report_null_percentage_less_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "null % \u2264 5 %"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:08:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data quality report duplicate count equal to zero
+  claim_id: c_fca001b2
+  context: "Compute null percentages, duplicate counts, format pass rates. Verification:\
+    \ Report shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate count = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:09:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume filter exclusion count less than 100
+  claim_id: c_17ad1e09
+  context: 'Filter knots_cleaned.csv for hyperbolic_volume > 0, log exclusions. Verification:
+    Exclusion count < 100 and documented.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P508: 5493'
+      source_id: Q19358049
+      url: https://www.wikidata.org/wiki/Q19358049
+      value: '49'
+    filled: true
+  kind: magnitude
+  raw_text: Exclusion count < 100
+  resolved_value: '49'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T20:10:00Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: dataset completeness cross-check against OEIS A002863 enumeration values
+  claim_id: c_9b977137
+  context: "Cross-checks against hardcoded OEIS A002863 enumeration values for crossing\
+    \ numbers \u2264 13."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Traditionally, knots have been catalogued in terms of crossing number.  Knot
+        tables generally include only prime knots, and only one entry for a knot and
+        its mirror image (even if they are different) (Hoste, Thistlethwaite & Weeks
+        1998). The number of nontrivial knots of a given crossing number increases
+        rapidly, making tabulation computationally difficult (Hoste 2005, p. 20).
+        Tabulation efforts have succeeded in enumerating over 6 billion knots and
+        links (Hoste 2005, p. 28). The sequence of the number of prime knots of a
+        given crossing number, up to crossing number 16, is 0, 0, 1, 1, 2, 3, 7, 21,
+        49, 165, 552, 2176, 9988, 46972, 253293, 1388705... (sequence A002863 in the
+        OEIS). While exponential upper and lower bounds for this sequence are known,
+        it has not been proven that this sequence is strictly increasing (Adams 2004).
+      source_id: Knot theory
+      url: https://en.wikipedia.org/wiki/Knot_theory
+      value: 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A002863
+  resolved_value: 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293,
+    1388705
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T20:10:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core-invariant coverage report coverage percentages greater than or equal
+    to 99 percent
+  claim_id: c_fc8cc649
+  context: "Generate docs/reproducibility/invariant_coverage.md summarising available\
+    \ vs. missing counts for crossing number and braid index. Verification: Report\
+    \ lists coverage percentages \u2265 99%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Core-invariant_coverage_report_coverage_percentages_greater
+  kind: magnitude
+  raw_text: "coverage percentages \u2265 99%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:10:45Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: residual analysis detection of families deviating greater than or equal
+    to 2 standard deviations
+  claim_id: c_4ea88d79
+  context: "Unit test confirms detection of families deviating \u2265 2 SD on synthetic\
+    \ data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Residual_analysis_detection_of_families_deviating_greater_th
+  kind: magnitude
+  raw_text: "families deviating \u2265 2 SD"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:11:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: linear model unit test asserts R-squared AIC BIC and MAE are computed
+  claim_id: c_bb6ab2c7
+  context: "Unit test tests/unit/test_linear_model.py runs on a synthetic dataset\
+    \ and asserts R\xB2, AIC, BIC, MAE are computed."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_model_unit_test_asserts_R-squared_AIC_BIC_and_MAE_are
+  kind: entity_fact
+  raw_text: "R\xB2, AIC, BIC, MAE"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:12:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data ingestion pipeline CSV contains greater than 9000 rows with non-null
+    core invariants
+  claim_id: c_a48013f7
+  context: 'Re-run code/download/knot_info_loader.py and code/data/parser.py to ensure
+    data/processed/knots_filtered.csv contains actual values. Verification: CSV contains
+    > 9,000 rows with non-null core invariants.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_CSV_contains_greater_than_9000_rows
+  kind: magnitude
+  raw_text: '> 9,000 rows'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:12:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: crossing number and braid index match rate against KnotInfo is at least
+    99 percent
+  claim_id: c_6598a0a3
+  context: "T016 Core Tabulated Invariant Precision \u2013 Validate crossing number\
+    \ and braid index against KnotInfo references, tolerance \u2264 1e\u20116. ...\
+    \ Verification: Match rate \u2265 99%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Crossing_number_and_braid_index_match_rate_against_KnotInfo
+  kind: magnitude
+  raw_text: "Match rate \u2265 99% for crossing number and braid index against KnotInfo\
+    \ references."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:14:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume match rate against KnotInfo is at least 90 percent
+  claim_id: c_a8b511ba
+  context: "T017 Hyperbolic Volume Consistency \u2013 Validate hyperbolic volume against\
+    \ KnotInfo where available... Verification: Match rate \u2265 90%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_match_rate_against_KnotInfo_is_at_least_90
+  kind: magnitude
+  raw_text: "Match rate \u2265 90% for hyperbolic volume against KnotInfo where available."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:15:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data quality report null percentage is at most 5 percent and duplicate
+    count is zero
+  claim_id: c_af6047d5
+  context: "T012b Data Quality Report ... Verification: Report shows null % \u2264\
+    \ 5 % and duplicate count = 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_quality_report_null_percentage_is_at_most_5_percent_and
+  kind: magnitude
+  raw_text: "Null percentage \u2264 5% and duplicate count = 0 in data quality report."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:15:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core invariant coverage percentages for crossing number and braid index
+    are at least 99 percent
+  claim_id: c_0f4d3436
+  context: "T094 Core\u2011Invariant Coverage Report ... Verification: Report lists\
+    \ coverage percentages \u2265 99%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Core_invariant_coverage_percentages_for_crossing_number_and
+  kind: magnitude
+  raw_text: "Coverage percentages \u2265 99% for crossing number and braid index."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:16:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: processed knots CSV contains more than 9000 rows with non-null core invariants
+  claim_id: c_5c8070d8
+  context: 'T109 Investigate and Fix Data Ingestion Pipeline ... Verification: CSV
+    contains > 9,000 rows with non-null core invariants.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processed_knots_CSV_contains_more_than_9000_rows_with_non-nu
+  kind: magnitude
+  raw_text: CSV contains > 9,000 rows with non-null core invariants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:16:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume consistency check on real data shows match rate of
+    at least 90 percent
+  claim_id: c_6d298463
+  context: "T112 Re-run Consistency Check ... Verification: Report shows \u2265 90%\
+    \ match rate on real data."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_consistency_check_on_real_data_shows_match
+  kind: magnitude
+  raw_text: "Report shows \u2265 90% match rate on real data for hyperbolic volume\
+    \ consistency check."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:17:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: refactored analysis module files have fewer than 200 lines of code
+  claim_id: c_0a3499f3
+  context: 'T101 Split model_fitting.py ... Verification: wc -l on each file < 200.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactored_analysis_module_files_have_fewer_than_200_lines_o
+  kind: magnitude
+  raw_text: Each resulting file must be concise with wc -l < 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T20:17:49Z'
