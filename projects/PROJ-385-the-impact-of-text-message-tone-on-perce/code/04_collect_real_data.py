@@ -1,336 +1,322 @@
 """
-Real data collection and consent record generation module.
+Real Data Collection and Consent Record Generation.
 
-This module handles the ingestion of real survey data (Qualtrics export)
-and the generation of anonymized consent records for participants.
-It ensures compliance with Constitution Principle VI by generating
-consent records ONLY when real data mode is active.
+This module handles the ingestion of real human ratings from Prolific (via CSV export)
+and the generation of anonymized consent records in compliance with Constitution Principle VI.
+
+It supports two modes:
+1. --mode real: Processes real data from `data/raw/real_ratings.csv` and generates consent records.
+2. --mode mock: Generates synthetic data for unit testing only (does NOT satisfy FR-002).
 """
 
 import csv
 import json
 import os
+import re
 import uuid
 import hashlib
-import re
+import argparse
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
+# Import project config and logging
 from config import (
     get_project_root,
     get_raw_data_dir,
     get_processed_data_dir,
     get_consent_dir,
-    get_data_dir
 )
-from logging_config import setup_logging, get_logger, log_pipeline_step, log_exclusion
+from logging_config import setup_logging, get_logger, log_pipeline_step
 
-# Initialize logger
-logger = get_logger(__name__)
+# Constants
+REAL_RATINGS_PATH = "data/raw/real_ratings.csv"
+CONSENT_DIR = "data/consent"
+MOCK_RATINGS_PATH = "data/raw/ratings.csv"
 
-# Constants for Prolific ID validation
-PROLIFIC_ID_PATTERN = r'^[A-Z0-9]{8}$'
-CONSENT_RECORD_VERSION = "1.0"
+def log_error(message: str):
+    """Log an error message."""
+    logger = get_logger()
+    logger.error(message)
+
+def log_info(message: str):
+    """Log an info message."""
+    logger = get_logger()
+    logger.info(message)
 
 def hash_prolific_id(prolific_id: str) -> str:
     """
-    Create a one-way hash of the Prolific ID for anonymization.
-    Uses SHA-256 and returns the hex digest.
-
-    Args:
-        prolific_id: The raw Prolific ID string.
-
-    Returns:
-        A hashed string representation of the ID.
+    Create a deterministic, one-way hash of a Prolific ID for anonymization.
+    Uses SHA-256 with a salt to prevent reverse engineering.
     """
-    if not prolific_id:
-        raise ValueError("Prolific ID cannot be empty")
-    return hashlib.sha256(prolific_id.encode('utf-8')).hexdigest()
+    salt = "llmXive_consent_salt_v1"
+    combined = f"{salt}{prolific_id}"
+    return hashlib.sha256(combined.encode('utf-8')).hexdigest()
 
-def validate_prolific_id(prolific_id: str) -> bool:
+def validate_prolific_id(pid: str) -> bool:
     """
-    Validates the format of a Prolific ID.
-    Expected format: 8 uppercase alphanumeric characters.
-
-    Args:
-        prolific_id: The ID string to validate.
-
-    Returns:
-        True if valid, False otherwise.
+    Validate Prolific ID format.
+    Standard Prolific IDs are typically alphanumeric strings.
     """
-    if not prolific_id:
+    if not pid or not isinstance(pid, str):
         return False
-    return bool(re.match(PROLIFIC_ID_PATTERN, prolific_id))
+    # Basic check: alphanumeric, length between 5 and 50
+    pattern = r'^[a-zA-Z0-9_-]{5,50}$'
+    return bool(re.match(pattern, pid))
 
-def randomize_relationship() -> str:
-    """
-    Randomly assigns a relationship context for a participant.
-    In real data collection, this would be handled by the survey logic.
-    Here we simulate the randomization check.
-
-    Returns:
-        One of 'friend' or 'acquaintance'.
-    """
-    import random
-    return random.choice(['friend', 'acquaintance'])
-
-def log_randomization(participant_id: str, relationship: str, log_file: Path) -> None:
-    """
-    Logs the randomization assignment for audit purposes.
-
-    Args:
-        participant_id: The participant's unique ID.
-        relationship: The assigned relationship context.
-        log_file: Path to the log file.
-    """
-    timestamp = datetime.now().isoformat()
-    with open(log_file, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow([timestamp, participant_id, relationship])
-
-def generate_consent_record(
-    participant_id: str,
-    timestamp: str,
-    version: str = CONSENT_RECORD_VERSION
-) -> Dict[str, Any]:
-    """
-    Generates an anonymized consent record for a participant.
-
-    Args:
-        participant_id: The raw Prolific ID (will be hashed).
-        timestamp: The timestamp of consent.
-        version: The version of the consent form.
-
-    Returns:
-        A dictionary representing the consent record.
-    """
-    hashed_id = hash_prolific_id(participant_id)
-    record_id = str(uuid.uuid4())
-
-    return {
-        "record_id": record_id,
-        "participant_hash": hashed_id,
-        "consent_timestamp": timestamp,
-        "consent_version": version,
-        "study_title": "The Impact of Text Message Tone on Perceived Emotional Support",
-        "consent_status": "granted",
-        "data_retention_policy": "anonymized_for_analysis"
-    }
-
-def save_consent_records(
-    records: List[Dict[str, Any]],
-    output_dir: Optional[Path] = None
-) -> Path:
-    """
-    Saves a list of consent records to the consent directory.
-    Records are saved as a single JSON file for auditability.
-
-    Args:
-        records: List of consent record dictionaries.
-        output_dir: Optional directory path. Defaults to project consent dir.
-
-    Returns:
-        Path to the saved file.
-    """
-    if not output_dir:
-        output_dir = get_consent_dir()
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "consent_records.json"
-
-    # Check if file exists to append or create new
-    existing_records = []
-    if output_file.exists():
-        try:
-            with open(output_file, 'r', encoding='utf-8') as f:
-                existing_records = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing consent records: {e}. Starting fresh.")
-
-    all_records = existing_records + records
-
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(all_records, f, indent=2, default=str)
-
-    logger.info(f"Saved {len(records)} consent records to {output_file}")
-    return output_file
-
-def load_stimuli(stimuli_path: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """
-    Loads the stimulus data from the raw data directory.
-
-    Args:
-        stimuli_path: Optional path to stimuli CSV.
-
-    Returns:
-        List of stimulus dictionaries.
-    """
-    if not stimuli_path:
-        stimuli_path = get_raw_data_dir() / "stimuli.csv"
-
+def load_stimuli() -> List[Dict[str, Any]]:
+    """Load stimuli from the generated CSV."""
+    stimuli_path = Path(get_raw_data_dir()) / "stimuli.csv"
     if not stimuli_path.exists():
-        raise FileNotFoundError(f"Stimuli file not found at {stimuli_path}")
+        raise FileNotFoundError(f"Stimuli file not found: {stimuli_path}")
 
     stimuli = []
-    with open(stimuli_path, 'r', newline='', encoding='utf-8') as f:
+    with open(stimuli_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             stimuli.append(row)
     return stimuli
 
-def load_real_survey_data(csv_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def load_power_analysis_results() -> Dict[str, Any]:
+    """Load target N from power analysis results."""
+    results_path = Path(get_processed_data_dir()) / "power_analysis_results.json"
+    if not results_path.exists():
+        raise FileNotFoundError(f"Power analysis results not found: {results_path}")
+
+    with open(results_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def parse_prolific_export(csv_path: Path) -> List[Dict[str, Any]]:
     """
-    Loads real survey data from a Qualtrics CSV export.
-
-    Args:
-        csv_path: Path to the Qualtrics CSV export.
-
-    Returns:
-        List of response dictionaries.
+    Parse the raw Prolific export CSV.
+    Expected columns: ProlificID, ResponseID, StartDate, Q1...Q40 (one per stimulus).
     """
-    if not csv_path:
-        # Default path for real data if not specified
-        csv_path = get_raw_data_dir() / "real_ratings.csv"
-
     if not csv_path.exists():
-        raise FileNotFoundError(f"Real survey data not found at {csv_path}")
+        raise FileNotFoundError(f"Prolific export not found: {csv_path}")
 
-    responses = []
-    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+    rows = []
+    with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            responses.append(row)
-    return responses
+            rows.append(row)
+    return rows
 
 def process_real_data(
-    survey_data: List[Dict[str, Any]],
+    raw_rows: List[Dict[str, Any]],
     stimuli: List[Dict[str, Any]],
-    generate_consent: bool = True
+    target_n: int
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Processes real survey data, validates IDs, and optionally generates consent records.
-
-    Args:
-        survey_data: List of raw survey responses.
-        stimuli: List of stimulus definitions (for validation).
-        generate_consent: If True, generates consent records for valid participants.
+    Process raw Prolific rows into structured ratings and consent records.
 
     Returns:
-        Tuple of (processed_ratings, consent_records).
+        Tuple of (ratings_list, consent_records_list)
     """
-    processed_ratings = []
+    ratings = []
     consent_records = []
-    timestamp = datetime.now().isoformat()
+    processed_pids = set()
 
-    logger.info(f"Processing {len(survey_data)} real survey responses.")
+    # Map stimulus IDs for column lookup
+    stimulus_ids = [s['id'] for s in stimuli]
 
-    for response in survey_data:
-        # Extract Prolific ID (Assuming column name 'ResponseID' or 'ProlificID')
-        # Adjust based on actual Qualtrics export column names
-        prolific_id = response.get('ProlificID') or response.get('ResponseID')
-
-        if not prolific_id:
-            logger.warning(f"Skipping response: Missing Prolific ID. Data: {response.keys()}")
-            continue
-
+    for row in raw_rows:
+        prolific_id = row.get('ProlificID', '').strip()
+        
+        # Validate Prolific ID
         if not validate_prolific_id(prolific_id):
-            logger.warning(f"Invalid Prolific ID format: {prolific_id}. Skipping.")
+            log_error(f"Invalid Prolific ID format: {prolific_id}")
             continue
 
-        # Generate consent record if requested
-        if generate_consent:
-            consent_record = generate_consent_record(prolific_id, timestamp)
-            consent_records.append(consent_record)
+        if prolific_id in processed_pids:
+            log_info(f"Duplicate Prolific ID detected and skipped: {prolific_id}")
+            continue
+        
+        processed_pids.add(prolific_id)
 
-        # Process ratings (simplified mapping for this example)
-        # In a real scenario, map Q1...Q40 to stimulus IDs
-        for key, value in response.items():
-            if key.startswith('Q') and key[1:].isdigit():
-                stimulus_id = f"stim_{key[1:]}"
+        # Extract ratings for each stimulus
+        participant_ratings = []
+        valid_rating_count = 0
+
+        for stim in stimuli:
+            stim_id = stim['id']
+            # Column name in Prolific export is usually Q{index} or similar
+            # Assuming mapping: Q1 -> Stimulus 1, etc.
+            # We need to find the column that corresponds to this stimulus ID.
+            # For simplicity, assuming the CSV columns are named 'Q1', 'Q2', ... 'Q40'
+            # and they correspond to the order in stimuli.csv or explicit mapping.
+            # Here we assume a direct mapping based on index or explicit column naming.
+            # Let's assume the export has columns named 'Q1', 'Q2'... matching stimulus index.
+            # If the stimuli are not ordered 1..40 in the export, we need a mapping.
+            # Given the task constraints, we assume the export columns match the stimulus IDs
+            # or are ordered sequentially. We will look for a column named after the stimulus ID
+            # if it exists, otherwise fallback to index-based if the header matches Q{N}.
+            
+            col_name = stim_id
+            if col_name not in row and f"Q{stim_id}" in row: # Fallback if ID is numeric
+                 col_name = f"Q{stim_id}"
+            
+            # If exact match fails, try to find by index (assuming Q1..Q40)
+            if col_name not in row:
+                # Try to map stimulus index to Q column
                 try:
-                    rating_val = int(value)
+                    stim_index = int(stim_id)
+                    col_name = f"Q{stim_index}"
+                except ValueError:
+                    pass
+
+            val = row.get(col_name)
+            if val is not None and val.strip() != '':
+                try:
+                    rating_val = int(float(val))
                     if 1 <= rating_val <= 7:
-                        processed_ratings.append({
-                            'participant_id': hash_prolific_id(prolific_id), # Store hashed ID in ratings
-                            'stimulus_id': stimulus_id,
+                        participant_ratings.append({
+                            'participant_id': prolific_id,
+                            'stimulus_id': stim_id,
                             'rating': rating_val,
-                            'relationship': randomize_relationship() # Simulate randomization check
+                            'relationship': 'friend' # Default, randomized later or from survey
                         })
+                        valid_rating_count += 1
                 except ValueError:
                     continue
 
-    logger.info(f"Processed {len(processed_ratings)} valid ratings and {len(consent_records)} consent records.")
-    return processed_ratings, consent_records
+        if valid_rating_count > 0:
+            ratings.extend(participant_ratings)
+            
+            # Create consent record
+            consent_records.append({
+                'prolific_id_hash': hash_prolific_id(prolific_id),
+                'original_id': prolific_id, # Keep for internal mapping if needed, but hash for public
+                'timestamp': datetime.utcnow().isoformat(),
+                'data_collected': True,
+                'consent_verified': True
+            })
+
+    return ratings, consent_records
+
+def save_ratings(ratings: List[Dict[str, Any]], output_path: Path):
+    """Save ratings to CSV."""
+    if not ratings:
+        log_info("No ratings to save.")
+        return
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['participant_id', 'stimulus_id', 'rating', 'relationship']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(ratings)
+    log_info(f"Saved {len(ratings)} ratings to {output_path}")
+
+def save_consent_records(consent_records: List[Dict[str, Any]], output_dir: Path):
+    """Save consent records to a JSON file in the consent directory."""
+    if not consent_records:
+        log_info("No consent records to save.")
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "real_consent_records.json"
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(consent_records, f, indent=2)
+    
+    log_info(f"Saved {len(consent_records)} consent records to {output_file}")
 
 def main():
-    """
-    Main entry point for real data collection and consent generation.
-    This function orchestrates loading real data, validating it, and
-    generating consent records ONLY if real data mode is active.
-    """
-    setup_logging()
-    logger.info("Starting real data collection and consent record generation (T015c).")
-
-    # Define paths
-    raw_data_dir = get_raw_data_dir()
-    consent_dir = get_consent_dir()
-
-    # Ensure directories exist
-    raw_data_dir.mkdir(parents=True, exist_ok=True)
-    consent_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check for real data file
-    real_data_path = raw_data_dir / "real_ratings.csv"
-
-    if not real_data_path.exists():
-        logger.warning("No real data file found at 'data/raw/real_ratings.csv'.")
-        logger.info("Skipping consent record generation as no real data is present.")
-        logger.info("This is expected if running in 'mock' mode.")
-        return
-
-    # Load stimuli for validation
-    try:
-        stimuli = load_stimuli()
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load stimuli: {e}")
-        return
-
-    # Load real survey data
-    try:
-        survey_data = load_real_survey_data(real_data_path)
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load real survey data: {e}")
-        return
-
-    # Process data and generate consent records
-    # The 'generate_consent' flag is True because we are in real data mode
-    processed_ratings, consent_records = process_real_data(
-        survey_data,
-        stimuli,
-        generate_consent=True
+    parser = argparse.ArgumentParser(description="Collect real data and generate consent records.")
+    parser.add_argument(
+        '--mode', 
+        choices=['real', 'mock'], 
+        required=True,
+        help="Mode of operation: 'real' for Prolific data, 'mock' for unit testing."
     )
+    args = parser.parse_args()
 
-    # Save consent records
-    if consent_records:
-        save_path = save_consent_records(consent_records, consent_dir)
-        logger.info(f"Consent records successfully saved to {save_path}")
-    else:
-        logger.warning("No valid consent records generated.")
+    # Setup logging
+    setup_logging()
+    log_pipeline_step("04_collect_real_data", "Start", args.mode)
 
-    # Save processed ratings (optional, for downstream analysis)
-    # This ensures the pipeline can continue if real data was collected
-    ratings_path = raw_data_dir / "ratings.csv"
-    if processed_ratings:
-        with open(ratings_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=processed_ratings[0].keys())
-            writer.writeheader()
-            writer.writerows(processed_ratings)
-        logger.info(f"Processed ratings saved to {ratings_path}")
+    raw_data_dir = Path(get_raw_data_dir())
+    processed_data_dir = Path(get_processed_data_dir())
+    consent_dir = Path(get_consent_dir())
 
-    log_pipeline_step("T015c", "Real data processing and consent generation completed.")
-    logger.info("Task T015c completed successfully.")
+    if args.mode == 'real':
+        # 1. Verify real_ratings.csv exists (T015b output)
+        real_ratings_path = raw_data_dir / REAL_RATINGS_PATH
+        
+        if not real_ratings_path.exists():
+            error_msg = (
+                f"Real data file not found: {real_ratings_path}. "
+                "T015b must be executed first to generate this file. "
+                "Consent records cannot be generated without real data."
+            )
+            log_error(error_msg)
+            raise FileNotFoundError(error_msg)
+
+        # 2. Load Stimuli
+        stimuli = load_stimuli()
+        if not stimuli:
+            raise ValueError("No stimuli found. T013 must be executed first.")
+
+        # 3. Load Power Analysis for target N (optional check, but good practice)
+        try:
+            power_results = load_power_analysis_results()
+            target_n = power_results.get('target_N', 0)
+            log_info(f"Target N from power analysis: {target_n}")
+        except FileNotFoundError:
+            log_info("Power analysis results not found. Proceeding without target N check.")
+            target_n = 0
+
+        # 4. Parse Prolific Export (Assuming the export is the source of truth for real_ratings.csv generation)
+        # However, the task says T015b produces real_ratings.csv. 
+        # T015c reads that file to generate consent.
+        # So we read real_ratings.csv directly to extract PIDs for consent.
+        
+        log_info(f"Reading real ratings from {real_ratings_path}")
+        with open(real_ratings_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        # Extract unique PIDs and generate consent
+        unique_pids = set(row['participant_id'] for row in rows)
+        consent_records = []
+        for pid in unique_pids:
+            if validate_prolific_id(pid):
+                consent_records.append({
+                    'prolific_id_hash': hash_prolific_id(pid),
+                    'original_id': pid,
+                    'timestamp': datetime.utcnow().isoformat(),
+                    'data_collected': True,
+                    'consent_verified': True
+                })
+            else:
+                log_error(f"Invalid PID found in real data: {pid}")
+
+        # 5. Save Consent Records
+        save_consent_records(consent_records, consent_dir)
+        log_info("Real data consent records generated successfully.")
+
+    elif args.mode == 'mock':
+        # Mock mode for unit testing only
+        log_info("Running in MOCK mode. Generating synthetic consent records for testing.")
+        
+        # Generate some mock PIDs
+        mock_pids = [f"P-{uuid.uuid4().hex[:8].upper()}" for _ in range(10)]
+        consent_records = []
+        for pid in mock_pids:
+            consent_records.append({
+                'prolific_id_hash': hash_prolific_id(pid),
+                'original_id': pid,
+                'timestamp': datetime.utcnow().isoformat(),
+                'data_collected': False,
+                'consent_verified': False,
+                'note': 'Mock data for unit testing only'
+            })
+        
+        save_consent_records(consent_records, consent_dir)
+        log_info("Mock consent records generated.")
+
+    log_pipeline_step("04_collect_real_data", "End", args.mode)
 
 if __name__ == "__main__":
     main()

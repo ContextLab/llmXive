@@ -1,0 +1,3 @@
+line-length = 88
+exclude = ["data"]
+select = ["E", "W", "F", "I"]

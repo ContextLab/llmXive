@@ -12,13 +12,6 @@ T005:
     confirm that `data/raw`, `data/processed`, and `data/consent` exist nor that each
     contains a `.gitkeep`. The implementer must show the actual filesystem state (e.g.,
     output of `ls data/` and `ls data/*/`) to verify the required structure.
-T008:
-  c: false
-  h: 5ff8c238432be024498224ff59ffdf40558128bd2c71dbbfec27882a4743ffda
-  r: "The `code/logging_config.py` file is present and defines a logger that should\
-    \ write to `data/pipeline.log`, but the required log file does not exist and there\
-    \ is no evidence of a dummy pipeline run that creates entries. The task\u2019\
-    s verification step (log file creation with entries) is missing."
 T009b:
   c: false
   h: c8b8f6466ef3fd21ec17ce490bd072d7926794cfc6f7a7ad60be6fb5b226c1b0
@@ -26,23 +19,13 @@ T009b:
     \ the `generate_power_curve` function in `code/00_power_analysis.py` is truncated\
     \ and does not contain the code to create and save the plot with the required\
     \ axis labels. The task\u2019s visualization artifact is therefore missing."
-T010:
+T011a:
   c: false
-  h: 3f93e6f65fdf397ed13f436e728433b8ccfffb534e885f07c5f328658ac42db1
-  r: "The repository contains `tests/contract/test_stimulus_schema.py`, but the required\
-    \ data file `data/raw/stimuli.csv` does not exist, so the test cannot actually\
-    \ validate the real stimulus data produced by T013. Moreover, the test only validates\
-    \ in\u2011memory sample records and never reads `stimuli.csv`. The missing CSV\
-    \ file means the contract test does not fulfill the task\u2019s requirement."
-T011:
-  c: false
-  h: fb5b68bc128deadcc248d14fe1833a7dff7e49a711ff34f72ba0aca85b28751a
-  r: The `tests/contract/test_rating_schema.py` file exists but it does not fully
-    implement the required contract test (the code is truncated, column names and
-    rating range differ from the specification, and there is no test function that
-    actually loads and validates `data/raw/ratings.csv`). Moreover, the required data
-    file `data/raw/ratings.csv` is missing, so the test cannot be executed. The task
-    therefore remains incomplete.
+  h: 42e392200ea8f4ec619f1f5794679ef8d1609081c0c93f3f2e1797a38e53f9d8
+  r: The provided `tests/contract/test_rating_schema.py` is truncated and does not
+    show the required `test_rating_schema_valid` function, and the dependent data
+    file `data/raw/ratings.csv` is absent, so the test cannot actually validate the
+    ratings against the schema.
 T013:
   c: false
   h: f0b08fc074874784b50ac7fd6893d0d9bceec42fd1896d607c425ced61bb3f63
@@ -62,21 +45,16 @@ T014:
     \ truncated and does not show the logic that writes the CSV or checks the `target_N`\
     \ condition. These artifacts must be present and functional for the task to be\
     \ considered complete."
-T015b:
+T015c:
   c: false
-  h: 4137863e4b00a9e5dc098485610d24e386ff2b3cdad017ff6e7560a9c64f1dc4
-  r: "The required output file `data/raw/real_ratings.csv` is absent, and the provided\
-    \ `code/04_collect_real_data.py` only contains utility functions (hashing, validation,\
-    \ randomization) without any implementation that reads a Qualtrics CSV, validates\
-    \ the expected columns, or writes the processed data to the specified artifact.\
-    \ Consequently the task\u2019s core requirement is not satisfied."
-T019:
-  c: false
-  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
-  r: "The required integration test file `tests/integration/test_lmm_pipeline.py`\
-    \ does not exist in the repository, so the artifact needed to verify full LMM\
-    \ pipeline execution is missing. Without this test, the task\u2019s requirement\
-    \ is not satisfied."
+  h: cfcc9c7516ff453e1322e5010cea622af8ad31d57e6e9bb33eb98ba53d79cc74
+  r: "The `code/04_collect_real_data.py` file does not demonstrate the required CLI\
+    \ flag (`--mode real`) or environment\u2011variable check, nor does it contain\
+    \ an explicit verification that `data/raw/real_ratings.csv` exists and raise a\
+    \ `FileNotFoundError` with a clear message. Additionally, the required `data/raw/real_ratings.csv`\
+    \ file is absent from the repository. The implementer must add the mode handling,\
+    \ existence check with proper error handling, and provide the real\u2011ratings\
+    \ CSV (or ensure the script fails correctly when it is missing)."
 T020:
   c: false
   h: 2c167d912a5b87b162ebe42d0f2883e6ede028307b16ac43a1b978da222a5e7d
@@ -112,3 +90,10 @@ T036:
   r: No evidence of additional unit test files for edge cases (missing data handling,
     randomization failure) was provided in the `tests/unit/` directory; the required
     artifacts are missing.
+T037:
+  c: false
+  h: 0dc63c38cae7176de59675812c94406816c0b8370a5d68bfc5437999f6079ddf
+  r: The required `data/processed/power_analysis_results.json` file is missing, so
+    the target N cannot be read, and there is no artifact (e.g., a JSON or log file)
+    containing `total_duration_seconds`, `per_stage_duration`, or the required assertion.
+    Consequently the benchmark cannot have been performed as specified.

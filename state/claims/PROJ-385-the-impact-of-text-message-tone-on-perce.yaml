@@ -761,3 +761,520 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T20:09:13Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: f2=0.15, alpha=0.05, power=0.80'
+  claim_id: c_2a80842e
+  context: Task T009 specifies the parameters for the power analysis required to determine
+    the target sample size for the study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform power analysis for LMM interaction effect (medium effect size\
+    \ f\xB2=0.15, alpha=0.05, power=0.80) using statsmodels.stats.power.tt_ind_solve_power\
+    \ and a simulation loop of multiple iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:11:44Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Power analysis output contains target_N, effect_size, power, alpha, method,
+    and seed
+  claim_id: c_77e7d3d7
+  context: The power analysis task T009 mandates specific output fields in the results
+    JSON file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_output_contains_target_N,_effect_size,_power,
+  kind: entity_fact
+  raw_text: Output data/processed/power_analysis_results.json with keys target_N (integer),
+    effect_size (float), power (float), alpha (float), method (string), and seed (integer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:16:56Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Simulation parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5'
+  claim_id: c_0cbc02d7
+  context: Task T009 requires these specific variance and effect size parameters for
+    the power analysis simulation loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:18:05Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: pandas>=2.0.0, numpy>=1.24.0, scipy>=1.10.0, statsmodels>=0.14.0,
+    linearmodels>=4.28.0, pyyaml>=6.0, pytest>=7.0.0'
+  claim_id: c_02606c11
+  context: Task T002 specifies the exact version constraints for the Python libraries
+    required for the project.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python project with pinned dependencies in code/requirements.txt
+    (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.10.0, statsmodels>=0.14.0, linearmodels>=4.28.0,
+    pyyaml>=6.0, pytest>=7.0.0).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:18:05Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Total stimulus count must be at least 1
+  claim_id: c_77ebab6b
+  context: Task T016 includes a validation step to ensure the stimulus dataset is
+    not empty before processing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_stimulus_count_must_be_at_least_1
+  kind: magnitude
+  raw_text: Assert that the total stimulus count from data/raw/stimuli.csv is at least
+    1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:18:43Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Stimulus variance threshold for warning is less than 0.001
+  claim_id: c_a79b0bfc
+  context: Task T023a defines the threshold for detecting negligible stimulus variance
+    in the LMM model summary.
+  evidence:
+    asserted: '0.001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If Stimulus variance is negligible (< 0.001), the script MUST log a warning
+    to data/pipeline.log and generate a transient exclusion summary object.
+  resolved_value: '3.142'
+  resolver: approximate
+  source_hash: ab2c5c81357403e93b4277fc0e90d99c2ec0bd437245b579f88ac613e8444789
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:18:43Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis weights sum to 1
+  claim_id: c_dd34d42d
+  context: Task T027 requires generating alternative operationalizations of 'Cue Intensity'
+    where the weights in the weighted sum formula must sum to 1.
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Generate a parameter sweep of weights across a broad range of values (e.g.,
+    from low to high in regular steps), adjusting others to sum to 1.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:18:43Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 0
+  canonical: requirements.txt dependencies pandas 2.0.0 numpy 1.24.0 scipy 1.10.0
+    statsmodels 0.14.0 linearmodels 4.28.0 pyyaml 6.0 pytest 7.0.0
+  claim_id: c_704ad5b9
+  context: T002 Initialize Python project with pinned dependencies in `code/requirements.txt`
+    (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.10.0, statsmodels>=0.14.0, linearmodels>=4.28.0,
+    pyyaml>=6.0, pytest>=7.0.0).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python project with pinned dependencies in `code/requirements.txt`
+    (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.10.0, statsmodels>=0.14.0, linearmodels>=4.28.0,
+    pyyaml>=6.0, pytest>=7.0.0).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:24:03Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: stimuli.csv contains columns id text emoji_count punctuation_type length_category
+    scenario_id
+  claim_id: c_7f5c2d6f
+  context: '...Output `data/raw/stimuli.csv` with columns: `id, text, emoji_count,
+    punctuation_type, length_category, scenario_id`.'
+  evidence:
+    entailment_evidence: csv contains columns id text emoji count punctuation Add
+      languages
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Stimuli.csv_contains_columns_id_text_emoji_count_punctuation
+  kind: entity_fact
+  raw_text: 'Implement factorial stimulus generator... Output `data/raw/stimuli.csv`
+    with columns: `id, text, emoji_count, punctuation_type, length_category, scenario_id`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T13:24:28Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: data model defines entities Stimulus Participant Rating AnalysisResult
+  claim_id: c_8cd26b24
+  context: T004 Define data model in `specs/001-text-tone-emotional-support/data-model.md`
+    (Stimulus, Participant, Rating, AnalysisResult) and validate against spec/plan
+    requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define data model in `specs/001-text-tone-emotional-support/data-model.md`
+    (Stimulus, Participant, Rating, AnalysisResult)...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:24:51Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: stimulus.schema.yaml properties id string text string emoji_count integer
+    punctuation_type string length_category string
+  claim_id: c_da2c25e5
+  context: 'T006 [P] Define and validate JSON/YAML schemas... **Requirement**: Create
+    `stimulus.schema.yaml` (properties: `id` (string), `text` (string), `emoji_count`
+    (integer), `punctuation_type` (string), `length_category` (string))...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stimulus.schema.yaml_properties_id_string_text_string_emoji
+  kind: entity_fact
+  raw_text: 'Create `stimulus.schema.yaml` (properties: `id` (string), `text` (string),
+    `emoji_count` (integer), `punctuation_type` (string), `length_category` (string))...'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:25:28Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: rating.schema.yaml properties participant_id string stimulus_id string
+    relationship enum friend acquaintance rating integer 1-7
+  claim_id: c_3cfd119d
+  context: '...`rating.schema.yaml` (properties: `participant_id` (string), `stimulus_id`
+    (string), `relationship` (enum: ["friend", "acquaintance"]), `rating` (integer
+    1-7))...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `rating.schema.yaml` (properties: `participant_id` (string), `stimulus_id`
+    (string), `relationship` (enum: ["friend", "acquaintance"]), `rating` (integer
+    1-7))...'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:25:40Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: power analysis for LMM interaction effect medium effect size 0.15 alpha
+    0.05 power 0.80
+  claim_id: c_82111df1
+  context: "T009 [US1] Perform power analysis for LMM interaction effect (medium effect\
+    \ size f\xB2=0.15, alpha=0.05, power=0.80) using `statsmodels.stats.power.tt_ind_solve_power`..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform power analysis for LMM interaction effect (medium effect size\
+    \ f\xB2=0.15, alpha=0.05, power=0.80)..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:26:13Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: power analysis fixed parameters random_effect_variance 0.3 residual_variance
+    0.5 fixed_effect_size 0.5
+  claim_id: c_242534dc
+  context: '**Requirement**: Use fixed parameters: `random_effect_variance=0.3`, `residual_variance=0.5`,
+    `fixed_effect_size=0.5`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use fixed parameters: `random_effect_variance=0.3`, `residual_variance=0.5`,
+    `fixed_effect_size=0.5`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:26:13Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: power_analysis_results.json keys target_N effect_size power alpha method
+    seed
+  claim_id: c_94b7f5ee
+  context: Output `data/processed/power_analysis_results.json` with keys `target_N`
+    (integer), `effect_size` (float), `power` (float), `alpha` (float), `method` (string),
+    and `seed` (integer).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_results.json_keys_target_N_effect_size_power
+  kind: entity_fact
+  raw_text: Output `data/processed/power_analysis_results.json` with keys `target_N`
+    (integer), `effect_size` (float), `power` (float), `alpha` (float), `method` (string),
+    and `seed` (integer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:26:14Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline benchmark total_duration_seconds less than 21600
+  claim_id: c_b55f1c10
+  context: T037 [P] [MANDATORY] Benchmark full pipeline duration... Output MUST include
+    keys `total_duration_seconds`, `per_stage_duration`, and an assertion `total_duration_seconds
+    < 21600` to verify SC-005.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_benchmark_total_duration_seconds_less_than_21600
+  kind: magnitude
+  raw_text: Benchmark full pipeline duration... Output MUST include keys `total_duration_seconds`,
+    `per_stage_duration`, and an assertion `total_duration_seconds < 21600`...
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:26:30Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "Power analysis parameters: effect size f\xB2=0.15, alpha=0.05, power=0.80"
+  claim_id: c_bcebaadd
+  context: "T009 [US1] Perform power analysis for LMM interaction effect (medium effect\
+    \ size f\xB2=0.15, alpha=0.05, power=0.80) using statsmodels.stats.power.tt_ind_solve_power..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform power analysis for LMM interaction effect (medium effect size\
+    \ f\xB2=0.15, alpha=0.05, power=0.80) using statsmodels.stats.power.tt_ind_solve_power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:04Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Power analysis fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5'
+  claim_id: c_f6442d94
+  context: 'Requirement: Use fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:05Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Stimulus variance warning threshold is 0.001
+  claim_id: c_99ec9c8f
+  context: T023a [US2] Implement validation check... if Stimulus variance is negligible
+    (< 0.001), the script MUST log a warning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Stimulus variance is negligible (< 0.001), the script MUST log a warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:05Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "Power analysis parameters: f\xB2=0.15, alpha=0.05, power=0.80"
+  claim_id: c_74a351f6
+  context: "T009 [US1] Perform power analysis for LMM interaction effect (medium effect\
+    \ size f\xB2=0.15, alpha=0.05, power=0.80) using statsmodels.stats.power.tt_ind_solve_power..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform power analysis for LMM interaction effect (medium effect size\
+    \ f\xB2=0.15, alpha=0.05, power=0.80)..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:27Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Power analysis fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5'
+  claim_id: c_ec18ae4b
+  context: 'T009 [US1] ... Requirement: Use fixed parameters: random_effect_variance=0.3,
+    residual_variance=0.5, fixed_effect_size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use fixed parameters: random_effect_variance=0.3, residual_variance=0.5,
+    fixed_effect_size=0.5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:27Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Sampling strategy: random effects from Normal(0, variance), residuals
+    from Normal(0, residual_variance)'
+  claim_id: c_0bd10fa5
+  context: 'T009 [US1] ... Sampling Strategy: Sample random effects from Normal(0,
+    variance) and residuals from Normal(0, residual_variance).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample random effects from Normal(0, variance) and residuals from Normal(0,
+    residual_variance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:28:06Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Power analysis output JSON keys: target_N, effect_size, power, alpha,
+    method, seed'
+  claim_id: c_247cc32c
+  context: T009 [US1] ... Output data/processed/power_analysis_results.json with keys
+    target_N (integer), effect_size (float), power (float), alpha (float), method
+    (string), and seed (integer).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_output_JSON_keys:_target_N,_effect_size,_powe
+  kind: entity_fact
+  raw_text: Output data/processed/power_analysis_results.json with keys target_N (integer),
+    effect_size (float), power (float), alpha (float), method (string), and seed (integer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:28:08Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Stimulus count validation: total >= 1'
+  claim_id: c_22d6cba6
+  context: 'T016 [US1] ... 5. Validation Step: Assert that the total stimulus count
+    from data/raw/stimuli.csv is at least 1. If not, raise an error to preserve FR-006
+    constraint.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stimulus_count_validation:_total_%3E=_1
+  kind: magnitude
+  raw_text: Verify that total stimulus count from data/raw/stimuli.csv is at least
+    1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:28:32Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Pipeline benchmark: total duration < 21600 seconds'
+  claim_id: c_e565cb55
+  context: T037 [P] [MANDATORY] Benchmark full pipeline duration... Output MUST include
+    keys total_duration_seconds, per_stage_duration, and an assertion total_duration_seconds
+    < 21600 to verify SC-005.
+  evidence:
+    asserted: '21600.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Measure wall-clock time in seconds for the entire pipeline... Output MUST
+    include keys total_duration_seconds, per_stage_duration, and an assertion total_duration_seconds
+    < 21600.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:28:33Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity definitions count: >= 3'
+  claim_id: c_d7e061e5
+  context: 'T027 [US3] ... Verification: Validate JSON schema against expected keys
+    and count a representative set of items (must be >= 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate JSON schema against expected keys and count a representative
+    set of items (must be >= 3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:29:13Z'
