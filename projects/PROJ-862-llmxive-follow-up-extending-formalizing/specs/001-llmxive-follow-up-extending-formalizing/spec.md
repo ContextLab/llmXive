@@ -91,7 +91,7 @@
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The reduction in mean pairwise cosine similarity between baseline and perturbed conditions is measured against the null hypothesis of zero difference using a paired statistical test, **restricted to pairs that passed the independent semantic drift check (FR-009) with a score ≥ 0.95**. (See FR-005, FR-009)
-- **SC-002**: The robustness of the separability finding is measured against a sensitivity sweep of noise thresholds ($\sigma \in [0.01, 0.20]$) to ensure the effect is not an artifact of a single arbitrary $\sigma$. (See FR-007)
+- **SC-002**: The robustness of the separability finding is measured against a sensitivity sweep of noise thresholds ($\sigma \in [, 0.20]$) to ensure the effect is not an artifact of a single arbitrary $\sigma$. (See FR-007)
 - **SC-003**: The system's ability to calculate the semantic validity pass-rate is measured against the requirement to report this rate for every $\sigma$ level. (See FR-011)
 - **SC-004**: The computational feasibility is measured against the constraint of execution within 6 hours on a 2-core, CPU-only runner with a **peak Resident Set Size (RSS) ≤ 7GB**, measured via Python `tracemalloc` module on the main process. (See FR-001)
 - **SC-005**: The methodological soundness regarding multiplicity is measured by the application of a family-wise error correction (Bonferroni or Holm) if multiple task types are tested simultaneously. (See FR-005)

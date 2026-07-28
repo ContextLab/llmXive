@@ -1,78 +1,51 @@
-# Quickstart: llmXive Noise Injection Pipeline
-
-This guide walks you through setting up and running the optimized noise injection pipeline.
+# llmXive Quickstart Guide
 
 ## Prerequisites
 
 - Python 3.9+
-- 16GB+ RAM (recommended for full dataset)
-- CPU-only execution (no GPU required)
+- pip
+- 7GB+ RAM (CPU-only execution)
 
-## Setup
+## Installation
 
-1. **Clone the repository**
- ```bash
- git clone <repo-url>
- cd llmxive-follow-up-extending-formalizing
- ```
-
-2. **Create a virtual environment**
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**
- ```bash
- pip install -r code/requirements.txt
- ```
-
-4. **Verify installation**
- ```bash
- python -c "import torch; import transformers; print('OK')"
- ```
-
-## Running the Pipeline
-
-### Full Execution
-
-Run the entire pipeline (baseline extraction, noise sweep, analysis):
+1. Clone the repository.
+2. Install dependencies:
 
 ```bash
-python code/main.py
+cd code
+pip install -r requirements.txt
 ```
 
-This will:
-1. Load the `bigbench_lite` dataset
-2. Extract baseline latent vectors
-3. Perform the noise injection sweep with vectorized operations
-4. Run statistical analysis and save results
+## Configuration
 
-### Benchmarking Optimization (T036)
+The pipeline uses `config.py` for defaults. You can override settings via a JSON config file or CLI arguments.
 
-To verify the performance improvement of the vectorized implementation:
+## Execution
+
+Run the full pipeline:
 
 ```bash
-python code/benchmark_perturbation.py
+python main.py
 ```
 
-This script compares the scalar vs. vectorized perturbation methods and outputs:
-- Average runtime per method
-- Throughput (samples/second)
-- Speedup factor
+Run a dry-run to verify paths and logic without heavy computation:
 
-### Output Files
+```bash
+python main.py --dry-run
+```
 
-Results are saved to `data/processed/`:
+## Output Artifacts
 
-- `baseline_vectors.csv`: Baseline latent vectors
-- `perturbed_vectors.csv`: Perturbed vectors for each sigma level
-- `validity_log.csv`: Validity check results and collapse points
-- `statistical_results.json`: Final analysis results
-- `benchmark_results.json`: Performance comparison (if benchmarked)
+After successful execution, the following files will be generated in `data/processed/`:
+
+- `baseline_vectors.csv`: Extracted latent vectors.
+- `validity_log.csv`: Pass-rates for each sigma level.
+- `statistical_results.json`: Final statistical analysis (if conclusive).
+- `inconclusive_report.md`: Generated if no valid sigma is found (T051).
+- `memory_profile.json`: Memory usage logs.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure you have sufficient RAM. The pipeline enforces a 7GB limit.
-- **Dataset Missing**: The pipeline fetches data from HuggingFace. Ensure internet connectivity.
-- **CPU Only**: No CUDA support is included. The pipeline runs on CPU by default.
+- **Memory Limit**: If the process exceeds 7GB RAM, it will halt with `MemoryLimitExceeded`.
+- **Data Fetch**: Ensure internet connectivity for dataset download. The script will fail loudly if the dataset is missing or checksums mismatch.
+- **Inconclusive**: If `inconclusive_report.md` is generated, the experiment found no valid noise range. Check the report for recommendations.

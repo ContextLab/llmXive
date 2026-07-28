@@ -1,15 +1,23 @@
+"""
+config.py
+
+Defines configuration dataclasses and loading logic for the pipeline.
+"""
+
 import os
+import json
+import logging
 from dataclasses import dataclass, field
 from typing import List, Optional
-import logging
-import json
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class NoiseSweepConfig:
     sigma_min: float = 0.01
     sigma_max: float = 0.20
     step: float = 0.01
-    random_seed: int = 42
+    seeds: List[int] = field(default_factory=lambda: [42])
 
 @dataclass
 class ModelConfig:
@@ -21,58 +29,87 @@ class ModelConfig:
 @dataclass
 class ValidityConfig:
     input_drift_threshold: float = 0.95
-    output_validity_threshold: float = 0.85
+    output_validity_bert_score: float = 0.85
+    output_validity_perplexity_bound: float = 2.0
     collapse_threshold: float = 0.90
+    no_valid_sigma_threshold: float = 0.10  # T051: Threshold for inconclusive report
 
 @dataclass
 class MemoryConfig:
     peak_rss_limit_gb: float = 7.0
-    profile_output: str = "data/processed/memory_profile.json"
+    log_interval_mb: int = 100
 
 @dataclass
 class DataConfig:
     dataset_name: str = "bigbench_lite"
     dataset_url: str = "https://huggingface.co/datasets/google/bigbench_lite"
-    cache_dir: str = "data/cache"
-    pairing_config_path: str = "data/processed/pairing_config.json"
+    expected_hash: str = ""  # To be populated from checksums.json or config
+    expected_answer_col: str = "expected_answer"
 
 @dataclass
 class OutputPaths:
+    data_raw: str = "data/raw"
+    data_processed: str = "data/processed"
+    logs: str = "logs"
+    figures: str = "figures"
+    
+    # Specific output files
     baseline_vectors: str = "data/processed/baseline_vectors.csv"
     perturbed_vectors: str = "data/processed/perturbed_vectors.csv"
     validity_log: str = "data/processed/validity_log.csv"
     statistical_results: str = "data/processed/statistical_results.json"
-    trade_off_curve: str = "data/processed/trade_off_curve.csv"
-    global_trade_off: str = "data/processed/global_trade_off_curve.csv"
-    sensitivity_report: str = "data/processed/sensitivity_report.json"
-    no_valid_sigma_report: str = "data/processed/no_valid_sigma_report.json"
     memory_profile: str = "data/processed/memory_profile.json"
-    sweep_log: str = "logs/sweep.log"
+    inconclusive_report: str = "data/processed/inconclusive_report.md" # T051
+    filtered_pairs_input_drift: str = "data/processed/filtered_pairs_input_drift.csv"
+    filtered_pairs_output_validity: str = "data/processed/filtered_pairs_output_validity.csv"
+    filtered_pairs_analysis: str = "data/processed/filtered_pairs_for_analysis.csv"
+    trade_off_curve: str = "data/processed/trade_off_curve.csv"
+    global_trade_off_curve: str = "data/processed/global_trade_off_curve.csv"
+    sensitivity_report: str = "data/processed/sensitivity_report.json"
+    pairing_config: str = "data/processed/pairing_config.json"
+    checksums: str = "data/checksums.json"
 
 @dataclass
 class PipelineConfig:
-    noise_config: NoiseSweepConfig = field(default_factory=NoiseSweepConfig)
-    model_config: ModelConfig = field(default_factory=ModelConfig)
-    validity_config: ValidityConfig = field(default_factory=ValidityConfig)
-    memory_config: MemoryConfig = field(default_factory=MemoryConfig)
-    data_config: DataConfig = field(default_factory=DataConfig)
-    output_paths: OutputPaths = field(default_factory=OutputPaths)
-    dry_run: bool = False
+    noise_sweep: NoiseSweepConfig = field(default_factory=NoiseSweepConfig)
+    model: ModelConfig = field(default_factory=ModelConfig)
+    validity: ValidityConfig = field(default_factory=ValidityConfig)
+    memory: MemoryConfig = field(default_factory=MemoryConfig)
+    data: DataConfig = field(default_factory=DataConfig)
+    output: OutputPaths = field(default_factory=OutputPaths)
+    # T051: Ensure data_config is accessible if referenced elsewhere
+    data_config: DataConfig = field(default_factory=DataConfig) 
 
 def load_config(config_path: Optional[str] = None) -> PipelineConfig:
-    """Load configuration from a JSON file or return defaults."""
+    """
+    Loads configuration from a JSON file or returns defaults.
+    """
     if config_path and os.path.exists(config_path):
         with open(config_path, 'r') as f:
             data = json.load(f)
-        # Map JSON keys to dataclass fields (simplified)
-        # In a real scenario, use a proper deserialization library
+        
+        # Map JSON keys to dataclass fields (simplified mapping)
+        noise = data.get('noise_sweep', {})
+        model = data.get('model', {})
+        validity = data.get('validity', {})
+        memory = data.get('memory', {})
+        data_cfg = data.get('data', {})
+        output = data.get('output', {})
+
         return PipelineConfig(
-            noise_config=NoiseSweepConfig(**data.get('noise_config', {})),
-            model_config=ModelConfig(**data.get('model_config', {})),
-            validity_config=ValidityConfig(**data.get('validity_config', {})),
-            memory_config=MemoryConfig(**data.get('memory_config', {})),
-            data_config=DataConfig(**data.get('data_config', {})),
-            output_paths=OutputPaths(**data.get('output_paths', {})),
-            dry_run=data.get('dry_run', False)
+            noise_sweep=NoiseSweepConfig(**noise),
+            model=ModelConfig(**model),
+            validity=ValidityConfig(**validity),
+            memory=MemoryConfig(**memory),
+            data=DataConfig(**data_cfg),
+            output=OutputPaths(**output),
+            data_config=DataConfig(**data_cfg) # Explicit assignment for T051 fix
         )
-    return PipelineConfig()
+    else:
+        logger.info("No config file found. Using defaults.")
+        return PipelineConfig()
+
+if __name__ == "__main__":
+    # Test loading
+    cfg = load_config()
+    print(f"Config loaded: {cfg}")

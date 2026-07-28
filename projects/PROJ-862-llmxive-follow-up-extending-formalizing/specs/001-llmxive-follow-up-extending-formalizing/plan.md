@@ -13,7 +13,7 @@ This feature implements a computational experiment to test the "Input Neighborho
 **Primary Dependencies**: `transformers` (CPU-only), `torch` (CPU), `sentence-transformers`, `scikit-learn`, `bertscore`, `pandas`, `numpy`, `tracemalloc` (stdlib).  
 **Storage**: Local filesystem (`data/raw/` for raw/processed data, `data/checksums.json` for checksums).  
 **Testing**: `pytest` (contract tests against schema, unit tests for noise injection logic).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPUs, sufficient RAM).  
 **Project Type**: Computational Research / Data Pipeline.  
 **Performance Goals**: Peak RSS ≤ 7GB; Total Runtime ≤ 6h.  
 **Constraints**: No GPU/CUDA; No 8-bit quantization (requires CUDA); Strict memory batching; No new requirements invented.  

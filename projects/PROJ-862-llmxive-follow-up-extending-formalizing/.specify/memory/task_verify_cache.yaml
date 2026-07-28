@@ -22,14 +22,6 @@ T015:
     mismatch validation, base64 encoding of L2\u2011normalized vectors, or tracemalloc\u2011\
     based logging. Consequently the task\u2019s specifications are not demonstrably\
     \ met."
-T024a:
-  c: false
-  h: aa3a084c2ea53680f3ce7fff5777fc4df373e7e7105153e698d2930381546655
-  r: "The repository lacks the required output files `data/processed/baseline_vectors.csv`\
-    \ and `data/processed/validity_log.csv`, and the provided `code/main.py` (truncated)\
-    \ does not show the perturbation sweep loop, validity\u2011collapse detection,\
-    \ or immediate logging to `validity_log.csv`. Consequently the core functionality\
-    \ demanded by the task is not present."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +37,22 @@ T035:
     of the task description and feature spec, with no actual artifact to inspect.
     Without the cleaned/refactored script, we cannot confirm that the required code
     cleanup was performed.
+T047:
+  c: false
+  h: 072b3482e8810ed244013d171bf6f13a557f57954ff5ee13b47cd60cd8b94599
+  r: "The provided `code/main.py` only defines a `verify_data_fetch_integrity` helper\
+    \ that delegates to `load_reasoning_dataset` and is not invoked before model loading;\
+    \ the script still loads the model first. Moreover, the required `data/checksums.json`\
+    \ file is missing, so the checksum validation cannot actually be performed. The\
+    \ implementation does not guarantee exiting with code\u202F1 on failure nor does\
+    \ it explicitly check for the presence of files in `data/raw/`. A proper pre\u2011\
+    flight check must be added early in the script, the checksum file must exist,\
+    \ and the script must terminate with the specifi"
+T049:
+  c: false
+  h: 1de4a3f687ce3f75f61f0bda69d87c649a7c68a9502d9789ce2933e0d1ed0377
+  r: "The provided `code/analysis.py` snippet shows no implementation of a pre\u2011\
+    test sample\u2011size check, automatic switch to a Wilcoxon test, power calculation,\
+    \ or JSON logging, and the required `data/processed/statistical_results.json`\
+    \ file is absent. Consequently the task\u2019s functional and output requirements\
+    \ are not met."

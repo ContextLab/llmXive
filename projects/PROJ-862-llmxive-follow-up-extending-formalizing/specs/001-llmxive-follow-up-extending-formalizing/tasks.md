@@ -61,12 +61,12 @@
  - `latent-vector.schema.yaml`: Fields `pair_id`, `task_type`, `vector_base64` (L2 normalized), `norm_status`.
  - `statistical-result.schema.yaml`: Fields `task_type`, `sigma`, `p_value`, `mean_diff`, `ci_lower`, `ci_upper`, `test_type` (t-test/Wilcoxon), `validity_collapse_distribution` (list of values across task types).
  - `validity-log.schema.yaml`: Fields `task_type`, `sigma`, `pass_rate`, `collapse_point` (boolean), `semantic_drift_score`, `output_validity_score`.
-- [X] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest)
+- [X] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest). **MUST pin `sentence-transformers` to a specific version hash or commit SHA to ensure reproducibility of the `all-MiniLM-L-v2` model weights.**
 - [X] T005 [P] Setup virtual environment instructions in `docs/` (or `code/scripts/setup.sh`)
-- [X] T006 [P] Implement `code/config.py` to define noise sweep parameters: Create a `NoiseConfig` dataclass with fields `sigma_min=0.01`, `sigma_max=0.20`, `step=0.01`, model paths, random seeds, and memory limits. **These values are configurable defaults that MUST be overridable via CLI arguments or a config file to satisfy the 'defined range' flexibility implied by FR-003.**
+- [X] T006 [P] Implement `code/config.py` to define noise sweep parameters: Create a `NoiseConfig` dataclass with fields `sigma_min=0.01`, `sigma_max=0.20`, `step=0.01`, model paths, random seeds, and memory limits. **MUST include a pre-flight feasibility check method: if the estimated runtime for the FIXED `step=0.01` (based on a small sample or heuristic) exceeds the time budget (SC-004), the method MUST raise a `ConfigurationError` and HALT execution with a clear message. The system MUST NOT automatically adjust the step size. The final `step` value MUST be logged to `data/processed/config_log.json` only after successful pre-flight validation.** (Replaces vague feasibility check with specific halting logic).
 - [X] T007 [P] Implement `code/model_utils.py` to load the frozen transformer model (Llama or distilled variant) in CPU-only mode with `torch.no_grad()` and `model.eval()`
 - [X] T008 [P] Implement `code/streaming_utils.py` to provide chunked/batched iteration over large datasets to respect the available RAM limit
-- [X] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition for the **entire process**; raise `MemoryLimitExceeded` if the aggregate threshold is breached (SC-004). **MUST log the peak RSS value to `data/processed/memory_profile.json` even if the limit is not breached.**
+- [X] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition for the **entire process**; raise `MemoryLimitExceeded` if the aggregate threshold is breached (SC-004). **MUST log the peak RSS value to `data/processed/memory_profile.json` for EVERY run (both success and failure cases) to verify computational feasibility (SC-004).**
 - [X] T010b [P] Refactor `code/main.py` to extract the sigma sweep loop into a new function `run_sweep` that accepts `sigma_range` and `callback` arguments. **This function MUST implement the early-exit logic to record the 'validity collapse point' and stop processing higher sigma values for a task type immediately upon detection, as mandated by FR-003.** (Replaces T035).
 - [X] T011 [P] Implement `code/data_loader.py` to fetch the reasoning dataset from the verified HuggingFace URL specified in `code/config.py` (DATASET_NAME='bigbench_lite', DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite'). **MUST explicitly check if the 'expected_answer' column exists; if missing, raise ConfigurationError and halt immediately (FR-006). MUST remove any try/except blocks that could fall back to synthetic data; if fetch fails, raise DataFetchError and halt (Constitution Principle III).** (Merged T006 & T044).
 - [X] T012 [P] Add a pre-flight checksum verification in `code/data_loader.py`: **Calculate the SHA256 hash of the downloaded dataset file and compare it against the expected hash stored in `data/checksums.json`**. If the hash mismatches or the file is missing, raise `DataIntegrityError` and halt execution (Constitution Principle III). (Replaces T045).
@@ -117,10 +117,10 @@
 ### Implementation for User Story 2
 
 - [X] T025 [P] [US2] Implement `code/perturbation.py` function `inject_and_project(embedding, sigma, model_embedding_matrix)` that adds Gaussian noise and **projects to nearest valid token by minimizing Euclidean distance against model.embedding_matrix**, returning `perturbed_token_ids` and `perturbed_embeddings`
-- [X] T026 [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input)` using **ONLY** `sentence-transformers/all-MiniLM-L6-v2`. **Define `GLOBAL_SBERT` as a module-level lazy-loaded singleton.** **Exclude pairs with cosine similarity < 0.95** and **MUST explicitly exclude these pairs from downstream statistical analysis**. **Save passing pairs to `data/processed/filtered_pairs_input_drift.csv` and failing pairs to `data/processed/failed_input_drift_pairs.csv`** with columns: `PairID`, `drift_score`, `status`. **Depends on `data/processed/baseline_vectors.csv` from T021.** (FR-009).
+- [X] T026 [S] [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input)` using **ONLY** `sentence-transformers/all-MiniLM-L6-v2`. **Define `GLOBAL_SBERT` as a module-level lazy-loaded singleton.** **MUST explicitly pin the `sentence-transformers` library version in `requirements.txt` to ensure reproducibility.** **Exclude pairs with cosine similarity < 0.95** and **MUST explicitly exclude these pairs from downstream statistical analysis**. **MUST implement an incremental write strategy: append results to a temporary buffer or write per-step to `data/processed/validity_log.csv` immediately after processing each sigma step or batch, rather than accumulating in memory and writing only at the end. This ensures data hygiene and prevents loss if the process crashes or stops early due to validity collapse (FR-011).** (FR-009).
 - [X] T027 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline). **Save passing pairs to `data/processed/filtered_pairs_output_validity.csv` and failing pairs to `data/processed/failed_output_validity_pairs.csv`.** **Note: The primary halt for missing `expected_answer` is handled in T011.** (FR-006)
 - [X] T028 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$
-- [X] T029 [US2] Implement `code/main.py` perturbation sweep loop logic: **Iterate sigma across a range of small values with fine-grained steps.** -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **MUST calculate the global semantic validity pass-rate for EVERY sigma level and record it to `data/processed/validity_log.csv` with columns `task_type`, `sigma`, `pass_rate`, `collapse_point` (boolean)**. **MUST record the validity collapse point (task_type, sigma, pass_rate) IMMEDIATELY upon detection and BEFORE breaking the sigma-loop for this task type**. **Record the full trade-off curve (sigma vs. pass_rate) for every sigma level**. **Explicitly mandate that the analysis phase must exclude the validity collapse point and all higher sigma values from the final statistical analysis** -> Save results (FR-003, FR-007, FR-011). **Depends on `data/processed/baseline_vectors.csv` from T021, `data/processed/filtered_pairs_input_drift.csv` from T026, and `data/processed/filtered_pairs_output_validity.csv` from T027.**
+- [X] T029 [S] [US2] Implement `code/main.py` perturbation sweep loop logic: **Iterate sigma across a range of small values with fine-grained steps.** -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks (T026, T027) -> **MUST calculate the global semantic validity pass-rate for EVERY sigma level and record it to `data/processed/validity_log.csv` with columns `task_type`, `sigma`, `pass_rate`, `collapse_point` (boolean)**. **MUST record the validity collapse point (task_type, sigma, pass_rate) IMMEDIATELY upon detection and BEFORE breaking the sigma-loop for this task type**. **Record the full trade-off curve (sigma vs. pass_rate) for every sigma level**. **Explicitly mandate that the analysis phase must exclude the validity collapse point and all higher sigma values from the final statistical analysis** -> Save results (FR-003, FR-007, FR-011). **Depends on `data/processed/baseline_vectors.csv` from T021. T026 and T027 are helper functions called within this loop, not pre-requisites.**
 - [X] T030 [US2] Save perturbed vectors and metadata to `data/processed/perturbed_vectors.csv` linked by `PairID` and `sigma`
 - [X] T031 [P] [US2] Implement logging for sweep progress: **MUST write to `logs/sweep.log` in JSON lines format** with fields: `current_sigma`, `pairs_processed`, `current_rss`, `status`. (FR-011).
 
@@ -146,19 +146,20 @@
  - **Consume `data/processed/validity_log.csv`** (input drift) AND **`data/processed/filtered_pairs_output_validity.csv`** (output validity).
  - **Exclude pairs that failed the input drift check OR the output validity check.**
  - **Save filtered pairs to `data/processed/filtered_pairs_for_analysis.csv`** (FR-009, FR-011).
- - **Depends on `data/processed/validity_log.csv` from T029, `data/processed/filtered_pairs_input_drift.csv` from T026, and `data/processed/filtered_pairs_output_validity.csv` from T027.**
+ - **Depends on `data/processed/validity_log.csv` from T029, `data/processed/filtered_pairs_input_drift.csv` from T029, and `data/processed/filtered_pairs_output_validity.csv` from T029.**
 - [X] T036 [US3] Implement `code/analysis.py` function `calculate_per_task_trade_offs(filtered_pairs, validity_log)`:
  - Calculate the trade-off curve (perturbation magnitude vs. semantic validity pass-rate) for EACH task type.
  - **Save per-task trade-off curves to `data/processed/trade_off_curve.csv`** with columns: `task_type`, `sigma`, `validity_pass_rate`, `separability_metric` (FR-007, SC-002).
  - **Depends on `data/processed/validity_log.csv` from T029 and T035.**
 - [X] T037 [US3] Implement `code/analysis.py` function `aggregate_global_results(task_results)`:
  - Aggregate per-task trade-off curves and validity collapse points into a global distribution.
- - **Calculate the statistical distribution (mean, std, histogram) of the 'validity collapse point' across all task types** to satisfy SC-006.
+ - **Calculate the statistical distribution (mean, std, histogram) of the 'validity collapse point' across all task types** to satisfy SC-006. **Explicitly calculate and save these metrics (mean, std, histogram bins) to the output.**
  - **Save global distribution to `data/processed/global_trade_off_curve.csv`** with columns: `sigma`, `global_validity_pass_rate`, `global_separability_metric`.
- - **Generate `data/processed/sensitivity_report.json`** containing the global distribution and validity collapse point distribution. **MUST include a key `raw_collapse_points` containing the list of collapse points per task type** for future re-analysis (SC-006).
+ - **Generate `data/processed/sensitivity_report.json`** containing the global distribution and validity collapse point distribution. **MUST include a key `raw_collapse_points` containing the list of collapse points per task type** for future re-analysis (SC-006). **MUST explicitly calculate the mean, standard deviation, and histogram bins of the collapse points and save these statistical metrics.**
+ - **If no sigma passes the validity threshold, this JSON MUST include a flag `inconclusive: true` AND the full trade-off curve data (sigma vs. pass_rate) for all task types, as required by FR-007.**
  - **Depends on `data/processed/validity_log.csv` from T029 and T036.**
 - [X] T038 [US3] Implement `code/plot_sensitivity.py` and generate `docs/sensitivity_report.md`: Create the final sensitivity report document including visualizations of the trade-off curves and validity collapse points to validate the robustness of the findings (FR-007, SC-002). **Depends on `data/processed/sensitivity_report.json` from T037.**
-- [X] T039 [US3] Implement `code/main.py` analysis orchestration: Load filtered vectors -> Run tests -> **Apply Holm-Bonferroni correction to all resulting p-values across the full matrix of (task_type, sigma) results as a distinct step** -> Generate sensitivity report -> Save to `data/processed/statistical_results.json` with keys: `p_value`, `mean_diff`, `ci`, `validity_collapse_distribution`, `trade_off_curve` (FR-005). **Depends on T035/T036/T037.**
+- [X] T039 [US3] Implement `code/main.py` analysis orchestration: Load filtered vectors -> Run tests -> **Apply Holm-Bonferroni correction to all resulting p-values across the full matrix of (task_type, sigma) results as a distinct step** -> Generate sensitivity report -> Save to `data/processed/statistical_results.json` with keys: `p_value`, `mean_diff`, `ci`, `validity_collapse_distribution`, `trade_off_curve`, `inconclusive` (if applicable) (FR-005). **Depends on T035/T036/T037.**
 - [X] T040 [US3] Implement logic to flag "Significant Separability Increase" if corrected p-value < 0.05 (FR-005).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -178,6 +179,19 @@
 
 ---
 
+## Phase O: Revision & Safety Hardening (Addressing Reviewer Concerns)
+
+**Purpose**: Address specific reviewer concerns regarding data integrity, execution order, and statistical rigor. These tasks are mandatory additions to the plan.
+
+- [X] T047 [P] [Review] Verify Data Fetch Integrity: Implement a pre-flight check in `code/main.py` that explicitly validates the existence of `data/raw/` files and their checksums against `data/checksums.json` **BEFORE** any model loading or data pairing occurs. If the dataset is missing or corrupted, the script must exit with code 1 and a clear error message, preventing any downstream processing on empty or fake data.
+- [X] T048 [Review] Enforce Execution Order: Refactor `code/main.py` to enforce a strict dependency chain: `Load Data` -> `Pair Questions` -> `Baseline Extraction` -> `Validity Check (Input)` -> `Perturbation Loop` -> `Validity Check (Output)` -> `Statistical Analysis`. **ENFORCE strict pre-checks: Assert the existence of `baseline_vectors.csv` (T021) BEFORE starting the sweep loop (T029). Assert the existence of `data/processed/validity_log.csv` AFTER the sweep loop. If the file is missing, distinguish between 'no valid sigma found' (success case: check for partial logs or specific error codes) and 'sweep crashed' (failure case: check for incomplete logs or missing error codes) before triggering the 'No Valid Sigma' reporting logic (T015/T037). Do NOT remove assertions; instead, strengthen them to prevent ambiguous states.** (FR-003, FR-011).
+- [X] T049 [Review] Statistical Power Verification: In `code/analysis.py`, add a pre-test check (T035) that calculates the effective sample size `n` after filtering for validity. If `n < 30` (or the threshold for the chosen test), the system must **automatically switch to Wilcoxon signed-rank test**, **calculate the reduced statistical power**, and **log the reduced power warning to `data/processed/statistical_results.json` under a key `power_warning`** (FR-012, SC-005).
+- [X] T050 [Review] Family-Wise Error Correction Implementation: In `code/analysis.py` (T039), implement the Holm-Bonferroni correction as a distinct, testable function `apply_holm_bonferroni(p_values, alpha=0.05)`. Ensure this function is called **after** collecting all p-values from the (task_type, sigma) matrix but **before** determining significance, and log the adjusted p-values in the final output.
+- [X] T052 [Review] Memory Leak Prevention: Add a post-extraction garbage collection step in `code/main.py` after each major phase (Baseline, Perturbation Loop) to explicitly call `gc.collect()` to ensure RSS does not drift upward across the long sweep loop. **Removed `torch.cuda.empty_cache()` as it is CPU-only.**
+- [X] T053 [Review] External Model Fallback Safety: In `code/validity_check.py`, ensure that the `sentence-transformers` model loading is wrapped in a try/except that **only** catches network/IO errors and retries the fetch. If the model file is missing locally, it MUST download it; it MUST NOT generate a random embedding vector as a fallback. If the download fails after a defined number of retries, the process must halt.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -188,6 +202,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase O)**: Integrates into Foundational and Analysis phases; T048 and T037/T039 logic must be implemented before the first full run.
 
 ### User Story Dependencies
 
@@ -209,7 +224,7 @@
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Note**: T021 is marked [S] (Serial) due to global SBERT model loading and thread safety requirements.
+- **Note**: T021 and T029 are marked [S] (Serial) due to global SBERT model loading and thread safety requirements.
 
 ---
 
@@ -272,17 +287,8 @@ With multiple developers:
 - **Resource Limits**: Strictly enforce a constrained RAM limit via `tracemalloc` and streaming/batching (T008b).
 - **CPU Constraint**: All model operations must be CPU-only; do not attempt CUDA offloading unless explicitly re-targeted to a GPU runner.
 - **Revision Concerns**: All revision tasks (T011-T016) have been integrated into the Foundational Phase to ensure data integrity and safety before implementation begins.
-
----
-
-## Phase O: Revision & Safety Hardening (Addressing Reviewer Concerns)
-
-**Purpose**: Address specific reviewer concerns regarding data integrity, execution order, and statistical rigor. These tasks are mandatory additions to the plan.
-
-- [ ] T047 [P] [Review] Verify Data Fetch Integrity: Implement a pre-flight check in `code/main.py` that explicitly validates the existence of `data/raw/` files and their checksums against `data/checksums.json` **BEFORE** any model loading or data pairing occurs. If the dataset is missing or corrupted, the script must exit with code 1 and a clear error message, preventing any downstream processing on empty or fake data.
-- [ ] T048 [Review] Enforce Execution Order: Refactor `code/main.py` to enforce a strict dependency chain: `Load Data` -> `Pair Questions` -> `Baseline Extraction` -> `Validity Check (Input)` -> `Perturbation Loop` -> `Validity Check (Output)` -> `Statistical Analysis`. Insert explicit assertions that verify the existence of `data/processed/baseline_vectors.csv` before starting T029, and `data/processed/validity_log.csv` before starting T035.
-- [ ] T049 [Review] Statistical Power Verification: In `code/analysis.py`, add a pre-test check (T035) that calculates the effective sample size `n` after filtering for validity. If `n < 30` (or the threshold for the chosen test), the system must **automatically switch to Wilcoxon signed-rank test**, **calculate the reduced statistical power**, and **log the reduced power warning to `data/processed/statistical_results.json` under a key `power_warning`** (FR-012, SC-005).
-- [ ] T050 [Review] Family-Wise Error Correction Implementation: In `code/analysis.py` (T039), implement the Holm-Bonferroni correction as a distinct, testable function `apply_holm_bonferroni(p_values, alpha=0.05)`. Ensure this function is called **after** collecting all p-values from the (task_type, sigma) matrix but **before** determining significance, and log the adjusted p-values in the final output.
-- [ ] T051 [Review] "No Valid Sigma" Reporting: Enhance T015 and T029 to ensure that if **no** $\sigma$ level yields a validity pass-rate > 10% (or a configurable threshold), the system generates a `data/processed/inconclusive_report.md`. This report must explicitly state that the "Input Manifold Smoothness" hypothesis could not be tested for the given task types due to semantic collapse, preventing a false negative in the statistical analysis.
-- [ ] T052 [Review] Memory Leak Prevention: Add a post-extraction garbage collection step in `code/main.py` after each major phase (Baseline, Perturbation Loop) to explicitly call `gc.collect()` and `torch.cuda.empty_cache()` (if applicable, though CPU-only) to ensure RSS does not drift upward across the long sweep loop.
-- [ ] T053 [Review] External Model Fallback Safety: In `code/validity_check.py`, ensure that the `sentence-transformers` model loading is wrapped in a try/except that **only** catches network/IO errors and retries the fetch. If the model file is missing locally, it MUST download it; it MUST NOT generate a random embedding vector as a fallback. If the download fails after a defined number of retries, the process must halt..
+- **Execution Order**: T048 and T037/T039 logic must be implemented before the first full run to handle the 'No Valid Sigma' case gracefully.
+- **Removed T010c**: Task removed to eliminate scope creep and unnecessary I/O overhead.
+- **Removed T051**: Logic for 'No Valid Sigma' reporting is now explicitly handled in T037 and T039 to avoid unauthorized artifact creation.
+- **T026 Execution**: T026 is a helper function called within T029; results are now written incrementally to ensure data hygiene.
+- **T006 Logic**: Dynamic step adjustment removed; replaced with halting pre-flight check.
