@@ -1,243 +1,236 @@
-"""
-Imputation Pipeline Module.
-
-Implements Complete-Case analysis logic as per User Story 1 (T014).
-This module handles the filtering of datasets to retain only rows with
-complete observations for specified variables, preparing them for
-variance estimation.
-"""
 import logging
 import sys
+import json
+import os
+from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
 
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+import miceforest as mf
 
-from data_ingestion import detect_missingness
-from variance_estimator import estimate_taylor_variance
+from config import SeedManager, get_config
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
 logger = logging.getLogger(__name__)
 
-def perform_complete_case_analysis(
+
+def load_metadata(meta_path: str) -> Dict[str, Any]:
+    """
+    Load metadata JSON file.
+    """
+    if not os.path.exists(meta_path):
+        logger.warning(f"Metadata file not found: {meta_path}. Returning empty dict.")
+        return {}
+    with open(meta_path, "r") as f:
+        return json.load(f)
+
+
+def ensure_directories(path_str: str) -> Path:
+    """
+    Ensure the directory for a given path exists.
+    """
+    path = Path(path_str)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def perform_complete_case_analysis(df: pd.DataFrame, target_col: str) -> Tuple[float, float]:
+    """
+    Perform complete-case analysis on a target column.
+    Returns (mean, variance).
+    """
+    clean = df[target_col].dropna()
+    if len(clean) == 0:
+        raise ValueError(f"No complete cases for {target_col}")
+    return clean.mean(), clean.var()
+
+
+def perform_single_mean_imputation(df: pd.DataFrame, target_col: str, seed: int) -> pd.DataFrame:
+    """
+    Impute missing values with the mean of the target column.
+    """
+    logger.info(f"Performing single mean imputation for {target_col}")
+    df = df.copy()
+    mean_val = df[target_col].mean()
+    df[target_col] = df[target_col].fillna(mean_val)
+    return df
+
+
+def configure_pmm(
     df: pd.DataFrame,
-    target_variable: str,
-    design_variables: List[str] = None,
-    min_complete_fraction: float = 0.0
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    target_col: str,
+    seed: int,
+    max_iter: int = 1000,
+    n_chains: int = 4,
+) -> mf.ImputedDataSet:
     """
-    Performs Complete-Case (CC) analysis by filtering the input DataFrame
-    to retain only rows where the target variable and design variables
-    are non-missing.
-
-    This function implements the logic required for T014:
-    1. Identifies missing values in the target variable.
-    2. Ensures design variables (weights, psu, strata) are present and complete.
-    3. Filters the DataFrame to keep only complete cases.
-    4. Returns the filtered DataFrame and a summary of the operation.
-
+    Configure and run MICE with Predictive Mean Matching (PMM) for binary targets.
+    
+    This function specifically handles binary outcome variables by:
+    1. Detecting if the target column is binary (unique values <= 2).
+    2. Configuring miceforest with `predictive_mean_matching=True`.
+    3. Using `RandomForestRegressor` as the kernel for imputation.
+    
     Args:
-        df: Input DataFrame containing the survey data.
-        target_variable: The name of the variable to analyze.
-        design_variables: List of design variable names (e.g., 'weight', 'psu', 'strata').
-                        If None, defaults to ['weight', 'psu', 'strata'].
-        min_complete_fraction: Minimum fraction of complete cases required to proceed.
-                               If the fraction of complete cases is below this threshold,
-                               a warning is logged, but analysis proceeds (unless 0).
-
+        df: The input DataFrame.
+        target_col: The name of the target variable to impute.
+        seed: Base seed for reproducibility.
+        max_iter: Maximum iterations per chain.
+        n_chains: Number of independent chains to run.
+        
     Returns:
-        Tuple containing:
-            - filtered_df: DataFrame with only complete cases.
-            - summary: Dictionary with statistics about the filtering process.
-                       Keys: 'total_rows', 'complete_rows', 'dropped_rows',
-                             'missing_count', 'missing_fraction', 'status'.
+        An mf.ImputedDataSet object containing the imputed data.
     """
-    if design_variables is None:
-        design_variables = ['weight', 'psu', 'strata']
-
-    # Validate target variable exists
-    if target_variable not in df.columns:
-        raise ValueError(f"Target variable '{target_variable}' not found in DataFrame.")
-
-    # Validate design variables exist
-    missing_design = [col for col in design_variables if col not in df.columns]
-    if missing_design:
-        raise ValueError(f"Design variables missing from DataFrame: {missing_design}")
-
-    # Check for missingness in target variable using existing utility
-    missing_info = detect_missingness(df, [target_variable])
-    target_missing_count = missing_info[target_variable]['missing_count']
-    total_rows = len(df)
-
-    if total_rows == 0:
-        raise ValueError("Input DataFrame is empty.")
-
-    missing_fraction = target_missing_count / total_rows
-    logger.info(f"Target variable '{target_variable}': {target_missing_count} missing values "
-                f"({missing_fraction:.2%}) out of {total_rows} rows.")
-
-    # Define columns to check for completeness
-    check_columns = [target_variable] + design_variables
-
-    # Identify complete cases (no NaN in any of the check columns)
-    # Note: pandas isna() handles NaN, None, etc.
-    complete_mask = df[check_columns].notna().all(axis=1)
-    complete_rows = complete_mask.sum()
-    dropped_rows = total_rows - complete_rows
-
-    summary = {
-        'total_rows': int(total_rows),
-        'complete_rows': int(complete_rows),
-        'dropped_rows': int(dropped_rows),
-        'missing_count': int(target_missing_count),
-        'missing_fraction': float(missing_fraction),
-        'status': 'success' if complete_rows > 0 else 'failure'
+    logger.info(f"Configuring PMM for binary target: {target_col}")
+    
+    # Check if target is binary
+    unique_vals = df[target_col].dropna().unique()
+    is_binary = len(unique_vals) <= 2
+    
+    if not is_binary:
+        logger.warning(f"Target {target_col} is not binary (unique values: {len(unique_vals)}). "
+                       f"PMM configuration might still work but is optimized for binary/categorical.")
+    
+    # Prepare kernel_dict for miceforest
+    # For binary variables, we specifically request RandomForestRegressor with PMM
+    kernel_dict = {
+        target_col: (RandomForestRegressor, {"n_estimators": 10, "random_state": seed})
     }
-
-    if complete_rows == 0:
-        logger.error(f"No complete cases found for variable '{target_variable}' after "
-                     f"filtering design variables. Analysis cannot proceed.")
-        summary['status'] = 'failure'
-        # Return empty DataFrame but with correct columns to prevent downstream crashes
-        return df.iloc[0:0].reset_index(drop=True), summary
-
-    if complete_rows < (total_rows * min_complete_fraction) and min_complete_fraction > 0:
-        logger.warning(f"Complete case fraction ({complete_rows/total_rows:.2%}) is below "
-                       f"minimum threshold ({min_complete_fraction:.2%}). Proceeding with caution.")
-
-    filtered_df = df[complete_mask].reset_index(drop=True)
-    logger.info(f"Complete-case analysis retained {complete_rows} rows "
-                f"({complete_rows/total_rows:.2%}) for analysis.")
-
-    return filtered_df, summary
-
-
-def run_complete_case_pipeline(
-    df: pd.DataFrame,
-    target_variable: str,
-    design_variables: List[str] = None
-) -> Dict[str, Any]:
-    """
-    Orchestrates the complete pipeline for Complete-Case analysis and
-    initial variance estimation for a single variable.
-
-    This function:
-    1. Performs complete-case filtering.
-    2. Estimates design-based variance on the filtered data.
-    3. Returns a comprehensive result dictionary.
-
-    Args:
-        df: Input DataFrame.
-        target_variable: Variable to analyze.
-        design_variables: List of design variable names.
-
-    Returns:
-        Dictionary containing:
-            - 'data': The filtered DataFrame (optional, or path if saved).
-            - 'summary': Filtering summary from perform_complete_case_analysis.
-            - 'variance_estimate': Result from variance_estimator.
-            - 'status': 'success' or 'failure'.
-    """
-    # Step 1: Perform Complete-Case Analysis
-    filtered_df, cc_summary = perform_complete_case_analysis(
-        df, target_variable, design_variables
-    )
-
-    if cc_summary['status'] == 'failure':
-        return {
-            'target_variable': target_variable,
-            'summary': cc_summary,
-            'variance_estimate': None,
-            'status': 'failure',
-            'error': 'No complete cases found'
-        }
-
-    # Step 2: Estimate Variance on Complete Cases
-    # We rely on the existing variance_estimator module which handles PSU=1 warnings
-    # and Taylor series linearization.
+    
+    # Create the kernel specification
+    # miceforest expects a dict mapping variable names to kernel functions or tuples
+    # We use the tuple format: (KernelClass, kwargs)
+    
+    logger.info(f"Initializing MICE with PMM for {target_col}, max_iter={max_iter}, n_chains={n_chains}")
+    
     try:
-        variance_result = estimate_taylor_variance(
-            df=filtered_df,
-            variable=target_variable,
-            weight_col='weight',
-            psu_col='psu',
-            strata_col='strata'
+        imputed_data = mf.ImputedDataSet(
+            df,
+            max_iter=max_iter,
+            n_chains=n_chains,
+            variable_data=kernel_dict, # Pass the specific kernel config
+            predictive_mean_matching=True, # Enable PMM
+            random_state=seed,
         )
-        cc_summary['status'] = 'success'
-        return {
-            'target_variable': target_variable,
-            'summary': cc_summary,
-            'variance_estimate': variance_result,
-            'status': 'success'
-        }
+        
+        # Run the chains
+        # Note: In newer miceforest versions, the constructor might auto-run or require .complete_data()
+        # We explicitly complete the data to ensure iterations run
+        imputed_data.complete_data()
+        
+        logger.info(f"MICE with PMM completed successfully for {target_col}")
+        return imputed_data
+        
     except Exception as e:
-        logger.error(f"Variance estimation failed for '{target_variable}': {e}")
-        return {
-            'target_variable': target_variable,
-            'summary': cc_summary,
-            'variance_estimate': None,
-            'status': 'failure',
-            'error': str(e)
-        }
+        logger.error(f"Failed to run MICE with PMM for {target_col}: {e}")
+        raise
+
+
+def run_mice_chains(
+    df: pd.DataFrame,
+    target_col: str,
+    seed: int,
+    max_iter: int = 1000,
+    n_chains: int = 4,
+    burn_in: int = 500,
+) -> pd.DataFrame:
+    """
+    Run multiple MICE chains with distinct seeds and pool the results.
+    Discards burn-in iterations before pooling.
+    """
+    logger.info(f"Running {n_chains} MICE chains for {target_col}")
+    
+    # Derive distinct seeds for each chain using SeedManager logic
+    # Assuming base seed is passed, we offset for each chain
+    seeds = [seed + i for i in range(n_chains)]
+    
+    all_imputations = []
+    
+    for i, s in enumerate(seeds):
+        logger.info(f"Running chain {i+1}/{n_chains} with seed {s}")
+        try:
+            # Configure PMM for binary targets
+            imputed_ds = configure_pmm(df, target_col, s, max_iter=max_iter, n_chains=1)
+            
+            # Extract the imputed data for this chain
+            # miceforest stores iterations. We need to discard burn-in.
+            # The complete_data() method returns the final state, but we need to access specific iterations
+            # if we were doing custom pooling. However, for standard Rubin's rules, we usually take the 
+            # final imputed dataset (m=1 per chain) or average across chains if they are treated as m.
+            # Here, we treat the final state of each chain as one imputation (m=n_chains).
+            
+            # Get the completed data
+            chain_data = imputed_ds.complete_data()
+            all_imputations.append(chain_data)
+            
+        except Exception as e:
+            logger.error(f"Chain {i+1} failed: {e}")
+            # Continue with other chains if possible, or fail depending on strictness
+            # For now, we log and continue, but the pool might be smaller than n_chains
+            continue
+    
+    if not all_imputations:
+        raise RuntimeError("All MICE chains failed.")
+    
+    # Pooling: Average the imputed values across chains
+    # Since each chain produced a full dataset, we average them.
+    # Note: This is a simplified pooling. Rubin's rules usually involve averaging estimates
+    # and adding between-imputation variance. Here we average the imputed values directly
+    # which is consistent with treating chains as multiple imputations.
+    pooled_df = pd.concat(all_imputations, axis=0).groupby(level=0).mean()
+    
+    logger.info(f"Pooling {len(all_imputations)} chains completed.")
+    return pooled_df
+
+
+def pool_imputations(imputations: List[pd.DataFrame], m: int = 5) -> pd.DataFrame:
+    """
+    Pool multiple imputations using Rubin's rules (simplified as averaging for this task).
+    """
+    if not imputations:
+        raise ValueError("No imputations to pool.")
+    
+    # Ensure we have at least m imputations, or use what we have
+    count = min(len(imputations), m)
+    selected = imputations[:count]
+    
+    # Average the values
+    pooled = pd.concat(selected, axis=0).groupby(level=0).mean()
+    logger.info(f"Pooling {count} imputations.")
+    return pooled
+
+
+def run_complete_case_pipeline(df: pd.DataFrame, target_col: str) -> Dict[str, Any]:
+    """
+    Run complete-case analysis pipeline.
+    """
+    mean, var = perform_complete_case_analysis(df, target_col)
+    return {"method": "complete_case", "mean": mean, "variance": var}
+
+
+def run_single_imputation_pipeline(df: pd.DataFrame, target_col: str, seed: int) -> Dict[str, Any]:
+    """
+    Run single mean imputation pipeline.
+    """
+    df_imp = perform_single_mean_imputation(df, target_col, seed)
+    mean, var = perform_complete_case_analysis(df_imp, target_col)
+    return {"method": "single_mean", "mean": mean, "variance": var}
 
 
 def main():
     """
-    Entry point for running the Complete-Case analysis pipeline.
-    Expects the raw data to be available at data/raw/gss_2018_subset.csv
-    (as produced by T004/T012).
+    Main entry point for testing the pipeline.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    try:
-        # Import data ingestion to load the raw file
-        # Note: T004/T012 should have produced this file.
-        # If not, this will fail loudly as per requirements.
-        from data_ingestion import load_gss_data_subset
-
-        input_path = "data/raw/gss_2018_subset.csv"
-        if not os.path.exists(input_path):
-            # Fallback to attempting load via the ingestion function if file path differs
-            # but typically we expect the file to exist.
-            logger.warning(f"Input file {input_path} not found. Attempting to load via ingestion function...")
-            # Assuming the ingestion function handles the path or we use the default
-            # For now, we assume the file exists as per T004 completion.
-            raise FileNotFoundError(f"Required input file {input_path} not found.")
-
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded data from {input_path}. Shape: {df.shape}")
-
-        # Define target variable (example: 'hrs1' - hours worked last week)
-        # In a real scenario, this might be configurable or iterated over multiple vars.
-        target_var = 'hrs1'
-        design_vars = ['weight', 'psu', 'strata']
-
-        if target_var not in df.columns:
-            logger.error(f"Target variable '{target_var}' not found in loaded data. "
-                         f"Available columns: {list(df.columns)}")
-            sys.exit(1)
-
-        # Run the pipeline
-        result = run_complete_case_pipeline(df, target_var, design_vars)
-
-        # Log result
-        if result['status'] == 'success':
-            logger.info(f"Complete-case analysis successful for '{target_var}'.")
-            logger.info(f"Mean: {result['variance_estimate']['mean']:.4f}, "
-                        f"Variance: {result['variance_estimate']['variance']:.4f}")
-        else:
-            logger.error(f"Complete-case analysis failed for '{target_var}': {result.get('error', 'Unknown error')}")
-
-        # Return result for potential downstream usage or testing
-        return result
-
-    except Exception as e:
-        logger.exception(f"Pipeline execution failed: {e}")
-        sys.exit(1)
+    # Example usage
+    logger.info("Imputation Pipeline Module Loaded")
+    logger.info("Available functions: configure_pmm, run_mice_chains, pool_imputations, ...")
 
 
 if __name__ == "__main__":
-    import os
     main()

@@ -1,161 +1,154 @@
 """
-Task T004b: Execute Data Fetch.
-Runs the fetcher defined in T004 to download the GSS 2018 subset,
-save it to data/raw/gss_2018_subset.csv, compute SHA-256 checksum,
-and record it in state/manifest.yaml.
+Data Fetcher Module.
+Handles downloading, converting, and validating survey data.
 """
 import os
 import sys
 import logging
 import hashlib
 import yaml
+import pandas as pd
 from pathlib import Path
-from typing import Dict, Any
+import requests
+import pyreadstat
 
-# Add project root to path to allow imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from data_ingestion import ingest_and_save
-from update_state import compute_file_hash, update_manifest
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Verified real data source for GSS 2018 subset
-# Using a known public subset from the Inter-university Consortium for Political and Social Research (ICPSR)
-# or a direct CSV export that includes design variables (weight, psu, strata).
-# Note: In a real CI/CD environment, this URL must be stable.
-# We use a representative subset URL that contains the required columns.
-GSS_2018_URL = "https://gss.norc.org/content/dam/gss/get-documentation/codebook/gss-codebook-2018.pdf"
-# Since direct CSV download from GSS often requires registration, we use a verified public mirror
-# or a synthetic-like real dataset structure if the direct URL is blocked.
-# However, per constraints, we must use REAL data.
-# We will use a verified public dataset hosted on a stable repository that mirrors GSS structure
-# specifically for this research pipeline, containing the required design columns.
-# Using a verified subset from a known academic repository:
-VERIFIED_GSS_CSV_URL = "https://raw.githubusercontent.com/llmXive/datasets/main/gss_2018_subset.csv"
+DESIGN_COLUMNS = ['weight', 'psu', 'strata']
 
-OUTPUT_PATH = project_root / "data" / "raw" / "gss_2018_subset.csv"
-MANIFEST_PATH = project_root / "state" / "manifest.yaml"
+def ensure_directories(path: Path):
+    """Ensure the directory for the given path exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def ensure_directories():
-    """Ensure output directories exist."""
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-def fetch_and_save_data():
-    """
-    Fetches the GSS 2018 subset from the verified URL and saves it.
-    Uses pandas to read the CSV and ensures design columns are present.
-    """
-    logger.info(f"Fetching data from: {VERIFIED_GSS_CSV_URL}")
-    logger.info(f"Saving to: {OUTPUT_PATH}")
-
-    # We use the existing ingest_and_save function from data_ingestion.py
-    # which is designed to handle URL fetching and validation.
-    # However, since ingest_and_save might expect a specific structure or logic,
-    # we will perform the fetch directly here to ensure we meet the T004b requirement
-    # of executing the fetcher and saving the specific file.
-    
-    # Fallback to a direct pandas read for the verified URL to ensure we get the file.
-    # The 'ingest_and_save' function in T004 is the fetcher logic.
-    # We call it, but if it expects arguments we need to pass them.
-    # Based on T004 description: "configurable, verified URL fetcher".
-    
-    try:
-        # Attempt to use the existing ingestion logic if it supports direct URL
-        # If not, we implement the fetch here to ensure the artifact is produced.
-        # The task requires us to "Run the fetcher defined in T004".
-        # We assume ingest_and_save takes a URL and output path.
-        # If the signature is different, we adapt.
-        # Given the API surface, ingest_and_save is the entry point.
-        # Let's assume it handles the URL.
-        
-        # Since we cannot guarantee the exact signature of ingest_and_save without seeing its code,
-        # and we must ensure the file is created, we will implement a robust fetch here
-        # that mimics the expected behavior of the T004 fetcher (checking columns).
-        
-        import pandas as pd
-        
-        # Read the CSV
-        df = pd.read_csv(VERIFIED_GSS_CSV_URL)
-        
-        # Verify design columns as per T004 requirement
-        required_cols = ['weight', 'psu', 'strata']
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        
-        if missing_cols:
-            raise ValueError(f"Missing required design columns: {missing_cols}. "
-                             f"Available columns: {df.columns.tolist()}")
-        
-        # Save to CSV
-        df.to_csv(OUTPUT_PATH, index=False)
-        logger.info(f"Data saved successfully to {OUTPUT_PATH}")
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to fetch or save data: {e}")
-        raise
-
-def compute_checksum(file_path: Path) -> str:
-    """Computes SHA-256 checksum of a file."""
+def compute_checksum(file_path: str) -> str:
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_manifest_with_checksum(file_path: Path, checksum: str):
-    """Updates state/manifest.yaml with the new artifact checksum."""
-    logger.info(f"Updating manifest at {MANIFEST_PATH} with checksum for {file_path.name}")
-    
-    # Load existing manifest or create new one
-    if MANIFEST_PATH.exists():
-        with open(MANIFEST_PATH, 'r') as f:
+def update_manifest_with_checksum(artifact_path: str, checksum: str, status: str, error: str = None):
+    """Update state/manifest.yaml with the artifact's checksum and status."""
+    manifest_path = Path("state/manifest.yaml")
+    ensure_directories(manifest_path)
+
+    if manifest_path.exists():
+        with open(manifest_path, 'r') as f:
             manifest = yaml.safe_load(f) or {}
     else:
-        manifest = {"artifact_hashes": {}}
-    
-    # Ensure artifact_hashes key exists
+        manifest = {"artifact_hashes": {}, "status": {}}
+
     if "artifact_hashes" not in manifest:
         manifest["artifact_hashes"] = {}
-    
-    # Update the hash for the specific file
-    manifest["artifact_hashes"][file_path.name] = checksum
-    
-    # Write back
-    with open(MANIFEST_PATH, 'w') as f:
+    if "status" not in manifest:
+        manifest["status"] = {}
+
+    manifest["artifact_hashes"][artifact_path] = checksum
+    manifest["status"][artifact_path] = {"status": status, "error": error}
+
+    with open(manifest_path, 'w') as f:
         yaml.dump(manifest, f, default_flow_style=False)
-    
-    logger.info(f"Manifest updated. Checksum: {checksum}")
+
+    logger.info(f"Manifest updated for {artifact_path}: status={status}, checksum={checksum}")
+
+def fetch_and_save_data(url: str, output_path: str, cache_dir: str, source_type: str):
+    """
+    Fetch data from URL, validate design columns, and save as CSV.
+    Implements logic:
+    1. Attempt URL download.
+    2. If failed, check cache.
+    3. If cache valid, use it.
+    4. If both fail, raise DataFetchError.
+    5. Validate design columns. Abort if missing.
+    """
+    cache_file = Path(cache_dir) / Path(url).name
+    output_file = Path(output_path)
+
+    # 1. Attempt URL download
+    data_df = None
+    source_used = "url"
+
+    if not cache_file.exists() or source_type == "gss": # Always try URL for GSS if not cached or forced
+        try:
+            logger.info(f"Attempting to download from {url}...")
+            if url.endswith('.dta'):
+                # Download to temp, then read
+                temp_path = cache_file.with_suffix('.tmp')
+                response = requests.get(url, stream=True)
+                response.raise_for_status()
+                with open(temp_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                data_df, _ = pyreadstat.read_dta(temp_path)
+                temp_path.unlink()
+            else:
+                # Assume CSV or similar readable by pandas directly if URL is accessible
+                data_df = pd.read_csv(url)
+            
+            # Save to cache if it's a local file we just downloaded
+            if source_type == "gss":
+                cache_file.parent.mkdir(parents=True, exist_ok=True)
+                # Save raw format to cache for potential reuse (dta)
+                # But we need to convert to CSV for the output
+                if url.endswith('.dta'):
+                    # Re-read from temp or use data_df
+                    pass 
+                data_df.to_csv(cache_file.with_suffix('.csv'), index=False)
+            
+            logger.info("Download successful.")
+        except Exception as e:
+            logger.warning(f"URL download failed: {e}. Checking cache...")
+            data_df = None
+            source_used = "cache"
+
+    # 2. Check cache if URL failed or data_df is None
+    if data_df is None:
+        cached_csv = Path(cache_dir) / (Path(url).stem + ".csv")
+        if cached_csv.exists():
+            logger.info(f"Loading from cache: {cached_csv}")
+            try:
+                data_df = pd.read_csv(cached_csv)
+                source_used = "cache"
+            except Exception as e:
+                logger.error(f"Cache read failed: {e}")
+                data_df = None
+        else:
+            raise RuntimeError(f"DataFetchError: Could not fetch from URL and no valid cache found at {cache_dir}")
+
+    if data_df is None:
+        raise RuntimeError("DataFetchError: Failed to load data from URL or cache.")
+
+    # 3. Validate Design Columns
+    missing_cols = [col for col in DESIGN_COLUMNS if col not in data_df.columns]
+    if missing_cols:
+        logger.error(f"ABORT: Missing required design columns: {missing_cols}")
+        # Log to manifest as failure
+        update_manifest_with_checksum(
+            artifact_path=output_path,
+            checksum="pending",
+            status="failed",
+            error=f"Missing design columns: {missing_cols}"
+        )
+        raise ValueError(f"Missing design columns: {missing_cols}. Analysis aborted for this variable.")
+
+    # 4. Save to output
+    logger.info(f"Saving processed data to {output_path}")
+    data_df.to_csv(output_path, index=False)
+
+    logger.info(f"Data fetch completed. Source: {source_used}")
 
 def main():
-    """Main entry point for T004b."""
-    logger.info("Starting T004b: Execute Data Fetch")
+    """CLI entry point for data fetcher."""
+    parser = argparse.ArgumentParser(description="Fetch and save survey data.")
+    parser.add_argument("--url", type=str, required=True)
+    parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--cache-dir", type=str, default="data/raw/cache")
+    parser.add_argument("--source", type=str, required=True)
     
-    try:
-        ensure_directories()
-        
-        # Fetch and save
-        fetch_and_save_data()
-        
-        # Compute checksum
-        checksum = compute_checksum(OUTPUT_PATH)
-        logger.info(f"SHA-256 checksum: {checksum}")
-        
-        # Update manifest
-        update_manifest_with_checksum(OUTPUT_PATH, checksum)
-        
-        logger.info("T004b completed successfully.")
-        return 0
-        
-    except Exception as e:
-        logger.error(f"T004b failed: {e}")
-        return 1
+    args = parser.parse_args()
+    fetch_and_save_data(args.url, args.output, args.cache_dir, args.source)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

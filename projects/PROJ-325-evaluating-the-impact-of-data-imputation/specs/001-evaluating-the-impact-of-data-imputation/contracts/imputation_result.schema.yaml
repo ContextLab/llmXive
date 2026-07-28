@@ -20,7 +20,7 @@ properties:
   convergence_r_hat:
     type: number
     minimum: 1.0
-    description: "R‑hat statistic. 1.0 if not applicable (CC/Single), < 1.05 if converged."
+    description: "R‑hat statistic. 1.0 if not applicable (CC/Single), < 1.05 if converged."
   status:
     type: string
     enum:
@@ -35,6 +35,10 @@ properties:
     type: number
     minimum: 0.0
     description: "Variance estimate after imputation (pooled if MICE)."
+  standard_error:
+    type: number
+    minimum: 0.0
+    description: "Standard error of the variance estimate."
   missingness_mechanism:
     type: string
     enum:
@@ -42,7 +46,35 @@ properties:
       - MAR
       - MNAR
       - Unknown
-    description: "The assumed missingness mechanism for this run (Constitution VII)."
+    description: "The assumed missingness mechanism for this run (Constitution VII)."
+  convergence_diagnostics:
+    type: object
+    description: "Detailed convergence diagnostics for MICE runs."
+    properties:
+      r_hat_max:
+        type: number
+        description: "Maximum R-hat across all parameters."
+      iterations_burned:
+        type: integer
+        description: "Number of iterations discarded as burn-in."
+      iterations_kept:
+        type: integer
+        description: "Number of iterations retained for pooling."
+      chain_convergence_status:
+        type: array
+        items:
+          type: object
+          properties:
+            chain_id:
+              type: integer
+            converged:
+              type: boolean
+            r_hat:
+              type: number
+    required:
+      - r_hat_max
+      - iterations_burned
+      - iterations_kept
 required:
   - method
   - n_imputations

@@ -1,6 +1,12 @@
 $schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/evaluating-imputation-impact/dataset.schema.yaml
 title: "SurveyDatasetSchema"
-description: "Schema for ingested survey data with design variables."
+description: |
+  Schema for ingested survey data with design variables.
+  Defines the structure for metadata associated with survey datasets
+  used in variance estimation and imputation impact analysis.
+  Includes fields for true population parameters and missingness mechanisms
+  when available (e.g., from synthetic generation).
 type: object
 properties:
   id:
@@ -36,7 +42,22 @@ properties:
     description: "SHA‑256 checksum of the raw file."
   psu_cluster_warning:
     type: boolean
-    description: "True if any PSU has size = 1 (triggers warning in Task T009b)."
+    description: "True if any PSU has size = 1 (triggers warning in Task T009b)."
+  # Fields added per T006a requirement for ground truth in synthetic scenarios
+  true_mean:
+    type: ["number", "null"]
+    description: "The known super-population mean (available for synthetic data)."
+  true_variance:
+    type: ["number", "null"]
+    description: "The known super-population variance (available for synthetic data)."
+  missingness_mechanism:
+    type: ["string", "null"]
+    enum:
+      - MCAR
+      - MAR
+      - MNAR
+      - null
+    description: "The mechanism generating missingness (MCAR, MAR, MNAR)."
 required:
   - id
   - source_url

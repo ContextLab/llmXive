@@ -6,3 +6,5 @@ statsmodels
 pyyaml
 pytest
 miceforest
+requests
+pyreadstat

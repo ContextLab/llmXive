@@ -33,10 +33,18 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Holm‑Bonferroni‑adjusted p‑value."
+  reference_value:
+    type: number
+    description: "The reference value used for bias calculation (e.g., true mean or design mean)."
+  bias_percentage:
+    type: number
+    description: "Percentage bias relative to the reference value."
 required:
   - method
   - estimated_variance
   - benchmark_variance
   - percentage_bias
   - is_pass_sc002
+  - reference_value
+  - bias_percentage
 additionalProperties: false

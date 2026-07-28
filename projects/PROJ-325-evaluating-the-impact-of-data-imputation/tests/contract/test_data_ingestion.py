@@ -1,8 +1,8 @@
 """
-Contract test for data ingestion schema (T010).
+Contract test for data ingestion schema (T014).
 
 Verifies that the output of `code/data_ingestion.py` conforms to the
-schema defined in `specs/contracts/dataset.schema.yaml`.
+schema defined in `specs/001-evaluating-imputation-impact/contracts/dataset.schema.yaml`.
 
 This test ensures:
 1. The required columns (weight, psu, strata, and target variable) exist.
@@ -22,8 +22,8 @@ sys.path.insert(0, str(project_root))
 
 from data_ingestion import load_gss_data_subset, ensure_design_columns
 
-# Path constants
-SCHEMA_PATH = project_root / "specs" / "contracts" / "dataset.schema.yaml"
+# Path constants - Updated to match project structure in tasks.md
+SCHEMA_PATH = project_root / "specs" / "001-evaluating-imputation-impact" / "contracts" / "dataset.schema.yaml"
 RAW_DATA_PATH = project_root / "data" / "raw" / "gss_2018_subset.csv"
 
 @pytest.fixture(scope="module")
@@ -118,7 +118,7 @@ def test_column_types_match_schema(schema, data):
         
         expected_type = col_spec.get("type")
         actual_dtype = data[col_name].dtype
-          
+        
         # Map schema types to pandas dtypes
         type_map = {
             "integer": ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"],

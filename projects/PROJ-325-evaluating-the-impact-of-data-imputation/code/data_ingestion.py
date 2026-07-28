@@ -1,81 +1,71 @@
+"""
+Data Ingestion Utilities.
+Handles loading, validation, and missingness detection.
+"""
 import os
 import sys
 import logging
+import hashlib
 import pandas as pd
 import numpy as np
-from pathlib import Path
+from typing import List
 
-def load_gss_data_subset(url: str, output_path: str) -> None:
-    """Downloads GSS data from a URL and saves it to a CSV file.
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    Args:
-        url (str): The URL of the GSS data.
-        output_path (str): The path to save the downloaded data.
-    """
-    try:
-        df = pd.read_csv(url)
-        df.to_csv(output_path, index=False)
-        logging.info(f"Successfully downloaded and saved GSS data to {output_path}")
-    except Exception as e:
-        logging.error(f"Error downloading or saving GSS data: {e}")
-        raise
-
-def ensure_design_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Checks for the presence of 'weight', 'psu', and 'strata' columns in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        pd.DataFrame: The DataFrame if all required columns are present.  Raises an error otherwise.
-    """
-    required_columns = ['weight', 'psu', 'strata']
-    missing_columns = [col for col in required_columns if col not in df.columns]
-
-    if missing_columns:
-        raise ValueError(f"Required columns are missing: {missing_columns}")
-
+def load_gss_data_subset(file_path: str) -> pd.DataFrame:
+    """Load GSS data from a CSV file."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded {len(df)} rows from {file_path}")
     return df
 
+def ensure_design_columns(df: pd.DataFrame) -> bool:
+    """Check for presence of design columns. Returns True if all present."""
+    required = ['weight', 'psu', 'strata']
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        logger.error(f"Missing design columns: {missing}")
+        return False
+    return True
+
 def detect_missingness(df: pd.DataFrame, threshold: float = 0.3) -> List[str]:
-    """Detects variables with a high percentage of missing values.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame.
-        threshold (float): The maximum allowed proportion of missing values.
-
-    Returns:
-        List[str]: A list of variable names with more than the threshold of missing values.
     """
-    missing_variables = []
-    for col in df.columns:
-        if df[col].isnull().sum() / len(df) > threshold:
-            missing_variables.append(col)
-    return missing_variables
+    Detect variables with missingness above the threshold.
+    Returns a list of variable names exceeding the threshold.
+    """
+    missing_rates = df.isnull().mean()
+    high_missing = missing_rates[missing_rates > threshold].index.tolist()
+    if high_missing:
+        logger.warning(f"Variables with >{threshold*100}% missingness: {high_missing}")
+    return high_missing
 
-def ingest_and_save(url: str, output_path: str) -> None:
-    """Downloads data, ensures required columns exist, and saves the data to a file."""
-    try:
-        df = load_gss_data_subset(url, output_path)
-        df = ensure_design_columns(df)
-        logging.info("Data ingestion successful.")
+def ingest_and_save(source_url: str, output_path: str, cache_dir: str):
+    """
+    Wrapper to fetch and save data, ensuring design columns.
+    Delegates to data_fetcher logic but ensures the specific output path is used.
+    """
+    from data_fetcher import fetch_and_save_data
+    fetch_and_save_data(source_url, output_path, cache_dir, "gss")
 
-    except Exception as e:
-        logging.error(f"Data ingestion failed: {e}")
-        raise
+def compute_checksum(file_path: str) -> str:
+    """Compute SHA-256 checksum."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def main():
-    """Main function to run the data ingestion process."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    gss_url = "https://raw.githubusercontent.com/gdellavedova/llmXive/main/data/raw/gss2018_subset.csv" # Replace with the actual URL
-    output_path = "data/raw/gss_2018_subset.csv"
-
-    try:
-        ingest_and_save(gss_url, output_path)
-    except Exception as e:
-        logging.error(f"Data ingestion failed: {e}")
-        sys.exit(1)  # Exit with an error code
-
+    """CLI for ingestion."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Ingest GSS data.")
+    parser.add_argument("--url", type=str, required=True)
+    parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--cache", type=str, default="data/raw/cache")
+    args = parser.parse_args()
+    ingest_and_save(args.url, args.output, args.cache)
 
 if __name__ == "__main__":
     main()

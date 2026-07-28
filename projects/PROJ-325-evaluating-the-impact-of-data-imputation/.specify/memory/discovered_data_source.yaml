@@ -1,11 +1,11 @@
 status: none
-intent: download General Social Survey 2018 dataset with weights strata PSU python
-  package dataset
+intent: download GSS 2018 and ACS Income survey design variables weights strata PSU
+  python package dataset
 required_fields:
-- design_weight (e.g., wtss)
-- strata identifier (e.g., strata)
-- primary_sampling_unit (psu or cluster)
-- analysis variable for mean/proportion (e.g., income, age, education)
-cache_key: 7ee4ecfb376b0654eb0fa75e16516a6a696fd0f08b23c04baf6d046a4c919add
-searched_at: '2026-07-28T04:20:58.676356+00:00'
+- weight
+- strata
+- psu
+- target_variable
+cache_key: 48f1bd5d2160d35d017f11b89149a00a75b13c7416313d3e2e286cb4684b4627
+searched_at: '2026-07-28T21:32:46.225642+00:00'
 retry_count: 1
