@@ -167,12 +167,23 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     transitioned them", not "these are now reconciled". Two concurrent identical reconciles
     no longer both claim the same work.
 
+## Carried forward to whichever slice owns lifecycle reconciliation
+
+Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
+its timeout with `reconcile_timeout_s()` from the SAME `deadline_s` + `retries` the lane
+call uses.** Neither 1A nor 1B owns lifecycle reconciliation, so this is not a blocker for
+either — but a timeout chosen independently of the real call configuration cannot support
+"never before it could have finished", and it silently stops holding if the lane's deadline
+later changes. Stated on `reconcile_unknown`'s docstring, which is where an integrator will
+land.
+
 ## Next step
 
-Slice 1A is complete (14/14 tasks) and round-9 reviewed: one blocker (terminal-disposition
-race) + two correctness gaps (Attempt scoping, timeout validation) fixed, plus the deeper
-storage-key scoping bug those fixes exposed. 1B's plan is
-`docs/superpowers/plans/2026-07-25-025-slice1b-proposal-convergence.md` (10 tasks).
+**Slice 1A is SIGNED OFF** (maintainer, 2026-07-27): 14/14 tasks, round-9 clean, "no
+remaining correctness findings — the substrate is ready for Slice 1B".
+
+Now executing 1B: `docs/superpowers/plans/2026-07-25-025-slice1b-proposal-convergence.md`
+(10 tasks). Task 1 = the `ReviewRerouted` event type.
 
 **Do not re-commit `notes/2026-07-15-issue-1139-audit-T+7min.md`.** It is unrelated user
 work that was untracked at session start; `8097c5b183` swept it in and `git rm --cached`

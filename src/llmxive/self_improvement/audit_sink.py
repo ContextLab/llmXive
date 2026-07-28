@@ -276,6 +276,13 @@ def reconcile_unknown(repo: Path, *, problem_id: str, attempt_id: str, actor: st
     in which a dispatch is marked unknown but its credits were quietly released — the state
     where one exists without the other is unreachable, not merely unlikely.
 
+    **Production callers MUST derive ``timeout_s`` with :func:`reconcile_timeout_s`, using
+    the SAME ``deadline_s`` and ``retries`` the lane's calls actually run under.** A number
+    chosen independently of that configuration cannot support the "never before it could
+    have finished" guarantee, however large it looks; if the lane's deadline later changes
+    and the timeout does not, the guarantee silently stops holding. No slice through 1B
+    owns lifecycle reconciliation, so whichever one does inherits this obligation.
+
     Idempotent: a byte-identical re-append is a no-op, and a second run finds nothing
     dangling.
 
