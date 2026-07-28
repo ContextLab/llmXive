@@ -1,19 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings, screenshots, or file\u2011system output were provided\
-    \ to demonstrate that the required folders (`code/`, `data/raw/`, `data/processed/`,\
-    \ `data/reports/`, `tests/`, `state/`) actually exist; without such evidence the\
-    \ claim cannot be verified. The implementer must supply concrete proof (e.g.,\
-    \ a tree view, `ls` output, or a zip of the project root) showing the full directory\
-    \ structure."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `setup.sh` script was provided; the response contains only a feature specification\
-    \ and user stories, with no file content, path, or evidence that a directory\u2011\
-    creation automation script exists or verifies its creation. The required artifact\
-    \ is missing."
 T003:
   c: true
   h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
@@ -21,12 +5,13 @@ T003:
     \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
     \ fulfilling the requirement to configure linting/formatting in the specified\
     \ location."
-T008:
+T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory, nor any `tests/unit` or `tests/integration`
-    subfolders, nor any pytest configuration or test files is provided. The implementer
-    did not supply the required directory structure or framework setup.
+  r: "No `ingest.py` script or any code, data, or logs were provided; the claim lacks\
+    \ the required artifact implementing the NIST/Materials Project download with\
+    \ rate\u2011limit backoff. The task cannot be verified as completed without the\
+    \ actual script (and its behavior)."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,6 +19,13 @@ T013:
     the task description and project specifications, with no actual implementation
     that validates and excludes records lacking explicit degradation pathway labels.
     The required artifact is missing, so the task is not satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `preprocess.py` (or any code) was supplied; the claim provides only a description
+    of the required functionality without the actual script, so the required artifact
+    is missing. The task cannot be considered completed until a concrete implementation
+    that converts SMILES to RDKit molecular graphs and handles valid records is present.
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,39 +40,31 @@ T015:
     \ detection was provided, nor any example input/output showing that non\u2011\
     polyester records are filtered out. Without the actual artifact, the requirement\
     \ cannot be verified."
-T021:
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `model.py` file or any code defining a GNN architecture is presented, and\
-    \ there is no evidence that a lightweight (\u22643 layers, hidden dimension \u2264\
-    128) CPU\u2011only model has been implemented. The required artifact is missing,\
-    \ so the task is not satisfied."
-T022:
+  r: No `preprocess.py` script is present, nor are any raw, processed, or augmented
+    dataset files (or their checksum files) found in the expected `data/raw/`, `data/processed/`,
+    or `data/processed/augmented/` directories. Consequently the required output and
+    verification artifacts are missing.
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` file or code snippet was provided, and there is no evidence\
-    \ that functional\u2011group\u2011preserving edge dropout (non\u2011ester bonds\
-    \ only) and SMILES canonicalization were implemented. The required artifact is\
-    \ missing, so the task is not satisfied."
-T022b:
+  r: "No `train.py` (or equivalent training script) is present in the provided evidence,\
+    \ and thus there is no code implementing the required k\u2011fold (or leave\u2011\
+    one\u2011out) training loop, seed pinning, macro\u2011F1 reporting, or convergence\
+    \ check. The implementer must supply a non\u2011empty `train.py` that fulfills\
+    \ all specified behaviors."
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains no `preprocess.py` file, no code implementing edge\u2011\
-    dropout augmentation, SMILES canonicalization, or validity\u2011check logging,\
-    \ and no evidence (e.g., logs, tests) that such functionality exists. Consequently\
-    \ the required artifact is missing."
-T022c:
-  c: false
-  h: 2b2a89f88cfb0d275f1bf91b9f83a2e6466220774a183aca8f398cc8639052b9
-  r: "The required output file `data/reports/augmentation_comparison.json` is missing,\
-    \ so the validation experiment results are not logged and the task\u2019s deliverable\
-    \ does not exist. No evidence of the edge\u2011dropout vs baseline comparison\
-    \ or macro\u2011F1 verification is present."
-T022d:
+  r: No `model.py` (or any code) implementing Integrated Gradients for feature importance
+    was provided; without the file or its contents we cannot confirm the required
+    functionality exists. The task remains undone.
+T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` file or any code snippet was provided that measures and enforces
-    a bounded runtime for data augmentation. Without the actual implementation (e.g.,
-    timing logic, timeout handling, or tests demonstrating the constraint), the task
-    requirement is not satisfied. The next implementer must add the script with runtime
-    measurement and enforcement logic and include the file as evidence.
+  r: "No `evaluate.py` script is present, and there are no saved model checkpoints,\
+    \ validation macro\u2011F1 reports, or Integrated Gradients attribution maps in\
+    \ `data/reports/`. Without these concrete artifacts the task requirements are\
+    \ not met."

@@ -85,7 +85,7 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The prediction performance of the GNN model is measured against the held-out test set and mean cross-validation folds to verify the macro-F1 score target (See US-2).
+- **SC-001**: The prediction performance of the GNN model is measured against the held-out test set and mean cross-validation folds to verify the macro-F score target (See US-2).
 - **SC-002**: The statistical significance of the structure-mechanism relationship is measured against a permuted null distribution using the permutation test (See US-3).
 - **SC-003**: The computational feasibility is measured against the free-tier CI runner constraints (≤6h runtime, ~7GB RAM, CPU-only) to ensure the analysis completes successfully (See US-2).
 - **SC-004**: The data coverage is measured against a target of sufficient polymer degradation instances.; if <150, a power analysis warning is triggered (See US-3).

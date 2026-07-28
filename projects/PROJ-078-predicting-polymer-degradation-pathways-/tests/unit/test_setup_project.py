@@ -1,78 +1,99 @@
+"""
+Unit tests for the project setup module (setup_project.py).
+Verifies T001a implementation.
+"""
 import os
-import shutil
 import tempfile
 import pytest
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Import the function to test
-# We assume the test runner adds 'code' to sys.path or we import relatively if structure allows
-# Given the task context, we import from the module file directly
+# Import the module under test
+# Note: We assume the test runner adds 'code' to sys.path or we run from the root
 import sys
-from pathlib import Path
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-# Ensure the code directory is in the path
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+from setup_project import create_directories, verify_directories, REQUIRED_DIRS
+from utils import setup_logging
 
-from setup_project import create_directories
-
+# Setup logging for tests
+setup_logging(level="DEBUG")
 
 class TestCreateDirectories:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Create a temporary directory for testing and clean up after."""
-        self.original_cwd = os.getcwd()
-        self.temp_dir = tempfile.mkdtemp()
-        os.chdir(self.temp_dir)
-        yield
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
-
-    def test_creates_all_required_directories(self):
+    def test_creates_all_required_directories(self, tmp_path):
         """Test that all required directories are created."""
-        required_dirs = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/reports",
-            "tests",
-            "state"
-        ]
+        # Act
+        created = create_directories(base_path=tmp_path)
         
-        result = create_directories()
-        
-        for dir_name in required_dirs:
-            assert dir_name in result, f"Directory {dir_name} not in result keys"
-            full_path = Path(self.temp_dir) / dir_name
-            assert full_path.exists(), f"Directory {full_path} was not created"
-            assert full_path.is_dir(), f"{full_path} exists but is not a directory"
+        # Assert
+        assert len(created) == len(REQUIRED_DIRS)
+        for dir_name in REQUIRED_DIRS:
+            assert (tmp_path / dir_name).exists()
+            assert (tmp_path / dir_name).is_dir()
 
-    def test_nested_directories_created(self):
-        """Test that nested directories like data/raw are created correctly."""
-        result = create_directories()
+    def test_skips_existing_directories(self, tmp_path):
+        """Test that existing directories are not recreated."""
+        # Arrange: Pre-create one directory
+        existing_dir = tmp_path / "code"
+        existing_dir.mkdir()
         
-        # Check nested paths
-        nested_paths = ["data/raw", "data/processed", "data/reports"]
-        for path_str in nested_paths:
-            full_path = Path(self.temp_dir) / path_str
-            assert full_path.exists(), f"Nested directory {full_path} was not created"
+        # Act
+        created = create_directories(base_path=tmp_path)
+        
+        # Assert: Only the new ones should be in the returned list
+        # (The implementation logs but doesn't add to 'created' if it exists)
+        assert len(created) == len(REQUIRED_DIRS) - 1
+        assert existing_dir not in created
 
-    def test_idempotent(self):
-        """Test that running the function twice does not raise errors."""
-        # First run
-        create_directories()
+    def test_handles_nested_directories(self, tmp_path):
+        """Test that nested directories (e.g., data/raw) are created correctly."""
+        # Act
+        created = create_directories(base_path=tmp_path)
         
-        # Second run
-        try:
-            result = create_directories()
-            assert True  # If no exception, it's idempotent
-        except Exception as e:
-            pytest.fail(f"Function raised exception on second run: {e}")
+        # Assert
+        nested_path = tmp_path / "data" / "raw"
+        assert nested_path.exists()
+        assert nested_path.is_dir()
 
-    def test_returns_absolute_paths(self):
-        """Test that the returned dictionary contains absolute paths."""
-        result = create_directories()
+    def test_raises_on_permission_error(self, tmp_path):
+        """Test that an error is raised if directory creation fails."""
+        # Mock the mkdir to raise an OSError
+        with patch('pathlib.Path.mkdir', side_effect=OSError("Permission denied")):
+            with pytest.raises(OSError):
+                create_directories(base_path=tmp_path)
+
+class TestVerifyDirectories:
+    def test_returns_true_when_all_exist(self, tmp_path):
+        """Test that verify returns True when all directories exist."""
+        # Arrange: Create all directories
+        create_directories(base_path=tmp_path)
         
-        for path_str in result.values():
-            assert os.path.isabs(path_str), f"Path {path_str} is not absolute"
+        # Act
+        result = verify_directories(base_path=tmp_path)
+        
+        # Assert
+        assert result is True
+
+    def test_returns_false_when_missing(self, tmp_path):
+        """Test that verify returns False when a directory is missing."""
+        # Arrange: Create only some directories
+        (tmp_path / "code").mkdir()
+        
+        # Act
+        result = verify_directories(base_path=tmp_path)
+        
+        # Assert
+        assert result is False
+
+    def test_returns_false_when_file_instead_of_dir(self, tmp_path):
+        """Test that verify returns False if a path exists but is a file."""
+        # Arrange: Create a file instead of a directory
+        file_path = tmp_path / "code"
+        file_path.touch()
+        
+        # Act
+        result = verify_directories(base_path=tmp_path)
+        
+        # Assert
+        assert result is False

@@ -1,34 +1,39 @@
+"""
+Integration test for the full project setup workflow.
+Verifies that the directory structure is created and valid for subsequent tasks.
+"""
 import os
-import shutil
+import sys
 import tempfile
 import pytest
 from pathlib import Path
-import sys
 
-# Ensure code directory is in path
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from setup_project import create_directories
+from setup_project import create_directories, verify_directories
+from utils import setup_logging
 
+setup_logging(level="INFO")
 
 class TestSetupIntegration:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        self.original_cwd = os.getcwd()
-        self.temp_dir = tempfile.mkdtemp()
-        os.chdir(self.temp_dir)
-        yield
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
-
-    def test_full_directory_structure_persists(self):
-        """Integration test: Verify directory structure persists after function call."""
-        create_directories()
+    def test_full_setup_workflow(self, tmp_path):
+        """
+        Integration test: Run the full setup workflow and verify the structure.
+        This simulates the actual execution of T001a.
+        """
+        # Act: Create directories
+        created = create_directories(base_path=tmp_path)
         
-        # Re-verify existence after function returns
-        expected_dirs = [
+        # Assert: Creation phase
+        assert len(created) > 0, "Directories should have been created"
+        
+        # Assert: Verification phase
+        is_valid = verify_directories(base_path=tmp_path)
+        assert is_valid, "All directories should exist after creation"
+        
+        # Assert: Specific required paths exist
+        required_paths = [
             "code",
             "data/raw",
             "data/processed",
@@ -37,21 +42,26 @@ class TestSetupIntegration:
             "state"
         ]
         
-        for dir_name in expected_dirs:
-            path = Path(self.temp_dir) / dir_name
-            assert path.exists() and path.is_dir()
+        for path_str in required_paths:
+            full_path = tmp_path / path_str
+            assert full_path.exists(), f"Missing path: {full_path}"
+            assert full_path.is_dir(), f"Path is not a directory: {full_path}"
 
-    def test_writing_to_created_directories(self):
-        """Integration test: Verify we can write files to the created directories."""
-        create_directories()
+    def test_setup_allows_subsequent_file_writing(self, tmp_path):
+        """
+        Integration test: Ensure the created structure allows writing files.
+        This validates that the directories are writable and correctly configured.
+        """
+        # Setup
+        create_directories(base_path=tmp_path)
         
-        # Try writing a dummy file to data/raw
-        raw_file = Path(self.temp_dir) / "data" / "raw" / "test_file.txt"
+        # Act: Try to write a test file into data/processed
+        test_file = tmp_path / "data" / "processed" / "test_write.txt"
         try:
-            with open(raw_file, 'w') as f:
-                f.write("test content")
-            assert raw_file.exists()
-            assert raw_file.read_text() == "test content"
-        finally:
-            if raw_file.exists():
-                raw_file.unlink()
+            with open(test_file, 'w') as f:
+                f.write("Test content")
+            # Assert
+            assert test_file.exists(), "Test file should be writable"
+            assert test_file.read_text() == "Test content"
+        except Exception as e:
+            pytest.fail(f"Failed to write to created directory structure: {e}")

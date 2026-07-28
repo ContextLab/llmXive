@@ -1,97 +1,96 @@
 """
-Project setup utilities for llmXive research-implementer.
-Creates the required directory structure for the polymer degradation project.
+Project Directory Structure Setup Script.
+Creates the required directory tree for the llmXive automated science pipeline.
 """
 import os
 import sys
 from pathlib import Path
 from typing import List, Optional
+from utils import get_logger
 
-def create_directories(root_dir: Optional[Path] = None) -> List[str]:
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS: List[str] = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "data/reports",
+    "tests",
+    "state",
+]
+
+def create_directories(base_path: Optional[Path] = None) -> List[Path]:
     """
-    Create the standard project directory structure.
+    Create the required directory structure.
     
     Args:
-        root_dir: Base directory for the project. Defaults to current working directory.
+        base_path: The root path for the project. Defaults to the current working directory.
         
     Returns:
-        List of created directory paths.
+        A list of created Path objects.
     """
-    if root_dir is None:
-        root_dir = Path.cwd()
+    if base_path is None:
+        base_path = Path.cwd()
     
-    # Define required directories relative to root
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/reports",
-        "tests",
-        "state"
-    ]
+    created_dirs: List[Path] = []
+    logger = get_logger(__name__)
     
-    created_paths = []
-    
-    for dir_path in required_dirs:
-        full_path = root_dir / dir_path
+    for dir_path_str in REQUIRED_DIRS:
+        full_path = base_path / dir_path_str
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
-            print(f"Created directory: {full_path}")
+            logger.info(f"Created directory: {full_path}")
+            created_dirs.append(full_path)
         else:
-            print(f"Directory already exists: {full_path}")
-            created_paths.append(str(full_path))
-    
-    return created_paths
+            logger.debug(f"Directory already exists: {full_path}")
+            
+    return created_dirs
 
-def verify_directories(root_dir: Optional[Path] = None) -> bool:
+def verify_directories(base_path: Optional[Path] = None) -> bool:
     """
     Verify that all required directories exist.
     
     Args:
-        root_dir: Base directory for the project. Defaults to current working directory.
+        base_path: The root path for the project.
         
     Returns:
         True if all directories exist, False otherwise.
     """
-    if root_dir is None:
-        root_dir = Path.cwd()
+    if base_path is None:
+        base_path = Path.cwd()
     
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/reports",
-        "tests",
-        "state"
-    ]
-    
+    logger = get_logger(__name__)
     all_exist = True
-    for dir_path in required_dirs:
-        full_path = root_dir / dir_path
-        if not full_path.exists() or not full_path.is_dir():
-            print(f"Missing or invalid directory: {full_path}")
-            all_exist = False
-        else:
-            print(f"Verified: {full_path}")
     
+    for dir_path_str in REQUIRED_DIRS:
+        full_path = base_path / dir_path_str
+        if not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+            
+    if all_exist:
+        logger.info("All required directories verified.")
+    else:
+        logger.warning("Some required directories are missing.")
+        
     return all_exist
 
-if __name__ == "__main__":
-    import argparse
+def main():
+    """Main entry point for the setup script."""
+    logger = get_logger(__name__)
+    logger.info("Starting project directory setup...")
     
-    parser = argparse.ArgumentParser(description="Setup project directory structure")
-    parser.add_argument("--root", type=str, default=None, help="Root directory for project")
-    parser.add_argument("--verify", action="store_true", help="Only verify directories exist")
-    
-    args = parser.parse_args()
-    
-    root_path = Path(args.root) if args.root else None
-    
-    if args.verify:
-        success = verify_directories(root_path)
-        sys.exit(0 if success else 1)
+    created = create_directories()
+    if created:
+        logger.info(f"Successfully created {len(created)} directories.")
     else:
-        created = create_directories(root_path)
-        print(f"\nSetup complete. Created {len(created)} directories.")
-        sys.exit(0)
+        logger.info("No new directories created (all already exist).")
+        
+    if verify_directories():
+        logger.info("Project structure setup complete.")
+        return 0
+    else:
+        logger.error("Project structure setup failed verification.")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

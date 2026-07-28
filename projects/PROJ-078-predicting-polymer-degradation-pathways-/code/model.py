@@ -5,241 +5,257 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool
 from torch_geometric.data import Batch
-from typing import Optional, Dict, Any, Tuple, List
+from typing import List, Optional, Dict, Any, Tuple
 import numpy as np
+import logging
+import os
+from pathlib import Path
 
-# Import existing data models if needed for type hinting, though not strictly required for the model class itself
-# from data_models import MolecularGraph 
+from utils import get_logger, get_project_paths
+from data_models import PolymerRecord, MolecularGraph
+
+logger = get_logger(__name__)
 
 class PolymerGNN(nn.Module):
     """
-    Lightweight Graph Neural Network for Polymer Degradation Pathway Prediction.
-    
-    Constraints:
-    - Max 3 layers (including input and output layers)
-    - Hidden dimension <= 128
-    - CPU-only design (no CUDA-specific optimizations enforced here, but compatible)
-    
-    Architecture:
-    - Input Layer: Maps node features to hidden_dim
-    - 1-2 GCN Convolutional Layers (configurable, max 2 conv layers to keep total depth <= 3)
-    - Global Mean Pooling
-    - Output Layer: Maps hidden_dim to num_classes
+    Lightweight Graph Neural Network for polymer degradation prediction.
+    Constraints: <= 3 layers, hidden_dim <= 128, CPU-only.
     """
-    
-    def __init__(
-        self,
-        input_dim: int,
-        hidden_dim: int = 128,
-        num_classes: int = 3,
-        num_layers: int = 2,
-        dropout: float = 0.1
-    ):
-        super(PolymerGNN, self).__init__()
-        
-        # Constraint Validation
-        if num_layers > 2:
-            raise ValueError(f"Number of convolutional layers must be <= 2 (total depth <= 3). Got {num_layers}.")
-        if hidden_dim > 128:
-            raise ValueError(f"Hidden dimension must be <= 128. Got {hidden_dim}.")
-        
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
-        self.num_classes = num_classes
+    def __init__(self, node_dim: int, edge_dim: int, hidden_dim: int = 128, num_layers: int = 3, num_classes: int = 3):
+        super().__init__()
         self.num_layers = num_layers
-        self.dropout = dropout
-        
+        self.hidden_dim = hidden_dim
+
         # Input projection
-        self.conv1 = GCNConv(input_dim, hidden_dim)
-        
-        # Additional convolutional layers
+        self.lin_in = nn.Linear(node_dim, hidden_dim)
+        if edge_dim > 0:
+            self.lin_edge = nn.Linear(edge_dim, hidden_dim)
+
+        # GCN layers
         self.convs = nn.ModuleList()
-        for _ in range(num_layers - 1):
-            self.convs.append(GCNConv(hidden_dim, hidden_dim))
-        
-        # Output projection
-        self.fc_out = nn.Linear(hidden_dim, num_classes)
-        
-        # BatchNorm for stability
-        self.bn1 = nn.BatchNorm1d(hidden_dim)
-        self.bns = nn.ModuleList([nn.BatchNorm1d(hidden_dim) for _ in range(num_layers - 1)])
+        for i in range(num_layers):
+            in_dim = hidden_dim if i > 0 else hidden_dim
+            out_dim = hidden_dim
+            conv = GCNConv(in_dim, out_dim)
+            self.convs.append(conv)
 
-    def forward(self, data: Batch) -> torch.Tensor:
-        """
-        Forward pass for a batch of graphs.
-        
-        Args:
-            data: torch_geometric.data.Batch object containing:
-                  - x: Node features [num_nodes, input_dim]
-                  - edge_index: Edge connectivity [2, num_edges]
-                  - batch: Batch vector [num_nodes] mapping nodes to graphs
-        
-        Returns:
-            Logits tensor [num_graphs, num_classes]
-        """
-        x, edge_index, batch = data.x, data.edge_index, data.batch
-        
-        # First layer
-        x = self.conv1(x, edge_index)
-        x = self.bn1(x)
-        x = F.relu(x)
-        x = F.dropout(x, p=self.dropout, training=self.training)
-        
-        # Subsequent layers
-        for conv, bn in zip(self.convs, self.bns):
-            x = conv(x, edge_index)
-            x = bn(x)
-            x = F.relu(x)
-            x = F.dropout(x, p=self.dropout, training=self.training)
-        
-        # Global pooling
-        x = global_mean_pool(x, batch)
-        
         # Output layer
-        x = self.fc_out(x)
-        
-        return x
+        self.lin_out = nn.Linear(hidden_dim, num_classes)
 
+        # Batch norm and dropout for stability
+        self.bns = nn.ModuleList([nn.BatchNorm1d(hidden_dim) for _ in range(num_layers)])
+        self.dropout = nn.Dropout(0.1)
+
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, edge_attr: Optional[torch.Tensor] = None,
+                batch: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """
+        Forward pass.
+        Args:
+            x: Node features [N, node_dim]
+            edge_index: Edge indices [2, E]
+            edge_attr: Edge features [E, edge_dim] (optional)
+            batch: Batch vector for pooling [N] (optional)
+        Returns:
+            logits: [B, num_classes] if batch provided, else [N, num_classes]
+        """
+        x = self.lin_in(x)
+        
+        # Handle edge features if present
+        if edge_attr is not None and hasattr(self, 'lin_edge'):
+            edge_attr = self.lin_edge(edge_attr)
+
+        for i, conv in enumerate(self.convs):
+            x = conv(x, edge_index)
+            if edge_attr is not None and i == 0:
+                # Simple edge feature aggregation could go here if needed
+                pass
+            
+            x = self.bns[i](x)
+            x = F.relu(x)
+            x = self.dropout(x)
+
+        if batch is not None:
+            x = global_mean_pool(x, batch)
+
+        x = self.lin_out(x)
+        return x
 
 class IntegratedGradients:
     """
-    Integrated Gradients implementation for feature attribution.
-    
-    Computes the contribution of each node feature to the model's prediction
-    by integrating gradients along a path from a baseline to the input.
+    Computes Integrated Gradients feature attributions for a PolymerGNN model.
+    Implements the formula: IG_i(x) = (x_i - x'_i) * integral_alpha=0^1 [
+        dF(x' + alpha * (x - x')) / dx_i ] d_alpha
     """
-    
-    def __init__(self, model: PolymerGNN, device: torch.device = None):
+    def __init__(self, model: PolymerGNN, n_steps: int = 50, baseline: Optional[torch.Tensor] = None):
+        """
+        Args:
+            model: The trained PolymerGNN model.
+            n_steps: Number of integration steps (higher = more accurate, slower).
+            baseline: Baseline input tensor. If None, zeros are used.
+        """
         self.model = model
-        self.device = device if device else torch.device('cpu')
-        self.model.to(self.device)
+        self.n_steps = n_steps
+        self.baseline = baseline
         self.model.eval()
 
-    def compute(
-        self,
-        data: Batch,
-        baseline: Optional[torch.Tensor] = None,
-        steps: int = 50,
-        target_class: Optional[int] = None
-    ) -> torch.Tensor:
+    def compute_attributions(self, data: Batch, target_class: Optional[int] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Compute Integrated Gradients for a batch of graphs.
+        Computes Integrated Gradients for the input graph data.
         
         Args:
-            data: Batch of graphs.
-            baseline: Baseline input tensor (same shape as data.x). Defaults to zeros.
-            steps: Number of interpolation steps.
-            target_class: Specific class index to compute attribution for. If None, returns for all classes.
+            data: A PyTorch Geometric Batch object containing x, edge_index, batch, etc.
+            target_class: The class index to compute attributions for. If None, uses the predicted class.
         
         Returns:
-            Attribution tensor of shape [num_nodes, input_dim] (or [num_nodes, 1] if target_class specified).
+            attributions: Tensor of shape [N, node_dim] representing node feature attributions.
+            baseline_diff: Tensor of shape [N, node_dim] representing (x - baseline).
         """
-        data = data.to(self.device)
-        x = data.x.requires_grad_(True)
-        
-        if baseline is None:
-            baseline = torch.zeros_like(x, device=self.device)
-        
-        # Interpolate between baseline and input
-        # x_alpha = baseline + alpha * (x - baseline)
-        # We compute gradients at each alpha step and sum them.
-        
-        attributions = torch.zeros_like(x)
-        
-        # We need to handle the graph structure (edge_index, batch) which are constant
-        # The input x varies.
-        
         with torch.no_grad():
-            # Pre-compute edge_index and batch on device
+            x = data.x.clone().requires_grad_(True)
             edge_index = data.edge_index
-            batch = data.batch
-        
-        for i in range(steps):
-            alpha = (i + 0.5) / steps
-            x_alpha = baseline + alpha * (x - baseline)
-            
-            # Create a temporary data object with the interpolated features
-            # We must clone to avoid modifying the original data.x reference if it's shared
-            data_alpha = Batch()
-            data_alpha.x = x_alpha
-            data_alpha.edge_index = edge_index
-            data_alpha.batch = batch
-            # Copy other attributes if necessary, but usually x, edge_index, batch are enough for forward
-            if hasattr(data, 'y'):
-                data_alpha.y = data.y
-            
-            # Forward pass
-            output = self.model(data_alpha)
-            
-            if target_class is not None:
-                # Select specific class score
-                score = output[:, target_class].sum()
-            else:
-                # Sum of all scores (or could be specific class logic)
-                # For standard IG, we usually pick a target. If none, we might sum or pick max.
-                # Here we sum to get total attribution magnitude, or return a tensor for each class.
-                # To keep it simple and standard: if no target, return attribution for the predicted class or sum.
-                # Let's assume we want attribution for the predicted class for each graph in batch.
-                # However, for a generic return, let's just return the gradient of the sum of all outputs.
-                score = output.sum()
-            
-            # Backward
-            score.backward(retain_graph=True)
-            
-            # Accumulate gradients
-            attributions += x.grad
-            x.grad.zero_()
-        
-        # Scale by (Input - Baseline) / steps
-        # The formula is: (Input - Baseline) * integral(grad) approx (Input - Baseline) * sum(grad) / steps
-        # Wait, the standard formula is: (Input - Baseline) * (1/steps) * sum(grad)
-        # My loop summed the gradients. So:
-        attributions = (x - baseline) * (attributions / steps)
-        
-        return attributions.cpu()
+            batch = data.batch if hasattr(data, 'batch') else None
+            edge_attr = data.edge_attr if hasattr(data, 'edge_attr') else None
 
+            # Determine baseline
+            if self.baseline is None:
+                baseline_x = torch.zeros_like(x)
+            else:
+                baseline_x = self.baseline.to(x.device)
+
+            # Determine target class
+            if target_class is None:
+                # Run forward pass to get prediction
+                outputs = self.model(x, edge_index, edge_attr, batch)
+                if batch is not None:
+                    outputs = outputs.squeeze()
+                    if outputs.dim() == 1:
+                        target_class = torch.argmax(outputs).item()
+                    else:
+                        # For batched graph-level predictions
+                        target_class = torch.argmax(outputs, dim=-1).item()
+                else:
+                    target_class = torch.argmax(outputs, dim=-1).item()
+            
+            # Ensure target_class is a scalar integer for indexing
+            if isinstance(target_class, torch.Tensor):
+                target_class = target_class.item()
+
+            # Integration
+            alpha_values = torch.linspace(0, 1, steps=self.n_steps, device=x.device)
+            integrated_gradients = torch.zeros_like(x)
+
+            for alpha in alpha_values:
+                # Interpolate between baseline and input
+                interpolated_x = baseline_x + alpha * (x - baseline_x)
+                interpolated_x.requires_grad_(True)
+
+                # Forward pass
+                outputs = self.model(interpolated_x, edge_index, edge_attr, batch)
+                
+                # Select the target class logit
+                if batch is not None:
+                    # Graph-level prediction: select per graph in batch
+                    # Assuming outputs shape [num_graphs, num_classes]
+                    if outputs.dim() == 2:
+                        target_logits = outputs[:, target_class]
+                    else:
+                        # Fallback if model output shape is unexpected
+                        target_logits = outputs
+                else:
+                    # Node-level or single graph
+                    if outputs.dim() == 2:
+                        target_logits = outputs[:, target_class]
+                    else:
+                        target_logits = outputs
+
+                # Backward pass to get gradients
+                target_logits.sum().backward()
+
+                # Accumulate gradients
+                if interpolated_x.grad is not None:
+                    integrated_gradients += interpolated_x.grad.detach()
+                
+                # Clear gradients for next step
+                interpolated_x.grad = None
+
+            # Scale by (x - baseline)
+            diff = x - baseline_x
+            attributions = diff * (integrated_gradients / self.n_steps)
+
+            return attributions, diff
 
 def create_model_from_config(config: Dict[str, Any]) -> PolymerGNN:
     """
-    Factory function to create a PolymerGNN instance from a configuration dictionary.
-    
-    Args:
-        config: Dictionary containing 'input_dim', 'hidden_dim', 'num_classes', 'num_layers'.
-    
-    Returns:
-        Configured PolymerGNN instance.
+    Factory function to create a PolymerGNN instance from a config dictionary.
     """
-    input_dim = config.get('input_dim', 64)
+    node_dim = config.get('node_dim', 64) # Default or read from data
+    edge_dim = config.get('edge_dim', 0)
     hidden_dim = config.get('hidden_dim', 128)
+    num_layers = config.get('num_layers', 3)
     num_classes = config.get('num_classes', 3)
-    num_layers = config.get('num_layers', 2)
-    dropout = config.get('dropout', 0.1)
-    
-    return PolymerGNN(
-        input_dim=input_dim,
-        hidden_dim=hidden_dim,
-        num_classes=num_classes,
-        num_layers=num_layers,
-        dropout=dropout
-    )
 
+    # Validate constraints
+    if hidden_dim > 128:
+        logger.warning(f"Hidden dim {hidden_dim} exceeds constraint of 128. Clamping.")
+        hidden_dim = 128
+    if num_layers > 3:
+        logger.warning(f"Num layers {num_layers} exceeds constraint of 3. Clamping.")
+        num_layers = 3
 
-def validate_model_constraints(model: PolymerGNN) -> Tuple[bool, str]:
+    return PolymerGNN(node_dim, edge_dim, hidden_dim, num_layers, num_classes)
+
+def validate_model_constraints(model: PolymerGNN) -> bool:
     """
-    Validates that the model meets the architectural constraints:
-    - Total layers <= 3 (Input + Conv + Output) -> Conv layers <= 2
-    - Hidden dim <= 128
+    Validates that the model meets the lightweight constraints:
+    - <= 3 layers
+    - hidden_dim <= 128
+    """
+    valid = True
+    if model.num_layers > 3:
+        logger.error(f"Model has {model.num_layers} layers, exceeds limit of 3.")
+        valid = False
+    if model.hidden_dim > 128:
+        logger.error(f"Model has hidden_dim {model.hidden_dim}, exceeds limit of 128.")
+        valid = False
+    return valid
+
+def compute_feature_importance(model: PolymerGNN, data: Batch, target_class: Optional[int] = None, 
+                               n_steps: int = 50) -> Dict[str, Any]:
+    """
+    Computes feature importance scores using Integrated Gradients.
     
     Args:
-        model: The PolymerGNN instance to validate.
-    
+        model: Trained PolymerGNN model.
+        data: Batched graph data.
+        target_class: Specific class to analyze.
+        n_steps: Integration steps.
+        
     Returns:
-        Tuple (is_valid, message)
+        Dictionary containing attribution maps and statistics.
     """
-    if model.hidden_dim > 128:
-        return False, f"Hidden dimension {model.hidden_dim} exceeds limit of 128."
+    ig = IntegratedGradients(model, n_steps=n_steps)
+    attributions, diff = ig.compute_attributions(data, target_class)
     
-    if model.num_layers > 2:
-        return False, f"Number of convolutional layers {model.num_layers} exceeds limit of 2 (total depth {model.num_layers + 1})."
+    # Aggregate attributions per node (sum of absolute values across features)
+    node_importance = torch.abs(attributions).sum(dim=1)
     
-    return True, "Model constraints satisfied."
+    # Aggregate per graph if batched
+    if hasattr(data, 'batch'):
+        graph_importance = torch.zeros(data.num_graphs, device=data.x.device)
+        for i in range(data.num_graphs):
+            mask = data.batch == i
+            graph_importance[i] = node_importance[mask].sum()
+        
+        return {
+            "node_attributions": attributions.detach().cpu().numpy(),
+            "node_importance": node_importance.detach().cpu().numpy(),
+            "graph_importance": graph_importance.detach().cpu().numpy(),
+            "baseline_diff": diff.detach().cpu().numpy()
+        }
+    else:
+        return {
+            "node_attributions": attributions.detach().cpu().numpy(),
+            "node_importance": node_importance.detach().cpu().numpy(),
+            "graph_importance": node_importance.detach().cpu().numpy(),
+            "baseline_diff": diff.detach().cpu().numpy()
+        }

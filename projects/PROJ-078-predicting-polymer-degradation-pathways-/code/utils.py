@@ -5,138 +5,103 @@ from pathlib import Path
 from typing import Optional, Callable, Any, Dict
 import random
 
-# Configure basic logging if not already configured
-if not logging.getLogger().handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+# Global logger configuration state
+_logger_configured = False
 
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(level: int = logging.INFO, log_file: Optional[str] = None) -> None:
     """
-    Setup shared logging infrastructure with file handlers.
-    
-    Args:
-        log_file: Optional path to log file.
-        level: Logging level (default: INFO).
-        
-    Returns:
-        Configured logger instance.
+    Configure root logger with console and optional file handlers.
     """
-    logger = logging.getLogger('llmXive')
-    logger.setLevel(level)
-    
-    # Clear existing handlers
-    logger.handlers.clear()
-    
+    global _logger_configured
+    if _logger_configured:
+        return
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
     # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler if specified
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    root_logger.addHandler(ch)
+
     if log_file:
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-    
-    return logger
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        root_logger.addHandler(fh)
+
+    _logger_configured = True
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger with the specified name.
-    
-    Args:
-        name: Logger name (usually __name__).
-        
-    Returns:
-        Logger instance.
+    Get a logger instance by name.
     """
     return logging.getLogger(name)
 
-def load_config_env(config_path: Optional[str] = None) -> Dict[str, Any]:
+def load_config_env(env_file: Optional[str] = None) -> Dict[str, str]:
     """
-    Load configuration from environment variables and optional file.
-    
-    Args:
-        config_path: Optional path to config file (YAML/JSON).
-        
-    Returns:
-        Dictionary of configuration values.
+    Load environment variables from a .env file if it exists.
     """
     config = {}
-    
-    # Load from environment variables
-    for key, value in os.environ.items():
-        if key.startswith('LLMXIVE_'):
-            config[key] = value
-    
-    # Override with file if provided
-    if config_path and os.path.exists(config_path):
-        import json
-        try:
-            with open(config_path, 'r') as f:
-                file_config = json.load(f)
-                config.update(file_config)
-        except Exception as e:
-            logging.warning(f"Failed to load config from {config_path}: {e}")
-    
+    if env_file and os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key.strip()] = value.strip()
+                    config[key.strip()] = value.strip()
     return config
 
 def get_project_paths() -> Dict[str, Path]:
     """
-    Get standard project directory paths relative to the project root.
-    
-    Returns:
-        Dictionary mapping path names to Path objects.
+    Return a dictionary of project root paths based on the current working directory.
+    Assumes the script is run from the project root.
     """
-    # Assume project root is 3 levels up from this file (code/utils.py)
-    base_dir = Path(__file__).resolve().parent.parent
-    
+    root = Path.cwd()
+    # Fallback if run from inside code/
+    if (root / "code").exists() and (root / "data").exists():
+        pass
+    elif (root.parent / "code").exists() and (root.parent / "data").exists():
+        root = root.parent
+
     return {
-        'root': base_dir,
-        'code': base_dir / 'code',
-        'data_raw': base_dir / 'data' / 'raw',
-        'data_processed': base_dir / 'data' / 'processed',
-        'data_reports': base_dir / 'data' / 'reports',
-        'tests': base_dir / 'tests',
-        'state': base_dir / 'state'
+        "root": root,
+        "code": root / "code",
+        "data_raw": root / "data" / "raw",
+        "data_processed": root / "data" / "processed",
+        "data_reports": root / "data" / "reports",
+        "tests": root / "tests",
+        "state": root / "state"
     }
 
-def retry_with_backoff(func: Callable, *args, max_retries: int = 3, base_delay: float = 1.0, **kwargs) -> Any:
+def retry_with_backoff(
+    func: Callable,
+    max_retries: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 10.0,
+    logger: Optional[logging.Logger] = None
+) -> Any:
     """
-    Execute a function with exponential backoff on failure.
-    
-    Args:
-        func: Function to execute.
-        *args: Positional arguments for the function.
-        max_retries: Maximum number of retry attempts (default: 3).
-        base_delay: Base delay in seconds (default: 1.0).
-        **kwargs: Keyword arguments for the function.
-        
-    Returns:
-        Result of the function call.
-        
-    Raises:
-        Exception: If all retries fail.
+    Execute a function with exponential backoff retry logic.
     """
-    last_exception = None
+    if logger is None:
+        logger = get_logger(__name__)
     
-    for attempt in range(1, max_retries + 1):
+    attempt = 0
+    delay = base_delay
+    
+    while attempt < max_retries:
         try:
-            return func(*args, **kwargs)
+            return func()
         except Exception as e:
-            last_exception = e
+            attempt += 1
             if attempt == max_retries:
-                break
+                logger.error(f"Failed after {max_retries} attempts: {e}")
+                raise
             
-            delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 1)
-            logging.warning(f"Attempt {attempt}/{max_retries} failed: {e}. Retrying in {delay:.2f}s...")
+            logger.warning(f"Attempt {attempt} failed: {e}. Retrying in {delay:.2f}s...")
             time.sleep(delay)
-    
-    raise last_exception
+            delay = min(delay * 2, max_delay) + random.uniform(0, 0.1)

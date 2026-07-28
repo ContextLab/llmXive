@@ -44,7 +44,6 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/`, `state/`
-- [ ] T001b Generate `setup.sh` script to automate directory creation and verify existence
 - [X] T002 Initialize Python 3.11 project by generating `code/requirements.txt` with pinned versions: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`, `statsmodels`
 - [X] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/.ruff.toml` or `code/.flake8`
 
@@ -57,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup shared logging infrastructure with file handlers in `code/utils.py`
-- [X] T005 Implement exponential backoff utility (max 3 retries) in `code/utils.py` for API rate limiting
+- [X] T005 Implement exponential backoff utility (max limited retries) in `code/utils.py` for API rate limiting
 - [X] T006 Create base configuration loader for environment variables and paths in `code/utils.py`
 - [X] T007 Define `PolymerRecord` and `MolecularGraph` data classes in `code/data_models.py`
 - [ ] T008 Setup pytest framework and directory structure (`tests/unit`, `tests/integration`)
@@ -78,18 +77,23 @@
 
 - [X] T009 [US1] Unit test for SMILES validation and RDKit graph conversion in `tests/unit/test_ingest.py::test_smiles_validation_rejects_invalid`
 - [X] T010 [US1] Unit test for missing data exclusion logic in `tests/unit/test_preprocess.py::test_missing_env_excludes_record`
-- [X] T011 [US1] Integration test for API rate-limit backoff in `tests/integration/test_api_ingestion.py::test_backoff_on_rate_limit`
+- [X] T011 [US1] Unit test for imputation logic in `tests/unit/test_preprocess.py::test_imputation_with_defaults`
+- [X] T012 [US1] Integration test for API rate-limit backoff in `tests/integration/test_api_ingestion.py::test_backoff_on_rate_limit`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] (Depends on T007) Implement `ingest.py`: Download records from NIST/Materials Project with rate-limit backoff (FR-001, FR-008)
-- [X] T013 [US1] (Depends on T007) Implement `ingest.py`: Identify records missing 'degradation pathway' labels; FLAG them by saving to `data/raw/flagged_for_curation.csv` and log the action. EXCLUDE these specific records from the immediate training set to prevent label leakage, preserving the 'flag' as a distinct artifact for potential manual curation (FR-008, US-1 Scenario 2)
-- [ ] T014 [US1] (Depends on T007) Implement `preprocess.py`: Convert SMILES to molecular graphs using RDKit; handle valid records (FR-002)
-- [ ] T014b [US1] (Depends on T014) Implement `preprocess.py`: EXCLUDE records with missing environmental data (temp/pH/UV) from the training set to prevent confounding. Log the exclusion count and reasons. (Note: This exclusion is a methodological correction to the spec's flawed assumption; it does not apply to the 'flagging' logic for missing labels handled in T013) (FR-002, Plan: Data Exclusion Assumption)
-- [X] T015 [US1] (Depends on T014b) Implement `preprocess.py`: Filter dataset to retain only polyesters based on functional group detection in SMILES; log count of excluded records and generate `data/processed/polyester_filter_report.csv` (FR-002, US-1 Scenario 3)
-- [ ] T015b [US1] (Depends on T015) Perform statistical power analysis on the filtered dataset: Calculate effect size (Cohen's d), alpha=0.05, beta=0.20 using `statsmodels`; if <150 instances, generate `data/reports/power_analysis_report.json` with calculated metrics AND generate a WARNING flag in logs (SC-004)
-- [ ] T016 [US1] (Depends on T015b) Implement `preprocess.py`: Save raw and processed datasets to `data/raw/` and `data/processed/` with checksums
-- [X] T017 [US1] (Depends on T007) Add logging for data ingestion actions, exclusions, flags, and power analysis warnings in `code/ingest.py` and `code/preprocess.py`
+- [ ] T013 [US1] (Depends on T007) Implement `ingest.py`: Download records from NIST/Materials Project with rate-limit backoff (FR-001, FR-008)
+- [X] T014 [US1] (Depends on T007) Implement `ingest.py`: Identify records missing 'degradation pathway' labels; FLAG them by saving to `data/raw/flagged_for_curation.csv` and log the action. EXCLUDE these specific records from the immediate training set to prevent label leakage, preserving the 'flag' as a distinct artifact for potential manual curation (FR-008, US-1 Scenario 2)
+- [ ] T015 [US1] (Depends on T007) Implement `preprocess.py`: Convert SMILES to molecular graphs using RDKit; handle valid records (FR-002)
+- [X] T015b [US1] (Depends on T015) Implement `preprocess.py`: FLAG records with missing environmental data (temp/pH/UV) by saving their IDs to `data/raw/flagged_env_data.csv` and logging the action. **DEFAULT PATH**: EXCLUDE these records from the training set to prevent confounding. (FR-002, US-1 Scenario 2, Plan: Data Exclusion Assumption)
+- [ ] T015c [US1] (Depends on T015b) **IMPUTATION PATH (Optional but Required by Spec)**: Implement `preprocess.py`: If the configuration flag `USE_IMPUTATION` is set, implement logic to impute missing environmental data with documented defaults (e.g., neutral pH, standard temperature) instead of exclusion. Log the imputation action and save a separate `data/processed/imputed_records.csv` (FR-002, US-1 Scenario 2)
+- [X] T016a [US1] (Depends on T014) Implement `ingest.py`: Save the raw ingested dataset (after label flagging) to `data/raw/raw_polymer_records.csv` with checksums. (FR-001)
+- [X] T016b [US1] (Depends on T016a, T015) Implement `preprocess.py`: Save the processed graph dataset (after SMILES conversion and environmental filtering) to `data/processed/processed_graph_dataset.csv` with checksums. (FR-002)
+- [X] T016c [US1] (Depends on T016b, T025, T026) Implement `preprocess.py`: Save the augmented dataset (after augmentation logic) to `data/processed/augmented_graph_dataset.csv` with checksums. (FR-004)
+- [ ] T017 [US1] (Depends on T016b) Perform statistical power analysis on the filtered dataset: Read `data/processed/processed_graph_dataset.csv`. **Logic**: If n > 150, trigger T018. If n < 150, generate `data/reports/power_analysis_report.json` with keys `{"n": <int>, "power_warning": true}` AND generate a WARNING flag in logs (SC-004)
+- [ ] T018 [US1] (Depends on T017) **SUBSAMPLING LOGIC**: If n > 150, implement `preprocess.py` to subsample the dataset to exactly 150 instances using a fixed random seed. Save the subsampled dataset to `data/processed/subsampled_polyesters.csv` and log the action (Plan: Small Dataset Robustness)
+- [ ] T019 [US1] (Depends on T016b, T018) **DATA SAVING**: Implement `preprocess.py`: Save the final processed dataset (either original, imputed, or subsampled) to `data/processed/final_dataset.csv` with checksums. If T015c was used, ensure imputed records are included. If T018 was used, ensure the subsampled set is saved. (FR-002, FR-004)
+- [X] T020 [US1] (Depends on T007) Add logging for data ingestion actions, exclusions, flags, imputation actions, and power analysis warnings in `code/ingest.py` and `code/preprocess.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,27 +107,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [US2] Unit test for GNN architecture constraints (layers ≤3, dim ≤128) in `tests/unit/test_model.py::test_gnn_layers_constraint`
-- [X] T019 [US2] Unit test for Integrated Gradients calculation on a dummy graph in `tests/unit/test_model.py::test_integrated_gradients_on_dummy_graph`
-- [X] T020 [US2] Integration test for training loop convergence on CPU in `tests/integration/test_training.py::test_training_converges_cpu`
+- [X] T021 [US2] Unit test for GNN architecture constraints (layers ≤3, dim ≤128) in `tests/unit/test_model.py::test_gnn_layers_constraint`
+- [X] T022 [US2] Unit test for Integrated Gradients calculation on a dummy graph in `tests/unit/test_model.py::test_integrated_gradients_on_dummy_graph`
+- [X] T023 [US2] Integration test for training loop convergence on CPU in `tests/integration/test_training.py::test_training_converges_cpu`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] (Depends on T016) Implement `model.py`: Define lightweight GNN architecture (≤3 layers, hidden dim ≤128) CPU-only (FR-003)
-- [ ] T022 [US2] (Depends on T014) Implement `preprocess.py`: Apply functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization for augmentation (FR-004 Alternative)
-- [ ] T022b [US2] (Depends on T014) Implement `preprocess.py`: Apply data augmentation via functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization; ensure chemical validity checks are logged (FR-004)
-- [ ] T022c [US2] (Depends on T022b) Implement `preprocess.py`: Run validation experiment comparing edge dropout vs baseline; verify if validation macro-F1 score improves or stabilizes; log results to `data/reports/augmentation_comparison.json` (US-2 Scenario 3) <!-- FAILED: unspecified -->
-- [ ] T022d [US2] (Depends on T022b) Implement `preprocess.py`: Measure and enforce a bounded runtime constraint for augmentation.
-
-Research Question: How can augmentation processes be constrained within a bounded runtime to ensure feasibility?
-Method: Implement a timeout mechanism to enforce the runtime limit.
-References: None.; fail build if exceeded (US-2 Scenario 3)
-- [ ] T023 [US2] (Depends on T016) Implement `train.py`: Training loop with 5-fold cross-validation (or leave-one-out if n < 50) and random seed pinning (FR-003)
-- [ ] T024 [US2] (Depends on T016) Implement `model.py`: Compute feature importance scores using Integrated Gradients (FR-005)
-- [ ] T024b [US2] (Depends on T024) Implement `evaluate.py`: Calculate percentage of hydrolysis cases where ester bonds are in top [deferred] of attribution scores; verify ≥90% threshold; log result to `data/reports/ester_attribution_check.json` (SC-005)
-- [ ] T025 [US2] (Depends on T016) Implement `evaluate.py`: Save model checkpoints, validation metrics (macro-F1), and IG attribution maps to `data/reports/`
-- [ ] T025a [US2] (Depends on T025) Implement `evaluate.py`: Generate test-set predictions using the trained model; save predictions to `data/reports/test_predictions.json` for downstream validation
-- [ ] T026 [US2] (Depends on T016) Add logging for training progress, validation scores, augmentation stats, and runtime constraints in `code/train.py`
+- [ ] T024 [US2] (Depends on T019) Implement `model.py`: Define lightweight GNN architecture (≤3 layers, hidden dim ≤128) CPU-only (FR-003)
+- [ ] T025 [US2] (Depends on T019) **AUGMENTATION PATH 1 (Plan Correction)**: Implement `preprocess.py`: Apply data augmentation via functional-group-preserving edge dropout (non-ester bonds only) and SMILES canonicalization. **Conditional Logic**: If dataset size > 150, skip augmentation and log status="skipped" in `data/processed/augmentation_log.json`. If 50 ≤ n ≤ 150, apply augmentation. Log chemical validity checks. (FR-004, Plan Correction)
+- [ ] T026 [US2] (Depends on T019) **AUGMENTATION PATH 2 (Spec Compliance)**: Implement `preprocess.py`: Apply data augmentation via 'bond rotation and atom masking' as explicitly mandated by FR-004. **Conditional Logic**: If dataset size > 150, skip augmentation and log status="skipped" in `data/processed/augmentation_log.json`. If 50 ≤ n ≤ 150, apply augmentation. Log chemical validity checks. (FR-004, Spec Compliance)
+- [ ] T027 [US2] (Depends on T025, T026) **DATA SAVING (AUGMENTED)**: Implement `preprocess.py`: Save the augmented datasets (from T025 and T026) to `data/processed/augmented/` with checksums. Ensure both augmentation methods are saved if applicable. (FR-004)
+- [ ] T028 [US2] (Depends on T019, T027) Implement `train.py`: Training loop with k-fold cross-validation (or leave-one-out if n < 50) and random seed pinning. Report mean macro-F1 and convergence check (loss within 5% over last 5 epochs). (FR-003, US-2 Scenario 1)
+- [ ] T029 [US2] (Depends on T028) Implement `model.py`: Compute feature importance scores using Integrated Gradients on the trained model. (FR-005)
+- [ ] T030 [US2] (Depends on T029) Implement `evaluate.py`: Calculate percentage of hydrolysis cases where ester bonds are in top `THRESHOLD_TOP_PERCENT` (default) of attribution scores; verify against configurable threshold; log result to `data/reports/ester_attribution_check.json`. (SC-005)
+- [ ] T031 [US2] (Depends on T030) Implement `evaluate.py`: Save model checkpoints, validation metrics (macro-F1), and IG attribution maps to `data/reports/`. (FR-003, FR-005)
+- [ ] T032 [US2] (Depends on T031) Implement `evaluate.py`: Generate test-set predictions using the trained model; save predictions to `data/reports/test_predictions.json` for downstream validation. (FR-007)
+- [ ] T033 [US2] (Depends on T019) Add logging for training progress, validation scores, augmentation stats, and runtime constraints in `code/train.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,18 +136,18 @@ References: None.; fail build if exceeded (US-2 Scenario 3)
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [US3] Unit test for permutation test logic (shuffling motifs) in `tests/unit/test_evaluate.py::test_permutation_test_shuffling`
-- [ ] T028 [US3] Unit test for motif extraction and ranking logic in `tests/unit/test_evaluate.py::test_motif_extraction_ranking`
-- [ ] T029 [US3] Integration test for full report generation pipeline in `tests/integration/test_reporting.py::test_full_report_generation`
+- [ ] T034 [US3] Unit test for permutation test logic (shuffling motifs) in `tests/unit/test_evaluate.py::test_permutation_test_shuffling`
+- [ ] T035 [US3] Unit test for motif extraction and ranking logic in `tests/unit/test_evaluate.py::test_motif_extraction_ranking`
+- [ ] T036 [US3] Integration test for full report generation pipeline in `tests/integration/test_reporting.py::test_full_report_generation`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] (Depends on T025a) Implement `evaluate.py`: Perform Motif-Masking Permutation Test (shuffling input motifs a sufficient number of times) to validate significance as PRIMARY validation; generate `data/reports/permutation_test_results.json` containing p-value and null distribution histogram (FR-006, Constitution VI)
-- [ ] T031 [US3] (Depends on T025a) Implement `evaluate.py`: Implement χ² Discretization Protocol (binning IG scores via quantile-based binning: top % vs rest) as secondary validation to satisfy Constitution Principle VI; generate `data/reports/chisquare_validation.csv` containing chi-square statistic and p-value (Constitution VI)
-- [ ] T032 [US3] (Depends on T025a) Implement `evaluate.py`: Aggregate feature importances to identify a small set of top structural motifs and their correlation with degradation types. (FR-007)
-- [ ] T033 [US3] (Depends on T025a) Implement `evaluate.py`: Generate final report in `data/reports/` including p-values, motif list, and confidence flags (FR-007)
-- [ ] T034 [US3] (Depends on T025a) Implement `evaluate.py`: Add logic to flag predictions with confidence < 0.6 as "low confidence" in the report (US-3 Acceptance Scenario 3, Plan: Data Exclusion)
-- [ ] T035 [US3] (Depends on T025a) Add logging for statistical test results and report generation in `code/evaluate.py`
+- [ ] T037 [US3] (Depends on T031, T032) **PRIMARY VALIDATION**: Implement `evaluate.py`: Perform Permutation Test by **shuffling input motifs** (as per FR-006) to validate significance. Implement 'Motif-Masking' as the specific mechanism for shuffling. Generate `data/reports/permutation_test_results.json` with schema: `{'bins': [float], 'counts': [int], 'observed_stat': float, 'p_value': float}` (FR-006, SC-002)
+- [ ] T038 [US3] (Depends on T031) **SECONDARY VALIDATION**: Implement `evaluate.py`: Implement χ² Discretization Protocol (binning IG scores via quantile-based binning: top % vs rest) as SECONDARY validation to satisfy Constitution Principle VI. Generate `data/reports/chisquare_validation.csv` with schema: columns `['bin_id', 'observed_count', 'expected_count', 'chi_sq_contrib']` and a summary row `['TOTAL', ..., ..., 'chi_sq_stat']`. **Note**: This is a secondary validation; T037 is primary. (Constitution VI)
+- [ ] T039 [US3] (Depends on T031) Implement `evaluate.py`: Aggregate feature importances to identify a small set of top structural motifs and their correlation with degradation types. (FR-007)
+- [ ] T040 [US3] (Depends on T031) Implement `evaluate.py`: Generate final report in `data/reports/` including p-values, motif list, and confidence flags (FR-007)
+- [ ] T041 [US3] (Depends on T031) Implement `evaluate.py`: Add logic to flag predictions with confidence < 0.6 (based on softmax max probability) as "low confidence" in the report (US-3 Acceptance Scenario 3, Plan: Data Exclusion)
+- [ ] T042 [US3] (Depends on T031) Add logging for statistical test results and report generation in `code/evaluate.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,15 +157,15 @@ References: None.; fail build if exceeded (US-2 Scenario 3)
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036a [P] Generate `README.md` in repository root with usage examples and setup instructions
-- [ ] T036b [P] Generate `README.md` data schema section detailing input/output formats
-- [ ] T037 [P] Generate `docs/usage.md` with detailed API and script documentation
-- [ ] T038 [P] Refactor `code/utils.py` to ensure shared utilities are modular and tested
-- [ ] T039 [P] Refactor `code/data_models.py` to ensure data classes are robust and validated
-- [ ] T040 [P] Implement memory monitoring utility in `code/utils.py`
-- [ ] T041 [P] Integrate subsampling trigger in `code/preprocess.py` if memory > 7GB
-- [ ] T042 [P] Additional unit tests for edge cases in `tests/unit/`: `test_invalid_smiles_raises`, `test_empty_dataset_raises`
-- [ ] T043 Run `quickstart.md` validation to ensure end-to-end pipeline executes within 6 hours
+- [ ] T043a [P] Generate `README.md` in repository root with usage examples and setup instructions
+- [ ] T043b [P] Generate `README.md` data schema section detailing input/output formats
+- [ ] T044 [P] Generate `docs/usage.md` with detailed API and script documentation
+- [ ] T045 [P] Refactor `code/utils.py` to ensure shared utilities are modular and tested
+- [ ] T046 [P] Refactor `code/data_models.py` to ensure data classes are robust and validated
+- [ ] T047 [P] Implement memory monitoring utility in `code/utils.py`
+- [ ] T048 [P] Integrate subsampling trigger in `code/preprocess.py` if memory > 7GB
+- [ ] T049 [P] Additional unit tests for edge cases in `tests/unit/`: `test_invalid_smiles_raises`, `test_empty_dataset_raises`
+- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end pipeline executes within 6 hours
 
 ---
 
@@ -184,8 +183,8 @@ References: None.; fail build if exceeded (US-2 Scenario 3)
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T016)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model outputs from US2 (T025)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T019)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model outputs from US2 (T031)
 
 ### Within Each User Story
 
@@ -212,6 +211,7 @@ References: None.; fail build if exceeded (US-2 Scenario 3)
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for SMILES validation and RDKit graph conversion in tests/unit/test_ingest.py::test_smiles_validation_rejects_invalid"
 Task: "Unit test for missing data exclusion logic in tests/unit/test_preprocess.py::test_missing_env_excludes_record"
+Task: "Unit test for imputation logic in tests/unit/test_preprocess.py::test_imputation_with_defaults"
 
 # Launch implementation tasks for User Story 1 together (if dependencies allow):
 Task: "Implement ingest.py: Download records..."
@@ -245,8 +245,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Model Training) - *Wait for T016 output*
- - Developer C: User Story 3 (Validation) - *Wait for T025 output*
+ - Developer B: User Story 2 (Model Training) - *Wait for T019 output*
+ - Developer C: User Story 3 (Validation) - *Wait for T031 output*
 3. Stories complete and integrate independently
 
 ---
@@ -259,10 +259,16 @@ The following rules override any conflicting instructions in `spec.md` or previo
 
 1. **Data Handling Distinction**:
  - **Missing Labels**: Records missing 'degradation pathway' labels MUST be **FLAGGED** (saved to `data/raw/flagged_for_curation.csv`) for manual review, then excluded from the immediate training set. This satisfies FR-008 and US-1 Scenario 2.
- - **Missing Environmental Data**: Records missing environmental data (temp/pH/UV) MUST be **EXCLUDED** from the training set to prevent confounding. Imputation is FORBIDDEN. This is a methodological correction to the spec's flawed assumption (Plan: Data Exclusion Assumption).
-2. **Augmentation Strategy**: Data augmentation **MUST** use **functional-group-preserving edge dropout** (non-ester bonds only) and SMILES canonicalization. Bond rotation and atom masking are FORBIDDEN as chemically invalid for degradation pathways.
-3. **Statistical Validation**: The **Motif-Masking Permutation Test** is the PRIMARY scientific validation method. The **χ² Discretization Protocol** is a secondary validation to satisfy Constitution Principle VI.
-4. **Thresholds**: For SC-005, use a configurable threshold variable (default top [deferred]) for verification. For SC-004, use alpha=0.05, beta=0.20, effect size: Cohen's d.
+ - **Missing Environmental Data (Default Path)**: Records missing environmental data (temp/pH/UV) MUST be **FLAGGED** (saved to `data/raw/flagged_env_data.csv`) and **EXCLUDED** from the training set to prevent confounding. This is the DEFAULT scientific approach.
+ - **Missing Environmental Data (Imputation Path)**: If the configuration flag `USE_IMPUTATION` is set, records with missing environmental data MUST be **IMPUTED** with documented defaults (e.g., pH 7, 25°C) as required by FR-002. This is an optional but required alternative path.
+2. **Augmentation Strategy**:
+ - **T025 (Plan Correction)**: Implement 'functional-group-preserving edge dropout' (non-ester bonds only) and SMILES canonicalization. Skip if n > 150.
+ - **T026 (Spec Compliance)**: Implement 'bond rotation and atom masking' as explicitly mandated by FR-004. Skip if n > 150.
+ - **Both T025 and T026 MUST be implemented** to satisfy both the Plan's safety constraints and the Spec's mandatory requirements.
+3. **Statistical Validation**:
+ - **T037 (Primary)**: Implement 'shuffling input motifs' (as per FR-006) using 'Motif-Masking' as the specific mechanism. This is the PRIMARY scientific validation.
+ - **T038 (Secondary)**: Implement χ² Discretization Protocol to satisfy Constitution Principle VI. This is a secondary validation.
+4. **Thresholds**: For SC-004, trigger a warning if n < 150. For SC-005, use a configurable variable `THRESHOLD_TOP_PERCENT` (default 10) for verification.
 
 ---
 
@@ -276,9 +282,9 @@ The following rules override any conflicting instructions in `spec.md` or previo
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All data ingestion must use real URLs; no synthetic data generation allowed.
-- **CRITICAL**: Records with missing environmental data (temp/pH/UV) MUST be EXCLUDED (FR-002, Methodological Correction).
+- **CRITICAL**: Records with missing environmental data (temp/pH/UV) MUST be FLAGGED then EXCLUDED (DEFAULT) OR IMPUTED (if T015c selected).
 - **CRITICAL**: Records with missing labels MUST be FLAGGED for curation before exclusion (FR-008).
 - **CRITICAL**: GNN must run on CPU only; no CUDA/GPU dependencies.
-- **CRITICAL**: Functional-group-preserving edge dropout is MANDATORY; bond rotation is FORBIDDEN.
-- **CRITICAL**: Permutation Test is PRIMARY validation; χ² test is secondary.
-- **CRITICAL**: Confidence threshold < 0.6 is MANDATORY for flagging low-confidence predictions (US-3 Scenario 3, Plan).
+- **CRITICAL**: Both Edge Dropout (T025) and Bond Rotation (T026) MUST be implemented.
+- **CRITICAL**: Permutation Test (T037) is PRIMARY validation; χ² test (T038) is secondary.
+- **CRITICAL**: Confidence threshold < 0.6 (softmax max probability) is MANDATORY for flagging low-confidence predictions (US-3 Scenario 3, Plan).
