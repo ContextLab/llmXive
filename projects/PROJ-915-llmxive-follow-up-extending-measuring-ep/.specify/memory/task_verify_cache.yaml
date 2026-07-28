@@ -1,19 +1,37 @@
-T015:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was presented that implements the required\
-    \ data\u2011validation logic, nor any test or example showing prompts being flagged\
-    \ when the total sentence count is zero. Without an actual artifact, the task\u2019\
-    s requirement is not satisfied."
-T017a:
+  r: "No evidence of the `projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
+    \ directory or any of its expected sub\u2011folders/files is provided; the claim\
+    \ lacks the required project\u2011structure artifact."
+T003:
   c: false
-  h: 1ce935c403799a89e760878f6839bde4ffd79582c4ae13aa1eefa4753dced2bf
-  r: "The provided `code/annotation.py` contains data\u2011loading and correlation\
-    \ logic unrelated to recruiting raters, and it is incomplete (truncated). Moreover,\
-    \ the required output file `data/interim/recruitment_log_us1.json` does not exist.\
-    \ The task\u2019s core requirement\u2014script that recruits \u2265\u202F50 raters\
-    \ and writes their IDs and consent status to the specified JSON log\u2014is not\
-    \ satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) are presented, nor any evidence that ruff/flake8
+    and Black have been set up in the repository. The required artifacts are missing,
+    so the task is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw`, `data/processed`, `data/interim`,\
+    \ `data/results`, `code/`, `tests/`) is provided; the implementer did not supply\
+    \ a directory listing, screenshots, or any files showing that the structure has\
+    \ been created. The task remains undone until the specified folders are present\
+    \ and non\u2011empty."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or documentation for an error\u2011handling framework\
+    \ (e.g., retry logic for dataset download or timeout handling for inference) were\
+    \ provided. Without any artifact to inspect, we cannot confirm that the required\
+    \ setup was implemented."
+T017b:
+  c: false
+  h: cb76370acc2af84b4ea84e8bcadad416a2cacad8b47cc21ae45011b99323312d
+  r: The required file `data/interim/human_pilot_cleaned.csv` does not exist, so no
+    rater responses have been aggregated as the task demands. The artifact is missing,
+    making the claim unfulfilled.
 T017c:
   c: false
   h: 5d74c7173c8d8a61fa969092e2f30307ac19e492b822dc0773fafe0df03a116d
@@ -22,11 +40,25 @@ T017c:
     \ of raw rater responses (it only loads existing data and computes correlations,\
     \ expecting only `prompt_id` and `authority_density_score`). The script also lacks\
     \ handling of a `rater_id` column, so the task\u2019s specification is not met."
-T017d:
+T021:
   c: false
-  h: c35d1d29eb57823f9ff0516daede6f8abfe25d8b00653ba5cf3c51d49caa25a1
-  r: "The provided `code/annotation.py` is truncated and does not contain the logic\
-    \ that computes the correlations and writes them to `data/interim/annotation_correlation_raw.json`.\
-    \ Moreover, the expected output file `data/interim/annotation_correlation_raw.json`\
-    \ is absent from the repository. The task\u2019s core requirement\u2014producing\
-    \ the raw correlation JSON\u2014is therefore not satisfied."
+  h: 62a9796f8d7c64c23caa73d6df1c548796dc6b1897df1c4fee7a9a464a2e2cc4
+  r: "The repository contains `code/labeling.py` and a non\u2011empty `data/raw/static_medical_facts.json`,\
+    \ but the script only loads the JSON and builds a map keyed by `prompt_id`. It\
+    \ never creates a mapping from each `correct_answer` to an `external_fact` (the\
+    \ JSON has no `external_fact` field, and no function implements such a map). The\
+    \ required fact\u2011retrieval behavior is therefore missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, module, or documentation) implementing safety trigger\
+    \ detection and setting a `safety_refusal` flag is present; the provided evidence\
+    \ only describes unrelated data\u2011ingestion and modeling features, so the required\
+    \ functionality is missing."
+T027:
+  c: false
+  h: 52e8ddf2bd62274577b2e0007d7e21ba9f0765173fb028ef0f78e2720effd5d1
+  r: "The required artifact `data/raw/expert_rater_labels.csv` does not exist on disk,\
+    \ so there is no evidence that two expert raters were recruited or that any labels\
+    \ were produced. The task\u2019s deliverable is missing, making the requirement\
+    \ unmet."

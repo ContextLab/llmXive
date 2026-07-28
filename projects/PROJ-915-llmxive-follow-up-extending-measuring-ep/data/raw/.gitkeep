@@ -1,1 +1,2 @@
-# Raw data directory
+# This directory stores raw downloaded datasets and external data.
+# Do not commit large binary files here.

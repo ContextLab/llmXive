@@ -1,142 +1,171 @@
 """
-T016: Save final feature-rich dataset to data/processed/features.csv.
+feature_save.py
 
-This script loads the extracted features (produced by T014) and the
-validation flags (produced by T015), merges them, and writes the final
-dataset to the designated output path.
+Task: T016 [US1] Save final feature-rich dataset to `data/processed/features.csv`.
 
-It relies on the existing API surface:
-- code/features.py: run_feature_extraction (to generate features if missing)
-- code/validation_logic.py: run_t015_validation_pipeline (to generate flags)
-- code/config.py: get_config (to resolve paths)
+This module orchestrates the final step of User Story 1:
+1. Ensures the raw feature data (from T013/T014) exists.
+2. Ensures the validation flags (from T015) exist.
+3. Merges them into a single DataFrame.
+4. Saves the result to `data/processed/features.csv`.
+5. Logs the operation and verifies the output file exists.
 """
 import os
 import csv
 import logging
 import sys
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Import from sibling modules using the provided API surface
+# Import from sibling modules as per API surface
 from features import run_feature_extraction
 from validation_logic import run_t015_validation_pipeline
 from config import get_config
+from validation import check_pipeline_limit, get_tracker
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def ensure_feature_data_exists(config: dict) -> str:
+def ensure_feature_data_exists(config: Dict[str, Any]) -> Path:
     """
-    Ensures the intermediate features CSV exists.
-    If it doesn't exist, runs the feature extraction pipeline (T014).
-    Returns the path to the features CSV.
+    Ensures that the raw feature data exists.
+    If not, it triggers the feature extraction pipeline (T014) or ingestion (T013).
+    For T016, we assume T013 and T014 have run, but we verify existence.
     """
-    features_path = config["paths"]["processed"]["features"]
-    features_dir = Path(features_path).parent
-    features_dir.mkdir(parents=True, exist_ok=True)
-
-    if not os.path.exists(features_path):
-        logger.info(f"Features file {features_path} not found. Running feature extraction (T014)...")
+    raw_features_path = Path(config['paths']['raw_features'])
+    
+    if not raw_features_path.exists():
+        logger.warning(f"Raw feature data not found at {raw_features_path}. "
+                       "Attempting to run feature extraction pipeline.")
+        # Trigger feature extraction if missing
         run_feature_extraction(config)
-        if not os.path.exists(features_path):
-            raise FileNotFoundError(
-                f"Feature extraction (T014) did not produce the expected file: {features_path}"
-            )
-    else:
-        logger.info(f"Found existing features file: {features_path}")
+    
+    if not raw_features_path.exists():
+        raise FileNotFoundError(
+            f"Feature data file {raw_features_path} does not exist after "
+            "attempting extraction. Ensure T013 (ingestion) and T014 (features) "
+            "have been completed successfully."
+        )
+    
+    logger.info(f"Feature data found at {raw_features_path}")
+    return raw_features_path
 
-    return features_path
-
-def ensure_validation_data_exists(config: dict) -> str:
+def ensure_validation_data_exists(config: Dict[str, Any]) -> Path:
     """
-    Ensures the validation flags CSV exists.
-    If it doesn't exist, runs the validation pipeline (T015).
-    Returns the path to the validation CSV.
+    Ensures that the validation data (T015 flags) exists.
+    If not, triggers the validation logic.
     """
-    # T015 output path is typically in data/interim or data/processed depending on spec.
-    # Based on T015 description: "flag prompts...". We assume it writes to a known location.
-    # Let's assume the validation pipeline writes to a standard location defined in config or hardcode if missing.
-    # Looking at T015 description: "Implement data validation logic to flag prompts..."
-    # We will assume the output is at data/interim/validation_flags.csv if not specified.
-    # However, to be safe, we check the config first.
-    validation_path = config["paths"].get("interim", {}).get("validation_flags")
-    if not validation_path:
-        validation_path = os.path.join(config["paths"]["data_root"], "interim", "validation_flags.csv")
-
-    validation_dir = Path(validation_path).parent
-    validation_dir.mkdir(parents=True, exist_ok=True)
-
-    if not os.path.exists(validation_path):
-        logger.info(f"Validation flags file {validation_path} not found. Running validation (T015)...")
+    validation_path = Path(config['paths']['validation_flags'])
+    
+    if not validation_path.exists():
+        logger.warning(f"Validation flags not found at {validation_path}. "
+                       "Attempting to run T015 validation pipeline.")
         run_t015_validation_pipeline(config)
-        if not os.path.exists(validation_path):
-            raise FileNotFoundError(
-                f"Validation pipeline (T015) did not produce the expected file: {validation_path}"
-            )
-    else:
-        logger.info(f"Found existing validation flags file: {validation_path}")
-
+    
+    if not validation_path.exists():
+        raise FileNotFoundError(
+            f"Validation flags file {validation_path} does not exist. "
+            "Ensure T015 has been completed."
+        )
+    
+    logger.info(f"Validation data found at {validation_path}")
     return validation_path
 
-def merge_and_save_features(features_path: str, validation_path: str, output_path: str):
+def merge_and_save_features(config: Dict[str, Any]) -> Path:
     """
-    Loads features and validation flags, merges them by prompt_id,
-    and saves the final result to output_path.
+    Merges raw features and validation flags, then saves to the final processed location.
     """
-    logger.info(f"Merging data from {features_path} and {validation_path}")
+    import pandas as pd
 
-    try:
-        import pandas as pd
-    except ImportError:
-        logger.error("pandas is required for merging. Please ensure it is installed.")
-        sys.exit(1)
-
+    features_path = ensure_feature_data_exists(config)
+    validation_path = ensure_validation_data_exists(config)
+    
+    # Load raw features
+    logger.info(f"Loading features from {features_path}")
     df_features = pd.read_csv(features_path)
+    
+    # Load validation flags
+    logger.info(f"Loading validation flags from {validation_path}")
     df_validation = pd.read_csv(validation_path)
-
-    # Ensure prompt_id is string for consistent merging
-    df_features["prompt_id"] = df_features["prompt_id"].astype(str)
-    df_validation["prompt_id"] = df_validation["prompt_id"].astype(str)
-
-    # Merge on prompt_id (left join to keep all features)
-    df_final = pd.merge(df_features, df_validation, on="prompt_id", how="left")
-
-    # Fill any missing validation flags with False/0 if appropriate
-    # Assuming validation flags are boolean or 0/1
-    for col in df_validation.columns:
-        if col != "prompt_id" and col not in df_features.columns:
-            if df_final[col].dtype == 'object':
-                df_final[col] = df_final[col].fillna(False)
-            else:
-                df_final[col] = df_final[col].fillna(0)
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
+    
+    # Merge on prompt_id
+    if 'prompt_id' not in df_features.columns or 'prompt_id' not in df_validation.columns:
+        raise ValueError("Both feature and validation files must contain 'prompt_id' column.")
+    
+    logger.info(f"Merging datasets on 'prompt_id'. "
+                f"Features shape: {df_features.shape}, Validation shape: {df_validation.shape}")
+    
+    df_merged = pd.merge(
+        df_features, 
+        df_validation, 
+        on='prompt_id', 
+        how='left'  # Keep all features, add flags where available
+    )
+    
+    # Fill NaN in validation columns with False/0 if appropriate, 
+    # though T015 should flag all rows. 
+    # Assuming T015 adds 'has_undefined_imperative_ratio' (bool)
+    # and 'imperative_ratio' (float, might be NaN if undefined)
+    
+    # Ensure final output directory exists
+    output_dir = Path(config['paths']['processed_features']).parent
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    df_final.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved final feature-rich dataset to {output_path}")
-    logger.info(f"Total rows: {len(df_final)}, Columns: {list(df_final.columns)}")
+    
+    output_path = Path(config['paths']['processed_features'])
+    
+    # Save to CSV
+    logger.info(f"Saving merged dataset to {output_path}")
+    df_merged.to_csv(output_path, index=False)
+    
+    # Verify output
+    if not output_path.exists():
+        raise RuntimeError(f"Failed to write output file to {output_path}")
+    
+    logger.info(f"Successfully saved {len(df_merged)} rows to {output_path}")
+    return output_path
 
 def main():
-    config = get_config()
-    output_path = config["paths"]["processed"]["features"]
-
-    logger.info(f"Starting T016: Saving final dataset to {output_path}")
-
-    # Step 1: Ensure features exist (T014)
-    features_path = ensure_feature_data_exists(config)
-
-    # Step 2: Ensure validation flags exist (T015)
-    validation_path = ensure_validation_data_exists(config)
-
-    # Step 3: Merge and save
-    merge_and_save_features(features_path, validation_path, output_path)
-
-    logger.info("T016 completed successfully.")
+    """
+    Entry point for T016.
+    """
+    logger.info("Starting T016: Saving final feature-rich dataset.")
+    
+    # Check pipeline time limit
+    if not check_pipeline_limit():
+        logger.error("Pipeline time limit exceeded. Aborting T016.")
+        sys.exit(1)
+    
+    try:
+        config = get_config()
+        
+        # Ensure paths are set correctly in config if not already
+        # (Assuming config.py handles defaults, but we can enforce here)
+        if 'paths' not in config:
+            config['paths'] = {}
+        
+        # Define paths based on project structure
+        # Assuming config has defaults, but we map them explicitly for T016
+        base_path = Path(config.get('project_root', '.'))
+        
+        # Default paths if not in config (fallback)
+        paths = config.get('paths', {})
+        paths['raw_features'] = paths.get('raw_features', str(base_path / 'data' / 'interim' / 'features_raw.csv'))
+        paths['validation_flags'] = paths.get('validation_flags', str(base_path / 'data' / 'interim' / 'validation_flags.csv'))
+        paths['processed_features'] = paths.get('processed_features', str(base_path / 'data' / 'processed' / 'features.csv'))
+        
+        config['paths'] = paths
+        
+        output_path = merge_and_save_features(config)
+        
+        logger.info(f"T016 completed successfully. Output: {output_path}")
+        
+    except Exception as e:
+        logger.exception(f"T016 failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

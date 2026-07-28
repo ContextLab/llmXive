@@ -1,1 +1,2 @@
-# Interim data directory
+# This directory stores interim data transformations.
+# Used for steps between raw and processed data.

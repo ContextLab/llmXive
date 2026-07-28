@@ -1,28 +1,17 @@
-"""
-Ingestion module for downloading and filtering the MedMisBench dataset.
-
-This module implements Task T013:
-- Downloads MedMisBench via `datasets.load_dataset(..., streaming=True)`
-- Filters for "Authority-framed" and "Exception-poisoning" labels
-- Saves to `data/raw/medmis_subset.csv`
-- Computes SHA-256 checksum and records in `state/artifact_hashes.yaml`
-- Fails loudly if download fails (no synthetic fallback)
-"""
 import os
 import hashlib
 import csv
 import yaml
 import time
 import logging
+import re
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from datasets import load_dataset
-from tqdm import tqdm
-import pandas as pd
+from typing import Optional, List, Dict, Any
 
-# Import shared utilities from existing modules
+from datasets import load_dataset
 from config import get_config
-from error_handling import DatasetDownloadError, compute_sha256, update_hash_state
+from error_handling import compute_sha256, DatasetDownloadError, update_hash_state
+from validation import check_pipeline_limit
 
 # Configure logging
 logging.basicConfig(
@@ -31,221 +20,178 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATASET_NAME = "mlabonne/MedMisBench"  # Real HuggingFace dataset ID
-TARGET_LABELS = ["Authority-framed", "Exception-poisoning"]
-OUTPUT_DIR = "data/raw"
-OUTPUT_FILENAME = "medmis_subset.csv"
-STATE_DIR = "state"
-HASH_FILENAME = "artifact_hashes.yaml"
-
-def compute_sha256_file(filepath: Path) -> str:
+def compute_sha256_file(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    return compute_sha256(file_path)
 
-def load_and_filter_dataset() -> pd.DataFrame:
+def load_and_filter_dataset(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Download MedMisBench dataset using streaming and filter for target labels.
+    Download MedMisBench via streaming, filter for specific labels,
+    and extract the false_claim column.
     
-    Returns:
-        pd.DataFrame: Filtered dataset with only "Authority-framed" and 
-                     "Exception-poisoning" labeled prompts.
-    
-    Raises:
-        DatasetDownloadError: If the dataset cannot be downloaded or filtered.
+    Constraints:
+    - Must fail loudly if download fails (no synthetic fallback).
+    - Must check for 'false_claim' column; if missing, attempt regex extraction.
+    - If extraction fails, abort with clear error.
     """
-    logger.info(f"Loading dataset: {DATASET_NAME} with streaming=True")
-    start_time = time.time()
+    dataset_name = config.get('dataset_name', 'allenai/medmisbench')
+    target_labels = config.get('target_labels', ['Authority-framed', 'Exception-poisoning'])
+    streaming_mode = config.get('streaming', True)
+    
+    logger.info(f"Loading dataset: {dataset_name} (streaming={streaming_mode})")
     
     try:
-        # Load dataset with streaming to handle large datasets efficiently
-        dataset = load_dataset(
-            DATASET_NAME,
-            split="train",
-            streaming=True
-        )
+        # Load dataset with streaming to handle large sizes
+        dataset = load_dataset(dataset_name, split='train', streaming=streaming_mode)
         
         # Filter for target labels
-        logger.info(f"Filtering for labels: {TARGET_LABELS}")
+        # Note: The exact column name for labels might vary. We assume 'label' or 'category'.
+        # We will iterate and filter manually to support streaming.
+        
         filtered_items = []
         
-        # Iterate through the streaming dataset
-        for idx, item in enumerate(tqdm(dataset, desc="Processing dataset")):
-            # Check if the item has the required label
-            # Assuming the label column is named 'label' or 'scenario_type'
-            # We need to check the actual structure of MedMisBench
-            label = item.get('label', item.get('scenario_type', ''))
+        # Helper to check if an item matches target labels
+        def matches_target(item):
+            # Try common column names for labels
+            label_val = item.get('label') or item.get('category') or item.get('type')
+            if label_val is None:
+                return False
+            # Normalize to string for comparison
+            label_str = str(label_val)
+            return any(target in label_str for target in target_labels)
+        
+        # Helper to extract false_claim
+        def extract_false_claim(item):
+            # Priority 1: Direct column
+            if 'false_claim' in item:
+                return item['false_claim']
             
-            if label in TARGET_LABELS:
-                filtered_items.append(item)
+            # Priority 2: Regex extraction from prompt text
+            # Common patterns: "The false claim is: ...", "Claim: ...", or specific delimiters
+            prompt_text = item.get('prompt', '') or item.get('context', '') or ''
             
-            # Optional: limit for testing (remove in production)
-            # if idx > 1000:
-            #     break
-        
-        if not filtered_items:
-            raise DatasetDownloadError(
-                f"No items found with labels: {TARGET_LABELS}. "
-                f"Dataset might have different label structure."
-            )
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Successfully filtered {len(filtered_items)} items in {elapsed:.2f}s")
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(filtered_items)
-        
-        # Ensure required columns exist
-        required_cols = ['prompt', 'label']
-        for col in required_cols:
-            if col not in df.columns:
-                # Try to find alternative column names
-                possible_cols = [c for c in df.columns if c.lower() in ['prompt', 'text', 'question', 'label', 'scenario']]
-                if possible_cols:
-                    if 'prompt' in required_cols and col == 'prompt':
-                        df['prompt'] = df[possible_cols[0]]
-                    elif 'label' in required_cols and col == 'label':
-                        df['label'] = df[possible_cols[0]]
-                else:
-                    raise DatasetDownloadError(
-                        f"Required column '{col}' not found in dataset. "
-                        f"Available columns: {list(df.columns)}"
-                    )
-        
-        return df
-        
-    except Exception as e:
-        logger.error(f"Failed to download or filter dataset: {str(e)}")
-        raise DatasetDownloadError(
-            f"Failed to load and filter dataset '{DATASET_NAME}': {str(e)}"
-        ) from e
+            # Pattern 1: "The false claim is: <text>"
+            match = re.search(r'false claim is[:\s]+(.+?)(?:\n|$)', prompt_text, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+            
+            # Pattern 2: "Claim: <text>" (if context suggests it's a false claim)
+            match = re.search(r'Claim[:\s]+(.+?)(?:\n|$)', prompt_text, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+            
+            return None
 
-def save_to_csv(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save DataFrame to CSV file.
-    
-    Args:
-        df: DataFrame to save
-        output_path: Path to save the CSV file
+        logger.info("Iterating and filtering dataset...")
+        count = 0
+        for item in dataset:
+            if matches_target(item):
+                false_claim = extract_false_claim(item)
+                if false_claim is None:
+                    logger.warning(f"Could not extract false_claim from item {count}. Skipping.")
+                    continue
+                
+                # Create a clean record
+                record = {
+                    'prompt_id': item.get('id', f'item_{count}'),
+                    'prompt': item.get('prompt', ''),
+                    'false_claim': false_claim,
+                    'label': item.get('label') or item.get('category') or item.get('type'),
+                    'source': dataset_name
+                }
+                filtered_items.append(record)
+                count += 1
+                
+                # Check pipeline time limit periodically
+                check_pipeline_limit()
+                
+                if count % 100 == 0:
+                    logger.info(f"Processed {count} matching items...")
         
-    Raises:
-        DatasetDownloadError: If the file cannot be saved.
-    """
-    try:
-        logger.info(f"Saving dataset to {output_path}")
-        df.to_csv(output_path, index=False)
-        logger.info(f"Successfully saved {len(df)} rows to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save CSV: {str(e)}")
-        raise DatasetDownloadError(f"Failed to save CSV to {output_path}: {str(e)}") from e
+        if count == 0:
+            raise DatasetDownloadError("No items matched the target labels or could be extracted.")
+        
+        logger.info(f"Successfully filtered {count} items.")
+        return filtered_items
 
-def update_hash_state(filepath: Path, state_file: Path) -> None:
-    """
-    Compute SHA-256 checksum of the file and update the state file.
-    
-    Args:
-        filepath: Path to the file to hash
-        state_file: Path to the YAML state file
-    """
-    try:
-        # Ensure state directory exists
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Compute hash
-        file_hash = compute_sha256_file(filepath)
-        
-        # Load existing state or create new
-        if state_file.exists():
-            with open(state_file, 'r') as f:
-                state = yaml.safe_load(f) or {}
-        else:
-            state = {}
-        
-        # Update state
-        state['medmis_subset'] = {
-            'file': str(filepath),
-            'sha256': file_hash,
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'row_count': len(pd.read_csv(filepath))
-        }
-        
-        # Save state
-        with open(state_file, 'w') as f:
-            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-        
-        logger.info(f"Updated artifact hash state: {file_hash[:16]}...")
-        
     except Exception as e:
-        logger.error(f"Failed to update hash state: {str(e)}")
-        raise DatasetDownloadError(f"Failed to update hash state: {str(e)}") from e
+        logger.error(f"Failed to download or process dataset: {e}")
+        raise DatasetDownloadError(f"Dataset download/filtering failed: {e}") from e
 
-def run_ingestion_pipeline() -> Path:
+def save_to_csv(data: List[Dict[str, Any]], output_path: Path) -> None:
+    """Save list of dicts to CSV."""
+    if not data:
+        raise ValueError("No data to save.")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = data[0].keys()
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+    
+    logger.info(f"Saved {len(data)} items to {output_path}")
+
+def update_hash_state(output_path: Path, hash_state: Dict[str, Any]) -> Dict[str, Any]:
+    """Update the hash state dictionary with the new file hash."""
+    file_hash = compute_sha256_file(output_path)
+    update_hash_state(hash_state, str(output_path), file_hash)
+    return hash_state
+
+def run_ingestion_pipeline(config: Optional[Dict[str, Any]] = None) -> Path:
     """
-    Run the complete ingestion pipeline.
-    
-    Returns:
-        Path: Path to the saved CSV file
-        
-    Raises:
-        DatasetDownloadError: If any step in the pipeline fails.
+    Main pipeline function for T013.
+    1. Load and filter MedMisBench.
+    2. Save to data/raw/medmis_subset.csv.
+    3. Compute SHA-256 and save to state/artifact_hashes.yaml.
     """
-    config = get_config()
+    if config is None:
+        config = get_config()
     
-    # Ensure output directory exists
-    output_dir = Path(OUTPUT_DIR)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir = Path(config.get('paths', {}).get('raw', 'data/raw'))
+    state_dir = Path(config.get('paths', {}).get('state', 'state'))
+    output_file = raw_dir / 'medmis_subset.csv'
+    hash_file = state_dir / 'artifact_hashes.yaml'
     
-    output_path = output_dir / OUTPUT_FILENAME
-    state_path = Path(STATE_DIR) / HASH_FILENAME
+    # Ensure directories exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    state_dir.mkdir(parents=True, exist_ok=True)
     
-    try:
-        # Step 1: Download and filter dataset
-        df = load_and_filter_dataset()
-        
-        # Step 2: Save to CSV
-        save_to_csv(df, output_path)
-        
-        # Step 3: Compute and record hash
-        update_hash_state(output_path, state_path)
-        
-        logger.info("Ingestion pipeline completed successfully")
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {str(e)}")
-        raise
+    # Load state if exists
+    hash_state = {}
+    if hash_file.exists():
+        with open(hash_file, 'r') as f:
+            hash_state = yaml.safe_load(f) or {}
+    
+    # Execute ingestion
+    data = load_and_filter_dataset(config)
+    
+    # Save to CSV
+    save_to_csv(data, output_file)
+    
+    # Update hash state
+    hash_state = update_hash_state(output_file, hash_state)
+    
+    # Write hash state to YAML
+    with open(hash_file, 'w') as f:
+        yaml.dump(hash_state, f, default_flow_style=False)
+    
+    logger.info(f"Ingestion pipeline complete. Output: {output_file}, Hashes: {hash_file}")
+    return output_file
 
 def main():
-    """Main entry point for the ingestion script."""
-    logger.info("Starting MedMisBench ingestion pipeline")
-    
+    """Entry point for the ingestion script."""
+    logger.info("Starting ingestion pipeline (T013)...")
     try:
-        output_path = run_ingestion_pipeline()
-        logger.info(f"Pipeline completed. Output saved to: {output_path}")
-        print(f"SUCCESS: Dataset saved to {output_path}")
-        
-        # Verify the output exists
-        if output_path.exists():
-            df = pd.read_csv(output_path)
-            print(f"Verification: {len(df)} rows saved")
-            print(f"Columns: {list(df.columns)}")
-            print(f"Unique labels: {df['label'].unique()}")
-        else:
-            logger.error("Output file was not created!")
-            exit(1)
-            
+        run_ingestion_pipeline()
+        logger.info("Ingestion pipeline finished successfully.")
     except DatasetDownloadError as e:
-        logger.error(f"Dataset download error: {str(e)}")
-        print(f"FAILED: {str(e)}")
-        exit(1)
+        logger.critical(f"Ingestion failed due to data issue: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        print(f"FAILED: Unexpected error - {str(e)}")
-        exit(1)
+        logger.critical(f"Ingestion failed with unexpected error: {e}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

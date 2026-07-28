@@ -7,8 +7,9 @@ pandas
 numpy
 tqdm
 biopython
-pyyaml
 python-dotenv
+pyyaml
+requests
 pytest
 ruff
 black

@@ -4,44 +4,49 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Create the required directory structure for the llmXive project.
+    Creates the required directory structure for the llmXive project.
     
-    Creates the following directories relative to the project root:
+    Directories created:
     - data/raw
     - data/processed
     - data/interim
     - data/results
-    - code (already exists, but ensures it's present)
-    - tests (already exists, but ensures it's present)
-    - figures
-    - state
+    - code/
+    - tests/
     
     Returns:
-        Path: The project root path.
+        Path: The project root path where directories were created.
     """
-    # Determine project root (assuming this script is in code/)
-    # We go up one level from code/ to get the project root
-    project_root = Path(__file__).resolve().parent.parent
-    
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/interim",
-        "data/results",
-        "figures",
-        "state",
-        # code/ and tests/ are expected to exist, but we ensure them too
-        "code",
-        "tests",
+    # Determine project root based on the location of this script
+    # Assuming this script is in <project_root>/code/
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+
+    required_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "interim",
+        project_root / "data" / "results",
+        project_root / "code",
+        project_root / "tests",
     ]
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified: {full_path}")
-    
-    print(f"Directory setup complete for project at: {project_root}")
+
+    created_count = 0
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
+
+    print(f"\nSetup complete. {created_count} new directories created.")
     return project_root
 
-if __name__ == "__main__":
+def main():
+    """Entry point for running the directory setup script."""
+    print("Initializing project directory structure...")
     setup_directories()
+
+if __name__ == "__main__":
+    main()
