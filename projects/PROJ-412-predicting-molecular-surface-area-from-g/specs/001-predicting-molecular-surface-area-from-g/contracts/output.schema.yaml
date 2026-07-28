@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+description: "Schema for data/results/metrics.json"
+type: "object"
+properties:
+  gcn:
+    type: "object"
+    description: "Graph Convolutional Network performance metrics"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in Å²"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error in Å²"
+      r2:
+        type: "number"
+        description: "Coefficient of determination"
+    required:
+      - mae
+      - rmse
+      - r2
+  oracle:
+    type: "object"
+    description: "Geometry Oracle (Direct 3D Computation) metrics"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error (expected 0.0)"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error (expected 0.0)"
+      r2:
+        type: "number"
+        description: "Coefficient of determination (expected 1.0)"
+    required:
+      - mae
+      - rmse
+      - r2
+  comparison:
+    type: "object"
+    description: "Statistical comparison between GCN and Oracle"
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from one-sample test (t-test or Wilcoxon)"
+      statistic:
+        type: "number"
+        description: "Test statistic value"
+      test_type:
+        type: "string"
+        enum:
+          - "t-test"
+          - "wilcoxon"
+        description: "Type of statistical test used"
+    required:
+      - p_value
+      - statistic
+      - test_type
+  sensitivity:
+    type: "array"
+    description: "Results of threshold sensitivity analysis"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "MAE cutoff in Å²"
+        success_rate:
+          type: "number"
+          description: "Percentage of predictions within threshold"
+        adjusted_p_value:
+          type: "number"
+          description: "Bonferroni-adjusted p-value"
+      required:
+        - threshold
+        - success_rate
+        - adjusted_p_value
+required:
+  - gcn
+  - oracle
+  - comparison
+  - sensitivity
+additionalProperties: false

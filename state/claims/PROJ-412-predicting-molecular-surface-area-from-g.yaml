@@ -92,3 +92,583 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T19:46:04Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: exclude molecules with more than 100 atoms
+  claim_id: c_a74a5576
+  context: 'Strict Fallback Logic: Attempt to fetch from ZINC15 first. If that fails,
+    attempt to fetch from OpenDataPubChem. If BOTH sources fail, raise a critical
+    error. Add Max Atoms Filter: Implement a filter to exclude molecules with >100
+    atoms to prevent memory overflow, logging the count of excluded molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: 'Add Max Atoms Filter: Implement a filter to exclude molecules with >100
+    atoms to prevent memory overflow'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:28:53Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: halt if conformer generation failure rate exceeds 10 percent
+  claim_id: c_785ab0ab
+  context: T015 [US1] Implement 3D conformer generation (lowest energy) and SASA calculation
+    in code/data/preprocess.py with chunked processing; halt with critical error if
+    >10% of conformer generation fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: halt with critical error if >10% of conformer generation fails
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:28:53Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: halt if invalid SMILES or failed conformer generation rate exceeds 10
+    percent
+  claim_id: c_aab2bb10
+  context: T017 [US1] Add validation and error handling for invalid SMILES and failed
+    conformer generation; log failure count and halt if >10% failure rate
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log failure count and halt if >10% failure rate
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:28:53Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: sweep absolute MAE thresholds of 0.01, 0.05, and 0.1 angstroms squared
+  claim_id: c_08427663
+  context: "T028 [US3] Implement sensitivity analysis script sweeping absolute MAE\
+    \ thresholds {0.01, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006) in code/eval/sensitivity.py."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "sweeping absolute MAE thresholds {0.01, 0.05, 0.1} \xC5\xB2"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T09:28:53Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: training loop early stopping with patience 5 and maximum 50 epochs
+  claim_id: c_bf8c25f7
+  context: T022 [US2] Implement training loop with early stopping (patience=5, max
+    50 epochs) in code/models/train.py, incorporating gradient accumulation logic
+    from T050.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: patience=5, max 50 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:29:05Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: apply scaling factor of 1.5 to pilot time for runtime extrapolation
+  claim_id: c_3032aa0c
+  context: T034b-Report [P] Generate results/reports/runtime_extrapolation.md documenting
+    the pilot size, the measured time per molecule, the scaling factor used (1.5),
+    and the extrapolated runtime for the full dataset.
+  evidence:
+    asserted: '1.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: scaling factor used (1.5)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T09:29:05Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: execute full pipeline if extrapolated time is less than 4 hours
+  claim_id: c_50da2e57
+  context: 'T052-Exec [P] Execute the pipeline. Decision Logic: If T034b-Calc indicates
+    feasibility (extrapolated time < 4 hours), execute the full pipeline on the full
+    dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_full_pipeline_if_extrapolated_time_is_less_than_4_ho
+  kind: magnitude
+  raw_text: extrapolated time < 4 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:29:26Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: exclude molecules with more than 100 atoms
+  claim_id: c_64f9afa3
+  context: 'Add Max Atoms Filter: Implement a filter to exclude molecules with >100
+    atoms to prevent memory overflow, logging the count of excluded molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: Implement a filter to exclude molecules with >100 atoms to prevent memory
+    overflow
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:30:55Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: KS test p-value for MW distribution train test split must be greater
+    than 0.05
+  claim_id: c_083d382d
+  context: 'Execute the Kolmogorov-Smirnov (KS) test comparing the MW distributions
+    of train/test sets. Verification: Output data/splits/split_report.json containing
+    the key ks_p_value with a value > 0.05; if p <= 0.05, raise an error and log the
+    failure.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_test_p-value_for_MW_distribution_train_test_split_must_be
+  kind: magnitude
+  raw_text: Verify that the Kolmogorov-Smirnov (KS) test comparing the MW distributions
+    of train/test sets yields a p-value > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:31:43Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: report success rates for MAE thresholds 0.01 0.05 and 0.1 angstroms squared
+  claim_id: c_be6544eb
+  context: "Implement sensitivity analysis script sweeping absolute MAE thresholds\
+    \ {0.01, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006) in code/eval/sensitivity.py.\
+    \ Report the percentage of molecules predicted within each threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Report the percentage of molecules predicted within absolute MAE thresholds\
+    \ of 0.01, 0.05, and 0.1 \xC5\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:32:21Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: absolute threshold sweep is the primary metric for sensitivity analysis
+  claim_id: c_3825febe
+  context: 'Primary Verification: This is the mandatory verification path per Spec
+    FR-006. The report must explicitly state that this is the primary metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Absolute_threshold_sweep_is_the_primary_metric_for_sensitivi
+  kind: entity_fact
+  raw_text: The sensitivity analysis report must explicitly state that the absolute
+    threshold sweep is the primary metric
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:32:40Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: full pipeline execution requires extrapolated runtime under 4 hours
+  claim_id: c_c49eee19
+  context: 'Decision Logic: If T034b-Calc indicates feasibility (extrapolated time
+    < 4 hours), execute the full pipeline on the full dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_requires_extrapolated_runtime_under
+  kind: magnitude
+  raw_text: The extrapolated runtime for the full dataset must be less than 4 hours
+    to execute the full pipeline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:33:07Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: filter molecules with more than 100 atoms
+  claim_id: c_3ffe1494
+  context: 'Strict Fallback Logic: Attempt to fetch from ZINC15 first. If that fails,
+    attempt to fetch from OpenDataPubChem. If BOTH sources fail, raise a critical
+    error. Add Max Atoms Filter: Implement a filter to exclude molecules with >100
+    atoms to prevent memory overflow, logging the count of excluded molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: Implement a filter to exclude molecules with >100 atoms to prevent memory
+    overflow.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:35:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 2
+  canonical: halt if conformer generation failure rate exceeds 10 percent
+  claim_id: c_283b8fa8
+  context: Implement 3D conformer generation (lowest energy) and SASA calculation
+    in code/data/preprocess.py with chunked processing; halt with critical error if
+    >10% of conformer generation fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: halt with critical error if >10% of conformer generation fails
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:35:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value greater than 0.05 for train/test split
+  claim_id: c_bc532f47
+  context: 'Execute the Kolmogorov-Smirnov (KS) test comparing the MW distributions
+    of train/test sets. Verification: Output data/splits/split_report.json containing
+    the key ks_p_value with a value > 0.05; if p <= 0.05, raise an error and log the
+    failure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_greater_than_0.05_for_train/
+  kind: magnitude
+  raw_text: Output data/splits/split_report.json containing the key ks_p_value with
+    a value > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:35:50Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps absolute MAE thresholds of 0.01, 0.05, and
+    0.1 square angstroms
+  claim_id: c_5736f0dc
+  context: "Implement sensitivity analysis script sweeping absolute MAE thresholds\
+    \ {0.01, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006) in code/eval/sensitivity.py."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement sensitivity analysis script sweeping absolute MAE thresholds\
+    \ {0.01, 0.05, 0.1} \xC5\xB2"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T09:35:50Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: execute full pipeline if extrapolated runtime is less than 4 hours
+  claim_id: c_f13e8786
+  context: 'Execute the pipeline. Decision Logic: If T034b-Calc indicates feasibility
+    (extrapolated time < 4 hours), execute the full pipeline on the full dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_full_pipeline_if_extrapolated_runtime_is_less_than_4
+  kind: magnitude
+  raw_text: Execute the full pipeline on the full dataset if extrapolated time < 4
+    hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:36:10Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: verify runtime against deferred CI runner profile limit
+  claim_id: c_837ac9e7
+  context: Generate results/reports/runtime_verification.md comparing the measured
+    time against the Plan's '< 4 hours' goal and the Spec's '[deferred]' CI runner
+    profile limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_against_deferred_CI_runner_profile_limit
+  kind: entity_fact
+  raw_text: verify against the '[deferred]' CI runner profile limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:36:27Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 0
+  canonical: sensitivity analysis sweeps absolute MAE thresholds of 0.01, 0.05, and
+    0.1 Angstroms squared
+  claim_id: c_33606780
+  context: "T028 [US3] Implement sensitivity analysis script sweeping absolute MAE\
+    \ thresholds {0.01, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006)..."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "sweeping absolute MAE thresholds {0.01, 0.05, 0.1} \xC5\xB2"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T09:43:15Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: filter excludes molecules with more than 100 atoms
+  claim_id: c_294fc719
+  context: 'T048 [P] [US1] Implement SMILES ingestion from ZINC15... Add Max Atoms
+    Filter: Implement a filter to exclude molecules with >100 atoms to prevent memory
+    overflow, logging the count of excluded molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_excludes_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: Implement a filter to exclude molecules with >100 atoms to prevent memory
+    overflow
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:43:17Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: halt pipeline if conformer generation failure rate exceeds 10 percent
+  claim_id: c_9c5e3086
+  context: T015 [US1] Implement 3D conformer generation (lowest energy) and SASA calculation...
+    halt with critical error if >10% of conformer generation fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: halt with critical error if >10% of conformer generation fails
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:43:17Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: halt pipeline if invalid SMILES or conformer generation failure rate
+    exceeds 10 percent
+  claim_id: c_47579152
+  context: T017 [US1] Add validation and error handling for invalid SMILES and failed
+    conformer generation; log failure count and halt if >10% failure rate
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log failure count and halt if >10% failure rate
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:43:17Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test compares molecular weight distributions of train
+    and test sets
+  claim_id: c_3ccab4bc
+  context: T016 [US1] Implement data splitting logic... Execute the Kolmogorov-Smirnov
+    (KS) test comparing the MW distributions of train/test sets.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_compares_molecular_weight_distributi
+  kind: entity_fact
+  raw_text: Execute the Kolmogorov-Smirnov (KS) test comparing the MW distributions
+    of train/test sets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:43:51Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value must be greater than 0.05
+  claim_id: c_27d704b9
+  context: 'T016 [US1] Verification: Output data/splits/split_report.json containing
+    the key ks_p_value with a value > 0.05; if p <= 0.05, raise an error and log the
+    failure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_must_be_greater_than_0.05
+  kind: magnitude
+  raw_text: Output data/splits/split_report.json containing the key ks_p_value with
+    a value > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:43:53Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test is run on error differences before t-test
+  claim_id: c_69a1f003
+  context: 'T024 [US2] Pre-condition Check: Run Shapiro-Wilk test on error differences.
+    If normality fails, report the t-test result with a normality_warning: true flag...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_is_run_on_error_differences_before_t-test
+  kind: entity_fact
+  raw_text: Run Shapiro-Wilk test on error differences
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:44:32Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis reports percentage of molecules predicted within
+    each MAE threshold
+  claim_id: c_a2526ac5
+  context: T028 [US3] ...Report the percentage of molecules predicted within each
+    threshold. Output data/processed/sensitivity_absolute.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_reports_percentage_of_molecules_predict
+  kind: entity_fact
+  raw_text: Report the percentage of molecules predicted within each threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:44:47Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: success rate in sensitivity report is a float between 0.0 and 1.0
+  claim_id: c_8051f7ad
+  context: 'T028 [US3] Schema: The CSV must have columns [threshold, success_rate,
+    sample_size]. Format: ... success_rate (float, 0.0-1.0)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Success_rate_in_sensitivity_report_is_a_float_between_0.0_an
+  kind: entity_fact
+  raw_text: success_rate (float, 0.0-1.0)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:45:07Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: full pipeline execution condition based on extrapolated time being less
+    than 4 hours
+  claim_id: c_7396e244
+  context: 'T052-Exec [P] Execute the pipeline. Decision Logic: If T034b-Calc indicates
+    feasibility (extrapolated time < 4 hours), execute the full pipeline on the full
+    dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_condition_based_on_extrapolated_time
+  kind: magnitude
+  raw_text: execute the full pipeline on the full dataset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:45:43Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: project plan sets a runtime goal of less than 4 hours
+  claim_id: c_9b6d3110
+  context: T034b-Report [P] ... refer to the Plan's '< 4 hours' goal...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_plan_sets_a_runtime_goal_of_less_than_4_hours
+  kind: magnitude
+  raw_text: Plan's '< 4 hours' goal
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:46:05Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: project plan sets a runtime goal of less than 4 hours
+  claim_id: c_e4a79afd
+  context: T052-Report [P] ... comparing the measured time against the Plan's '< 4
+    hours' goal...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_plan_sets_a_runtime_goal_of_less_than_4_hours
+  kind: magnitude
+  raw_text: Plan's '< 4 hours' goal
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T09:46:07Z'

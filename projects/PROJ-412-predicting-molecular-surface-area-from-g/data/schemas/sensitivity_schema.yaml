@@ -1,0 +1,128 @@
+# Sensitivity Analysis Report Schema
+# Defines the expected structure for sensitivity analysis outputs
+# Generated for project: PROJ-412-predicting-molecular-surface-area-from-g
+# Task: T006
+
+type: object
+required:
+  - thresholds
+  - success_rates
+  - corrected_p_values
+  - metadata
+properties:
+  metadata:
+    type: object
+    description: "Metadata about the sensitivity analysis run"
+    required:
+      - analysis_type
+      - sample_size
+      - timestamp
+      - version
+    properties:
+      analysis_type:
+        type: string
+        description: "Type of analysis performed (e.g., 'absolute', 'relative')"
+        enum:
+          - absolute
+          - relative
+      sample_size:
+        type: integer
+        description: "Number of samples used in the analysis"
+        minimum: 1
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of when the analysis was run"
+      version:
+        type: string
+        description: "Schema version"
+        default: "1.0.0"
+
+  thresholds:
+    type: array
+    description: "List of MAE thresholds evaluated (in Å²)"
+    items:
+      type: number
+      format: float
+      description: "Absolute MAE threshold value"
+      minimum: 0
+      example: 0.01
+
+  success_rates:
+    type: array
+    description: "Success rates corresponding to each threshold"
+    items:
+      type: object
+      required:
+        - threshold
+        - success_rate
+        - sample_size
+      properties:
+        threshold:
+          type: number
+          format: float
+          description: "The MAE threshold value (Å²)"
+        success_rate:
+          type: number
+          format: float
+          description: "Fraction of predictions within the threshold (0.0 to 1.0)"
+          minimum: 0.0
+          maximum: 1.0
+        sample_size:
+          type: integer
+          description: "Number of samples used for this calculation"
+          minimum: 1
+
+  corrected_p_values:
+    type: array
+    description: "P-values corrected for multiple comparisons"
+    items:
+      type: object
+      required:
+        - threshold
+        - raw_p_value
+        - corrected_p_value
+        - correction_method
+      properties:
+        threshold:
+          type: number
+          format: float
+          description: "The MAE threshold value (Å²)"
+        raw_p_value:
+          type: number
+          format: float
+          description: "Raw p-value before correction"
+          minimum: 0.0
+          maximum: 1.0
+        corrected_p_value:
+          type: number
+          format: float
+          description: "P-value after multiple comparison correction"
+          minimum: 0.0
+          maximum: 1.0
+        correction_method:
+          type: string
+          description: "Method used for correction (e.g., 'bonferroni', 'fdr_bh')"
+          enum:
+            - bonferroni
+            - fdr_bh
+            - fdr_by
+            - holm
+            - none
+
+  justification:
+    type: object
+    description: "Justification for the selected threshold"
+    required:
+      - selected_threshold
+      - rationale
+    properties:
+      selected_threshold:
+        type: number
+        format: float
+        description: "The recommended MAE threshold (Å²)"
+      rationale:
+        type: string
+        description: "Textual justification for the selection"
+
+additionalProperties: false

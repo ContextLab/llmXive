@@ -1,9 +1,30 @@
-T003:
+T001a:
   c: false
-  h: 9244a0a3a6b60e3b3041115ffa284535da02c0a6eb97a335ff85f6802f19b8c7
-  r: The repository contains a populated `pyproject.toml` with Black and Ruff settings,
-    but the required `.ruff.toml` file is missing entirely, so the task of providing
-    both configuration files is not fully satisfied.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/` directory hierarchy (or any of its subfolders)
+    is provided; the response contains no file listings, screenshots, or other proof
+    that the directories exist. The implementer must supply a concrete artifact (e.g.,
+    a directory tree listing) showing `code/`, `code/data/`, `code/models/`, `code/eval/`,
+    and `code/utils/` are present.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/` directory hierarchy (`data/raw/`, `data/processed/`,
+    `data/splits/`, `data/schemas/`) is provided; the response contains no file listings,
+    screenshots, or code that creates these folders. The task remains undone.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or its subfolders (`tests/contract/`, `tests/unit/`,
+    `tests/integration/`) is provided; the claim lacks any artifact showing the required
+    directory structure. The implementer must create and show these directories in
+    the repository.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `results/` directory or its subfolders (`results/reports/`,
+    `results/plots/`) is provided; the implementer did not supply any artifact confirming
+    the required directory structure was created.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +33,13 @@ T007:
     that the base data models exist cannot be verified. The implementer must add the
     three model classes in the `code/models/` directory and ensure they contain the
     appropriate fields and methods.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files or class definitions for `Molecule`, `Graph`, or `EvaluationResult`
+    were provided under `code/models/`; the evidence section contains no artifacts,
+    so the required data models are missing. The implementer must add the three model
+    classes in the specified directory with appropriate fields and functionality.
 T011:
   c: false
   h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
@@ -19,12 +47,15 @@ T011:
     repository, so the integration test for the SMILES ingestion pipeline is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T014c:
+T014:
   c: false
-  h: fa9094a78aa7a7322251fbcc53be128d34ad1d0dc5b7945dd96bccf67bc9eb14
-  r: The required output file `data/processed/graphs_with_features.parquet` does not
-    exist, so no molecular weight column could have been added. The artifact is missing,
-    violating the task requirement.
+  h: 4a82a25cdc78bcf5ede9a904a07e4b77d332575c3c0a126fa95a316f0d5c849c
+  r: "The provided `preprocess.py` only shows utilities for 3\u2011D conformer generation\
+    \ and SASA calculation; there is no visible code that extracts 2\u2011D atom\u2011\
+    type, hybridization, or charge features, builds a descriptors table, or writes\
+    \ `data/processed/graphs_with_features.parquet`. Moreover, the required parquet\
+    \ file is absent from the repository. The task\u2019s core output is therefore\
+    \ missing."
 T018:
   c: false
   h: 7210e8ac7a4e627744460e0ca9d6a6c70ff373edb743fd710bd34bb1c312c267
@@ -39,10 +70,11 @@ T026:
     are missing, so no contract test or schema validation exists to meet the task.
     The implementer must add both artifacts with appropriate test code and schema
     definition.
-T028b:
+T048:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, notebook, results table, or figure) showing a secondary\
-    \ sensitivity analysis that sweeps relative MAE thresholds of 1\u202F%,\u202F\
-    5\u202F%, and\u202F10\u202F% of mean SASA is present. The claim lacks any concrete\
-    \ output or code to verify that the analysis was performed."
+  r: "The submission contains only the task description and project specifications;\
+    \ there are no code files, scripts, or generated `data/raw/chunk_*.parquet` files\
+    \ demonstrating SMILES ingestion with streaming, fallback to OpenDataPubChem,\
+    \ or the >100\u2011atom filter. Consequently, the required implementation and\
+    \ output artifacts are missing."

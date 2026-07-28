@@ -1,6 +1,5 @@
 """
-Models package for molecular surface area prediction.
-Contains base data models: Molecule, Graph, EvaluationResult.
+Model definitions for the molecular surface area prediction pipeline.
 """
 from .molecule import Molecule
 from .graph import Graph

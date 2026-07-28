@@ -1,51 +1,31 @@
-# Ruff configuration file for llmXive project
-# This file is used by the `ruff` CLI tool.
-# Note: Project-specific rules are also defined in pyproject.toml under [tool.ruff]
-
-# Extend the configuration from pyproject.toml if needed, or define overrides here.
-# Since we want to keep the main config in pyproject.toml for the build system,
-# this file primarily serves as a CLI entry point or specific override location.
-
-# Enforce line length consistent with Black
-line-length = 100
-
-# Target Python version
+# Ruff configuration for llmXive Molecular SASA project
 target-version = "py39"
+line-length = 88
 
 [lint]
-# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "ARG",# unused arguments
-    "SIM",# simplify
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
 ]
-
-# Ignore specific rules that conflict with style or are too noisy
 ignore = [
-    "E501",  # line too long (handled by black formatter)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # function is too complex (handled by complexity metrics separately if needed)
-    "ARG001", # unused function arguments (sometimes needed for interface compliance)
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults (common in dataclasses)
 ]
 
 [lint.per-file-ignores]
-# Allow assert statements in tests
-"tests/**/*.py" = ["S101"]
-# Allow print statements in scripts (for debugging/demos if necessary, though logging is preferred)
-"code/**/*.py" = ["T201"]
+"tests/*" = ["S101"]  # Allow asserts in tests
 
 [lint.isort]
-known-first-party = ["code", "tests"]
+known-first-party = ["code"]
 force-sort-within-sections = true
 
 [format]
-# Configuration for `ruff format` (if used as black replacement, though black is installed)
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false

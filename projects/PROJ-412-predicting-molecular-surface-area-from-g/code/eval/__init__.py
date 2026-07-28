@@ -1,1 +1,1 @@
-"""Evaluation metrics and analysis module."""
+# Evaluation package

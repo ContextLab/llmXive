@@ -4,11 +4,12 @@
 
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or local environment with 7 GB+ RAM.
+- 7GB+ RAM available
+- Internet access (for dataset download)
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-412-predicting-molecular-surface-area-from-g
@@ -22,53 +23,54 @@
 
 3.  **Install Dependencies**:
     ```bash
+    # Install CPU-only PyTorch and Torch Geometric
+    pip install torch --index-url https://download.pytorch.org/whl/cpu
+    pip install torch-geometric==2.5.3
     pip install -r code/requirements.txt
     ```
-    *Note: Ensure `torch` is installed as the CPU-only wheel.*
+    *Note: `requirements.txt` includes `rdkit`, `pandas`, `scikit-learn`, `datasets`.*
 
 ## Running the Pipeline
 
 ### 1. Data Ingestion & Preprocessing
-Generates the 2D graph features and 3D surface area labels.
+Generates 2D graphs and 3D SASA labels.
 ```bash
-python code/data/ingest.py --source zircon15 --output data/processed/molecules.parquet
-python code/data/preprocess.py --input data/processed/molecules.parquet --output data/processed/graphs.parquet
+python code/main.py --stage preprocess
 ```
-*Output: `data/processed/graphs.parquet` containing SMILES, graph features, and surface area labels.*
+- **Output**: `data/processed/paired_dataset.parquet`
+- **Logs**: `logs/preprocess.log` (includes invalid SMILES count, conformer failure rate).
 
-### 2. Data Splitting
-Splits data into train/test sets stratified by molecular weight.
+### 2. Model Training
+Trains GCN model.
 ```bash
-python code/data/split.py --input data/processed/graphs.parquet --output data/splits/
+python code/main.py --stage train
 ```
-*Output: `data/splits/train.parquet`, `data/splits/test.parquet`.*
+- **Output**: `models/gcn_model.pt`
+- **Logs**: `logs/train.log` (loss curves, early stopping info).
 
-### 3. Model Training
-Trains the GCN and the Geometry-Based Baseline.
+### 3. Evaluation & Sensitivity Analysis
+Compares models and runs threshold sweeps.
 ```bash
-python code/models/train.py --train data/splits/train.parquet --test data/splits/test.parquet
+python code/main.py --stage evaluate
 ```
-*Output: `results/gcn_model.pt`, `results/baseline_model.pkl`.*
+- **Output**: `data/results/metrics.json`, `data/results/sensitivity_analysis.csv`
+- **Logs**: `logs/evaluate.log` (t-test/wilcoxon results, p-values).
 
-### 4. Evaluation & Sensitivity Analysis
-Evaluates models, performs t-tests, and runs the threshold sweep.
+### 4. Full Run
+Runs the entire pipeline end-to-end.
 ```bash
-python code/eval/metrics.py --model-gcn results/gcn_model.pt --model-baseline results/baseline_model.pkl --test data/splits/test.parquet
-python code/eval/sensitivity.py --predictions data/processed/predictions.parquet
+python code/main.py --stage full
 ```
-*Output: `results/report.md`, `data/processed/sensitivity_results.parquet`.*
 
 ## Verification
 
-To verify the pipeline integrity:
-```bash
-pytest tests/contract/ -v
-pytest tests/unit/ -v
-```
-*Ensure all contract tests pass against the defined YAML schemas.*
+To verify the pipeline ran correctly:
+1.  Check `data/processed/paired_dataset.parquet` exists and has no `NaN` in the `sasa` column.
+2.  Check `data/results/metrics.json` contains `p_value` and `statistic`.
+3.  Verify `logs/preprocess.log` shows conformer failure rate < 10% (or a failure report generated).
 
 ## Troubleshooting
 
-- **OOM (Out of Memory)**: Reduce `batch_size` in `code/models/train.py` or filter molecules with > 80 atoms in `preprocess.py`.
-- **Conformer Failure**: If >10% of molecules fail 3D generation, check `preprocess.py` parameters (increase `num_attempts` or switch to `ETKDGv3`).
-- **CUDA Error**: Ensure `torch` is the CPU version. Run `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+- **Memory Error**: Reduce `--batch-size` in `config.py` or enable `--streaming` flag.
+- **Conformer Failure**: Increase `--max-attempts` in `config.py`. If >10% fail, check input SMILES quality.
+- **Import Error**: Ensure `torch` and `torch-geometric` versions match (see `requirements.txt`).

@@ -1,15 +1,3 @@
-"""
-Module: code/eval/scale_analysis.py
-Task: T027a - Pre-check: Calculate mean SASA of the dataset and log scale.
-
-This script performs a pre-check on the processed dataset to determine the
-scale of the target variable (SASA). It calculates the mean SASA and logs
-a warning if the mean is significantly larger than the absolute thresholds
-{0.01, 0.05, 0.1} Å², documenting the potential for low success rates.
-
-It writes the analysis results to results/reports/scale_analysis.json
-to be consumed by the sensitivity analysis report (T030).
-"""
 import os
 import sys
 import json
@@ -17,172 +5,150 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
+# Add project root to path to allow imports from code/
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.logging import setup_logging, get_logger
-from utils.config import get_data_dir, get_results_dir
+from utils.logging import get_logger
+from utils.config import get_data_dir
 
-def load_processed_data_stats(data_dir: Path) -> Optional[Dict[str, Any]]:
-    """
-    Loads the processed dataset statistics from the expected location.
-    We expect the preprocessing step (T014/T017) to have generated a 
-    statistics file or we read directly from the processed parquet/csv if available.
-    
-    For this task, we assume the processed data is in `data/processed/processed_molecules.parquet`
-    or a similar summary file. If not, we attempt to load the main processed file.
-    """
-    processed_path = data_dir / "processed" / "processed_molecules.parquet"
-    stats_path = data_dir / "processed" / "dataset_statistics.json"
-    
-    logger = get_logger(__name__)
-    
-    # Try to load pre-calculated stats if available
-    if stats_path.exists():
-        try:
-            with open(stats_path, 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.warning(f"Could not load pre-calculated stats: {e}. Attempting direct read.")
-    
-    # Fallback: Try to load the parquet file directly if pandas is available
-    # This ensures we don't fail if the stats file wasn't generated yet but data is.
-    if processed_path.exists():
-        try:
-            import pandas as pd
-            df = pd.read_parquet(processed_path)
-            if 'sasa' in df.columns:
-                return {
-                    "mean_sasa": float(df['sasa'].mean()),
-                    "std_sasa": float(df['sasa'].std()),
-                    "min_sasa": float(df['sasa'].min()),
-                    "max_sasa": float(df['sasa'].max()),
-                    "count": int(len(df)),
-                    "source": "direct_parquet_read"
-                }
-            else:
-                logger.error(f"Column 'sasa' not found in {processed_path}. Columns: {df.columns.tolist()}")
-                return None
-        except ImportError:
-            logger.error("Pandas not available to read parquet fallback.")
-            return None
-        except Exception as e:
-            logger.error(f"Failed to read parquet file: {e}")
-            return None
-    
-    logger.error(f"Processed data not found at {processed_path} and stats not at {stats_path}")
-    return None
+logger = get_logger(__name__)
 
-def analyze_sasa_scale(data_dir: Path, results_dir: Path) -> Dict[str, Any]:
+def load_processed_data_stats() -> Dict[str, Any]:
     """
-    Analyzes the scale of SASA values in the dataset.
+    Load the processed dataset with 3D conformers and SASA values.
+    This function reads the output from T015 (processes_with_3d.parquet).
     
-    Returns a dictionary containing:
-    - mean_sasa: The calculated mean
-    - scale_warning: Boolean indicating if mean >> 0.1
-    - justification: Text explaining the threshold choice relative to scale
-    - raw_stats: The raw statistics loaded
+    Returns:
+        Dict containing 'sasa_values' (list of floats) and 'count' (int).
     """
-    logger = get_logger(__name__)
-    logger.info("Starting SASA scale analysis (Task T027a)...")
+    data_dir = get_data_dir()
+    processed_file = data_dir / "processed" / "graphs_with_3d.parquet"
     
-    stats = load_processed_data_stats(data_dir)
+    if not processed_file.exists():
+        raise FileNotFoundError(
+            f"Processed data file not found: {processed_file}. "
+            "Ensure T015 has completed successfully."
+        )
     
-    if stats is None:
-        logger.error("Could not load dataset statistics. Aborting analysis.")
+    try:
+        import pandas as pd
+        df = pd.read_parquet(processed_file)
+        
+        if 'sasa' not in df.columns:
+            raise ValueError(
+                f"Column 'sasa' not found in {processed_file}. "
+                "Available columns: {list(df.columns)}"
+            )
+        
+        sasa_values = df['sasa'].dropna().tolist()
+        
+        if not sasa_values:
+            raise ValueError("No valid SASA values found in the dataset.")
+        
         return {
-            "status": "failed",
-            "reason": "Could not load dataset statistics"
+            'sasa_values': sasa_values,
+            'count': len(sasa_values)
         }
+    except ImportError:
+        logger.error("pandas and pyarrow are required to read parquet files.")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading processed data: {e}")
+        raise
+
+def analyze_sasa_scale(stats: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Calculate the mean SASA and generate a justification for the scale.
     
-    mean_sasa = stats.get("mean_sasa")
-    if mean_sasa is None:
-        logger.error("Mean SASA not found in loaded statistics.")
-        return {
-            "status": "failed",
-            "reason": "Mean SASA not found in statistics"
-        }
+    Args:
+        stats: Dictionary containing 'sasa_values' and 'count'.
+        
+    Returns:
+        Dictionary with 'mean_sasa', 'min_sasa', 'max_sasa', 'std_sasa',
+        'count', and 'justification_source'.
+    """
+    import numpy as np
     
-    logger.info(f"Dataset Mean SASA: {mean_sasa:.4f} Å²")
-    logger.info(f"Dataset Std SASA: {stats.get('std_sasa', 'N/A')} Å²")
+    sasa_values = np.array(stats['sasa_values'])
     
-    # Thresholds defined in FR-006
-    thresholds = [0.01, 0.05, 0.1]
-    threshold_scale = 0.1
+    mean_sasa = float(np.mean(sasa_values))
+    min_sasa = float(np.min(sasa_values))
+    max_sasa = float(np.max(sasa_values))
+    std_sasa = float(np.std(sasa_values))
     
-    # Check if mean is significantly larger than the largest threshold
-    # "Significantly" here means > 10x the largest threshold (0.1) or simply >> 0.1
-    # Given typical molecular SASA (e.g., benzene ~100 Å², larger molecules > 500 Å²),
-    # the mean will almost certainly be >> 0.1.
+    # Justification based on typical experimental error for SASA measurements
+    # SASA (Solvent Accessible Surface Area) is typically measured in Angstroms squared (Å²)
+    # Experimental error is generally small relative to the total surface area of molecules.
+    justification_source = "Typical experimental error for SASA calculations is small (< 1 Å²) relative to molecular surface areas which typically range from 50 to 500 Å² for drug-like molecules."
     
-    is_scale_mismatch = mean_sasa > (threshold_scale * 10) # 1.0 Å²
-    
-    warning_msg = ""
-    justification = ""
-    
-    if is_scale_mismatch:
-        warning_msg = (
-            f"WARNING: Mean SASA ({mean_sasa:.4f} Å²) is significantly larger than "
-            f"the absolute thresholds {thresholds}. "
-            f"Success rates for thresholds {thresholds} may be effectively zero (deferred) "
-            f"unless the metric is interpreted as relative error or the thresholds are scaled."
-        )
-        justification = (
-            f"The selected absolute thresholds {{0.01, 0.05, 0.1}} Å² are orders of magnitude "
-            f"smaller than the mean molecular surface area ({mean_sasa:.4f} Å²). "
-            f"Consequently, achieving an MAE < 0.1 Å² is physically unrealistic for most "
-            f"molecules in this dataset. This scale mismatch justifies the decision to "
-            f"report success rates as 'deferred' or to interpret these thresholds as "
-            f"relative error targets in the final sensitivity report (FR-006)."
-        )
-        logger.warning(warning_msg)
-    else:
-        justification = (
-            f"The mean SASA ({mean_sasa:.4f} Å²) is within a comparable range to the "
-            f"selected absolute thresholds. Absolute error metrics are appropriate."
-        )
-        logger.info("Scale analysis passed. Thresholds are appropriate for absolute error.")
-    
-    result = {
-        "status": "success",
-        "mean_sasa": mean_sasa,
-        "std_sasa": stats.get("std_sasa"),
-        "min_sasa": stats.get("min_sasa"),
-        "max_sasa": stats.get("max_sasa"),
-        "count": stats.get("count"),
-        "thresholds_analyzed": thresholds,
-        "is_scale_mismatch": is_scale_mismatch,
-        "warning": warning_msg if is_scale_mismatch else None,
-        "justification": justification
+    return {
+        'mean_sasa': mean_sasa,
+        'min_sasa': min_sasa,
+        'max_sasa': max_sasa,
+        'std_sasa': std_sasa,
+        'count': stats['count'],
+        'justification_source': justification_source
     }
-    
-    # Save report
-    report_path = results_dir / "reports" / "scale_analysis.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(report_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Scale analysis report saved to {report_path}")
-    return result
 
 def main():
-    setup_logging()
-    logger = get_logger(__name__)
+    """
+    Main entry point for T040: Calculate mean SASA and document scale.
     
-    data_dir = get_data_dir()
-    results_dir = get_results_dir()
+    Outputs:
+        - results/reports/scale_analysis.json: JSON with mean_sasa and justification.
+        - results/reports/scale_analysis.md: Markdown report with analysis details.
+    """
+    logger.info("Starting T040: Scale Analysis of SASA")
     
-    result = analyze_sasa_scale(data_dir, results_dir)
-    
-    if result["status"] == "failed":
-        logger.error(f"Analysis failed: {result.get('reason')}")
-        sys.exit(1)
-    
-    logger.info("T027a Pre-check completed successfully.")
-    return result
+    try:
+        # Load processed data
+        logger.info("Loading processed data with 3D conformers...")
+        stats = load_processed_data_stats()
+        logger.info(f"Loaded {stats['count']} molecules with SASA values.")
+        
+        # Analyze scale
+        logger.info("Calculating SASA statistics...")
+        analysis = analyze_sasa_scale(stats)
+        
+        # Prepare output directories
+        results_dir = project_root / "results" / "reports"
+        results_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Write JSON output
+        json_output_path = results_dir / "scale_analysis.json"
+        with open(json_output_path, 'w') as f:
+            json.dump(analysis, f, indent=2)
+        logger.info(f"Written JSON report to {json_output_path}")
+        
+        # Write Markdown report
+        md_output_path = results_dir / "scale_analysis.md"
+        with open(md_output_path, 'w') as f:
+            f.write("# SASA Scale Analysis\n\n")
+            f.write("## Summary\n\n")
+            f.write(f"This report documents the scale of the target variable (SASA) "
+                    f"calculated from the processed dataset.\n\n")
+            
+            f.write("## Statistics\n\n")
+            f.write(f"- **Mean SASA**: {analysis['mean_sasa']:.2f} Å²\n")
+            f.write(f"- **Min SASA**: {analysis['min_sasa']:.2f} Å²\n")
+            f.write(f"- **Max SASA**: {analysis['max_sasa']:.2f} Å²\n")
+            f.write(f"- **Std Dev**: {analysis['std_sasa']:.2f} Å²\n")
+            f.write(f"- **Sample Size**: {analysis['count']}\n\n")
+            
+            f.write("## Justification\n\n")
+            f.write(f"{analysis['justification_source']}\n\n")
+            f.write("The mean SASA value calculated here will be used to contextualize "
+                    "model performance metrics (MAE, RMSE) in subsequent tasks.\n")
+        
+        logger.info(f"Written Markdown report to {md_output_path}")
+        logger.info("T040 completed successfully.")
+        
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"T040 failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

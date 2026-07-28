@@ -1,34 +1,22 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "predicting-molecular-surface-area-from-g"
+name = "llmxive-molecular-sasa"
 version = "0.1.0"
 description = "Predicting Molecular Surface Area from Graph Convolutional Networks"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "rdkit",
-    "pandas",
-    "scikit-learn",
-    "pyyaml",
-    "numpy",
-    "pytest",
-    "ruff",
-    "black",
-    "torch",
-    "torch-geometric",
-]
+dependencies = []
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -40,37 +28,7 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 100
-target-version = "py39"
-src = ["code", "tests"]
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]  # allow assert in tests
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-    "contract: marks tests as contract tests",
-]
+addopts = "-v --tb=short"

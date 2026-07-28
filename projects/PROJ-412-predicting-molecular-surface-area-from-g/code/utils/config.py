@@ -2,37 +2,31 @@ import os
 from pathlib import Path
 import yaml
 
-def get_project_root() -> Path:
+def get_project_root():
     """
-    Returns the project root directory path.
-    Assumes the project root is the parent of the 'code' directory.
+    Returns the root directory of the project.
+    Assumes the project root is two levels up from this file (code/utils/).
     """
-    current_file = Path(__file__).resolve()
-    # Navigate up to find the project root (usually parent of 'code')
-    if current_file.name == "config.py":
-        # If running from code/utils/config.py
-        return current_file.parent.parent
-    return Path.cwd()
+    return Path(__file__).resolve().parent.parent.parent
 
-def get_data_dir() -> Path:
-    """Returns the path to the data directory."""
+def get_data_dir():
+    """
+    Returns the path to the data directory.
+    """
     return get_project_root() / "data"
 
-def get_results_dir() -> Path:
-    """Returns the path to the results directory."""
+def get_results_dir():
+    """
+    Returns the path to the results directory.
+    """
     return get_project_root() / "results"
 
-def load_env_config() -> dict:
+def load_env_config():
     """
-    Loads configuration from environment variables or a config file.
-    
-    Returns:
-        A dictionary of configuration values.
+    Loads configuration from a config.yaml file if it exists, otherwise returns defaults.
     """
-    config = {
-        "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO"),
-        "SEED": os.getenv("SEED", "42"),
-        "DATA_DIR": str(get_data_dir()),
-        "RESULTS_DIR": str(get_results_dir())
-    }
-    return config
+    config_path = get_project_root() / "config.yaml"
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    return {}

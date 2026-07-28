@@ -1,1 +1,1 @@
-"""Integration tests module."""
+"""Integration tests package."""

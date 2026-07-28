@@ -1,0 +1,12 @@
+status: none
+intent: download ZINC15 SMILES dataset and ChEMBL molecules python package dataset
+required_fields:
+- SMILES
+- node_features
+- edge_features
+- surface_area
+- molecular_weight
+- molecule_id
+cache_key: 82b4a295e9cc4c6a8e33660f0f660e00c4bd414bacb0cc9c75de6210798b1012
+searched_at: '2026-07-28T09:04:01.319973+00:00'
+retry_count: 1

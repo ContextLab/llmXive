@@ -9,7 +9,6 @@ import os
 import random
 import hashlib
 from typing import Optional, Dict, Any
-
 import numpy as np
 
 # Try to import torch, but make it optional for environments without it
@@ -69,7 +68,8 @@ def set_seed(seed: Optional[int] = None, deterministic: bool = True) -> int:
     # PyTorch (if available)
     if TORCH_AVAILABLE:
         torch.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed) if torch.cuda.is_available() else None
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
 
         if deterministic and torch.cuda.is_available():
             torch.backends.cudnn.deterministic = True

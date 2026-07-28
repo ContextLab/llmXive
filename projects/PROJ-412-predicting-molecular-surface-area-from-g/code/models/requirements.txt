@@ -1,0 +1,5 @@
+# Dependencies for code/models module
+# Note: These are already covered in the main requirements.txt
+# This file is for documentation purposes only
+numpy>=1.21.0
+scikit-learn>=1.0.0

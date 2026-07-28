@@ -2,58 +2,118 @@
 # Generated for User Story 1: Data Ingestion and Preprocessing
 # Validates the output of the ingestion and preprocessing pipeline
 # before further processing or model training.
+#
+# This schema defines the expected structure for the processed dataset
+# containing SMILES, node_features, edge_features, surface_area, and molecular_weight.
+# It is used by T012 (Contract Test) to validate data integrity.
 
+$schema: http://json-schema.org/draft-07/schema#
+title: ProcessedMoleculeSchema
 type: object
+description: |
+  Schema for a single processed molecule record in the dataset.
+  Used for validation of the output from code/data/preprocess.py.
+
 required:
   - smiles
   - node_features
   - edge_features
   - surface_area
   - molecular_weight
+
 properties:
   smiles:
     type: string
     description: Canonical SMILES string of the molecule
     minLength: 1
+    pattern: "^[A-Za-z0-9@+\\-\\[\\]\\(\\)\\{\\}\\.,#=\\$%&/\\\\<>]+$"
+
   node_features:
     type: array
-    description: List of feature vectors for each atom in the molecule
+    description: List of feature vectors for each atom in the molecule.
+      Each inner array represents the feature vector for a single atom.
+      Features typically include: atom type, hybridization, degree, formal charge, etc.
     items:
       type: array
       items:
         type: number
+        description: Numerical feature value
       minItems: 1
     minItems: 1
+    uniqueItems: false
+
   edge_features:
     type: array
-    description: List of feature vectors for each bond in the molecule
+    description: List of feature vectors for each bond in the molecule.
+      Each inner array represents the feature vector for a single bond.
+      Features typically include: bond type, conjugation, ring membership, etc.
     items:
       type: array
       items:
         type: number
+        description: Numerical feature value
       minItems: 1
     minItems: 0
+    uniqueItems: false
+
   surface_area:
     type: number
-    description: Solvent Accessible Surface Area (SASA) in Angstroms squared
+    description: Solvent Accessible Surface Area (SASA) in Angstroms squared (Å²).
+      Calculated using 3D conformer generation and the Lee & Richards algorithm.
     minimum: 0
     exclusiveMinimum: false
+
   molecular_weight:
     type: number
-    description: Molecular weight in Daltons
+    description: Molecular weight in Daltons (g/mol).
+      Calculated from the atomic composition of the molecule.
     minimum: 0
     exclusiveMinimum: false
+
   metadata:
     type: object
-    description: Optional metadata about the molecule processing
+    description: Optional metadata about the molecule processing.
     properties:
       source:
         type: string
+        description: Origin of the molecule (e.g., 'ZINC15', 'OpenDataPubChem')
       processed_at:
         type: string
         format: date-time
+        description: ISO 8601 timestamp of processing
       rdkit_version:
         type: string
+        description: Version of RDKit used for processing
       conformer_method:
         type: string
+        description: Method used for conformer generation (e.g., 'ETKDGv3')
+      atom_count:
+        type: integer
+        description: Number of atoms in the molecule
+        minimum: 1
+      bond_count:
+        type: integer
+        description: Number of bonds in the molecule
+        minimum: 0
+    additionalProperties: true
+
 additionalProperties: true
+
+examples:
+  - smiles: "CCO"
+    node_features:
+      - [6.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [6.0, 3.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [8.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    edge_features:
+      - [1.0, 0.0, 0.0, 0.0]
+      - [1.0, 0.0, 0.0, 0.0]
+    surface_area: 28.54
+    molecular_weight: 46.07
+    metadata:
+      source: "ZINC15"
+      processed_at: "2023-10-27T10:00:00Z"
+      rdkit_version: "2023.3.1"
+      conformer_method: "ETKDGv3"
+      atom_count: 3
+      bond_count: 2
