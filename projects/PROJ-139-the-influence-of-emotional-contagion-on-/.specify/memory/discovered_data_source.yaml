@@ -1,0 +1,14 @@
+status: none
+intent: HuggingFace datasets reddit comments AskScience StackExchange data dump python
+  package dataset
+required_fields:
+- comment_id
+- text
+- timestamp
+- author
+- parent_id
+- subreddit
+- is_solved
+cache_key: 306c8d6acbbcf2041e6f6c65e27b0871b8972b130f929237cd8f8f3530cab6d6
+searched_at: '2026-07-28T00:18:46.898141+00:00'
+retry_count: 1

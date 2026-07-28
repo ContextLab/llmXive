@@ -1,103 +1,134 @@
-# Quickstart Guide: The Influence of Emotional Contagion on Collective Decision-Making
-
-This guide provides instructions for setting up and running the full research pipeline for PROJ-139.
+# Quickstart Guide: Emotional Contagion Analysis Pipeline
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- `pip` package manager
-- Access to the required APIs (Pushshift, Reddit OAuth) or HuggingFace account for dataset access.
+- pip package manager
+- Internet connectivity (for data download)
+- (Optional) Reddit API credentials for higher rate limits
 
 ## Installation
 
-1. Clone the repository and navigate to the project root.
-2. Install the required dependencies:
+1. Clone the repository and navigate to the project directory:
+ ```bash
+ cd projects/PROJ-139-the-influence-of-emotional-contagion-on-
+ ```
 
-```bash
-pip install -r code/requirements.txt
-```
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-Ensure you have the necessary environment variables set if you are using the Reddit API (see `code/config/settings.py` for details).
+3. (Optional) Set Reddit API credentials as environment variables:
+ ```bash
+ export REDDIT_CLIENT_ID="your_client_id"
+ export REDDIT_CLIENT_SECRET="your_client_secret"
+ export REDDIT_USER_AGENT="your_user_agent"
+ ```
 
 ## Running the Pipeline
 
-To execute the full analysis pipeline (data download, extraction, sentiment analysis, modeling, and reporting):
+### Step 1: Download Data
 
+The download script supports multiple sources with automatic fallback:
+- Primary: Pushshift API
+- Fallback 1: Reddit Official API (requires credentials)
+- Fallback 2: HuggingFace archives
+
+**Command:**
 ```bash
-python code/analysis/run_pipeline.py --threads
+python code/data/download.py --subreddits AskScience FDR --limit 500
 ```
 
-### Pipeline Stages
-The pipeline executes the following stages sequentially:
-1. **Data Download**: Fetches raw thread data.
-2. **Extraction**: Filters threads, extracts seed posts, and validates metadata.
-3. **Validation**: Classifies ground truth availability and computes validation scores.
-4. **Sentiment Analysis**: Applies VADER sentiment scoring.
-5. **Metrics Computation**: Calculates emotional contagion indices and decision quality metrics.
-6. **Modeling**: Fits GLMMs, performs sensitivity analysis, and computes correlations.
-7. **Reporting**: Generates final reports (`docs/paper.md`, `docs/analysis_summary.md`).
+**Arguments:**
+- `--subreddits`: Space-separated list of subreddit names (default: AskScience FDR)
+- `--limit`: Maximum threads per source (default: 500)
+- `--output`: Custom output path (default: data/raw/reddit_threads.jsonl)
+
+**Note:** The script implements a strict "fail-loud" policy. If all data sources fail, it raises a `RuntimeError` instead of generating synthetic data.
+
+### Step 2: Run Full Pipeline
+
+Execute the complete analysis pipeline:
+```bash
+python code/analysis/run_pipeline.py
+```
+
+This will:
+1. Extract seed posts from downloaded data
+2. Validate ground truth availability
+3. Apply VADER sentiment analysis
+4. Compute emotional contagion indices
+5. Fit GLMM models
+6. Perform sensitivity analysis
+7. Generate final reports
 
 ## Expected Outputs
 
-Upon successful completion, the following artifacts will be generated:
+After successful execution, the following artifacts will be generated:
 
-- **Raw Data**: `data/raw/reddit_threads.jsonl`
-- **Processed Data**:
- - `data/processed/all_threads_classified.csv`
- - `data/processed/valid_threads.csv`
- - `data/processed/threads_with_seeds.csv`
- - `data/processed/thread_metrics.csv`
- - `data/processed/sensitivity_analysis.csv`
- - `data/processed/external_validation_correlation.csv`
-- **State & Logs**:
- - `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` (Artifact checksums)
- - `state/sc_006_compliance_report.json`
- - `state/final_validation.json`
- - `state/reproducibility_report.json`
-- **Reports**:
- - `docs/paper.md`
- - `docs/analysis_summary.md`
+### Data Files (`data/processed/`)
+- `reddit_threads.jsonl`: Raw downloaded data
+- `threads_with_seeds.csv`: Extracted threads with seed posts
+- `all_threads_classified.csv`: Thread classification (valid/valid_no_gt/invalid)
+- `valid_threads.csv`: Threads with ground truth
+- `thread_metrics.csv`: Sentiment and contagion metrics
+- `sensitivity_analysis.csv`: Threshold sensitivity results
+- `ground_truth_stats.json`: Ground truth availability statistics
+- `collinearity_diagnostics.json`: VIF scores for predictors
+- `external_validation_correlation.csv`: Correlation with external validation
+
+### State Files (`state/`)
+- `projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`: Project state and checksums
+- `sc_006_compliance_report.json`: Ground truth threshold compliance
+- `reproducibility_report.json`: Reproducibility verification results
+- `final_validation.json`: Final success criteria validation
+
+### Documentation (`docs/`)
+- `paper.md`: Final research paper
+- `analysis_summary.md`: Analysis summary with limitations
+- `quickstart.md`: This guide
 
 ## Data Sources
 
-This project relies on specific external data sources. The pipeline attempts to fetch data in the following order:
+The pipeline fetches data from the following sources in order:
 
-### 1. Primary Source: Pushshift API
-- **Endpoint**: ` (or equivalent archival endpoint)
-- **Method**: Direct HTTP GET requests with query parameters for subreddits and time ranges.
-- **Notes**: This is the preferred source for historical Reddit data. If this endpoint is unavailable, the pipeline automatically attempts the fallbacks below.
+1. **Pushshift API**: `
+ - Free, no authentication required
+ - May have rate limits or availability issues
 
-### 2. Fallback 1: Reddit Official API
-- **Method**: OAuth 2.0 flow.
-- **Configuration**: Requires `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, and `REDDIT_USER_AGENT` environment variables.
-- **Endpoint**: `https://oauth.reddit.com/`
-- **Notes**: Requires an active Reddit developer account. Rate limits apply.
+2. **Reddit Official API**: Requires OAuth credentials
+ - More reliable but requires registration
+ - Set via environment variables or CLI flags
 
-### 3. Fallback 2: HuggingFace Archives (Verified)
-- **Dataset ID**: `reddit-research/threads-2024`
-- **Access Method**: Using the `datasets` library:
- ```python
- from datasets import load_dataset
- dataset = load_dataset('json', data_files={'train': 'hf://datasets/reddit-research/threads-2024/train.jsonl'})
- ```
-- **Notes**: This is a static, verified snapshot of Reddit threads. It is used if live API access fails.
-- **Verification**: Ensure you have internet access to fetch from the HuggingFace Hub.
-
-### Data Fetching Policy
-The `code/data/download.py` script implements a strict "fail-loud" policy. If all three sources (Pushshift, Reddit API, HuggingFace) fail, the script will raise a `RuntimeError` and halt the pipeline. **No synthetic or mock data will be generated.**
+3. **HuggingFace Archives**: `cardiffnlp/reddit-tweet-sentiment`
+ - Pre-processed Reddit sentiment dataset
+ - Used as last resort fallback
 
 ## Troubleshooting
 
-- **Data Download Failure**: Check your internet connection and API key configurations. If using HuggingFace, ensure you are logged in (`huggingface-cli login`) if the dataset requires authentication.
-- **Missing Dependencies**: Re-run `pip install -r code/requirements.txt`.
-- **Pipeline Timeout**: If the pipeline exceeds the 6-hour limit (SC-005), check the `state/performance_log.json` for resource usage details.
+### Data Download Fails
+If you see `RuntimeError: All data sources failed`, check:
+- Internet connectivity
+- Pushshift API availability (may be down temporarily)
+- Reddit API credentials (if using)
+- HuggingFace dataset accessibility
 
-## Reproducibility
+### Pipeline Execution Errors
+- Ensure all dependencies are installed: `pip install -r code/requirements.txt`
+- Check that `data/raw/reddit_threads.jsonl` exists before running the full pipeline
+- Verify sufficient disk space (minimum 14 GB recommended)
 
-To verify the reproducibility of results, run:
+### Performance Issues
+- The pipeline is optimized for CPU-only execution
+- Default thread limit is 500; reduce for faster testing
+- Runtime should complete within 6 hours on standard hardware
 
+## Verification
+
+After running, verify success:
 ```bash
-python code/analysis/verify_reproducibility.py
+python code/analysis/final_validation.py
 ```
 
-This will re-run the pipeline on the existing raw data (without re-downloading) and compare artifact checksums against the recorded values in `state/projects/...yaml`.
+This checks all success criteria (SC-001 to SC-006) and reports compliance status.
