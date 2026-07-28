@@ -31,22 +31,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T15:08:51Z'
 - artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
-  attempts: 2
-  canonical: Landsat 5 ceased operation in 2011
-  claim_id: c_e4256e0f
-  context: 'Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.).
-    Requires T044 to update spec.md FR-001.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Landsat missions ceased operation in 2011.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T15:09:23Z'
-- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   attempts: 1
   canonical: Landsat 5 ceased operation in 2011
   claim_id: c_40b378b1
@@ -932,7 +916,23 @@
   status: not_enough_info
   updated_at: '2026-07-03T15:39:57Z'
 - artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
-  attempts: 11
+  attempts: 3
+  canonical: Landsat 5 ceased operation in 2011
+  claim_id: c_e4256e0f
+  context: 'Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.).
+    Requires T044 to update spec.md FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat missions ceased operation in 2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:00:21Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 13
   canonical: Landsat missions ceased operation in 2011
   claim_id: c_b7c434d6
   context: 'Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.).
@@ -946,4 +946,165 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T15:41:20Z'
+  updated_at: '2026-07-28T16:02:17Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Study period for Landsat imagery is 2000-2023
+  claim_id: c_3b7eca67
+  context: 'Goal: Ingest, clean, and align Landsat satellite imagery time series with
+    ecotourism site metadata for the defined study period (2000-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study period for Landsat satellite imagery time series is 2000-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:04:53Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Deforestation defined as NDVI drop >= 0.30 sustained over 2 years
+  claim_id: c_5db2ccf0
+  context: "Goal: Automatically detect deforestation events (NDVI drop \u22650.30\
+    \ sustained over 2 years) and calculate recovery trajectories using non-linear\
+    \ asymptotic models."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deforestation_defined_as_NDVI_drop_%3E=_0.30_sustained_over_2_
+  kind: entity_fact
+  raw_text: "Deforestation is defined as an NDVI drop \u22650.30 sustained over 2\
+    \ years"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:31Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Sites with > 50% data gaps are excluded
+  claim_id: c_96ff2e12
+  context: "Implement `code/preprocessing.py`: Pair sites logic (same biome, similar\
+    \ initial NDVI drop \xB110%); exclude sites with >50% data gaps; output consolidated\
+    \ `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sites with >50% data gaps are excluded
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:31Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Recovery period < 5 years flagged as incomplete recovery
+  claim_id: c_6846282c
+  context: 'Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery
+    period <5 years) - flag and exclude from primary slope analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recovery period <5 years is flagged as incomplete recovery
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:31Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Project targets 30 paired sites
+  claim_id: c_5428bbaf
+  context: 'Implement `code/data_acquisition.py`: Download Landsat Level-2 data via
+    USGS API for 30 paired sites using chunked streaming; load site coordinates from
+    `data/raw/site_coordinates.csv`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets 30 paired sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:38Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage must be < 7GB
+  claim_id: c_33a4101e
+  context: Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure
+    peak RAM <7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_must_be_%3C_7GB
+  kind: entity_fact
+  raw_text: Peak RAM usage must be <7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:45Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: CHIRPS API used for precipitation data
+  claim_id: c_9697575a
+  context: '[FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal
+    period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet`
+    with monthly resolution; use CHIRPS API and NASA POWER API'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CHIRPS_API_used_for_precipitation_data
+  kind: entity_fact
+  raw_text: CHIRPS API is used for precipitation data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:10:52Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: NASA POWER API used for temperature data
+  claim_id: c_1d49f896
+  context: '[FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal
+    period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet`
+    with monthly resolution; use CHIRPS API and NASA POWER API'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NASA_POWER_API_used_for_temperature_data
+  kind: entity_fact
+  raw_text: NASA POWER API is used for temperature data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:11:15Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Climate data spans early 21st century
+  claim_id: c_5978400c
+  context: '[FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal
+    period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet`
+    with monthly resolution; use CHIRPS API and NASA POWER API'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Climate_data_spans_early_21st_century
+  kind: entity_fact
+  raw_text: Climate data spans the early 21st century
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T16:11:25Z'

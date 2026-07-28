@@ -11,6 +11,10 @@
     "classified_at": "2026-07-12T07:04:57Z",
     "verdict": false
   },
+  "PROJ-007-energy-systems::1.6.0": {
+    "classified_at": "2026-07-28T16:22:27Z",
+    "verdict": false
+  },
   "PROJ-008-psychology-research::1.6.0": {
     "classified_at": "2026-06-25T21:35:50Z",
     "verdict": false
@@ -173,6 +177,10 @@
   },
   "PROJ-1062-llmxive-follow-up-extending-weak-to-stro::1.6.0": {
     "classified_at": "2026-07-16T13:05:47Z",
+    "verdict": false
+  },
+  "PROJ-1064-llmxive-follow-up-extending-lightmem-ego::1.6.0": {
+    "classified_at": "2026-07-28T16:23:48Z",
     "verdict": false
   },
   "PROJ-1074-llmxive-follow-up-extending-function-awa::1.6.0": {

@@ -1,145 +1,75 @@
 """
-Unit tests for generate_site_coordinates.py
+Unit tests for generate_site_coordinates module.
 """
-
-import os
+import pytest
 import csv
 import tempfile
 from pathlib import Path
-import pytest
 
-# Import the functions to test
 from generate_site_coordinates import generate_site_pairs, write_site_coordinates
 
+def test_generate_site_pairs_count():
+    """Test that the correct number of sites are generated."""
+    count = 10
+    sites = generate_site_pairs(count=count)
+    # Each pair generates 2 sites (1 eco, 1 control)
+    assert len(sites) == count * 2
 
-class TestGenerateSitePairs:
-    """Tests for generate_site_pairs function."""
+def test_generate_site_pairs_structure():
+    """Test that each site has the required fields."""
+    sites = generate_site_pairs(count=1)
+    site = sites[0]
+    required_fields = [
+        "site_id", "site_type", "latitude", "longitude", 
+        "biome", "protection_status", "pair_id"
+    ]
+    for field in required_fields:
+        assert field in site
 
-    def test_returns_list(self):
-        """Test that generate_site_pairs returns a list."""
-        result = generate_site_pairs()
-        assert isinstance(result, list)
-        assert len(result) > 0
+def test_generate_site_pairs_types():
+    """Test that site types are correct."""
+    sites = generate_site_pairs(count=5)
+    eco_sites = [s for s in sites if s["site_type"] == "ecotourism"]
+    ctrl_sites = [s for s in sites if s["site_type"] == "control"]
+    assert len(eco_sites) == 5
+    assert len(ctrl_sites) == 5
 
-    def test_correct_number_of_sites(self):
-        """Test that we get 30 sites (15 pairs)."""
-        result = generate_site_pairs()
-        assert len(result) == 30
+def test_generate_site_pairs_coordinates():
+    """Test that coordinates are within the defined bounding box."""
+    MIN_LAT, MAX_LAT = 8.0, 12.0
+    MIN_LON, MAX_LON = -86.0, -82.0
+    
+    sites = generate_site_pairs(count=50)
+    for site in sites:
+        assert MIN_LAT <= site["latitude"] <= MAX_LAT
+        assert MIN_LON <= site["longitude"] <= MAX_LON
 
-    def test_site_types(self):
-        """Test that we have equal ecotourism and control sites."""
-        result = generate_site_pairs()
-        eco_count = sum(1 for s in result if s["site_type"] == "ecotourism")
-        ctrl_count = sum(1 for s in result if s["site_type"] == "control")
-        assert eco_count == 15
-        assert ctrl_count == 15
+def test_write_site_coordinates(tmp_path):
+    """Test writing sites to a CSV file."""
+    sites = generate_site_pairs(count=5)
+    output_file = tmp_path / "test_sites.csv"
+    
+    write_site_coordinates(sites, output_file)
+    
+    assert output_file.exists()
+    
+    with open(output_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 10
+    assert rows[0]["site_id"].startswith("ECO-") or rows[0]["site_id"].startswith("CTRL-")
+    
+    # Check header
+    expected_header = [
+        "site_id", "site_type", "latitude", "longitude", 
+        "biome", "protection_status", "pair_id"
+    ]
+    assert reader.fieldnames == expected_header
 
-    def test_pair_ids_match(self):
-        """Test that each pair has exactly 2 sites."""
-        result = generate_site_pairs()
-        pair_counts = {}
-        for site in result:
-            pair_id = site["pair_id"]
-            pair_counts[pair_id] = pair_counts.get(pair_id, 0) + 1
-        
-        for pair_id, count in pair_counts.items():
-            assert count == 2, f"Pair {pair_id} has {count} sites, expected 2"
-
-    def test_required_fields_present(self):
-        """Test that all required fields are present in each site."""
-        result = generate_site_pairs()
-        required_fields = [
-            "site_id", "site_type", "pair_id", "pair_role",
-            "latitude", "longitude", "biome", "protection_status",
-            "country", "region"
-        ]
-        
-        for site in result:
-            for field in required_fields:
-                assert field in site, f"Missing field {field} in site {site}"
-
-    def test_latitude_longitude_valid(self):
-        """Test that latitude and longitude are within valid ranges."""
-        result = generate_site_pairs()
-        for site in result:
-            lat = site["latitude"]
-            lon = site["longitude"]
-            assert -90 <= lat <= 90, f"Invalid latitude: {lat}"
-            assert -180 <= lon <= 180, f"Invalid longitude: {lon}"
-
-    def test_pair_roles_correct(self):
-        """Test that pair_role matches site_type within each pair."""
-        result = generate_site_pairs()
-        for site in result:
-            if site["site_type"] == "ecotourism":
-                assert site["pair_role"] == "ecotourism"
-            else:
-                assert site["pair_role"] == "control"
-
-
-class TestWriteSiteCoordinates:
-    """Tests for write_site_coordinates function."""
-
-    def test_writes_csv_file(self):
-        """Test that write_site_coordinates creates a CSV file."""
-        sites = generate_site_pairs()
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_sites.csv"
-            write_site_coordinates(sites, output_path)
-            
-            assert output_path.exists()
-            assert output_path.suffix == ".csv"
-
-    def test_csv_has_correct_headers(self):
-        """Test that CSV has all required headers."""
-        sites = generate_site_pairs()
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_sites.csv"
-            write_site_coordinates(sites, output_path)
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                headers = reader.fieldnames
-                
-                expected_headers = [
-                    "site_id", "site_type", "pair_id", "pair_role",
-                    "latitude", "longitude", "biome", "protection_status",
-                    "country", "region"
-                ]
-                
-                for header in expected_headers:
-                    assert header in headers, f"Missing header: {header}"
-
-    def test_csv_row_count(self):
-        """Test that CSV has correct number of rows."""
-        sites = generate_site_pairs()
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_sites.csv"
-            write_site_coordinates(sites, output_path)
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 30, f"Expected 30 rows, got {len(rows)}"
-
-    def test_csv_data_matches_input(self):
-        """Test that CSV data matches input sites."""
-        sites = generate_site_pairs()
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_sites.csv"
-            write_site_coordinates(sites, output_path)
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                
-                for i, site in enumerate(sites):
-                    row = rows[i]
-                    assert row["site_id"] == site["site_id"]
-                    assert row["site_type"] == site["site_type"]
-                    assert row["latitude"] == str(site["latitude"])
-                    assert row["longitude"] == str(site["longitude"])
+def test_write_site_coordinates_empty():
+    """Test that writing empty list raises error."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        output_file = Path(tmp_dir) / "empty.csv"
+        with pytest.raises(ValueError, match="No sites to write"):
+            write_site_coordinates([], output_file)

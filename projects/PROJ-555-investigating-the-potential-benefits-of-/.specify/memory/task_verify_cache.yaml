@@ -1,0 +1,48 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains only the task description and project specifications; it
+    does not include any actual directory tree, created folders, or `.gitkeep` files
+    for `data/raw/landsat`, `data/processed`, or `data/ecotourism`. Without these
+    artifacts, the requirement of establishing the data directory structure is not
+    satisfied.
+T011:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required artifact `tests/unit/test_preprocessing.py` does not exist on disk,\
+    \ so no unit test for the cloud\u2011masking logic is present. The task\u2019\
+    s core deliverable is missing, making the claim of completion invalid."
+T013:
+  c: false
+  h: ea48d07919f1dab63902f850f8c5788255ea5877455342a94c4507d10fc20268
+  r: "The required `data/raw/site_coordinates.csv` file is missing, and `code/data_acquisition.py`\
+    \ contains only stub functions for logging and a simulated metadata fetch\u2014\
+    it does not implement actual Landsat Level\u20112 download, chunked streaming,\
+    \ or loading of the site coordinates as the task specifies."
+T014:
+  c: false
+  h: fa4fd01cfa9c48eb044b956651c2df33245c66a75a316607771a98c91951e5d5
+  r: The repository contains `code/data_acquisition.py` with a `log_api_query` function
+    that writes to `data/raw/query_log.json`, but the `data/raw/query_log.json` file
+    is absent, and there is no evidence that any logging has actually been performed.
+    The required output file must exist (and contain logged entries) for the task
+    to be considered complete.
+T017:
+  c: false
+  h: 89ea7462da58946ee19df77c793ec7e5b9fa5ef141bd101582d12f0bd2d67d3b
+  r: "The provided `code/preprocessing.py` is truncated and does not contain a complete\
+    \ implementation of the required pairing logic (same biome, similar initial NDVI\
+    \ drop\u202F\xB110%) or the data\u2011gap filtering, and the script never creates\
+    \ the expected output files. Both `data/processed/ndvi_timeseries.parquet` and\
+    \ `data/processed/site_metadata.csv` are missing from the repository. The task\
+    \ therefore remains unfinished."
+T018:
+  c: false
+  h: f6f3a0259c62abb576df6ac254a3a977f888fa303fbdc9312c442f3537ebd7cc
+  r: "The provided `code/preprocessing.py` contains functions for calculating NDVI\
+    \ from Landsat rasters and does not implement any logic to read, validate, or\
+    \ process the ecotourism revenue/visitor CSV, nor does it generate the required\
+    \ processed CSV or metadata JSON. Additionally, the three required data artifacts\
+    \ (`data/ecotourism/revenue_data.csv`, `data/processed/ecotourism_data.csv`, and\
+    \ `data/ecotourism/metadata.json`) are missing from the repository. The task\u2019\
+    s core requirements are therefore not met."

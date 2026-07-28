@@ -58,7 +58,7 @@
 - [X] T006a [P] [Data-Model] Create `site.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
 - [X] T006b [P] [Data-Model] Create `timeseries.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
 - [ ] T006c [P] [Data-Model] Create `output.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [ ] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB
+- [X] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB
 - [ ] T008 Create data directory structure and `.gitkeep` files for `data/raw/landsat`, `data/processed`, `data/ecotourism`
 - [ ] T009 [FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet` with monthly resolution; use CHIRPS API and NASA POWER API
 
@@ -76,8 +76,8 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`
-- [~] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [X] T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`
+- [ ] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 8, column 1:
  The test includes a fallback imp...
  ^
@@ -90,14 +90,14 @@ could not find expected ':'
 ### Implementation for User Story 1
 
 - [ ] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
-- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified -->
-- [~] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
+- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
  *Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.*
-- [~] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
+- [ ] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
 - [X] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
 - [X] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
-- [~] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
-- [~] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
+- [ ] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
+- [ ] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
 - [X] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -138,7 +138,7 @@ could not find expected ':'
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for mixed-effects model convergence in `tests/unit/test_modeling.py`
+- [~] T030 [P] [US3] Unit test for mixed-effects model convergence in `tests/unit/test_modeling.py`
 - [ ] T031 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3

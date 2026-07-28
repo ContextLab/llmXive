@@ -18,23 +18,23 @@
 - **Single project**: `code/`, `data/`, `tests/`, `outputs/`, `outputs/figures/`, `outputs/reports/` at repository root (as per `plan.md` structure)
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 - [ ] T001a Create project directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `outputs/`, `outputs/figures/`, `outputs/reports/`
 - [ ] T001b Create empty `__init__.py` files in `code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
 - [ ] T002a Create virtualenv in `code/.venv` and activate it
-- [ ] T002b Generate `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nltk`, `matplotlib`, `seaborn`, `spacy`, `datasets`, `jsonschema`, `pyyaml`, `scikit-posthocs`, `statsmodels`, `gensim`
+- [X] T002b Generate `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nltk`, `matplotlib`, `seaborn`, `spacy`, `datasets`, `jsonschema`, `pyyaml`, `scikit-posthocs`, `statsmodels`, `gensim`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 [P] Setup pytest configuration and `conftest.py` for fixtures (random seed pinning)
 
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `code/utils.py`: Unicode NFKC normalization function and text cleaning helpers (FR-008)
-- [ ] T006 [P] Implement `code/utils.py`: Jaccard similarity helper for sets (lexical and POS)
-- [ ] T007 [P] Implement `code/utils.py`: POS tagging and dependency parsing wrappers using `spacy`
+- [X] T005 [P] Implement `code/utils.py`: Unicode NFKC normalization function and text cleaning helpers (FR-008)
+- [X] T006 [P] Implement `code/utils.py`: Jaccard similarity helper for sets (lexical and POS)
+- [X] T007 [P] Implement `code/utils.py`: POS tagging and dependency parsing wrappers using `spacy`
 - [ ] T008 Create `contracts/dataset.schema.yaml` defining the schema for processed dialogue pairs
 - [ ] T009 Create `contracts/output.schema.yaml` defining the schema for statistical report outputs
 - [ ] T010 [P] Implement `code/main.py` skeleton: Create `main()`, `load_config()`, and `run_pipeline()` stub functions with pipeline orchestration structure and contract validation hooks
@@ -78,18 +78,18 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **Depends on Phase 2 (T005-T007) completion**
 
-- [ ] T012 [P] [US1] Unit test for NFKC normalization in `tests/unit/test_utils.py::test_nfk_normalization_handles_emoji` (Depends on Phase 2 completion)
-- [ ] T013 [P] [US1] Unit test for Jaccard similarity calculation in `tests/unit/test_utils.py` (Depends on Phase 2 completion)
+- [X] T012 [P] [US1] Unit test for NFKC normalization in `tests/unit/test_utils.py::test_nfk_normalization_handles_emoji` (Depends on Phase 2 completion)
+- [X] T013 [P] [US1] Unit test for Jaccard similarity calculation in `tests/unit/test_utils.py` (Depends on Phase 2 completion)
 - [ ] T014 [P] [US1] Unit test for empty record filtering in `tests/unit/test_data_ingestion.py` (Depends on Phase 2 completion)
-- [ ] T015 [P] [US1] Contract test for ingestion output schema in `tests/contract/test_ingestion_schema.py` (Depends on Phase 2 completion)
+- [X] T015 [P] [US1] Contract test for ingestion output schema in `tests/contract/test_ingestion_schema.py` (Depends on Phase 2 completion)
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `code/data/ingestion.py`: Download **FULL** DailyDialog dataset (train, test, val splits) using `datasets.load_dataset("daily_dialog", split="test", streaming=True)` and save to `data/raw/daily_dialog_test.parquet`. (FR-008) **Note**: Use 'Speaker A' and 'Speaker B' terminology, not 'user/AI'.
-- [ ] T017 [US1] Implement `code/data/ingestion.py`: Load data, apply NFKC normalization (FR-008), and skip records where turn or partner turn is empty/non-text after normalization. **Note**: Do NOT filter based on similarity thresholds; keep all valid text records. (FR-008)
-- [ ] T019 [US1] Implement `code/data/ingestion.py`: Compute lexical overlap (Jaccard on tokens) and sentence length variance per pair between **Speaker A** and **Speaker B** turns. (FR-001)
-- [ ] T020 [US1] Implement `code/data/ingestion.py`: Compute syntactic similarity (Jaccard on POS tag sets) per pair. (FR-002)
-- [ ] T021 [US1] Implement `code/data/ingestion.py`: Save processed metrics to `data/processed/accommodation_metrics.csv`
+- [X] T016 [US1] Implement `code/data/ingestion.py`: Download **FULL** DailyDialog dataset (train, test, val splits) using `datasets.load_dataset("daily_dialog", split="test", streaming=True)` and save to `data/raw/daily_dialog_test.parquet`. (FR-008) **Note**: Use 'Speaker A' and 'Speaker B' terminology, not 'user/AI'.
+- [X] T017 [US1] Implement `code/data/ingestion.py`: Load data, apply NFKC normalization (FR-008), and skip records where turn or partner turn is empty/non-text after normalization. **Note**: Do NOT filter based on similarity thresholds; keep all valid text records. (FR-008)
+- [X] T019 [US1] Implement `code/data/ingestion.py`: Compute lexical overlap (Jaccard on tokens) and sentence length variance per pair between **Speaker A** and **Speaker B** turns. (FR-001)
+- [X] T020 [US1] Implement `code/data/ingestion.py`: Compute syntactic similarity (Jaccard on POS tag sets) per pair. (FR-002)
+- [X] T021 [US1] Implement `code/data/ingestion.py`: Save processed metrics to `data/processed/accommodation_metrics.csv`
 - [ ] T022 [US1] Validate output against `contracts/dataset.schema.yaml` within the ingestion script
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -175,8 +175,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -240,9 +240,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

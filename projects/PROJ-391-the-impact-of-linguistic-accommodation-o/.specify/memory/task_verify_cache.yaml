@@ -1,0 +1,33 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`code/`, `data/raw/`, `data/processed/`,
+    `tests/`, `outputs/`, `outputs/figures/`, `outputs/reports/`) is present; the
+    artifact list is empty, so the task of creating these folders has not been demonstrated.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that empty `__init__.py` files exist in `code/`,
+    `tests/`, `tests/unit/`, `tests/integration/`, or `tests/contract/`. Without file
+    listings or contents, we cannot confirm the required artifacts are present. The
+    implementer must add the empty `__init__.py` files in each of those directories
+    and show their presence.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/.venv` directory, activation script, or any commands showing
+    that a virtual environment was created and activated is provided. The implementer
+    did not supply the required artifact, so the task is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `.flake8` files) or scripts are present, and no evidence\
+    \ shows that ruff/flake8 and Black have been set up for the project. The task\u2019\
+    s required artifact is missing."
+T014:
+  c: false
+  h: 17c3b16729233e0138dcc9d8dab10c7423982ce5a155d945b45deace00a188e4
+  r: "The required artifact `tests/unit/test_data_ingestion.py` is missing entirely,\
+    \ so no unit test for empty record filtering exists. Consequently the task\u2019\
+    s deliverable is not present."

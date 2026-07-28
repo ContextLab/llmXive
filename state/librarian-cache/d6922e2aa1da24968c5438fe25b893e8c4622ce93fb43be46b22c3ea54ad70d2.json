@@ -1,0 +1,724 @@
+{
+  "fetched_at": "2026-07-28T16:24:10Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.815,
+    "ended_at": "2026-07-28T16:24:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "personalized AI memory systems in natural language processing"
+        ],
+        [
+          2,
+          "lifelong learning for conversational agents in linguistics"
+        ],
+        [
+          3,
+          "context-aware personal assistants for daily life interactions"
+        ],
+        [
+          4,
+          "semantic memory augmentation in large language models"
+        ],
+        [
+          5,
+          "user-specific dialogue history retention in LLMs"
+        ],
+        [
+          6,
+          "dynamic knowledge integration for personalized language models"
+        ],
+        [
+          7,
+          "episodic memory modeling in artificial conversational agents"
+        ],
+        [
+          8,
+          "personalization strategies for everyday AI assistants"
+        ],
+        [
+          9,
+          "continuous learning mechanisms in dialogue systems"
+        ],
+        [
+          10,
+          "computational linguistics approaches to personal memory"
+        ],
+        [
+          11,
+          "long-term context retention in generative AI"
+        ],
+        [
+          12,
+          "cognitive architectures for personal AI memory"
+        ],
+        [
+          13,
+          "narrative coherence in personalized language generation"
+        ],
+        [
+          14,
+          "adaptive language models for individual user profiles"
+        ],
+        [
+          15,
+          "retrieval-augmented generation for personal context"
+        ],
+        [
+          16,
+          "semantic indexing of personal life events in NLP"
+        ],
+        [
+          17,
+          "personalized prompt engineering for memory retention"
+        ],
+        [
+          18,
+          "discourse analysis of personal AI interactions"
+        ],
+        [
+          19,
+          "human-AI collaboration in memory management"
+        ],
+        [
+          20,
+          "linguistics of personalized machine memory systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" linguistics": 0,
+        "personalized AI memory systems in natural language processing": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "personal language model data contamination memorization",
+      "egocentric speech diary corpus NLP annotation",
+      "conversational agent self-referential narrative structure",
+      "long-context retrieval linguistic coherence evaluation",
+      "episodic memory encoding language model fine-tuning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2110.10780"
+      ]
+    },
+    "per_query_hit_count": {
+      "conversational agent self-referential narrative structure": 3,
+      "egocentric speech diary corpus NLP annotation": 3,
+      "episodic memory encoding language model fine-tuning": 3,
+      "llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" linguistics": 3,
+      "long-context retrieval linguistic coherence evaluation": 3,
+      "personal language model data contamination memorization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2110.10780",
+          "rationale": "The paper focuses on clinical NLP frameworks for Electronic Health Records (EHR) and COVID-19 data, which is an off-domain application compared to the user's question about extending a personal AI memory system (\"LightMem-Ego\") for everyday life linguistics. It does not measure the same mechanism, variables, or empirical population required for the user's specific research context.",
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
+        },
+        {
+          "primary_pointer": "2306.06371",
+          "rationale": "The paper focuses on Java code generation from natural language, which is a distinct application domain (software engineering) from the user's question regarding \"Everyday Life\" memory systems and linguistics. It fails the inclusion criteria because it does not measure the same biological/algorithmic mechanism, share the same empirical population, or serve as a foundational reference for the specific \"AI Memory for Everyday Life\" construct, representing an off-domain mismatch despite both involv",
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text"
+        },
+        {
+          "primary_pointer": "2006.16212",
+          "rationale": "The paper focuses on unsupervised morphological processing for a specific low-resource language (Tangkhul) and does not address the user's question regarding extending the \"LightMem-Ego\" framework for AI memory or its linguistic applications. It fails to meet any inclusion criteria as it studies a distinct construct (morpheme identification in a specific language) rather than the mechanism, variables, or domain of AI memory systems or the specific \"LightMem-Ego\" architecture.",
+          "title": "Towards the Study of Morphological Processing of the Tangkhul Language"
+        },
+        {
+          "primary_pointer": "2103.14757",
+          "rationale": "The paper focuses on automatic multiple-choice question generation (MCQG) for educational testing, which is a distinct application domain from the user's question about extending \"LightMem-Ego\" (an AI memory system for everyday life) with a linguistic component. While both involve NLP, the paper does not measure the same mechanism (personal memory augmentation), study the same population (everyday life interactions vs. lesson materials), or provide a foundational methodology for the specific \"AI",
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
+        },
+        {
+          "primary_pointer": "2408.13040",
+          "rationale": "The paper focuses on prompting techniques for speech language models and speech processing tasks, which does not address the user's specific question regarding the linguistic extension of the \"LightMem-Ego\" AI memory framework. There is no overlap in the core mechanism (memory systems vs. prompting), the specific domain (everyday life memory vs. general speech processing), or the empirical population, failing to meet any of the inclusion criteria (a-f) for a literature review on this specific to",
+          "title": "SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-28T16:23:19Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"lightmem-ego: your ai memory for everyday life\" linguistics",
+      "raw": "llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models pretrained on extensive web corpora demonstrate remarkable performance across a wide range of downstream tasks. However, a growing concern is data contamination, where evaluation datasets may be contained in the pretraining corpus, inflating model performance. Decontamination, the process of detecting and removing such data, is a potential solution; yet these contaminants may originate from altered versions of the test set, evading detection during decontamination. How different types of contamination impact the performance of language models on downstream tasks is not fully understood. We present a taxonomy that categorizes the various types of contamination encountered by LLMs during the pretraining phase and identify which types pose the highest risk. We analyze the impact of contamination on two key NLP tasks -- summarization and question answering -- revealing how different types of contamination influence task performance during evaluation.",
+          "claimed_authors": [
+            "Medha Palavalli",
+            "Amanda Bertsch",
+            "Matthew R. Gormley"
+          ],
+          "claimed_title": "A Taxonomy for Data Contamination in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08716"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='A Taxonomy for Data Contamination in Large Language Models')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a new Romanian speech corpus from the ROBIN project, called ROBIN Technical Acquisition Speech Corpus (ROBINTASC). Its main purpose was to improve the behaviour of a conversational agent, allowing human-machine interaction in the context of purchasing technical equipment. The paper contains a detailed description of the acquisition process, corpus statistics as well as an evaluation of the corpus influence on a low-latency ASR system as well as a dialogue component.",
+          "claimed_authors": [
+            "Vasile Păiş",
+            "Radu Ion",
+            "Andrei-Marius Avram",
+            "Elena Irimia",
+            "Verginica Barbu Mititelu",
+            "Maria Mitrofan"
+          ],
+          "claimed_title": "Human-Machine Interaction Speech Corpus from the ROBIN project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Human-Machine Interaction Speech Corpus from the ROBIN project')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the largest transcribed Arabic speech corpus, QASR, collected from the broadcast domain. This multi-dialect speech dataset contains 2,000 hours of speech sampled at 16kHz crawled from Aljazeera news channel. The dataset is released with lightly supervised transcriptions, aligned with the audio segments. Unlike previous datasets, QASR contains linguistically motivated segmentation, punctuation, speaker information among others. QASR is suitable for training and evaluating speech recognition systems, acoustics- and/or linguistics- based Arabic dialect identification, punctuation restoration, speaker identification, speaker linking, and potentially other NLP modules for spoken data. In addition to QASR transcription, we release a dataset of 130M words to aid in designing and training a better language model. We show that end-to-end automatic speech recognition trained on QASR reports a competitive word error rate compared to the previous MGB-2 corpus. We report baseline results for downstream natural language processing tasks such as named entity recognition using speech transcript. We also report the first baseline for Arabic punctuation restoration. We make the corpus available for the research community.",
+          "claimed_authors": [
+            "Hamdy Mubarak",
+            "Amir Hussein",
+            "Shammur Absar Chowdhury",
+            "Ahmed Ali"
+          ],
+          "claimed_title": "QASR: QCRI Aljazeera Speech Resource -- A Large Scale Annotated Arabic Speech Corpus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.13000"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='QASR: QCRI Aljazeera Speech Resource -- A Large Scale Annotated Arabic Speech Corpus')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using self-supervised learning (SSL) models has significantly improved performance for downstream speech tasks, surpassing the capabilities of traditional hand-crafted features. This study investigates the amalgamation of SSL models, with the aim to leverage both their individual strengths and refine extracted features to achieve improved speech recognition models for naturalistic scenarios. Our research investigates the massive naturalistic Fearless Steps (FS) APOLLO resource, with particular focus on the FS Challenge (FSC) Phase-4 corpus, providing the inaugural analysis of this dataset. Additionally, we incorporate the CHiME-6 dataset to evaluate performance across diverse naturalistic speech scenarios. While exploring previously proposed Feature Refinement Loss and fusion methods, we found these methods to be less effective on the FSC Phase-4 corpus. To address this, we introduce a novel deep cross-attention (DCA) fusion method, designed to elevate performance, especially for the FSC Phase-4 corpus. Our objective is to foster creation of superior FS APOLLO community resources, catering to the diverse needs of researchers across various disciplines. The proposed solution achieves an absolute +1.1% improvement in WER, providing effective meta-data creation for the massive FS APOLLO community resource.",
+          "claimed_authors": [
+            "Szu-Jui Chen",
+            "John H. L. Hansen"
+          ],
+          "claimed_title": "Advancing automatic speech recognition using feature fusion with self-supervised learning features: A case study on Fearless Steps Apollo corpus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.22203"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Advancing automatic speech recognition using feature fusion with self-supervised learning features: A case study on Fearless Steps Apollo corpus')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel approach to classify causal micro-narratives from text. These narratives are sentence-level explanations of the cause(s) and/or effect(s) of a target subject. The approach requires only a subject-specific ontology of causes and effects, and we demonstrate it with an application to inflation narratives. Using a human-annotated dataset spanning historical and contemporary US news articles for training, we evaluate several large language models (LLMs) on this multi-label classification task. The best-performing model--a fine-tuned Llama 3.1 8B--achieves F1 scores of 0.87 on narrative detection and 0.71 on narrative classification. Comprehensive error analysis reveals challenges arising from linguistic ambiguity and highlights how model errors often mirror human annotator disagreements. This research establishes a framework for extracting causal micro-narratives from real-world data, with wide-ranging applications to social science research.",
+          "claimed_authors": [
+            "Mourad Heddaya",
+            "Qingcheng Zeng",
+            "Chenhao Tan",
+            "Rob Voigt",
+            "Alexander Zentefis"
+          ],
+          "claimed_title": "Causal Micro-Narratives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05252"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Causal Micro-Narratives')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem is to determine which processors are reliable in a remote location by asking \"Yes or No\" questions. The processors are of three types: those that always tell the truth, those that always lie, and those the sometimes tell the truth and sometimes lie. Using self-referential reasoning, along with earlier techniques, we can regard both the truth-tellers and liars as reliable and thus the tackle situations when fewer than half the processors are truth-tellers.",
+          "claimed_authors": [
+            "Robert Cowen"
+          ],
+          "claimed_title": "Adaptive Fault Diagnosis using Self-Referential Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1407.6255"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Adaptive Fault Diagnosis using Self-Referential Reasoning')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, large language models have facilitated the emergence of highly intelligent conversational AI capable of engaging in human-like dialogues. However, a notable distinction lies in the fact that these AI models predominantly generate responses rapidly, often producing extensive content without emulating the thoughtful process characteristic of human cognition and typing. This paper presents a design aimed at simulating human-like typing behaviors, including patterns such as hesitation and self-editing, as well as a preliminary user experiment to understand whether and to what extent the agent with human-like typing behaviors could potentially affect conversational engagement and its trustworthiness. We've constructed an interactive platform featuring user-adjustable parameters, allowing users to personalize the AI's communication style and thus cultivate a more enriching and immersive conversational experience. Our user experiment, involving interactions with three types of agents - a baseline agent, one simulating hesitation, and another integrating both hesitation and self-editing behaviors - reveals a preference for the agent that incorporates both behaviors, suggesting an improvement in perceived naturalness and trustworthiness. Through the insights from our design process and both quantitative and qualitative feedback from user experiments, this paper contributes to the multimodal interaction design and user experience for conversational AI, advocating for a more human-like, engaging, and trustworthy communication paradigm.",
+          "claimed_authors": [
+            "Jijie Zhou",
+            "Yuhan Hu"
+          ],
+          "claimed_title": "Beyond Words: Infusing Conversational Agents with Human-like Typing Behaviors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08912"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Beyond Words: Infusing Conversational Agents with Human-like Typing Behaviors')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Long context is an important topic in Natural Language Processing (NLP), running through the development of NLP architectures, and offers immense opportunities for Large Language Models (LLMs), giving LLMs the lifelong learning potential akin to humans. Unfortunately, the pursuit of a long context is accompanied by numerous obstacles. Nevertheless, long context remains a core competitive advantage for LLMs. In the past two years, the context length of LLMs has achieved a breakthrough extension to millions of tokens. Moreover, research on long-context LLMs has expanded beyond length extrapolation to a comprehensive focus on architecture, infrastructure, training, and evaluation technologies.\n  Inspired by the symphonic poem, Thus Spake Zarathustra, we draw an analogy between the journey of extending the context of LLM and the attempts of humans to transcend their mortality. In this survey, we will illustrate how LLM struggles between the tremendous need for a longer context and its equal need to accept the fact that it is ultimately finite. To achieve this, we give a global picture of the lifecycle of long-context LLMs from four perspectives: architecture, infrastructure, training, and evaluation, showcasing the full spectrum of long-context technologies. At the end of this survey, we will present 10 unanswered questions currently faced by long-context LLMs. We hope this survey can serve as a systematic introduction to research on long-context LLMs.\n  Video: https://www.bilibili.com/video/BV11h9AYoEYj.\n  Github: https://github.com/OpenMOSS/Thus-Spake-Long-Context-LLM.",
+          "claimed_authors": [
+            "Xiaoran Liu",
+            "Ruixiao Li",
+            "Mianqiu Huang",
+            "Zhigeng Liu",
+            "Yuerong Song",
+            "Qipeng Guo",
+            "Siyang He",
+            "Qiqi Wang",
+            "Linlin Li",
+            "Qun Liu",
+            "Ziwei He",
+            "Yaqian Zhou",
+            "Xuanjing Huang",
+            "Xipeng Qiu"
+          ],
+          "claimed_title": "Thus Spake Long-Context Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.17129"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Thus Spake Long-Context Large Language Model')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Monitoring entities in media streams often relies on rich entity representations, like structured information available in a knowledge base (KB). For long-tail entities, such monitoring is highly challenging, due to their limited, if not entirely missing, representation in the reference KB. In this paper, we address the problem of retrieving textual contexts for monitoring long-tail entities. We propose an unsupervised method to overcome the limited representation of long-tail entities by leveraging established entities and their contexts as support information. Evaluation on a purpose-built test collection shows the suitability of our approach and its robustness for out-of-KB entities.",
+          "claimed_authors": [
+            "Darío Garigliotti",
+            "Dyaa Albakour",
+            "Miguel Martinez",
+            "Krisztian Balog"
+          ],
+          "claimed_title": "Unsupervised Context Retrieval for Long-tail Entities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.01798"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Unsupervised Context Retrieval for Long-tail Entities')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give simpler, sparser, and faster algorithms for differentially private fine-tuning of large-scale pre-trained language models, which achieve the state-of-the-art privacy versus utility tradeoffs on many standard NLP tasks. We propose a meta-framework for this problem, inspired by the recent success of highly parameter-efficient methods for fine-tuning. Our experiments show that differentially private adaptations of these approaches outperform previous private algorithms in three important dimensions: utility, privacy, and the computational and memory cost of private training. On many commonly studied datasets, the utility of private models approaches that of non-private models. For example, on the MNLI dataset we achieve an accuracy of $87.8\\%$ using RoBERTa-Large and $83.5\\%$ using RoBERTa-Base with a privacy budget of $ε= 6.7$. In comparison, absent privacy constraints, RoBERTa-Large achieves an accuracy of $90.2\\%$. Our findings are similar for natural language generation tasks. Privately fine-tuning with DART, GPT-2-Small, GPT-2-Medium, GPT-2-Large, and GPT-2-XL achieve BLEU scores of 38.5, 42.0, 43.1, and 43.8 respectively (privacy budget of $ε= 6.8,δ=$ 1e-5) whereas the non-private baseline is $48.1$. All our experiments suggest that larger models are better suited for private fine-tuning: while they are well known to achieve superior accuracy non-privately, we find that they also better maintain their accuracy when privacy is introduced.",
+          "claimed_authors": [
+            "Da Yu",
+            "Saurabh Naik",
+            "Arturs Backurs",
+            "Sivakanth Gopi",
+            "Huseyin A. Inan",
+            "Gautam Kamath",
+            "Janardhan Kulkarni",
+            "Yin Tat Lee",
+            "Andre Manoel",
+            "Lukas Wutschitz",
+            "Sergey Yekhanin",
+            "Huishuai Zhang"
+          ],
+          "claimed_title": "Differentially Private Fine-tuning of Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06500"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Differentially Private Fine-tuning of Language Models')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How to usefully encode compositional task structure has long been a core challenge in AI. Recent work in chain of thought prompting has shown that for very large neural language models (LMs), explicitly demonstrating the inferential steps involved in a target task may improve performance over end-to-end learning that focuses on the target task alone. However, chain of thought prompting has significant limitations due to its dependency on huge pretrained LMs. In this work, we present compositional fine-tuning (CFT): an approach based on explicitly decomposing a target task into component tasks, and then fine-tuning smaller LMs on a curriculum of such component tasks. We apply CFT to recommendation tasks in two domains, world travel and local dining, as well as a previously studied inferential task (sports understanding). We show that CFT outperforms end-to-end learning even with equal amounts of data, and gets consistently better as more component tasks are modeled via fine-tuning. Compared with chain of thought prompting, CFT performs at least as well using LMs only 7.4% of the size, and is moreover applicable to task domains for which data are not available during pretraining.",
+          "claimed_authors": [
+            "Victor S. Bursztyn",
+            "David Demeter",
+            "Doug Downey",
+            "Larry Birnbaum"
+          ],
+          "claimed_title": "Learning to Perform Complex Tasks through Compositional Fine-Tuning of Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12607"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LightMem-Ego: Your AI Memory for Everyday Life\" li', candidate_title='Learning to Perform Complex Tasks through Compositional Fine-Tuning of Language Models')",
+        "failed_at": "2026-07-28T16:23:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.10780",
+        "summary": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.10780",
+          "http_status": 200,
+          "pdf_sample_score": 0.1509,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:23:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.06371",
+        "summary": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.06371",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:23:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mirinso Shadang",
+            "Navanath Saharia",
+            "Thoudam Doren Singh"
+          ],
+          "title": "Towards the Study of Morphological Processing of the Tangkhul Language",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16212",
+        "summary": "There is no or little work on natural language processing of Tangkhul language. The current work is a humble beginning of morphological processing of this language using an unsupervised approach. We use a small corpus collected from different sources of text books, short stories and articles of other topics. Based on the experiments carried out, the morpheme identification task using morphessor gives reasonable and interesting output despite using a small corpus.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16212",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:23:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.14757",
+        "summary": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.14757",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:23:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kai-Wei Chang",
+            "Haibin Wu",
+            "Yu-Kai Wang",
+            "Yuan-Kuei Wu",
+            "Hua Shen",
+            "Wei-Cheng Tseng",
+            "Iu-thing Kang",
+            "Shang-Wen Li",
+            "Hung-yi Lee"
+          ],
+          "title": "SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.13040",
+        "summary": "Prompting has become a practical method for utilizing pre-trained language models (LMs). This approach offers several advantages. It allows an LM to adapt to new tasks with minimal training and parameter updates, thus achieving efficiency in both storage and computation. Additionally, prompting modifies only the LM's inputs and harnesses the generative capabilities of language models to address various downstream tasks in a unified manner. This significantly reduces the need for human labor in designing task-specific models. These advantages become even more evident as the number of tasks served by the LM scales up. Motivated by the strengths of prompting, we are the first to explore the potential of prompting speech LMs in the domain of speech processing. Recently, there has been a growing interest in converting speech into discrete units for language modeling. Our pioneer research demonstrates that these quantized speech units are highly versatile within our unified prompting framework. Not only can they serve as class labels, but they also contain rich phonetic information that can be re-synthesized back into speech signals for speech generation tasks. Specifically, we reformulate speech processing tasks into speech-to-unit generation tasks. As a result, we can seamlessly integrate tasks such as speech classification, sequence generation, and speech generation within a single, unified prompting framework. The experiment results show that the prompting method can achieve competitive performance compared to the strong fine-tuning method based on self-supervised learning models with a similar number of trainable parameters. The prompting method also shows promising results in the few-shot setting. Moreover, with the advanced speech LMs coming into the stage, the proposed prompting framework attains great potential.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.13040",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:23:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"lightmem-ego: your ai memory for everyday life\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

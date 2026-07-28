@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-391"
+version = "0.1.0"
+description = "Linguistic Accommodation and Speaker Emotional Intensity Analysis"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "scipy",
+    "nltk",
+    "matplotlib",
+    "seaborn",
+    "spacy",
+    "datasets",
+    "jsonschema",
+    "pyyaml",
+    "scikit-posthocs",
+    "statsmodels",
+    "gensim",
+    "black",
+    "ruff",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Use the separate ruff.toml for linting rules, but define tool-specific overrides here if needed
+line-length = 88
+target-version = "py39"
+extend-exclude = [".venv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests"
+]

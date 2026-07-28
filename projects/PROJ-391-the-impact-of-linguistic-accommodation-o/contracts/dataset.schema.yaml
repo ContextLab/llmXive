@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Linguistic Accommodation Dataset Schema
+description: |
+  Schema for the processed dialogue pairs dataset containing linguistic
+  accommodation metrics and emotional intensity scores derived from the
+  DailyDialog dataset.
+type: object
+required:
+  - conversation_id
+  - speaker_a_turn
+  - speaker_b_turn
+  - lexical_overlap
+  - syntactic_similarity
+  - sentence_length_variance
+  - emotional_intensity
+  - topic
+properties:
+  conversation_id:
+    type: string
+    description: Unique identifier for the dialogue pair
+    minLength: 1
+  speaker_a_turn:
+    type: string
+    description: Normalized text turn from Speaker A
+    minLength: 1
+  speaker_b_turn:
+    type: string
+    description: Normalized text turn from Speaker B
+    minLength: 1
+  lexical_overlap:
+    type: number
+    description: Jaccard similarity of token sets between Speaker A and Speaker B
+    minimum: 0.0
+    maximum: 1.0
+  syntactic_similarity:
+    type: number
+    description: Jaccard similarity of POS tag sets between Speaker A and Speaker B
+    minimum: 0.0
+    maximum: 1.0
+  sentence_length_variance:
+    type: number
+    description: Variance in sentence lengths between the two turns
+    minimum: 0.0
+  emotional_intensity:
+    type: integer
+    description: |
+      Mapped emotional intensity score (1-5 Likert scale) derived from
+      emotion labels (Joy=5, Sadness=2, Anger=1, Fear=2, Surprise=4,
+      Disgust=1, Neutral=3)
+    minimum: 1
+    maximum: 5
+  topic:
+    type: string
+    description: Raw topic label from the DailyDialog dataset
+    minLength: 1
+  split:
+    type: string
+    description: Dataset split (train, test, val)
+    enum:
+      - train
+      - test
+      - val
+  emotion_label:
+    type: string
+    description: Original emotion label from DailyDialog metadata
+    enum:
+      - joy
+      - sadness
+      - anger
+      - fear
+      - surprise
+      - disgust
+      - neutral
+      - ""
+additionalProperties: false
+examples:
+  - conversation_id: "daily_dialog_test_0001_pair_01"
+    speaker_a_turn: "Hello, how are you?"
+    speaker_b_turn: "I'm doing well, thank you. How about you?"
+    lexical_overlap: 0.33
+    syntactic_similarity: 0.6
+    sentence_length_variance: 0.5
+    emotional_intensity: 3
+    topic: "greetings"
+    split: "test"
+    emotion_label: "neutral"

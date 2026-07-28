@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.03033",
+  "judged_at": "2026-07-28T16:22:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing novel solutions to address energy inequity in low-income communities energy",
+  "rationale": "The paper focuses on financial inclusion, savings, and credit behaviors among low-income households, which is a distinct construct from the user's specific question regarding \"energy inequity\" and \"energy\" solutions. While both topics involve low-income communities, the paper does not measure energy access, energy costs, energy consumption, or any mechanism related to energy systems, failing to satisfy the criteria for same-mechanism evidence, shared variables, or domain overlap.",
+  "relevant": false
+}

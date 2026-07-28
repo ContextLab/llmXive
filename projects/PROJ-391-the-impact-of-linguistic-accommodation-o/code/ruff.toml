@@ -1,0 +1,23 @@
+# Ruff configuration for llmXive PROJ-391
+# Enforces PEP 8 compliance and project-specific style rules
+
+[lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary (e.g., line too long if black handles it, but black usually enforces 88)
+# We rely on Black for line length, so we might ignore E501 if ruff checks it before black
+ignore = ["E501"] 
+
+[lint.isort]
+# Ensure consistent import ordering
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[format]
+# Match Black's default line length (88) and quote style
+line-length = 88
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

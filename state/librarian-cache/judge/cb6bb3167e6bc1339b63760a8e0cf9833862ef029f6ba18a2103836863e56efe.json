@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.04018",
+  "judged_at": "2026-07-28T16:22:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing novel solutions to address energy inequity in low-income communities energy",
+  "rationale": "The paper focuses on transportation equity and mobility gaps (travel frequency, distance, time) rather than energy inequity or energy access, failing to measure the specific variables or mechanisms (e.g., energy burden, fuel poverty, grid access) central to the user's question. While both topics involve low-income communities, the domain is distinct (transportation vs. energy), and the paper does not satisfy the criteria for same-mechanism evidence, shared variables, or foundational methodology ",
+  "relevant": false
+}

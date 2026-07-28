@@ -1,0 +1,481 @@
+{
+  "fetched_at": "2026-07-28T16:22:54Z",
+  "field": "energy",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "energy",
+      "idea_body_excerpt": "Developing Novel Solutions to Address Energy Inequity in Low-Income Communities",
+      "target_n": 5
+    },
+    "duration_seconds": 54.698,
+    "ended_at": "2026-07-28T16:22:54Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "energy poverty alleviation strategies"
+        ],
+        [
+          2,
+          "affordable energy access for low-income households"
+        ],
+        [
+          3,
+          "residential energy burden reduction"
+        ],
+        [
+          4,
+          "equitable energy transition policies"
+        ],
+        [
+          5,
+          "community solar programs for underserved populations"
+        ],
+        [
+          6,
+          "energy affordability and social justice"
+        ],
+        [
+          7,
+          "low-income weatherization assistance programs"
+        ],
+        [
+          8,
+          "distributed energy resources in marginalized communities"
+        ],
+        [
+          9,
+          "energy insecurity interventions"
+        ],
+        [
+          10,
+          "microgrids for energy justice"
+        ],
+        [
+          11,
+          "fuel poverty mitigation techniques"
+        ],
+        [
+          12,
+          "inclusive renewable energy deployment"
+        ],
+        [
+          13,
+          "energy cost burden disparities"
+        ],
+        [
+          14,
+          "targeted energy efficiency retrofits for vulnerable groups"
+        ],
+        [
+          15,
+          "community-owned energy projects"
+        ],
+        [
+          16,
+          "energy access and economic development in low-income areas"
+        ],
+        [
+          17,
+          "policy frameworks for energy equity"
+        ],
+        [
+          18,
+          "smart grid solutions for disadvantaged neighborhoods"
+        ],
+        [
+          19,
+          "residential energy assistance program effectiveness"
+        ],
+        [
+          20,
+          "socio-technical barriers to clean energy adoption in poverty"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Developing Novel Solutions to Address Energy Inequity in Low-Income Communities energy": 0,
+        "affordable energy access for low-income households": 3,
+        "energy poverty alleviation strategies": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "fuel poverty energy burden affordability",
+      "low-income households solar access microgrids",
+      "energy justice distributional equity procedural",
+      "energy retrofit performance cost savings",
+      "community choice aggregation policy intervention"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2205.04556"
+      ]
+    },
+    "per_query_hit_count": {
+      "Developing Novel Solutions to Address Energy Inequity in Low-Income Communities energy": 3,
+      "community choice aggregation policy intervention": 3,
+      "energy justice distributional equity procedural": 2,
+      "energy retrofit performance cost savings": 1,
+      "fuel poverty energy burden affordability": 1,
+      "low-income households solar access microgrids": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2412.20176",
+          "rationale": "The paper focuses on the relationship between macroeconomic growth and poverty alleviation in China, which is a distinct construct from the user's specific question about \"energy inequity\" and \"energy access\" in low-income communities. While both topics involve poverty, the paper does not measure energy variables, energy mechanisms, or energy-specific policy interventions, failing to satisfy the criteria for same-mechanism evidence or domain overlap.",
+          "title": "The impact of China's economic growth on poverty alleviation: From absolute to relative poverty"
+        },
+        {
+          "primary_pointer": "2402.04018",
+          "rationale": "The paper focuses on transportation equity and mobility gaps (travel frequency, distance, time) rather than energy inequity or energy access, failing to measure the specific variables or mechanisms (e.g., energy burden, fuel poverty, grid access) central to the user's question. While both topics involve low-income communities, the domain is distinct (transportation vs. energy), and the paper does not satisfy the criteria for same-mechanism evidence, shared variables, or foundational methodology ",
+          "title": "Mobility Gaps between Low-Income and Not Low-Income Households: A Case Study in New York State"
+        },
+        {
+          "primary_pointer": "2412.03033",
+          "rationale": "The paper focuses on financial inclusion, savings, and credit behaviors among low-income households, which is a distinct construct from the user's specific question regarding \"energy inequity\" and \"energy\" solutions. While both topics involve low-income communities, the paper does not measure energy access, energy costs, energy consumption, or any mechanism related to energy systems, failing to satisfy the criteria for same-mechanism evidence, shared variables, or domain overlap.",
+          "title": "Unveiling Saving and Credit Dynamics: Insights from Financial Diaries and Surveys among Low-Income Households in Unauthorized Colonies in Delhi"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-28T16:21:59Z",
+    "term_input": {
+      "normalized": "developing novel solutions to address energy inequity in low-income communities energy",
+      "raw": "Developing Novel Solutions to Address Energy Inequity in Low-Income Communities energy"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper gives an overview of the proposed Gemini/Subaru Wide-Field Multi-Object Spectrograph (WFMOS) and the proposed redshift surveys of 2.6 million galaxies with 0.5<z<3.3 over 2000 deg^2 of sky. These surveys will probe the baryonic acoustic oscillations in the galaxy power spectrum with unprecedented precision and over a range of redshifts and deliver dark energy w(z) constraints an order of magnitude better than current limits. We discuss the requirements on precursor observations and on calibrations, the systematics in the method and the quantitative precision obtainaible in distance-redshift and expansion-rate-redshift measurements which feed in to the w(z) precision. We also outline the technological and scientific strengths and risks which might be associated with the project and the relationship of WFMOS to other baryon oscillation experiments.",
+          "claimed_authors": [
+            "Karl Glazebrook",
+            "Daniel Eisenstein",
+            "Arjun Dey",
+            "Bob Nichol",
+            "The WFMOS Feasibility Study Dark Energy Team"
+          ],
+          "claimed_title": "Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0507457"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Dark Energy and Cosmic Sound: w(z) Surveys with the Gemini/Subaru Wide-Field Multi-Object Spectrograph')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Liquid transportation fuels require costly and time-consuming tests to characterize metrics, such as Research Octane Number (RON) for gasoline. If fuel sale restrictions requiring use of standard Cooperative Fuel Research testing procedures do not apply, these tests may be avoided by using multivariate statistical models to predict RON and other quantities. Here we show that an accurate statistical model for the RON of gasoline and gasoline-like fuels can be constructed by ensuring the representation of key functional groups in the spectroscopic data set are used to train the model. We found that a principal component regression model for RON based on IR absorbance and informed using neat and 134 mixtures of n-heptane, isooctane, toluene, ethanol, methylcyclohexane, and 1-hexene could predict RON for the 10 Coordinating Research Council Fuels for Advanced Combustion Engine (FACE) gasolines and 12 FACE gasoline blends with ethanol within 34.8+/-36.1 on average and 51.2 in the worst case. We next studied the effect of adding 28 additional minor components found in the FACE gasolines to the statistical model, and determined that it was necessary to add additional representatives of the branched alkane and aromatics classes to reduce model error. For example, adding 2,3-dimethylpentane and xylene to the previous model allowed it to predict RON for the 22 target fuels within 0.3+/-4.4 on average and 7.9 in the worst case. However, we determined that the specific choice of fuel in those classes mattered less than ensuring the representation of the relevant functional group. This work builds upon previous efforts by creating models informed by neat and surrogate fuels---rather than complex real fuels---that could predict the performance of complex unknown fuels.",
+          "claimed_authors": [
+            "Shane R. Daly",
+            "Kyle E. Niemeyer",
+            "William J. Cannella",
+            "Christopher L. Hagen"
+          ],
+          "claimed_title": "Predicting fuel research octane number using Fourier-transform infrared absorption spectra of neat hydrocarbons",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.07122"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Predicting fuel research octane number using Fourier-transform infrared absorption spectra of neat hydrocarbons')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Sun drives a supersonic wind which inflates a giant plasma bubble in our very local interstellar neighborhood, the heliosphere. It is bathed in an extremely variable background of energetic ions and electrons which originate from a number of sources. Solar energetic particles (SEPs) are accelerated in the vicinity of the Sun, whereas shocks driven by solar disturbances are observed to accelerate energetic storm particles (ESPs). Moreover, a dilute population with a distinct composition forms the anomalous cosmic rays (ACRs) which are of a mixed interstellar-heliospheric origin. Particles are also accelerated at planetary bow shocks. We will present recent observations of energetic particles by Solar Orbiter and Parker Solar Probe, as well as other spacecraft that allow us to study the acceleration and transport of energetic particles at multiple locations in the inner heliosphere.",
+          "claimed_authors": [
+            "Robert F. Wimmer-Schweingruber",
+            "Javier Rodriguez-Pacheco",
+            "George C. Ho",
+            "Christina M. Cohen",
+            "Glenn M. Mason",
+            "the Solar Orbiter EPD",
+            "Parker Solar Probe ISIS teams"
+          ],
+          "claimed_title": "SEP environment in the inner heliosphere from Solar Orbiter and Parker Solar Probe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02330"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='SEP environment in the inner heliosphere from Solar Orbiter and Parker Solar Probe')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spectroscopic observations at extreme and far ultraviolet wavelengths have revealed systematic upflows in the solar transition region and corona. These upflows are best seen in the network structures of the quiet Sun and coronal holes, boundaries of active regions, and dimming regions associated with coronal mass ejections. They have been intensively studied in the past two decades because they are highly likely to be closely related to the formation of the solar wind and heating of the upper solar atmosphere. We present an overview of the characteristics of these upflows, introduce their possible formation mechanisms, and discuss their potential roles in the mass and energy transport in the solar atmosphere. Though past investigations have greatly improved our understanding of these upflows, they have left us with several outstanding questions and unresolved issues that should be addressed in the future. New observations from the Solar Orbiter mission, the Daniel K. Inouye Solar Telescope and the Parker Solar Probe will likely provide critical information to advance our understanding of the generation, propagation and energization of these upflows.",
+          "claimed_authors": [
+            "Hui Tian",
+            "Louise Harra",
+            "Deborah Baker",
+            "David H. Brooks",
+            "Lidong Xia"
+          ],
+          "claimed_title": "Upflows in the upper solar atmosphere",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.02429"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Upflows in the upper solar atmosphere')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the element abundances in solar energetic particles (SEPs) and in the slow solar wind (SSW), relative to those in the photosphere, show different patterns as a function of the first ionization potential (FIP) of the elements. Generally, the SEP and SSW abundances reflect abundance samples of the solar corona, where low-FIP elements, ionized in the chromosphere, are more efficiently conveyed upward to the corona than high-FIP elements that are initially neutral atoms. Abundances of the elements, especially C, P, and S show a crossover from low to high FIP at ~10 eV in the SEPs but ~14 eV for the solar wind. Naively this seems to suggest cooler plasma from sunspots beneath active regions. More likely, if the ponderomotive force of Alfvén waves preferentially conveys low-FIP ions into the corona, the source plasma that eventually will be shock-accelerated as SEPs originates in magnetic structures where Alfvén waves resonate with the loop length on closed magnetic field lines. This concentrates FIP fractionation near the top of the chromosphere. Meanwhile, the source of the SSW may lie near the base of diverging open-field lines surrounding, but outside of, active regions, where such resonance does not exist, allowing fractionation throughout the chromosphere. We also find that energetic particles accelerated from the solar wind itself by shock waves at corotating interaction regions (CIRs), generally beyond 1 AU, confirm the FIP pattern of the solar wind.",
+          "claimed_authors": [
+            "Donald V. Reames"
+          ],
+          "claimed_title": "The \"FIP Effect\" and the Origins of Solar Energetic Particles and of the Solar Wind",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05840"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='The \"FIP Effect\" and the Origins of Solar Energetic Particles and of the Solar Wind')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Energy justice, at the intersection of energy and societal ethics, studies the origins, quantification, and resolution of persistent and potential inequities within the energy sector, serving as a foundational pillar for societal harmony. In this review, we overview the historical and modern definitions of energy equity and frameworks of energy justice. We highlight the tools adopted to measure equity in the energy context, unveiling multifaceted inequities that permeate global energy landscapes. We discuss the limitations of prevalent metrics such as the Gini coefficient and Generalized Entropy Indices in the evaluation of energy justice concerns. Finally, we analyze publications that examined current practices and proposed improving methods towards a more equitable energy market for the society from policy, planning, and operation perspectives.",
+          "claimed_authors": [
+            "Weihang Ren",
+            "Yongpei Guan",
+            "Feng Qiu",
+            "Todd Levin",
+            "Miguel Heleno"
+          ],
+          "claimed_title": "Energy Justice and Equity: A Review of Definitions, Measures, and Practice in Policy, Planning, and Operations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.14983"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Energy Justice and Equity: A Review of Definitions, Measures, and Practice in Policy, Planning, and Operations')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building energy retrofits have been identified as key to realizing climate mitigation goals in Canada. This study aims to provide a roadmap for existing mid-rise building retrofits in order to understand the required capital investment, energy savings, energy cost savings, and carbon footprint for mid-rise residential buildings in Canada. This study employed EnergyPlus to examine the energy performance of 11 energy retrofit measures for a typical multi-unit residential building (MURB) in Metro Vancouver, British Columbia, Canada. The author employed the energy simulation software (EnergyPlus) to evaluate the pre-and post-retrofit operational energy performance of the selected MURB. Two base building models powered by natural gas (NG-building) and electricity (E-building) were created by SketchUP. The energy simulation results were combined with cost and emission impact data to evaluate the economic and environmental performance of the selected energy retrofit measures. The results indicated that the NG-building can produce significant GHG emission reductions (from 27.64 tCO2e to 3.77 tCO2e) by implementing these energy retrofit measures. In terms of energy savings, solar PV, ASHP, water heater HP, and HRV enhancement have great energy saving potential compared to other energy retrofit measures. In addition, temperature setback, lighting, and airtightness enhancement present the best economic performance from a life cycle perspective. However, windows, ASHP, and solar PV, are not economical choices because of higher life cycle costs. While ASHP can increase life cycle costs for the NG-building, with the financial incentives provided by the governments, ASHP could be the best choice to reduce GHG emissions when stakeholders make decisions on implementing energy retrofits.",
+          "claimed_authors": [
+            "Haonan Zhang"
+          ],
+          "claimed_title": "Life cycle costing analysis of deep energy retrofits of a mid-rise building to understand the impact of energy conservation measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00456"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Life cycle costing analysis of deep energy retrofits of a mid-rise building to understand the impact of energy conservation measures')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Organisations increasingly use automated decision-making systems (ADMS) to inform decisions that affect humans and their environment. While the use of ADMS can improve the accuracy and efficiency of decision-making processes, it is also coupled with ethical challenges. Unfortunately, the governance mechanisms currently used to oversee human decision-making often fail when applied to ADMS. In previous work, we proposed that ethics-based auditing (EBA), i.e. a structured process by which ADMS are assessed for consistency with relevant principles or norms, can (a) help organisations verify claims about their ADMS and (b) provide decision-subjects with justifications for the outputs produced by ADMS. In this article, we outline the conditions under which EBA procedures can be feasible and effective in practice. First, we argue that EBA is best understood as a 'soft' yet 'formal' governance mechanism. This implies that the main responsibility of auditors should be to spark ethical deliberation at key intervention points throughout the software development process and ensure that there is sufficient documentation to respond to potential inquiries. Second, we frame ADMS as parts of larger socio-technical systems to demonstrate that to be feasible and effective, EBA procedures must link to intervention points that span all levels of organisational governance and all phases of the software lifecycle. The main function of EBA should therefore be to inform, formalise, assess, and interlink existing governance structures. Finally, we discuss the policy implications of our findings. To support the emergence of feasible and effective EBA procedures, policymakers and regulators could provide standardised reporting formats, facilitate knowledge exchange, provide guidance on how to resolve normative tensions, and create an independent body to oversee EBA of ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Maria Axente"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.04380"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With high-throughput biotechnologies generating unprecedented quantities of data, researchers are faced with the challenge of locating and comparing an exponentially growing number of programs and websites dedicated to computational biology, in order to maximize the potential of their data. OMICtools is designed to meet this need with its open-access search engine offering an easy means of locating the right tools corresponding to each researcher and their specific biological data analyses. The OMICtools website (https://OMICtools.com) centralizes more than 18,500 software tools and databases, manually classified, by a team of biocurators including many scientific experts. Key information, a direct link, and access to discussions and evaluations by the biomedical community are provided for each tool. Anyone can join the OMICtools community and create a profile page, to share their expertise and comment on tools. In addition, developers can directly upload their code versions which are registered for identification and citation in scientific publications, improving research traceability. The OMICtools community links thousands of life scientists and developers worldwide, who use this bioinformatics platform to accelerate their projects and biological data analyses.",
+          "claimed_authors": [
+            "Helene Perrin",
+            "Marion Denorme",
+            "Julien Grosjean",
+            "OMICtools community",
+            "Emeric Dynomant",
+            "Vincent J. Henry",
+            "Fabien Pichon",
+            "Stefan Darmoni",
+            "Arnaud Desfeux",
+            "Bruno J. Gonzalez"
+          ],
+          "claimed_title": "OMICtools: a community-driven search engine for biological data analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.03659"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='OMICtools: a community-driven search engine for biological data analysis')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Developing Novel Solutions to Address Energy Inequity in Low-Income Communities ', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-28T16:22:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sonja Radosavljevic",
+            "L. Jamila Haider",
+            "Steven J. Lade",
+            "Maja Schluter"
+          ],
+          "title": "Effective alleviation of rural poverty depends on the interplay between productivity, nutrients, water and soil quality",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.05229",
+        "summary": "Most of the world poorest people come from rural areas and depend on their local ecosystems for food production. Recent research has highlighted the importance of self-reinforcing dynamics between low soil quality and persistent poverty but little is known on how they affect poverty alleviation. We investigate how the intertwined dynamics of household assets, nutrients (especially phosphorus), water and soil quality influence food production and determine the conditions for escape from poverty for the rural poor. We have developed a suite of dynamic, multidimensional poverty trap models of households that combine economic aspects of growth with ecological dynamics of soil quality, water and nutrient flows to analyze the effectiveness of common poverty alleviation strategies such as intensification through agrochemical inputs, diversification of energy sources and conservation tillage. Our results show that (i) agrochemical inputs can reinforce poverty by degrading soil quality, (ii) diversification of household energy sources can create possibilities for effective application of other strategies, and (iii) sequencing of interventions can improve effectiveness of conservation tillage. Our model-based approach demonstrates the interdependence of economic and ecological dynamics which preclude blanket solution for poverty alleviation. Stylized models as developed here can be used for testing effectiveness of different strategies given biophysical and economic settings in the target region.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.05229",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:22:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Elnaz Yousefzadeh Barri",
+            "Steven Farber",
+            "Anna Kramer",
+            "Hadi Jahanshahi",
+            "Jeff Allen",
+            "Eda Beyazit"
+          ],
+          "title": "Can transit investments in low-income neighbourhoods increase transit use? Exploring the nexus of income, car-ownership, and transit accessibility in Toronto",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.04556",
+        "summary": "Transportation equity advocates recommend improving public transit in low-income neighbourhoods to alleviate socio-spatial inequalities and increase quality of life. However, transportation planners often overlook transit investments in neighbourhoods with \"transit-captive\" populations because they are assumed to result in less mode-shifting, congestion relief, and environmental benefits, compared to investments that aim to attract choice riders in wealthier communities. In North American cities, while many low-income households are already transit users, some also own and use private vehicles. It suggests that transit improvements in low-income communities could indeed result in more transit use and less car use. Accordingly, the main objective of this article is to explore the statistical relationship between transit use and transit accessibility as well as how this varies by household income and vehicle ownership in the Greater Toronto and Hamilton Area (GTHA). Using stratified regression models, we find that low-income households with one or more cars per adult have the most elastic relationship between transit accessibility and transit use; they are more likely to be transit riders if transit improves. However, we confirm that in auto-centric areas with poor transit, the transit use of low-income households drops off sharply as car ownership increases. On the other hand, a sensitivity analysis suggests more opportunities for increasing transit ridership among car-deficit households when transit is improved. These findings indicate that improving transit in low-income inner suburbs, where most low-income car-owning households are living, would align social with environmental planning goals.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.04556",
+          "http_status": 200,
+          "pdf_sample_score": 0.3039,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T16:22:37Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "developing novel solutions to address energy inequity in low-income communities energy",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
