@@ -1,0 +1,384 @@
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Polich 2007 review of P300 literature
+  claim_id: c_ccb758f6
+  context: "T061 [US3] **Threshold Justification**: Generate `data/results/threshold_justification.md`.\
+    \ **Content**: Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title:\
+    \ 'P300: A review of the literature', Authors: Polich, J.) supporting the sweep\
+    \ range {75, 100, 150 \xB5V}."
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Polich, J. (2007). ''P300: A review of the literature''. DOI: 10.1016/j.biopsycho.2007.01.005'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:38:44Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 peak amplitude found within 250-550 ms window at Pz and CPz electrodes
+  claim_id: c_723da687
+  context: "T025 [US2] Implement P300 extraction: find peak amplitude (maximum positive\
+    \ voltage) within a 250\u2013550 ms window specifically at electrodes Pz and CPz\
+    \ for each trial."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The P300 peak amplitude is found within a 250\u2013550 ms window specifically\
+    \ at electrodes Pz and CPz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:43:01Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "P300 amplitudes expected in 2-15 \xB5V range"
+  claim_id: c_0afc25fd
+  context: "Independent Test: Run code/preprocess.py on a sample of 20 participants\
+    \ with a specific threshold; verify output CSV has correct columns, epoch retention\
+    \ >80%, and P amplitudes in 2\u201315 \xB5V range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "P300 amplitudes are expected to be in the 2\u201315 \xB5V range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:43:17Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis uses rejection threshold sweep of 75, 100, and\
+    \ 150 \xB5V"
+  claim_id: c_f088e7d3
+  context: "T061 [US3] Threshold Justification: Generate data/results/threshold_justification.md.\
+    \ Content: Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: 'P300:\
+    \ A review of the literature', Authors: Polich, J.) supporting the sweep range\
+    \ {75, 100, 150 \xB5V}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis uses a sweep range of \xB175, \xB1100, and \xB1\
+    150 \xB5V for the rejection threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:43:39Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: 'Polich J published P300: A review of the literature in 2007'
+  claim_id: c_453212b9
+  context: "T061 [US3] Threshold Justification: Generate data/results/threshold_justification.md.\
+    \ Content: Cite Polich, 2007 (DOI: 10.1016/j.biopsycho.2007.01.005, Title: 'P300:\
+    \ A review of the literature', Authors: Polich, J.) supporting the sweep range\
+    \ {75, 100, 150 \xB5V}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Polich, J. (2007) published ''P300: A review of the literature'' in Biological
+    Psychology.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:43:56Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Stability metric uses coefficient of variation threshold of 0.2
+  claim_id: c_1501269b
+  context: 'T044 [US3] Compare Interaction Stability: ... is_stable = (direction_stable)
+    and (cv < 0.2 or (cv >= 0.2 and all(p < 0.05) or all(p > 0.05)))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability metric for interaction effects uses a coefficient of variation
+    threshold of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:44:14Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Stability score below 0.8 flags result as unstable
+  claim_id: c_8c52a050
+  context: 'T062 [US3] Stability Metric Enhancement: ... A score < 0.8 should flag
+    the result as ''Unstable'' in the final report (T037).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A stability score below 0.8 flags the result as unstable in the final
+    report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:44:37Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 42
+  claim_id: c_7ab2598f
+  context: 'T046 [P] Constitution Compliance: Implement random seed pinning in code/config.py
+    (set RANDOM_SEED=42) and propagate to numpy, random, and any ML libraries in code/main.py
+    before any data loading or model fitting.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed is pinned to 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:44:52Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Epoch retention must exceed 80% to pass QC
+  claim_id: c_9ea29263
+  context: "Independent Test: Run code/preprocess.py on a sample of 20 participants\
+    \ with a specific threshold; verify output CSV has correct columns, epoch retention\
+    \ >80%, and P amplitudes in 2\u201315 \xB5V range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Epoch retention must exceed 80% to pass QC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:44:52Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Band-pass filter applies 0.1 Hz high-pass and 40 Hz low-pass
+  claim_id: c_bc0a2e9e
+  context: "T020 [US2] Implement code/preprocess.py to load raw.edf files, apply band-pass\
+    \ filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a --rejection_threshold\
+    \ argument (default \xB1100 \xB5V) for epoch rejection."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The band-pass filter applies a 0.1 Hz high-pass and 40 Hz low-pass filter.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:45:12Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Baseline window for epoching is -0.2 to 0 seconds
+  claim_id: c_3c92140b
+  context: 'T024 [US2] Implement epoching logic: baseline pre-stimulus to post-stimulus
+    window around feedback onset. Call: mne.Epochs(raw, events, tmin=-0.2, tmax=0.8,
+    baseline=(-0.2, 0)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline window for epoching is from -0.2 to 0 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:45:30Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Epoch time window is -0.2 to 0.8 seconds
+  claim_id: c_98c6c6ff
+  context: 'T024 [US2] Implement epoching logic: baseline pre-stimulus to post-stimulus
+    window around feedback onset. Call: mne.Epochs(raw, events, tmin=-0.2, tmax=0.8,
+    baseline=(-0.2, 0)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epoch time window is from -0.2 to 0.8 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:46:06Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: "Default rejection threshold is 100 \xB5V"
+  claim_id: c_38ac4d20
+  context: "T020 [US2] Implement code/preprocess.py to load raw.edf files, apply band-pass\
+    \ filter (0.1 Hz high-pass, 40 Hz low-pass), and accept a --rejection_threshold\
+    \ argument (default \xB1100 \xB5V) for epoch rejection."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The default rejection threshold for epoch rejection is \xB1100 \xB5V."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:46:25Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Target rejection rate for epochs is less than 20%
+  claim_id: c_fc54f901
+  context: T028a [US2] Implement logging for excluded participants and rejected epochs
+    (<20% rejection rate target).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Target_rejection_rate_for_epochs_is_less_than_20%25
+  kind: magnitude
+  raw_text: The target rejection rate for epochs is less than 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T08:46:52Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Preprocessing loop memory target is less than 7GB
+  claim_id: c_4eb92bf8
+  context: 'T041 [P] Code cleanup and refactoring for performance optimization. Target:
+    Optimize preprocessing loop (memory < 7GB) and model fitting (time < 6h).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_loop_memory_target_is_less_than_7GB
+  kind: magnitude
+  raw_text: The memory optimization target for the preprocessing loop is less than
+    7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:47:19Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Model fitting time target is less than 6 hours
+  claim_id: c_d93c8444
+  context: 'T041 [P] Code cleanup and refactoring for performance optimization. Target:
+    Optimize preprocessing loop (memory < 7GB) and model fitting (time < 6h).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_fitting_time_target_is_less_than_6_hours
+  kind: magnitude
+  raw_text: The model fitting time target is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:47:46Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Python version used in CI workflow is 3.11
+  claim_id: c_de6268ef
+  context: 'T003 [P] Configure linting (flake8/black) and formatting tools in .github/workflows/lint.yml.
+    ... python-version: ''3.11'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version used in the CI workflow is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:03Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: P300 measure schema requires p300_amplitude and p300_latency as numeric
+    fields
+  claim_id: c_c390d175
+  context: 'T007 [P] Create base data schemas ... p300_measure.schema.yaml: ... p300_amplitude:
+    {type: number} ... p300_latency: {type: number} ... required: [subject_id, condition,
+    p300_amplitude, p300_latency, qc_status]'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P300_measure_schema_requires_p300_amplitude_and_p300_latency
+  kind: entity_fact
+  raw_text: The P300 measure schema requires p300_amplitude and p300_latency as numeric
+    fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:39Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Dataset schema requires feedback_type to be simulated, real, or mixed
+  claim_id: c_88bf4959
+  context: 'T007 [P] Create base data schemas ... eeg_dataset.schema.yaml: ... feedback_type:
+    {type: string, enum: [simulated, real, mixed]}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_requires_feedback_type_to_be_simulated,_real,
+  kind: entity_fact
+  raw_text: The dataset schema requires feedback_type to be one of simulated, real,
+    or mixed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:48:55Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: Project searches OpenNeuro, PhysioNet, and Zenodo for eligible datasets
+  claim_id: c_8a159d19
+  context: 'Independent Test: Run code/search.py against OpenNeuro/PhysioNet/Zenodo;
+    verify it outputs a CSV of candidates, correctly categorizes them, and triggers
+    the appropriate exit code and report generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_searches_OpenNeuro,_PhysioNet,_and_Zenodo_for_eligib
+  kind: entity_fact
+  raw_text: The project searches OpenNeuro, PhysioNet, and Zenodo for eligible datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:49:40Z'
+- artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
+  attempts: 1
+  canonical: System supports streaming if direct download exceeds 14GB
+  claim_id: c_e00c7918
+  context: 'T065 [US1] Real Data Stream Implementation: Implement code/search.py to
+    support streaming large EEG datasets via datasets.load_dataset(..., streaming=True)
+    if a direct download exceeds 14GB disk.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_supports_streaming_if_direct_download_exceeds_14GB
+  kind: entity_fact
+  raw_text: If a direct download exceeds 14GB, the system supports streaming large
+    EEG datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T08:50:08Z'

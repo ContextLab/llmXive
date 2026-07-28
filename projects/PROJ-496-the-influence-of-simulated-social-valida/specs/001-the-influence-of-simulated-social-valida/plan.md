@@ -100,7 +100,7 @@ projects/PROJ-496-the-influence-of-simulated-social-valida/
 - **T016d**: Generate "Negative Finding Report" (PDF/HTML) for "QC Failure" scenario. Verification: Report file exists.
 - **T017**: Implement error-handling for missing anxiety measures (log ID, categorize, abort). Verification: Log file generated.
 - **T024**: Implement epoching logic (baseline pre-stimulus to post-stimulus window). Verification: Epochs generated.
-- **T025**: Implement P300 extraction: find peak amplitude (250-550ms) at Pz and CPz electrodes per trial. Verification: P300 values extracted.
+- **T025**: Implement P300 extraction: find peak amplitude (early-to-mid post-stimulus window) at Pz and CPz electrodes per trial. Verification: P300 values extracted.
 - **T026**: Implement QC validation: check trial retention (>80%) and amplitude range (2–15 µV); exclude participants failing QC. Verification: Exclusion log generated.
 - **T027**: Generate CSV with columns: `subject_id`, `condition`, `p300_amplitude`, `p300_latency`, `trial_count`, `rejected`. Verification: CSV matches schema.
 - **T028a**: Implement logging for excluded participants (log file path, format, message structure). Verification: Log file generated.

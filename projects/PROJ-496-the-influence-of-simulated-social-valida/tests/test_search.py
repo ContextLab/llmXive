@@ -4,13 +4,18 @@ Tests for the dataset search and categorization logic (User Story 1).
 import pytest
 from pathlib import Path
 import sys
+import json
+from unittest.mock import patch, MagicMock
 
 # Ensure we can import from the project code directory
-# Assuming this test runs from the project root or the test runner sets the path
-# Adjusting path for local execution if needed
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# The test runner or CI should set the path, but we add a fallback for local execution
+# Project root is 2 levels up from tests/test_search.py
+project_root = Path(__file__).parent.parent
+code_dir = project_root / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-from search import categorize_dataset
+from search import categorize_dataset, search_openneuro
 
 
 def test_categorizes_eligible_dataset():
@@ -84,3 +89,54 @@ def test_categorizes_none():
     }
     category = categorize_dataset(dataset)
     assert category == "None", f"Expected 'None', got '{category}'"
+
+
+@patch('search.requests.post')
+def test_integration_openneuro_api_query(mock_post):
+    """
+    Integration test for OpenNeuro API query logic.
+    Mocks the API response to verify the search function correctly parses
+    and returns dataset candidates.
+    """
+    # Mock API response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "data": {
+            "datasets": [
+                {
+                    "id": "ds000001",
+                    "label": "Social EEG Study",
+                    "description": "A study on social feedback and anxiety.",
+                    "task": ["feedback"]
+                },
+                {
+                    "id": "ds000002",
+                    "label": "Memory Task",
+                    "description": "Simple memory task.",
+                    "task": ["memory"]
+                }
+            ]
+        }
+    }
+    mock_post.return_value = mock_response
+
+    # Execute search
+    results = search_openneuro(
+        modalities=["EEG"],
+        keywords=["social", "anxiety"]
+    )
+
+    # Verify API was called
+    mock_post.assert_called_once()
+
+    # Verify results contain the expected dataset (ds000001)
+    assert len(results) >= 1
+    dataset_ids = [d["id"] for d in results]
+    assert "ds000001" in dataset_ids, "Expected ds000001 in results"
+    assert "ds000002" not in dataset_ids, "ds000002 should not be in results (no social/anxiety)"
+
+    # Verify structure of returned item
+    found_ds = next(d for d in results if d["id"] == "ds000001")
+    assert found_ds["label"] == "Social EEG Study"
+    assert "description" in found_ds

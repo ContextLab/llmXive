@@ -5,21 +5,6 @@ T016b:
     \ file containing the required summary, list of \u201CNone\u201D status datasets,\
     \ and data\u2011gap statement, nor any indication that it was generated conditionally\
     \ on T015\u2019s output. The task\u2019s core artifact is therefore missing."
-T016c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No PDF or HTML \u201CNegative Finding Report\u201D was supplied; the required\
-    \ document listing the identified \u201CSim\u2011Only\u201D and \u201CReal\u2011\
-    Only\u201D dataset IDs, titles, and URLs is absent, so the task\u2019s content\
-    \ and format requirements are not met. The implementer must provide the actual\
-    \ report file with the specified details."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log file implementing the required error\u2011handling (logging\
-    \ missing anxiety\u2011measure dataset IDs, categorizing them per T014, and aborting\
-    \ per T015) is present; the claim cannot be verified against any concrete artifact.\
-    \ The task therefore lacks the necessary implementation artifact."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
